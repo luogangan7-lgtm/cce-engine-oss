@@ -1,0 +1,135 @@
+name: CCE
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "reply | post"
+        required: true
+        default: post
+        type: choice
+        options: [post, reply]
+      text:
+        description: "待评内容逐字原文"
+        required: true
+        type: string
+      context:
+        description: "语境(板块/平台/上下文)"
+        required: true
+        type: string
+      audience:
+        description: "post模式必填: 受众原话语料(≥3条/≥80词)。留空则用仓库内 corpus 默认语料"
+        required: false
+        type: string
+      ref_tag:
+        description: "本次运行标识"
+        required: true
+        type: string
+  repository_dispatch:
+    types: [cce-run, cce-batch]
+
+concurrency:
+  group: cce-${{ github.event.client_payload.ref_tag || inputs.ref_tag || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  single:
+    if: github.event_name == 'workflow_dispatch' || github.event.action == 'cce-run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 投料(含契约校验)
+        env:
+          MODE: ${{ github.event.client_payload.mode || inputs.mode }}
+          TEXT: ${{ github.event.client_payload.text || inputs.text }}
+          CONTEXT: ${{ github.event.client_payload.context || inputs.context }}
+          AUDIENCE: ${{ github.event.client_payload.audience || inputs.audience }}
+          REF_TAG: ${{ github.event.client_payload.ref_tag || inputs.ref_tag }}
+        run: python .github/prepare.py
+      - name: 跑完整CCE链
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          CCE_ALIGN_THETA: ${{ vars.CCE_ALIGN_THETA || '0.35' }}
+        run: |
+          python scripts/cce_full_run.py \
+            --mode "$(cat run/mode)" \
+            --text-file run/input.txt \
+            --context "$(cat run/context)" \
+            --outdir run/out \
+            $(test -f run/audience.txt && echo "--audience-file run/audience.txt") \
+            $(test -f run/ref.txt && echo "--ref-post run/ref.txt")
+      - name: 执行清单摘要
+        if: always()
+        run: |
+          echo "### CCE 执行清单" >> $GITHUB_STEP_SUMMARY
+          python - <<'PY' >> $GITHUB_STEP_SUMMARY
+          import json, os
+          p = "run/out/manifest.json"
+          if not os.path.exists(p):
+              print("manifest 缺失 — 链路未产出"); raise SystemExit
+          m = json.load(open(p, encoding="utf-8"))
+          st = m.get("stages", {})
+          chain = m.get("chain", list(st))
+          print(f"- complete: **{m.get('complete')}** / failed_at: `{m.get('failed_at')}`")
+          print("")
+          print("| 段 | 状态 | 秒 |")
+          print("|---|---|---|")
+          for k in chain:
+              v = st.get(k, {})
+              print(f"| {k} | {v.get('status','?')} | {v.get('sec','')} |")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cce-${{ github.event.client_payload.ref_tag || inputs.ref_tag }}
+          path: run/out/
+          retention-days: 90
+
+  batch:
+    if: github.event.action == 'cce-batch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        item: ${{ fromJSON(github.event.client_payload.items) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 投料
+        env:
+          MODE: ${{ matrix.item.mode }}
+          TEXT: ${{ matrix.item.text }}
+          CONTEXT: ${{ matrix.item.context }}
+          AUDIENCE: ${{ matrix.item.audience }}
+          REF_TAG: ${{ matrix.item.ref_tag }}
+        run: python .github/prepare.py
+      - name: 跑完整CCE链
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          CCE_ALIGN_THETA: ${{ vars.CCE_ALIGN_THETA || '0.35' }}
+        run: |
+          python scripts/cce_full_run.py \
+            --mode "$(cat run/mode)" \
+            --text-file run/input.txt \
+            --context "$(cat run/context)" \
+            --outdir run/out \
+            $(test -f run/audience.txt && echo "--audience-file run/audience.txt") \
+            $(test -f run/ref.txt && echo "--ref-post run/ref.txt")
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cce-${{ matrix.item.ref_tag }}
+          path: run/out/
+          retention-days: 90

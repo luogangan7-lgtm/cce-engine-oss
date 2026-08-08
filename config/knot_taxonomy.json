@@ -1,0 +1,373 @@
+{
+ "version": "1.2.0",
+ "frozen_at": "2026-08-04",
+ "status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注",
+ "source": "results/knot_taxonomy_research_2026-08-05.json 综合裁决(中文框架×西方行为科学×内部数据三路)",
+ "definition_of_knot": "结 = 四层(欲望×情境×需求×appraisal)的具名配置,人侧预装、有保质期(τ_need≈75d);与杠杆(内容侧制造、瞬时)严格区分",
+ "identity_criterion": "两实例同结 ⟺ appraisal签名 + 欲望/需求code + 闸门对象 全同,且相距 < 保质期;一人可持多结",
+ "extra_appraisal_slots": {
+  "attribution": "归责: self / other_agent / system / none —— 不平结必需",
+  "target_layer": "闸门对象层: consumption_goal / epistemic_trust / identity / fairness —— 验真结必需"
+ },
+ "knots": [
+  {
+   "key": "pain_seek",
+   "name": "痛点·求解结",
+   "family": "推动",
+   "signature": {
+    "congruence": "威胁",
+    "need_status": "未满足",
+    "coping": "中/高",
+    "time": "现在",
+    "attribution": "system/none",
+    "target_layer": "consumption_goal"
+   },
+   "typical_codes": {
+    "desire": [
+     "摆脱欲",
+     "控制欲",
+     "安全感欲"
+    ],
+    "need": [
+     "N06",
+     "N02",
+     "N01"
+    ]
+   },
+   "behavior": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)",
+   "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+   "evidence_level": "强(内部6/6 + Kano must-be + JTBD push)",
+   "internal_examples": [
+    "user_48",
+    "user_81",
+    "user_55",
+    "user_66"
+   ],
+   "hard_discriminant": "落点意图=解决**我自己**的现实问题(描述症状/场景/已试步骤并求可行解)。若重心是质疑他人可信度→audit;若只是向往未来产品→itch。",
+   "cost_tier": "high",
+   "negative_examples": "不用于: 问题已解决正在分享方案(→display); 借问题控诉某方要说法(→injustice)"
+  },
+  {
+   "key": "injustice",
+   "name": "不平·问责结",
+   "family": "推动",
+   "signature": {
+    "congruence": "威胁",
+    "need_status": "已发生",
+    "coping": "中",
+    "time": "过去",
+    "attribution": "other_agent",
+    "target_layer": "fairness"
+   },
+   "typical_codes": {
+    "desire": [
+     "确认欲",
+     "控制欲"
+    ],
+    "need": [
+     "N02",
+     "N09"
+    ]
+   },
+   "behavior": "施压通道·高成本公开:公开信/差评/拉同盟;不求助,施压",
+   "playbook": "承认合理性;把问责导向能落地的路径(症状不方案/建案号);绝不替责任方辩护",
+   "evidence_level": "强(内部实证 + OCC anger归责 + inequity aversion)",
+   "internal_examples": [
+    "user_89",
+    "user_50"
+   ],
+   "hard_discriminant": "存在明确的**归责对象**(厂商/验配师/平台)且诉求是问责或讨说法,情绪带愤慨。若无归责对象只是自身求解→pain_seek。",
+   "cost_tier": "high",
+   "negative_examples": "不用于: 无归责对象的困难自述(→pain_seek)"
+  },
+  {
+   "key": "belong",
+   "name": "归属·确认结",
+   "family": "推动",
+   "signature": {
+    "congruence": "威胁(孤立)",
+    "need_status": "未满足",
+    "coping": "低",
+    "time": "过去-现在",
+    "attribution": "none",
+    "target_layer": "identity"
+   },
+   "typical_codes": {
+    "desire": [
+     "归属欲"
+    ],
+    "need": [
+     "N11",
+     "N13"
+    ]
+   },
+   "behavior": "确认通道·中成本:自我暴露式发帖+『only me?』;线下伴随伪装替代行为",
+   "playbook": "先『你不是一个人』把人接住,再给至多一格新知;不派任务",
+   "evidence_level": "强(内部实证 + need to belong 1995)",
+   "internal_examples": [
+    "user_154",
+    "user_73"
+   ],
+   "hard_discriminant": "落点意图=确认『我和你们是一类人/我在这个群体里』(自报身份/呼应他人经历以入群),无信息增量要求。若带大量新信息增量→display。",
+   "cost_tier": "mid",
+   "negative_examples": "不用于: 自报身份但主体是输出经验增量(→display)"
+  },
+  {
+   "key": "reward",
+   "name": "爽点·回报结",
+   "family": "推动",
+   "signature": {
+    "congruence": "促进",
+    "need_status": "已满足(即时)",
+    "coping": "高",
+    "time": "现在",
+    "attribution": "none",
+    "target_layer": "consumption_goal"
+   },
+   "typical_codes": {
+    "desire": [
+     "安全感欲"
+    ],
+    "need": [
+     "N01",
+     "N03",
+     "N06"
+    ]
+   },
+   "behavior": "致谢通道·低中成本:收藏声明/致谢/自来水布道。驱动留存分享(留存维ρ≈0.26-0.5)",
+   "playbook": "短收;自我缩小;不再投喂信息(需求已闭,长文=把关掉的门重开)",
+   "evidence_level": "强(留存维三重复现 + Kano attractive)",
+   "internal_examples": [
+    "user_25",
+    "user_76",
+    "user_87"
+   ],
+   "hard_discriminant": "纯回路关闭: 致谢/点赞式短回应/表达被满足,**无新信息增量**。一旦附带型号/数据/经验细节→display。",
+   "cost_tier": "low",
+   "negative_examples": "不用于: 致谢同时带新信息增量(→display); 致谢后追问(→pain_seek)"
+  },
+  {
+   "key": "display",
+   "name": "确证·展示结",
+   "family": "推动",
+   "signature": {
+    "congruence": "促进",
+    "need_status": "已满足",
+    "coping": "高",
+    "time": "现在",
+    "attribution": "none",
+    "target_layer": "identity"
+   },
+   "typical_codes": {
+    "desire": [
+     "确认欲",
+     "超越欲"
+    ],
+    "need": [
+     "N10",
+     "N09"
+    ]
+   },
+   "behavior": "展示通道·低→高成本:纠错亮牌/举反例晒型号/结构化长评/承诺回访。评论区最高质量UGC主力",
+   "playbook": "让位;被当同侪;接着他的贡献往前走,绝不纠正姿态压他",
+   "evidence_level": "强(内部直接实证;中西方框架均漏此结)",
+   "internal_examples": [
+    "user_63",
+    "user_28",
+    "user_09",
+    "user_32"
+   ],
+   "hard_discriminant": "输出**新信息增量**(具体型号/数据/使用细节/纠错/结构化经验)且谈论对象是**自己已拥有或已经历**的。无质询句;若出现对某方真实性/资历的质询→audit;若谈的是期望中未得之物→itch。",
+   "cost_tier": "mid",
+   "cost_tier_note": "条件性: 基线mid;当OP与其形成互动回路(followed_up)时升high(校准分析2026-08-07: 8/8的high全部followed_up=True,无互动时8/8=mid)",
+   "negative_examples": "不用于: 晒型号但通篇在求解自身未解问题(→pain_seek); 晒经验+质询OP动机(→audit)"
+  },
+  {
+   "key": "itch",
+   "name": "痒点·投影结",
+   "family": "推动",
+   "signature": {
+    "congruence": "促进",
+    "need_status": "未满足但不迫切",
+    "coping": "中",
+    "time": "未来",
+    "attribution": "none",
+    "target_layer": "identity"
+   },
+   "typical_codes": {
+    "desire": [
+     "向往欲",
+     "成为欲"
+    ],
+    "need": [
+     "N14",
+     "N08"
+    ]
+   },
+   "behavior": "消费/转发/收藏不买;评论稀少(勿用评论量验收痒点内容)",
+   "playbook": "给画面和身份素材;不派任务;向往受阻仍愉悦(longing非sadness)",
+   "evidence_level": "中(评论区几乎缺位,n=1;OCC hope + promotion focus)",
+   "internal_examples": [
+    "user_60"
+   ],
+   "hard_discriminant": "谈论对象是**期望中未得之物**(向往/想象/『要是有就好了』),不采取行动不问价不求购买路径。已拥有并陈述体验→display;主动求解决方案→pain_seek。",
+   "cost_tier": "low",
+   "negative_examples": "不用于: 向往之物已进入比较/购买流程(→suspend); 向往并主动求推荐路径(→pain_seek)"
+  },
+  {
+   "key": "suspend",
+   "name": "悬置·焦虑结",
+   "family": "阻挡",
+   "signature": {
+    "congruence": "促进与威胁并存",
+    "need_status": "未满足",
+    "coping": "不确定",
+    "time": "未来(决策悬置)",
+    "attribution": "none",
+    "target_layer": "consumption_goal"
+   },
+   "typical_codes": {
+    "desire": [
+     "安全感欲",
+     "摆脱欲"
+    ],
+    "need": [
+     "N01",
+     "N06"
+    ]
+   },
+   "behavior": "质询通道·中成本:连环规格质询/征证言/比价/收藏不买/明确不动",
+   "playbook": "给判据+零成本测试塌缩不确定性+如实说trade;不推购买。反杠杆=零风险承诺/样品/证言",
+   "evidence_level": "强(内部实证 + JTBD anxiety + BIS/prevention focus + 刘克亚零风险承诺装置)",
+   "internal_examples": [
+    "user_58",
+    "user_26",
+    "user_30"
+   ],
+   "hard_discriminant": "决策被**明确悬置**: 表达『还没定/再看看/等XX再说』,附带犹豫理由。无决策语境的纯向往→itch。",
+   "cost_tier": "mid",
+   "negative_examples": "不用于: 无决策语境的纯畅想(→itch); 已明确放弃(→inertia)"
+  },
+  {
+   "key": "inertia",
+   "name": "惯性·缺席结",
+   "family": "阻挡",
+   "signature": {
+    "congruence": "无激活或coping感知为零",
+    "need_status": "现状部分满足为默认",
+    "coping": "极低/习得性认命",
+    "time": "无限期现在",
+    "attribution": "none",
+    "target_layer": "consumption_goal"
+   },
+   "typical_codes": {
+    "desire": [
+     "控制欲(被压抑)"
+    ],
+    "need": [
+     "N02(被搁置)"
+    ]
+   },
+   "behavior": "缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,开口即高质量个案",
+   "playbook": "只有精确命中其机制才值得触碰;给『一步且可逆』的最小改变;绝不布道",
+   "evidence_level": "强(内部踪迹 + status quo bias 1988 + Kano反向型 + JTBD habit)",
+   "internal_examples": [
+    "user_77",
+    "user_34",
+    "user_86"
+   ],
+   "hard_discriminant": "明知应行动而**明确表示不行动/维持现状**(『懒得折腾/就这样吧』),或长期缺席后自陈缺席。犹豫中仍在比较→suspend。",
+   "cost_tier": "none",
+   "negative_examples": "不用于: 仍在比较权衡中(→suspend)"
+  },
+  {
+   "key": "audit",
+   "name": "验真·审计结",
+   "family": "阻挡",
+   "signature": {
+    "congruence": "威胁",
+    "need_status": "未满足",
+    "coping": "高",
+    "time": "现在",
+    "attribution": "other_agent",
+    "target_layer": "epistemic_trust"
+   },
+   "typical_codes": {
+    "desire": [
+     "确认欲",
+     "安全感欲"
+    ],
+    "need": [
+     "N10",
+     "N01"
+    ]
+   },
+   "behavior": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前",
+   "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+   "evidence_level": "强(链E实测:『你是托』→『你是机器』;仅内部数据发现,中西方框架均无)",
+   "internal_examples": [
+    "user_88",
+    "user_65"
+   ],
+   "hard_discriminant": "存在**对某方真实性/资历/动机的质询句**(『你是AI吧/你是托吧/凭什么信你』),落点意图=验证对方可信度而非解决自身问题。",
+   "cost_tier": "mid",
+   "negative_examples": "不用于: 质疑产品性能而非人的可信度(→pain_seek/injustice); 反问为修辞落点仍是求解(→pain_seek)"
+  }
+ ],
+ "levers_not_knots": {
+  "好奇缺口": "点击即闭合,不满足预装+保质期判据 → 杠杆",
+  "稀缺紧迫": "压缩已有结的决策时间线 → 悬置结的反杠杆",
+  "从众": "悬置结的 coping 出口 → 杠杆",
+  "种草": "人为制造悬置 → 杠杆"
+ },
+ "extension_slots_pending_data": [
+  "损失结(λ争议1.3-2)",
+  "共燃结",
+  "占便宜结",
+  "一致性结"
+ ],
+ "changelog_1_1_0": "每结新增hard_discriminant(判别轴: 对象归属×落点意图); display成本档mid→high(G-K2v2实测); 2026-08-07",
+ "changelog_1_1_1": "display成本档high回调mid+条件注记(v1.1.0的high上调系基于不稳观测口径的误校准); 2026-08-07",
+ "annotation_protocol": {
+  "version": "1.2.0",
+  "decision_tree": [
+   "1.质询句→audit",
+   "2.归责+讨说法→injustice",
+   "3.为自己求解→pain_seek",
+   "4.悬置→suspend/明知不动→inertia",
+   "5.已有+增量→display",
+   "6.未得+向往→itch",
+   "7.纯致谢→reward/认同类→belong"
+  ],
+  "anchor_examples": [
+   {
+    "knot": "display",
+    "id": "p1852zo",
+    "text": "The Connect Clip. You had to wear it around your neck. Easy to lose (I lost two). Latenchy from the BT classic audio. Just fiddly.\n\nmfi and ASHA. Definitely better than nothing. Occasional glitching and connection issues. Sound quality is adequate. Range is ju"
+   },
+   {
+    "knot": "pain_seek",
+    "id": "p1cuqrr",
+    "text": "I have a Pixel 9 and Widex Allure.  Maybe you can help.  \n\nAnytime you do anything on the pixel that would normally create a sound, the hearing aids go into streaming mode (which causes real sounds to be muffled and you can hear everything change). \n\nThis happ"
+   },
+   {
+    "knot": "injustice",
+    "id": "p1ypm4q",
+    "text": "OP your musings are interesting and informative. \n\nI was one of the posters asking about BT connectivity last weekend. It was a miserable weekend trying unsuccessfully to pair my new Starkeys with Windows. \n\nI was especially pissed at my audiologist who swore "
+   },
+   {
+    "knot": "itch",
+    "id": "p1sqabv",
+    "text": "Oh I am unsure too, as to why manufacturers are going for smaller when bigger would allow much more with the current technology we have. In fact, I have been living in hope that one of the big names release a power version (so bigger) of their current tech but"
+   },
+   {
+    "knot": "audit",
+    "id": "p25z258",
+    "text": "No, if size was eliminated as a criterion because the diagnostic criteria eliminated size as a consideration for the patient, which device would you fit that patient with?\n\nYou only care about size being identical if it remains a consideration albeit lower in "
+   }
+  ],
+  "annotator_qualification": "生产协议留一法考锚例,top1≥4/5合格;解析失败单独记账不计答错",
+  "gate_record": "G-K1 v5通过(2026-08-07): top2=0.933≥0.8, JS=0.2424≤0.25(判据v2冻结未动); 冷启动盲测待跑(非MiniMax系标注者,防interpretive convergence)"
+ },
+ "changelog_1_2_0": "负例句全结配齐+决策树+锚例+标注者资格协议成套入库; G-K1首次通过; 2026-08-07"
+}

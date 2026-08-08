@@ -1,0 +1,362 @@
+{
+  "schema_version": "1.0",
+  "created": "2026-07-22",
+  "layer": "need",
+  "role": "v4因果链四层中的第二层(欲望→需求→情绪→行动)。把需求层从『自由文本无法量化』升级为受控词表：受控需求类型(可算占比分布/跨模型JS散度) + 半自由情境槽(保留JTBD情境化精神)。",
+  "framework": "JTBD/ODI(Jobs-to-be-Done / Outcome-Driven Innovation)为主 + Max-Neef九项基本需求矩阵为骨架",
+  "principles": {
+    "need_vs_want": "need≠want：缺失会导致功能失调的『要达成的结果』才是need；单纯想要不是。",
+    "outcome_not_solution": "需求单元是『结果是什么』不是『怎么做』——记录要达成的outcome，不记录具体产品/手段。",
+    "projection": "1欲望×N情境=N需求：同一稳定欲望经不同情境事件投影出不同需求。需求是欲望与情绪之间的中间层。",
+    "controlled_plus_slot": "标注 = 受控需求类型(code, 有限16类, 用于算分布) + 情境槽context_slot(半自由文本, 记录触发情境, 承载内容特异性)。裸的需求类型标签视为未完成，必须带情境槽。",
+    "jtbd_outcome_structure": "ODI outcome statement四要素：方向(最小化/最大化/更快/更可靠) + 度量(时间/概率/程度/确定性) + 对象(要作用的东西) + 情境(何时/在什么处境下)。模板见每个need_type的jtbd_outcome_template。"
+  },
+  "distribution_usage": "标注一条内容时，为每个need实例给 {code, context_slot, weight}；同一内容各need的weight之和=1。把16类code当作定长键即可像欲望9类/情绪13类一样算占比分布与跨模型JS散度(未出现的类目权重=0)。",
+  "controlled_keys": [
+    "N01_确定性", "N02_掌控局面", "N03_提升能力", "N04_理解世界", "N05_优化效率",
+    "N06_摆脱痛苦", "N07_占有资源", "N08_提升形象", "N09_获得地位", "N10_自我确认",
+    "N11_归属群体", "N12_情感联结", "N13_情感慰藉", "N14_代入理想", "N15_放松休憩",
+    "N16_表达创造", "N17_追忆连接"
+  ],
+  "need_types": [
+    {
+      "code": "N01_确定性",
+      "name_cn": "消除风险 / 获得确定性",
+      "name_en": "secure certainty / de-risk",
+      "definition": "在不确定或有潜在威胁的处境下，要达成的结果是『把不确定性降下来、知道风险到底有多大/该怎么办』。缺失会导致持续焦虑与决策瘫痪，属真need。",
+      "maxneef": ["保护 protection", "生存 subsistence"],
+      "jtbd_outcome_template": "在[情境:察觉某潜在风险/隐患]下，最大化对该风险的[确定性/可预测性]，最小化不知道该怎么办的[焦虑]。",
+      "upstream_desires": [
+        {"desire": "安全感欲", "via_context": "内容揭示某隐患/信号，观众意识到威胁可能落到自己身上"},
+        {"desire": "控制欲", "via_context": "面对未知领域，想先摸清底细再决策"}
+      ],
+      "downstream_emotions": {"satisfied": ["relief宽慰", "gratitude感激", "approval认同"], "blocked": ["fear恐惧", "sadness悲伤"]},
+      "adjacency": ["N02_掌控局面", "N04_理解世界", "N06_摆脱痛苦"],
+      "example_context_slots": ["面对不确定的未来", "看到健康风险科普后自查", "怕做错决定/踩坑", "钱/健康/关系上怕出事"]
+    },
+    {
+      "code": "N02_掌控局面",
+      "name_cn": "夺回主导权 / 掌控局面",
+      "name_en": "regain control / mastery over situation",
+      "definition": "在失控或被动的处境下，要达成的结果是『重新握住方向盘、由我来决定事情怎么走』。指向对局面的支配权，不是对具体技能的掌握(那是N03)。",
+      "maxneef": ["保护 protection", "自由 freedom"],
+      "jtbd_outcome_template": "在[情境:感到某方面失控/被动]下，最大化我对[对象:生活/财务/健康/关系]走向的[主导权]。",
+      "upstream_desires": [
+        {"desire": "控制欲", "via_context": "生活某一面(财务/健康/时间)显得一团乱，想收拢"},
+        {"desire": "安全感欲", "via_context": "被动挨打的处境让人不安，想转为主动"}
+      ],
+      "downstream_emotions": {"satisfied": ["pride自豪", "relief宽慰", "approval认同"], "blocked": ["fear恐惧", "anger愤怒"]},
+      "adjacency": ["N01_确定性", "N03_提升能力", "N05_优化效率", "N17_追忆连接"],
+      "example_context_slots": ["生活/财务失控想收拢", "被现状推着走想反客为主", "想建立可控的日常系统"]
+    },
+    {
+      "code": "N03_提升能力",
+      "name_cn": "提升能力 / 习得方法",
+      "name_en": "acquire competence / know-how",
+      "definition": "在能力不足以达成目标的处境下，要达成的结果是『学会某种可迁移的方法/技能，让自己变得更能干』。指向自身能力增量。",
+      "maxneef": ["理解 understanding", "创造 creation"],
+      "jtbd_outcome_template": "在[情境:想做成某事但不会]下，更快更可靠地习得[对象:某方法/技能]，最大化自己独立做成它的[能力]。",
+      "upstream_desires": [
+        {"desire": "成为欲", "via_context": "想成为更能干/更专业的那种人，缺一块能力"},
+        {"desire": "控制欲", "via_context": "掌握方法才能掌控结果"}
+      ],
+      "downstream_emotions": {"satisfied": ["pride自豪", "curiosity好奇", "approval认同"], "blocked": ["sadness悲伤"]},
+      "adjacency": ["N02_掌控局面", "N04_理解世界", "N16_表达创造"],
+      "example_context_slots": ["想学会某技能少走弯路", "看到干货教程想上手", "想从新手变熟手"]
+    },
+    {
+      "code": "N04_理解世界",
+      "name_cn": "解答疑惑 / 理解世界",
+      "name_en": "make sense / understand",
+      "definition": "在认知有缺口、事情说不通的处境下，要达成的结果是『把疑惑解开、把某个现象/道理想明白』。指向认知闭合，不必然转化为行动能力(那是N03)。",
+      "maxneef": ["理解 understanding"],
+      "jtbd_outcome_template": "在[情境:遇到想不通的现象/信息缺口]下，最大化对[对象:某事为什么会这样]的[理解清晰度]，闭合认知缺口。",
+      "upstream_desires": [
+        {"desire": "确认欲", "via_context": "想弄清一件事到底对不对/是不是这样"},
+        {"desire": "控制欲", "via_context": "信息掌控——先看懂才安心"}
+      ],
+      "downstream_emotions": {"satisfied": ["curiosity好奇", "approval认同", "relief宽慰"], "blocked": ["curiosity好奇", "fear恐惧"]},
+      "adjacency": ["N01_确定性", "N03_提升能力", "N10_自我确认"],
+      "example_context_slots": ["刷到反常识观点想弄明白", "对某现象好奇", "想知道背后真相/原理"]
+    },
+    {
+      "code": "N05_优化效率",
+      "name_cn": "省时省力 / 优化效率",
+      "name_en": "optimize efficiency / save effort",
+      "definition": "在某件必须做的事上耗费过多时间/精力的处境下，要达成的结果是『用更少的时间和力气达到同样或更好的结果』。指向投入产出比。",
+      "maxneef": ["生存 subsistence", "自由 freedom"],
+      "jtbd_outcome_template": "在[情境:某任务太耗时耗力]下，最小化完成[对象:某任务]所需的[时间/精力]，同时不降低结果质量。",
+      "upstream_desires": [
+        {"desire": "控制欲", "via_context": "想把日常琐事系统化、少操心"},
+        {"desire": "摆脱欲", "via_context": "受够了低效的折腾，想解脱出来"}
+      ],
+      "downstream_emotions": {"satisfied": ["relief宽慰", "joy喜悦", "approval认同"], "blocked": ["anger愤怒", "sadness悲伤"]},
+      "adjacency": ["N02_掌控局面", "N06_摆脱痛苦", "N15_放松休憩"],
+      "example_context_slots": ["想把琐事一步到位", "看到省事妙招", "受够低效流程想提速"]
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "name_cn": "摆脱痛苦 / 缓解不适",
+      "name_en": "relieve pain / escape discomfort",
+      "definition": "在当下正承受某种身心痛苦/不适的处境下，要达成的结果是『让这个痛苦停下来或减轻』。指向去除负状态，是Max-Neef生存/保护的底层need。",
+      "maxneef": ["生存 subsistence", "保护 protection"],
+      "jtbd_outcome_template": "在[情境:正被某痛苦/困扰折磨]下，更快地最小化[对象:某身心痛苦/困扰]的[强度/持续时间]。",
+      "upstream_desires": [
+        {"desire": "摆脱欲", "via_context": "当前痛苦状态太难受，只想它赶紧结束"}
+      ],
+      "downstream_emotions": {"satisfied": ["relief宽慰", "gratitude感激", "joy喜悦"], "blocked": ["sadness悲伤", "anger愤怒"]},
+      "adjacency": ["N01_确定性", "N05_优化效率", "N13_情感慰藉", "N15_放松休憩"],
+      "example_context_slots": ["被某慢性困扰折磨想解脱", "看到对症解法", "受够当前处境"]
+    },
+    {
+      "code": "N07_占有资源",
+      "name_cn": "获得物质 / 占有资源",
+      "name_en": "acquire the object / possess resource",
+      "definition": "在缺少某个可占有的具体物/资源的处境下，要达成的结果是『把它弄到手、变成我的』。指向可购买/可占有的具体对象(与N14代入理想图景相区分：那是不可直接购买的整体状态)。",
+      "maxneef": ["生存 subsistence"],
+      "jtbd_outcome_template": "在[情境:看到一个能解决我痛点/我想要的具体物]下，最大化尽快拥有[对象:该产品/资源]的[可得性]。",
+      "upstream_desires": [
+        {"desire": "拥有欲", "via_context": "刷到一个正好戳中需求或别人都在用的具体产品"}
+      ],
+      "downstream_emotions": {"satisfied": ["joy喜悦", "desire渴望", "gratitude感激"], "blocked": ["desire渴望", "sadness悲伤"]},
+      "adjacency": ["N05_优化效率", "N08_提升形象", "N14_代入理想"],
+      "example_context_slots": ["看到能解决痛点的产品", "别人都在用的同款", "限时/稀缺怕错过"]
+    },
+    {
+      "code": "N08_提升形象",
+      "name_cn": "提升外在形象 / 被看见",
+      "name_en": "enhance appearance / be seen",
+      "definition": "在觉得自己外在呈现不够好、不被注意的处境下，要达成的结果是『让自己看起来更好、被更多人正向注视』。指向外在形象与可见度。",
+      "maxneef": ["认同 identity"],
+      "jtbd_outcome_template": "在[情境:对自己的外在呈现不满/想被看见]下，最大化[对象:外貌/风格/呈现]带来的[正向关注度/好评]。",
+      "upstream_desires": [
+        {"desire": "成为欲", "via_context": "想成为更好看/更有型的那种人"},
+        {"desire": "超越欲", "via_context": "想在人群里更亮眼、盖过平庸"}
+      ],
+      "downstream_emotions": {"satisfied": ["pride自豪", "joy喜悦", "admiration钦佩"], "blocked": ["sadness悲伤"]},
+      "adjacency": ["N07_占有资源", "N09_获得地位", "N10_自我确认"],
+      "example_context_slots": ["想变好看/穿搭升级", "重要场合想亮眼", "怕显得土/过时"]
+    },
+    {
+      "code": "N09_获得地位",
+      "name_cn": "获得地位 / 胜过他人",
+      "name_en": "gain status / outperform",
+      "definition": "在社会比较中处于下风或想拔尖的处境下，要达成的结果是『在某个维度上排到前面、被公认更强』。指向相对排名与地位，是竞争性need。",
+      "maxneef": ["认同 identity", "参与 participation"],
+      "jtbd_outcome_template": "在[情境:某维度上与他人比较]下，最大化自己在[对象:该维度]上相对他人的[排名/被认可的优越度]。",
+      "upstream_desires": [
+        {"desire": "超越欲", "via_context": "看到别人做到了，想胜过/追上/超过"}
+      ],
+      "downstream_emotions": {"satisfied": ["pride自豪", "admiration钦佩", "joy喜悦"], "blocked": ["anger愤怒", "sadness悲伤"]},
+      "adjacency": ["N03_提升能力", "N08_提升形象", "N10_自我确认"],
+      "example_context_slots": ["看到同龄人做到了不甘落后", "想在圈子里拔尖", "想证明比别人强"]
+    },
+    {
+      "code": "N10_自我确认",
+      "name_cn": "确认自我 / 被认同",
+      "name_en": "validate self / be affirmed",
+      "definition": "在自我价值/选择/身份受到怀疑或需要背书的处境下，要达成的结果是『确认我的选择/观点/我是对的、值得的』。指向自我价值的确证，不必然涉及群体(那是N11)。",
+      "maxneef": ["认同 identity", "情感 affection"],
+      "jtbd_outcome_template": "在[情境:对自己的选择/身份/价值有疑虑或想被肯定]下，最大化对[对象:我的选择/观点/身份是对的]的[确认度]。",
+      "upstream_desires": [
+        {"desire": "确认欲", "via_context": "内容替我说出了心里话/印证了我的选择"}
+      ],
+      "downstream_emotions": {"satisfied": ["approval认同", "pride自豪", "gratitude感激"], "blocked": ["sadness悲伤", "anger愤怒"]},
+      "adjacency": ["N04_理解世界", "N08_提升形象", "N09_获得地位", "N11_归属群体"],
+      "example_context_slots": ["内容替我说出了心里话", "想确认自己的选择没错", "被质疑后想被肯定"]
+    },
+    {
+      "code": "N11_归属群体",
+      "name_cn": "归属群体 / 找到同类",
+      "name_en": "belong / find my people",
+      "definition": "在感到孤立或想确认自己属于某群体的处境下，要达成的结果是『找到同类、确认我是这群人中的一员』。指向群体成员资格(社会身份认同)，与N14代入理想图景(不需要群体存在)严格区分。",
+      "maxneef": ["参与 participation", "认同 identity"],
+      "jtbd_outcome_template": "在[情境:想确认自己属于某群体/找到同类]下，最大化对[对象:我属于这群人]的[归属确认感]。",
+      "upstream_desires": [
+        {"desire": "归属欲", "via_context": "内容描述了一群人的共同特征，观众对号入座『这就是我们』"}
+      ],
+      "downstream_emotions": {"satisfied": ["love爱", "approval认同", "gratitude感激"], "blocked": ["sadness悲伤"]},
+      "adjacency": ["N10_自我确认", "N12_情感联结", "N17_追忆连接"],
+      "example_context_slots": ["作为XX人对号入座", "想找到同好圈子", "感到孤立想确认有同类"]
+    },
+    {
+      "code": "N12_情感联结",
+      "name_cn": "建立 / 维系情感联结",
+      "name_en": "form / maintain emotional bond",
+      "definition": "在关系疏离或想加深与特定对象联系的处境下，要达成的结果是『和某个人/某群人建立或维系起有温度的联系』。指向具体关系的联结(主动)，区别于N13被接纳被安慰(被动)。",
+      "maxneef": ["情感 affection"],
+      "jtbd_outcome_template": "在[情境:想加深与某人/某群体的关系]下，最大化与[对象:某关系对象]之间[情感联结]的深度与稳定度。",
+      "upstream_desires": [
+        {"desire": "归属欲", "via_context": "想和内容里那种关系一样，和身边人建立联结"},
+        {"desire": "安全感欲", "via_context": "依恋本能——想有稳定可依靠的关系"}
+      ],
+      "downstream_emotions": {"satisfied": ["love爱", "gratitude感激", "joy喜悦"], "blocked": ["sadness悲伤"]},
+      "adjacency": ["N11_归属群体", "N13_情感慰藉", "N17_追忆连接"],
+      "example_context_slots": ["想和家人/伴侣更亲近", "被亲情/友情内容触动想珍惜", "想维系一段关系"]
+    },
+    {
+      "code": "N13_情感慰藉",
+      "name_cn": "获得情感慰藉 / 被接纳",
+      "name_en": "receive comfort / be accepted",
+      "definition": "在情感受伤、疲惫或自我怀疑的处境下，要达成的结果是『被无条件接纳、被安慰、感到不孤单』。指向被动接收温暖(被接住)，区别于N12主动建立关系。",
+      "maxneef": ["情感 affection", "保护 protection"],
+      "jtbd_outcome_template": "在[情境:情感受伤/疲惫/自我怀疑]下，最大化被[对象:被理解/被接纳/被安慰]的[慰藉感]，最小化孤独感。",
+      "upstream_desires": [
+        {"desire": "安全感欲", "via_context": "被爱欲面向——想被无条件接纳和关怀(依恋本能)"}
+      ],
+      "downstream_emotions": {"satisfied": ["love爱", "relief宽慰", "gratitude感激"], "blocked": ["sadness悲伤"]},
+      "adjacency": ["N06_摆脱痛苦", "N11_归属群体", "N12_情感联结", "N15_放松休憩"],
+      "example_context_slots": ["累了想被治愈", "被某句文案戳中想被理解", "自我怀疑时想被肯定接纳"]
+    },
+    {
+      "code": "N14_代入理想",
+      "name_cn": "代入理想生活 / 沉浸美好图景",
+      "name_en": "project into ideal life / immerse in aspiration",
+      "definition": "面对一个未拥有的理想生活方式/空间/状态图景时，要达成的结果是『想象性地进入并停留在那个画面里，获得替代性满足』。指向不可直接购买的整体图景(与N07占有具体物区分)。上游几乎必为向往欲。",
+      "maxneef": ["自由 freedom", "闲暇 idleness"],
+      "jtbd_outcome_template": "在[情境:凝视一个理想生活/空间图景]下，最大化想象性代入并停留在[对象:那个理想图景]中的[沉浸/替代满足感]。",
+      "upstream_desires": [
+        {"desire": "向往欲", "via_context": "刷到唯美/氛围向的生活方式/空间/美学内容，产生投射代入"}
+      ],
+      "downstream_emotions": {"satisfied": ["desire渴望", "admiration钦佩", "joy喜悦"], "blocked": ["desire渴望", "nostalgia怀旧"]},
+      "adjacency": ["N07_占有资源", "N15_放松休憩", "N17_追忆连接"],
+      "example_context_slots": ["想住进这个厨房/房子", "想过这种慢生活", "梦中情X/理想日常", "收藏氛围图"],
+      "note": "向往欲的『受阻』不表现为强负向情绪：现实中难拥有并不打断观看时的满足，通常表现为desire渴望持续(愉悦性longing)而非sadness/anger。这是与N07占有资源受阻(→sadness)的关键区别。"
+    },
+    {
+      "code": "N15_放松休憩",
+      "name_cn": "放松解压 / 获得休憩",
+      "name_en": "relax / recover / rest",
+      "definition": "在紧绷、疲惫、被消耗的处境下，要达成的结果是『松下来、喘口气、恢复精力』。指向从紧张态回到松弛态，是Max-Neef闲暇need。区别于N06摆脱具体痛苦(那是去除特定负源)。",
+      "maxneef": ["闲暇 idleness"],
+      "jtbd_outcome_template": "在[情境:长期紧绷/疲惫]下，最大化[对象:身心]的[放松/恢复程度]，暂时抽离压力。",
+      "upstream_desires": [
+        {"desire": "摆脱欲", "via_context": "想暂时逃离高压的日常"},
+        {"desire": "向往欲", "via_context": "凝视松弛的生活图景获得替代性喘息"}
+      ],
+      "downstream_emotions": {"satisfied": ["relief宽慰", "joy喜悦", "love爱"], "blocked": ["sadness悲伤"]},
+      "adjacency": ["N05_优化效率", "N06_摆脱痛苦", "N13_情感慰藉", "N14_代入理想"],
+      "example_context_slots": ["累到想放空", "看解压/治愈向内容", "想给自己喘息空间"]
+    },
+    {
+      "code": "N16_表达创造",
+      "name_cn": "表达自我 / 创造产出",
+      "name_en": "express self / create",
+      "definition": "在有想法/情感想外化、或想做出点东西的处境下，要达成的结果是『把内在的东西表达/创造出来，留下我的印记』。指向自我外化与创造产出，是Max-Neef创造need。",
+      "maxneef": ["创造 creation", "自由 freedom"],
+      "jtbd_outcome_template": "在[情境:有想法/情感想外化或想做出作品]下，最大化把[对象:内在想法/审美/情感]转化为[可见产出]的[表达充分度]。",
+      "upstream_desires": [
+        {"desire": "成为欲", "via_context": "想成为能创造/有作品的那种人"},
+        {"desire": "确认欲", "via_context": "通过作品表达并确认自我"}
+      ],
+      "downstream_emotions": {"satisfied": ["pride自豪", "joy喜悦", "admiration钦佩"], "blocked": ["sadness悲伤"]},
+      "adjacency": ["N03_提升能力", "N08_提升形象", "N10_自我确认"],
+      "example_context_slots": ["被激发想动手做", "想记录/创作", "想表达自己的审美/观点"]
+    },
+    {
+      "code": "N17_追忆连接",
+      "name_cn": "追忆过去 / 连接来路",
+      "name_en": "reconnect with past / temporal belonging",
+      "definition": "在被某个唤起旧时记忆的线索触动的处境下，要达成的结果是『重新连上过去的自己/旧时光，获得时间维度上的归属与连续感』。指向与过去的连接(时间性归属)，是N11群体归属在时间轴上的对应。",
+      "maxneef": ["认同 identity", "情感 affection"],
+      "jtbd_outcome_template": "在[情境:被某唤起旧记忆的线索触动]下，最大化与[对象:过去的自己/某段旧时光]的[连接与连续感]。",
+      "upstream_desires": [
+        {"desire": "归属欲", "via_context": "对『我从哪来/我是谁』的时间性归属确认"},
+        {"desire": "向往欲", "via_context": "对回不去的旧日图景的投射性凝望"}
+      ],
+      "downstream_emotions": {"satisfied": ["nostalgia怀旧", "love爱", "gratitude感激"], "blocked": ["sadness悲伤", "nostalgia怀旧"]},
+      "adjacency": ["N11_归属群体", "N12_情感联结", "N14_代入理想"],
+      "example_context_slots": ["刷到童年/旧时代符号", "想起某段回不去的时光", "被年代感内容击中"]
+    }
+  ],
+  "desire_context_need_map": {
+    "note": "『欲望×情境→需求』连接映射表——因果链上层(欲望)如何经情境事件投影到需求层。同一欲望经不同情境投影出不同需求(1欲望×N情境=N需求)。这是层间连接的量化基础：给定内容的主欲望+情境线索，可预测最可能被激活的需求类型。",
+    "map": [
+      {"desire": "拥有欲", "context": "刷到能解决痛点/别人都在用的具体产品", "primary_need": "N07_占有资源", "alt_needs": ["N05_优化效率", "N08_提升形象"]},
+      {"desire": "成为欲", "context": "看到理想中的那种人/榜样示范", "primary_need": "N03_提升能力", "alt_needs": ["N08_提升形象", "N16_表达创造"]},
+      {"desire": "摆脱欲", "context": "正被某痛苦/低效/高压折磨", "primary_need": "N06_摆脱痛苦", "alt_needs": ["N05_优化效率", "N15_放松休憩"]},
+      {"desire": "确认欲", "context": "内容替我说出心里话/印证我的选择", "primary_need": "N10_自我确认", "alt_needs": ["N04_理解世界", "N11_归属群体"]},
+      {"desire": "超越欲", "context": "社会比较——看到别人做到了不甘落后", "primary_need": "N09_获得地位", "alt_needs": ["N03_提升能力", "N08_提升形象"]},
+      {"desire": "归属欲", "context": "内容刻画一群人的共同特征，对号入座", "primary_need": "N11_归属群体", "alt_needs": ["N12_情感联结", "N17_追忆连接"]},
+      {"desire": "控制欲", "context": "生活某一面显得失控/一团乱", "primary_need": "N02_掌控局面", "alt_needs": ["N01_确定性", "N05_优化效率"]},
+      {"desire": "安全感欲", "context": "察觉某风险/隐患可能落到自己身上", "primary_need": "N01_确定性", "alt_needs": ["N02_掌控局面", "N06_摆脱痛苦"]},
+      {"desire": "安全感欲(被爱面向)", "context": "情感疲惫/受伤/自我怀疑时被治愈向内容触动", "primary_need": "N13_情感慰藉", "alt_needs": ["N12_情感联结", "N15_放松休憩"]},
+      {"desire": "向往欲", "context": "刷到唯美/氛围向的理想生活/空间/美学图景", "primary_need": "N14_代入理想", "alt_needs": ["N15_放松休憩", "N17_追忆连接"]}
+    ]
+  },
+  "need_emotion_map": {
+    "note": "『需求→情绪』连接映射表——需求层如何经评价(appraisal: goal-congruence)投影到情绪层。同一需求满足(congruence正)与受阻(congruence负)触发不同情绪。这是需求层向下连接情绪13类的量化基础，与exp脚本里 coherence_autocheck(正congruence应配正向情绪top)对齐。",
+    "map": [
+      {"need": "N01_确定性", "satisfied_emotions": ["relief宽慰", "gratitude感激", "approval认同"], "blocked_emotions": ["fear恐惧", "sadness悲伤"]},
+      {"need": "N02_掌控局面", "satisfied_emotions": ["pride自豪", "relief宽慰", "approval认同"], "blocked_emotions": ["fear恐惧", "anger愤怒"]},
+      {"need": "N03_提升能力", "satisfied_emotions": ["pride自豪", "curiosity好奇", "approval认同"], "blocked_emotions": ["sadness悲伤"]},
+      {"need": "N04_理解世界", "satisfied_emotions": ["curiosity好奇", "approval认同", "relief宽慰"], "blocked_emotions": ["curiosity好奇", "fear恐惧"]},
+      {"need": "N05_优化效率", "satisfied_emotions": ["relief宽慰", "joy喜悦", "approval认同"], "blocked_emotions": ["anger愤怒", "sadness悲伤"]},
+      {"need": "N06_摆脱痛苦", "satisfied_emotions": ["relief宽慰", "gratitude感激", "joy喜悦"], "blocked_emotions": ["sadness悲伤", "anger愤怒"]},
+      {"need": "N07_占有资源", "satisfied_emotions": ["joy喜悦", "desire渴望", "gratitude感激"], "blocked_emotions": ["desire渴望", "sadness悲伤"]},
+      {"need": "N08_提升形象", "satisfied_emotions": ["pride自豪", "joy喜悦", "admiration钦佩"], "blocked_emotions": ["sadness悲伤"]},
+      {"need": "N09_获得地位", "satisfied_emotions": ["pride自豪", "admiration钦佩", "joy喜悦"], "blocked_emotions": ["anger愤怒", "sadness悲伤"]},
+      {"need": "N10_自我确认", "satisfied_emotions": ["approval认同", "pride自豪", "gratitude感激"], "blocked_emotions": ["sadness悲伤", "anger愤怒"]},
+      {"need": "N11_归属群体", "satisfied_emotions": ["love爱", "approval认同", "gratitude感激"], "blocked_emotions": ["sadness悲伤"]},
+      {"need": "N12_情感联结", "satisfied_emotions": ["love爱", "gratitude感激", "joy喜悦"], "blocked_emotions": ["sadness悲伤"]},
+      {"need": "N13_情感慰藉", "satisfied_emotions": ["love爱", "relief宽慰", "gratitude感激"], "blocked_emotions": ["sadness悲伤"]},
+      {"need": "N14_代入理想", "satisfied_emotions": ["desire渴望", "admiration钦佩", "joy喜悦"], "blocked_emotions": ["desire渴望", "nostalgia怀旧"]},
+      {"need": "N15_放松休憩", "satisfied_emotions": ["relief宽慰", "joy喜悦", "love爱"], "blocked_emotions": ["sadness悲伤"]},
+      {"need": "N16_表达创造", "satisfied_emotions": ["pride自豪", "joy喜悦", "admiration钦佩"], "blocked_emotions": ["sadness悲伤"]},
+      {"need": "N17_追忆连接", "satisfied_emotions": ["nostalgia怀旧", "love爱", "gratitude感激"], "blocked_emotions": ["sadness悲伤", "nostalgia怀旧"]}
+    ]
+  },
+  "maxneef_coverage": {
+    "note": "受控词表对Max-Neef九项基本需求的覆盖(骨架完整性校验)。",
+    "生存 subsistence": ["N01_确定性", "N05_优化效率", "N06_摆脱痛苦", "N07_占有资源"],
+    "保护 protection": ["N01_确定性", "N02_掌控局面", "N06_摆脱痛苦", "N13_情感慰藉"],
+    "情感 affection": ["N10_自我确认", "N12_情感联结", "N13_情感慰藉", "N17_追忆连接"],
+    "理解 understanding": ["N03_提升能力", "N04_理解世界"],
+    "参与 participation": ["N09_获得地位", "N11_归属群体"],
+    "闲暇 idleness": ["N14_代入理想", "N15_放松休憩"],
+    "创造 creation": ["N03_提升能力", "N16_表达创造"],
+    "认同 identity": ["N08_提升形象", "N09_获得地位", "N10_自我确认", "N11_归属群体", "N17_追忆连接"],
+    "自由 freedom": ["N02_掌控局面", "N05_优化效率", "N14_代入理想", "N16_表达创造"]
+  },
+  "chain_examples": [
+    {
+      "case": "IT_ad_goods (带货/拥有欲)",
+      "desire": "拥有欲",
+      "context_event": "刷到一个正好戳中痛点、评论区都在问链接的产品",
+      "need": {"code": "N07_占有资源", "context_slot": "看到能解决痛点的同款产品", "jtbd_outcome": "在『看到能解决痛点的产品』下，最大化尽快拥有该同款的可得性"},
+      "appraisal": {"goal_relevance": "高", "goal_congruence": "正(买得到就能解决)", "coping_potential": "高"},
+      "branch": "满足路径",
+      "emotion": "desire渴望(想要) → 想象拥有后 joy喜悦",
+      "action_tendency": "approach趋近",
+      "observable": "评论『求链接』『哪里买』『已下单』",
+      "chain_trace": "拥有欲 →(情境:刷到戳中痛点的同款)→ N07占有资源(尽快拥有该产品)→(评价:congruence正、coping高)→ desire渴望/joy喜悦 → approach趋近 → 求链接/下单",
+      "blocked_variant": "若缺货/买不起(congruence转负)→ desire渴望持续+sadness悲伤 → 行动倾向由趋近转 attend关注(先收藏等蹲)"
+    },
+    {
+      "case": "IT_life_kitchen (唯美厨房/向往欲)",
+      "desire": "向往欲",
+      "context_event": "刷到光线氛围极佳、无明确叙事的理想厨房/生活图景",
+      "need": {"code": "N14_代入理想", "context_slot": "凝视理想厨房/生活图景", "jtbd_outcome": "在『凝视理想生活图景』下，最大化想象性代入并停留其中的沉浸/替代满足感"},
+      "appraisal": {"goal_relevance": "高", "goal_congruence": "正(画面本身即满足，替代性满足)", "coping_potential": "低(现实中难拥有，但不影响观看满足)"},
+      "branch": "满足路径",
+      "emotion": "desire渴望 + admiration钦佩 + joy喜悦(氛围愉悦)",
+      "action_tendency": "attend关注 / approach趋近(收藏、追更)",
+      "observable": "评论『想住进去』『梦中情厨』『收藏了』",
+      "chain_trace": "向往欲 →(情境:唯美厨房氛围图)→ N14代入理想(想象性进入并停留在图景)→(评价:congruence正、coping低但不打断满足)→ desire渴望/admiration/joy → attend关注/approach → 收藏/『想住进去』",
+      "blocked_variant": "关键区别：coping低(现实难拥有)不转为强负向情绪——向往欲的『受阻』表现为desire渴望持续(愉悦性longing)，而非N07那种sadness。若图景勾起回不去的旧日则叠加nostalgia怀旧。这与欲望层desire-taxonomy的向往欲划界一致。"
+    },
+    {
+      "case": "IT_kn_health (健康科普/安全感欲)",
+      "desire": "安全感欲",
+      "context_event": "看到某身体信号/健康风险科普，意识到自己可能有隐患",
+      "need": {"code": "N01_确定性", "context_slot": "意识到潜在健康隐患后想弄清风险", "jtbd_outcome": "在『意识到潜在健康隐患』下，最大化对该风险的确定性、知道该怎么办，最小化不知所措的焦虑"},
+      "appraisal": {"goal_relevance": "高(切身)", "goal_congruence": "内容给出可行方法=正 / 只制造焦虑无解法=负", "coping_potential": "有方法则高，只吓人则低"},
+      "branch": "满足路径 vs 受阻路径(分叉)",
+      "emotion": "满足(有解法)→ relief宽慰 + gratitude感激；受阻(只吓人没解法)→ fear恐惧",
+      "action_tendency": "满足→ approach趋近(收藏、照做)；受阻→ avoidance回避 或 attend关注",
+      "observable": "『收藏了』『赶紧自查』(满足) vs 『吓得我』『太可怕了』(受阻)",
+      "chain_trace": "安全感欲 →(情境:看到健康风险科普察觉隐患)→ N01确定性(弄清风险该怎么办)→(评价:relevance高，congruence随是否给解法分正负)→ 正:relief/gratitude、负:fear → 正:approach收藏照做 / 负:avoidance或attend → 『收藏自查』或『吓得我』",
+      "note": "此例演示同一需求(N01)经goal-congruence正负分叉出相反情绪，正对应exp脚本coherence_autocheck的正congruence配正向情绪top规则。"
+    }
+  ]
+}
