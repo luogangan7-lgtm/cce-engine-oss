@@ -66,24 +66,7 @@ jobs:
             $(test -f run/ref.txt && echo "--ref-post run/ref.txt")
       - name: 执行清单摘要
         if: always()
-        run: |
-          echo "### CCE 执行清单" >> $GITHUB_STEP_SUMMARY
-          python - <<'PY' >> $GITHUB_STEP_SUMMARY
-          import json, os
-          p = "run/out/manifest.json"
-          if not os.path.exists(p):
-              print("manifest 缺失 — 链路未产出"); raise SystemExit
-          m = json.load(open(p, encoding="utf-8"))
-          st = m.get("stages", {})
-          chain = m.get("chain", list(st))
-          print(f"- complete: **{m.get('complete')}** / failed_at: `{m.get('failed_at')}`")
-          print("")
-          print("| 段 | 状态 | 秒 |")
-          print("|---|---|---|")
-          for k in chain:
-              v = st.get(k, {})
-              print(f"| {k} | {v.get('status','?')} | {v.get('sec','')} |")
-          PY
+        run: python .github/summarize.py >> $GITHUB_STEP_SUMMARY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -91,15 +74,40 @@ jobs:
           path: run/out/
           retention-days: 90
 
-  batch:
+  prep:
     if: github.event.action == 'cce-batch'
+    runs-on: ubuntu-latest
+    outputs:
+      indices: ${{ steps.gen.outputs.indices }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: gen
+        env:
+          ITEMS: ${{ toJSON(github.event.client_payload.items) }}
+        run: |
+          python - <<'PY'
+          import json, os
+          items = json.loads(os.environ["ITEMS"])
+          os.makedirs("batch", exist_ok=True)
+          json.dump(items, open("batch/items.json", "w", encoding="utf-8"), ensure_ascii=False)
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write("indices=" + json.dumps(list(range(len(items)))) + "\n")
+          print(f"批次 {len(items)} 条")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: batch-items
+          path: batch/items.json
+
+  batch:
+    needs: prep
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       fail-fast: false
       max-parallel: 8
       matrix:
-        item: ${{ fromJSON(github.event.client_payload.items) }}
+        i: ${{ fromJSON(needs.prep.outputs.indices) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -107,13 +115,14 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -r requirements.txt
-      - name: 投料
+      - uses: actions/download-artifact@v4
+        with:
+          name: batch-items
+          path: batch
+      - name: 投料(第 ${{ matrix.i }} 条)
         env:
-          MODE: ${{ matrix.item.mode }}
-          TEXT: ${{ matrix.item.text }}
-          CONTEXT: ${{ matrix.item.context }}
-          AUDIENCE: ${{ matrix.item.audience }}
-          REF_TAG: ${{ matrix.item.ref_tag }}
+          ITEMS_FILE: batch/items.json
+          ITEM_INDEX: ${{ matrix.i }}
         run: python .github/prepare.py
       - name: 跑完整CCE链
         env:
@@ -127,9 +136,12 @@ jobs:
             --outdir run/out \
             $(test -f run/audience.txt && echo "--audience-file run/audience.txt") \
             $(test -f run/ref.txt && echo "--ref-post run/ref.txt")
+      - name: 执行清单摘要
+        if: always()
+        run: python .github/summarize.py >> $GITHUB_STEP_SUMMARY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: cce-${{ matrix.item.ref_tag }}
+          name: cce-${{ matrix.i }}-${{ github.run_id }}
           path: run/out/
           retention-days: 90

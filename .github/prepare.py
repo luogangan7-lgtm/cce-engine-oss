@@ -4,11 +4,22 @@ import os, sys
 
 AUDIENCE_SPEC = {"min_words": 80, "min_utterances": 3}
 
-mode = (os.environ.get("MODE") or "").strip()
-text = os.environ.get("TEXT") or ""
-context = (os.environ.get("CONTEXT") or "").strip()
-audience = (os.environ.get("AUDIENCE") or "").strip()
-ref = (os.environ.get("REF_TAG") or "").strip()
+# 两种投料源: 环境变量(单条) 或 items.json + 索引(批量)
+if os.environ.get("ITEMS_FILE"):
+    import json as _j
+    _items = _j.load(open(os.environ["ITEMS_FILE"], encoding="utf-8"))
+    _it = _items[int(os.environ.get("ITEM_INDEX", "0"))]
+    mode = (_it.get("mode") or "").strip()
+    text = _it.get("text") or ""
+    context = (_it.get("context") or "").strip()
+    audience = (_it.get("audience") or "").strip()
+    ref = (_it.get("ref_tag") or "").strip()
+else:
+    mode = (os.environ.get("MODE") or "").strip()
+    text = os.environ.get("TEXT") or ""
+    context = (os.environ.get("CONTEXT") or "").strip()
+    audience = (os.environ.get("AUDIENCE") or "").strip()
+    ref = (os.environ.get("REF_TAG") or "").strip()
 
 errs = []
 if mode not in ("reply", "post"):
