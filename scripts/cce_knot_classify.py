@@ -8,7 +8,7 @@ CCE 两级流水线 · 统一入口(供任何 agent 调用)
    —— 新增 appraisal 槽(归责 attribution / 对象层 target_layer)只活在本级,不污染第 1 级。
 
 用法(其他 agent 从这里进,不要自己拼 prompt):
-  set -a; . /Volumes/data/viral-skill-eval/.env; set +a
+  set -a; . ./.env; set +a   # 本地用; CI 由 Secrets 注入环境变量
   python3 scripts/cce_knot_classify.py --text-file /path/to/content.txt \
       [--context "平台/形态一句话"] [--k 3] [--out /path/out.json]
   echo "some text" | python3 scripts/cce_knot_classify.py --stdin

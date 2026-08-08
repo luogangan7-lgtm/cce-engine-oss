@@ -25,7 +25,8 @@ import json, requests, time, os, hashlib, sys, re, ast
 API_KEY = os.environ.get("MINIMAX_API_KEY", "")
 BASE = "https://api.minimaxi.com/v1/text/chatcompletion_v2"
 MODEL = "MiniMax-M3"
-ROOT = os.environ.get("VSE_ROOT", "/Volumes/data/viral-skill-eval")
+# 跨平台: 默认按本文件位置推仓库根, 不再硬编码 mac 路径(GH Actions/Linux 上 /Volumes 不存在)
+ROOT = os.environ.get("VSE_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RESULTS_DIR = f"{ROOT}/results/calibration"
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
