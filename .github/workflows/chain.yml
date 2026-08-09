@@ -1,0 +1,22 @@
+name: chain-validity
+on:
+  workflow_dispatch:
+    inputs:
+      n: {description: "样本数", required: false, default: "40", type: string}
+jobs:
+  cv:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip}
+      - run: pip install -r requirements.txt
+      - name: 配置↔代码一致性自检(前置闸)
+        run: python3 scripts/consistency_check.py
+      - name: 地基自检·四层因果链
+        env: {MINIMAX_API_KEY: "${{ secrets.MINIMAX_API_KEY }}"}
+        run: python3 accuracy/chain_validity.py --n ${{ inputs.n }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: chain-validity, path: accuracy/chain_validity.json}
