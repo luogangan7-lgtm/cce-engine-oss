@@ -1,0 +1,161 @@
+{
+ "input_sha": "73a4cd6b66aaf2d4",
+ "run_at": "2026-08-09T06:43:37",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.2.0 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 3,
+  "k_ok": 3,
+  "layers": {
+   "desire_vec": [
+    0.049999999999999996,
+    0.009999999999999997,
+    0.15,
+    0.3,
+    0.006666666666666665,
+    0.08333333333333333,
+    0.18333333333333335,
+    0.20999999999999996,
+    0.006666666666666665
+   ],
+   "need_vec": [
+    0.25666666666666665,
+    0.17666666666666667,
+    0.0,
+    0.0,
+    0.0,
+    0.10000000000000002,
+    0.0,
+    0.0,
+    0.0,
+    0.2833333333333334,
+    0.03333333333333333,
+    0.08333333333333333,
+    0.049999999999999996,
+    0.016666666666666666,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.07666666666666667,
+    0.07666666666666667,
+    0.34,
+    0.03,
+    0.0033333333333333335,
+    0.04666666666666667,
+    0.006666666666666667,
+    0.24,
+    0.1366666666666667,
+    0.03,
+    0.01,
+    0.0,
+    0.0033333333333333335
+   ],
+   "action_vec": [
+    0.4833333333333334,
+    0.023333333333333334,
+    0.2833333333333334,
+    0.04,
+    0.02,
+    0.04,
+    0.10999999999999999
+   ]
+  },
+  "tops": {
+   "desire": "确认欲",
+   "need": "N10_自我确认",
+   "emotion": "gratitude感激",
+   "action": "approach趋近"
+  },
+  "appraisal": {
+   "goal_relevance": 0.95,
+   "congruence_direction": "促进",
+   "need_status": "已满足",
+   "goal_congruence": "正",
+   "coping_potential": "高",
+   "note": "情境(建议被采纳、技师破例来电、Nature Sounds被强推)高度相关于她'做出决定+被信任+有方向'的核心目标；建议与来电帮助她趋近目标(促进)，且当场帮她做出决定、给出Nature Sounds新抓手(已满足)；正+高应对潜能=主导情绪为感激与宽慰，而非恐惧或悲伤。'jaded side'只是一笔带过的残余威胁评估，未改变整体促进/已满足格局。"
+  },
+  "chain_trace": "确认欲+安全感欲 →(收到含我方科普的多条建议+技师关店仍主动致电+被强推Nature Sounds程序)→ N10_自我确认(0.30)+N01_确定性(0.22)+N02_掌控局面(0.18) →(评价: 促进/已满足/正, 高应对潜能)→ gratitude感激(0.32)+relief宽慰(0.25)+approval认同(0.13) → approach趋近(0.50)+attend关注(0.30)+dominate支配(0.18) 的完整推导：她带着'我需要被确认我做了对的选择+消除对技师动机的怀疑'的潜欲望进入回贴情境，在正向评价与高应对潜能下，感激与宽慰主导情绪输出，最终以趋近(回贴致谢、采纳Phonaks)、关注(锁定Nature Sounds)、支配(两次'I decided')三种行动倾向落地。",
+  "within_js": {
+   "desire_vec": 0.0375,
+   "need_vec": 0.1571,
+   "emotion_vec": 0.0526,
+   "action_vec": 0.1547
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "reward",
+    "weight": 0.65,
+    "evidence_quote": "Excellent response!! Thank you. I decided to go with the Phonaks. I decided it was better to give them a chance for a month or so. Thank you for adding the strong rec for Nature Sounds!! He really wants to make it right for me.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足(即时)",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N01,N06",
+    "freshness_days_hint": 1,
+    "name": "爽点·回报结",
+    "family": "推动",
+    "playbook": "短收;自我缩小;不再投喂信息(需求已闭,长文=把关掉的门重开)",
+    "behavior_predicted": "致谢通道·低中成本:收藏声明/致谢/自来水布道。驱动留存分享(留存维ρ≈0.26-0.5)"
+   },
+   {
+    "key": "audit",
+    "weight": 0.25,
+    "evidence_quote": "Yes, the jaded side of me says he wants the sale.",
+    "signature": {
+     "congruence": "威胁(残余)",
+     "need_status": "未满足(已自主化解)",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "other_agent",
+     "target_layer": "epistemic_trust"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N10,N01",
+    "freshness_days_hint": 1,
+    "name": "验真·审计结",
+    "family": "阻挡",
+    "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+    "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前"
+   },
+   {
+    "key": "pain_seek",
+    "weight": 0.1,
+    "evidence_quote": "That could be its own program when everything is a bit louder so I can hear those.",
+    "signature": {
+     "congruence": "威胁(残余/远景)",
+     "need_status": "未满足→被缓解中",
+     "coping": "高",
+     "time": "未来",
+     "attribution": "system/none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "摆脱欲",
+    "need_code": "N06,N01",
+    "freshness_days_hint": 14,
+    "name": "痛点·求解结",
+    "family": "推动",
+    "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+    "behavior_predicted": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+   }
+  ],
+  "levers_present": [],
+  "notes": "主导结是 reward(当场做决定+双重致谢+信任技师),audit 以一句 jaded side 的形式短暂闪回但已被主体自行压下,pain_seek 以远景尾巴(期待未来听得更清)的形式留余;与第1级引擎读出(感激+促进+已满足+高应对)完全一致。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}
