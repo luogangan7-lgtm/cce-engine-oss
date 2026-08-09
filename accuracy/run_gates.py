@@ -21,6 +21,8 @@ TAXO = json.load(open(os.path.join(ROOT, "config/knot_taxonomy.json")))
 KNOTS = [k["key"] for k in TAXO["knots"]]
 CORPUS = json.load(open(f"{D}/corpus.json"))
 ANCHOR_IDS=['p1852zo', 'p1cuqrr', 'p1ypm4q', 'p1sqabv', 'p25z258']
+ANCHORS = json.load(open(f"{D}/anchors.json", encoding="utf-8"))["anchors"]
+ANCHOR_TRUTH = {a["id"]: a["knot"] for a in ANCHORS if a.get("id") and a.get("knot")}
 SAMPLE = [x for x in sorted(CORPUS, key=lambda x: -len(x["b"]))[:45] if x["id"] not in ANCHOR_IDS][:38]
 MODELS = ["MiniMax-M3", "MiniMax-M2.5", "MiniMax-Text-01"]  # M2.7 v1中成功率仅4/45,剔除
 
@@ -179,7 +181,48 @@ def kappa(a, b):
     return ((po - pe) / (1 - pe) if pe < 1 else None), n, po
 
 
+def qualify(model):
+    """留一法考锚例: 每次留一个锚例当考题, 其余4个作示范。top1命中≥4/5 合格。
+    协议 annotation_protocol.annotator_qualification 早已规定, 此前从未执行 —
+    未经资格考的标注者混进平均, 是 G-K1 长期不达标的主要嫌疑。"""
+    hits, detail = 0, []
+    for held in ANCHOR_IDS:
+        if held not in ANCHOR_TRUTH:
+            continue
+        item = next((x for x in CORPUS if x["id"] == held), None)
+        if not item:
+            continue
+        shown = [a for a in ANCHORS if a.get("id") != held]
+        demo = "\n".join(f"【锚例·{a['knot']}】{a.get('text','')[:200]}" for a in shown)
+        p = (f"{CODEBOOK}\n\n★示范锚例(留一法, 已隐去考题):\n{demo}\n\n"
+             f"【待判文本】\n{item['b'][:700]}\n\n"
+             '只输出JSON: {"knots":[["结名",权重],...]} 权重和为1')
+        out = call(model, p)
+        d = extract_json_robust(out, log_note="qual")
+        top = None
+        if isinstance(d, dict) and d.get("knots"):
+            try: top = sorted(d["knots"], key=lambda x: -x[1])[0][0]
+            except Exception: pass
+        ok = (top == ANCHOR_TRUTH[held])
+        hits += ok
+        detail.append({"held": held, "truth": ANCHOR_TRUTH[held], "got": top, "ok": ok})
+    return {"model": model, "hits": hits, "of": len(ANCHOR_TRUTH),
+            "qualified": hits >= 4, "detail": detail}
+
+
 def main():
+    # ── 资格考(协议既有规定, 本次起强制执行) ──
+    print("=== 标注者资格考(留一法·锚例 top1≥4/5) ===", flush=True)
+    quals = [qualify(m) for m in MODELS]
+    for q in quals:
+        print(f"  {q['model']:22s} {q['hits']}/{q['of']} {'合格' if q['qualified'] else '★不合格, 剔除'}", flush=True)
+    passed = [q["model"] for q in quals if q["qualified"]]
+    if len(passed) < 2:
+        print(f"合格标注者不足2个({passed}), 无法计算两两一致性")
+    globals()["MODELS"] = passed or MODELS
+    globals()["QUAL_REPORT"] = quals
+    print(f"进入验收的标注者: {globals()['MODELS']}\n", flush=True)
+
     print(f"样本 {len(SAMPLE)} 条 · 标注者 {MODELS}", flush=True)
     dists = {m: {} for m in MODELS}
     jobs = [(m, it) for m in MODELS for it in SAMPLE]
@@ -282,7 +325,8 @@ def main():
     out = {"gate": "九结分类学 v1.1.1 验收 v5(v4+全结负例句)",
            "sample_n": len(SAMPLE), "annotators": MODELS, "coverage": cover,
            "G_K1v2_分布一致性": gk1, "G_K2v2_成本档预测": gk2, "混淆诊断": diag,
-           "overall_pass": gk1["pass"] and gk2["pass"]}
+           "annotator_qualification": globals().get("QUAL_REPORT"),
+        "overall_pass": gk1["pass"] and gk2["pass"]}
     json.dump(out, open(os.path.join(os.path.dirname(os.path.abspath(__file__)),"out","gates_result.json"), "w"), ensure_ascii=False, indent=1)
     print(json.dumps({k: v for k, v in out.items() if k != "混淆诊断"}, ensure_ascii=False, indent=1))
     if diag:
