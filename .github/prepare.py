@@ -2,7 +2,9 @@
 """投料 + 契约校验(与 Windows runner 同一套规范)。校验不过直接失败, 不进链路。"""
 import os, sys
 
-AUDIENCE_SPEC = {"min_words": 80, "min_utterances": 3}
+# 门槛由实测定, 不拍脑袋: 9条/193词 虽满足旧门槛(80词/3条)却导致受众读数 3 倍摆动,
+# 即「合规不等于够稳」。先提到 1000词/30条, 待稳定性实测后再定终值。
+AUDIENCE_SPEC = {"min_words": 1000, "min_utterances": 30}
 
 # 两种投料源: 环境变量(单条) 或 items.json + 索引(批量)
 if os.environ.get("ITEMS_FILE"):
@@ -33,7 +35,10 @@ if mode == "post":
     if not ref:
         errs.append("post 模式必填 ref_tag")
     if not audience:
-        d = "corpus/reddit_hearingaids_utterances.txt"
+        # 2026-08-09: 旧默认语料仅 9 条/193 词, 实测同一份语料四次运行读出的受众主结
+        # pain_seek 在 0.20~0.60 之间摆动(3倍), s6 的参照系不稳到无法支撑二值门。
+        # 换为 104 条真人评论快照(8406词, 43倍)。
+        d = "corpus/reddit_hearingaids_audience_v2.txt"
         if os.path.exists(d):
             audience = open(d, encoding="utf-8").read().strip()
             print(f"::notice::audience 未提供, 回退仓库默认语料 {d}")
