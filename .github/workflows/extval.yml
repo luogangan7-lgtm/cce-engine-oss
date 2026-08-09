@@ -1,0 +1,22 @@
+name: external-validity
+on:
+  workflow_dispatch:
+    inputs:
+      pairs: {description: "配对数", required: false, default: "120", type: string}
+jobs:
+  ev:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip}
+      - run: pip install -r requirements.txt
+      - name: 配置↔代码一致性自检(前置闸)
+        run: python3 scripts/consistency_check.py
+      - name: 外部效度(他人帖子成对判决)
+        env: {MINIMAX_API_KEY: "${{ secrets.MINIMAX_API_KEY }}"}
+        run: python3 accuracy/external_validity.py --pairs ${{ inputs.pairs }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: extval, path: accuracy/external_validity.json}
