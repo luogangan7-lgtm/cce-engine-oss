@@ -1,0 +1,141 @@
+{
+ "input_sha": "792133a038f0bbb4",
+ "run_at": "2026-08-09T12:21:31",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 3,
+  "k_ok": 3,
+  "layers": {
+   "desire_vec": [
+    0.023333333333333334,
+    0.03333333333333333,
+    0.3333333333333333,
+    0.09333333333333334,
+    0.006666666666666667,
+    0.02666666666666667,
+    0.25,
+    0.23333333333333336,
+    0.0
+   ],
+   "need_vec": [
+    0.21666666666666667,
+    0.14,
+    0.08333333333333333,
+    0.2333333333333333,
+    0.0,
+    0.2833333333333333,
+    0.0,
+    0.0,
+    0.0,
+    0.043333333333333335,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.01,
+    0.0,
+    0.023333333333333334,
+    0.09999999999999999,
+    0.0,
+    0.013333333333333334,
+    0.0,
+    0.06,
+    0.043333333333333335,
+    0.26666666666666666,
+    0.2333333333333333,
+    0.08333333333333333,
+    0.16666666666666666
+   ],
+   "action_vec": [
+    0.3500000000000001,
+    0.02666666666666667,
+    0.4166666666666667,
+    0.006666666666666667,
+    0.05000000000000001,
+    0.06666666666666667,
+    0.08333333333333336
+   ]
+  },
+  "tops": {
+   "desire": "摆脱欲",
+   "need": "N06_摆脱痛苦",
+   "emotion": "curiosity好奇",
+   "action": "attend关注"
+  },
+  "appraisal": {
+   "goal_relevance": 0.95,
+   "congruence_direction": "威胁",
+   "need_status": "未满足",
+   "goal_congruence": "负",
+   "coping_potential": "中",
+   "note": "目标高度相关(直接关系到核心沟通可靠性);congruence_direction=威胁因为内容描述了一个未解决的功能故障而非解法;need_status=未满足因为问题仍在循环(『cycles back and forth』)且无明确归因;coping_potential=中因为用户已穷尽自己能做的(列举全部已试方案、系统更新、自查型号),但固件/协议层超出其控制——这种『自查穷尽却没解法』的组合,正符合威胁+未满足→fear/anger类负情绪的触发条件,而非relief。"
+  },
+  "chain_trace": "安全感欲 →(通话进入政府/呼叫中心交换台约2分钟后助听器输出与麦克风输入周期性中断3-4秒并循环)→ N01_确定性(把『下次会不会再掉、是否已知问题』的不确定性降下来) →(评价:威胁+未满足→负向,应对潜能中)→ fear恐惧(担心关键通话失联)叠加curiosity好奇(追问归因) → approach趋近+attend关注(向代工厂方详尽报型号/版本/已试方案,期待其给出确定答案)",
+  "within_js": {
+   "desire_vec": 0.0831,
+   "need_vec": 0.0751,
+   "emotion_vec": 0.0904,
+   "action_vec": 0.087
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "pain_seek",
+    "weight": 0.85,
+    "evidence_quote": "Yes have noticed issues with volume for a long time, tried many combinations of volume limit bypass, equalizers (all removed), app specific volumes. ... Symptom during calls most often if it goes through some kind of switchboard like a govt office/call center about 2 minutes in it starts to drop the mic input and hearing aids output. Just goes quiet no white noise or crackle. It comes back after about 3-4 seconds then cycles back and forth.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "中",
+     "time": "现在",
+     "attribution": "system",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "摆脱欲",
+    "need_code": "N06",
+    "freshness_days_hint": 60,
+    "name": "痛点·求解结",
+    "family": "推动",
+    "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+    "behavior_predicted": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+   },
+   {
+    "key": "audit",
+    "weight": 0.15,
+    "evidence_quote": "which I believe are a phonak in ear canal rechargeable (noting they are careful to make sure you cant 100% confirm for price matching)",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "other_agent",
+     "target_layer": "epistemic_trust"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N10",
+    "freshness_days_hint": 60,
+    "name": "验真·审计结",
+    "family": "阻挡",
+    "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+    "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前"
+   }
+  ],
+  "levers_present": [],
+  "notes": "典型技术求助帖:详述症状(通话中mic/hearing aid输出循环掉线)+穷举已试步骤(音量旁路/均衡器/系统更新/型号自查)+隐含询盘→pain_seek 主导;轻微 audit 来自对厂商刻意模糊型号以阻止比价的觉察,属于附带观察而非主驱动。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}

@@ -1,0 +1,161 @@
+{
+ "input_sha": "cae37257e7cdd616",
+ "run_at": "2026-08-09T12:22:55",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 3,
+  "k_ok": 3,
+  "layers": {
+   "desire_vec": [
+    0.016666666666666666,
+    0.16666666666666666,
+    0.16666666666666666,
+    0.19999999999999998,
+    0.049999999999999996,
+    0.03333333333333333,
+    0.2333333333333333,
+    0.13333333333333333,
+    0.0
+   ],
+   "need_vec": [
+    0.16666666666666666,
+    0.2333333333333333,
+    0.15,
+    0.18333333333333335,
+    0.05000000000000001,
+    0.10999999999999999,
+    0.0,
+    0.0,
+    0.0,
+    0.10000000000000002,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.006666666666666667,
+    0.0
+   ],
+   "emotion_vec": [
+    0.043333333333333335,
+    0.07666666666666667,
+    0.0,
+    0.016666666666666666,
+    0.0,
+    0.25,
+    0.0,
+    0.2833333333333334,
+    0.18333333333333335,
+    0.09999999999999999,
+    0.03333333333333333,
+    0.0,
+    0.013333333333333336
+   ],
+   "action_vec": [
+    0.4000000000000001,
+    0.016666666666666666,
+    0.21666666666666667,
+    0.05000000000000001,
+    0.05000000000000001,
+    0.0,
+    0.26666666666666666
+   ]
+  },
+  "tops": {
+   "desire": "控制欲",
+   "need": "N02_掌控局面",
+   "emotion": "relief宽慰",
+   "action": "approach趋近"
+  },
+  "appraisal": {
+   "goal_relevance": 0.95,
+   "congruence_direction": "促进",
+   "need_status": "已满足",
+   "goal_congruence": "正",
+   "coping_potential": "高",
+   "note": "对写作者本身,写出这段结构化、带可执行指令、带可证伪预测、带边界的回应,本身就已经在多个维度上同时回补了自己的控制/理解/确定性需求——所以是'促进+已满足'而非'促进但悬置',进而goal_congruence=正;且给出的下一步是用户单手可做、零成本、可立即验证,coping_potential为高,所以下面情绪主要是宽慰/认同/自豪这类正情绪,恐惧/愤怒只作为边界声明里的微弱底色。"
+  },
+  "chain_trace": "控制欲+摆脱欲 →(用户描述switchboard call每3-4秒clean silence、无法区分设备leg与网络leg的情境事件)→ 需求N02_掌控局面+N04_理解世界+N01_确定性 →(评价:goal_relevance 0.95 极高, 内容对控制/理解/确定性为促进, 写作者当下已满足, 推出goal_congruence=正, coping_potential=高)→ 情绪relief宽慰+approval认同+pride自豪(主),辅以curiosity好奇与微弱fear恐惧 → 行动倾向approach趋近(承诺继续陪排)+dominate支配(三道命令句关codec/关LE/关BT验证)",
+  "within_js": {
+   "desire_vec": 0.1372,
+   "need_vec": 0.1917,
+   "emotion_vec": 0.1089,
+   "action_vec": 0.0769
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "display",
+    "weight": 0.55,
+    "evidence_quote": "Try this before your next call to a government line: turn LE Audio off on the phone, and if there is a call audio codec setting, pin it to a fixed option instead of adaptive. ... I will keep going with you until it is fixed.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "identity"
+    },
+    "desire_code": "确认欲/超越欲",
+    "need_code": "N10/N09",
+    "freshness_days_hint": 5,
+    "name": "确证·展示结",
+    "family": "推动",
+    "playbook": "让位;被当同侪;接着他的贡献往前走,绝不纠正姿态压他",
+    "behavior_predicted": "展示通道·低→高成本:纠错亮牌/举反例晒型号/结构化长评/承诺回访。评论区最高质量UGC主力"
+   },
+   {
+    "key": "audit",
+    "weight": 0.35,
+    "evidence_quote": "Nothing is degrading. The link is dropping and coming back. ... I cannot confirm the Phonak build from outside, and that opacity is deliberate on the brand side, so do not spend effort there. None of this depends on who made them.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "other_agent",
+     "target_layer": "epistemic_trust"
+    },
+    "desire_code": "确认欲/安全感欲",
+    "need_code": "N10/N01",
+    "freshness_days_hint": 5,
+    "name": "验真·审计结",
+    "family": "阻挡",
+    "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+    "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前"
+   },
+   {
+    "key": "reward",
+    "weight": 0.1,
+    "evidence_quote": "It costs you nothing and you will know on the next call.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足(即时)",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N01/N03",
+    "freshness_days_hint": 3,
+    "name": "爽点·回报结",
+    "family": "推动",
+    "playbook": "短收;自我缩小;不再投喂信息(需求已闭,长文=把关掉的门重开)",
+    "behavior_predicted": "致谢通道·低中成本:收藏声明/致谢/自来水布道。驱动留存分享(留存维ρ≈0.26-0.5)"
+   }
+  ],
+  "levers_present": [],
+  "notes": "写作者以高密度结构化技术回应与回访承诺展示专业能力(display 主),同时对用户认知误区('Nothing is degrading')与品牌故意不透明做审计(audit 次),零成本可验证步骤带来即时宽慰(reward 微)。无营销杠杆,纯技术-认知回补型内容。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}

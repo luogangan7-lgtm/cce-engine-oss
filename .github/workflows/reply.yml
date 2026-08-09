@@ -17,6 +17,11 @@ jobs:
       - run: pip install -r requirements.txt
       - name: 配置↔代码一致性自检(前置闸)
         run: python3 scripts/consistency_check.py
+      - name: 文风闸(对真人语料)
+        if: inputs.draft != ''
+        run: |
+          printf '%s' "${{ inputs.draft }}" > /tmp/_sc.txt
+          python3 scripts/style_check.py /tmp/_sc.txt
       - name: run
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
