@@ -1,0 +1,166 @@
+{
+ "input_sha": "a0df95bcdd8062bb",
+ "run_at": "2026-08-09T07:41:40",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.0 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 3,
+  "k_ok": 3,
+  "layers": {
+   "desire_vec": [
+    0.03333333333333334,
+    0.01666666666666667,
+    0.38333333333333336,
+    0.2333333333333334,
+    0.0,
+    0.16666666666666666,
+    0.03333333333333334,
+    0.11666666666666668,
+    0.016666666666666666
+   ],
+   "need_vec": [
+    0.11666666666666665,
+    0.0,
+    0.0,
+    0.03333333333333333,
+    0.0,
+    0.3333333333333333,
+    0.0,
+    0.0,
+    0.0,
+    0.2333333333333333,
+    0.20000000000000004,
+    0.0,
+    0.0,
+    0.016666666666666666,
+    0.0,
+    0.06666666666666667,
+    0.0
+   ],
+   "emotion_vec": [
+    0.02666666666666667,
+    0.20000000000000004,
+    0.11666666666666665,
+    0.09000000000000001,
+    0.0,
+    0.016666666666666666,
+    0.0,
+    0.3,
+    0.13333333333333333,
+    0.05000000000000001,
+    0.043333333333333335,
+    0.006666666666666667,
+    0.016666666666666666
+   ],
+   "action_vec": [
+    0.45,
+    0.05000000000000001,
+    0.3,
+    0.016666666666666666,
+    0.06666666666666667,
+    0.016666666666666666,
+    0.09999999999999999
+   ]
+  },
+  "tops": {
+   "desire": "摆脱欲",
+   "need": "N06_摆脱痛苦",
+   "emotion": "relief宽慰",
+   "action": "approach趋近"
+  },
+  "appraisal": {
+   "goal_relevance": 0.9,
+   "congruence_direction": "促进",
+   "need_status": "已满足",
+   "goal_congruence": "正",
+   "coping_potential": "中",
+   "note": "goal_relevance 高——耳鸣是她最关心的目标;congruence 促进——closed dome调机后'no ringing'的内容明确帮她趋近无耳鸣目标;need_status 当场已满足——昨晚体验到左耳无耳鸣,故正情绪(宽慰/喜悦)能产生;但 coping_potential 仅'中'而非'高',因为她自己已经揭示威胁:取下后耳鸣回弹,意味着方案尚未完全可控,这种'已满足但未稳态'的组合解释了为什么正情绪之外还混着恐惧/渴望"
+  },
+  "chain_trace": "摆脱欲 + 确认欲 + 归属欲 + 安全感欲(耳鸣持续+刚调机)→ N06_摆脱痛苦 / N10_自我确认 / N11_归属群体 / N01_确定性(写帖的当下情境)→(评价:goal_relevance高 / congruence促进 / need_status已满足 / goal_congruence正 / coping_potential中)→ relief宽慰(主导)+ joy喜悦 + approval认同 + fear恐惧 + desire渴望 + 微量admiration/anger → approach趋近(继续佩戴+发帖分享)+ attend关注(监测耳鸣)+ agonistic对抗(对耳鸣本身)+ 轻微avoidance(避免取下)",
+  "within_js": {
+   "desire_vec": 0.0961,
+   "need_vec": 0.0943,
+   "emotion_vec": 0.1237,
+   "action_vec": 0.1457
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "reward",
+    "weight": 0.74,
+    "evidence_quote": "I think they are working! Last night my left ear had no ringing. ... after having them in all day yesterday the ringing was minimal. Just an fyi if people are still struggling with tinnitus.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足(即时)",
+     "coping": "中",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N06",
+    "freshness_days_hint": 5,
+    "name": "爽点·回报结",
+    "family": "推动",
+    "playbook": "短收;自我缩小;不再投喂信息(需求已闭,长文=把关掉的门重开)",
+    "behavior_predicted": "致谢通道·低中成本:收藏声明/致谢/自来水布道。驱动留存分享(留存维ρ≈0.26-0.5)"
+   },
+   {
+    "key": "suspend",
+    "weight": 0.18,
+    "evidence_quote": "It's not permanent, as I took mine out to wash my car and the ringing is now super loud.",
+    "signature": {
+     "congruence": "促进与威胁并存",
+     "need_status": "未满足",
+     "coping": "不确定",
+     "time": "未来(决策悬置)",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N01",
+    "freshness_days_hint": 5,
+    "name": "悬置·焦虑结",
+    "family": "阻挡",
+    "playbook": "给判据+零成本测试塌缩不确定性+如实说trade;不推购买。反杠杆=零风险承诺/样品/证言",
+    "behavior_predicted": "质询通道·中成本:连环规格质询/征证言/比价/收藏不买/明确不动"
+   },
+   {
+    "key": "audit",
+    "weight": 0.08,
+    "evidence_quote": "They shortened the wire on my right ear (I think maybe a little too short, dang it) and replaced the open domes with a closed dome that looks kinda flat maybe a tulip but didn't look like the one on the resound website.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "中",
+     "time": "现在",
+     "attribution": "other_agent",
+     "target_layer": "epistemic_trust"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N10",
+    "freshness_days_hint": 5,
+    "name": "验真·审计结",
+    "family": "阻挡",
+    "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+    "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前"
+   }
+  ],
+  "levers_present": [
+   "从众(audiologist positive feedback)",
+   "自来水布道('Just an fyi if people are still struggling')",
+   "痛点轻触(tinnitus)",
+   "自我确认('I think they are working!')"
+  ],
+  "notes": "经典 reward 主导——2周复诊后从'尝试'进入'初步回报'阶段,'自来水fyi'句是致谢通道的典型签名;suspend 来自'取下即回弹'揭示的方案未稳态;audit 微弱(线偏短+耳塞型号与官网不符的小嘀咕,但被总体正体验压低权重)。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}
