@@ -159,9 +159,80 @@ def observed_tier_from_facts(f, item):
     return "low"
 
 
-COST_TIER = {"pain_seek": "high", "injustice": "high", "audit": "mid", "belong": "mid",
-             "suspend": "mid", "display": "mid", "reward": "low", "itch": "low", "inertia": "none"}
+# 2026-08-09: 原为硬编码副本, 导致分类学里 display 的 cost_tier_note(2026-08-07 校准:
+# 基线mid, followed_up 时升high, 8/8) 从未被预测侧执行——而观察侧一直在用 followed_up,
+# 一边用一边不用 → 系统性低估(混淆 mid→high 占全部错误 62%)。改为从分类学读。
+COST_TIER = {k["key"]: k["cost_tier"] for k in TAXO["knots"]}
+# 条件性档位: knot -> (触发字段, 命中时的档)。来源=分类学 cost_tier_note, 不再各处复制。
+COST_TIER_IF = {"display": ("followed_up", "high")}
 TIER_ORD = {"none": 0, "low": 1, "mid": 2, "high": 3}
+ORD_TIER = {v: k for k, v in TIER_ORD.items()}
+
+
+def tier_of(knot, item):
+    """结→成本档, 应用条件性规则(依赖该条目的可核验元数据)"""
+    cond = COST_TIER_IF.get(knot)
+    if cond and item.get(cond[0]):
+        return cond[1]
+    return COST_TIER[knot]
+
+
+def expected_ordinal(dist, item):
+    """分布→连续成本分(0..3)。不取整、不定档——定档是校准问题, 与信号问题分开。"""
+    tot = sum(dist.values())
+    if tot <= 0:
+        return None
+    return sum(w * TIER_ORD[tier_of(k, item)] for k, w in dist.items()) / tot
+
+
+def predict_tier_fixed(dist, item):
+    """旧口径(固定整档切点), 仅作对照基线保留。"""
+    e = expected_ordinal(dist, item)
+    return None if e is None else ORD_TIER[min(TIER_ORD.values(), key=lambda o: abs(o - e))]
+
+
+def _spearman(xs, ys):
+    def rank(v):
+        order = sorted(range(len(v)), key=lambda i: v[i])
+        r = [0.0] * len(v)
+        i = 0
+        while i < len(order):                       # 并列取平均秩
+            j = i
+            while j + 1 < len(order) and v[order[j + 1]] == v[order[i]]:
+                j += 1
+            avg = (i + j) / 2 + 1
+            for k in range(i, j + 1):
+                r[order[k]] = avg
+            i = j + 1
+        return r
+    rx, ry = rank(xs), rank(ys)
+    n = len(xs)
+    mx, my = sum(rx) / n, sum(ry) / n
+    num = sum((a - mx) * (b - my) for a, b in zip(rx, ry))
+    den = (sum((a - mx) ** 2 for a in rx) * sum((b - my) ** 2 for b in ry)) ** 0.5
+    return round(num / den, 3) if den else None
+
+
+def _fit_cuts(scores, obs_ords):
+    """在训练折上网格搜三个切点 c1<c2<c3, 最大化精确命中。"""
+    grid = [i / 10 for i in range(1, 30)]
+    best, best_hit = (1.0, 2.0, 2.5), -1
+    for a in range(len(grid)):
+        for b in range(a + 1, len(grid)):
+            for c in range(b + 1, len(grid)):
+                c1, c2, c3 = grid[a], grid[b], grid[c]
+                h = 0
+                for s, o in zip(scores, obs_ords):
+                    p = 0 if s < c1 else 1 if s < c2 else 2 if s < c3 else 3
+                    h += (p == o)
+                if h > best_hit:
+                    best_hit, best = h, (c1, c2, c3)
+    return best
+
+
+def _apply_cuts(s, cuts):
+    c1, c2, c3 = cuts
+    return 0 if s < c1 else 1 if s < c2 else 2 if s < c3 else 3
 
 
 def js_div(p, q):
@@ -284,22 +355,50 @@ def main():
         obs = observed_tier_from_facts(f, it)
         if not c or not obs:
             continue
-        # 结分布 → 成本档期望(按权重加权取档位众数)
-        tier_w = collections.defaultdict(float)
-        for k, w in c.items():
-            tier_w[COST_TIER[k]] += w
-        pred = max(tier_w, key=tier_w.get)
-        rows.append({"id": it["id"], "pred": pred, "obs": obs, "hit": pred == obs,
-                     "off_by": abs(TIER_ORD[pred] - TIER_ORD[obs])})
-    hit = sum(1 for r in rows if r["hit"])
-    near = sum(1 for r in rows if r["off_by"] <= 1)
+        # 分布 → 连续成本分。定档留到后面用留一法校准, 避免把校准问题误报成信号问题。
+        s = expected_ordinal(c, it)
+        if s is None:
+            continue
+        # 逐条留痕: 只存聚合导致改完无法离线复核(已三次咬人: YouTube头对头亦因此算不出)
+        rows.append({"id": it["id"], "score": round(s, 4), "obs": obs, "obs_ord": TIER_ORD[obs],
+                     "pred_fixed": predict_tier_fixed(c, it),
+                     "followed_up": bool(it.get("followed_up")),
+                     "dist": {k: round(w, 3) for k, w in sorted(c.items(), key=lambda x: -x[1])},
+                     "facts": f})
+
+    scores = [r["score"] for r in rows]
+    obs_ords = [r["obs_ord"] for r in rows]
     bc = collections.Counter(r["obs"] for r in rows).most_common(1)[0]
     base = bc[1] / len(rows) if rows else 0
+
+    # ① 信号问题(与校准无关): 成本分与实测档的秩相关
+    rho = _spearman(scores, obs_ords) if len(rows) > 2 else None
+
+    # ② 校准问题: 留一法定切点——切点只在其余 n-1 条上拟合, 不看本条, 无泄漏
+    for i, r in enumerate(rows):
+        tr_s = scores[:i] + scores[i + 1:]
+        tr_o = obs_ords[:i] + obs_ords[i + 1:]
+        cuts = _fit_cuts(tr_s, tr_o)
+        po = _apply_cuts(r["score"], cuts)
+        r["pred"] = ORD_TIER[po]
+        r["hit"] = (po == r["obs_ord"])
+        r["off_by"] = abs(po - r["obs_ord"])
+        r["cuts"] = cuts
+
+    hit = sum(1 for r in rows if r["hit"])
+    near = sum(1 for r in rows if r["off_by"] <= 1)
+    fixed_hit = sum(1 for r in rows if r["pred_fixed"] == r["obs"])
     gk2 = {"n": len(rows), "exact_acc": round(hit / len(rows), 3) if rows else None,
            "within_1_tier": round(near / len(rows), 3) if rows else None,
            "baseline_majority": round(base, 3), "baseline_tier": bc[0],
            "lift_vs_baseline": round(hit / len(rows) - base, 3) if rows else None,
+           "spearman_score_vs_observed": rho,
+           "exact_acc_fixed_cuts": round(fixed_hit / len(rows), 3) if rows else None,
            "confusion": dict(collections.Counter(f"{r['pred']}→{r['obs']}" for r in rows)),
+           "rows": rows,
+           "predictor": "expected_tier_ordinal(taxonomy-sourced + display×followed_up→high) "
+                        "→ leave-one-out calibrated cutpoints",
+           "note": "spearman 测信号是否存在(免校准); exact/within1 用留一法切点, 与固定切点口径并列可比",
            "criteria": "精确档准确率 > 多数基线,或相邻档命中≥0.85",
            "pass": ((hit / len(rows) > base) or (near / len(rows) >= 0.85)) if rows else False}
 
