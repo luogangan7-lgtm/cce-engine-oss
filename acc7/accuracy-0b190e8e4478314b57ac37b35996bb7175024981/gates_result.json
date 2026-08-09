@@ -1,0 +1,2779 @@
+{
+ "gate": "九结分类学 v1.1.1 验收 v5(v4+全结负例句)",
+ "sample_n": 81,
+ "annotators": [
+  "MiniMax-M3",
+  "MiniMax-M2.5",
+  "MiniMax-M2.7",
+  "MiniMax-M2",
+  "MiniMax-Text-01"
+ ],
+ "coverage": {
+  "MiniMax-M3": 80,
+  "MiniMax-M2.5": 81,
+  "MiniMax-M2.7": 80,
+  "MiniMax-M2": 79,
+  "MiniMax-Text-01": 81
+ },
+ "G_K1v2_分布一致性": {
+  "pairwise": {
+   "MiniMax-M3~MiniMax-M2.5": {
+    "top1_kappa": 0.689,
+    "top1_raw": 0.775,
+    "top2_hit": 0.9,
+    "mean_JS": 0.1968,
+    "n": 80
+   },
+   "MiniMax-M3~MiniMax-M2.7": {
+    "top1_kappa": 0.591,
+    "top1_raw": 0.696,
+    "top2_hit": 0.861,
+    "mean_JS": 0.2274,
+    "n": 79
+   },
+   "MiniMax-M3~MiniMax-M2": {
+    "top1_kappa": 0.627,
+    "top1_raw": 0.718,
+    "top2_hit": 0.923,
+    "mean_JS": 0.1891,
+    "n": 78
+   },
+   "MiniMax-M3~MiniMax-Text-01": {
+    "top1_kappa": 0.489,
+    "top1_raw": 0.588,
+    "top2_hit": 0.838,
+    "mean_JS": 0.3177,
+    "n": 80
+   },
+   "MiniMax-M2.5~MiniMax-M2.7": {
+    "top1_kappa": 0.691,
+    "top1_raw": 0.762,
+    "top2_hit": 0.95,
+    "mean_JS": 0.178,
+    "n": 80
+   },
+   "MiniMax-M2.5~MiniMax-M2": {
+    "top1_kappa": 0.721,
+    "top1_raw": 0.785,
+    "top2_hit": 0.949,
+    "mean_JS": 0.1516,
+    "n": 79
+   },
+   "MiniMax-M2.5~MiniMax-Text-01": {
+    "top1_kappa": 0.588,
+    "top1_raw": 0.667,
+    "top2_hit": 0.852,
+    "mean_JS": 0.3067,
+    "n": 81
+   },
+   "MiniMax-M2.7~MiniMax-M2": {
+    "top1_kappa": 0.69,
+    "top1_raw": 0.756,
+    "top2_hit": 0.897,
+    "mean_JS": 0.2027,
+    "n": 78
+   },
+   "MiniMax-M2.7~MiniMax-Text-01": {
+    "top1_kappa": 0.543,
+    "top1_raw": 0.625,
+    "top2_hit": 0.825,
+    "mean_JS": 0.3035,
+    "n": 80
+   },
+   "MiniMax-M2~MiniMax-Text-01": {
+    "top1_kappa": 0.531,
+    "top1_raw": 0.62,
+    "top2_hit": 0.886,
+    "mean_JS": 0.3051,
+    "n": 79
+   }
+  },
+  "core_panel": [
+   "MiniMax-M3",
+   "MiniMax-M2.5",
+   "MiniMax-M2.7",
+   "MiniMax-M2",
+   "MiniMax-Text-01"
+  ],
+  "outliers_excluded": [],
+  "outlier_rule": "与其余成员平均JS > 面板中位数+2SD(盲规则, 2026-08-09 冻结)",
+  "annotator_mean_JS": {
+   "MiniMax-M2.5": 0.2083,
+   "MiniMax-M2": 0.2121,
+   "MiniMax-M2.7": 0.2279,
+   "MiniMax-M3": 0.2327,
+   "MiniMax-Text-01": 0.3082
+  },
+  "mean_top2_hit": 0.8881,
+  "sd_top2_hit": 0.0441,
+  "mean_JS": 0.2379,
+  "sd_JS": 0.0636,
+  "mean_top1_kappa": 0.616,
+  "sd_top1_kappa": 0.08,
+  "mean_top1_raw_agreement": 0.6992,
+  "top1_prevalence": {
+   "display": 147,
+   "pain_seek": 85,
+   "reward": 61,
+   "itch": 47,
+   "audit": 27,
+   "suspend": 19,
+   "injustice": 9,
+   "inertia": 5,
+   "belong": 1
+  },
+  "chance_agreement_Pe": 0.224,
+  "kappa_note": "κ=(Po-Pe)/(1-Pe) 依赖类别基率, 不可跨语料比较。本语料 Pe 偏高时同样的生判一致率会显示为更低的 κ, 故 κ 为参考项而非硬阈。",
+  "full_panel": {
+   "mean_top2_hit": 0.8881,
+   "mean_JS": 0.2379,
+   "mean_top1_kappa": 0.616
+  },
+  "criteria": "主判(核心面板): top2命中≥0.8 且 平均JS≤0.25; κ与生判一致率为参考项",
+  "pass": true
+ },
+ "G_K2v2_成本档预测": {
+  "n": 81,
+  "exact_acc": 0.617,
+  "within_1_tier": 0.988,
+  "baseline_majority": 0.469,
+  "baseline_tier": "high",
+  "lift_vs_baseline": 0.148,
+  "spearman_score_vs_observed": 0.655,
+  "exact_acc_fixed_cuts": 0.568,
+  "confusion": {
+   "high→high": 28,
+   "low→low": 9,
+   "mid→high": 9,
+   "mid→mid": 13,
+   "low→mid": 5,
+   "mid→low": 5,
+   "high→mid": 11,
+   "low→high": 1
+  },
+  "rows": [
+   {
+    "id": "p168jok",
+    "score": 2.66,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "display": 0.82,
+     "reward": 0.16,
+     "belong": 0.02
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p16p8dk",
+    "score": 2.6467,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "display": 0.823,
+     "reward": 0.177
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p16qnr2",
+    "score": 2.7267,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "display": 0.863,
+     "reward": 0.137
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p16rysu",
+    "score": 2.88,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "display": 0.65,
+     "pain_seek": 0.26,
+     "audit": 0.06,
+     "reward": 0.03
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p185nbh",
+    "score": 2.24,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "mid",
+    "followed_up": true,
+    "dist": {
+     "display": 0.45,
+     "itch": 0.35,
+     "injustice": 0.14,
+     "suspend": 0.06
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": true,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1czz4f",
+    "score": 2.92,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "display": 0.96,
+     "reward": 0.04
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p17qqsy",
+    "score": 2.77,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "pain_seek": 0.75,
+     "suspend": 0.19,
+     "belong": 0.04,
+     "display": 0.02
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p18mu2p",
+    "score": 1.0,
+    "obs": "low",
+    "obs_ord": 1,
+    "pred_fixed": "low",
+    "followed_up": true,
+    "dist": {
+     "reward": 1.0
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": true,
+     "offered_help_or_correction": false
+    },
+    "pred": "low",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1d6xoi",
+    "score": 2.83,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "display": 0.59,
+     "pain_seek": 0.24,
+     "suspend": 0.17
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1e8a8c",
+    "score": 1.98,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "mid",
+    "followed_up": true,
+    "dist": {
+     "suspend": 0.38,
+     "pain_seek": 0.3,
+     "itch": 0.28,
+     "reward": 0.04
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": false,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1xiz5g",
+    "score": 1.94,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "display": 0.94,
+     "reward": 0.06
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "mid",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p18tcmk",
+    "score": 2.01,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "mid",
+    "followed_up": true,
+    "dist": {
+     "suspend": 0.51,
+     "audit": 0.22,
+     "pain_seek": 0.14,
+     "itch": 0.13
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1b2dex",
+    "score": 1.94,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "display": 0.85,
+     "suspend": 0.07,
+     "itch": 0.06,
+     "belong": 0.02
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1clyvy",
+    "score": 2.21,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "mid",
+    "followed_up": true,
+    "dist": {
+     "display": 0.56,
+     "audit": 0.16,
+     "itch": 0.13,
+     "inertia": 0.11,
+     "suspend": 0.04
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1dnz0p",
+    "score": 0.94,
+    "obs": "low",
+    "obs_ord": 1,
+    "pred_fixed": "low",
+    "followed_up": false,
+    "dist": {
+     "reward": 0.94,
+     "inertia": 0.06
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "low",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p15mu53",
+    "score": 1.2,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "low",
+    "followed_up": false,
+    "dist": {
+     "itch": 0.68,
+     "reward": 0.18,
+     "display": 0.08,
+     "pain_seek": 0.06
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "low",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p15ut9a",
+    "score": 1.4133,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "low",
+    "followed_up": true,
+    "dist": {
+     "itch": 0.553,
+     "reward": 0.24,
+     "display": 0.207
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p15vrgd",
+    "score": 2.96,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "display": 0.98,
+     "reward": 0.02
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p15xwry",
+    "score": 2.3,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "mid",
+    "followed_up": true,
+    "dist": {
+     "display": 0.58,
+     "itch": 0.21,
+     "belong": 0.08,
+     "reward": 0.07,
+     "suspend": 0.06
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p16ynv5",
+    "score": 1.2,
+    "obs": "low",
+    "obs_ord": 1,
+    "pred_fixed": "low",
+    "followed_up": true,
+    "dist": {
+     "itch": 0.9,
+     "display": 0.1
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.2,
+     2.2
+    ]
+   },
+   {
+    "id": "p1d2cyl",
+    "score": 2.625,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "display": 0.75,
+     "itch": 0.15,
+     "audit": 0.075,
+     "pain_seek": 0.025
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p17c3wg",
+    "score": 2.76,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "injustice": 0.58,
+     "audit": 0.24,
+     "display": 0.16,
+     "pain_seek": 0.02
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": true,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p17oiw4",
+    "score": 1.26,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "low",
+    "followed_up": true,
+    "dist": {
+     "itch": 0.74,
+     "audit": 0.14,
+     "suspend": 0.12
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "low",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p18je75",
+    "score": 1.61,
+    "obs": "low",
+    "obs_ord": 1,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "display": 0.59,
+     "itch": 0.33,
+     "reward": 0.06,
+     "belong": 0.02
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p15o7qz",
+    "score": 2.42,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "mid",
+    "followed_up": true,
+    "dist": {
+     "display": 0.69,
+     "reward": 0.29,
+     "pain_seek": 0.02
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p15tsji",
+    "score": 2.04,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "mid",
+    "followed_up": true,
+    "dist": {
+     "audit": 0.96,
+     "injustice": 0.04
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": true,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p18yliu",
+    "score": 1.16,
+    "obs": "low",
+    "obs_ord": 1,
+    "pred_fixed": "low",
+    "followed_up": true,
+    "dist": {
+     "reward": 0.92,
+     "display": 0.08
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "low",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p15pp12",
+    "score": 1.64,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "display": 0.54,
+     "reward": 0.32,
+     "suspend": 0.06,
+     "itch": 0.06,
+     "pain_seek": 0.02
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p15rd15",
+    "score": 1.0,
+    "obs": "low",
+    "obs_ord": 1,
+    "pred_fixed": "low",
+    "followed_up": false,
+    "dist": {
+     "reward": 1.0
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": true,
+     "offered_help_or_correction": false
+    },
+    "pred": "low",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p16a3gi",
+    "score": 2.64,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "high",
+    "followed_up": false,
+    "dist": {
+     "pain_seek": 0.74,
+     "reward": 0.1,
+     "display": 0.08,
+     "suspend": 0.06,
+     "audit": 0.02
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": true,
+     "challenged_or_confronted": true,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p16hj37",
+    "score": 1.04,
+    "obs": "low",
+    "obs_ord": 1,
+    "pred_fixed": "low",
+    "followed_up": false,
+    "dist": {
+     "reward": 0.96,
+     "belong": 0.04
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": true,
+     "offered_help_or_correction": false
+    },
+    "pred": "low",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p19q7vg",
+    "score": 1.72,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "display": 0.72,
+     "itch": 0.14,
+     "reward": 0.14
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "mid",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1agbk7",
+    "score": 1.44,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "low",
+    "followed_up": false,
+    "dist": {
+     "display": 0.44,
+     "reward": 0.39,
+     "itch": 0.17
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": true,
+     "offered_help_or_correction": true
+    },
+    "pred": "mid",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1dhctg",
+    "score": 1.36,
+    "obs": "low",
+    "obs_ord": 1,
+    "pred_fixed": "low",
+    "followed_up": false,
+    "dist": {
+     "reward": 0.64,
+     "display": 0.2,
+     "belong": 0.16
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": true,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.2,
+     2.2
+    ]
+   },
+   {
+    "id": "p16dz6l",
+    "score": 0.82,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "low",
+    "followed_up": true,
+    "dist": {
+     "reward": 0.41,
+     "inertia": 0.4,
+     "display": 0.1,
+     "itch": 0.07,
+     "belong": 0.02
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "low",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p16sk4r",
+    "score": 2.86,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "display": 0.56,
+     "pain_seek": 0.3,
+     "suspend": 0.12,
+     "audit": 0.02
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p16wq9y",
+    "score": 2.26,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "pain_seek": 0.56,
+     "reward": 0.3,
+     "display": 0.14
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p17brv9",
+    "score": 2.04,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "display": 0.88,
+     "pain_seek": 0.08,
+     "reward": 0.04
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "mid",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1710vg",
+    "score": 1.68,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "display": 0.68,
+     "itch": 0.26,
+     "reward": 0.06
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "mid",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1945bb",
+    "score": 2.4875,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "injustice": 0.438,
+     "pain_seek": 0.225,
+     "audit": 0.188,
+     "reward": 0.125,
+     "inertia": 0.025
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": true,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1dny4m",
+    "score": 2.76,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "pain_seek": 0.76,
+     "belong": 0.16,
+     "suspend": 0.06,
+     "audit": 0.02
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1ts11p",
+    "score": 2.36,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "pain_seek": 0.46,
+     "audit": 0.23,
+     "display": 0.21,
+     "reward": 0.1
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1uoo28",
+    "score": 2.92,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "pain_seek": 0.92,
+     "audit": 0.06,
+     "suspend": 0.02
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p15ujzy",
+    "score": 2.07,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "mid",
+    "followed_up": true,
+    "dist": {
+     "pain_seek": 0.32,
+     "audit": 0.29,
+     "reward": 0.25,
+     "suspend": 0.14
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": false,
+     "asked_question": true,
+     "challenged_or_confronted": true,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1au1ez",
+    "score": 2.29,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "mid",
+    "followed_up": true,
+    "dist": {
+     "pain_seek": 0.51,
+     "suspend": 0.21,
+     "reward": 0.16,
+     "audit": 0.06,
+     "itch": 0.06
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": false,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p19004m",
+    "score": 2.06,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "mid",
+    "followed_up": true,
+    "dist": {
+     "audit": 0.82,
+     "suspend": 0.12,
+     "display": 0.06
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": true,
+     "challenged_or_confronted": true,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1aw2rx",
+    "score": 1.93,
+    "obs": "low",
+    "obs_ord": 1,
+    "pred_fixed": "mid",
+    "followed_up": true,
+    "dist": {
+     "itch": 0.39,
+     "display": 0.28,
+     "suspend": 0.21,
+     "audit": 0.08,
+     "injustice": 0.04
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p16i82p",
+    "score": 1.08,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "low",
+    "followed_up": false,
+    "dist": {
+     "itch": 0.96,
+     "pain_seek": 0.04
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "low",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p17h6tm",
+    "score": 2.86,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "high",
+    "followed_up": false,
+    "dist": {
+     "pain_seek": 0.94,
+     "inertia": 0.04,
+     "suspend": 0.02
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p17qk1q",
+    "score": 2.31,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "display": 0.51,
+     "injustice": 0.37,
+     "reward": 0.06,
+     "audit": 0.06
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": true,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p18hihi",
+    "score": 1.5,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "low",
+    "followed_up": false,
+    "dist": {
+     "display": 0.4,
+     "audit": 0.35,
+     "inertia": 0.25
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "mid",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p18lunm",
+    "score": 2.4179,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "pain_seek": 0.599,
+     "reward": 0.141,
+     "audit": 0.12,
+     "suspend": 0.1,
+     "itch": 0.04
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p18myzd",
+    "score": 1.0,
+    "obs": "low",
+    "obs_ord": 1,
+    "pred_fixed": "low",
+    "followed_up": false,
+    "dist": {
+     "reward": 1.0
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": true,
+     "offered_help_or_correction": false
+    },
+    "pred": "low",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p18w4ov",
+    "score": 2.7,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "pain_seek": 0.58,
+     "display": 0.2,
+     "audit": 0.12,
+     "reward": 0.08,
+     "suspend": 0.02
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1910q8",
+    "score": 2.6,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "pain_seek": 0.72,
+     "reward": 0.2,
+     "injustice": 0.08
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1fwj4g",
+    "score": 2.62,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "pain_seek": 0.37,
+     "display": 0.3,
+     "reward": 0.18,
+     "injustice": 0.13,
+     "audit": 0.02
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": true,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p199sw5",
+    "score": 2.29,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "display": 0.63,
+     "pain_seek": 0.243,
+     "injustice": 0.087,
+     "reward": 0.04
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1adxb6",
+    "score": 1.9333,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "display": 0.873,
+     "reward": 0.097,
+     "pain_seek": 0.03
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1cnv4a",
+    "score": 2.55,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "high",
+    "followed_up": false,
+    "dist": {
+     "pain_seek": 0.61,
+     "display": 0.13,
+     "suspend": 0.1,
+     "reward": 0.1,
+     "injustice": 0.04,
+     "audit": 0.02
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1ddtvo",
+    "score": 2.76,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "pain_seek": 0.67,
+     "display": 0.18,
+     "itch": 0.09,
+     "suspend": 0.06
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1sbeuz",
+    "score": 1.0,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "low",
+    "followed_up": true,
+    "dist": {
+     "reward": 1.0
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "low",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1x52iv",
+    "score": 2.45,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "mid",
+    "followed_up": true,
+    "dist": {
+     "pain_seek": 0.45,
+     "suspend": 0.39,
+     "display": 0.08,
+     "reward": 0.04,
+     "itch": 0.04
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p22th5f",
+    "score": 1.0,
+    "obs": "low",
+    "obs_ord": 1,
+    "pred_fixed": "low",
+    "followed_up": true,
+    "dist": {
+     "reward": 1.0
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": true,
+     "offered_help_or_correction": false
+    },
+    "pred": "low",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1ebz4e",
+    "score": 2.1,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "display": 0.38,
+     "pain_seek": 0.34,
+     "itch": 0.2,
+     "suspend": 0.06,
+     "inertia": 0.02
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "mid",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1gqc2h",
+    "score": 2.03,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "display": 0.91,
+     "pain_seek": 0.06,
+     "reward": 0.03
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1fpkk7",
+    "score": 1.02,
+    "obs": "low",
+    "obs_ord": 1,
+    "pred_fixed": "low",
+    "followed_up": false,
+    "dist": {
+     "reward": 0.98,
+     "belong": 0.02
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": true,
+     "offered_help_or_correction": false
+    },
+    "pred": "low",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1gtend",
+    "score": 2.18,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "display": 0.6,
+     "belong": 0.2,
+     "pain_seek": 0.18,
+     "suspend": 0.02
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.1
+    ]
+   },
+   {
+    "id": "p1j8b2t",
+    "score": 2.37,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "display": 0.55,
+     "pain_seek": 0.22,
+     "injustice": 0.15,
+     "audit": 0.06,
+     "suspend": 0.02
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": true,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1jcvx3",
+    "score": 1.46,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "low",
+    "followed_up": false,
+    "dist": {
+     "reward": 0.54,
+     "display": 0.46
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "mid",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1sehvk",
+    "score": 2.23,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "display": 0.71,
+     "pain_seek": 0.23,
+     "suspend": 0.04,
+     "audit": 0.02
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1suf5n",
+    "score": 1.75,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "display": 0.58,
+     "itch": 0.25,
+     "suspend": 0.13,
+     "reward": 0.02,
+     "pain_seek": 0.02
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1svvae",
+    "score": 1.35,
+    "obs": "low",
+    "obs_ord": 1,
+    "pred_fixed": "low",
+    "followed_up": false,
+    "dist": {
+     "itch": 0.65,
+     "display": 0.25,
+     "suspend": 0.1
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.2,
+     2.2
+    ]
+   },
+   {
+    "id": "p1t8pi6",
+    "score": 2.55,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "pain_seek": 0.56,
+     "itch": 0.13,
+     "display": 0.11,
+     "suspend": 0.09,
+     "injustice": 0.06,
+     "reward": 0.05
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1t7vla",
+    "score": 2.9579,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "display": 0.809,
+     "pain_seek": 0.149,
+     "belong": 0.042
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1tho26",
+    "score": 2.54,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "high",
+    "followed_up": true,
+    "dist": {
+     "pain_seek": 0.68,
+     "audit": 0.14,
+     "suspend": 0.1,
+     "inertia": 0.06,
+     "itch": 0.02
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "high",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1tpsyx",
+    "score": 1.16,
+    "obs": "low",
+    "obs_ord": 1,
+    "pred_fixed": "low",
+    "followed_up": true,
+    "dist": {
+     "reward": 0.9,
+     "display": 0.06,
+     "belong": 0.04
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": true,
+     "offered_help_or_correction": false
+    },
+    "pred": "low",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1unvai",
+    "score": 2.0,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "mid",
+    "followed_up": false,
+    "dist": {
+     "audit": 1.0
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": true,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1srvh7",
+    "score": 1.9,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "mid",
+    "followed_up": true,
+    "dist": {
+     "itch": 0.5,
+     "display": 0.43,
+     "suspend": 0.04,
+     "reward": 0.03
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p1st13q",
+    "score": 2.13,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "mid",
+    "followed_up": true,
+    "dist": {
+     "suspend": 0.47,
+     "itch": 0.2,
+     "pain_seek": 0.19,
+     "display": 0.14
+    },
+    "facts": {
+     "named_specific_model": false,
+     "described_own_situation_in_detail": false,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": true
+    },
+    "pred": "high",
+    "hit": false,
+    "off_by": 1,
+    "cuts": [
+     0.1,
+     1.4,
+     2.1
+    ]
+   },
+   {
+    "id": "p1ylvaa",
+    "score": 1.42,
+    "obs": "mid",
+    "obs_ord": 2,
+    "pred_fixed": "low",
+    "followed_up": false,
+    "dist": {
+     "itch": 0.69,
+     "display": 0.2,
+     "pain_seek": 0.11
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": false,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "mid",
+    "hit": true,
+    "off_by": 0,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   },
+   {
+    "id": "p21ur1b",
+    "score": 1.39,
+    "obs": "high",
+    "obs_ord": 3,
+    "pred_fixed": "low",
+    "followed_up": false,
+    "dist": {
+     "itch": 0.61,
+     "display": 0.39
+    },
+    "facts": {
+     "named_specific_model": true,
+     "described_own_situation_in_detail": true,
+     "asked_question": true,
+     "challenged_or_confronted": false,
+     "thanks_only": false,
+     "offered_help_or_correction": false
+    },
+    "pred": "low",
+    "hit": false,
+    "off_by": 2,
+    "cuts": [
+     0.1,
+     1.4,
+     2.2
+    ]
+   }
+  ],
+  "predictor": "expected_tier_ordinal(taxonomy-sourced + display×followed_up→high) → leave-one-out calibrated cutpoints",
+  "note": "spearman 测信号是否存在(免校准); exact/within1 用留一法切点, 与固定切点口径并列可比",
+  "spearman_p": 0.0,
+  "macro_recall": 0.609,
+  "chance_macro_recall": 0.333,
+  "constant_predictor_within1": {
+   "none": 0.173,
+   "low": 0.531,
+   "mid": 1.0,
+   "high": 0.827
+  },
+  "criteria": "主判: spearman(成本分,实测档) 显著(p<0.05) 且 ρ≥0.3; 辅判: macro-recall > 1/类别数。精确率对多数基线仅作参考(基率偏斜时不可判)",
+  "pass": true
+ },
+ "混淆诊断": {
+  "n_disagree_cases": 42,
+  "top_confusion_pairs": {
+   "display|pain_seek": 13,
+   "display|itch": 10,
+   "pain_seek|suspend": 10,
+   "audit|pain_seek": 7
+  },
+  "diagnosis": {
+   "pairs": [
+    {
+     "pair": "display|pain_seek",
+     "ambiguity": "两者 congruence/coping 极易重叠(都常见 consumption_goal+对比/晒单),签名未强制约束末尾行为形态;真实评论常用'陈述结论+留半句缺口'形态,导致晒单与求方案边界模糊",
+     "hard_discriminant": "看结尾句法:display 以完成时/现在时陈述句收尾且无求助/询盘动词(没有'求教/有没有人/怎么解决'等);pain_seek 必须出现'详述症状+已试步骤+询盘'三件套中至少两件(尤其是已试步骤与照做回报)"
+    },
+    {
+     "pair": "display|itch",
+     "ambiguity": "都落在 congruence=促进 且 coping=高,且都可能包含'看好某特性'的正面评价;签名未约束物主关系与时态,导致'我用的设备特性真好'与'这个特性好想以后用上'难以区分",
+     "hard_discriminant": "物主+时态双判:display 主语必含'我的/我用的/我已买的'现在/完成时,且行为链含'举反例晒型号/纠错亮牌/结构化长评'之一;itch 主语为'如果.../等.../希望有'条件/将来时,且无在用设备作为锚点"
+    },
+    {
+     "pair": "pain_seek|suspend",
+     "ambiguity": "两者 need_status 都是'未满足',coping 都是'中',都出现问号;签名未强制区分'现在已发生的痛'与'未来决策悬置的质询',导致条件式询问被误判为求方案",
+     "hard_discriminant": "句法时态+物主判定:pain_seek 描述当下已发生且仍在的故障('现在/一直/已经...但...不工作'),含至少一处'已试步骤';suspend 描述假设/未来场景('如果我用X会不会Y'/'能不能先X再Y')且含决策悬置信号('先确认/再决定/收藏不买'/'instant buy'前的问句)"
+    },
+    {
+     "pair": "audit|pain_seek",
+     "ambiguity": "都落在 congruence=威胁 + need_status=未满足 + coping=高,签名未区分归因对象的有生性(animate other_agent vs inanimate system)与 target_layer 的具体所指(epistemic_trust 对声明 vs consumption_goal 对功能),导致'对某品牌/答主声明的怀疑'被误读为'对设备的求助'",
+     "hard_discriminant": "归因对象+质询指向判定:audit 必须显式指认某有生主体(品牌/答主/KOL/Apple等)并指向其**具体声明的真伪/动机**('他/他们说X但我查到是Y'/'这家公司...');pain_seek 指向无生命对象(设备/系统/协议/规格本身)的功能/适配问题,无针对某主体的真伪质疑"
+    }
+   ],
+   "taxonomy_fix": "在 v1.1.0 将签名从纯{congruence/need_status/coping/time/attribution/target_layer}扩展为'语义签名+句法指纹'双层结构:新增必填字段{sentence_voice, owner_relation, addressee_animate}——分别约束收尾句法(陈述/假设/求助/质询)、物主关系(我的 vs 他人/未来)、质询对象的有生性,让签名本身可机器可判定"
+  }
+ },
+ "annotator_qualification": [
+  {
+   "model": "MiniMax-M3",
+   "hits": 5,
+   "of": 5,
+   "qualified": true,
+   "detail": [
+    {
+     "held": "p1852zo",
+     "truth": "display",
+     "got": "display",
+     "ok": true
+    },
+    {
+     "held": "p1cuqrr",
+     "truth": "pain_seek",
+     "got": "pain_seek",
+     "ok": true
+    },
+    {
+     "held": "p1ypm4q",
+     "truth": "injustice",
+     "got": "injustice",
+     "ok": true
+    },
+    {
+     "held": "p1sqabv",
+     "truth": "itch",
+     "got": "itch",
+     "ok": true
+    },
+    {
+     "held": "p25z258",
+     "truth": "audit",
+     "got": "audit",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "model": "MiniMax-M2.5",
+   "hits": 5,
+   "of": 5,
+   "qualified": true,
+   "detail": [
+    {
+     "held": "p1852zo",
+     "truth": "display",
+     "got": "display",
+     "ok": true
+    },
+    {
+     "held": "p1cuqrr",
+     "truth": "pain_seek",
+     "got": "pain_seek",
+     "ok": true
+    },
+    {
+     "held": "p1ypm4q",
+     "truth": "injustice",
+     "got": "injustice",
+     "ok": true
+    },
+    {
+     "held": "p1sqabv",
+     "truth": "itch",
+     "got": "itch",
+     "ok": true
+    },
+    {
+     "held": "p25z258",
+     "truth": "audit",
+     "got": "audit",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "model": "MiniMax-M2.7",
+   "hits": 5,
+   "of": 5,
+   "qualified": true,
+   "detail": [
+    {
+     "held": "p1852zo",
+     "truth": "display",
+     "got": "display",
+     "ok": true
+    },
+    {
+     "held": "p1cuqrr",
+     "truth": "pain_seek",
+     "got": "pain_seek",
+     "ok": true
+    },
+    {
+     "held": "p1ypm4q",
+     "truth": "injustice",
+     "got": "injustice",
+     "ok": true
+    },
+    {
+     "held": "p1sqabv",
+     "truth": "itch",
+     "got": "itch",
+     "ok": true
+    },
+    {
+     "held": "p25z258",
+     "truth": "audit",
+     "got": "audit",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "model": "MiniMax-M2",
+   "hits": 4,
+   "of": 5,
+   "qualified": true,
+   "detail": [
+    {
+     "held": "p1852zo",
+     "truth": "display",
+     "got": "display",
+     "ok": true
+    },
+    {
+     "held": "p1cuqrr",
+     "truth": "pain_seek",
+     "got": "pain_seek",
+     "ok": true
+    },
+    {
+     "held": "p1ypm4q",
+     "truth": "injustice",
+     "got": "audit",
+     "ok": false
+    },
+    {
+     "held": "p1sqabv",
+     "truth": "itch",
+     "got": "itch",
+     "ok": true
+    },
+    {
+     "held": "p25z258",
+     "truth": "audit",
+     "got": "audit",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "model": "MiniMax-Text-01",
+   "hits": 5,
+   "of": 5,
+   "qualified": true,
+   "detail": [
+    {
+     "held": "p1852zo",
+     "truth": "display",
+     "got": "display",
+     "ok": true
+    },
+    {
+     "held": "p1cuqrr",
+     "truth": "pain_seek",
+     "got": "pain_seek",
+     "ok": true
+    },
+    {
+     "held": "p1ypm4q",
+     "truth": "injustice",
+     "got": "injustice",
+     "ok": true
+    },
+    {
+     "held": "p1sqabv",
+     "truth": "itch",
+     "got": "itch",
+     "ok": true
+    },
+    {
+     "held": "p25z258",
+     "truth": "audit",
+     "got": "audit",
+     "ok": true
+    }
+   ]
+  }
+ ],
+ "overall_pass": true
+}

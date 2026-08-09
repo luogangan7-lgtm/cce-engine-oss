@@ -1,0 +1,39 @@
+name: oos
+on:
+  workflow_dispatch:
+    inputs:
+      posts:
+        description: "只跑这些帖(逗号分隔), 留空=全部"
+        required: false
+        default: ""
+jobs:
+  oos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: run
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+        run: python3 accuracy/run_oos.py ${{ github.event.inputs.posts }}
+      - name: summary
+        if: always()
+        run: |
+          python3 - <<'EOF' >> $GITHUB_STEP_SUMMARY
+          import json
+          d=json.load(open("accuracy/oos_result.json",encoding="utf-8"))
+          print(f"## OOS 样本外验证 · 快照 {d['snapshot']} · 分类学 {d['taxonomy']}\n")
+          print("|切片|n|spearman|p|显著|")
+          print("|---|---|---|---|---|")
+          for k in ("全部","样本外(未进验收语料)","样本内(已在验收语料)"):
+              b=d[k]; print(f"|{k}|{b['n']}|{b.get('spearman')}|{b.get('p')}|{b.get('significant')}|")
+          print("\n### 帖级\n\n|帖|赞|同意率|外部评论|人数|评/赞|回OP|")
+          print("|---|---|---|---|---|---|---|")
+          for pid,v in d["帖级"].items():
+              print(f"|{pid}|{v['ups']}|{v['upvote_ratio']}|{v['n_ext_comments']}|{v['n_people']}|{v['comments_per_up']}|{v['replied_to_op']}|")
+          EOF
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: oos-result, path: accuracy/oos_result.json}
