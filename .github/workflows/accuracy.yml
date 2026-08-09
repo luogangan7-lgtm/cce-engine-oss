@@ -1,0 +1,48 @@
+name: CCE Accuracy
+
+# 准确度回归台: 分类学/prompt/链路任何改动 → 自动跑 G-K 验收并与基线对比
+on:
+  push:
+    paths: ["config/**", "scripts/**", "accuracy/**"]
+  workflow_dispatch:
+    inputs:
+      note:
+        description: "本次跑批备注(会写进报告)"
+        required: false
+        type: string
+
+concurrency:
+  group: accuracy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11", cache: pip }
+      - run: pip install -r requirements.txt
+      - name: 记录被测版本
+        run: |
+          python - <<'PY' | tee accuracy/version.txt
+          import json
+          t = json.load(open("config/knot_taxonomy.json", encoding="utf-8"))
+          print(f"taxonomy={t['version']}  knots={len(t['knots'])}")
+          PY
+      - name: 跑 G-K 验收
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+        run: |
+          mkdir -p accuracy/out
+          python accuracy/run_gates.py 2>&1 | tail -40
+      - name: 对比基线并出报告
+        if: always()
+        run: python accuracy/compare.py >> $GITHUB_STEP_SUMMARY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: accuracy-${{ github.sha }}
+          path: accuracy/out/
+          retention-days: 180
