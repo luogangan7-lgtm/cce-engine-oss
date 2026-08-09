@@ -90,8 +90,10 @@ def s1(ctx):
 @stage("s2_knots")
 def s2(ctx):
     taxo = json.load(open(os.path.join(ROOT, "config/knot_taxonomy.json"), encoding="utf-8"))
-    if taxo.get("version") != "1.2.0":
-        raise RuntimeError(f"taxonomy版本漂移: {taxo.get('version')} != 1.2.0")
+    # 冻结守卫: 分类学换版必须显式改这里, 防止判定悄悄漂移
+    PINNED_TAXO = os.environ.get("CCE_TAXO_VERSION", "1.3.0")
+    if taxo.get("version") != PINNED_TAXO:
+        raise RuntimeError(f"taxonomy版本漂移: {taxo.get('version')} != {PINNED_TAXO}")
     knots = ctx["cce"]["stage2"]["knots"]
     return {"taxonomy": "1.2.0", "knots": [[k["key"], k["weight"]] for k in knots],
             "playbook_primary": knots[0].get("playbook", "")[:120] if knots else None}
