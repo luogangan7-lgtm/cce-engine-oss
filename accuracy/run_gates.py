@@ -24,20 +24,26 @@ ANCHOR_IDS=['p1852zo', 'p1cuqrr', 'p1ypm4q', 'p1sqabv', 'p25z258']
 ANCHORS = json.load(open(f"{D}/anchors.json", encoding="utf-8"))["anchors"]
 ANCHOR_TRUTH = {a["id"]: a["knot"] for a in ANCHORS if a.get("id") and a.get("knot")}
 SAMPLE = [x for x in sorted(CORPUS, key=lambda x: -len(x["b"]))[:45] if x["id"] not in ANCHOR_IDS][:38]
-MODELS = ["MiniMax-M3", "MiniMax-M2.5", "MiniMax-Text-01"]  # M2.7 v1中成功率仅4/45,剔除
+# 2026-08-09 复检: M2.7 旧成功率 4/45 是本文件的 bug 不是模型缺陷——
+# 它是推理模型, reasoning_content 独占预算(实测 2660 tok), max_tokens=1000 时
+# finish_reason=length 且 content 为空; 给到 4000 即输出干净 JSON。M2.6 在 API 不存在(2013)。
+MODELS = ["MiniMax-M3", "MiniMax-M2.5", "MiniMax-M2.7", "MiniMax-M2", "MiniMax-Text-01"]
 
 
-def call(model, prompt, max_tokens=1000):
+def call(model, prompt, max_tokens=4000):
     payload = {"model": model, "messages": [{"role": "user", "content": prompt}],
                "max_tokens": max_tokens, "temperature": 0.0}
     for att in range(3):
         try:
             req = urllib.request.Request(BASE, json.dumps(payload).encode(),
                                          headers={"Authorization": f"Bearer {KEY}", "Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=150) as r:
+            with urllib.request.urlopen(req, timeout=300) as r:
                 d = json.loads(r.read())
                 if (d.get("base_resp") or {}).get("status_code") == 0:
-                    return d["choices"][0]["message"].get("content") or ""
+                    msg = d["choices"][0]["message"]
+                    c = msg.get("content") or ""
+                    # 推理模型偶把最终答案留在 reasoning_content
+                    return c if c.strip() else (msg.get("reasoning_content") or "")
         except Exception:
             pass
     return ""
@@ -321,7 +327,7 @@ def main():
 
 请诊断: 对每个高频混淆对,①两者签名里哪一处描述不足以区分 ②给出一条**可操作的硬判别式**(观察什么就能定案)。
 只输出JSON: {{"pairs":[{{"pair":"a|b","ambiguity":"...","hard_discriminant":"..."}}],"taxonomy_fix":"一句话总体修订方向"}}""")
-        c = call("MiniMax-M3", p, max_tokens=1500)
+        c = call("MiniMax-M3", p, max_tokens=6000)  # M3 推理占~2.2k, 1500 会截断成空
         diag = extract_json_robust(c, log_note="gk_diag") or {"raw": c[:400]}
         diag = {"n_disagree_cases": len(disagree), "top_confusion_pairs": dict(top_pairs), "diagnosis": diag}
 
