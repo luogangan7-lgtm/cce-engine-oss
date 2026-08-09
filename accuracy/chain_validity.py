@@ -58,6 +58,32 @@ def predict_need(desire_dist):
     return norm(out)
 
 
+def invert_n2e():
+    """把 需求→情绪 表反过来: 每个情绪由哪些需求产生。用于测 情绪→需求 方向。"""
+    inv = collections.defaultdict(lambda: collections.defaultdict(float))
+    for nd, r in N2E.items():
+        for pol in ("satisfied_emotions", "blocked_emotions"):
+            lst = r.get(pol) or []
+            for e in lst:
+                inv[e][nd] += 1.0 / len(lst)
+    return {e: norm(d) for e, d in inv.items()}
+
+
+E2N = None
+
+
+def predict_need_from_emotion(emo_dist):
+    """情绪分布 → 需求分布(反转映射)。用户主张的链序: 欲望×情境→情绪→需求。"""
+    global E2N
+    if E2N is None:
+        E2N = invert_n2e()
+    out = collections.defaultdict(float)
+    for e, w in emo_dist.items():
+        for nd, q in (E2N.get(e) or {}).items():
+            out[nd] += w * q
+    return norm(out)
+
+
 def predict_emotion(need_dist, congruence):
     """需求分布 + goal_congruence → 情绪分布(按映射表)"""
     out = collections.defaultdict(float)
@@ -115,7 +141,8 @@ def main():
         act_e = norm({k: v for k, v in zip(EMOTIONS, L["emotion_vec"])})
         cong = (d["stage1"].get("appraisal") or {}).get("goal_congruence", "")
         return {"id": p["id"], "cong": cong, "act_d": act_d, "act_n": act_n, "act_e": act_e,
-                "pred_n": predict_need(act_d), "pred_e": predict_emotion(act_n, cong)}
+                "pred_n": predict_need(act_d), "pred_e": predict_emotion(act_n, cong),
+                "pred_n_from_e": predict_need_from_emotion(act_e)}
 
     with ThreadPoolExecutor(max_workers=6) as ex:
         rows = [r for r in ex.map(one, list(enumerate(sample))) if r]
@@ -143,18 +170,27 @@ def main():
                 "映射更优的条数": f"{sum(1 for x in d if x > 0)}/{n}",
                 "显著": bool(n > 3 and mu - 1.96 * se > 0)}
 
+    c_map = [js(r["pred_n_from_e"], r["act_n"]) for r in rows if r["pred_n_from_e"]]
+    c_base = [js(marg_n, r["act_n"]) for r in rows if r["pred_n_from_e"]]
     A_ = block(a_map, a_base, "A 欲望→需求")
-    B_ = block(b_map, b_base, "B 需求→情绪")
+    B_ = block(b_map, b_base, "B 需求→情绪(配置方向)")
+    C_ = block(c_map, c_base, "C 情绪→需求(用户方向)")
     res = {"gate": "地基自检·四层因果链", "n": len(rows),
            "congruence分布": dict(collections.Counter(r["cong"] for r in rows)),
-           "A": A_, "B": B_,
+           "A": A_, "B": B_, "C": C_,
            "判据": "映射预测JS显著低于边际基线 ⇒ 该跳成立",
-           "chain_holds": bool(A_["显著"] and B_["显著"]), "rows": rows}
+           "方向对比": {
+               "note": ("B 与 C 用同一张表的正反两向。谁相对各自基线改善更大, 谁那一向更锐。"
+                        "这是方向性证据而非因果证明——互信息本身对称, 静态文本也拿不到时序。"),
+               "配置方向(需求→情绪)改善": B_["改善"], "用户方向(情绪→需求)改善": C_["改善"],
+               "更锐的方向": ("用户方向 情绪→需求" if C_["改善"] > B_["改善"] else "配置方向 需求→情绪")},
+           "chain_holds": bool(A_["显著"] and (B_["显著"] or C_["显著"])), "rows": rows}
     json.dump(res, open(A.out, "w"), ensure_ascii=False, indent=1)
-    for x in (A_, B_):
+    for x in (A_, B_, C_):
         print(f"{x['跳']}: 映射JS {x['映射JS']} vs 基线 {x['边际基线JS']} "
               f"改善 {x['改善']:+} CI{x['95%CI']} {x['映射更优的条数']} → {'✅' if x['显著'] else '❌'}", flush=True)
-    print(f"\n链条成立: {res['chain_holds']}", flush=True)
+    print(f"\n更锐的方向: {res['方向对比']['更锐的方向']}", flush=True)
+    print(f"链条成立: {res['chain_holds']}", flush=True)
 
 
 if __name__ == "__main__":
