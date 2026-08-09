@@ -194,15 +194,18 @@ def qualify(model):
             continue
         shown = [a for a in ANCHORS if a.get("id") != held]
         demo = "\n".join(f"【锚例·{a['knot']}】{a.get('text','')[:200]}" for a in shown)
-        p = (f"{CODEBOOK}\n\n★示范锚例(留一法, 已隐去考题):\n{demo}\n\n"
-             f"【待判文本】\n{item['b'][:700]}\n\n"
-             '只输出JSON: {"knots":[["结名",权重],...]} 权重和为1')
+        # 用与正式标注完全相同的模板考试, 只是把示范锚例换成留一法的4个
+        p = DIST_TMPL.format(brief=KNOT_BRIEF + "\n\n★示范锚例(留一法, 已隐去本题):\n" + demo,
+                             body=item["b"][:700])
         out = call(model, p)
         d = extract_json_robust(out, log_note="qual")
         top = None
-        if isinstance(d, dict) and d.get("knots"):
-            try: top = sorted(d["knots"], key=lambda x: -x[1])[0][0]
-            except Exception: pass
+        if isinstance(d, dict) and isinstance(d.get("knots"), list) and d["knots"]:
+            try:
+                ks = [(k.get("key"), float(k.get("weight", 0))) for k in d["knots"] if k.get("key")]
+                top = sorted(ks, key=lambda x: -x[1])[0][0] if ks else None
+            except Exception:
+                pass
         ok = (top == ANCHOR_TRUTH[held])
         hits += ok
         detail.append({"held": held, "truth": ANCHOR_TRUTH[held], "got": top, "ok": ok})
