@@ -1,0 +1,453 @@
+{
+ "reader_readout": {
+  "input_sha": "792133a038f0bbb4",
+  "run_at": "2026-08-09T11:28:07",
+  "instrument": {
+   "stage1": "exp_v4_full_validation(frozen, M3)",
+   "stage2": "knot_taxonomy v1.3.1 (M3)",
+   "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+  },
+  "stage1": {
+   "k_requested": 3,
+   "k_ok": 3,
+   "layers": {
+    "desire_vec": [
+     0.03333333333333333,
+     0.0,
+     0.39999999999999997,
+     0.10000000000000002,
+     0.0,
+     0.06666666666666667,
+     0.18333333333333335,
+     0.21666666666666667,
+     0.0
+    ],
+    "need_vec": [
+     0.20000000000000004,
+     0.11666666666666665,
+     0.05000000000000001,
+     0.2166666666666667,
+     0.0,
+     0.3666666666666667,
+     0.0,
+     0.0,
+     0.0,
+     0.016666666666666666,
+     0.03333333333333334,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emotion_vec": [
+     0.0,
+     0.0,
+     0.006666666666666667,
+     0.35000000000000003,
+     0.0,
+     0.0,
+     0.0,
+     0.10333333333333333,
+     0.06333333333333334,
+     0.25,
+     0.09333333333333334,
+     0.03333333333333333,
+     0.09999999999999999
+    ],
+    "action_vec": [
+     0.4666666666666666,
+     0.006666666666666667,
+     0.3833333333333333,
+     0.0,
+     0.049999999999999996,
+     0.049999999999999996,
+     0.04333333333333333
+    ]
+   },
+   "tops": {
+    "desire": "摆脱欲",
+    "need": "N06_摆脱痛苦",
+    "emotion": "desire渴望",
+    "action": "approach趋近"
+   },
+   "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "促进",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "goal_relevance 极高：这条内容直接落在他的 switchboard 通话主诉上。direction=促进：上一轮厂方主动问'给我型号和症状,我告诉你在四种协议的哪一种',等于把外部专家调度进来帮他趋近目标。need_status=未满足：主诉(总机通话掉线)没被修复,只是被'登记'。按框架派生 goal_congruence=负——促进+未满足,需求仍悬置,所以情绪基色带负。coping_potential=中:他已穷举自助但有外部专家兜底,既不是无力也不是全能——这正好是产生'关注+趋近'而非'恐惧回避'的临界点。"
+   },
+   "chain_trace": "摆脱欲+安全感欲(想从'政府/客服电话接不住'的失能态里出来,并要这条线路以后一定稳) →(情境事件:在 switchboard 通话中 mic 与助听器输出循环掉线,2 分钟触发、3-4 秒自复,且此问题长期存在)→ N06_摆脱痛苦(主诉) + N01_确定性(协议归属) + N04_理解世界(机制) + N02_掌控局面(已自助穷举,要外脑) →(评价:goal_relevance 极高 / direction 促进(厂方下场诊断) / need_status 未满足(主诉未修) → 派生 goal_congruence 负 / coping_potential 中) → 情绪 = desire 渴望(0.30)+curiosity 好奇(0.25)+fear 恐惧(0.13)+approval 认同(0.12)+anger 愤怒(0.10)+relief 宽慰(0.08)+gratitude 感激(0.02) → 行动倾向:approach 趋近(0.45) + attend 关注(0.40) + agonistic 对抗(0.10) + dominate 支配(0.03) + avoidance 回避(0.02),即:主动按厂方模板交出详细型号/症状/已尝试项以把诊断权换到手,并以分钟-秒级颗粒度继续观察问题。",
+   "within_js": {
+    "desire_vec": 0.0383,
+    "need_vec": 0.0639,
+    "emotion_vec": 0.1421,
+    "action_vec": 0.1116
+   }
+  },
+  "stage2": {
+   "knots": [
+    {
+     "key": "pain_seek",
+     "weight": 0.92,
+     "evidence_quote": "Symptom during calls most often if it goes through some kind of switchboard like a govt office/call center about 2 minutes in it starts to drop the mic input and hearing aids output. Just goes quiet no white noise or crackle. It comes back after about 3-4 seconds then cycles back and forth.",
+     "signature": {
+      "congruence": "威胁",
+      "need_status": "未满足",
+      "coping": "中",
+      "time": "现在",
+      "attribution": "system",
+      "target_layer": "consumption_goal"
+     },
+     "desire_code": "摆脱欲",
+     "need_code": "N06",
+     "freshness_days_hint": 30,
+     "name": "痛点·求解结",
+     "family": "推动",
+     "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+     "behavior_predicted": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+    },
+    {
+     "key": "audit",
+     "weight": 0.08,
+     "evidence_quote": "noting they are careful to make sure you cant 100% confirm for price matching",
+     "signature": {
+      "congruence": "威胁",
+      "need_status": "未满足",
+      "coping": "高",
+      "time": "现在",
+      "attribution": "other_agent",
+      "target_layer": "epistemic_trust"
+     },
+     "desire_code": "确认欲",
+     "need_code": "N10",
+     "freshness_days_hint": 14,
+     "name": "验真·审计结",
+     "family": "阻挡",
+     "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+     "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前"
+    }
+   ],
+   "levers_present": [],
+   "notes": "主结pain_seek:典型求助通道高成本行为(详述switchboard掉线症状+穷举已试EQ/volume bypass/系统更新+精确报型号SM-S731B与助听器品牌+隐含询盘)。次级audit挂角于Specsavers'价格保护性故意模糊'的旁注——典型的epistemic_vigilance观察,但未升级为对质/揭穿,故仅作辅结。内容侧无主动杠杆施加,纯问题侧输出。"
+  },
+  "caveats": [
+   "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+   "全占比: knots 是带权组合,禁把单个 top 当断言",
+   "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+  ]
+ },
+ "draft_readout": {
+  "input_sha": "cae37257e7cdd616",
+  "run_at": "2026-08-09T11:31:36",
+  "instrument": {
+   "stage1": "exp_v4_full_validation(frozen, M3)",
+   "stage2": "knot_taxonomy v1.3.1 (M3)",
+   "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+  },
+  "stage1": {
+   "k_requested": 3,
+   "k_ok": 3,
+   "layers": {
+    "desire_vec": [
+     0.0,
+     0.11666666666666665,
+     0.16666666666666666,
+     0.15,
+     0.016666666666666666,
+     0.03333333333333333,
+     0.3,
+     0.19999999999999998,
+     0.016666666666666666
+    ],
+    "need_vec": [
+     0.20000000000000004,
+     0.23333333333333336,
+     0.16666666666666666,
+     0.18333333333333335,
+     0.0,
+     0.15000000000000002,
+     0.0,
+     0.0,
+     0.0,
+     0.06666666666666667,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emotion_vec": [
+     0.03333333333333333,
+     0.05000000000000001,
+     0.01666666666666667,
+     0.18333333333333335,
+     0.0,
+     0.15000000000000002,
+     0.0,
+     0.18333333333333335,
+     0.25,
+     0.13333333333333333,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "action_vec": [
+     0.31666666666666665,
+     0.0,
+     0.20000000000000004,
+     0.08333333333333333,
+     0.05000000000000001,
+     0.03333333333333333,
+     0.31666666666666665
+    ]
+   },
+   "tops": {
+    "desire": "控制欲",
+    "need": "N02_掌控局面",
+    "emotion": "approval认同",
+    "action": "approach趋近"
+   },
+   "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "goal_relevance 高：本轮内容正是为兑现上一轮'我告诉你在四种协议的哪一种'的承诺而写，相关度直接拉满。congruence_direction 促进：诊断方向（关LE Audio + pin codec + 对照实验）被写作者判定为可执行且成本为零的修复路径，把上一轮的悬置问题朝解决推进。need_status 已满足：写作者在落笔过程中已经把'主导诊断'与'机制可解释'两个最在意的需求即时兑现（结构里'Why it stops'就是当场已满足）。由前两维派生出正情绪。coping_potential 高：写作者已掌握协议层一手知识，对'修到好'有强效能预期，因此情绪基线偏正、行为偏趋近而非回避。唯一保留的负向缓冲是'Phonak build我不能从外侧确认'——这是可控的认知缺口，不足以翻转正情绪，但解释了为什么会有少量reject/agonistic成分（'do not spend effort there'）。"
+   },
+   "chain_trace": "控制欲 → 情境: 对方接住我方上一轮'给我型号和症状，我告诉你四种协议哪一种'的请求并应答 → 需求 N02_掌控局面（夺回诊断主导权，把对方拉进我的排查脚本）→ 评价: 高目标相关(0.9) / 促进 / 已满足 / 正 / 高应对潜能 → 情绪 approval认同 + pride自豪 + relief宽慰 → 行动倾向 approach趋近 + dominate支配 的完整推导：写作者带着强烈的'我来定下一步'姿态写下了'Try this...pin it...one call settles it'这条从零成本试法到对照实验再到'我陪你修到底'的指令链，并以'do not spend effort there'把对方注意力收回我划定的边界内。",
+   "within_js": {
+    "desire_vec": 0.0649,
+    "need_vec": 0.0708,
+    "emotion_vec": 0.1058,
+    "action_vec": 0.1106
+   }
+  },
+  "stage2": {
+   "knots": [
+    {
+     "key": "display",
+     "weight": 0.6,
+     "evidence_quote": "ASHA has no microphone path at all, which is the answer to which of the four you are on.",
+     "signature": {
+      "congruence": "促进",
+      "need_status": "已满足",
+      "coping": "高",
+      "time": "现在",
+      "attribution": "none",
+      "target_layer": "identity"
+     },
+     "desire_code": "确认欲+超越欲",
+     "need_code": "N10+N09",
+     "freshness_days_hint": 35,
+     "name": "确证·展示结",
+     "family": "推动",
+     "playbook": "让位;被当同侪;接着他的贡献往前走,绝不纠正姿态压他",
+     "behavior_predicted": "展示通道·低→高成本:纠错亮牌/举反例晒型号/结构化长评/承诺回访。评论区最高质量UGC主力"
+    },
+    {
+     "key": "reward",
+     "weight": 0.3,
+     "evidence_quote": "It costs you nothing and you will know on the next call.",
+     "signature": {
+      "congruence": "促进",
+      "need_status": "已满足(即时)",
+      "coping": "高",
+      "time": "现在",
+      "attribution": "none",
+      "target_layer": "consumption_goal"
+     },
+     "desire_code": "安全感欲",
+     "need_code": "N01+N03+N06",
+     "freshness_days_hint": 15,
+     "name": "爽点·回报结",
+     "family": "推动",
+     "playbook": "短收;自我缩小;不再投喂信息(需求已闭,长文=把关掉的门重开)",
+     "behavior_predicted": "致谢通道·低中成本:收藏声明/致谢/自来水布道。驱动留存分享(留存维ρ≈0.26-0.5)"
+    },
+    {
+     "key": "audit",
+     "weight": 0.1,
+     "evidence_quote": "I cannot confirm the Phonak build from outside, and that opacity is deliberate on the brand side, so do not spend effort there.",
+     "signature": {
+      "congruence": "威胁",
+      "need_status": "未满足",
+      "coping": "高",
+      "time": "现在",
+      "attribution": "other_agent",
+      "target_layer": "epistemic_trust"
+     },
+     "desire_code": "确认欲+安全感欲",
+     "need_code": "N10+N01",
+     "freshness_days_hint": 55,
+     "name": "验真·审计结",
+     "family": "阻挡",
+     "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+     "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前"
+    }
+   ],
+   "levers_present": [
+    "好奇缺口('Why it stops'段落标题闭合上一轮悬置)",
+    "权威承诺('I will keep going with you until it is fixed'形成承重杠杆)"
+   ],
+   "notes": "技术权威展示为主、回报闭环为辅,辅以对品牌侧不透明的小额审计,engine 读出的'兑现上一轮协议层承诺'是 display 高权重的直接来源。"
+  },
+  "caveats": [
+   "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+   "全占比: knots 是带权组合,禁把单个 top 当断言",
+   "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+  ]
+ },
+ "verdict": {
+  "对方九结": {
+   "pain_seek": 0.92,
+   "audit": 0.08
+  },
+  "我方九结": {
+   "display": 0.6,
+   "reward": 0.3,
+   "audit": 0.1
+  },
+  "九结对齐": {
+   "alignment_score": 0.048,
+   "resonance": 0.0,
+   "dissolution": 0.048,
+   "detail": [
+    {
+     "knot": "pain_seek",
+     "family": "推动",
+     "aud_w": 0.92,
+     "mode": "共鸣",
+     "response": 0.0,
+     "contrib": 0.0
+    },
+    {
+     "knot": "audit",
+     "family": "阻挡",
+     "aud_w": 0.08,
+     "mode": "拆除",
+     "response": 0.6,
+     "contrib": 0.048,
+     "evidence": "Turn LE Audio off on the phone...pin it to a fixed option instead of adaptive..."
+    }
+   ]
+  },
+  "四层触达": {
+   "desire_vec": {
+    "显著维": 3,
+    "触达数": 2,
+    "触达率": 0.667,
+    "逐维": [
+     {
+      "dim": "摆脱欲",
+      "对方": 0.4,
+      "我方": 0.167,
+      "触达": false,
+      "缺口": 0.033
+     },
+     {
+      "dim": "控制欲",
+      "对方": 0.183,
+      "我方": 0.3,
+      "触达": true,
+      "缺口": 0.0
+     },
+     {
+      "dim": "安全感欲",
+      "对方": 0.217,
+      "我方": 0.2,
+      "触达": true,
+      "缺口": 0.0
+     }
+    ]
+   },
+   "need_vec": {
+    "显著维": 3,
+    "触达数": 2,
+    "触达率": 0.667,
+    "逐维": [
+     {
+      "dim": "N01_确定性",
+      "对方": 0.2,
+      "我方": 0.2,
+      "触达": true,
+      "缺口": 0.0
+     },
+     {
+      "dim": "N04_理解世界",
+      "对方": 0.217,
+      "我方": 0.183,
+      "触达": true,
+      "缺口": 0.0
+     },
+     {
+      "dim": "N06_摆脱痛苦",
+      "对方": 0.367,
+      "我方": 0.15,
+      "触达": false,
+      "缺口": 0.033
+     }
+    ]
+   },
+   "emotion_vec": {
+    "显著维": 2,
+    "触达数": 2,
+    "触达率": 1.0,
+    "逐维": [
+     {
+      "dim": "desire渴望",
+      "对方": 0.35,
+      "我方": 0.183,
+      "触达": true,
+      "缺口": 0.0
+     },
+     {
+      "dim": "curiosity好奇",
+      "对方": 0.25,
+      "我方": 0.133,
+      "触达": true,
+      "缺口": 0.0
+     }
+    ]
+   },
+   "action_vec": {
+    "显著维": 2,
+    "触达数": 2,
+    "触达率": 1.0,
+    "逐维": [
+     {
+      "dim": "approach趋近",
+      "对方": 0.467,
+      "我方": 0.317,
+      "触达": true,
+      "缺口": 0.0
+     },
+     {
+      "dim": "attend关注",
+      "对方": 0.383,
+      "我方": 0.2,
+      "触达": true,
+      "缺口": 0.0
+     }
+    ]
+   }
+  },
+  "未触达维度": [
+   "摆脱欲",
+   "N06_摆脱痛苦"
+  ],
+  "判据": "need层触达率>=0.5 且 九结对齐分>=theta",
+  "need_ok": true,
+  "knot_ok": false,
+  "PASS": false,
+  "改写指令": [
+   "补上未触达维度: 摆脱欲, N06_摆脱痛苦"
+  ]
+ }
+}

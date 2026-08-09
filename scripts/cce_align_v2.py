@@ -102,8 +102,16 @@ def dissolve_hit(knot, text, votes=3):
     return hits[len(hits) // 2], (evs[0] if evs else "")
 
 
-def score(aud_knots, post_knots, text, theta=None, detect=True):
-    """aud_knots/post_knots: {knot: weight} 或 [[knot,weight],...]"""
+def score(aud_knots, post_knots, text, theta=None, detect=True, mode="post"):
+    """aud_knots/post_knots: {knot: weight} 或 [[knot,weight],...]
+
+    mode="post": 推动族求共鸣(稿件是否呈现同一结) + 阻挡族求拆除。
+    mode="reply": 全部结一律求 playbook 执行度。
+      理由(2026-08-09): 共鸣项问的是"我方文本是否也呈现该结"。在 post 模式成立
+      (帖子用读者自己的语言复述痛点); 在 reply 模式结构性不成立——帮忙的人的
+      文本永远不会读成 pain_seek, 故共鸣恒为0、theta 不可达。这与 s6 v1 的
+      "阻挡族恒不可满足"是同一类前提错误。回复该被问的是: 有没有执行对方主结的
+      playbook(给杠杆+机制+可执行下一步), 而不是有没有镜像对方的结。"""
     if isinstance(aud_knots, list):
         aud_knots = dict(aud_knots)
     if isinstance(post_knots, list):
@@ -111,7 +119,7 @@ def score(aud_knots, post_knots, text, theta=None, detect=True):
     resonance, dissolution, detail = 0.0, 0.0, []
     for k, w in aud_knots.items():
         fam = FAMILY.get(k, "推动")
-        if fam == "推动":
+        if fam == "推动" and mode != "reply":
             c = float(post_knots.get(k, 0.0))
             resonance += w * c
             detail.append({"knot": k, "family": fam, "aud_w": w, "mode": "共鸣",
@@ -119,7 +127,8 @@ def score(aud_knots, post_knots, text, theta=None, detect=True):
         else:
             hit, ev = dissolve_hit(k, text) if detect else (0.0, "未检测")
             dissolution += w * hit
-            detail.append({"knot": k, "family": fam, "aud_w": w, "mode": "拆除",
+            detail.append({"knot": k, "family": fam, "aud_w": w,
+                           "mode": "playbook执行" if mode == "reply" else "拆除",
                            "response": round(hit, 3), "contrib": round(w * hit, 4),
                            "evidence": ev})
     total = resonance + dissolution

@@ -1,0 +1,161 @@
+{
+ "input_sha": "792133a038f0bbb4",
+ "run_at": "2026-08-09T11:22:28",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 3,
+  "k_ok": 3,
+  "layers": {
+   "desire_vec": [
+    0.05000000000000001,
+    0.0,
+    0.3666666666666667,
+    0.11666666666666665,
+    0.0,
+    0.03333333333333333,
+    0.20000000000000004,
+    0.21666666666666667,
+    0.016666666666666666
+   ],
+   "need_vec": [
+    0.20000000000000004,
+    0.16666666666666666,
+    0.05000000000000001,
+    0.27666666666666667,
+    0.0,
+    0.2733333333333334,
+    0.0,
+    0.0,
+    0.0,
+    0.03333333333333334,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.016666666666666666,
+    0.0,
+    0.10000000000000002,
+    0.19000000000000003,
+    0.0,
+    0.0,
+    0.0,
+    0.15,
+    0.11666666666666665,
+    0.26666666666666666,
+    0.11,
+    0.016666666666666666,
+    0.03333333333333333
+   ],
+   "action_vec": [
+    0.5166666666666667,
+    0.006666666666666667,
+    0.3666666666666667,
+    0.0,
+    0.016666666666666666,
+    0.016666666666666666,
+    0.07666666666666666
+   ]
+  },
+  "tops": {
+   "desire": "摆脱欲",
+   "need": "N04_理解世界",
+   "emotion": "curiosity好奇",
+   "action": "approach趋近"
+  },
+  "appraisal": {
+   "goal_relevance": 0.9,
+   "congruence_direction": "促进",
+   "need_status": "未满足",
+   "goal_congruence": "负",
+   "coping_potential": "中",
+   "note": "goal_relevance 高:这是直接关系其核心生活功能(听+通话)的事件。congruence_direction 偏促进:对方代工厂方已主动伸手并承诺归类,路径向好。need_status 未满足:本轮内容是'我方在提供信息',问题和方案都没落地,需求处于'焦虑悬置'态——按规则促进+未满足仍归入负向 goal_congruence,但强度被承诺与互动本身部分缓解,故为弱负/中性偏负。coping_potential 中:有专家直接对接是好兆头,但协议级故障常涉及硬件/固件无法用户侧解决,所以不是高应对潜能。这种'通路可见但落点未定'的 appraisal 推出 好奇+宽慰+残余恐惧+渴望 的混合情绪。"
+  },
+  "chain_trace": "摆脱欲(0.40)+安全感欲(0.25)+控制欲(0.20) →(情境:助听器长期音量异常+蓝牙通话 mic 反复 drop & cycle 且自助穷尽排查无效)→ 需求 N04_理解世界(0.35)+N06_摆脱痛苦(0.30)+N02_掌控局面(0.20)+N01_确定性(0.10) →(评价:goal_relevance=0.9 / 方向=促进 / 状态=未满足 → goal_congruence=负(焦虑悬置) / coping_potential=中)→ 情绪 curiosity好奇(0.35)+relief宽慰(0.20)+approval认同(0.15)+desire渴望(0.15)+fear恐惧(0.10) → 行动倾向 approach趋近(0.60)+attend关注(0.35) 的完整推导。",
+  "within_js": {
+   "desire_vec": 0.0572,
+   "need_vec": 0.0947,
+   "emotion_vec": 0.1099,
+   "action_vec": 0.067
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "pain_seek",
+    "weight": 0.8,
+    "evidence_quote": "Symptom during calls most often if it goes through some kind of switchboard like a govt office/call center about 2 minutes in it starts to drop the mic input and hearing aids output. Just goes quiet no white noise or crackle. It comes back after about 3-4 seconds then cycles back and forth.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "中",
+     "time": "现在",
+     "attribution": "system",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "摆脱欲",
+    "need_code": "N06",
+    "freshness_days_hint": 45,
+    "name": "痛点·求解结",
+    "family": "推动",
+    "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+    "behavior_predicted": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+   },
+   {
+    "key": "suspend",
+    "weight": 0.15,
+    "evidence_quote": "Yes have noticed issues with volume for a long time, tried many combinations of volume limit bypass, equalizers (all removed), app specific volumes. But when i turn off bluetooth even when Ive selected speaker it jumps up in volume, but thats not the main issue for me and largely corrected about August with a system update",
+    "signature": {
+     "congruence": "促进与威胁并存",
+     "need_status": "未满足",
+     "coping": "不确定",
+     "time": "未来(决策悬置)",
+     "attribution": "system",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N01",
+    "freshness_days_hint": 70,
+    "name": "悬置·焦虑结",
+    "family": "阻挡",
+    "playbook": "给判据+零成本测试塌缩不确定性+如实说trade;不推购买。反杠杆=零风险承诺/样品/证言",
+    "behavior_predicted": "质询通道·中成本:连环规格质询/征证言/比价/收藏不买/明确不动"
+   },
+   {
+    "key": "audit",
+    "weight": 0.05,
+    "evidence_quote": "(noting they are careful to make sure you cant 100% confirm for price matching)",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "other_agent",
+     "target_layer": "epistemic_trust"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N10",
+    "freshness_days_hint": 20,
+    "name": "验真·审计结",
+    "family": "阻挡",
+    "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+    "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前"
+   }
+  ],
+  "levers_present": [],
+  "notes": "典型pain_seek:详述通话协议级中断症状+完整披露已试绕过方案+精准设备/型号/系统版本,寻求诊断与解法;残余suspend来自长期蓝牙-助听器音量漂移未根治带来的换机/换方案悬置;audit为对品牌方价格匹配不透明化的轻量旁注,几乎无情感强度。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}

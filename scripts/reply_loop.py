@@ -78,7 +78,7 @@ def main():
 
     a_knots = {x["key"]: x["weight"] for x in a["stage2"]["knots"]}
     b_knots = {x["key"]: x["weight"] for x in b["stage2"]["knots"]}
-    ka = knot_align(a_knots, b_knots, draft)
+    ka = knot_align(a_knots, b_knots, draft, mode="reply")
 
     layers = {L: layer_reach(a["stage1"]["layers"][L], b["stage1"]["layers"][L], lab)
               for L, lab in LAYERS.items()}
