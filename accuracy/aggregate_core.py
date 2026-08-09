@@ -15,14 +15,18 @@ from exp_v4_causal_chain import EMOTIONS, ACTIONS
 from exp_v4_full_validation import extract_json_robust
 
 NEEDS = json.load(open(f"{ROOT}/config/need_taxonomy.json", encoding="utf-8"))["controlled_keys"]
+_KT = json.load(open(f"{ROOT}/config/knot_taxonomy.json", encoding="utf-8"))
+KNOTS = [k["key"] for k in _KT["knots"]]
+KNOT_BRIEF = "; ".join(f"{k['key']}={k['name']}" for k in _KT["knots"])
 TMPL = """读出这段发言体现的四层配置, 全部给分布(权重和=1), 只列权重>=0.08 的。
 【欲望9】{D}
 【情绪13】{E}
 【需求17】{N}
 【行动7】{A}
+【九结9】{K}
 【发言】
 {body}
-只输出JSON: {{"desire":{{}},"emotion":{{}},"need":{{}},"action":{{}}}}"""
+只输出JSON: {{"desire":{{}},"emotion":{{}},"need":{{}},"action":{{}},"knot":{{}}}}"""
 
 
 def norm(d):
@@ -38,13 +42,14 @@ def js(p, q):
 
 
 def read_one(text):
-    p = TMPL.format(D=DESIRES, E=EMOTIONS, N=NEEDS, A=ACTIONS, body=text[:1200])
+    p = TMPL.format(D=DESIRES, E=EMOTIONS, N=NEEDS, A=ACTIONS, K=KNOT_BRIEF, body=text[:1200])
     c, _ = call_model("M3", p, temperature=0.0)
     d = extract_json_robust(c, log_note="agg_core")
     if not isinstance(d, dict): return None
     o = {"欲望": norm(d.get("desire")), "情绪": norm(d.get("emotion")),
-         "需求": norm(d.get("need")), "行动": norm(d.get("action"))}
-    return o if all(o.values()) else None
+         "需求": norm(d.get("need")), "行动": norm(d.get("action")),
+         "九结": norm({k: v for k, v in (d.get("knot") or {}).items() if k in KNOTS})}
+    return o if all(o[L] for L in ("欲望", "情绪", "需求", "行动")) else None
 
 
 def read_many(texts, workers=8):
@@ -56,7 +61,7 @@ def aggregate(reads):
     """逐条读出 -> 聚合成一个主体/人群的分布。这是 s5 该走的路。"""
     if not reads: return None
     out = {}
-    for L in ("欲望", "情绪", "需求", "行动"):
+    for L in ("欲望", "情绪", "需求", "行动", "九结"):
         agg = collections.defaultdict(float)
         for r in reads:
             for k, v in r[L].items(): agg[k] += v / len(reads)

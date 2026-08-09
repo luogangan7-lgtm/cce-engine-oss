@@ -125,13 +125,41 @@ def s4(ctx):
 
 @stage("s5_audience")
 def s5(ctx):
+    """受众逆推 —— 逐条判后聚合。
+
+    2026-08-09 修正: 原实现把整个 audience 文件当作一段文本丢给 knot_classify,
+    即把 N 个人的话拼成一段问"这段文本是什么结"。但受众是**人群上的分布**, 不是
+    一个人。实证后果: 同一份语料四次运行读出的主结 pain_seek 在 0.20~0.60 之间
+    摆动(3.0倍), s6 的参照系不稳到无法支撑二值门; 语料加厚到 8131 词后 stage2
+    直接三次全失败。改为逐条读出再聚合, 与 accuracy 侧 annot_dist 同形态。
+    """
     if not ctx.get("audience_file"):
         raise RuntimeError("post模式必须提供--audience-file(受众逆推是链路必选环节)")
-    d = run_knot_classify(ctx["audience_file"], ctx["context"] + "(目标读者原话)", 5,
-                          f"{ctx['outdir']}/s5_audience.json")
-    ctx["aud"] = d
-    return {"file": "s5_audience.json",
-            "knots": [[k["key"], k["weight"]] for k in d["stage2"]["knots"]]}
+    lines = [l.strip() for l in open(ctx["audience_file"], encoding="utf-8")
+             if len(l.strip().split()) >= 4]
+    if len(lines) < 3:
+        raise RuntimeError(f"受众语料仅 {len(lines)} 条有效原话, 逐条聚合至少需 3 条")
+    sys.path.insert(0, os.path.join(ROOT, "accuracy"))
+    from aggregate_core import read_many, aggregate
+    reads = read_many(lines[:60])
+    if len(reads) < 3:
+        raise RuntimeError(f"逐条读出成功 {len(reads)}/{len(lines)} 条, 不足 3 条")
+    agg = aggregate(reads)
+    if not agg.get("九结"):
+        raise RuntimeError("逐条聚合后九结为空 —— s6 依赖它, 不允许静默通过")
+    out = {"n_utterances": len(lines), "n_read": len(reads),
+           "method": "逐条读出后聚合(非拼接判读)",
+           "layers": {L: agg[L] for L in ("欲望", "情绪", "需求", "行动")},
+           "knots": sorted(agg["九结"].items(), key=lambda x: -x[1])}
+    json.dump({"aggregate": agg, "per_utterance": reads},
+              open(f"{ctx['outdir']}/s5_audience.json", "w"), ensure_ascii=False, indent=1)
+    ctx["aud_layers"] = agg
+    # 九结: 由聚合后的行动/需求侧另行判定, 交给 s6 用分布对齐
+    ctx["aud"] = {"stage2": {"knots": [{"key": k, "weight": w}
+                                      for k, w in sorted(agg["九结"].items(), key=lambda x: -x[1])]},
+                  "aggregate": agg}
+    out["file"] = "s5_audience.json"
+    return out
 
 
 ALIGN_THETA = float(os.environ.get("CCE_ALIGN_THETA", "0.35"))
