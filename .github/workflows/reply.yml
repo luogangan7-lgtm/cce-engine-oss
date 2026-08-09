@@ -1,0 +1,50 @@
+name: reply-loop
+on:
+  workflow_dispatch:
+    inputs:
+      reader:   {description: "对方原文逐字", required: true, type: string}
+      draft:    {description: "我方回复草稿", required: true, type: string}
+      context:  {description: "语境", required: true, type: string}
+      ref_tag:  {description: "本次标识", required: true, type: string}
+jobs:
+  loop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip}
+      - run: pip install -r requirements.txt
+      - name: run
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          CCE_ALIGN_THETA: ${{ vars.CCE_ALIGN_THETA }}
+        run: |
+          mkdir -p rl
+          printf '%s' "${{ inputs.reader }}" > rl/reader.txt
+          printf '%s' "${{ inputs.draft }}"  > rl/draft.txt
+          python3 scripts/reply_loop.py --reader rl/reader.txt --draft rl/draft.txt \
+            --context "${{ inputs.context }}" --out rl/${{ inputs.ref_tag }}.json
+      - name: summary
+        if: always()
+        run: |
+          python3 - <<'EOF' >> $GITHUB_STEP_SUMMARY
+          import json,glob
+          f=glob.glob("rl/*.json")
+          f=[x for x in f if "readout" not in x]
+          if not f: print("无产物"); raise SystemExit
+          v=json.load(open(f[0],encoding="utf-8"))["verdict"]
+          print(f"## 回复闭环 · PASS={v['PASS']}\n")
+          print(f"- 对方九结: {v['对方九结']}")
+          print(f"- 我方九结: {v['我方九结']}")
+          print(f"- 九结对齐分: {v['九结对齐']['alignment_score']} (共鸣 {v['九结对齐']['resonance']} / 拆除 {v['九结对齐']['dissolution']})")
+          print("\n|层|显著维|触达|触达率|")
+          print("|---|---|---|---|")
+          for k,L in v["四层触达"].items():
+              print(f"|{k}|{L['显著维']}|{L['触达数']}|{L['触达率']}|")
+          if v["未触达维度"]: print(f"\n**未触达**: {', '.join(v['未触达维度'])}")
+          for c in v["改写指令"]: print(f"\n> 改写: {c}")
+          EOF
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: reply-loop, path: rl/}

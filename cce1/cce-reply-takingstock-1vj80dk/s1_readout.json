@@ -1,0 +1,121 @@
+{
+ "input_sha": "792133a038f0bbb4",
+ "run_at": "2026-08-09T11:12:53",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 3,
+  "k_ok": 3,
+  "layers": {
+   "desire_vec": [
+    0.02666666666666667,
+    0.006666666666666667,
+    0.31666666666666665,
+    0.14333333333333334,
+    0.023333333333333334,
+    0.0,
+    0.26666666666666666,
+    0.21666666666666667,
+    0.0
+   ],
+   "need_vec": [
+    0.19999999999999998,
+    0.15,
+    0.10666666666666667,
+    0.25,
+    0.0,
+    0.24333333333333332,
+    0.0,
+    0.0,
+    0.0,
+    0.05000000000000001,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.02666666666666667,
+    0.006666666666666667,
+    0.023333333333333334,
+    0.12333333333333334,
+    0.0,
+    0.03,
+    0.0,
+    0.11666666666666665,
+    0.16666666666666666,
+    0.22666666666666668,
+    0.13333333333333333,
+    0.03333333333333333,
+    0.11333333333333334
+   ],
+   "action_vec": [
+    0.3833333333333333,
+    0.006666666666666665,
+    0.37666666666666665,
+    0.016666666666666663,
+    0.09999999999999999,
+    0.05000000000000001,
+    0.06666666666666665
+   ]
+  },
+  "tops": {
+   "desire": "摆脱欲",
+   "need": "N04_理解世界",
+   "emotion": "curiosity好奇",
+   "action": "approach趋近"
+  },
+  "appraisal": {
+   "goal_relevance": 0.95,
+   "congruence_direction": "威胁",
+   "need_status": "未满足",
+   "goal_congruence": "负",
+   "coping_potential": "中",
+   "note": "目标相关度极高(这正是他的核心痛点);这段话本质上是在向厂家'上交通报',其内容是揭示一个仍在发生的失能 bug,所以方向=威胁;声音仍会消失、关键问题未修,需求并未被满足 → 派生为负;但他已自行试过多种绕路、且体积问题在 8 月系统更新后被'largely corrected',说明他在部分维度上仍有应对余地,因此 coping 评中。负情绪由此被激活,强度由 goal_relevance(高)放大、被 coping(中)部分缓冲。"
+  },
+  "chain_trace": "摆脱欲+控制欲+安全感欲(稳定潜变量) →(情境事件:长期存在、绕过多重自排查仍未根治的助听器-手机蓝牙掉麦掉声 bug)→ 需求 N04_理解世界 + N06_摆脱痛苦 + N02_掌控局面 + N01_确定性 →(评价:goal_relevance=0.95 高 / 方向=威胁 / need_status=未满足 / 派生 goal_congruence=负 / coping=中)→ 情绪 anger+ sadnes s+ fear+ curiosity+ approval + mild relief → 行动倾向 approach 趋近 + attend 关注 + agonistic 对抗 的完整推导链:负向威胁性 appraisal 唤起受挫/恐惧/疲倦,但中等 coping + 部分历史修复(8 月更新)让主体并未崩溃,而是把能量转向主动向厂家递交可被理解的证据,表现为高度趋近、持续关注、轻微议程对抗。",
+  "within_js": {
+   "desire_vec": 0.0416,
+   "need_vec": 0.1723,
+   "emotion_vec": 0.1831,
+   "action_vec": 0.1148
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "pain_seek",
+    "weight": 0.95,
+    "evidence_quote": "Symptom during calls most often if it goes through some kind of switchboard like a govt office/call center about 2 minutes in it starts to drop the mic input and hearing aids output. Just goes quiet no white noise or crackle. It comes back after about 3-4 seconds then cycles back and forth.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "中",
+     "time": "现在",
+     "attribution": "system/none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "摆脱欲,控制欲,安全感欲",
+    "need_code": "N06,N02,N01",
+    "freshness_days_hint": 50,
+    "name": "痛点·求解结",
+    "family": "推动",
+    "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+    "behavior_predicted": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+   }
+  ],
+  "levers_present": [],
+  "notes": "典型的 pain_seek 高成本求助通道:详述通话掉音症状(时长、周期、触发条件)+已试多种绕路(音量绕过/均衡器/应用音量)+上报机型(SM-S731B)与助听器型号线索以助定位;coping 评中而非低,因已自主试过多组合但主诉(切换台场景)未解;8月更新已纠正音量但未解决通话失能,延长了结的保鲜期。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}
