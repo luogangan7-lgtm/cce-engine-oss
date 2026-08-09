@@ -56,30 +56,25 @@ KNOT_BRIEF = "\n".join(
     f"- {k['key']}({k['name']}): 签名={json.dumps(k['signature'], ensure_ascii=False)}; 行为={k['behavior'][:70]}"
     for k in TAXO["knots"])
 
+# ── prompt 的决策树/负例改为从分类学组装(2026-08-09) ──
+# 此前二者是写死在 DIST_TMPL 里的副本, 与 config 各存一份、会静默漂移
+# (当日同族缺陷第五例)。组装后有 assert 逐字比对旧文本, 保证 prompt 一字未变、
+# 历史数字可比; 此后改分类学即自动进 prompt。
+_P = TAXO["annotation_protocol"]
+DECISION_TREE = "★判定顺序(决策树,逐级检查):\n" + "\n".join(_P["decision_tree_prompt"])
+_NE = {k["key"]: k.get("negative_examples_prompt") for k in TAXO["knots"]}
+# 顺序取自 protocol.negative_examples_order(prompt 层决策, 与内容分离)
+NEGATIVE_EXAMPLES = "★何时不用(负例判据,与决策树同权重):\n" + "\n".join(
+    f"- {k} 不用于: {_NE[k]}" for k in _P["negative_examples_order"] if _NE.get(k))
+
 # ══ G-K1 v2: 带权分布标注 ══
 DIST_TMPL = """你是心理配置标注员。九结分类学(v1.1.1):
 {brief}
 
-★判定顺序(决策树,逐级检查):
-1. 有对某方真实性/资历/动机的质询句? -> audit 权重优先
-2. 有明确归责对象+讨说法? -> injustice
-3. 在为**自己的**现实问题求可行解(症状+场景+求解)? -> pain_seek
-4. 明确悬置决策(还没定/再看看+犹豫理由)? -> suspend; 明知该动而声明不动? -> inertia
-5. 谈论**自己已拥有/已经历**且有信息增量(型号/数据/经验)? -> display
-6. 向往**未得之物**且不求解决路径? -> itch
-7. 纯致谢/纯情绪回报无增量? -> reward; 仅为确认同类身份? -> belong
+{decision_tree}
 
 
-★何时不用(负例判据,与决策树同权重):
-- display 不用于: 晒了型号但通篇在求解自身未解问题(那是pain_seek); 晒经验+质询OP动机(那是audit)
-- pain_seek 不用于: 问题已解决、正在分享方案(那是display); 借问题控诉某方要说法(那是injustice)
-- audit 不用于: 质疑的是产品性能而非某人的可信度(那是pain_seek或injustice); 反问只是修辞、落点仍是求解(那是pain_seek)
-- itch 不用于: 向往之物已进入比较/购买流程(那是suspend); 向往并主动求推荐路径(那是pain_seek)
-- suspend 不用于: 无决策语境的纯畅想(那是itch); 已明确放弃(那是inertia)
-- inertia 不用于: 仍在比较权衡中(那是suspend)
-- reward 不用于: 致谢同时带新信息增量(那是display); 致谢后追问(那是pain_seek)
-- belong 不用于: 自报身份但主体是输出经验增量(那是display)
-- injustice 不用于: 无归责对象的困难自述(那是pain_seek)
+{negative_examples}
 
 ★全一致锚例(判定同结的样例应长这样):
 【锚例·display】The Connect Clip. You had to wear it around your neck. Easy to lose (I lost two). Latenchy from the BT classic audio. Just fiddly.
@@ -109,7 +104,7 @@ You only care about size being identical if it remains a consideration albeit lo
 
 def annot_dist(args):
     model, item = args
-    c = call(model, DIST_TMPL.format(brief=KNOT_BRIEF, body=item["b"][:700]))
+    c = call(model, DIST_TMPL.format(decision_tree=DECISION_TREE, negative_examples=NEGATIVE_EXAMPLES, brief=KNOT_BRIEF, body=item["b"][:700]))
     d = extract_json_robust(c, log_note=f"gk1v2_{model}")
     if isinstance(d, dict) and isinstance(d.get("knots"), list) and d["knots"]:
         v = {}

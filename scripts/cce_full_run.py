@@ -95,7 +95,7 @@ def s2(ctx):
     if taxo.get("version") != PINNED_TAXO:
         raise RuntimeError(f"taxonomy版本漂移: {taxo.get('version')} != {PINNED_TAXO}")
     knots = ctx["cce"]["stage2"]["knots"]
-    return {"taxonomy": "1.2.0", "knots": [[k["key"], k["weight"]] for k in knots],
+    return {"taxonomy": taxo.get("version"), "knots": [[k["key"], k["weight"]] for k in knots],
             "playbook_primary": knots[0].get("playbook", "")[:120] if knots else None}
 
 

@@ -44,6 +44,8 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -r requirements.txt
+      - name: 配置↔代码一致性自检(前置闸)
+        run: python3 scripts/consistency_check.py
       - name: 投料(含契约校验)
         env:
           MODE: ${{ github.event.client_payload.mode || inputs.mode }}
@@ -115,6 +117,8 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -r requirements.txt
+      - name: 配置↔代码一致性自检(前置闸)
+        run: python3 scripts/consistency_check.py
       - uses: actions/download-artifact@v4
         with:
           name: batch-items

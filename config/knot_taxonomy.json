@@ -45,7 +45,7 @@
    ],
    "hard_discriminant": "落点意图=解决**我自己**的现实问题(描述症状/场景/已试步骤并求可行解)。若重心是质疑他人可信度→audit;若只是向往未来产品→itch。",
    "cost_tier": "high",
-   "negative_examples": "不用于: 问题已解决正在分享方案(→display); 借问题控诉某方要说法(→injustice)"
+   "negative_examples_prompt": "问题已解决、正在分享方案(那是display); 借问题控诉某方要说法(那是injustice)"
   },
   {
    "key": "injustice",
@@ -78,7 +78,7 @@
    ],
    "hard_discriminant": "存在明确的**归责对象**(厂商/验配师/平台)且诉求是问责或讨说法,情绪带愤慨。若无归责对象只是自身求解→pain_seek。",
    "cost_tier": "high",
-   "negative_examples": "不用于: 无归责对象的困难自述(→pain_seek)"
+   "negative_examples_prompt": "无归责对象的困难自述(那是pain_seek)"
   },
   {
    "key": "belong",
@@ -110,7 +110,7 @@
    ],
    "hard_discriminant": "落点意图=确认『我和你们是一类人/我在这个群体里』(自报身份/呼应他人经历以入群),无信息增量要求。若带大量新信息增量→display。",
    "cost_tier": "mid",
-   "negative_examples": "不用于: 自报身份但主体是输出经验增量(→display)"
+   "negative_examples_prompt": "自报身份但主体是输出经验增量(那是display)"
   },
   {
    "key": "reward",
@@ -144,7 +144,7 @@
    ],
    "hard_discriminant": "**前置(二值)**: 文本里必须有致谢句或闭合句(thanks/that helps/问题解决了/就这样吧)。没有 → 不是 reward。\n满足前置后再看: 若同时含型号/参数/步骤/时间线/体感细节 → display 而非 reward。\n「我方建议起效」「他在分享成果」是语境, 不是致谢句, 不能当 reward 证据。",
    "cost_tier": "low",
-   "negative_examples": "不用于: 致谢带新信息增量(→display); 致谢后追问(→pain_seek); 文本零致谢句(→按内容判, 多为display)"
+   "negative_examples_prompt": "致谢同时带新信息增量(那是display); 致谢后追问(那是pain_seek)"
   },
   {
    "key": "display",
@@ -180,7 +180,7 @@
    "hard_discriminant": "输出**新信息增量**(具体型号/数据/使用细节/纠错/结构化经验)且谈论对象是**自己已拥有或已经历**的。无质询句;若出现对某方真实性/资历的质询→audit;若谈的是期望中未得之物→itch。",
    "cost_tier": "mid",
    "cost_tier_note": "条件性: 基线mid;当OP与其形成互动回路(followed_up)时升high(校准分析2026-08-07: 8/8的high全部followed_up=True,无互动时8/8=mid)",
-   "negative_examples": "不用于: 晒型号但通篇在求解自身未解问题(→pain_seek); 晒经验+质询OP动机(→audit)"
+   "negative_examples_prompt": "晒了型号但通篇在求解自身未解问题(那是pain_seek); 晒经验+质询OP动机(那是audit)"
   },
   {
    "key": "itch",
@@ -212,7 +212,7 @@
    ],
    "hard_discriminant": "谈论对象是**期望中未得之物**(向往/想象/『要是有就好了』),不采取行动不问价不求购买路径。已拥有并陈述体验→display;主动求解决方案→pain_seek。",
    "cost_tier": "low",
-   "negative_examples": "不用于: 向往之物已进入比较/购买流程(→suspend); 向往并主动求推荐路径(→pain_seek)"
+   "negative_examples_prompt": "向往之物已进入比较/购买流程(那是suspend); 向往并主动求推荐路径(那是pain_seek)"
   },
   {
    "key": "suspend",
@@ -246,7 +246,7 @@
    ],
    "hard_discriminant": "决策被**明确悬置**: 表达『还没定/再看看/等XX再说』,附带犹豫理由。无决策语境的纯向往→itch。",
    "cost_tier": "mid",
-   "negative_examples": "不用于: 无决策语境的纯畅想(→itch); 已明确放弃(→inertia)"
+   "negative_examples_prompt": "无决策语境的纯畅想(那是itch); 已明确放弃(那是inertia)"
   },
   {
    "key": "inertia",
@@ -278,7 +278,7 @@
    ],
    "hard_discriminant": "明知应行动而**明确表示不行动/维持现状**(『懒得折腾/就这样吧』),或长期缺席后自陈缺席。犹豫中仍在比较→suspend。",
    "cost_tier": "none",
-   "negative_examples": "不用于: 仍在比较权衡中(→suspend)"
+   "negative_examples_prompt": "仍在比较权衡中(那是suspend)"
   },
   {
    "key": "audit",
@@ -311,7 +311,7 @@
    ],
    "hard_discriminant": "**前置(二值)**: 文本里必须有直接指向「你/某个具体的人」的质询句(你是AI吧/你是托吧/凭什么信你)。没有 → 不是 audit。\n质询对象是厂商、行业、系统 → 不是 audit(讨说法→injustice, 求解→pain_seek)。\n满足前置后再看落点: 验证对方可信度, 而非解决自身问题。",
    "cost_tier": "mid",
-   "negative_examples": "不用于: 质疑产品/厂商/行业(→pain_seek或injustice); 反问但落点是求解(→pain_seek)"
+   "negative_examples_prompt": "质疑的是产品性能而非某人的可信度(那是pain_seek或injustice); 反问只是修辞、落点仍是求解(那是pain_seek)"
   }
  ],
  "levers_not_knots": {
@@ -330,45 +330,31 @@
  "changelog_1_1_0": "每结新增hard_discriminant(判别轴: 对象归属×落点意图); display成本档mid→high(G-K2v2实测); 2026-08-07",
  "changelog_1_1_1": "display成本档high回调mid+条件注记(v1.1.0的high上调系基于不稳观测口径的误校准); 2026-08-07",
  "annotation_protocol": {
-  "version": "1.2.0",
-  "decision_tree": [
-   "1.有指向具体某人的质询句?→audit(指向厂商/行业→跳过)",
-   "2.归责+讨说法→injustice",
-   "3.为自己求解→pain_seek",
-   "4.悬置→suspend/明知不动→inertia",
-   "5.已有+增量→display",
-   "6.未得+向往→itch",
-   "7.纯致谢→reward/认同类→belong"
-  ],
-  "anchor_examples": [
-   {
-    "knot": "display",
-    "id": "p1852zo",
-    "text": "The Connect Clip. You had to wear it around your neck. Easy to lose (I lost two). Latenchy from the BT classic audio. Just fiddly.\n\nmfi and ASHA. Definitely better than nothing. Occasional glitching and connection issues. Sound quality is adequate. Range is ju"
-   },
-   {
-    "knot": "pain_seek",
-    "id": "p1cuqrr",
-    "text": "I have a Pixel 9 and Widex Allure.  Maybe you can help.  \n\nAnytime you do anything on the pixel that would normally create a sound, the hearing aids go into streaming mode (which causes real sounds to be muffled and you can hear everything change). \n\nThis happ"
-   },
-   {
-    "knot": "injustice",
-    "id": "p1ypm4q",
-    "text": "OP your musings are interesting and informative. \n\nI was one of the posters asking about BT connectivity last weekend. It was a miserable weekend trying unsuccessfully to pair my new Starkeys with Windows. \n\nI was especially pissed at my audiologist who swore "
-   },
-   {
-    "knot": "itch",
-    "id": "p1sqabv",
-    "text": "Oh I am unsure too, as to why manufacturers are going for smaller when bigger would allow much more with the current technology we have. In fact, I have been living in hope that one of the big names release a power version (so bigger) of their current tech but"
-   },
-   {
-    "knot": "audit",
-    "id": "p25z258",
-    "text": "No, if size was eliminated as a criterion because the diagnostic criteria eliminated size as a consideration for the patient, which device would you fit that patient with?\n\nYou only care about size being identical if it remains a consideration albeit lower in "
-   }
-  ],
+  "version": "1.3.1",
   "annotator_qualification": "生产协议留一法考锚例,top1≥4/5合格;解析失败单独记账不计答错",
-  "gate_record": "G-K1 v5通过(2026-08-07): top2=0.933≥0.8, JS=0.2424≤0.25(判据v2冻结未动); 冷启动盲测待跑(非MiniMax系标注者,防interpretive convergence)"
+  "gate_record": "G-K1 v5通过(2026-08-07): top2=0.933≥0.8, JS=0.2424≤0.25(判据v2冻结未动); 冷启动盲测待跑(非MiniMax系标注者,防interpretive convergence)",
+  "decision_tree_prompt": [
+   "1. 有对某方真实性/资历/动机的质询句? -> audit 权重优先",
+   "2. 有明确归责对象+讨说法? -> injustice",
+   "3. 在为**自己的**现实问题求可行解(症状+场景+求解)? -> pain_seek",
+   "4. 明确悬置决策(还没定/再看看+犹豫理由)? -> suspend; 明知该动而声明不动? -> inertia",
+   "5. 谈论**自己已拥有/已经历**且有信息增量(型号/数据/经验)? -> display",
+   "6. 向往**未得之物**且不求解决路径? -> itch",
+   "7. 纯致谢/纯情绪回报无增量? -> reward; 仅为确认同类身份? -> belong"
+  ],
+  "negative_examples_order": [
+   "display",
+   "pain_seek",
+   "audit",
+   "itch",
+   "suspend",
+   "inertia",
+   "reward",
+   "belong",
+   "injustice"
+  ],
+  "_order_note": "负例在 prompt 中的呈现顺序。内容随结走(knots[].negative_examples_prompt), 顺序是 prompt 层的独立决策, 故单列。此顺序沿用 2026-08-09 之前生产文本, 改动会影响标注结果, 非经重新验收不得变更。",
+  "anchor_source": "accuracy/data/anchors.json"
  },
  "changelog_1_2_0": "负例句全结配齐+决策树+锚例+标注者资格协议成套入库; G-K1首次通过; 2026-08-07",
  "changelog_1_3_0": {
@@ -397,5 +383,6 @@
    "decision_tree 第1步同步缩短"
   ],
   "intent": "保住 v1.3.0 的语义(堵语境推断), 降低解释方差, 目标: G-K2 增益保住的同时 JS 回到 ≤0.25"
- }
+ },
+ "changelog_1_3_1_b": "2026-08-09: 将生产 prompt 中实际使用的决策树/负例措辞升为配置真值(decision_tree_prompt / knots[].negative_examples_prompt), prompt 改为从配置组装。原 decision_tree / negative_examples 为较简的人读版, 内容与生产版语义一致(已逐条核对), 保留。annotation_protocol.version 同步至分类学版本, 此前滞留 1.2.0。 同时删除冗余人读副本: annotation_protocol.decision_tree; annotation_protocol.anchor_examples(与 accuracy/data/anchors.json 同5条, 已核对); knots[].negative_examples (9处)。单一真值原则: 同一条规则只允许存在一处。"
 }

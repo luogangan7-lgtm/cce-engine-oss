@@ -1,0 +1,141 @@
+{
+ "input_sha": "792133a038f0bbb4",
+ "run_at": "2026-08-09T11:35:38",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 3,
+  "k_ok": 3,
+  "layers": {
+   "desire_vec": [
+    0.03333333333333333,
+    0.0,
+    0.31666666666666665,
+    0.11666666666666665,
+    0.0,
+    0.03333333333333333,
+    0.25,
+    0.2333333333333333,
+    0.016666666666666666
+   ],
+   "need_vec": [
+    0.26666666666666666,
+    0.10000000000000002,
+    0.08333333333333333,
+    0.18333333333333335,
+    0.0,
+    0.26666666666666666,
+    0.0,
+    0.0,
+    0.0,
+    0.08333333333333336,
+    0.016666666666666666,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.0,
+    0.0,
+    0.013333333333333334,
+    0.21666666666666667,
+    0.0,
+    0.01,
+    0.0,
+    0.043333333333333335,
+    0.06666666666666667,
+    0.25,
+    0.18333333333333335,
+    0.05000000000000001,
+    0.16666666666666666
+   ],
+   "action_vec": [
+    0.4166666666666667,
+    0.016666666666666666,
+    0.3666666666666667,
+    0.0,
+    0.05666666666666667,
+    0.07666666666666667,
+    0.06666666666666667
+   ]
+  },
+  "tops": {
+   "desire": "摆脱欲",
+   "need": "N01_确定性",
+   "emotion": "curiosity好奇",
+   "action": "approach趋近"
+  },
+  "appraisal": {
+   "goal_relevance": 0.95,
+   "congruence_direction": "威胁",
+   "need_status": "未满足",
+   "goal_congruence": "负",
+   "coping_potential": "低",
+   "note": "电话是日常刚需,故障精准命中『沟通+听』这个核心目标(goal_relevance 极高);内容本身不是威胁源,但内容所描述的设备行为对所有受影响的通话都是威胁(congruence=威胁);故障至今未解决,只是『largely corrected about August with a system update』部分缓解了蓝牙音量问题,主诉的通话掉麦问题仍然在场(need_status=未满足);综合得负情绪;用户已穷尽自助但仍反复发生,coping_potential 评为低——这是 fear 主导而非 anger 主导的关键。"
+  },
+  "chain_trace": "摆脱欲(0.35)+安全感欲(0.25)+控制欲(0.20) →(情境:电话经总机约2分钟后mic+hearing aid output每3-4秒循环静音)→ 需求N06_摆脱痛苦(0.35)+N01_确定性(0.30)+N04_理解世界(0.20)+N02_掌控局面(0.10) →(评价:goal_relevance 0.95 / congruence=威胁 / need_status=未满足 / 负 / coping_potential=低)→ 情绪fear恐惧(0.30)+curiosity好奇(0.25)+desire渴望(0.20)+sadness悲伤(0.10)+approval认同(0.05)+anger愤怒(0.05) → 行动倾向approach趋近(0.45)+attend关注(0.40)+interrupt中断(0.08) 的完整一句话推导:这个发帖人想要摆脱电话通话掉麦的痛苦、消除故障时机的不确定、并夺回对设备的掌控,因此在带switchboard的通话被反复威胁、coping潜能低的情境下,以fear与curiosity为主驱动,趋近式地提供精确机型、既往自查与时间线,以期引发对方attend并给出解法。",
+  "within_js": {
+   "desire_vec": 0.075,
+   "need_vec": 0.1319,
+   "emotion_vec": 0.1354,
+   "action_vec": 0.0742
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "pain_seek",
+    "weight": 0.88,
+    "evidence_quote": "Symptom during calls most often if it goes through some kind of switchboard like a govt office/call center about 2 minutes in it starts to drop the mic input and hearing aids output. Just goes quiet no white noise or crackle. It comes back after about 3-4 seconds then cycles back and forth. Yes have noticed issues with volume for a long time, tried many combinations of volume limit bypass, equalizers (all removed), app specific volumes.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "中/高",
+     "time": "现在",
+     "attribution": "system/none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "摆脱欲,控制欲,安全感欲",
+    "need_code": "N06,N01,N02",
+    "freshness_days_hint": 70,
+    "name": "痛点·求解结",
+    "family": "推动",
+    "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+    "behavior_predicted": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+   },
+   {
+    "key": "audit",
+    "weight": 0.12,
+    "evidence_quote": "noting they are careful to make sure you cant 100% confirm for price matching",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "other_agent",
+     "target_layer": "epistemic_trust"
+    },
+    "desire_code": "确认欲,安全感欲",
+    "need_code": "N10,N01",
+    "freshness_days_hint": 30,
+    "name": "验真·审计结",
+    "family": "阻挡",
+    "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+    "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前"
+   }
+  ],
+  "levers_present": [],
+  "notes": "主结为 pain_seek:用户给出精确型号(SM-S731B / S25 FE / Phonak)与可复现触发条件(2分钟入交换机后掉麦循环),并枚举已穷尽的系统层自助步骤,符合高成本求助通道的『详述症状+已试步骤』签名;附带轻微 audit 侧记(对零售商品牌模糊化以规避比价的怀疑)。引擎读出的『curiosity/approach』应解读为求解姿态而非内容侧杠杆。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}
