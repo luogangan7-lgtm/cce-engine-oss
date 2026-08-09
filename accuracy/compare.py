@@ -46,7 +46,10 @@ for k in dict.fromkeys(list(b) + list(c)):
     bv, cv = b.get(k), c.get(k)
     if isinstance(bv, (int, float)) and isinstance(cv, (int, float)):
         d_ = cv - bv
-        arrow = "🟢 +" if d_ > 0.001 else ("🔴 " if d_ < -0.001 else "⚪ ")
+        # JS 距离越低越好, 其余指标越高越好 — 方向不能一刀切(v1首跑时这里报反了)
+        better = (d_ < -0.001) if "JS" in k else (d_ > 0.001)
+        worse = (d_ > 0.001) if "JS" in k else (d_ < -0.001)
+        arrow = "🟢 " if better else ("🔴 " if worse else "⚪ ")
         print(f"| {k} | {bv} | {cv} | {arrow}{d_:+.3f} |")
     else:
         print(f"| {k} | {bv} | {cv} | |")
