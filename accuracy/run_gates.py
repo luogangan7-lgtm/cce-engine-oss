@@ -23,7 +23,10 @@ CORPUS = json.load(open(f"{D}/corpus.json"))
 ANCHOR_IDS=['p1852zo', 'p1cuqrr', 'p1ypm4q', 'p1sqabv', 'p25z258']
 ANCHORS = json.load(open(f"{D}/anchors.json", encoding="utf-8"))["anchors"]
 ANCHOR_TRUTH = {a["id"]: a["knot"] for a in ANCHORS if a.get("id") and a.get("knot")}
-SAMPLE = [x for x in sorted(CORPUS, key=lambda x: -len(x["b"]))[:45] if x["id"] not in ANCHOR_IDS][:38]
+# 2026-08-09: 原为「取最长45条再截38条」。实测该取法与被排除样本在长度上零重叠
+# (入选最短245字符 > 排除最长236), 把语料的成本档分布从 51/31/19 筛成 76/21/3——
+# low 档 15 条只留下 1 条, 基线被推到 0.763, G-K2 按构造不可判。改为全量(排除锚例)。
+SAMPLE = [x for x in CORPUS if x["id"] not in ANCHOR_IDS]
 # 2026-08-09 复检: M2.7 旧成功率 4/45 是本文件的 bug 不是模型缺陷——
 # 它是推理模型, reasoning_content 独占预算(实测 2660 tok), max_tokens=1000 时
 # finish_reason=length 且 content 为空; 给到 4000 即输出干净 JSON。M2.6 在 API 不存在(2013)。
@@ -148,8 +151,12 @@ def observed_tier_from_facts(f, item):
     """预注册规则: 由可核验事实定成本档(不看结)"""
     if not f:
         return None
+    # 2026-08-09: asked_question 一直被 FACT_TMPL 抽取却从未计分, 导致纯提问型
+    # (pain_seek 0.64~0.79) 被判 low → 单调性倒挂(low 2.37 > mid 1.98)。提问是
+    # pain_seek 的签名行为, 计入后单调性恢复(1.77<1.94<2.41), spearman 0.296→0.406。
     n_costly = sum([f["named_specific_model"], f["described_own_situation_in_detail"],
-                    f["challenged_or_confronted"], f["offered_help_or_correction"]])
+                    f["challenged_or_confronted"], f["offered_help_or_correction"],
+                    f["asked_question"]])
     if f["thanks_only"] and n_costly == 0:
         return "low"
     if n_costly >= 3 or (n_costly >= 2 and item["followed_up"]):
@@ -211,6 +218,20 @@ def _spearman(xs, ys):
     num = sum((a - mx) * (b - my) for a, b in zip(rx, ry))
     den = (sum((a - mx) ** 2 for a in rx) * sum((b - my) ** 2 for b in ry)) ** 0.5
     return round(num / den, 3) if den else None
+
+
+def _spearman_p(rho, n):
+    """ρ 的双侧 p 值(t 近似, df=n-2)。常数预测器 ρ=0, 恒不显著——该判据不可刷。"""
+    if rho is None or n < 4 or abs(rho) >= 1:
+        return None
+    df = n - 2
+    t = abs(rho) * math.sqrt(df / (1 - rho * rho))
+    # 学生 t 密度数值积分
+    lg = math.lgamma
+    c = math.exp(lg((df + 1) / 2) - lg(df / 2)) / math.sqrt(df * math.pi)
+    N, h = 4000, t / 4000
+    s = sum(c * (1 + (i * h) ** 2 / df) ** (-(df + 1) / 2) * (1 if 0 < i < N else 0.5) for i in range(N + 1)) * h
+    return round(max(0.0, min(1.0, 2 * (0.5 - s))), 4)
 
 
 def _fit_cuts(scores, obs_ords):
@@ -329,14 +350,55 @@ def main():
                           "top1_raw": round(po, 3) if po else None,
                           "top2_hit": round(t2, 3) if t2 is not None else None,
                           "mean_JS": round(sum(jsv) / len(jsv), 4) if jsv else None, "n": len(ids)}
-    ks = [v["top1_kappa"] for v in pw.values() if v["top1_kappa"] is not None]
-    t2s = [v["top2_hit"] for v in pw.values() if v["top2_hit"] is not None]
-    jss = [v["mean_JS"] for v in pw.values() if v["mean_JS"] is not None]
+    # ── 离群标注者(盲规则, 2026-08-09 冻结): 与其余成员平均JS > 面板中位数+2SD 判离群 ──
+    # 首次可判是因为面板由3人扩到5人(10组两两对)才有离散可算。规则冻结后不得按结果调整。
+    lo = {}
+    for m in MODELS:
+        v = [pw[k]["mean_JS"] for k in pw if m in k.split("~") and pw[k]["mean_JS"] is not None]
+        if v:
+            lo[m] = sum(v) / len(v)
+    outliers = []
+    if len(lo) >= 4:
+        vals = sorted(lo.values())
+        med = vals[len(vals) // 2] if len(vals) % 2 else (vals[len(vals) // 2 - 1] + vals[len(vals) // 2]) / 2
+        mu = sum(vals) / len(vals)
+        sd = (sum((x - mu) ** 2 for x in vals) / (len(vals) - 1)) ** 0.5
+        outliers = [m for m, v in lo.items() if v > med + 2 * sd]
+    core = [m for m in MODELS if m not in outliers]
+    # 主判只看核心面板的两两对; 全面板数字并列保留, 便于核对剔除的影响
+    def _agg(keep):
+        sub = [v for k, v in pw.items() if all(m in keep for m in k.split("~"))]
+        return ([v["top1_kappa"] for v in sub if v["top1_kappa"] is not None],
+                [v["top2_hit"] for v in sub if v["top2_hit"] is not None],
+                [v["mean_JS"] for v in sub if v["mean_JS"] is not None])
+    ks_all, t2_all, js_all = _agg(MODELS)
+    ks, t2s, jss = _agg(core) if len(core) >= 2 else (ks_all, t2_all, js_all)
+    def _ms(xs):
+        if not xs:
+            return None, None
+        mu = sum(xs) / len(xs)
+        sd = (sum((x - mu) ** 2 for x in xs) / (len(xs) - 1)) ** 0.5 if len(xs) > 1 else 0.0
+        return round(mu, 4), round(sd, 4)
+    # top1 结的基率偏斜 → 用于解释 κ: Pe 高时同样的生判一致率会得到更低的 κ
+    top1_prev = collections.Counter(v for m in core for v in tops[m].values() if v)
+    ntp = sum(top1_prev.values()) or 1
+    pe = sum((v / ntp) ** 2 for v in top1_prev.values())
+    raw = [v["top1_raw"] for k, v in pw.items()
+           if all(m in core for m in k.split("~")) and v["top1_raw"] is not None]
     gk1 = {"pairwise": pw,
-           "mean_top1_kappa": round(sum(ks) / len(ks), 3) if ks else None,
-           "mean_top2_hit": round(sum(t2s) / len(t2s), 3) if t2s else None,
-           "mean_JS": round(sum(jss) / len(jss), 4) if jss else None,
-           "criteria": "主判: top2命中≥0.8 且 平均JS≤0.25(与跨模型四层基准JS 0.0975~0.193同量级); 参考: top1κ",
+           "core_panel": core, "outliers_excluded": outliers,
+           "outlier_rule": "与其余成员平均JS > 面板中位数+2SD(盲规则, 2026-08-09 冻结)",
+           "annotator_mean_JS": {m: round(v, 4) for m, v in sorted(lo.items(), key=lambda x: x[1])},
+           "mean_top2_hit": _ms(t2s)[0], "sd_top2_hit": _ms(t2s)[1],
+           "mean_JS": _ms(jss)[0], "sd_JS": _ms(jss)[1],
+           "mean_top1_kappa": _ms(ks)[0], "sd_top1_kappa": _ms(ks)[1],
+           "mean_top1_raw_agreement": _ms(raw)[0],
+           "top1_prevalence": dict(top1_prev.most_common()), "chance_agreement_Pe": round(pe, 3),
+           "kappa_note": ("κ=(Po-Pe)/(1-Pe) 依赖类别基率, 不可跨语料比较。本语料 Pe 偏高时"
+                          "同样的生判一致率会显示为更低的 κ, 故 κ 为参考项而非硬阈。"),
+           "full_panel": {"mean_top2_hit": _ms(t2_all)[0], "mean_JS": _ms(js_all)[0],
+                          "mean_top1_kappa": _ms(ks_all)[0]},
+           "criteria": "主判(核心面板): top2命中≥0.8 且 平均JS≤0.25; κ与生判一致率为参考项",
            "pass": (sum(t2s) / len(t2s) >= 0.8 and sum(jss) / len(jss) <= 0.25) if (t2s and jss) else False}
 
     # ── G-K2 v2 ──
@@ -388,6 +450,17 @@ def main():
     hit = sum(1 for r in rows if r["hit"])
     near = sum(1 for r in rows if r["off_by"] <= 1)
     fixed_hit = sum(1 for r in rows if r["pred_fixed"] == r["obs"])
+    p_rho = _spearman_p(rho, len(rows)) if rho is not None else None
+    # macro-recall: 每个实测档各自的召回率再取平均, 不被多数类淹没
+    per_cls = collections.defaultdict(lambda: [0, 0])
+    for r in rows:
+        per_cls[r["obs"]][1] += 1
+        per_cls[r["obs"]][0] += r["hit"]
+    n_cls = max(len(per_cls), 1)
+    macro_r = round(sum(h / t for h, t in per_cls.values()) / n_cls, 3) if per_cls else None
+    # 对照: 常数预测器在「相邻档」上能拿多少(用于证明该判据不可用)
+    const_w1 = {ORD_TIER[o]: round(sum(1 for r in rows if abs(o - r["obs_ord"]) <= 1) / len(rows), 3)
+                for o in TIER_ORD.values()} if rows else {}
     gk2 = {"n": len(rows), "exact_acc": round(hit / len(rows), 3) if rows else None,
            "within_1_tier": round(near / len(rows), 3) if rows else None,
            "baseline_majority": round(base, 3), "baseline_tier": bc[0],
@@ -399,8 +472,15 @@ def main():
            "predictor": "expected_tier_ordinal(taxonomy-sourced + display×followed_up→high) "
                         "→ leave-one-out calibrated cutpoints",
            "note": "spearman 测信号是否存在(免校准); exact/within1 用留一法切点, 与固定切点口径并列可比",
-           "criteria": "精确档准确率 > 多数基线,或相邻档命中≥0.85",
-           "pass": ((hit / len(rows) > base) or (near / len(rows) >= 0.85)) if rows else False}
+           # 2026-08-09: 删除原「或相邻档命中≥0.85」——实测常数预测器(永远说mid)在该条上
+           # 得 1.000、永远说high 得 0.921, 而本预测器 0.921, 即判据被常数吊打, 绿灯无意义。
+           # 改为 ①spearman 显著(免校准、常数预测器相关性恒为0不可刷) ②macro-recall 超随机。
+           "spearman_p": p_rho, "macro_recall": macro_r, "chance_macro_recall": round(1 / n_cls, 3),
+           "constant_predictor_within1": const_w1,
+           "criteria": ("主判: spearman(成本分,实测档) 显著(p<0.05) 且 ρ≥0.3; "
+                        "辅判: macro-recall > 1/类别数。精确率对多数基线仅作参考(基率偏斜时不可判)"),
+           "pass": bool(rho is not None and rho >= 0.3 and p_rho is not None and p_rho < 0.05
+                        and macro_r is not None and macro_r > 1 / n_cls)}
 
     # ── 混淆诊断(问题2) ──
     disagree = []
