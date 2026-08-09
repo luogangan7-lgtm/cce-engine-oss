@@ -1,0 +1,141 @@
+{
+ "input_sha": "cb721272bc6f4b3f",
+ "run_at": "2026-08-09T12:47:10",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 5,
+  "k_ok": 5,
+  "layers": {
+   "desire_vec": [
+    0.014000000000000002,
+    0.1,
+    0.09,
+    0.27999999999999997,
+    0.124,
+    0.10200000000000001,
+    0.16,
+    0.10600000000000001,
+    0.024000000000000004
+   ],
+   "need_vec": [
+    0.12000000000000002,
+    0.13999999999999999,
+    0.05,
+    0.22999999999999998,
+    0.0,
+    0.05000000000000001,
+    0.0,
+    0.0,
+    0.03,
+    0.26,
+    0.04,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.08,
+    0.0
+   ],
+   "emotion_vec": [
+    0.076,
+    0.06999999999999999,
+    0.01,
+    0.054000000000000006,
+    0.0,
+    0.28,
+    0.0,
+    0.12,
+    0.3,
+    0.04,
+    0.0,
+    0.0,
+    0.05
+   ],
+   "action_vec": [
+    0.3,
+    0.01,
+    0.21000000000000002,
+    0.06999999999999999,
+    0.13999999999999999,
+    0.030000000000000006,
+    0.24
+   ]
+  },
+  "tops": {
+   "desire": "确认欲",
+   "need": "N10_自我确认",
+   "emotion": "approval认同",
+   "action": "approach趋近"
+  },
+  "appraisal": {
+   "goal_relevance": 0.85,
+   "congruence_direction": "促进",
+   "need_status": "已满足",
+   "goal_congruence": "正",
+   "coping_potential": "高",
+   "note": "评价过程:写作者的核心目标是'被认作透明可信的内部人',这段内容本身就是一次公开声明,情境与目标高度相关(0.85);内容采取的姿态(揭示同款硬件+重新定义价值)对所有列出的需求都是'促进'而非威胁;'不推销不带链接'的克制让姿态当场兑现,需求处于'已满足'状态(写完即完成一次自我确认的动作);正情绪由此锁定;coping_potential高——写作者握有内部知识、有发布渠道、已经公开身份,没有任何外部障碍阻止这次声明落地。所以情绪侧不会出现fear/sadness/anger等负向,只会出现正价类情绪。"
+  },
+  "chain_trace": "确认欲 →(情境: 代工厂身份公开后,面对一群对'工厂'高度警惕的消费者)→ N10_自我确认(把'诚实内部人'这一身份坐实) →(评价: 目标相关度0.85, 方向=促进, 状态=已满足, 正价congruence, coping=高)→ pride自豪(0.25)+approval认同(0.20)+relief宽慰(0.15) → approach趋近(0.30)+dominate支配(0.15)+agonistic对抗(0.15) 的完整推导——写作者带着自豪与自我认同,主动靠近受众并定义'什么才是真正的价值'。",
+  "within_js": {
+   "desire_vec": 0.2274,
+   "need_vec": 0.3034,
+   "emotion_vec": 0.124,
+   "action_vec": 0.0865
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "display",
+    "weight": 0.85,
+    "evidence_quote": "OTC and prescription aids often share the same receivers and chip families. You're not paying for better parts. You're paying for someone measuring the fit in your ear.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "identity"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N10",
+    "freshness_days_hint": 70,
+    "name": "确证·展示结",
+    "family": "推动",
+    "playbook": "让位;被当同侪;接着他的贡献往前走,绝不纠正姿态压他",
+    "behavior_predicted": "展示通道·低→高成本:纠错亮牌/举反例晒型号/结构化长评/承诺回访。评论区最高质量UGC主力"
+   },
+   {
+    "key": "audit",
+    "weight": 0.15,
+    "evidence_quote": "You're not paying for better parts.",
+    "signature": {
+     "congruence": "威胁(对误导性定价叙事)",
+     "need_status": "未满足",
+     "coping": "中",
+     "time": "现在",
+     "attribution": "system",
+     "target_layer": "epistemic_trust"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N10",
+    "freshness_days_hint": 45,
+    "name": "验真·审计结",
+    "family": "阻挡",
+    "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+    "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前"
+   }
+  ],
+  "levers_present": [],
+  "notes": "主体为 display 结(纠错亮牌·内部人身份展演),披露同款硬件以重定义价值,姿态克制无推销;次级 audit 痕迹在'你不是在为更好的零件付费'这句带有轻度揭穿行业定价逻辑的意味,但归责偏向 system 而非具体 other_agent,未达审计结的对抗阈值。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}

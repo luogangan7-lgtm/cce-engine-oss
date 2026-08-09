@@ -1,0 +1,25 @@
+name: subjects
+on:
+  workflow_dispatch:
+    inputs:
+      min_posts: {description: "只模拟参与过>=N个帖的主体", required: false, default: "2", type: string}
+jobs:
+  sim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip}
+      - run: pip install -r requirements.txt
+      - name: 配置↔代码一致性自检(前置闸)
+        run: python3 scripts/consistency_check.py
+      - name: 建主体卡
+        env: {MINIMAX_API_KEY: "${{ secrets.MINIMAX_API_KEY }}"}
+        run: python3 scripts/build_subjects.py
+      - name: 主体模拟
+        env: {MINIMAX_API_KEY: "${{ secrets.MINIMAX_API_KEY }}"}
+        run: python3 scripts/simulate_subjects.py --min-posts ${{ inputs.min_posts }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: subjects, path: subjects/}
