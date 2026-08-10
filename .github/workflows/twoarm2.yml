@@ -1,0 +1,19 @@
+name: twoarm-stable
+on: {workflow_dispatch: {}}
+jobs:
+  ts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip}
+      - run: pip install -r requirements.txt
+      - name: 配置↔代码一致性自检(前置闸)
+        run: python3 scripts/consistency_check.py
+      - name: 双臂对照v2·稳定层
+        env: {MINIMAX_API_KEY: "${{ secrets.MINIMAX_API_KEY }}"}
+        run: python3 accuracy/twoarm_stable.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: twoarm-stable, path: accuracy/twoarm_stable.json}
