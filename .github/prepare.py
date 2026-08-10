@@ -17,6 +17,7 @@ if os.environ.get("ITEMS_FILE"):
     audience = (_it.get("audience") or "").strip()
     cdecl = (_it.get("context_decl") or "").strip()
     ref = (_it.get("ref_tag") or "").strip()
+    refpost = (_it.get("ref_post") or "").strip()
 else:
     mode = (os.environ.get("MODE") or "").strip()
     text = os.environ.get("TEXT") or ""
@@ -24,6 +25,7 @@ else:
     audience = (os.environ.get("AUDIENCE") or "").strip()
     cdecl = (os.environ.get("CONTEXT_DECL") or "").strip()
     ref = (os.environ.get("REF_TAG") or "").strip()
+    refpost = (os.environ.get("REF_POST") or "").strip()
 
 errs = []
 if mode not in ("reply", "post"):
@@ -53,6 +55,11 @@ if cdecl:
 if mode == "post":
     if not ref:
         errs.append("post 模式必填 ref_tag")
+    # 2026-08-10: ref_tag(标识) 曾被当成 ref_post(上一篇正文)写进 run/ref.txt,
+    # 导致 s8 拿本篇跟一串 tag 做成对下注, 产出 9/10 'strong' 的假结果。
+    # 两者彻底分开, 并对 ref_post 做最小合法性校验。
+    if refpost and len(refpost.split()) < 20:
+        errs.append(f"ref_post 只有 {len(refpost.split())} 词, 不像一篇正文(疑似误传标识)。s8 需要上一篇完整正文")
     if not audience:
         # 2026-08-09: 旧默认语料仅 9 条/193 词, 实测同一份语料四次运行读出的受众主结
         # pain_seek 在 0.20~0.60 之间摆动(3倍), s6 的参照系不稳到无法支撑二值门。
@@ -83,8 +90,10 @@ open("run/input.txt", "w", encoding="utf-8").write(text)
 if audience:
     open("run/audience.txt", "w", encoding="utf-8").write(audience)
 if ref:
-    open("run/ref.txt", "w", encoding="utf-8").write(ref)
+    open("run/ref_tag", "w", encoding="utf-8").write(ref)      # 仅元数据, 不进链路
+if refpost:
+    open("run/ref.txt", "w", encoding="utf-8").write(refpost)  # s8 的上一篇正文
 if cdecl:
     open("run/context_decl.json", "w", encoding="utf-8").write(cdecl)
     print(f"::notice::情境声明已落盘: {cdecl}")
-print(f"投料校验通过: mode={mode} text={len(text.split())}词 audience={len(audience.split())}词 ref={ref}")
+print(f"投料校验通过: mode={mode} text={len(text.split())}词 audience={len(audience.split())}词 ref_tag={ref} ref_post={len(refpost.split())}词")

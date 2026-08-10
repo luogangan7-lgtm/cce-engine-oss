@@ -25,6 +25,10 @@ on:
         description: "情境声明 JSON(生产时应显式声明已知面, 如 {\"关系位置\":\"首次接触\",\"信息环境\":\"推荐流\"})"
         required: false
         default: ""
+      ref_post:
+        description: "post模式: 上一篇正文(s8成对下注用)。不是标识, 是完整正文"
+        required: false
+        default: ""
       ref_tag:
         description: "本次运行标识"
         required: true
@@ -58,6 +62,7 @@ jobs:
           AUDIENCE: ${{ github.event.client_payload.audience || inputs.audience }}
           REF_TAG: ${{ github.event.client_payload.ref_tag || inputs.ref_tag }}
           CONTEXT_DECL: ${{ github.event.client_payload.context_decl || inputs.context_decl }}
+          REF_POST: ${{ github.event.client_payload.ref_post || inputs.ref_post }}
         run: python .github/prepare.py
       - name: 跑完整CCE链
         env:

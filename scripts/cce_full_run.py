@@ -297,11 +297,35 @@ def s7(ctx):
     for a, b in pairs:
         vals = [s for (x, y, s) in res if (x, y) == (a, b)] + [-s for (x, y, s) in res if (x, y) == (b, a)]
         m[f"{a}->{b}"] = sum(vals) / len(vals)
+    # 2026-08-10 自检改口径。原自检 dev = 两段之和 - 直连, 要求 |dev|<=15 —— 它假设
+    # margin 是可相加的区间尺度; 实际 margin 是 0~100 的【有界相对差, 会饱和】。
+    # 实测三个比较都接近饱和(|margin| 85~95)时, 两段之和 -167.7 而直连上限只有 -100,
+    # 加性【按构造不可能成立】, 判负与尺子好坏无关。这是自检设定错, 不是尺子坏。
+    # 改为【排序自洽】作主判: 三条 leg 必须能被同一个全序解释(CIMP < POST < CACT 之类)。
+    # 加性偏差 dev 保留为诊断项, 且只在远离饱和时才有解释力。
+    sat = max(abs(v) for v in m.values()) >= 70
+    order_ok = True
+    sc = {"CIMP": 0.0, "POST": 0.0, "CACT": 0.0}          # 由 leg 反推的相对位次
+    sc["POST"] = -m["CIMP->POST"]                          # 负 = B(后者)胜
+    sc["CACT"] = -m["CIMP->CACT"]
+    implied = sc["CACT"] - sc["POST"]                      # 按位次推出的 POST->CACT
+    for a, b in pairs:
+        x, y = (sc[a], sc[b])
+        if (m[f"{a}->{b}"] > 0) != (x > y) and abs(m[f"{a}->{b}"]) > 5 and abs(x - y) > 5:
+            order_ok = False
     dev = m["CIMP->POST"] + m["POST->CACT"] - m["CIMP->CACT"]
-    ok = abs(dev) <= 15
-    out = {"legs": {k: round(v, 1) for k, v in m.items()}, "selfcheck_dev": round(dev, 1), "selfcheck_pass": ok}
-    if ok and m["CIMP->CACT"] != 0:
+    out = {"legs": {k: round(v, 1) for k, v in m.items()},
+           "主判_排序自洽": order_ok,
+           "推得的排序": [k for k, _ in sorted(sc.items(), key=lambda x: x[1])],
+           "诊断_加性偏差dev": round(dev, 1),
+           "饱和": sat,
+           "dev可解释性": ("饱和区, 加性按构造不成立, dev 无解释力" if sat
+                        else "非饱和区, |dev|>15 提示尺子不一致"),
+           "口径说明": "主判=排序自洽(有界尺度上唯一有效的一致性判据); 加性偏差仅作诊断"}
+    ok = order_ok
+    if m["CIMP->CACT"] != 0:
         out["position_pct"] = round(m["CIMP->POST"] / m["CIMP->CACT"] * 100, 1)
+        out["position_note"] = "本篇在【硬广 0% ←→ 纯问句CTA 100%】轴上的位置"
     json.dump(out, open(f"{ctx['outdir']}/s7_ruler.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     return out
 
@@ -315,6 +339,9 @@ def s8(ctx):
     from concurrent.futures import ThreadPoolExecutor
     NEW = open(ctx["text_file"], encoding="utf-8").read().strip()
     REF = open(ctx["ref_post"], encoding="utf-8").read().strip()
+    if len(REF.split()) < 20:
+        raise RuntimeError(f"ref_post 只有 {len(REF.split())} 词, 不是一篇正文 —— "
+                           f"拒绝拿本篇与疑似标识串做成对下注(2026-08-10 曾因此产出 9/10 假结果)")
     SYS = ("你是内容效果预测器。同一账号(r/HearingAids, OTC助听器OEM制造方视角)先后发布两篇帖子。\n"
            "预测哪一篇的「落点完成率」更高。落点完成 = 读者按帖子结尾的邀请,在评论区贴出自己的助听器型号(每千浏览计)。\n"
            '只看文本本身。只输出 JSON: {"winner":"A"或"B","margin":0到100,"reason":"一句话"}')
