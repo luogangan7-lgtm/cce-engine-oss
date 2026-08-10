@@ -1,0 +1,84 @@
+name: reply-batch
+on:
+  workflow_dispatch:
+    inputs:
+      items: {description: "投料文件路径(仓库内)", required: true, type: string}
+      phase: {description: "A=只读对方出写作基准 / B=投草稿验触达", required: true, type: choice, options: [A, B]}
+jobs:
+  batch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip}
+      - run: pip install -r requirements.txt
+      - name: 配置↔代码一致性自检(前置闸)
+        run: python3 scripts/consistency_check.py
+      - name: 文风闸(phase B 才有草稿, 逐条对真人语料量)
+        if: inputs.phase == 'B'
+        run: |
+          python3 - <<'EOF'
+          import json, subprocess, sys, os
+          items = json.load(open(os.environ["ITEMS"], encoding="utf-8"))
+          bad = []
+          for it in items:
+              d = (it.get("draft") or "").strip()
+              if not d:
+                  continue
+              open("/tmp/_sc.txt", "w", encoding="utf-8").write(d)
+              r = subprocess.run([sys.executable, "scripts/style_check.py", "/tmp/_sc.txt"],
+                                 capture_output=True, text=True)
+              print(f"───── {it['tag']} rc={r.returncode}\n{r.stdout}{r.stderr}")
+              if r.returncode != 0:
+                  bad.append(it["tag"])
+          if bad:
+              print(f"::error::文风闸未过: {bad}")
+              sys.exit(1)
+          EOF
+        env:
+          ITEMS: ${{ inputs.items }}
+      - name: run
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          CCE_ALIGN_THETA: ${{ vars.CCE_ALIGN_THETA }}
+        run: python3 scripts/reply_batch.py --items "${{ inputs.items }}" --phase "${{ inputs.phase }}" --out out/
+      - name: summary
+        if: always()
+        run: |
+          python3 - <<'EOF' >> $GITHUB_STEP_SUMMARY
+          import json, os, glob
+          f = glob.glob("out/phase*.json")
+          if not f:
+              print("无产物"); raise SystemExit
+          R = json.load(open(f[0], encoding="utf-8"))
+          if "phaseA" in f[0]:
+              print("## Phase A · 写作基准\n")
+              for r in R:
+                  if r.get("ERROR"):
+                      print(f"### {r['tag']} ❌ {r['ERROR']}\n"); continue
+                  print(f"### {r['tag']} — {r['kind']}")
+                  print(f"{r['url']}\n")
+                  print(f"- 九结: `{r['九结']}`")
+                  print(f"- 打法: {r['打法']}")
+                  for L, v in r["四层"].items():
+                      print(f"- {L}: {v}")
+                  print()
+          else:
+              print("## Phase B · 触达验收\n")
+              print("|tag|词|对齐分|need触达|PASS|未触达|")
+              print("|---|---|---|---|---|---|")
+              for r in R:
+                  if r.get("ERROR") or r.get("skip"):
+                      print(f"|{r['tag']}|-|-|-|❌|{r.get('ERROR') or r.get('skip')}|"); continue
+                  n = r["四层触达"]["need_vec"]
+                  print(f"|{r['tag']}|{r['words']}|{r['对齐分']}|{n['触达数']}/{n['显著维']}"
+                        f"|{'✅' if r['PASS'] else '❌'}|{', '.join(r['未触达']) or '—'}|")
+          EOF
+      # 不用 flow mapping: `${{` 里的 `{` 会让整份 YAML 不可解析(2026-08-09 three.yml 实伤,
+      # 且 `gh workflow list` 仍显示 active, 只有 dispatch 时 422, 极难发现)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reply-batch-${{ inputs.phase }}
+          path: out/
