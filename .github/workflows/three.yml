@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       task:
-        description: "t1 | t3"
+        description: "t1 | t2 | t3 | t2ctl"
         required: true
         default: "t1"
         type: string
@@ -23,7 +23,12 @@ jobs:
       - name: 跑任务
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
-        run: python3 accuracy/${{ inputs.task }}_*.py
+        run: |
+          if [ '${{ inputs.task }}' = 't2ctl' ]; then
+            python3 accuracy/t2_control.py
+          else
+            python3 accuracy/${{ inputs.task }}_*.py
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
