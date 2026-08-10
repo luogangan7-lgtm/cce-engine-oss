@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       task:
-        description: "t1 | t2 | t3 | t2ctl"
+        description: "t1 | t2 | t3 | t2ctl | t2abl"
         required: true
         default: "t1"
         type: string
@@ -26,6 +26,8 @@ jobs:
         run: |
           if [ '${{ inputs.task }}' = 't2ctl' ]; then
             python3 accuracy/t2_control.py
+          elif [ '${{ inputs.task }}' = 't2abl' ]; then
+            python3 accuracy/t2_ablation.py
           else
             python3 accuracy/${{ inputs.task }}_*.py
           fi
