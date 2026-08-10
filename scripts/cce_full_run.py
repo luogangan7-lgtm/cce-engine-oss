@@ -279,13 +279,24 @@ def s7(ctx):
     T = {"CIMP": CIMP, "CACT": CACT, "POST": POST}
 
     def one(args):
+        # 2026-08-10: 原为单次调用无重试, temperature=0.4 下短文本(26词微片)极易吐解释
+        # 而非 JSON —— 实测 D对比 s7 仅 9/30、C壳体 22/30、A座位 s8 0/10, 三条链因此断掉。
+        # 加三次重试并逐次收紧指令, 后两次降温到 0。
         a, b, _ = args
-        p = f"【内容A】\n{T[a]}\n\n【内容B】\n{T[b]}\n\n哪篇每千浏览的型号评论更多?只输出JSON。"
-        c, _m = call_model("M3", SYS + "\n\n" + p, temperature=0.4)
-        d = extract_json_robust(c, log_note="fullrun_ruler")
-        if not (isinstance(d, dict) and d.get("winner") in ("A", "B")):
-            return None
-        return (a, b, d["margin"] if d["winner"] == "A" else -d["margin"])
+        base = f"【内容A】\n{T[a]}\n\n【内容B】\n{T[b]}\n\n哪篇每千浏览的型号评论更多?"
+        strict = ["只输出JSON。", "只输出一行JSON, 不要解释、不要代码块标记。",
+                  '严格只输出这一行形式: {"winner":"A","margin":50,"reason":"x"}']
+        for att in range(3):
+            c, _m = call_model("M3", SYS + "\n\n" + base + strict[att],
+                               temperature=0.4 if att == 0 else 0.0)
+            d = extract_json_robust(c, log_note="fullrun_ruler")
+            if isinstance(d, dict) and d.get("winner") in ("A", "B"):
+                try:
+                    mg = float(d.get("margin", 0))
+                except Exception:
+                    mg = 0.0
+                return (a, b, mg if d["winner"] == "A" else -mg)
+        return None
 
     pairs = [("CIMP", "POST"), ("POST", "CACT"), ("CIMP", "CACT")]
     jobs = [(a, b, r) for a, b in pairs for r in range(5)] + [(b, a, r) for a, b in pairs for r in range(5)]
@@ -348,14 +359,20 @@ def s8(ctx):
     T = {"NEW": NEW, "REF": REF}
 
     def one(args):
+        # 2026-08-10: 原为单次调用无重试, temperature=0.4 下短文本(26词微片)极易吐解释
+        # 而非 JSON —— 实测 D对比 s7 仅 9/30、C壳体 22/30、A座位 s8 0/10, 三条链因此断掉。
+        # 加三次重试并逐次收紧指令, 后两次降温到 0。
         a, b, _ = args
-        p = f"【帖子A】\n{T[a]}\n\n【帖子B】\n{T[b]}\n\n哪篇每千浏览的型号评论更多?只输出JSON。"
-        c, _m = call_model("M3", SYS + "\n\n" + p, temperature=0.4)
-        d = extract_json_robust(c, log_note="fullrun_bet")
-        if not (isinstance(d, dict) and d.get("winner") in ("A", "B")):
-            return None
-        win_new = (d["winner"] == "A") == (a == "NEW")
-        return (win_new, d.get("margin", 0))
+        base = f"【帖子A】\n{T[a]}\n\n【帖子B】\n{T[b]}\n\n哪篇每千浏览的型号评论更多?"
+        strict = ["只输出JSON。", "只输出一行JSON, 不要解释、不要代码块标记。",
+                  '严格只输出这一行形式: {"winner":"A","margin":50,"reason":"x"}']
+        for att in range(3):
+            c, _m = call_model("M3", SYS + "\n\n" + base + strict[att],
+                               temperature=0.4 if att == 0 else 0.0)
+            d = extract_json_robust(c, log_note="fullrun_bet")
+            if isinstance(d, dict) and d.get("winner") in ("A", "B"):
+                return ((d["winner"] == "A") == (a == "NEW"), d.get("margin", 0))
+        return None
 
     jobs = [("NEW", "REF", r) for r in range(5)] + [("REF", "NEW", r) for r in range(5)]
     with ThreadPoolExecutor(max_workers=6) as ex:

@@ -30,6 +30,12 @@ PB = {k["key"]: k.get("playbook", "") for k in TAXO["knots"]}
 KB = "; ".join(f"{k['key']}={k['name']}" for k in TAXO["knots"])
 NEEDS = json.load(open(f"{ROOT}/config/need_taxonomy.json", encoding="utf-8"))["controlled_keys"]
 
+DIAG_BARE = """你是内容诊断器。对下面这篇 r/HearingAids 帖子做诊断。
+不要套用任何既定框架或分类体系, 就凭你对这个板块和读者的理解直接判断。
+【帖子】
+{body}
+只输出JSON: {{"why_weak":"这篇为什么拿不到互动, 一句话, 指向具体机制","fix":"最该改的一处, 一句话可执行"}}"""
+
 DIAG = """你是内容诊断器。对下面这篇 r/HearingAids 帖子做诊断。
 九结: {K}
 欲望9: {D}
@@ -80,6 +86,8 @@ def main():
         w = len(p["selftext"].split()); lo, hi = int(w*.8), int(w*1.2)
         d = extract_json_robust(gen(DIAG.format(K=KB, D=DESIRES, N=NEEDS, body=body)),
                                 log_note="abl_d") or {}
+        # B5: 诊断阶段完全不给分类学 —— 决定分类学最终去留的对照
+        d5 = extract_json_robust(gen(DIAG_BARE.format(body=body)), log_note="abl_d5") or {}
         kn = d.get("knots") or {}
         top = max(kn, key=kn.get) if kn else None
         J = lambda x: json.dumps(x, ensure_ascii=False)
@@ -88,6 +96,7 @@ def main():
           "B1": f"\n【诊断】激活的结: {J(kn)}\n  对应 playbook: {PB.get(top,'')[:160]}\n按 playbook 指出的动作改。",
           "B2": f"\n【诊断】主欲望: {J(d.get('desire') or {})}  主需求: {J(d.get('need') or {})}\n按这两层指出的诉求改。",
           "B3": f"\n【诊断】弱在哪: {d.get('why_weak','')}\n  最该改: {d.get('fix','')}\n按这份诊断改。",
+          "B5": f"\n【诊断】弱在哪: {d5.get('why_weak','')}\n  最该改: {d5.get('fix','')}\n按这份诊断改。",
           "B4": (f"\n【诊断】激活的结: {J(kn)}\n  主欲望: {J(d.get('desire') or {})}  主需求: {J(d.get('need') or {})}\n"
                  f"  弱在哪: {d.get('why_weak','')}\n  最该改: {d.get('fix','')}\n  对应 playbook: {PB.get(top,'')[:160]}\n按这份诊断改。"),
         }
@@ -100,7 +109,8 @@ def main():
             R[k] = t
         f = i % 2 == 1
         duels = {"B1vsA": ("B1","A"), "B2vsA": ("B2","A"), "B3vsA": ("B3","A"),
-                 "B4vsA": ("B4","A"), "B4vsB3": ("B4","B3"), "B1vsB3": ("B1","B3")}
+                 "B4vsA": ("B4","A"), "B4vsB3": ("B4","B3"), "B1vsB3": ("B1","B3"),
+                 "B5vsA": ("B5","A"), "B3vsB5": ("B3","B5")}
         out = {"id": p["id"], "top_knot": top, "words": {k: len(v.split()) for k, v in R.items()}}
         for name, (x, y) in duels.items():
             out[name] = judge(R[x], R[y], f)
@@ -116,7 +126,7 @@ def main():
         se = math.sqrt(a*(1-a)/n) if n else 0
         return {"n": n, "胜率": round(a,4), "ci95": [round(a-1.96*se,4), round(a+1.96*se,4)],
                 "显著优于对手": bool(a-1.96*se > 0.5)}
-    keys = ["B1vsA","B2vsA","B3vsA","B4vsA","B4vsB3","B1vsB3"]
+    keys = ["B1vsA","B2vsA","B3vsA","B4vsA","B4vsB3","B1vsB3","B5vsA","B3vsB5"]
     S = {k: rate(k) for k in keys}
     res = {"gate": "生成侧消融·定九结去留", "n": len(rows), "各组": S,
            "预注册": {"九结无独立贡献": "B1vsA 不显著",
@@ -125,7 +135,12 @@ def main():
              "九结有独立贡献": S["B1vsA"]["显著优于对手"],
              "稳定层有独立贡献": S["B2vsA"]["显著优于对手"],
              "纯诊断文本有贡献": S["B3vsA"]["显著优于对手"],
-             "分类学相对纯诊断有增量": S["B4vsB3"]["显著优于对手"]},
+             "分类学相对纯诊断有增量": S["B4vsB3"]["显著优于对手"],
+             "无框架诊断也有效": S["B5vsA"]["显著优于对手"],
+             "★分类学在诊断阶段有增量": S["B3vsB5"]["显著优于对手"]},
+           "B5说明": ("B5 = 诊断阶段完全不给任何分类学, 直接问'为什么弱/该怎么改'。"
+                    "B3vsB5 是决定分类学最终去留的对决: 不显著 ⇒ 连诊断阶段都不需要分类学, "
+                    "CCE 的价值仅是'让模型做结构化诊断'这个动作本身。"),
            "对照_F1": {"B4vsA_原测": 0.914}, "rows": rows}
     json.dump(res, open(f"{ROOT}/accuracy/t2_ablation.json","w"), ensure_ascii=False, indent=1)
     print(f"{'对决':10s} {'胜率':>7s} {'95%CI':>18s} 显著")
