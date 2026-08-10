@@ -15,6 +15,7 @@ if os.environ.get("ITEMS_FILE"):
     text = _it.get("text") or ""
     context = (_it.get("context") or "").strip()
     audience = (_it.get("audience") or "").strip()
+    cdecl = (_it.get("context_decl") or "").strip()
     ref = (_it.get("ref_tag") or "").strip()
 else:
     mode = (os.environ.get("MODE") or "").strip()
@@ -22,14 +23,6 @@ else:
     context = (os.environ.get("CONTEXT") or "").strip()
     audience = (os.environ.get("AUDIENCE") or "").strip()
     cdecl = (os.environ.get("CONTEXT_DECL") or "").strip()
-    if cdecl:
-        try:
-            import json as _j
-            _j.loads(cdecl)
-            open("run/context_decl.json", "w", encoding="utf-8").write(cdecl)
-            print(f"::notice::情境声明已落盘 run/context_decl.json: {cdecl}")
-        except Exception as e:
-            errs.append(f"context_decl 不是合法 JSON: {e}")
     ref = (os.environ.get("REF_TAG") or "").strip()
 
 errs = []
@@ -39,6 +32,23 @@ if not text.strip():
     errs.append("text 不能为空")
 if not context:
     errs.append("context 不能为空")
+CTX_KEYS = None
+if cdecl:
+    try:
+        import json as _j
+        _d = _j.loads(cdecl)
+        if not isinstance(_d, dict) or not _d:
+            errs.append("context_decl 必须是非空 JSON 对象")
+        else:
+            _t = _j.load(open("config/context_taxonomy.json", encoding="utf-8"))
+            CTX_KEYS = {f["key"]: f["values"] for f in _t["facets"]}
+            for k, v in _d.items():
+                if k not in CTX_KEYS:
+                    errs.append(f"context_decl 面名不在分类学里: {k!r} (合法: {list(CTX_KEYS)})")
+                elif v not in CTX_KEYS[k]:
+                    errs.append(f"context_decl 取值不合法: {k}={v!r} (合法: {CTX_KEYS[k]})")
+    except Exception as e:
+        errs.append(f"context_decl 不是合法 JSON: {e}")
 
 if mode == "post":
     if not ref:
@@ -74,4 +84,7 @@ if audience:
     open("run/audience.txt", "w", encoding="utf-8").write(audience)
 if ref:
     open("run/ref.txt", "w", encoding="utf-8").write(ref)
+if cdecl:
+    open("run/context_decl.json", "w", encoding="utf-8").write(cdecl)
+    print(f"::notice::情境声明已落盘: {cdecl}")
 print(f"投料校验通过: mode={mode} text={len(text.split())}词 audience={len(audience.split())}词 ref={ref}")
