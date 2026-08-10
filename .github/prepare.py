@@ -21,6 +21,12 @@ else:
     text = os.environ.get("TEXT") or ""
     context = (os.environ.get("CONTEXT") or "").strip()
     audience = (os.environ.get("AUDIENCE") or "").strip()
+    cdecl = (os.environ.get("CONTEXT_DECL") or "").strip()
+    if cdecl:
+        try:
+            import json as _j; _j.loads(cdecl)
+        except Exception as e:
+            errs.append(f"context_decl 不是合法 JSON: {e}")
     ref = (os.environ.get("REF_TAG") or "").strip()
 
 errs = []

@@ -11,8 +11,8 @@
   python cce_full_run.py --mode post  --text-file X.txt --context "..." --outdir RUNDIR \
       [--audience-file A.txt] [--ref-post REF.txt]
 链路清单(冻结):
-  reply: s1_readout(K=3) -> s2_knots(v1.2.0) -> s3_emotion_policy -> s4_guard
-  post:  s1_readout(K=5) -> s2_knots -> s3_emotion_policy -> s4_guard
+  reply: s0_context -> s1_readout(K=3) -> s2_knots -> s3_emotion_policy -> s4_guard
+  post:  s0_context -> s1_readout(K=5) -> s2_knots -> s3_emotion_policy -> s4_guard
          -> s5_audience(K=5, 需--audience-file) -> s6_alignment
          -> s7_ruler(P3双锚) -> s8_pairwise_bet(需--ref-post)
 """
@@ -64,6 +64,11 @@ def stage(name):
     return deco
 
 
+CTX_TAXO = json.load(open(os.path.join(ROOT, "config/context_taxonomy.json"), encoding="utf-8"))
+CTX_FACETS = CTX_TAXO["facets"]
+CTX_UNKNOWN = {"未知", "未提及", "", None}
+
+
 def run_knot_classify(text_file, context, k, out):
     cmd = [sys.executable, os.path.join(ROOT, "scripts/cce_knot_classify.py"),
            "--text-file", text_file, "--context", context, "--k", str(k), "--out", out]
@@ -74,6 +79,61 @@ def run_knot_classify(text_file, context, k, out):
     if d["stage1"]["k_ok"] < k:
         raise RuntimeError(f"K覆盖不足: {d['stage1']['k_ok']}/{k}")
     return d
+
+
+@stage("s0_context")
+def s0(ctx):
+    """情境层(第五层) —— 部分可观测, 三态: 已声明 / 读出 / 未知(走先验)。
+
+    2026-08-09/10 实测依据:
+      · 情境敏感度(148次受控调用): 逐面翻取值, 情绪位移 .36-.78、行动 .43-.78,
+        而需求仅 .06-.13 —— 情境显著改变下游, 不能不建。
+      · 九面里【场景类型】位移排第四(.471)却几乎读不出(可读出率 .145) ——
+        属"影响大但拿不到", 必须以未知记录并交下游做分布, 不许猜一个填上。
+    生产纪律: 我们自己产内容时情境是【已知入参】, 不该让模型猜; 逆向他人内容时才读出。
+    故声明优先于读出, 读出优先于未知; 每面记录来源, 并给出填充度。
+    """
+    decl = {}
+    if ctx.get("context_decl"):
+        decl = json.loads(open(ctx["context_decl"], encoding="utf-8").read()) \
+            if os.path.exists(ctx["context_decl"]) else json.loads(ctx["context_decl"])
+    need_read = [f for f in CTX_FACETS
+                 if f["key"] not in decl and f.get("readable_from_text") in (True, "partial")]
+    read = {}
+    if need_read:
+        from exp_crossmodel_desire import call_model
+        from exp_v4_full_validation import extract_json_robust
+        body = open(ctx["text_file"], encoding="utf-8").read()[:2000]
+        spec = "\n".join(f"  {f['key']}: {f['values']}" for f in need_read)
+        p = (f"逐面读出这段内容体现的读者情境。**读不出来就填\"未知\", 严禁猜**。\n"
+             f"{spec}\n\n【内容】\n{body}\n\n只输出JSON: {{\"面名\":\"选中值\"}}")
+        c, _ = call_model("M3", p, temperature=0.0)
+        read = extract_json_robust(c, log_note="s0_ctx") or {}
+    merged, src = {}, {}
+    for f in CTX_FACETS:
+        k = f["key"]
+        if k in decl:
+            merged[k], src[k] = decl[k], "已声明"
+        elif read.get(k) not in CTX_UNKNOWN and read.get(k) in f["values"]:
+            merged[k], src[k] = read[k], "读出"
+        else:
+            merged[k], src[k] = "未知", "未知(走先验)"
+    known = [k for k, v in src.items() if v != "未知(走先验)"]
+    fill = round(len(known) / len(CTX_FACETS), 3)
+    ctx["ctx_layer"] = {"facets": merged, "source": src, "fill_rate": fill}
+    # 情境并入下游语境串, 让 s1/s5 看到
+    ctx["context"] = ctx["context"] + " 【情境】" + json.dumps(
+        {k: v for k, v in merged.items() if v != "未知"}, ensure_ascii=False)
+    json.dump(ctx["ctx_layer"], open(f"{ctx['outdir']}/s0_context.json", "w"),
+              ensure_ascii=False, indent=1)
+    if fill == 0:
+        raise RuntimeError("情境九面全未知且无声明 —— 引擎拒答: 缺必要输入时不硬给结论")
+    return {"file": "s0_context.json", "fill_rate": fill,
+            "已声明": [k for k, v in src.items() if v == "已声明"],
+            "读出": [k for k, v in src.items() if v == "读出"],
+            "未知": [k for k, v in src.items() if v == "未知(走先验)"],
+            "置信提示": ("填充度低, 下游只出人群级结论, 不出个体级判断"
+                       if fill < 0.5 else "填充度足够")}
 
 
 @stage("s1_readout")
@@ -268,8 +328,8 @@ def s8(ctx):
 
 
 CHAINS = {
-    "reply": [s1, s2, s3, s4],
-    "post": [s1, s2, s3, s4, s5, s6, s7, s8],
+    "reply": [s0, s1, s2, s3, s4],
+    "post": [s0, s1, s2, s3, s4, s5, s6, s7, s8],
 }
 
 
@@ -280,11 +340,13 @@ def main():
     ap.add_argument("--context", required=True)
     ap.add_argument("--outdir", required=True)
     ap.add_argument("--audience-file")
+    ap.add_argument("--context-decl", help="情境声明(JSON文件或内联JSON); 生产时应显式声明已知面")
     ap.add_argument("--ref-post")
     a = ap.parse_args()
     os.makedirs(a.outdir, exist_ok=True)
     ctx = {"text_file": a.text_file, "context": a.context, "outdir": a.outdir,
            "audience_file": a.audience_file, "ref_post": a.ref_post,
+           "context_decl": a.context_decl,
            "k": 5 if a.mode == "post" else 3}
     txt = open(a.text_file, encoding="utf-8").read()
     meta = {"mode": a.mode, "started": time.strftime("%Y-%m-%d %H:%M:%S"),

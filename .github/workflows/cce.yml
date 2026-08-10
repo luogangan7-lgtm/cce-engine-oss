@@ -21,6 +21,10 @@ on:
         description: "post模式必填: 受众原话语料(≥3条/≥80词)。留空则用仓库内 corpus 默认语料"
         required: false
         type: string
+      context_decl:
+        description: "情境声明 JSON(生产时应显式声明已知面, 如 {\"关系位置\":\"首次接触\",\"信息环境\":\"推荐流\"})"
+        required: false
+        default: ""
       ref_tag:
         description: "本次运行标识"
         required: true
@@ -53,6 +57,7 @@ jobs:
           CONTEXT: ${{ github.event.client_payload.context || inputs.context }}
           AUDIENCE: ${{ github.event.client_payload.audience || inputs.audience }}
           REF_TAG: ${{ github.event.client_payload.ref_tag || inputs.ref_tag }}
+          CONTEXT_DECL: ${{ github.event.client_payload.context_decl || inputs.context_decl }}
         run: python .github/prepare.py
       - name: 跑完整CCE链
         env:
@@ -65,7 +70,8 @@ jobs:
             --context "$(cat run/context)" \
             --outdir run/out \
             $(test -f run/audience.txt && echo "--audience-file run/audience.txt") \
-            $(test -f run/ref.txt && echo "--ref-post run/ref.txt")
+            $(test -f run/ref.txt && echo "--ref-post run/ref.txt") \
+            $(test -n "$CONTEXT_DECL" && echo "--context-decl" && echo "$CONTEXT_DECL")
       - name: 执行清单摘要
         if: always()
         run: python .github/summarize.py >> $GITHUB_STEP_SUMMARY
@@ -139,7 +145,8 @@ jobs:
             --context "$(cat run/context)" \
             --outdir run/out \
             $(test -f run/audience.txt && echo "--audience-file run/audience.txt") \
-            $(test -f run/ref.txt && echo "--ref-post run/ref.txt")
+            $(test -f run/ref.txt && echo "--ref-post run/ref.txt") \
+            $(test -n "$CONTEXT_DECL" && echo "--context-decl" && echo "$CONTEXT_DECL")
       - name: 执行清单摘要
         if: always()
         run: python .github/summarize.py >> $GITHUB_STEP_SUMMARY
