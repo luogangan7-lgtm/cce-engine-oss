@@ -71,7 +71,7 @@ jobs:
             --outdir run/out \
             $(test -f run/audience.txt && echo "--audience-file run/audience.txt") \
             $(test -f run/ref.txt && echo "--ref-post run/ref.txt") \
-            $(test -n "$CONTEXT_DECL" && echo "--context-decl" && echo "$CONTEXT_DECL")
+            $(test -f run/context_decl.json && echo "--context-decl run/context_decl.json")
       - name: 执行清单摘要
         if: always()
         run: python .github/summarize.py >> $GITHUB_STEP_SUMMARY
@@ -146,7 +146,7 @@ jobs:
             --outdir run/out \
             $(test -f run/audience.txt && echo "--audience-file run/audience.txt") \
             $(test -f run/ref.txt && echo "--ref-post run/ref.txt") \
-            $(test -n "$CONTEXT_DECL" && echo "--context-decl" && echo "$CONTEXT_DECL")
+            $(test -f run/context_decl.json && echo "--context-decl run/context_decl.json")
       - name: 执行清单摘要
         if: always()
         run: python .github/summarize.py >> $GITHUB_STEP_SUMMARY

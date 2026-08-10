@@ -24,7 +24,10 @@ else:
     cdecl = (os.environ.get("CONTEXT_DECL") or "").strip()
     if cdecl:
         try:
-            import json as _j; _j.loads(cdecl)
+            import json as _j
+            _j.loads(cdecl)
+            open("run/context_decl.json", "w", encoding="utf-8").write(cdecl)
+            print(f"::notice::情境声明已落盘 run/context_decl.json: {cdecl}")
         except Exception as e:
             errs.append(f"context_decl 不是合法 JSON: {e}")
     ref = (os.environ.get("REF_TAG") or "").strip()

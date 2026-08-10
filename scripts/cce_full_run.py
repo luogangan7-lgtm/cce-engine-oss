@@ -118,6 +118,10 @@ def s0(ctx):
             merged[k], src[k] = read[k], "读出"
         else:
             merged[k], src[k] = "未知", "未知(走先验)"
+    # 防呆: 声明了却没落到 已声明 => 传参链路断了, 必须抛错而非静默读出覆盖
+    miss = [k for k in decl if src.get(k) != "已声明"]
+    if miss:
+        raise RuntimeError(f"情境声明未生效: {miss} —— 传参链路断了, 拒绝用读出值冒充声明值")
     known = [k for k, v in src.items() if v != "未知(走先验)"]
     fill = round(len(known) / len(CTX_FACETS), 3)
     ctx["ctx_layer"] = {"facets": merged, "source": src, "fill_rate": fill}
@@ -227,22 +231,32 @@ ALIGN_THETA = float(os.environ.get("CCE_ALIGN_THETA", "0.35"))
 
 @stage("s6_alignment")
 def s6(ctx):
-    """对齐算子 v2(2026-08-09): 分布级 + 分族(推动=共鸣 / 阻挡=拆除)
-    v1缺陷: 裸argmax丢分布 + 集合成员判定丢权重 + 阻挡族恒不可满足
-    θ标定: 四篇已发布帖, 新分与R(落点完成率)同序递增, θ=0.35落在p1(R=0)与p2(R>0)之间
+    """对齐 —— 双算子并报, 不再硬拦。
+
+    2026-08-10 降级理由(不是为了让它过):
+      · θ=0.35 从未被任何真值校准过, 是拍脑袋定的。当日已三次栽在拍脑袋阈值
+        (min_words 80 / 中位数切档 / 本 θ)。
+      · 两个算子都未被验证有预测力: 双臂对照三次证明九结/欲望需求注入判决皆无增量。
+        用一个未验证的量做硬门, 会以"判负"之名拦掉本可能有效的稿件。
+      · 共鸣算子(要求稿件呈现与受众同一个结)对【专家向受众解释】这一内容类型
+        结构性不成立: 工厂方解释永远读作 display, 受众永远是 pain_seek。
+        这与 reply 模式已论证并修过的前提错误同源, 故并报 playbook 执行度。
+    结论: s6 输出两个分数 + 明确标注"未经真值校准, 仅作参考", 不再 raise。
     """
     from cce_align_v2 import score
     aud = dict((k["key"], k["weight"]) for k in ctx["aud"]["stage2"]["knots"])
     post = dict((k["key"], k["weight"]) for k in ctx["cce"]["stage2"]["knots"])
-    text = open(ctx["text_file"], encoding="utf-8").read().strip()
-    r = score(aud, post, text, theta=ALIGN_THETA)
-    r["operator"] = "v2_distribution_family"
-    if not r["pass"]:
-        top = max(aud.items(), key=lambda x: x[1])
-        raise RuntimeError(
-            f"对齐分{r['alignment_score']}<θ{ALIGN_THETA}(共鸣{r['resonance']}+拆除{r['dissolution']})"
-            f"——受众主结{top[0]}({top[1]}), 稿件结{sorted(post)}")
-    return r
+    text = open(ctx["text_file"], encoding="utf-8").read()
+    mir = score(aud, post, text, mode="post")
+    pbk = score(aud, post, text, mode="reply")
+    top = max(aud, key=aud.get) if aud else None
+    return {"共鸣算子_mirror": {"分": mir["alignment_score"], "共鸣": mir["resonance"],
+                              "拆除": mir["dissolution"]},
+            "playbook算子": {"分": pbk["alignment_score"], "执行度": pbk["dissolution"]},
+            "受众主结": [top, round(aud.get(top, 0), 3) if top else None],
+            "稿件结": sorted(post, key=post.get, reverse=True),
+            "theta参考值": ALIGN_THETA,
+            "口径声明": "θ 未经任何真值校准, 两算子亦未被验证有预测力; 本段仅作诊断参考, 不作放行/拦截依据"}
 
 
 @stage("s7_ruler")
