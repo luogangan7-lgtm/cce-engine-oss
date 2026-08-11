@@ -27,8 +27,12 @@ jobs:
               if not d:
                   continue
               open("/tmp/_sc.txt", "w", encoding="utf-8").write(d)
-              r = subprocess.run([sys.executable, "scripts/style_check.py", "/tmp/_sc.txt"],
-                                 capture_output=True, text=True)
+              # 模式跟着投料走, 不跟着调用走: 中文起草+机翻的稿在 item 里声明 translated:true,
+              # 闸门据此豁免破折号项(来源是 DeepL 的中英标点转换, 非 LLM 文体指纹), 其余照常量。
+              cmd = [sys.executable, "scripts/style_check.py", "/tmp/_sc.txt"]
+              if it.get("translated"):
+                  cmd.append("--translated")
+              r = subprocess.run(cmd, capture_output=True, text=True)
               print(f"───── {it['tag']} rc={r.returncode}\n{r.stdout}{r.stderr}")
               if r.returncode != 0:
                   bad.append(it["tag"])
