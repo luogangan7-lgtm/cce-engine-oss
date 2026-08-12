@@ -1,0 +1,9 @@
+[
+ {
+  "tag": "HX_memgov_r2",
+  "url": "https://www.reddit.com/r/AI_Agents/comments/1vm4cjb/comment/p36skpd/",
+  "kind": "r/AI_Agents · 作者直接回复我方并逐条确认 · 第二轮往返",
+  "context": "r/AI_Agents 记忆治理帖第二轮。我方首评给了三个数据点（纠正用 supersedes 软覆盖不删除；多 agent 写用 claim+lock 前置协调；并坦承在权限这块卡住，不知道『坚持人工确认覆盖既有决策』是判断还是恐惧）。作者 AlternativeForeign58（MythologIQ-Labs 开源 agent-memory field guide 作者）逐条确认：他们也是 append-only supersession，旧记录保留可审计、标记 corrected/superseded、从常规召回中降权或移除，并指出法律/用户要求的擦除是一条独立路径；同意写前协调，并补了更完整的字段（task, actor, scope, mutation class, authority 在 commit 前settled）；对我方那个困惑给了明确答案：durable decision overwrite 是一个独立的 authority event，人确认过的或高影响决策默认需要人确认，除非有一个有界策略显式委派该权限。我方要接的下一层：他把『提议 supersede』和『覆盖既有决策』拆成两件事，这正是我方一刀切全人工确认的原因（在我这两件事是一件事）；以及一个他可能没想到的边界——软覆盖与硬删除并存时，审计记录本身也是数据，用户要求擦除时要不要连带擦掉记录『这条曾被更正』的那条审计。我方真实做法：memory_delete 是破坏性操作，规则是事前问人、绝不批量清。目标：接住他的答案并给出一个他框架里的真实边界问题，保持同行关系。",
+  "reader": "Thanks, this is exactly the split I'm trying to make explicit. I agree on correction: our stance is append-only supersession, not deletion. A correction becomes a new record that names the record it supersedes; the old record stays auditable, marked corrected/superseded, and removed or heavily demoted from normal recall. Legal or user-requested erasure is the separate path. For multi-agent writes, I also agree that boring pre-write coordination is the right kind of boring. Shared durable state needs a claim, lock, lease, or equivalent before mutation, with task, actor, scope, mutation class, and authority settled before commit. On authority: agents can propose supersession, but durable decision overwrite is a separate authority event. Earlier human-confirmed or high-impact decisions default to human confirmation unless a bounded policy explicitly delegates that authority."
+ }
+]
