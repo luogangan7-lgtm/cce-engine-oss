@@ -24,6 +24,22 @@ from cce_align_v2 import score as knot_align               # noqa: E402
 # 并发度: MiniMax 侧限流, 实测 3 路稳定; 调高会出 429 把整批拖垮
 WORKERS = int(os.environ.get("REPLY_BATCH_WORKERS", "3"))
 
+# 表达层(2026-08-12): 九结说「给什么」, playbook 说「做什么」, 都不管「怎么说」。
+# hearingtracker #178/#179/#180 三人公开判我方是 AI 写的, 而那两条是英文直写非机翻
+# —— 缺口在表达层。phase A 出基准时按主结带出推荐钩子。
+_HOOKS = json.load(open(os.path.join(ROOT, "config/hook_taxonomy.json"), encoding="utf-8"))["hooks"]
+
+
+def hooks_for(knots):
+    """按对方主结推荐表达钩子。一稿用 1-2 个, 三个以上就成了表演。"""
+    top = sorted(knots.items(), key=lambda x: -x[1])[:2]
+    out = []
+    for k, _ in top:
+        for h in _HOOKS:
+            if k in h["fits_knots"] and h["key"] not in [x["key"] for x in out]:
+                out.append({"key": h["key"], "name": h["name"], "用法": h["example"]})
+    return out[:3]
+
 
 def top_dims(vec, labels, floor=0.10):
     z = norm(vec)
@@ -37,6 +53,7 @@ def phase_a(it, outdir):
     knots = {x["key"]: x["weight"] for x in a["stage2"]["knots"]}
     return {"tag": it["tag"], "url": it["url"], "kind": it["kind"],
             "九结": knots,
+            "推荐钩子": hooks_for(knots),
             "打法": a["stage2"].get("playbook_primary") or a["stage2"].get("playbook"),
             "四层": {L: top_dims(a["stage1"]["layers"][L], lab) for L, lab in LAYERS.items()}}
 

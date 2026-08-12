@@ -1,0 +1,75 @@
+{
+  "version": "1.0.0",
+  "frozen_at": "2026-08-12",
+  "why": "九结是动机分类学(读者为什么会动), playbook 是行动处方(做什么)。两者都不管『怎么说』。2026-08-12 hearingtracker #178/#179/#180 三名读者公开判定我方 #175/#177 是 AI 写的 —— 那两条是英文直写非机翻, 证明缺口在表达层不在语言层。本表补这一层。",
+  "orthogonal_to": "knot_taxonomy —— 同一个 belong 打法可以直陈说也可以用一个画面说, AI 几乎总选直陈, 因为训练目标是有用性。",
+  "important_caveat": "实测 104 条真人语料(≥25词的 75 条): 比喻中位 0.00, 自我修正中位 0.00, 模糊限定中位 0.00。**钩子不是拟人手段** —— 刻意堆隐喻会造出另一种假。拟人靠的是节奏(句数/短句/第一人称/长短比, 见 style_check)。本表的目标是**传播效力**: 让人记住、让人回应。两个目标分开算。",
+  "hooks": [
+    {
+      "key": "self_lowering",
+      "name": "降位钩",
+      "definition": "把自己放低, 承认自己错了或没想到",
+      "example": "我用词把你引偏了 / 你观察对了, 这一层我之前没想到",
+      "why_ai_avoids": "AI 被训练成有帮助的权威, 极少主动降低自己的位置",
+      "fits_knots": ["audit", "injustice", "display"]
+    },
+    {
+      "key": "yielding",
+      "name": "让位钩",
+      "definition": "把功劳明确给对方, 不抢他的发现",
+      "example": "失败的复现是这帖里最有用的一条 / 你自己几天内就找到了, 比我们快",
+      "why_ai_avoids": "AI 倾向于把信息组织在自己名下",
+      "fits_knots": ["display", "reward"]
+    },
+    {
+      "key": "over_specific",
+      "name": "具体过头钩",
+      "definition": "给一个不必要精确的细节。真实感来自不必要的精确",
+      "example": "上周三 / 我那台 S25 而不是「我的手机」/ 撑不过十分钟",
+      "why_ai_avoids": "AI 倾向概括, 因为概括更安全也更「有用」",
+      "fits_knots": ["belong", "pain_seek", "display"]
+    },
+    {
+      "key": "metaphor",
+      "name": "隐喻钩",
+      "definition": "用一个具体画面替代抽象机制",
+      "example": "漏掉的每一句最后都会算在你头上 / 反馈是啸叫, 不是回声",
+      "why_ai_avoids": "AI 默认直陈+解释; 隐喻要求先判断读者的处境再造像",
+      "fits_knots": ["pain_seek", "itch", "injustice"]
+    },
+    {
+      "key": "counter_intuitive",
+      "name": "反预期钩",
+      "definition": "先顺着直觉说一句, 再推翻它",
+      "example": "没人推荐这个, 不是没人想到, 是中间那环有问题",
+      "why_ai_avoids": "AI 倾向直接给正确答案, 跳过读者原本的错误假设",
+      "fits_knots": ["inertia", "suspend", "injustice"]
+    },
+    {
+      "key": "withholding",
+      "name": "留白钩",
+      "definition": "在该展开的地方停住, 留一个对方可以接也可以不接的口",
+      "example": "哪天想弄, 回头说",
+      "why_ai_avoids": "AI 倾向把话说完整; 留白在训练目标下像是没帮完忙",
+      "fits_knots": ["reward", "belong"]
+    },
+    {
+      "key": "question_as_conclusion",
+      "name": "反问钩",
+      "definition": "把结论变成对方能自己得出的问题, 判断权交回去",
+      "example": "如果关掉弹窗手机麦还在, 那是谁的问题",
+      "why_ai_avoids": "AI 被训练成给答案, 不是留问题",
+      "fits_knots": ["suspend", "audit"]
+    },
+    {
+      "key": "self_doubt",
+      "name": "反思钩",
+      "definition": "说完之后质疑自己刚说的话, 标出自己不确定的边界",
+      "example": "我没有 Intent 的固件在手, 所以这只是工厂侧对症状的读法",
+      "why_ai_avoids": "与「自信作答」的训练目标冲突",
+      "fits_knots": ["audit", "suspend"]
+    }
+  ],
+  "usage": "phase A 出基准时, 按对方主结查 fits_knots 给出推荐钩子。一稿用 1-2 个, 不叠加 —— 三个以上就变成表演。",
+  "anti_pattern": "把钩子当装饰往稿子里塞。钩子必须落在真实的事上: 降位钩要真有错可认, 具体过头钩要真有那个细节, 隐喻钩要真能替代解释。造出来的钩子比不用更假。"
+}
