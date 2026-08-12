@@ -62,13 +62,16 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("draft")
     ap.add_argument("--corpus", default=os.path.join(ROOT, "accuracy/data/reddit_snapshot_20260809.json"))
-    # 2026-08-11: 破折号禁令的出处是「LLM 直接写的英文里 em dash 密度异常」, 那是 AI 指纹。
-    # 但「中文起草 + 机器翻译」这条路的破折号来自 DeepL 把中文逗号停顿转成 em dash,
-    # 与 LLM 文体无关; 而且真实的非母语者用翻译工具后不会回头逐个改标点, 清洗本身才是不自然的动作。
-    # 实测(r/hardofhearing 首帖): 裸机翻缩写占比 93.3% vs 真人基准 79.3%, 标签句 0, 只有破折号超标。
-    # 故按起草语言分两档, 不是放宽标准, 是换对基准。
+    # 2026-08-11 曾给机翻稿豁免破折号, 理由是「来源是 DeepL 的标点转换不是 LLM 指纹」+
+    # 「真人用翻译工具后不会回头改标点, 清洗本身才不自然」。**2026-08-12 实测推翻。**
+    # 真人语料 75 条(≥25词): 用过破折号的 1/75 = 1%, 每千词密度 中位 0.00 / 均值 0.06 / 最大 4.50。
+    # 同日我方线上 7 条: 每千词 17.00 —— 是语料里最爱用破折号那人的 3.8 倍, 均值的 280 倍, 且 7 条无一例外。
+    # 略高于真人时「不清洗更自然」成立; 高到全场最高值的 3.8 倍就不是自然, 是账号级指纹。
+    # 归因正确不等于结果可接受: 读者看到的就是 em dash, 不管它来自 DeepL 还是 LLM。豁免作废。
+    # 修法也不是改英文(违反「机翻稿不做文体后编辑」), 是中文起草时就别用破折号 —— DeepL 原样转。
     ap.add_argument("--translated", action="store_true",
-                    help="稿件为非英文起草后机器翻译: 豁免破折号项, 其余照常")
+                    help="稿件为非英文起草后机器翻译。不再豁免破折号(2026-08-12 实测推翻), "
+                         "仅用于在报错里给出正确修法: 回改中文源稿而非后编辑英文")
     A = ap.parse_args()
     snap = json.load(open(A.corpus, encoding="utf-8"))
     human = [c["body"] for p in snap["posts"].values() for c in p["comments"]]
@@ -96,11 +99,17 @@ def main():
         err.append(f"大纲标签当句子 {len(d['label_sentences'])} 处: {d['label_sentences']}。"
                    f"真人语料出现 {len(base['label_sentences'])} 次。要说边界就直接说那句话, 不许起小标题。")
     if d["em_dash"]:
-        if A.translated:
-            warn.append(f"破折号 {d['em_dash']} 处 —— 机翻模式已豁免"
-                        f"(来源是 DeepL 的中英标点转换, 非 LLM 文体指纹)")
+        # 用密度判而非绝对数: 真人 75 条里最爱用的那个是 4.50/千词, 中位 0.00。
+        # 一条 160 词的评论按 4.50 只允许 0.72 处 —— 所以对评论长度来说 0 就是对的,
+        # 但把阈值写成密度而不是硬 0, 是为了长文(帖子/博客)不被误伤。
+        rate = d["em_dash"] / max(1, len(draft.split())) * 1000
+        fix = ("回改中文源稿去掉破折号再重翻(DeepL 原样转), 不要后编辑英文"
+               if A.translated else "改成句号或逗号")
+        if rate > 4.5:
+            err.append(f"破折号 {d['em_dash']} 处 = {rate:.1f}/千词, 超过真人语料最大值 4.5"
+                       f"(75 条里只有 1 条用过, 中位 0.00)。{fix}。")
         else:
-            err.append(f"破折号 {d['em_dash']} 处(纪律: 0)")
+            warn.append(f"破折号 {d['em_dash']} 处 = {rate:.1f}/千词, 未超真人最大值但真人中位是 0.00")
     if d["sent_sd"] is not None and d["sent_sd"] < base["sent_sd"] * 0.5:
         warn.append(f"句长过于齐整(sd {d['sent_sd']} vs 真人 {base['sent_sd']}), 长短句掺着写")
 
