@@ -119,6 +119,12 @@ def main():
                    f"整段没有一个短促的断句 = 最容易辨认的机器节奏。至少插一个。")
     if d["n_sent"] > 10:
         warn.append(f"句数 {d['n_sent']} > 10(真人中位 5)。真人评论比你以为的短得多。")
+    # 上限保护: 只设下限的闸可以靠写成电报体刷过, 那是另一种不自然。
+    # 真人句长中位 14, 短句占比 14%; 取 2.5 倍与 1/2.5 为软边界, 越界只 WARN。
+    if d["short_frac"] > 0.45:
+        warn.append(f"短句占比 {d['short_frac']:.0%} > 45%(真人 14%)。过度短促=电报体, 是另一种不自然。")
+    if d["sent_median"] and d["sent_median"] < 7:
+        warn.append(f"句长中位 {d['sent_median']:.0f} < 7(真人 13-14)。除非是认错/情绪场景, 否则太碎。")
     if d["len_ratio"] and d["len_ratio"] < 4.0:
         warn.append(f"长短句比 {d['len_ratio']} < 4(真人 7.25)。句子长度太齐。")
 
