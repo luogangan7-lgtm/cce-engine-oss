@@ -1,6 +1,6 @@
 {
   "schema_name": "cce_subject_window_chain",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "status": "active",
   "definition": "主体本体不是版本化画像；主体窗口才是指定时间和数据集合上的动态分析投影。",
   "subject_ontology": {
@@ -11,16 +11,20 @@
     "window": "target/reached/activated/action/conversion 是分析投影，不等于主体本体。",
     "versioning": "只给 schema、模型、适配器和测量产物版本；禁止业务字段 profile_version/subject_version。"
   },
-  "population_projection": {
+  "population_subject": {
+    "definition": "同一阶段和时间窗口内、有明确 coverage/estimand/sampling 的带权混合主体。",
     "member_distributions": "逐成员保留完整 CCE 分布，不得被聚合统计覆盖。",
-    "composition": "声明已知成员数量、coverage scope 与是否穷尽。",
+    "member_weights": "逐成员权重总和为1；默认等权只代表 observed sample，不能外推沉默成员。",
+    "population_mixture": "成员分布与权重共同合成 Population；marginal/median/quantile 是人群统计，不是个人画像。",
+    "composition": "声明已知成员数量、coverage scope、sampling frame 与是否穷尽。",
     "heterogeneity": "至少报告全成员两两 Jensen-Shannon divergence 的 pair_count/mean/minimum/maximum。",
-    "segment_mixture": "按响应相似性形成的描述性动态段；必须完整且无重叠地覆盖当前成员，权重和为1。",
+    "segment_mixture": "按共同刺激响应相似性形成、至少2人支持的描述性动态段；单点进入 unassigned，不伪造一人段。",
     "evolution": "相邻窗口可描述 create/continue/split/merge/disappear，但无实验时必须标 descriptive_not_causal。",
-    "forbidden": "aggregate_distribution 或 aggregate_layer_distributions 不能作为 Population Subject；算术均值最多是辅助统计。"
+    "forbidden": "aggregate_distribution 或 aggregate_layer_distributions 不能单独充当 Population Subject；合法边际汇总必须嵌在完整 mixture 内并声明不是个人。"
   },
   "window_types": {
-    "target": "计划窗口：希望进入链路的人群规则或已声明集合。",
+    "target": "计划窗口：发布前冻结 population definition、人群五问与 planned subject distribution；不能事后按结果改写。",
+    "delivered": "分发窗口：平台交付形成的匿名 aggregate/cohort/cell Population 投影；只能引用 distribution records，不得制造 member identity。",
     "reached": "观察窗口：实际留下可识别互动证据的人；不是平台全部曝光者。",
     "activated": "响应窗口：已触达成员的响应文本/行为经 CCE 测量后形成的动态分布。",
     "action": "行为窗口：成员在曝光后真实发生且有时间与来源的行动。",
@@ -40,10 +44,13 @@
   ],
   "hard_gates": {
     "no_versioned_subject": "subject_entities 与 subject_windows 内出现 profile_version 或 subject_version 均失败。",
+    "target_frozen_before_exposure": "target window 必须有 cce.target_population_spec.v1，包含五问和 planned distribution，且 frozen_at 不晚于窗口开始。",
+    "delivered_distribution_evidence": "delivered window 必须引用平台 distribution records，并声明 anonymous aggregate/cohort/cell 的身份解析度。",
     "no_distribution_as_reach": "只有曝光、浏览、赞评总数时不得创建 reached window。",
     "member_evidence": "reached window 的每个 member_ref 必须有独立互动证据。",
-    "activation_evidence": "activated window 必须引用成员响应的有效 derived CCE measurement_result，并包含保留逐成员分布和异质性的 population_analysis；内容侧 s8 不能替代。",
-    "no_average_person": "activated window 出现 aggregate_distribution/aggregate_layer_distributions，或缺少 member_distributions/composition/heterogeneity/segment_mixture 时失败。",
+    "activation_evidence": "activated window 必须引用成员响应的有效 derived CCE measurement_result，并包含带权 mixture、成员分布、异质性、稳定段与 unassigned mass 的 population_subject；内容侧 s8 不能替代。",
+    "no_average_person": "activated window 出现孤立 aggregate_distribution/aggregate_layer_distributions，或缺少 mixture/member weights/member distributions/composition/heterogeneity/uncertainty 时失败。",
+    "no_singleton_segment": "单成员不得输出成 segment；证据不足时必须保留为 unassigned component。",
     "epistemic_state": "评论文本是 observed evidence；response distribution 必须 derived；作者心理状态假设必须 inferred/derived。",
     "action_evidence": "action window 必须引用曝光后实际行为；历史经验、意向或内容 CTA 不算。",
     "conversion_join": "conversion window 必须有 publish_id 或等价 join key 串起发布与商业记录。",

@@ -28,9 +28,10 @@ publish_id/UTM 商业事实 → conversion window
 
 CCE Foundation v2 区分三种测量：`stimulus`、`observed_response`、`transition`。
 Transition 允许有证据、带时间的 pre-state snapshot，输出精确 `Before/After/Delta`；
-这不等于把主体画像作为答案输入。Population 保留逐成员分布、composition、两两 JS
-heterogeneity 和描述性动态 segment，禁止用算术均值冒充“人群主体”。完整边界见
-`docs/cce_chain_architecture_v3.md`。
+这不等于把主体画像作为答案输入。Population 由逐成员/cell 分布与权重正式合成为 mixture，
+同时保留 composition、两两 JS heterogeneity、稳定 segment、unassigned mass 和 uncertainty。
+边际均值/中位数可以作为人群统计，但不能冒充一个人。完整边界见
+`docs/cce_chain_architecture_v3_1.md`。
 
 ## 生产投料规范
 

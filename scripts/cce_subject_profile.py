@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Deprecated module name; produce auxiliary reference cards, not subjects.
+"""Materialize evidence-backed cards for stable Individual Subject entities.
 
-Cards retain public-history evidence that can help define or interpret a later
-window.  They are neither versioned people nor inputs to CCE measurement.
+A card is the current knowledge projection of one stable subject_id. It is not
+a population sample/weight, a current state, or a response to the current
+stimulus. The legacy module name remains part of the CLI compatibility surface.
 """
 from __future__ import annotations
 
@@ -34,7 +35,11 @@ def top_components(text: str) -> dict[str, Any]:
 
 
 def card_id(handle: str) -> str:
-    return f"reference_card:reddit:{handle}"
+    return f"subject_card:reddit:{handle}"
+
+
+def subject_id(handle: str) -> str:
+    return f"subject:reddit:{handle}"
 
 
 def build_from_cards(cards: dict[str, Any], source: Path) -> dict[str, Any]:
@@ -45,9 +50,10 @@ def build_from_cards(cards: dict[str, Any], source: Path) -> dict[str, Any]:
                       for label, detail in (card.get("③身份库(append-only,带考古)") or {}).items()]
         confidence = card.get("⑦置信") or {}
         records.append({
-            "id": card_id(handle), "card_kind": "public_history_reference",
+            "id": card_id(handle), "subject_ref": subject_id(handle),
+            "card_kind": "subject_evidence_projection",
             "provenance": {"source": str(source), "source_hash": sha256(source),
-                           "adapter": "cce_subject_profile(deprecated_name)", "adapter_version": "2.0.0"},
+                           "adapter": "cce_subject_profile(legacy_cli_name)", "adapter_version": "3.1.0"},
             "baseline_evidence": {"desire": top_components(card.get("①欲望基线")),
                                   "need": top_components(card.get("②需求配置")),
                                   "scope": "public_history_stratified_sample"},
@@ -56,26 +62,36 @@ def build_from_cards(cards: dict[str, Any], source: Path) -> dict[str, Any]:
             "relationship_evidence": {"value": card.get("⑥关系阶段(M3)"), "assertion": "inferred"},
             "confidence": {"readouts": confidence.get("读出n"), "contexts": confidence.get("情境数"),
                            "split_half_js_desire": confidence.get("折半JS欲望"), "status": confidence.get("合格线")},
-            "limits": ["not a subject", "not a population sample", "not a CCE input", "not a response signature"],
+            "limits": ["not a population sample", "not a population weight",
+                       "not a directly observed current state", "not a response to the current stimulus"],
         })
-    return {"kind": "cce.reference_card_collection.v1", "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            "cards": records, "segment_construction_status": "blocked_no_validated_response_signature_matrix"}
+    return {
+        "kind": "cce.subject_card_collection.v1",
+        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "cards": records,
+        "segment_capabilities": {
+            "structural_subject_segments": "descriptive_allowed_from_core_identity_need_behavior_evidence",
+            "shared_stimulus_response_segments": "requires_common_stimulus_response_matrix",
+            "population_weights": "requires_external_sampling_frame_or_calibration_totals",
+        },
+    }
 
 
 def validate_collection(collection: dict[str, Any]) -> dict[str, Any]:
     errors: list[str] = []
-    if collection.get("kind") != "cce.reference_card_collection.v1":
-        errors.append("kind must be cce.reference_card_collection.v1")
+    if collection.get("kind") != "cce.subject_card_collection.v1":
+        errors.append("kind must be cce.subject_card_collection.v1")
     ids: set[str] = set()
     for index, record in enumerate(collection.get("cards", [])):
         p = f"cards[{index}]"
         if record.get("id") in ids: errors.append(f"{p}.id must be unique")
         ids.add(record.get("id"))
-        for field in ("id", "card_kind", "provenance", "baseline_evidence", "limits"):
+        for field in ("id", "subject_ref", "card_kind", "provenance", "baseline_evidence", "limits"):
             if not record.get(field): errors.append(f"{p} missing {field}")
         if "profile_version" in record or record.get("subject_type"):
             errors.append(f"{p} must not reify a reference card as a versioned subject")
-    return {"ok": not errors, "errors": errors, "counts": {"reference_cards": len(collection.get("cards", []))}}
+    return {"ok": not errors, "errors": errors, "counts": {"subject_cards": len(collection.get("cards", [])),
+                                                              "reference_cards": len(collection.get("cards", []))}}
 
 
 def main() -> None:

@@ -231,7 +231,11 @@ def ingest(source: dict[str, Any], chain: dict[str, Any], artifacts_dir: Path) -
         },
         "evidence_refs": [row["response_evidence_refs"][0] for row in measurements],
         "measurement_result_refs": [row["id"] for row in measurements],
-        "population_analysis": build_population_analysis(measurements, "identified_inbound_only"),
+        "population_subject": build_population_analysis(
+            measurements, "identified_inbound_only",
+            time_window=copy.deepcopy(reached["time_window"]),
+            evidence_refs=[row["response_evidence_refs"][0] for row in measurements],
+        ),
     }
     windows = [row for row in out.get("subject_windows", []) if row.get("window_type") != "activated"]
     windows.append(activated)

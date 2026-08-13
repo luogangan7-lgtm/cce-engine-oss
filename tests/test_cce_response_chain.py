@@ -54,15 +54,17 @@ with tempfile.TemporaryDirectory() as temp:
     assert audit["gates"]["activated_window"]["status"] == "PASS", audit
     assert audit["overall_status"] == "NOT_VERIFIED", audit
     activated_window = next(row for row in activated["subject_windows"] if row["window_type"] == "activated")
-    population = activated_window["population_analysis"]
+    population = activated_window["population_subject"]
     assert set(population["member_distributions"]) == {row["actor_ref"] for row in source["responses"]}
     assert population["heterogeneity"]["pair_count"] == 28
-    assert abs(sum(row["weight"] for row in population["segment_mixture"]) - 1.0) < 1e-9
-    assert population["segmentation"]["status"] == "descriptive_not_causal"
+    assert abs(sum(population["member_weights"].values()) - 1.0) < 1e-9
+    assert abs(sum(row["weight"] for row in population["segment_mixture"]) + population["unassigned_weight"] - 1.0) < 1e-9
+    assert population["segmentation"]["status"] in {"descriptive_not_causal", "insufficient_support"}
+    assert population["population_mixture"]["marginal_semantics"].endswith("never an individual persona")
     assert "aggregate_distribution" not in activated_window and "aggregate_layer_distributions" not in activated_window
     mean_person = copy.deepcopy(activated)
     mean_window = next(row for row in mean_person["subject_windows"] if row["window_type"] == "activated")
-    mean_window.pop("population_analysis")
+    mean_window.pop("population_subject")
     mean_window["aggregate_distribution"] = {"activated": 0.5, "not_activated": 0.5}
     assert not validate_chain(mean_person)["ok"]
     first = activated["response_measurements"][0]

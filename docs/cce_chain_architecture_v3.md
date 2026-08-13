@@ -1,5 +1,7 @@
 # CCE 全链架构 v3：主体条件化测量与异质性人群
 
+> 已由 `cce_chain_architecture_v3_1.md` 取代。v3 正确禁止均值冒充人群，但错误地没有正式合成 Population Subject，且允许单成员 response segment；v3.1 已修正。
+
 状态：Draft PR 的规范基线。v3 保留 v2 的平台/动态场景边界，并修复两个根本问题：
 
 1. CCE 不再只有 `Event + Context -> distribution` 一种模式；有证据的主体前态可进入状态转移测量。

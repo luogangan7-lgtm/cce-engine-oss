@@ -34,7 +34,7 @@
     "cce_video_parse": "evidence.observation producer；现有 visual/audio/OCR 字段先映射为 observation，不直接作为 CCE 输入。",
     "cce_bundle_render": "legacy adapter；继续为现有配对实验渲染内容包，同时输出 fields_fed/fields_missing 到 provenance。",
     "cce_fulldist_readout.predict_frozen": "legacy content-only readout；46 维冻结标量不重拟合，但不是观众响应测量。",
-    "subject_cards_v3": "辅助 reference_card producer；不可再输出 versioned subject_ref，也不可进入 CCE 请求。",
+    "subject_cards_v3": "Individual Subject 的证据卡投影；可用于结构主体段和目标假设，但不是 population sample/weight、当前状态或当前刺激响应，也不可作为 CCE 请求答案。",
     "cce_full_run": "生产只使用 outbound_post=s0-s4、reply=s0-s4、response=s0-s3。旧 post=s0-s8 仅为 legacy research，不得用其 s7/s8 声称平台效果预测。"
   },
   "storage_v1": {"now": "原文件对象存储 + append-only JSON/JSONL + PostgreSQL 索引（content_id、time、window_id、run_id、provenance）。", "later": "只有明确的相似检索需求才加向量索引；它不是 event、state、evidence 或 outcome 的事实源。"}

@@ -74,14 +74,15 @@ publish_id -> 询盘/成交/复购 ------> 转化主体窗口
 
 ## 3. 主体卡的正确位置
 
-现有 13 张 Reddit 主体卡保留，但已降级为 `reference_card`：
+现有 13 张 Reddit 主体卡保留为稳定 Individual Subject 的证据投影：
 
 - 可保存公开历史里的欲望/需求 top-k、身份线索、行为频率与来源；
-- 可辅助制定目标窗口规则、解释触达成员、提出行为机制假设；
-- 不代表平台总体，不是 response segment，不进入 CCE 请求；
+- 可辅助制定目标窗口规则、解释触达成员、提出行为机制假设，并形成描述性的 structural subject segment；
+- 不代表平台总体、不是 population sample/weight、不是当前状态或当前刺激 response segment，也不作为 CCE 请求答案；
 - 不再输出 `subject_type` 或 `profile_version`。
 
-没有共同曝光下的 user × item 响应矩阵，就不能把这些卡聚成经验证的响应 segment。
+没有共同曝光下的 user × item 响应矩阵，就不能把这些卡聚成经验证的 shared-stimulus response segment；
+这不妨碍按 core/identity/need/behavior/sensitivity 构造明确标注 basis 的结构主体段。
 
 ## 4. post6 的真实链路审计
 
@@ -124,7 +125,7 @@ publish_id -> 询盘/成交/复购 ------> 转化主体窗口
 - `config/cce_foundation_contract_v1.json` v1.3：CCE 请求改为 event + context snapshot，仍硬拒 subject/outcome/post-exposure 输入。
 - `config/cce_subject_window_contract_v1.json`：五窗口、四机制、四 delta 与不可伪造 gate。
 - `scripts/cce_case_assemble.py`：只生成 event refs 的测量请求。
-- `scripts/cce_subject_profile.py`：保留旧文件名兼容，但只输出 auxiliary reference cards。
+- `scripts/cce_subject_profile.py`：保留旧文件名兼容，输出稳定 subject_id 的证据卡投影；不输出人口权重或当前状态。
 - `scripts/cce_window_chain.py`：验证主体窗口并生成 `PASS/PARTIAL/NOT_MET/NOT_TESTABLE` 审计。
 - `scripts/cce_end_to_end.py`：交叉校验 measurement case 与下游链的 content_id/result_ref；只有这里允许输出整链 `VERIFIED`。
 - `scripts/cce_response_chain.py`：把真实入站文本制成 GitHub batch dispatch；回收 artifact 时只认精确输入指纹，生成稳定主体、瞬时状态和 activated window。

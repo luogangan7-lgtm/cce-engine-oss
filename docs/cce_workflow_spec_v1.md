@@ -118,7 +118,7 @@ source/chain contract
 → 最多8路并行 response s0-s3
 → SHA-1 + SHA-256 精确回收
 → stable subject + inferred state hypothesis
-→ member distributions + composition + heterogeneity + dynamic response segments
+→ Population Subject mixture（member weights/distributions + marginal/quantiles + composition + heterogeneity + stable segments/unassigned + uncertainty）
 → activated window
 → subject audit + end-to-end audit
 ```

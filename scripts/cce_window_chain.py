@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any
 
 
-WINDOW_TYPES = {"target", "reached", "activated", "action", "conversion"}
+WINDOW_TYPES = {"target", "delivered", "reached", "activated", "action", "conversion"}
 STATUS_RANK = {"PASS": 3, "PARTIAL": 2, "NOT_MET": 1, "NOT_TESTABLE": 0}
 
 
@@ -49,10 +49,29 @@ def _distribution_is_valid(value: Any) -> bool:
             and math.isclose(sum(value.values()), 1.0, abs_tol=1e-6))
 
 
-def _validate_population_analysis(value: Any, members: list[str], errors: list[str], path: str) -> None:
-    if not isinstance(value, dict) or value.get("kind") != "cce.population_projection.v1":
-        errors.append(f"{path} requires cce.population_projection.v1")
+def _validate_population_subject(value: Any, members: list[str], errors: list[str], path: str,
+                                 expected_time_window: dict[str, Any],
+                                 expected_evidence_refs: list[str]) -> None:
+    if not isinstance(value, dict) or value.get("kind") != "cce.population_subject.v1":
+        errors.append(f"{path} requires cce.population_subject.v1")
         return
+    if value.get("scale") != "population" or value.get("stage") != "activated":
+        errors.append(f"{path} must be an activated population-scale subject")
+    if value.get("time_window") != expected_time_window:
+        errors.append(f"{path}.time_window must equal its activated window")
+    if set(value.get("evidence_refs") or []) != set(expected_evidence_refs):
+        errors.append(f"{path}.evidence_refs must equal activated response evidence")
+    provenance = value.get("provenance") or {}
+    if provenance.get("producer") != "cce_population" or provenance.get("assertion") != "derived":
+        errors.append(f"{path}.provenance must identify the derived population producer")
+    definition = value.get("definition") or {}
+    if not definition.get("coverage_scope") or not definition.get("estimand") or not definition.get("inference_level"):
+        errors.append(f"{path}.definition must declare coverage, estimand and inference level")
+    sampling = value.get("sampling") or {}
+    if not sampling.get("frame") or not sampling.get("method") or not sampling.get("weighting_method"):
+        errors.append(f"{path}.sampling must declare frame, method and weighting")
+    if not isinstance(sampling.get("representative_of_broader_population"), bool):
+        errors.append(f"{path}.sampling must explicitly declare representativeness")
     member_distributions = value.get("member_distributions")
     if not isinstance(member_distributions, dict) or set(member_distributions) != set(members):
         errors.append(f"{path}.member_distributions must preserve every activated member")
@@ -63,6 +82,28 @@ def _validate_population_analysis(value: Any, members: list[str], errors: list[s
     composition = value.get("composition") or {}
     if composition.get("known_member_count") != len(members) or not composition.get("coverage_scope"):
         errors.append(f"{path}.composition must declare known member count and coverage")
+    member_weights = value.get("member_weights") or {}
+    if set(member_weights) != set(members) or any(not isinstance(weight, (int, float)) or weight <= 0
+                                                   for weight in member_weights.values()):
+        errors.append(f"{path}.member_weights must assign every member a positive weight")
+    elif not math.isclose(sum(member_weights.values()), 1.0, abs_tol=1e-6):
+        errors.append(f"{path}.member_weights must sum to 1")
+    population_mixture = value.get("population_mixture") or {}
+    if population_mixture.get("kind") != "weighted_empirical_mixture":
+        errors.append(f"{path}.population_mixture must be a weighted empirical mixture")
+    components = population_mixture.get("components") or []
+    if {component.get("member_ref") for component in components} != set(members):
+        errors.append(f"{path}.population_mixture.components must preserve every member")
+    elif any(not math.isclose(component.get("weight", -1), member_weights.get(component.get("member_ref"), -2), abs_tol=1e-9)
+             for component in components):
+        errors.append(f"{path}.population_mixture component weights must match member_weights")
+    if not _distribution_is_valid(population_mixture.get("marginal_distribution")):
+        errors.append(f"{path}.population_mixture requires a valid marginal distribution")
+    if population_mixture.get("marginal_semantics") != "weighted population marginal; never an individual persona":
+        errors.append(f"{path}.population_mixture must declare that its marginal is not a person")
+    quantiles = population_mixture.get("component_quantiles")
+    if not isinstance(quantiles, dict) or not quantiles:
+        errors.append(f"{path}.population_mixture must retain component quantiles")
     heterogeneity = value.get("heterogeneity") or {}
     pair_count = len(members) * (len(members) - 1) // 2
     if heterogeneity.get("metric") != "pairwise_jensen_shannon_divergence_bits" or heterogeneity.get("pair_count") != pair_count:
@@ -71,24 +112,40 @@ def _validate_population_analysis(value: Any, members: list[str], errors: list[s
         if not isinstance(heterogeneity.get(key), (int, float)) or not 0 <= heterogeneity[key] <= 1:
             errors.append(f"{path}.heterogeneity.{key} must be in [0,1]")
     mixture = value.get("segment_mixture")
-    if not isinstance(mixture, list) or not mixture:
-        errors.append(f"{path}.segment_mixture must be non-empty")
+    if not isinstance(mixture, list):
+        errors.append(f"{path}.segment_mixture must be a list")
     else:
         segment_members = [member for segment in mixture for member in (segment.get("member_refs") or [])]
-        if sorted(segment_members) != sorted(members) or len(segment_members) != len(set(segment_members)):
-            errors.append(f"{path}.segment_mixture must partition activated members exactly once")
+        if len(segment_members) != len(set(segment_members)) or not set(segment_members) <= set(members):
+            errors.append(f"{path}.segment_mixture members must be unique activated members")
         weights = [segment.get("weight") for segment in mixture]
-        if any(not isinstance(weight, (int, float)) or weight < 0 for weight in weights) or not math.isclose(sum(weights), 1.0, abs_tol=1e-6):
-            errors.append(f"{path}.segment_mixture weights must sum to 1")
+        if any(not isinstance(weight, (int, float)) or weight <= 0 for weight in weights):
+            errors.append(f"{path}.segment_mixture weights must be positive")
         for index, segment in enumerate(mixture):
             if not segment.get("segment_id") or not _distribution_is_valid(segment.get("centroid_distribution")):
                 errors.append(f"{path}.segment_mixture[{index}] requires id and valid auxiliary centroid")
+            if segment.get("segment_basis") != "shared_stimulus_response_similarity" or segment.get("assertion") != "derived":
+                errors.append(f"{path}.segment_mixture[{index}] must declare response basis and derived assertion")
             cohesion = segment.get("within_segment_mean_js")
             if not isinstance(cohesion, (int, float)) or not 0 <= cohesion <= 1:
                 errors.append(f"{path}.segment_mixture[{index}].within_segment_mean_js must be in [0,1]")
+    unassigned = value.get("unassigned_member_refs")
+    if not isinstance(unassigned, list) or set(unassigned) != set(members) - set(segment_members if isinstance(mixture, list) else []):
+        errors.append(f"{path}.unassigned_member_refs must be the exact non-segment remainder")
+    unassigned_weight = value.get("unassigned_weight")
+    if not isinstance(unassigned_weight, (int, float)) or not 0 <= unassigned_weight <= 1:
+        errors.append(f"{path}.unassigned_weight must be in [0,1]")
+    elif isinstance(mixture, list) and not math.isclose(sum(segment.get("weight", 0) for segment in mixture) + unassigned_weight,
+                                                       1.0, abs_tol=1e-6):
+        errors.append(f"{path}.segment and unassigned weights must sum to 1")
     segmentation = value.get("segmentation") or {}
-    if segmentation.get("status") != "descriptive_not_causal":
-        errors.append(f"{path}.segmentation must declare descriptive_not_causal")
+    if segmentation.get("status") not in {"descriptive_not_causal", "insufficient_support"}:
+        errors.append(f"{path}.segmentation status is invalid")
+    if segmentation.get("inference_scope") != "descriptive_not_causal" or segmentation.get("min_segment_size", 0) < 2:
+        errors.append(f"{path}.segmentation must be descriptive and reject one-person segments")
+    uncertainty = value.get("uncertainty") or {}
+    if uncertainty.get("status") not in {"estimated", "not_estimated"}:
+        errors.append(f"{path}.uncertainty status must be explicit")
 
 
 def _instant(value: Any) -> datetime | None:
@@ -171,6 +228,42 @@ def validate_chain(bundle: dict[str, Any]) -> dict[str, Any]:
             if ref not in evidence:
                 errors.append(f"subject_windows[{wid}].evidence_refs contains unknown evidence {ref!r}")
         pop = window.get("population_set") or {}
+        if kind == "target":
+            spec = window.get("target_population_spec") or {}
+            if spec.get("kind") != "cce.target_population_spec.v1":
+                errors.append(f"subject_windows[{wid}] requires cce.target_population_spec.v1")
+            frozen_at = _instant(spec.get("frozen_at"))
+            if not frozen_at or (bounds and frozen_at > bounds[0]):
+                errors.append(f"subject_windows[{wid}] target must be frozen before the window starts")
+            if not spec.get("population_definition") or spec.get("assertion") != "declared":
+                errors.append(f"subject_windows[{wid}] target requires a declared population definition")
+            questions = spec.get("five_questions") or {}
+            for question in ("who", "why", "where", "post_exposure_thought", "barriers"):
+                if not questions.get(question):
+                    errors.append(f"subject_windows[{wid}] target five_questions.{question} is required")
+            if not _distribution_is_valid(spec.get("planned_subject_distribution")):
+                errors.append(f"subject_windows[{wid}] target planned_subject_distribution must sum to 1")
+            spec_evidence = spec.get("evidence_refs") or []
+            if not spec_evidence or any(ref not in window.get("evidence_refs", []) for ref in spec_evidence):
+                errors.append(f"subject_windows[{wid}] target evidence must be included in window evidence")
+            provenance = spec.get("provenance") or {}
+            if not provenance.get("producer") or not provenance.get("version"):
+                errors.append(f"subject_windows[{wid}] target requires provenance")
+        if kind == "delivered":
+            refs = window.get("distribution_record_refs") or []
+            if not refs or any(ref not in distribution for ref in refs):
+                errors.append(f"subject_windows[{wid}] delivered window requires platform distribution records")
+            if pop.get("kind") != "platform_delivery_projection":
+                errors.append(f"subject_windows[{wid}] delivered population must be a platform delivery projection")
+            if pop.get("member_refs"):
+                errors.append(f"subject_windows[{wid}] delivered aggregate/cohort data cannot manufacture member identity")
+            coverage = pop.get("coverage") or {}
+            if coverage.get("identity_resolution") not in {"anonymous_aggregate", "cohort", "cell"}:
+                errors.append(f"subject_windows[{wid}] delivered coverage must declare aggregate/cohort/cell identity resolution")
+            for ref in refs:
+                observed = _instant(distribution.get(ref, {}).get("observed_at"))
+                if bounds and observed and not bounds[0] <= observed <= bounds[1]:
+                    errors.append(f"subject_windows[{wid}] distribution record {ref!r} falls outside time_window")
         if kind == "reached":
             if pop.get("kind") in {"aggregate_metric", "platform_exposure"}:
                 errors.append(f"subject_windows[{wid}] distribution metrics cannot define a reached subject")
@@ -198,8 +291,11 @@ def validate_chain(bundle: dict[str, Any]) -> dict[str, Any]:
             if "aggregate_distribution" in window or "aggregate_layer_distributions" in window:
                 errors.append(f"subject_windows[{wid}] arithmetic-mean population fields are forbidden")
             members = (window.get("population_set") or {}).get("member_refs") or []
-            _validate_population_analysis(window.get("population_analysis"), members, errors,
-                                          f"subject_windows[{wid}].population_analysis")
+            _validate_population_subject(
+                window.get("population_subject"), members, errors,
+                f"subject_windows[{wid}].population_subject",
+                window.get("time_window") or {}, window.get("evidence_refs") or [],
+            )
         if kind == "action":
             refs = window.get("behavior_record_refs") or []
             if not refs or any(ref not in behaviors for ref in refs):
@@ -322,6 +418,7 @@ def audit_chain(bundle: dict[str, Any]) -> dict[str, Any]:
     else:
         gates["distribution_observed"] = _gate("NOT_MET", "no platform delivery record")
     gates["target_window"] = _gate("PASS", "target window declared", [w["id"] for w in by_type["target"]]) if by_type["target"] else _gate("NOT_MET", "no target population rule/window")
+    gates["delivered_window"] = _gate("PASS", "platform delivery population projection declared", [w["id"] for w in by_type["delivered"]]) if by_type["delivered"] else _gate("NOT_MET", "no delivered population projection window")
     gates["reached_window"] = _gate("PASS", "identified inbound interactors form an observed reached window", [w["id"] for w in by_type["reached"]]) if by_type["reached"] else _gate("NOT_MET", "no identified inbound-interactor window")
     measurement_ids = {row.get("id") for row in response_measurements}
     valid_activation = [w for w in by_type["activated"] if w.get("measurement_result_refs") and all(ref in measurement_ids for ref in w["measurement_result_refs"])]
@@ -333,7 +430,8 @@ def audit_chain(bundle: dict[str, Any]) -> dict[str, Any]:
     gates["action_window"] = _gate("PASS", "post-exposure actions observed", [w["id"] for w in valid_action]) if valid_action else _gate("NOT_MET", "no attributable post-exposure action window")
     gates["conversion_window"] = _gate("PASS", "commercial outcomes joined to publish_id", [w["id"] for w in valid_conversion]) if valid_conversion else _gate("NOT_MET", "no publish-to-commercial joined outcome")
 
-    pairs = [("target_to_reached", "target_window", "reached_window"),
+    pairs = [("target_to_delivered", "target_window", "delivered_window"),
+             ("delivered_to_reached", "delivered_window", "reached_window"),
              ("reached_to_activated", "reached_window", "activated_window"),
              ("activated_to_action", "activated_window", "action_window"),
              ("action_to_conversion", "action_window", "conversion_window")]
@@ -350,7 +448,7 @@ def audit_chain(bundle: dict[str, Any]) -> dict[str, Any]:
             if gates[right]["status"] != "PASS": missing.append(right)
             if not protocol_ready: missing.append("frozen comparable attribution protocol/result")
             deltas[name] = _gate("NOT_TESTABLE", "requires " + ", ".join(missing))
-    required = ["content_measurement", "distribution_observed", "target_window", "reached_window", "activated_window", "action_window", "conversion_window"]
+    required = ["content_measurement", "distribution_observed", "target_window", "delivered_window", "reached_window", "activated_window", "action_window", "conversion_window"]
     overall = "VERIFIED" if validation["ok"] and all(gates[k]["status"] == "PASS" for k in required) and all(row["status"] == "PASS" for row in deltas.values()) else "NOT_VERIFIED"
     return {"kind": "cce.subject_window_chain_audit.v1", "overall_status": overall,
             "validation": validation, "gates": gates, "attribution_deltas": deltas}

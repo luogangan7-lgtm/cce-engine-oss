@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from cce_end_to_end import audit_end_to_end  # noqa: E402
 from cce_population import build_population_analysis  # noqa: E402
+from cce_window_chain import validate_chain  # noqa: E402
 
 
 case = json.loads((ROOT / "examples" / "cce_foundation_case_v1.json").read_text(encoding="utf-8"))
@@ -23,6 +24,7 @@ chain = {
     "content": {"id": "content:demo-001"},
     "content_measurement": {"status": "completed_validated", "result_refs": ["result:demo-001"]},
     "evidence_records": [
+        {"id": "evidence:delivery:1", "content_ref": "content:demo-001", "observed_at": "2026-08-13T00:30:00Z"},
         {"id": "evidence:reach:1", "content_ref": "content:demo-001", "actor_ref": "subject:1", "observed_at": "2026-08-13T01:00:00Z"},
         {"id": "evidence:response:1", "content_ref": "content:demo-001", "actor_ref": "subject:1", "observed_at": "2026-08-13T02:00:00Z"},
     ],
@@ -33,7 +35,18 @@ chain = {
     }],
     "subject_windows": [
         {"id": "window:target", "window_type": "target", "time_window": {"start": "2026-08-13T00:00:00Z", "end": "2026-08-13T04:00:00Z"},
-         "population_set": {"kind": "declared", "member_refs": ["subject:1"]}, "evidence_refs": ["evidence:reach:1"]},
+         "population_set": {"kind": "declared", "member_refs": ["subject:1"]}, "evidence_refs": ["evidence:reach:1"],
+         "target_population_spec": {
+             "kind": "cce.target_population_spec.v1", "id": "target:demo", "frozen_at": "2026-08-12T23:59:00Z",
+             "population_definition": "declared fixture target", "assertion": "declared",
+             "five_questions": {"who": "subject 1", "why": "test need", "where": "fixture",
+                                "post_exposure_thought": "understand", "barriers": "none declared"},
+             "planned_subject_distribution": {"activated": 0.7, "not_activated": 0.3},
+             "evidence_refs": ["evidence:reach:1"], "provenance": {"producer": "fixture", "version": "1"}
+         }},
+        {"id": "window:delivered", "window_type": "delivered", "time_window": {"start": "2026-08-13T00:00:00Z", "end": "2026-08-13T04:00:00Z"},
+         "population_set": {"kind": "platform_delivery_projection", "coverage": {"identity_resolution": "anonymous_aggregate"}},
+         "evidence_refs": ["evidence:delivery:1"], "distribution_record_refs": ["distribution:1"]},
         {"id": "window:reached", "window_type": "reached", "time_window": {"start": "2026-08-13T00:00:00Z", "end": "2026-08-13T04:00:00Z"},
          "population_set": {"kind": "observed_inbound_interactors", "member_refs": ["subject:1"],
                             "coverage": {"scope": "identified_inbound_only", "exhaustive": False}},
@@ -41,7 +54,11 @@ chain = {
         {"id": "window:activated", "window_type": "activated", "time_window": {"start": "2026-08-13T00:00:00Z", "end": "2026-08-13T04:00:00Z"},
          "population_set": {"kind": "measured_responses", "member_refs": ["subject:1"]},
          "evidence_refs": ["evidence:response:1"], "measurement_result_refs": ["response:1"],
-         "population_analysis": build_population_analysis([{"actor_ref": "subject:1", "distribution": {"activated": 0.7, "not_activated": 0.3}}], "identified_inbound_only")},
+         "population_subject": build_population_analysis(
+             [{"actor_ref": "subject:1", "distribution": {"activated": 0.7, "not_activated": 0.3}}],
+             "identified_inbound_only",
+             time_window={"start": "2026-08-13T00:00:00Z", "end": "2026-08-13T04:00:00Z"},
+             evidence_refs=["evidence:response:1"])},
         {"id": "window:action", "window_type": "action", "time_window": {"start": "2026-08-13T00:00:00Z", "end": "2026-08-13T04:00:00Z"},
          "population_set": {"kind": "observed_actions", "member_refs": ["subject:1"]},
          "evidence_refs": ["evidence:response:1"], "behavior_record_refs": ["behavior:1"]},
@@ -61,16 +78,20 @@ chain = {
                             "publish_id": "publish:1", "join_evidence_refs": ["join:1"]}],
     "attribution_results": [
         {"id": f"delta:{name}", "value": 1.0}
-        for name in ("target_to_reached", "reached_to_activated", "activated_to_action", "action_to_conversion")
+        for name in ("target_to_delivered", "delivered_to_reached", "reached_to_activated", "activated_to_action", "action_to_conversion")
     ],
     "attribution_protocols": [
         {"delta": name, "frozen_at": "t-1", "comparison_space": "same-member", "metric": "test", "result_ref": f"delta:{name}"}
-        for name in ("target_to_reached", "reached_to_activated", "activated_to_action", "action_to_conversion")
+        for name in ("target_to_delivered", "delivered_to_reached", "reached_to_activated", "activated_to_action", "action_to_conversion")
     ],
 }
 
 passed = audit_end_to_end(case, chain)
 assert passed["overall_status"] == "VERIFIED", passed
+
+unfrozen_target = copy.deepcopy(chain)
+del unfrozen_target["subject_windows"][0]["target_population_spec"]
+assert not validate_chain(unfrozen_target)["ok"], "target population must be frozen before exposure"
 
 mismatch = copy.deepcopy(case)
 mismatch["content"]["id"] = "content:other"
