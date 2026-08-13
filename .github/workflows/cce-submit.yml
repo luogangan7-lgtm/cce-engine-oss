@@ -76,7 +76,7 @@ jobs:
         with:
           name: cce-submission-source
           path: submission-package/
-          retention-days: 180
+          retention-days: 90
 
   outbound:
     needs: prep
@@ -140,7 +140,7 @@ jobs:
         with:
           name: cce-item-${{ matrix.i }}-${{ github.run_id }}
           path: run/out/
-          retention-days: 180
+          retention-days: 90
 
   subject-measure:
     needs: prep
@@ -188,7 +188,7 @@ jobs:
         with:
           name: cce-subject-item-${{ matrix.i }}-${{ github.run_id }}
           path: run/out/
-          retention-days: 180
+          retention-days: 90
 
   outbound-aggregate:
     needs: [prep, outbound]
@@ -215,7 +215,7 @@ jobs:
         with:
           name: cce-result-${{ github.run_id }}
           path: submission-result/
-          retention-days: 180
+          retention-days: 90
       - name: Enforce aggregate gate
         if: steps.manifest.outcome != 'success'
         run: exit 1
@@ -257,7 +257,7 @@ jobs:
         with:
           name: cce-result-${{ github.run_id }}
           path: submission-result/
-          retention-days: 180
+          retention-days: 90
       - name: Enforce aggregate gate
         if: steps.manifest.outcome != 'success'
         run: exit 1

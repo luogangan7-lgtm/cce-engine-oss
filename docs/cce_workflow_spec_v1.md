@@ -133,7 +133,7 @@ source/chain contract
 
 ## 5. 标准产物
 
-每次生产运行保留 180 天：
+每次生产运行保留 90 天（与当前仓库上限一致）：
 
 1. `cce-submission-source`：原始 `submission.json`、规范化 `normalized.json`、冻结 `items.json`。
 2. 每项 artifact：outbound_post 的 s0–s4、outbound_reply 的回复链、subject response 的 s0–s3，以及带 submission/job/content/profile/双指纹的 `manifest.json`。
