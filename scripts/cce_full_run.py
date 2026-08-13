@@ -400,6 +400,7 @@ def main():
     ap.add_argument("--audience-file")
     ap.add_argument("--context-decl", help="情境声明(JSON文件或内联JSON); 生产时应显式声明已知面")
     ap.add_argument("--ref-post")
+    ap.add_argument("--submission-meta", help="normalized cce.submission.v1 item metadata JSON")
     a = ap.parse_args()
     os.makedirs(a.outdir, exist_ok=True)
     ctx = {"text_file": a.text_file, "context": a.context, "outdir": a.outdir,
@@ -409,7 +410,14 @@ def main():
     txt = open(a.text_file, encoding="utf-8").read()
     meta = {"mode": a.mode, "started": time.strftime("%Y-%m-%d %H:%M:%S"),
             "text_sha1": hashlib.sha1(txt.encode()).hexdigest()[:12],
+            "text_sha256": "sha256:" + hashlib.sha256(txt.encode()).hexdigest(),
             "chain": [f.stage_name for f in CHAINS[a.mode]]}
+    if a.submission_meta:
+        submission_meta = json.load(open(a.submission_meta, encoding="utf-8"))
+        expected = submission_meta.get("text_sha256")
+        if expected and expected != meta["text_sha256"]:
+            raise SystemExit("submission metadata text_sha256 does not match exact input")
+        meta["submission"] = submission_meta
     failed = None
     for fn in CHAINS[a.mode]:
         try:

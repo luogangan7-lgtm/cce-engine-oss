@@ -6,8 +6,8 @@
 
 | 模式 | 段 |
 |---|---|
-| `reply` | s1_readout → s2_knots → s3_emotion_policy → s4_guard |
-| `post` | 上述4段 + s5_audience → s6_alignment → s7_ruler → s8_pairwise_bet |
+| `reply` | s0_context → s1_readout → s2_knots → s3_emotion_policy → s4_guard |
+| `post` | 上述5段 + s5_audience → s6_alignment → s7_ruler → s8_pairwise_bet |
 
 任一段失败即 `complete=false`,链路中止,manifest 记录 `failed_at`。
 
@@ -24,17 +24,22 @@ publish_id/UTM 商业事实 → conversion window
 主体使用稳定 `subject_id`，不做 `profile_version`。身份证据累加，状态带时间戳；
 `target/reached/activated/action/conversion` 是分析窗口，不是主体版本。
 
-## 投料规范
+## 生产投料规范
 
-| 字段 | 必填 | 说明 |
+唯一生产入口是 `.github/workflows/cce-submit.yml`，只接受版本化的
+`cce.submission.v1`。三种 profile：
+
+| Profile | 用途 | 成功 Gate |
 |---|---|---|
-| `mode` | ✓ | `reply` 或 `post` |
-| `text` | ✓ | 待评内容逐字原文 |
-| `context` | ✓ | 语境(板块/平台/上下文) |
-| `audience` | post必填 | **目标读者原话语料**,≥3条/≥80词。留空回退 `corpus/` 默认语料 |
-| `ref_tag` | post必填 | 运行标识,用于回溯 |
+| `outbound_post` | 帖子/邮件/文章发布前 s0–s8 | 精确指纹 + `manifest.complete=true` |
+| `outbound_reply` | 我方回复 s0–s4 + 对方响应对齐 | manifest 完整 + alignment PASS |
+| `subject_chain` | 真实入站响应 → activated/下游审计 | 全员 s1 双指纹回收；业务结论另看窗口 gate |
 
-⚠️ `audience` **不能传人群画像描述**(如"美国普通消费者")。s5 受众逆推吃的是真实发言;传描述等于让模型给一句话做九结分类,读数退化且方差极大(实测4轮4个不同主结)。校验在 `.github/prepare.py`,不合规直接失败。
+共同必填：`submission_id`、`producer/trace_id`、profile、逐字文本及 SHA-256、
+platform/surface/domain/language/speaker_role 与 taxonomy 合法情境。post 另需冻结目标指标、受众原话（≥30条/≥1000词）和上一篇
+逐字基准；reply 另需对方原文及证据；subject 另需逐成员证据和主体链。
+
+完整字段表、失败语义和产物契约见 `docs/cce_workflow_spec_v1.md`。
 
 ## s6 对齐算子 v2
 
@@ -50,33 +55,14 @@ v1 的裸 argmax + 集合成员判定已废弃:阻挡族(suspend/inertia/audit)�
 ## 触发
 
 ```bash
-# 单条
-gh workflow run cce.yml -f mode=post -f text="..." -f context="..." -f ref_tag=xxx
-
-# 批量(matrix 并行)
-gh api repos/OWNER/REPO/dispatches -f event_type=cce-batch \
-  -F 'client_payload[items][]=...'
-
-# 主体链：验证证据 → 最多8路并行测量入站响应 → 精确指纹回收 → activated聚合
-jq -n \
-  --slurpfile chain examples/cce_reddit_post6_chain_audit.json \
-  --slurpfile responses examples/cce_reddit_post6_responses_v1.json \
-  '{event_type:"cce-subject-chain",client_payload:{chain:$chain[0],responses:$responses[0]}}' \
+# 单条与批量都使用同一 envelope；items 最多8条并发
+jq -n --slurpfile submission examples/cce_submission_outbound_post_v1.json \
+  '{event_type:"cce-submit",client_payload:{submission:$submission[0]}}' \
 | gh api --method POST repos/OWNER/REPO/dispatches --input -
 ```
 
-`cce-subject-chain` 只把有逐人入站证据的成员认作 reached；每条 response artifact
-必须同时匹配冻结原文的 SHA-1 与 SHA-256。并行作业的 s2/s3/s4 可用于回复审计，但
-activated 只消费成功的 s1 状态测量，避免把我方回复产物或后续出站闸误接为读者激活。
-
-聚合作业上传 `cce-subject-chain-<run_id>`，包含：
-
-- `subject-chain.json`
-- `subject-chain-audit.json`
-- `end-to-end-audit.json`
-
-只有内容、分发、五个窗口与四段 attribution delta 全部有有效证据时，最终审计才会输出
-`VERIFIED`；缺失证据保持 `PARTIAL/NOT_MET/NOT_TESTABLE`，不会用估计值补齐。
+`cce.yml`、`reply.yml`、`replybatch.yml` 为旧调用兼容入口；新系统不得接入它们。
+其余 workflow 属 accuracy 或 research，不产生生产全链完成声明。
 
 ## Secrets / Variables
 

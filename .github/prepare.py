@@ -18,6 +18,8 @@ if os.environ.get("ITEMS_FILE"):
     cdecl = (_it.get("context_decl") or "").strip()
     ref = (_it.get("ref_tag") or "").strip()
     refpost = (_it.get("ref_post") or "").strip()
+    reader_text = _it.get("reader_text") or ""
+    submission_meta = _it.get("_meta") or {}
 else:
     mode = (os.environ.get("MODE") or "").strip()
     text = os.environ.get("TEXT") or ""
@@ -26,6 +28,8 @@ else:
     cdecl = (os.environ.get("CONTEXT_DECL") or "").strip()
     ref = (os.environ.get("REF_TAG") or "").strip()
     refpost = (os.environ.get("REF_POST") or "").strip()
+    reader_text = os.environ.get("READER_TEXT") or ""
+    submission_meta = {}
 
 errs = []
 if mode not in ("reply", "post"):
@@ -96,4 +100,9 @@ if refpost:
 if cdecl:
     open("run/context_decl.json", "w", encoding="utf-8").write(cdecl)
     print(f"::notice::情境声明已落盘: {cdecl}")
+if reader_text:
+    open("run/reader.txt", "w", encoding="utf-8").write(reader_text)
+if submission_meta:
+    open("run/submission_meta.json", "w", encoding="utf-8").write(
+        _j.dumps(submission_meta, ensure_ascii=False, indent=2))
 print(f"投料校验通过: mode={mode} text={len(text.split())}词 audience={len(audience.split())}词 ref_tag={ref} ref_post={len(refpost.split())}词")

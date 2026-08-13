@@ -46,6 +46,9 @@ def validate_response_source(source: dict[str, Any], chain: dict[str, Any]) -> d
     errors: list[str] = []
     if source.get("kind") != "cce.response_source.v1":
         errors.append("kind must be cce.response_source.v1")
+    context = source.get("context")
+    if not isinstance(context, dict) or any(not context.get(field) for field in ("platform", "surface", "domain", "summary")):
+        errors.append("response source requires context.platform/surface/domain/summary")
     content_ref = source.get("content_ref")
     if content_ref != (chain.get("content") or {}).get("id"):
         errors.append("response source content_ref must match chain content id")
@@ -92,12 +95,13 @@ def build_dispatch(source: dict[str, Any], chain: dict[str, Any]) -> dict[str, A
     if not verdict["ok"]:
         raise ValueError("invalid response source: " + "; ".join(verdict["errors"]))
     items = []
+    context = source["context"]
     for row in source["responses"]:
         comment_id = row["evidence_ref"].split(":", 1)[-1]
         items.append({
             "mode": "reply",
             "text": row["text"],
-            "context": f"Reddit r/HearingAids inbound comment responding to {source['content_ref']}",
+            "context": f"{context['platform']} {context['surface']} {context['domain']} inbound response to {source['content_ref']}: {context['summary']}",
             "ref_tag": f"post6-inbound-{comment_id}",
         })
     return {

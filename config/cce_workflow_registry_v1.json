@@ -1,0 +1,23 @@
+{
+  "kind": "cce.workflow_registry.v1",
+  "version": "1.0.0",
+  "production_entrypoint": ".github/workflows/cce-submit.yml",
+  "workflows": {
+    ".github/workflows/cce-submit.yml": {"class": "production", "accepts": "cce.submission.v1"},
+    ".github/workflows/cce.yml": {"class": "compatibility", "accepts": "legacy scalar inputs/cce-run/cce-batch"},
+    ".github/workflows/reply.yml": {"class": "compatibility", "accepts": "legacy reader/draft scalar inputs"},
+    ".github/workflows/replybatch.yml": {"class": "compatibility", "accepts": "legacy repository item file"},
+    ".github/workflows/accuracy.yml": {"class": "quality_gate", "accepts": "code/config changes or manual note"},
+    ".github/workflows/chain.yml": {"class": "research", "accepts": "order-calibration experiment"},
+    ".github/workflows/ctxsens.yml": {"class": "research", "accepts": "context sensitivity experiment"},
+    ".github/workflows/distill.yml": {"class": "research", "accepts": "subject distillation experiment"},
+    ".github/workflows/extval.yml": {"class": "research", "accepts": "external validity experiment"},
+    ".github/workflows/oos.yml": {"class": "research", "accepts": "out-of-sample experiment"},
+    ".github/workflows/splithalf.yml": {"class": "research", "accepts": "split-half reliability experiment"},
+    ".github/workflows/subjects.yml": {"class": "research", "accepts": "legacy subject simulation experiment"},
+    ".github/workflows/three.yml": {"class": "research", "accepts": "three-task experiment"},
+    ".github/workflows/twoarm.yml": {"class": "research", "accepts": "two-arm experiment"},
+    ".github/workflows/twoarm2.yml": {"class": "research", "accepts": "stable two-arm experiment"}
+  },
+  "rule": "New production integrations must use cce-submit.yml. Compatibility workflows remain only for old callers; research workflows cannot issue production complete=true claims."
+}

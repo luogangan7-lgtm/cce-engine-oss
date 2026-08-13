@@ -1,0 +1,260 @@
+name: CCE Submit
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/cce-submit.yml"
+      - ".github/prepare.py"
+      - "config/cce_*"
+      - "scripts/cce_*"
+      - "tests/test_cce_*"
+      - "examples/cce_*"
+  workflow_dispatch:
+    inputs:
+      submission_json:
+        description: "Complete cce.submission.v1 JSON envelope"
+        required: true
+        type: string
+  repository_dispatch:
+    types: [cce-submit]
+
+concurrency:
+  group: cce-submit-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Submission, content, subject-window, cross-plane and response gates
+        run: |
+          python3 tests/test_cce_submission.py
+          python3 tests/test_cce_contract.py
+          python3 tests/test_cce_window_chain.py
+          python3 tests/test_cce_end_to_end.py
+          python3 tests/test_cce_response_chain.py
+
+  prep:
+    needs: contract
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      profile: ${{ steps.package.outputs.profile }}
+      indices: ${{ steps.package.outputs.indices }}
+      submission_id: ${{ steps.package.outputs.submission_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: package
+        env:
+          SUBMISSION_JSON: ${{ github.event_name == 'workflow_dispatch' && inputs.submission_json || toJSON(github.event.client_payload.submission) }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          Path("submission-input.json").write_text(os.environ["SUBMISSION_JSON"], encoding="utf-8")
+          PY
+          python3 scripts/cce_submission.py submission-input.json --outdir submission-package
+          python3 - <<'PY'
+          import json, os
+          data = json.load(open("submission-package/normalized.json", encoding="utf-8"))
+          items = json.load(open("submission-package/items.json", encoding="utf-8"))
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              out.write(f"profile={data['profile']}\n")
+              out.write(f"submission_id={data['submission_id']}\n")
+              out.write("indices=" + json.dumps(list(range(len(items)))) + "\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cce-submission-source
+          path: submission-package/
+          retention-days: 180
+
+  outbound:
+    needs: prep
+    if: needs.prep.outputs.profile == 'outbound_post' || needs.prep.outputs.profile == 'outbound_reply'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        i: ${{ fromJSON(needs.prep.outputs.indices) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python3 scripts/consistency_check.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: cce-submission-source
+          path: submission-package
+      - name: Materialize exact item ${{ matrix.i }}
+        env:
+          ITEMS_FILE: submission-package/items.json
+          ITEM_INDEX: ${{ matrix.i }}
+        run: python3 .github/prepare.py
+      - name: Outbound style gate
+        if: needs.prep.outputs.profile == 'outbound_reply'
+        run: python3 scripts/style_check.py run/input.txt
+      - name: Run profile-frozen CCE chain
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          CCE_ALIGN_THETA: ${{ vars.CCE_ALIGN_THETA || '0.35' }}
+        run: |
+          python3 scripts/cce_full_run.py \
+            --mode "$(cat run/mode)" \
+            --text-file run/input.txt \
+            --context "$(cat run/context)" \
+            --outdir run/out \
+            --submission-meta run/submission_meta.json \
+            $(test -f run/audience.txt && echo "--audience-file run/audience.txt") \
+            $(test -f run/ref.txt && echo "--ref-post run/ref.txt") \
+            $(test -f run/context_decl.json && echo "--context-decl run/context_decl.json")
+      - name: Reader-to-draft alignment gate
+        if: needs.prep.outputs.profile == 'outbound_reply'
+        env:
+          CCE_ALIGN_THETA: ${{ vars.CCE_ALIGN_THETA || '0.35' }}
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+        run: |
+          python3 scripts/reply_loop.py --reader run/reader.txt --draft run/input.txt \
+            --context "$(cat run/context)" --out run/out/reply_alignment.json
+          jq -e '.verdict.PASS == true' run/out/reply_alignment.json >/dev/null
+      - name: Execution summary
+        if: always()
+        run: python3 .github/summarize.py >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cce-item-${{ matrix.i }}-${{ github.run_id }}
+          path: run/out/
+          retention-days: 180
+
+  subject-measure:
+    needs: prep
+    if: needs.prep.outputs.profile == 'subject_chain'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        i: ${{ fromJSON(needs.prep.outputs.indices) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: cce-submission-source
+          path: submission-package
+      - name: Materialize observed response ${{ matrix.i }}
+        env:
+          ITEMS_FILE: submission-package/items.json
+          ITEM_INDEX: ${{ matrix.i }}
+        run: python3 .github/prepare.py
+      - id: cce
+        name: Run response measurement chain
+        continue-on-error: true
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          CCE_ALIGN_THETA: ${{ vars.CCE_ALIGN_THETA || '0.35' }}
+        run: |
+          python3 scripts/cce_full_run.py --mode reply --text-file run/input.txt \
+            --context "$(cat run/context)" --outdir run/out \
+            --submission-meta run/submission_meta.json
+      - name: Require exact valid s1 measurement
+        run: |
+          jq -e '.stages.s1_readout.status == "OK"' run/out/manifest.json >/dev/null
+          jq -e --arg expected "$(jq -r .text_sha256 run/submission_meta.json)" \
+            '.text_sha256 == $expected' run/out/manifest.json >/dev/null
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cce-subject-item-${{ matrix.i }}-${{ github.run_id }}
+          path: run/out/
+          retention-days: 180
+
+  outbound-aggregate:
+    needs: [prep, outbound]
+    if: always() && needs.prep.result == 'success' && (needs.prep.outputs.profile == 'outbound_post' || needs.prep.outputs.profile == 'outbound_reply')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: cce-submission-source
+          path: submission-package
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cce-item-*-${{ github.run_id }}
+          path: item-artifacts
+      - id: manifest
+        name: Build aggregate workflow manifest
+        continue-on-error: true
+        run: |
+          python3 scripts/cce_workflow_manifest.py --normalized submission-package/normalized.json \
+            --artifacts item-artifacts --out submission-result/workflow-manifest.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cce-result-${{ github.run_id }}
+          path: submission-result/
+          retention-days: 180
+      - name: Enforce aggregate gate
+        if: steps.manifest.outcome != 'success'
+        run: exit 1
+
+  subject-aggregate:
+    needs: [prep, subject-measure]
+    if: always() && needs.prep.result == 'success' && needs.prep.outputs.profile == 'subject_chain'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: cce-submission-source
+          path: submission-package
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cce-subject-item-*-${{ github.run_id }}
+          path: response-artifacts
+      - name: Restore normalized chain inputs
+        run: |
+          jq '.subject_chain' submission-package/normalized.json > submission-package/chain.json
+          jq '.response_source' submission-package/normalized.json > submission-package/responses.json
+      - id: manifest
+        name: Verify all response measurement artifacts
+        continue-on-error: true
+        run: |
+          python3 scripts/cce_workflow_manifest.py --normalized submission-package/normalized.json \
+            --artifacts response-artifacts --out submission-result/workflow-manifest.json
+      - name: Exact join, activated aggregation and end-to-end audit
+        if: steps.manifest.outcome == 'success'
+        run: |
+          python3 scripts/cce_response_chain.py ingest --responses submission-package/responses.json \
+            --chain submission-package/chain.json --artifacts-dir response-artifacts \
+            --out submission-result/subject-chain.json --audit-out submission-result/subject-chain-audit.json
+          python3 scripts/cce_end_to_end.py --subject-chain submission-result/subject-chain.json \
+            --out submission-result/end-to-end-audit.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cce-result-${{ github.run_id }}
+          path: submission-result/
+          retention-days: 180
+      - name: Enforce aggregate gate
+        if: steps.manifest.outcome != 'success'
+        run: exit 1
