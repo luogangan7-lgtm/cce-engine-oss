@@ -33,8 +33,8 @@ def build(normalized: dict[str, Any], artifacts: Path) -> dict[str, Any]:
                 errors.append(f"reply alignment missing for {job_id}")
             else:
                 alignment = json.loads(alignment_path.read_text(encoding="utf-8")).get("verdict") or {}
-                if alignment.get("PASS") is not True:
-                    errors.append(f"reply alignment gate failed for {job_id}")
+                # 2026-08-13: 对齐算子只作诊断记录, 不再计入 errors——与 workflow 层同步
+                # (08-10 实测: 同稿重跑 3/8 翻转, 噪声≈θ; s6 口径"不作放行/拦截依据"; 禁布尔 gate)
         measurement_complete = (manifest.get("stages") or {}).get("s1_readout", {}).get("status") == "OK"
         found[job_id] = {"job_id": job_id, "content_id": meta.get("content_id"),
             "profile": meta.get("profile"), "text_sha256": manifest.get("text_sha256"),
