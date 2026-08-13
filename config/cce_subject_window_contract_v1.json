@@ -1,0 +1,42 @@
+{
+  "schema_name": "cce_subject_window_chain",
+  "version": "1.1.0",
+  "status": "active",
+  "definition": "主体本体不是版本化画像；主体窗口才是指定时间和数据集合上的动态分析投影。",
+  "subject_ontology": {
+    "entity": "subject_id 稳定标识同一主体，不以 profile_version 复制出新主体。",
+    "core": "欲望基线等主体核心是稳定量；只能由有证据的更正记录修正，不能按每次互动重建。",
+    "identity": "身份线索是 append-only 累加量，保留 first_seen、last_seen 与 evidence_refs。",
+    "state": "情绪、行动倾向和激活占比是带 observed_at/window_ref 的瞬时量。",
+    "window": "target/reached/activated/action/conversion 是分析投影，不等于主体本体。",
+    "versioning": "只给 schema、模型、适配器和测量产物版本；禁止业务字段 profile_version/subject_version。"
+  },
+  "window_types": {
+    "target": "计划窗口：希望进入链路的人群规则或已声明集合。",
+    "reached": "观察窗口：实际留下可识别互动证据的人；不是平台全部曝光者。",
+    "activated": "响应窗口：已触达成员的响应文本/行为经 CCE 测量后形成的动态分布。",
+    "action": "行为窗口：成员在曝光后真实发生且有时间与来源的行动。",
+    "conversion": "商业窗口：询盘、成交、复购等可归因事实。"
+  },
+  "mechanisms": {
+    "content": "内容事件 -> CCE 内容指纹；只描述内容机制。",
+    "distribution": "发布 -> 平台交付 -> 曝光/浏览；记录平台机制，不把曝光数伪装成主体。",
+    "behavior": "主体状态 + 历史行为习惯 -> 实际行动；不得用 LLM 模拟代替观察。",
+    "commerce": "行动 -> 询盘 -> 成交 -> 复购；必须保留 publish_id/join 证据。"
+  },
+  "attribution_deltas": [
+    "target_to_reached",
+    "reached_to_activated",
+    "activated_to_action",
+    "action_to_conversion"
+  ],
+  "hard_gates": {
+    "no_versioned_subject": "subject_entities 与 subject_windows 内出现 profile_version 或 subject_version 均失败。",
+    "no_distribution_as_reach": "只有曝光、浏览、赞评总数时不得创建 reached window。",
+    "member_evidence": "reached window 的每个 member_ref 必须有独立互动证据。",
+    "activation_evidence": "activated window 必须引用成员响应的有效 CCE measurement_result，内容侧 s8/作者文本读数不能替代。",
+    "action_evidence": "action window 必须引用曝光后实际行为；历史经验、意向或内容 CTA 不算。",
+    "conversion_join": "conversion window 必须有 publish_id 或等价 join key 串起发布与商业记录。",
+    "no_fake_delta": "相邻两窗缺失、时间不对齐或不可比较时，delta 必须为 NOT_TESTABLE。"
+  }
+}

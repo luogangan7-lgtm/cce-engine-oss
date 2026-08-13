@@ -11,6 +11,19 @@
 
 任一段失败即 `complete=false`,链路中止,manifest 记录 `failed_at`。
 
+内容测量之外，仓库还提供可审计的主体窗口链：
+
+```text
+内容/Event → CCE 内容测量
+发布/平台交付 → reached window
+逐字入站响应 → CCE s1 并行测量 → activated window
+曝光后真实行为 → action window
+publish_id/UTM 商业事实 → conversion window
+```
+
+主体使用稳定 `subject_id`，不做 `profile_version`。身份证据累加，状态带时间戳；
+`target/reached/activated/action/conversion` 是分析窗口，不是主体版本。
+
 ## 投料规范
 
 | 字段 | 必填 | 说明 |
@@ -43,7 +56,27 @@ gh workflow run cce.yml -f mode=post -f text="..." -f context="..." -f ref_tag=x
 # 批量(matrix 并行)
 gh api repos/OWNER/REPO/dispatches -f event_type=cce-batch \
   -F 'client_payload[items][]=...'
+
+# 主体链：验证证据 → 最多8路并行测量入站响应 → 精确指纹回收 → activated聚合
+jq -n \
+  --slurpfile chain examples/cce_reddit_post6_chain_audit.json \
+  --slurpfile responses examples/cce_reddit_post6_responses_v1.json \
+  '{event_type:"cce-subject-chain",client_payload:{chain:$chain[0],responses:$responses[0]}}' \
+| gh api --method POST repos/OWNER/REPO/dispatches --input -
 ```
+
+`cce-subject-chain` 只把有逐人入站证据的成员认作 reached；每条 response artifact
+必须同时匹配冻结原文的 SHA-1 与 SHA-256。并行作业的 s2/s3/s4 可用于回复审计，但
+activated 只消费成功的 s1 状态测量，避免把我方回复产物或后续出站闸误接为读者激活。
+
+聚合作业上传 `cce-subject-chain-<run_id>`，包含：
+
+- `subject-chain.json`
+- `subject-chain-audit.json`
+- `end-to-end-audit.json`
+
+只有内容、分发、五个窗口与四段 attribution delta 全部有有效证据时，最终审计才会输出
+`VERIFIED`；缺失证据保持 `PARTIAL/NOT_MET/NOT_TESTABLE`，不会用估计值补齐。
 
 ## Secrets / Variables
 

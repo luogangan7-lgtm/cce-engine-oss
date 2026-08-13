@@ -1,0 +1,60 @@
+{
+  "kind": "cce.analysis_case.v1",
+  "content": {
+    "id": "content:demo-001",
+    "format": "short_video",
+    "source": "local://demo-001.mp4",
+    "content_hash": "sha256:demo"
+  },
+  "observations": [
+    {
+      "id": "obs:caption-001",
+      "kind": "on_screen_text",
+      "assertion": "observed",
+      "time": {"start": 5.2, "end": 6.4},
+      "evidence_refs": ["content:demo-001"],
+      "provenance": {"producer": "ocr", "version": "demo"}
+    },
+    {
+      "id": "obs:speech-001",
+      "kind": "speech_segment",
+      "assertion": "observed",
+      "time": {"start": 5.2, "end": 6.4},
+      "evidence_refs": ["content:demo-001"],
+      "provenance": {"producer": "asr", "version": "demo"}
+    }
+  ],
+  "events": [
+    {
+      "id": "evt:caption-001",
+      "event_type": "caption_appears",
+      "layer": "atomic",
+      "assertion": "observed",
+      "time": {"start": 5.2, "end": 6.4},
+      "member_refs": ["obs:caption-001"],
+      "evidence_refs": ["obs:caption-001"],
+      "confidence": 0.96
+    },
+    {
+      "id": "evt:reinforcement-001",
+      "event_type": "cross_modal_reinforcement",
+      "layer": "composite",
+      "assertion": "inferred",
+      "time": {"start": 5.2, "end": 6.4},
+      "member_refs": ["evt:caption-001", "obs:speech-001"],
+      "evidence_refs": ["obs:caption-001", "obs:speech-001"],
+      "confidence": 0.77
+    }
+  ],
+  "cce_requests": [
+    {
+      "id": "req:demo-001",
+      "measurement_adapter": "frozen_46d@2026-07",
+      "event_refs": ["evt:caption-001", "evt:reinforcement-001"],
+      "prediction_time": "pre_exposure"
+    }
+  ],
+  "measurement_results": [],
+  "exposures": [],
+  "outcomes": []
+}

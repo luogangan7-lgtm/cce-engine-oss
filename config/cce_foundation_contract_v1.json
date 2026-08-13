@@ -1,0 +1,40 @@
+{
+  "schema_name": "cce_foundation_contract",
+  "version": "1.2.0",
+  "status": "active",
+  "purpose": "CCE 的内容测量交换契约。CCE 只测内容证据和事件；主体、平台分发、行为与商业结果属于测量后的独立机制层。",
+  "root_kind": "cce.analysis_case.v1",
+  "non_negotiable_rules": {
+    "immutable_evidence": "raw_media、observation、event、measurement_result 和 outcome 都是 append-only 事实记录；纠正以 supersedes 关联表达，不原地覆写。",
+    "epistemic_labels": "observation 只能是 observed；event/state/result 必须显式为 observed、inferred 或 derived，推断绝不能伪装成观察。",
+    "time": "所有媒体时间均为秒，半开区间 [start,end)，且 0 <= start < end。帧号可作为定位辅助，不得替代上层时间。",
+    "cce_boundary": "CCE 请求只接受内容事件。subject_ref、profile_version、baseline_ref、平台、受众结果和发布后互动不得成为 CCE 测量输入。",
+    "anti_leakage": "outcome 和 post_exposure 行为只在 evaluation/learning 平面出现，禁止成为同一次 ex-ante cce_request 的输入或特征。",
+    "subject_boundary": "主体本体由稳定 subject_id、稳定核心、append-only 身份证据和瞬时状态组成，不使用 profile_version/subject_version。subject_window 是主体在某时间与数据集合上的分析投影。主体卡只可作为辅助证据卡，不能成为 CCE 请求输入或窗口本体。",
+    "distribution": "平台分发记录与实际触达主体分开。曝光/浏览等聚合数不能证明谁被触达，也不能单独生成触达主体窗口。"
+  },
+  "planes": [
+    {"id": "evidence", "owns": ["content", "raw_media", "observation", "event", "provenance"], "forbidden": ["outcome", "content_recommendation"]},
+    {"id": "measurement", "owns": ["cce_request", "measurement_result"], "forbidden": ["subject_input", "raw_media_parse", "outcome_as_input"]},
+    {"id": "subject_mechanism", "owns": ["subject_entity", "reference_card", "subject_window", "distribution_record", "behavior_record", "commercial_record"], "forbidden": ["versioned_subject", "versioned_subject_as_measurement_input", "invented_member_identity"]},
+    {"id": "evaluation_learning", "owns": ["exposure", "outcome", "attribution", "calibration", "experiment"], "forbidden": ["retroactive_prediction_feature", "silent_model_retrain"]},
+    {"id": "decision", "owns": ["mechanism_hypothesis", "content_option", "human_approval"], "forbidden": ["claiming_causality_without_experiment", "overwriting_measurement"]}
+  ],
+  "required_records": {
+    "content": ["id", "format", "source", "content_hash"],
+    "observation": ["id", "kind", "assertion", "evidence_refs", "provenance"],
+    "event": ["id", "event_type", "layer", "assertion", "member_refs", "evidence_refs", "confidence"],
+    "cce_request": ["id", "measurement_adapter", "event_refs", "prediction_time"],
+    "measurement_result": ["id", "request_ref", "model_version", "input_fingerprint", "distribution", "confidence", "evidence_refs"],
+    "outcome": ["id", "exposure_ref", "observed_at", "metric", "value", "provenance"]
+  },
+  "event_relations_v1": ["precedes", "follows", "overlaps", "synchronizes", "supports", "reinforces", "conflicts", "contrasts", "masks", "amplifies", "attenuates", "substitutes"],
+  "migration": {
+    "cce_video_parse": "evidence.observation producer；现有 visual/audio/OCR 字段先映射为 observation，不直接作为 CCE 输入。",
+    "cce_bundle_render": "legacy adapter；继续为现有配对实验渲染内容包，同时输出 fields_fed/fields_missing 到 provenance。",
+    "cce_fulldist_readout.predict_frozen": "legacy content-only readout；46 维冻结标量不重拟合，但不是观众响应测量。",
+    "subject_cards_v3": "辅助 reference_card producer；不可再输出 versioned subject_ref，也不可进入 CCE 请求。",
+    "cce_full_run": "legacy author-of-input-text readout；不得再被称为 CCE 总链入口或 viewer-response measurement。"
+  },
+  "storage_v1": {"now": "原文件对象存储 + append-only JSON/JSONL + PostgreSQL 索引（content_id、time、window_id、run_id、provenance）。", "later": "只有明确的相似检索需求才加向量索引；它不是 event、state、evidence 或 outcome 的事实源。"}
+}
