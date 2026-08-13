@@ -132,7 +132,9 @@ jobs:
         run: |
           python3 scripts/reply_loop.py --reader run/reader.txt --draft run/input.txt \
             --context "$(cat run/context)" --out run/out/reply_alignment.json
-          jq -e '.verdict.PASS == true' run/out/reply_alignment.json >/dev/null
+          # 2026-08-10 实测: 该对齐算子同稿重跑 3/8 翻转, |Δ对齐分|均值 0.213 与 θ=0.35 同量级,
+          # s6_alignment 自身口径为"不作放行/拦截依据"。故只记录诊断, 不作二值门(全占比原则: 禁布尔 gate)。
+          jq '.verdict' run/out/reply_alignment.json
       - name: Execution summary
         if: always()
         run: python3 .github/summarize.py >> "$GITHUB_STEP_SUMMARY"
