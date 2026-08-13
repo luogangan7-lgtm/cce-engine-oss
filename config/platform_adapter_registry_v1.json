@@ -13,6 +13,18 @@
         "direct_message": "^dm:[A-Za-z0-9._:-]{3,127}$"
       },
       "dynamic_space_rule": "A space is a runtime context value. Adding or changing a subreddit never creates a new Reddit adapter version."
+    },
+    "hearingtracker_forum": {
+      "adapter_id": "hearingtracker_forum",
+      "adapter_version": "1.0.0",
+      "purpose": "Normalize forum.hearingtracker.com (Discourse) topics, posts, actors, timestamps and links into CCE evidence/context records.",
+      "space_patterns": {
+        "community": "^forum\\.hearingtracker\\.com(/t/[a-z0-9-]+/\\d+)?$",
+        "profile": "^u/[A-Za-z0-9._-]{2,60}$",
+        "thread": "^t/[a-z0-9-]+/\\d+$",
+        "direct_message": "^pm:[A-Za-z0-9._:-]{3,127}$"
+      },
+      "dynamic_space_rule": "A topic is a runtime context value. Adding or changing a topic never creates a new adapter version."
     }
   }
 }
