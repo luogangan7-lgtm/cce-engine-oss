@@ -6,6 +6,8 @@ on:
       - ".github/workflows/cce-submit.yml"
       - ".github/prepare.py"
       - "config/cce_*"
+      - "config/platform_adapter_registry_v1.json"
+      - "config/outbound_guard_registry_v1.json"
       - "scripts/cce_*"
       - "tests/test_cce_*"
       - "examples/cce_*"
@@ -117,6 +119,7 @@ jobs:
             --context "$(cat run/context)" \
             --outdir run/out \
             --submission-meta run/submission_meta.json \
+            $(test -f run/guard_profile && echo "--guard-profile $(cat run/guard_profile)") \
             $(test -f run/audience.txt && echo "--audience-file run/audience.txt") \
             $(test -f run/ref.txt && echo "--ref-post run/ref.txt") \
             $(test -f run/context_decl.json && echo "--context-decl run/context_decl.json")
@@ -172,7 +175,7 @@ jobs:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           CCE_ALIGN_THETA: ${{ vars.CCE_ALIGN_THETA || '0.35' }}
         run: |
-          python3 scripts/cce_full_run.py --mode reply --text-file run/input.txt \
+          python3 scripts/cce_full_run.py --mode "$(cat run/mode)" --text-file run/input.txt \
             --context "$(cat run/context)" --outdir run/out \
             --submission-meta run/submission_meta.json
       - name: Require exact valid s1 measurement

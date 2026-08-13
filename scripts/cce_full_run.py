@@ -12,6 +12,9 @@
       [--audience-file A.txt] [--ref-post REF.txt]
 链路清单(冻结):
   reply: s0_context -> s1_readout(K=3) -> s2_knots -> s3_emotion_policy -> s4_guard
+  response: s0_context -> s1_readout(K=3) -> s2_knots -> s3_emotion_policy
+  outbound_post: s0_context -> s1_readout(K=5) -> s2_knots -> s3_emotion_policy -> s4_guard
+  legacy research post:
   post:  s0_context -> s1_readout(K=5) -> s2_knots -> s3_emotion_policy -> s4_guard
          -> s5_audience(K=5, 需--audience-file) -> s6_alignment
          -> s7_ruler(P3双锚) -> s8_pairwise_bet(需--ref-post)
@@ -176,7 +179,7 @@ def s3(ctx):
 @stage("s4_guard")
 def s4(ctx):
     cmd = [sys.executable, os.path.join(ROOT, "scripts/cce_outbound_guard.py"),
-           ctx["text_file"], "--profile=hearing_aid", "--intl"]
+           ctx["text_file"], f"--profile={ctx['guard_profile']}", "--intl"]
     r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=ROOT, timeout=300)
     d = json.loads(r.stdout)
     if not (d.get("clean") and d.get("clean_strict")):
@@ -387,6 +390,8 @@ def s8(ctx):
 
 CHAINS = {
     "reply": [s0, s1, s2, s3, s4],
+    "response": [s0, s1, s2, s3],
+    "outbound_post": [s0, s1, s2, s3, s4],
     "post": [s0, s1, s2, s3, s4, s5, s6, s7, s8],
 }
 
@@ -400,13 +405,15 @@ def main():
     ap.add_argument("--audience-file")
     ap.add_argument("--context-decl", help="情境声明(JSON文件或内联JSON); 生产时应显式声明已知面")
     ap.add_argument("--ref-post")
+    ap.add_argument("--guard-profile", default="hearing_aid",
+                    help="outbound compliance profile; platform/community independent")
     ap.add_argument("--submission-meta", help="normalized cce.submission.v1 item metadata JSON")
     a = ap.parse_args()
     os.makedirs(a.outdir, exist_ok=True)
     ctx = {"text_file": a.text_file, "context": a.context, "outdir": a.outdir,
            "audience_file": a.audience_file, "ref_post": a.ref_post,
-           "context_decl": a.context_decl,
-           "k": 5 if a.mode == "post" else 3}
+           "context_decl": a.context_decl, "guard_profile": a.guard_profile,
+           "k": 5 if a.mode in {"post", "outbound_post"} else 3}
     txt = open(a.text_file, encoding="utf-8").read()
     meta = {"mode": a.mode, "started": time.strftime("%Y-%m-%d %H:%M:%S"),
             "text_sha1": hashlib.sha1(txt.encode()).hexdigest()[:12],
@@ -482,7 +489,8 @@ def build_ctx(outdir, body):
     ctx.update({"outdir": outdir,
                 "text_file": os.path.join(outdir, "input.txt"),
                 "context": body.get("context", ""),
-                "k": 5 if body.get("mode") == "post" else 3})
+                "guard_profile": body.get("guard_profile", "hearing_aid"),
+                "k": 5 if body.get("mode") in {"post", "outbound_post"} else 3})
     if body.get("audience"):
         ctx["audience_file"] = os.path.join(outdir, "audience.txt")
     if body.get("ref"):

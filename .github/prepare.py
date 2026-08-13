@@ -19,6 +19,7 @@ if os.environ.get("ITEMS_FILE"):
     ref = (_it.get("ref_tag") or "").strip()
     refpost = (_it.get("ref_post") or "").strip()
     reader_text = _it.get("reader_text") or ""
+    guard_profile = (_it.get("guard_profile") or "").strip()
     submission_meta = _it.get("_meta") or {}
 else:
     mode = (os.environ.get("MODE") or "").strip()
@@ -29,11 +30,12 @@ else:
     ref = (os.environ.get("REF_TAG") or "").strip()
     refpost = (os.environ.get("REF_POST") or "").strip()
     reader_text = os.environ.get("READER_TEXT") or ""
+    guard_profile = (os.environ.get("GUARD_PROFILE") or "").strip()
     submission_meta = {}
 
 errs = []
-if mode not in ("reply", "post"):
-    errs.append(f"mode 必须是 reply|post, 收到 {mode!r}")
+if mode not in ("reply", "response", "outbound_post", "post"):
+    errs.append(f"mode 必须是 reply|response|outbound_post|post, 收到 {mode!r}")
 if not text.strip():
     errs.append("text 不能为空")
 if not context:
@@ -56,6 +58,8 @@ if cdecl:
     except Exception as e:
         errs.append(f"context_decl 不是合法 JSON: {e}")
 
+if mode in ("reply", "outbound_post") and not guard_profile:
+    errs.append("出站模式必填 guard_profile")
 if mode == "post":
     if not ref:
         errs.append("post 模式必填 ref_tag")
@@ -102,7 +106,9 @@ if cdecl:
     print(f"::notice::情境声明已落盘: {cdecl}")
 if reader_text:
     open("run/reader.txt", "w", encoding="utf-8").write(reader_text)
+if guard_profile:
+    open("run/guard_profile", "w", encoding="utf-8").write(guard_profile)
 if submission_meta:
     open("run/submission_meta.json", "w", encoding="utf-8").write(
         _j.dumps(submission_meta, ensure_ascii=False, indent=2))
-print(f"投料校验通过: mode={mode} text={len(text.split())}词 audience={len(audience.split())}词 ref_tag={ref} ref_post={len(refpost.split())}词")
+print(f"投料校验通过: mode={mode} text={len(text.split())}词 audience={len(audience.split())}词 ref_tag={ref} ref_post={len(refpost.split())}词 guard_profile={guard_profile}")

@@ -48,28 +48,25 @@ accuracy 是代码质量闸；其余校准、外部效度、主体模拟 workflo
 
 | 分组 | 字段 |
 |---|---|
-| 身份 | `job_id`, `content_id`, `platform`, `surface`, `domain`, `language`, `speaker_role` |
-| 目标 | `objective.metric` |
+| 身份 | `job_id`, `content_id`, `platform`, `platform_adapter.id/version`, `domain`, `language`, `speaker_role` |
+| 动态空间 | `surface.kind`, `surface.id`, `surface.observed_at` |
 | 待发布内容 | `text`, `text_sha256` |
 | 情境 | `context.summary`, `context.declaration` |
-| 目标受众证据 | `audience.corpus_path + sha256`，或 `audience.utterances + sha256` |
-| 成对基准 | `comparator.content_id`, `comparator.text`, `comparator.text_sha256` |
+| 出站安全 | `guard_profile` |
 
-受众语料至少 30 条、1000 词，必须是真实受众原话；“美国普通消费者”等 persona 描述不合格。
 情境声明的键值必须来自 `config/context_taxonomy.json`。不知道的面应明确填 taxonomy 允许的 `未知/未提及`，不能猜。
 
 冻结执行链：
 
 ```text
 s0 context → s1 readout → s2 knots → s3 emotion policy → s4 outbound guard
-→ s5 audience → s6 alignment → s7 ruler → s8 pairwise bet
 ```
 
 通过定义：精确原文指纹匹配且 `manifest.complete=true`。
 
-当前 post adapter 只允许 `hearing_aid / reddit / r/HearingAids / otc_hearing_aid_oem`，
-且 `objective.metric=model_comment_rate_per_1000_views`。这是因为 s7/s8 的锚点、账号身份和
-落点指标仍冻结在该范围。其他行业、平台或目标必须新增版本化 adapter，不能只改 context 冒充可用。
+`reddit` 是平台注册身份，`reddit@1.0.0` 是协议适配器；`r/HearingAids` 是动态 `surface`。
+更换 subreddit 只更换带时间的 surface，不创建新 adapter。旧 s5/s6 与 s7/s8 属研究链，
+不再作为 outbound_post 生产完成条件。
 
 ### 3.2 `outbound_reply`
 
@@ -79,7 +76,7 @@ s0 context → s1 readout → s2 knots → s3 emotion policy → s4 outbound gua
 
 | 分组 | 字段 |
 |---|---|
-| 身份 | `job_id`, `content_id`, `platform`, `surface`, `domain`, `language`, `speaker_role` |
+| 身份 | `job_id`, `content_id`, `platform`, `platform_adapter.id/version`, `surface.kind/id/observed_at`, `domain`, `language`, `speaker_role`, `guard_profile` |
 | 情境 | `context.summary`, `context.declaration` |
 | 对方证据 | `reader.actor_ref`, `evidence_ref`, `observed_at`, `source`, `text`, `text_sha256` |
 | 我方草稿 | `draft.text`, `draft.text_sha256` |
@@ -109,20 +106,20 @@ s0 context → s1 readout → s2 knots → s3 emotion policy → s4 outbound gua
 evidence_ref · actor_ref · observed_at · source · text · text_sha256
 ```
 
-`response_source.context` 还必须声明 `platform/surface/domain/summary`，使观测响应不再依赖
+`response_source.context` 还必须声明 `platform/platform_adapter/surface/domain/summary`，使观测响应不再依赖
 runner 内硬编码的 Reddit 语境。
 
 冻结执行链：
 
 ```text
 source/chain contract
-→ 最多8路并行 response s0/s1
+→ 最多8路并行 response s0-s3
 → SHA-1 + SHA-256 精确回收
 → stable subject + activated window
 → subject audit + end-to-end audit
 ```
 
-这是测量链，不是出站回复链。s2/s3/s4 即使为了兼容 runner 被执行，也不能进入 activated 聚合；只消费成功且原文匹配的 s1。
+这是测量链，不是出站回复链。response 不执行出站 s4；activated 聚合只消费成功且原文匹配的 s1。
 
 `subject_chain` 成功只证明响应测量与聚合成功。若 target、action、conversion 或 attribution 证据缺失，整体仍必须是 `NOT_VERIFIED`。
 
@@ -139,7 +136,7 @@ source/chain contract
 每次生产运行保留 180 天：
 
 1. `cce-submission-source`：原始 `submission.json`、规范化 `normalized.json`、冻结 `items.json`。
-2. 每项 artifact：s0–s8 或响应测量文件，以及带 submission/job/content/profile/双指纹的 `manifest.json`。
+2. 每项 artifact：outbound_post 的 s0–s4、outbound_reply 的回复链、subject response 的 s0–s3，以及带 submission/job/content/profile/双指纹的 `manifest.json`。
 3. `cce-result-<run_id>`：
    - outbound：`workflow-manifest.json`；
    - subject：`subject-chain.json`、`subject-chain-audit.json`、`end-to-end-audit.json`。

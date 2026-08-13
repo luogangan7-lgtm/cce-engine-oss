@@ -15,12 +15,11 @@
   "profiles": {
     "outbound_post": {
       "purpose": "发布前内容测量与发布硬闸",
-      "stages": ["s0_context", "s1_readout", "s2_knots", "s3_emotion_policy", "s4_guard", "s5_audience", "s6_alignment", "s7_ruler", "s8_pairwise_bet"],
+      "stages": ["s0_context", "s1_readout", "s2_knots", "s3_emotion_policy", "s4_guard"],
       "required_per_item": [
-        "job_id", "content_id", "text", "text_sha256", "platform", "surface", "domain", "language",
-        "speaker_role", "objective.metric",
-        "context.summary", "context.declaration", "audience", "comparator.content_id",
-        "comparator.text", "comparator.text_sha256"
+        "job_id", "content_id", "text", "text_sha256", "platform", "platform_adapter.id",
+        "platform_adapter.version", "surface.kind", "surface.id", "surface.observed_at", "domain",
+        "language", "speaker_role", "guard_profile", "context.summary", "context.declaration"
       ],
       "success_gate": "manifest.complete=true and exact input fingerprint"
     },
@@ -28,7 +27,9 @@
       "purpose": "我方回复发布前测量、真实性闸与响应对齐",
       "stages": ["reader_baseline", "s0_context", "s1_readout", "s2_knots", "s3_emotion_policy", "s4_guard", "reply_alignment"],
       "required_per_item": [
-        "job_id", "content_id", "platform", "surface", "domain", "language", "speaker_role", "context.summary", "context.declaration",
+        "job_id", "content_id", "platform", "platform_adapter.id", "platform_adapter.version",
+        "surface.kind", "surface.id", "surface.observed_at", "domain", "language", "speaker_role",
+        "guard_profile", "context.summary", "context.declaration",
         "reader.actor_ref", "reader.evidence_ref", "reader.observed_at", "reader.source",
         "reader.text", "reader.text_sha256", "draft.text", "draft.text_sha256"
       ],
@@ -47,21 +48,21 @@
     "scope": "UTF-8 bytes of the exact submitted text",
     "rule": "any text change requires a new fingerprint and a new submission_id/job_id"
   },
-  "current_adapter_scope": {
-    "domain": "hearing_aid",
-    "outbound_post": {
-      "platform": "reddit",
-      "surface": "r/HearingAids",
-      "speaker_role": "otc_hearing_aid_oem",
-      "objective_metric": "model_comment_rate_per_1000_views",
-      "reason": "s7/s8 anchors and prompts are frozen to this scope"
-    },
-    "upgrade_rule": "another domain/surface/objective requires a versioned measurement adapter and new contract version"
+  "platform_context_model": {
+    "platform": "stable platform id backed by config/platform_adapter_registry_v1.json",
+    "platform_adapter": "versioned protocol normalizer; never includes a community id",
+    "surface": "time-bound runtime context such as subreddit/channel/group/profile/thread",
+    "domain": "runtime scene/category context, not an adapter identity",
+    "rule": "changing r/HearingAids to another valid subreddit changes only surface.id and its snapshot time"
+  },
+  "outbound_guard_model": {
+    "registry": "config/outbound_guard_registry_v1.json",
+    "rule": "domain capability is validated by a guard profile and never by the platform adapter"
   },
   "audience_policy": {
-    "accepted": ["repo corpus_path + sha256", "inline utterances + sha256"],
-    "minimum": "30 utterances and 1000 whitespace-delimited words",
-    "prohibited": "persona summary or target-population prose presented as audience utterances"
+    "production_status": "not a prerequisite of outbound_post CCE measurement",
+    "reason": "community/audience is a dynamic subject/context window and must not be frozen into the platform adapter",
+    "legacy_research": "s5/s6 may consume a separately frozen corpus for a declared experiment; s7/s8 remain research-only"
   },
   "output_contract": {
     "source_artifact": "immutable submitted and normalized envelope",

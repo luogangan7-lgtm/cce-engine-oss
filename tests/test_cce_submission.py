@@ -9,6 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from cce_submission import validate_submission, write_package  # noqa: E402
+from cce_full_run import CHAINS  # noqa: E402
 from cce_workflow_manifest import build as build_workflow_manifest  # noqa: E402
 
 
@@ -22,9 +23,17 @@ examples = {
 }
 
 registry = json.loads((ROOT / "config" / "cce_workflow_registry_v1.json").read_text(encoding="utf-8"))
+submission_contract = json.loads((ROOT / "config" / "cce_submission_contract_v1.json").read_text(encoding="utf-8"))
 assert registry["production_entrypoint"] == ".github/workflows/cce-submit.yml"
 assert all((ROOT / path).is_file() for path in registry["workflows"]), registry
 assert [path for path, meta in registry["workflows"].items() if meta["class"] == "production"] == [registry["production_entrypoint"]]
+assert submission_contract["profiles"]["outbound_post"]["stages"] == [
+    "s0_context", "s1_readout", "s2_knots", "s3_emotion_policy", "s4_guard"
+]
+assert [stage.stage_name for stage in CHAINS["outbound_post"]] == submission_contract["profiles"]["outbound_post"]["stages"]
+assert [stage.stage_name for stage in CHAINS["response"]] == [
+    "s0_context", "s1_readout", "s2_knots", "s3_emotion_policy"
+]
 
 for profile, value in examples.items():
     verdict = validate_submission(value)
@@ -63,6 +72,24 @@ missing_reader = copy.deepcopy(examples["outbound_reply"])
 missing_reader["items"][0].pop("reader")
 assert not validate_submission(missing_reader)["ok"]
 
+# Reddit is the stable adapter; the subreddit is a runtime context snapshot.
+other_community = copy.deepcopy(examples["outbound_post"])
+other_community["items"][0]["surface"]["id"] = "r/HearingLoss"
+assert validate_submission(other_community)["ok"], validate_submission(other_community)
+
+bad_adapter = copy.deepcopy(examples["outbound_post"])
+bad_adapter["items"][0]["platform_adapter"]["version"] = "2.0.0"
+assert not validate_submission(bad_adapter)["ok"]
+
+flat_surface = copy.deepcopy(examples["outbound_post"])
+flat_surface["items"][0]["surface"] = "r/HearingAids"
+assert not validate_submission(flat_surface)["ok"]
+
+unsupported_domain = copy.deepcopy(examples["outbound_post"])
+unsupported_domain["items"][0]["domain"] = "fragrance"
+domain_verdict = validate_submission(unsupported_domain)
+assert not domain_verdict["ok"] and any("guard_profile does not cover domain" in row for row in domain_verdict["errors"])
+
 versioned_subject = copy.deepcopy(examples["subject_chain"])
 chain = json.loads((ROOT / versioned_subject.pop("subject_chain_path")).read_text(encoding="utf-8"))
 versioned_subject.pop("subject_chain_sha256")
@@ -70,4 +97,4 @@ chain["subject_windows"][0]["profile_version"] = "v3"
 versioned_subject["subject_chain"] = chain
 assert not validate_submission(versioned_subject)["ok"]
 
-print("PASS: three standard profiles, exact fingerprints, context taxonomy, required reader evidence, and non-versioned subjects")
+print("PASS: three profiles, dynamic community context, versioned platform adapter, s0-s4 production post chain, exact fingerprints, and non-versioned subjects")

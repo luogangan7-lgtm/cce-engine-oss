@@ -12,6 +12,8 @@ import math
 from pathlib import Path
 from typing import Any
 
+from cce_platform_adapter import validate_platform_context
+
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "config" / "cce_foundation_contract_v1.json"
@@ -62,13 +64,14 @@ def validate_case(case: dict[str, Any]) -> dict[str, Any]:
 
     observations = _index(case, "observations")
     events = _index(case, "events")
+    contexts = _index(case, "context_snapshots")
     requests = _index(case, "cce_requests")
     results = _index(case, "measurement_results")
     outcomes = _index(case, "outcomes")
     exposures = _index(case, "exposures")
     known_evidence = set(observations) | set(events)
 
-    for key in ("observations", "events", "cce_requests", "measurement_results", "outcomes"):
+    for key in ("observations", "events", "context_snapshots", "cce_requests", "measurement_results", "outcomes"):
         rows = case.get(key, [])
         if not isinstance(rows, list):
             _err(errors, key, "must be a list")
@@ -103,6 +106,14 @@ def validate_case(case: dict[str, Any]) -> dict[str, Any]:
             if ref not in observations:
                 _err(errors, p + ".evidence_refs", f"must reference observed evidence, got {ref!r}")
 
+    for cid, context in contexts.items():
+        p = f"context_snapshots[{cid}]"
+        _require(context, p, ("id", "observed_at", "platform", "platform_adapter",
+                              "surface", "domain", "summary"), errors)
+        verdict = validate_platform_context(
+            context.get("platform"), context.get("platform_adapter"), context.get("surface"), p)
+        errors.extend(verdict["errors"])
+
     # A subject entity and its time-window projections are downstream, never CCE inputs.
     # Do not silently allow the old profile-centred shape to re-enter here.
     for forbidden in ("subject_refs", "contexts"):
@@ -111,12 +122,14 @@ def validate_case(case: dict[str, Any]) -> dict[str, Any]:
 
     for rid, request in requests.items():
         p = f"cce_requests[{rid}]"
-        _require(request, p, ("id", "measurement_adapter", "event_refs", "prediction_time"), errors)
+        _require(request, p, ("id", "measurement_adapter", "event_refs", "context_snapshot_ref", "prediction_time"), errors)
         if request.get("prediction_time") != "pre_exposure":
             _err(errors, p + ".prediction_time", "must be 'pre_exposure'")
         forbidden_inputs = ("outcome_refs", "post_exposure_features", "subject_refs", "context_refs", "baseline_ref", "profile_version")
         if any(request.get(field) for field in forbidden_inputs):
-            _err(errors, p, "subject/context/outcome/post-exposure fields are forbidden CCE inputs")
+            _err(errors, p, "forbidden CCE inputs: subject/legacy-context/outcome/post-exposure fields")
+        if request.get("context_snapshot_ref") not in contexts:
+            _err(errors, p + ".context_snapshot_ref", "must reference a context_snapshot")
         for ref in request.get("event_refs", []):
             if ref not in events:
                 _err(errors, p + ".event_refs", f"unknown event ref {ref!r}")
@@ -148,11 +161,12 @@ def validate_case(case: dict[str, Any]) -> dict[str, Any]:
             _err(errors, p + ".value", "must be numeric")
 
     if not observations:
-        warnings.append("no observations: a content-only CCE request cannot be evidence-complete")
+        warnings.append("no observations: a context-bound CCE request cannot be evidence-complete")
     if requests and not results:
         warnings.append("no measurement_results: valid request packet, but no completed measurement")
     return {"ok": not errors, "errors": errors, "warnings": warnings,
             "counts": {"observations": len(observations), "events": len(events),
+                       "context_snapshots": len(contexts),
                        "cce_requests": len(requests), "measurement_results": len(results),
                        "outcomes": len(outcomes)}}
 

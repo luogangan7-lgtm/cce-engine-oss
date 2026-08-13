@@ -1,12 +1,12 @@
 # CCE 全链架构纠偏与实证审计 · 2026-08-13
 
-> 状态：架构 v1.2 已落代码；Reddit post6 实际链路 **NOT_VERIFIED**。
+> 状态：post6 实证审计保留；通用架构边界已由 `docs/cce_chain_architecture_v2.md` 接管。
 > 纠偏依据：完整回读「CCE下游主体构建建议」全部 16 个往返，并核对 Notion「记忆助听器｜海外社媒运营与 CCE 独立库」的 03/04/05/06/08/09 表。
 > 最重要的更正：**主体本体不版本化；主体窗口才是某个时间与数据集合在动态占比空间中的分析投影。**
 
 ## 1. 结论
 
-CCE 本身是一台测量仪器。它只接收内容证据/事件，输出内容的动态占比分布、阶段与激活指纹。它不知道用户、平台、产品、询盘或成交。
+CCE 本身是一台测量仪器。它接收内容/响应事件和测量前冻结的 Context Snapshot，输出动态占比分布、阶段与激活指纹。它不接收主体答案、平台分发结果、询盘或成交。平台身份可以是 Context；浏览/点赞/评论量不是 Context，而是发布后分发/结果证据。
 
 完整业务链不是 `内容 + subject_profile + context -> CCE -> 结果`，而是：
 
@@ -28,9 +28,9 @@ publish_id -> 询盘/成交/复购 ------> 转化主体窗口
 
 ### 2.1 Measurement Layer：CCE
 
-输入：内容的 observation/event refs。
+输入：内容/响应的 observation/event refs + 一个带时间的 context_snapshot_ref。
 输出：完整动态分布、阶段、内容指纹、置信与证据。
-禁止输入：subject/profile、平台、发布后互动、行为结果、商业结果。
+禁止输入：subject/profile、平台分发结果、发布后互动、行为结果、商业结果。
 
 主体卡可以帮助运营者理解某个成员的历史，但不能条件化同一次 CCE 内容测量。否则“测量仪器”会把目标人群假设偷渡进测量结果。
 
@@ -119,7 +119,9 @@ publish_id -> 询盘/成交/复购 ------> 转化主体窗口
 
 ## 5. 已落实现
 
-- `config/cce_foundation_contract_v1.json` v1.2：CCE 请求改为 content/event only，硬拒 subject/context/outcome 输入。
+- `config/platform_adapter_registry_v1.json`：平台注册与动态空间语法；社区不进入 adapter identity。
+- `scripts/cce_platform_adapter.py`：在模型调用前验证 adapter 版本和带时间的 surface。
+- `config/cce_foundation_contract_v1.json` v1.3：CCE 请求改为 event + context snapshot，仍硬拒 subject/outcome/post-exposure 输入。
 - `config/cce_subject_window_contract_v1.json`：五窗口、四机制、四 delta 与不可伪造 gate。
 - `scripts/cce_case_assemble.py`：只生成 event refs 的测量请求。
 - `scripts/cce_subject_profile.py`：保留旧文件名兼容，但只输出 auxiliary reference cards。
@@ -133,7 +135,7 @@ publish_id -> 询盘/成交/复购 ------> 转化主体窗口
 
 ### 结构 Gate
 
-1. CCE request 内不得出现 `subject_refs/context_refs/baseline_ref/profile_version`。
+1. CCE request 必须有可解析的 `context_snapshot_ref`，且不得出现 `subject_refs/context_refs/baseline_ref/profile_version`。
 2. reached window 必须逐 member 有入站证据；聚合浏览不能通过。
 3. activated/action/conversion 分别必须引用 response measurement、曝光后行动、publish join 商业记录。
 4. 相邻窗缺失时 delta 自动 `NOT_TESTABLE`。

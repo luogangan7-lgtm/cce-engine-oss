@@ -1,0 +1,18 @@
+{
+  "kind": "cce.platform_adapter_registry.v1",
+  "version": "1.0.0",
+  "adapters": {
+    "reddit": {
+      "adapter_id": "reddit",
+      "adapter_version": "1.0.0",
+      "purpose": "Normalize Reddit posts, comments, actors, communities, timestamps, links and delivery metrics into CCE evidence/context records.",
+      "space_patterns": {
+        "community": "^r/[A-Za-z0-9_]{2,21}$",
+        "profile": "^u/[A-Za-z0-9_-]{3,20}$",
+        "thread": "^t3_[A-Za-z0-9]+$",
+        "direct_message": "^dm:[A-Za-z0-9._:-]{3,127}$"
+      },
+      "dynamic_space_rule": "A space is a runtime context value. Adding or changing a subreddit never creates a new Reddit adapter version."
+    }
+  }
+}

@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from cce_window_chain import audit_chain, validate_chain
+from cce_platform_adapter import validate_platform_context
 from exp_v4_causal_chain import ACTIONS, EMOTIONS
 from exp_v4_full_validation import DESIRES, NEED_KEYS
 
@@ -47,8 +48,14 @@ def validate_response_source(source: dict[str, Any], chain: dict[str, Any]) -> d
     if source.get("kind") != "cce.response_source.v1":
         errors.append("kind must be cce.response_source.v1")
     context = source.get("context")
-    if not isinstance(context, dict) or any(not context.get(field) for field in ("platform", "surface", "domain", "summary")):
-        errors.append("response source requires context.platform/surface/domain/summary")
+    if not isinstance(context, dict) or any(not context.get(field) for field in (
+            "platform", "platform_adapter", "surface", "domain", "summary")):
+        errors.append("response source requires context.platform/platform_adapter/surface/domain/summary")
+    else:
+        platform_verdict = validate_platform_context(
+            context.get("platform"), context.get("platform_adapter"), context.get("surface"),
+            "response_source.context")
+        errors.extend(platform_verdict["errors"])
     content_ref = source.get("content_ref")
     if content_ref != (chain.get("content") or {}).get("id"):
         errors.append("response source content_ref must match chain content id")
@@ -96,12 +103,17 @@ def build_dispatch(source: dict[str, Any], chain: dict[str, Any]) -> dict[str, A
         raise ValueError("invalid response source: " + "; ".join(verdict["errors"]))
     items = []
     context = source["context"]
+    platform_context = validate_platform_context(
+        context["platform"], context["platform_adapter"], context["surface"],
+        "response_source.context")["canonical"]
+    space = platform_context["space"]
     for row in source["responses"]:
         comment_id = row["evidence_ref"].split(":", 1)[-1]
         items.append({
-            "mode": "reply",
+            "mode": "response",
             "text": row["text"],
-            "context": f"{context['platform']} {context['surface']} {context['domain']} inbound response to {source['content_ref']}: {context['summary']}",
+            "context": f"{context['platform']} {space['kind']} {space['id']} {context['domain']} "
+                       f"inbound response to {source['content_ref']}: {context['summary']}",
             "ref_tag": f"post6-inbound-{comment_id}",
         })
     return {
@@ -174,9 +186,9 @@ def _measurement(row: dict[str, Any], artifact: tuple[dict[str, Any], dict[str, 
             "artifact": artifact_dir.name,
             "run_started": manifest.get("started"),
             "s1_measurement_complete": True,
-            "downstream_reply_chain_complete": bool(manifest.get("complete")),
-            "downstream_reply_chain_failed_at": manifest.get("failed_at"),
-            "downstream_scope_note": "s2/s3/s4 are not inputs to the activated-state measurement",
+            "response_chain_complete": bool(manifest.get("complete")),
+            "response_chain_failed_at": manifest.get("failed_at"),
+            "response_scope_note": "response mode runs s0-s3; only exact s1 distributions enter the activated-state aggregation",
             "instrument": readout.get("instrument"),
             "k_requested": stage1.get("k_requested"),
             "k_ok": stage1.get("k_ok"),
@@ -247,6 +259,7 @@ def ingest(source: dict[str, Any], chain: dict[str, Any], artifacts_dir: Path) -
     out["subject_windows"] = windows
 
     subjects = _index(out.get("subject_entities", []), "id") if out.get("subject_entities") else {}
+    platform = source["context"]["platform"]
     for source_row, measurement in zip(source["responses"], measurements):
         subject = subjects.setdefault(source_row["actor_ref"], {
             "id": source_row["actor_ref"],
@@ -256,7 +269,7 @@ def ingest(source: dict[str, Any], chain: dict[str, Any], artifacts_dir: Path) -
             "state_observations": [],
         })
         identity = {
-            "label": "reddit_handle", "value": source_row["actor_ref"],
+            "label": f"{platform}_actor_ref", "value": source_row["actor_ref"],
             "first_seen": source_row["observed_at"], "last_seen": source_row["observed_at"],
             "evidence_refs": [source_row["evidence_ref"]],
         }

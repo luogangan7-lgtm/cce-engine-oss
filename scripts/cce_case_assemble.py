@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Build a content-only CCE request from an evidence/event case.
+"""Build a context-bound CCE request from an evidence/event case.
 
-CCE is the measurement instrument.  It must not receive a person, a segment,
-a profile version, platform state, or post-exposure evidence.  Those belong to
-the downstream subject-window and mechanism layers.
+CCE is the measurement instrument. It receives events plus a time-bound
+context snapshot, but never a person/segment, profile version, platform
+delivery result or post-exposure outcome.
 """
 from __future__ import annotations
 
@@ -27,6 +27,9 @@ def build_request(case: dict[str, Any], adapter: str) -> dict[str, Any]:
     out = assemble(case)
     if not out.get("events"):
         raise ValueError("no events available: CCE request cannot bypass the event plane")
+    contexts = out.get("context_snapshots") or []
+    if len(contexts) != 1 or not contexts[0].get("id"):
+        raise ValueError("exactly one context_snapshot is required for a CCE request")
     for forbidden in ("subject_refs", "contexts"):
         out.pop(forbidden, None)
     event_ids = [event["id"] for event in out["events"]]
@@ -34,6 +37,7 @@ def build_request(case: dict[str, Any], adapter: str) -> dict[str, Any]:
         "id": request_id(out["content"]["id"], event_ids),
         "measurement_adapter": adapter,
         "event_refs": event_ids,
+        "context_snapshot_ref": contexts[0]["id"],
         "prediction_time": "pre_exposure",
     }]
     return out

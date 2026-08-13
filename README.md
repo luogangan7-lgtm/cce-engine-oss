@@ -7,7 +7,9 @@
 | 模式 | 段 |
 |---|---|
 | `reply` | s0_context → s1_readout → s2_knots → s3_emotion_policy → s4_guard |
-| `post` | 上述5段 + s5_audience → s6_alignment → s7_ruler → s8_pairwise_bet |
+| `response` | s0_context → s1_readout → s2_knots → s3_emotion_policy（无出站 guard） |
+| `outbound_post` | s0_context → s1_readout → s2_knots → s3_emotion_policy → s4_guard |
+| `post` | legacy research：上述5段 + s5_audience → s6_alignment → s7_ruler → s8_pairwise_bet |
 
 任一段失败即 `complete=false`,链路中止,manifest 记录 `failed_at`。
 
@@ -31,17 +33,18 @@ publish_id/UTM 商业事实 → conversion window
 
 | Profile | 用途 | 成功 Gate |
 |---|---|---|
-| `outbound_post` | 帖子/邮件/文章发布前 s0–s8 | 精确指纹 + `manifest.complete=true` |
+| `outbound_post` | 帖子/邮件/文章发布前 s0–s4 | 精确指纹 + `manifest.complete=true` |
 | `outbound_reply` | 我方回复 s0–s4 + 对方响应对齐 | manifest 完整 + alignment PASS |
-| `subject_chain` | 真实入站响应 → activated/下游审计 | 全员 s1 双指纹回收；业务结论另看窗口 gate |
+| `subject_chain` | 真实入站响应 s0–s3 → activated/下游审计 | 全员 s1 双指纹回收；业务结论另看窗口 gate |
 
 共同必填：`submission_id`、`producer/trace_id`、profile、逐字文本及 SHA-256、
-platform/surface/domain/language/speaker_role 与 taxonomy 合法情境。post 另需冻结目标指标、受众原话（≥30条/≥1000词）和上一篇
-逐字基准；reply 另需对方原文及证据；subject 另需逐成员证据和主体链。
+platform、`platform_adapter.id/version`、带时间的 `surface.kind/id/observed_at`、
+domain/language/speaker_role、guard profile 与 taxonomy 合法情境。reply 另需对方原文及证据；
+subject 另需逐成员证据和主体链。社区是动态 Context，不进入 adapter identity。
 
 完整字段表、失败语义和产物契约见 `docs/cce_workflow_spec_v1.md`。
 
-## s6 对齐算子 v2
+## Legacy research：s6 对齐算子 v2
 
 ```
 对齐分 = Σ(推动族受众结) w × 稿件该结权重        [共鸣]

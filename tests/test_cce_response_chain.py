@@ -17,6 +17,7 @@ chain = json.loads((ROOT / "examples" / "cce_reddit_post6_chain_audit.json").rea
 dispatch = build_dispatch(source, chain)
 assert dispatch["event_type"] == "cce-batch"
 assert len(dispatch["client_payload"]["items"]) == 8
+assert all(item["mode"] == "response" for item in dispatch["client_payload"]["items"])
 assert dispatch["verification"]["expected_input_sha1"] == [input_sha1(row["text"]) for row in source["responses"]]
 
 
@@ -30,8 +31,8 @@ with tempfile.TemporaryDirectory() as temp:
         artifact = root / f"cce-{i}-test"
         artifact.mkdir()
         (artifact / "manifest.json").write_text(json.dumps({
-            "mode": "reply", "text_sha1": input_sha1(row["text"]),
-            "complete": i != 0, "failed_at": "s4_guard" if i == 0 else None,
+            "mode": "response", "text_sha1": input_sha1(row["text"]),
+            "complete": True, "failed_at": None,
             "started": "2026-08-13 00:00:00", "stages": {"s1_readout": {"status": "OK"}},
         }), encoding="utf-8")
         (artifact / "s1_readout.json").write_text(json.dumps({
@@ -58,8 +59,8 @@ with tempfile.TemporaryDirectory() as temp:
                for values in activated_window["aggregate_layer_distributions"].values())
     first = activated["response_measurements"][0]
     assert first["provenance"]["s1_measurement_complete"] is True
-    assert first["provenance"]["downstream_reply_chain_complete"] is False
-    assert first["provenance"]["downstream_reply_chain_failed_at"] == "s4_guard"
+    assert first["provenance"]["response_chain_complete"] is True
+    assert first["provenance"]["response_chain_failed_at"] is None
     assert all("profile_version" not in row and "subject_version" not in row for row in activated["subject_entities"])
     broken = copy.deepcopy(source)
     broken["responses"][0]["text"] += " changed"
@@ -81,4 +82,4 @@ with tempfile.TemporaryDirectory() as temp:
     else:
         raise AssertionError("failed s1 measurement must be rejected")
 
-print("PASS: exact inbound fingerprints, s1-only response scope, downstream guard isolation, stable subjects, instantaneous states, and activated aggregation")
+print("PASS: exact inbound fingerprints, response s0-s3 scope without outbound guard, stable subjects, instantaneous states, and activated aggregation")

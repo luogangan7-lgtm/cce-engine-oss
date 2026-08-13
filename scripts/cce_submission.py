@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from cce_response_chain import build_dispatch, validate_response_source
+from cce_platform_adapter import validate_platform_context
 from cce_window_chain import validate_chain
 
 
@@ -159,6 +160,8 @@ def validate_submission(value: dict[str, Any]) -> dict[str, Any]:
     taxonomy_file = ROOT / "config" / "context_taxonomy.json"
     taxonomy_data = json.loads(taxonomy_file.read_text(encoding="utf-8"))
     taxonomy = {row["key"]: row["values"] for row in taxonomy_data["facets"]}
+    guard_registry = json.loads((ROOT / "config" / "outbound_guard_registry_v1.json").read_text(encoding="utf-8"))
+    guard_profiles = guard_registry.get("profiles", {})
     profile = value.get("profile")
     normalized_items: list[dict[str, Any]] = []
 
@@ -170,7 +173,8 @@ def validate_submission(value: dict[str, Any]) -> dict[str, Any]:
         seen: set[str] = set()
         for index, item in enumerate(items):
             path = f"items[{index}]"
-            _required(item, ("job_id", "content_id", "platform", "surface", "domain", "language", "speaker_role", "context"), path, errors)
+            _required(item, ("job_id", "content_id", "platform", "platform_adapter", "surface",
+                             "domain", "language", "speaker_role", "guard_profile", "context"), path, errors)
             if not isinstance(item, dict): continue
             job_id = item.get("job_id")
             if not isinstance(job_id, str) or not SAFE_ID.fullmatch(job_id): errors.append(f"{path}.job_id is invalid")
@@ -178,35 +182,37 @@ def validate_submission(value: dict[str, Any]) -> dict[str, Any]:
             seen.add(job_id)
             if not isinstance(item.get("content_id"), str) or not SAFE_ID.fullmatch(item["content_id"]):
                 errors.append(f"{path}.content_id is invalid")
-            if item.get("domain") != "hearing_aid":
-                errors.append(f"{path}.domain must be hearing_aid for the current adapter")
+            platform_verdict = validate_platform_context(
+                item.get("platform"), item.get("platform_adapter"), item.get("surface"), path)
+            errors.extend(platform_verdict["errors"])
+            guard = guard_profiles.get(item.get("guard_profile"))
+            if not isinstance(guard, dict):
+                errors.append(f"{path}.guard_profile is not registered")
+            elif item.get("domain") not in (guard.get("allowed_domains") or []):
+                errors.append(f"{path}.guard_profile does not cover domain {item.get('domain')!r}")
             _context(item.get("context"), f"{path}.context", taxonomy, errors)
             context = item.get("context") if isinstance(item.get("context"), dict) else {}
+            platform_context = platform_verdict.get("canonical") or {}
+            surface_id = ((platform_context.get("space") or {}).get("id")
+                          if isinstance(platform_context, dict) else None)
+            context_summary = (
+                f"{item.get('platform')} {surface_id or 'unknown-space'} {item.get('domain')}: "
+                f"{context.get('summary', '')}"
+            )
             meta = {"submission_id": value.get("submission_id"), "job_id": job_id,
                     "content_id": item.get("content_id"), "profile": profile,
                     "schema_version": SCHEMA_VERSION, "platform": item.get("platform"),
-                    "surface": item.get("surface"), "domain": item.get("domain"),
-                    "speaker_role": item.get("speaker_role"), "language": item.get("language")}
+                    "platform_adapter": item.get("platform_adapter"), "surface": surface_id,
+                    "surface_context": (platform_context.get("space") if isinstance(platform_context, dict) else None),
+                    "domain": item.get("domain"), "speaker_role": item.get("speaker_role"),
+                    "guard_profile": item.get("guard_profile"), "language": item.get("language")}
             if profile == "outbound_post":
-                if (item.get("platform"), item.get("surface"), item.get("speaker_role")) != (
-                        "reddit", "r/HearingAids", "otc_hearing_aid_oem"):
-                    errors.append(f"{path} is outside the frozen r/HearingAids OTC-OEM post adapter")
-                objective = item.get("objective")
-                _required(objective, ("metric",), f"{path}.objective", errors)
-                if isinstance(objective, dict) and objective.get("metric") != "model_comment_rate_per_1000_views":
-                    errors.append(f"{path}.objective.metric is outside the frozen s7/s8 ruler")
                 _exact_text(item, path, errors)
-                audience = _audience(item.get("audience"), f"{path}.audience", errors)
-                comparator = item.get("comparator")
-                _required(comparator, ("content_id", "text", "text_sha256"), f"{path}.comparator", errors)
-                _exact_text(comparator, f"{path}.comparator", errors)
-                if isinstance(comparator, dict) and len(str(comparator.get("text", "")).split()) < 20:
-                    errors.append(f"{path}.comparator.text must contain at least 20 words")
-                normalized_items.append({"mode": "post", "text": item.get("text"),
-                    "context": context.get("summary"), "context_decl": json.dumps(context.get("declaration", {}), ensure_ascii=False),
-                    "audience": audience or "", "ref_post": (comparator or {}).get("text", ""),
-                    "ref_tag": job_id, "_meta": {**meta, "objective": objective,
-                    "text_sha256": item.get("text_sha256")}})
+                normalized_items.append({"mode": "outbound_post", "text": item.get("text"),
+                    "context": context_summary,
+                    "context_decl": json.dumps(context.get("declaration", {}), ensure_ascii=False),
+                    "guard_profile": item.get("guard_profile"), "ref_tag": job_id,
+                    "_meta": {**meta, "text_sha256": item.get("text_sha256")}})
             else:
                 reader, draft = item.get("reader"), item.get("draft")
                 _required(reader, ("actor_ref", "evidence_ref", "observed_at", "source", "text", "text_sha256"), f"{path}.reader", errors)
@@ -214,8 +220,9 @@ def validate_submission(value: dict[str, Any]) -> dict[str, Any]:
                 if isinstance(reader, dict) and not _instant(reader.get("observed_at")):
                     errors.append(f"{path}.reader.observed_at must be ISO-8601")
                 normalized_items.append({"mode": "reply", "text": (draft or {}).get("text", ""),
-                    "reader_text": (reader or {}).get("text", ""), "context": context.get("summary"),
+                    "reader_text": (reader or {}).get("text", ""), "context": context_summary,
                     "context_decl": json.dumps(context.get("declaration", {}), ensure_ascii=False), "ref_tag": job_id,
+                    "guard_profile": item.get("guard_profile"),
                     "translated": bool(item.get("translated")), "_meta": {**meta,
                     "text_sha256": (draft or {}).get("text_sha256"), "reader_text_sha256": (reader or {}).get("text_sha256"),
                     "reader_actor_ref": (reader or {}).get("actor_ref"), "reader_evidence_ref": (reader or {}).get("evidence_ref")}})

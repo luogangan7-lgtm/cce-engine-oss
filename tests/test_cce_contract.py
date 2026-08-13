@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Executable gates for the corrected content-only CCE contract."""
+"""Executable gates for the context-bound CCE measurement contract."""
 import copy
 import json
 import sys
@@ -45,10 +45,12 @@ assert adapted["ok"], adapted
 assembled = validate_case(assemble(adapter_case))
 assert assembled["ok"] and assembled["counts"]["events"] > adapted["counts"]["events"], assembled
 
+adapter_case["context_snapshots"] = copy.deepcopy(case["context_snapshots"])
 request_case = build_request(adapter_case, "event_packet@v1")
 request_verdict = validate_case(request_case)
 assert request_verdict["ok"] and request_verdict["counts"]["cce_requests"] == 1, request_verdict
 request = request_case["cce_requests"][0]
+assert request["context_snapshot_ref"] == request_case["context_snapshots"][0]["id"], request
 assert not any(k in request for k in ("subject_refs", "context_refs", "baseline_ref", "profile_version")), request
 
 cards_path = ROOT / "docs" / "subject_cards_v3_20260813.json"
@@ -61,4 +63,4 @@ assert len(fingerprint(ROOT / "examples" / "cce_foundation_case_v1.json")) == 16
 audio_capabilities = _audio_capabilities(True, ["BGM"])
 assert audio_capabilities["source_layers"]["bgm"]["status"] == "detected_not_separated", audio_capabilities
 
-print("PASS: content-only CCE request, subject/profile rejection, leakage/time gates, event adapters, auxiliary reference cards, and audio boundary")
+print("PASS: context-bound CCE request, dynamic platform space, subject/profile rejection, leakage/time gates, event adapters, auxiliary reference cards, and audio boundary")

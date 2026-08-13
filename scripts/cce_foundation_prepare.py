@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare the content-only CCE measurement packet and optional reference cards.
+"""Prepare the context-bound CCE measurement packet and optional reference cards.
 
 The cards are deliberately emitted beside, not inside, the measurement packet.
 """
@@ -27,11 +27,15 @@ def fingerprint(path: Path) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--parse-artifact", type=Path, required=True)
+    parser.add_argument("--context-snapshot", type=Path, required=True,
+                        help="JSON context snapshot produced by a platform/manual context adapter")
     parser.add_argument("--cards", type=Path, help="optional auxiliary reference-card source")
     parser.add_argument("--outdir", type=Path, required=True)
     args = parser.parse_args()
     args.outdir.mkdir(parents=True, exist_ok=True)
     evidence = adapt(json.loads(args.parse_artifact.read_text(encoding="utf-8")), args.parse_artifact)
+    context_snapshot = json.loads(args.context_snapshot.read_text(encoding="utf-8"))
+    evidence["context_snapshots"] = [context_snapshot]
     request = build_request(evidence, "event_packet@v1")
     verdict = validate_case(request)
     if not verdict["ok"]: raise SystemExit("invalid CCE request:\n" + "\n".join(verdict["errors"]))
@@ -45,10 +49,11 @@ def main() -> None:
         paths["reference_cards"] = args.outdir / "03_reference_cards.json"; write(paths["reference_cards"], cards)
         cards_status = "AUXILIARY_ONLY"
     manifest = {"kind": "cce.foundation.prepare_manifest.v2", "status": "READY_FOR_CONTENT_MEASUREMENT_ADAPTER",
-                "measurement_boundary": "No response result was generated. The packet is content-only; subject windows are downstream.",
-                "source": {"parse_artifact": str(args.parse_artifact), "cards": str(args.cards) if args.cards else None},
+                "measurement_boundary": "No response result was generated. The packet is event + context only; subject windows are downstream.",
+                "source": {"parse_artifact": str(args.parse_artifact), "context_snapshot": str(args.context_snapshot),
+                           "cards": str(args.cards) if args.cards else None},
                 "artifacts": {key: {"path": str(value), "sha256_16": fingerprint(value)} for key, value in paths.items()},
-                "counts": verdict["counts"], "gates": {"contract": "PASS", "content_only": "PASS", "outcome_leakage": "PASS", "reference_cards": cards_status}}
+                "counts": verdict["counts"], "gates": {"contract": "PASS", "context_bound": "PASS", "outcome_leakage": "PASS", "reference_cards": cards_status}}
     write(args.outdir / "manifest.json", manifest); print(json.dumps(manifest, ensure_ascii=False, indent=2))
 
 
