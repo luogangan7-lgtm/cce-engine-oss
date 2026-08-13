@@ -2,7 +2,7 @@
 
 > 状态：post6 实证审计保留；通用架构边界已由 `docs/cce_chain_architecture_v3.md` 接管。
 > 纠偏依据：完整回读「CCE下游主体构建建议」全部 16 个往返，并核对 Notion「记忆助听器｜海外社媒运营与 CCE 独立库」的 03/04/05/06/08/09 表。
-> 最重要的更正：**主体本体不版本化；主体窗口才是某个时间与数据集合在动态占比空间中的分析投影。**
+> 最重要的更正：**稳定实体只连接证据；主体窗口才是某个时间与数据集合在动态占比空间中的分析对象。**
 
 ## 1. 结论
 
@@ -34,19 +34,20 @@ publish_id -> 询盘/成交/复购 ------> 转化主体窗口
 
 主体卡可以帮助运营者理解某个成员的历史，但不能条件化同一次 CCE 内容测量。否则“测量仪器”会把目标人群假设偷渡进测量结果。
 
-### 2.2 Subject Layer：主体本体 + 五类动态窗口
+### 2.2 Subject Layer：证据连接实体 + 六类动态聚合窗口
 
-主体本体使用稳定 `subject_id`，并拆成三种时间尺度：
+稳定 `subject_id/subject_ref` 只是跨记录连接同一可识别成员的 join key，不是一个预先存在的主体答案。历史证据拆成三种时间尺度：
 
 - 主体核心（欲望基线）是稳定量；
 - 身份线索是 append-only 累加量；
 - 情绪、行动倾向与激活占比是带时间戳的瞬时状态。
 
-窗口不是另一个“版本的主体”，而是对主体集合的时窗投影。版本号只属于 schema、模型、适配器和测量产物。
+真正的分析主体是窗口：对指定数据集合和阶段的动态占比聚合。窗口不是“主体画像版本”；版本号只属于 schema、模型、适配器和测量产物。
 
 | 窗口 | 真正含义 | 最小证据 | 不能拿什么替代 |
 |---|---|---|---|
 | 目标主体 | 计划时希望进入链路的人群规则/集合 | 冻结的人群准入规则或目标集合 | 泛化 persona 文案 |
+| 分发主体投影 | 平台实际交付形成的匿名 aggregate/cohort/cell | distribution record + 时间窗 + identity resolution | 凭曝光制造 member identity |
 | 触达主体 | 实际留下可识别互动的人 | member_ref + 每人独立互动证据 + 时间窗 | 浏览/曝光/赞评总数 |
 | 激活主体 | 触达成员响应的 CCE 动态聚合 | 成员响应文本 + 有效 CCE result + 同窗聚合 | 内容自身 s8、人工“感觉被打中” |
 | 行动主体 | 曝光后真实采取动作的人 | actor + action + observed_at + source | 历史经验、意向、CTA |
@@ -74,11 +75,12 @@ publish_id -> 询盘/成交/复购 ------> 转化主体窗口
 
 ## 3. 主体卡的正确位置
 
-现有 13 张 Reddit 主体卡保留为稳定 Individual Subject 的证据投影：
+现有 13 张 Reddit 主体卡保留为以稳定 `subject_ref` 连接的历史证据/查询投影：
 
 - 可保存公开历史里的欲望/需求 top-k、身份线索、行为频率与来源；
-- 可辅助制定目标窗口规则、解释触达成员、提出行为机制假设，并形成描述性的 structural subject segment；
+- 可辅助制定目标窗口规则、解释触达成员、提出行为机制假设，并提出描述性的 structural subject segment；
 - 不代表平台总体、不是 population sample/weight、不是当前状态或当前刺激 response segment，也不作为 CCE 请求答案；
+- 卡片本身不是 active Subject window，也不得进入 CCE adapter 的 model input；
 - 不再输出 `subject_type` 或 `profile_version`。
 
 没有共同曝光下的 user × item 响应矩阵，就不能把这些卡聚成经验证的 shared-stimulus response segment；
@@ -123,8 +125,8 @@ publish_id -> 询盘/成交/复购 ------> 转化主体窗口
 - `config/platform_adapter_registry_v1.json`：平台注册与动态空间语法；社区不进入 adapter identity。
 - `scripts/cce_platform_adapter.py`：在模型调用前验证 adapter 版本和带时间的 surface。
 - `config/cce_foundation_contract_v1.json` v1.3：CCE 请求改为 event + context snapshot，仍硬拒 subject/outcome/post-exposure 输入。
-- `config/cce_subject_window_contract_v1.json`：五窗口、四机制、四 delta 与不可伪造 gate。
-- `scripts/cce_case_assemble.py`：只生成 event refs 的测量请求。
+- `config/cce_subject_window_contract_v1.json`：六窗口、四机制、五段 delta 与不可伪造 gate。
+- `scripts/cce_case_assemble.py`：生成测量请求，并把完整 case 投影成不含 subject_ref/主体卡的匿名 CCE model input。
 - `scripts/cce_subject_profile.py`：保留旧文件名兼容，输出稳定 subject_id 的证据卡投影；不输出人口权重或当前状态。
 - `scripts/cce_window_chain.py`：验证主体窗口并生成 `PASS/PARTIAL/NOT_MET/NOT_TESTABLE` 审计。
 - `scripts/cce_end_to_end.py`：交叉校验 measurement case 与下游链的 content_id/result_ref；只有这里允许输出整链 `VERIFIED`。
@@ -136,7 +138,7 @@ publish_id -> 询盘/成交/复购 ------> 转化主体窗口
 
 ### 结构 Gate
 
-1. CCE request 必须有可解析的 `context_snapshot_ref`，且不得出现 `subject_refs/context_refs/baseline_ref/profile_version`。
+1. CCE request 必须有可解析的 `context_snapshot_ref`，且不得出现 `subject_refs/context_refs/baseline_ref/profile_version`；transition 可引用 pre-state，但 CCE adapter 只消费删除 subject_ref 后的匿名 baseline_state。
 2. reached window 必须逐 member 有入站证据；聚合浏览不能通过。
 3. activated/action/conversion 分别必须引用 response measurement、曝光后行动、publish join 商业记录。
 4. 相邻窗缺失时 delta 自动 `NOT_TESTABLE`。

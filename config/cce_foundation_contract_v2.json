@@ -1,9 +1,14 @@
 {
   "schema_name": "cce_foundation_contract",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "status": "active",
   "root_kind": "cce.analysis_case.v2",
-  "purpose": "CCE 通用测量交换契约：区分刺激读出、已观察响应读出和有证据前态条件下的状态转移；主体实体不作为答案输入，但带时间和证据的状态快照可以条件化 transition measurement。",
+  "purpose": "CCE 通用测量交换契约：区分刺激读出、已观察响应读出和有证据前态条件下的状态转移；CCE adapter 只消费匿名 model-input projection，主体身份与聚合窗口均留在下游。",
+  "plane_boundary": {
+    "measurement_plane": "Event + Universal Context + 可选匿名 baseline_state -> 动态占比/状态变化。",
+    "subject_plane": "用 measurement result、时间窗、成员/cell 与阶段证据构造 Individual/Segment/Population 聚合窗口。",
+    "join_rule": "完整 case 可保留 subject_ref 连接 pre/post 证据，但 build_model_input 必须删除该 join key；CCE 模型不得看到身份、主体卡、profile 或 population 标签。"
+  },
   "measurement_modes": {
     "stimulus": {
       "input": "Event + Universal Context",
@@ -16,7 +21,7 @@
       "forbidden": ["pre_state_snapshot_ref", "post_state_snapshot_ref", "state_transition_ref"]
     },
     "transition": {
-      "input": "Event + Universal Context + evidence-bound pre_state_snapshot_ref",
+      "input": "Event + Universal Context + anonymous evidence-bound baseline_state projection",
       "output": "state_before -> state_after -> delta",
       "required": ["pre_state_snapshot_ref", "state_transition_ref"]
     }
@@ -53,6 +58,7 @@
   },
   "hard_gates": {
     "no_subject_answer_input": "subject_refs/profile_version/subject_version 仍禁止进入 CCE 请求。transition 只接受有证据且带时间的 pre_state_snapshot_ref。",
+    "anonymous_model_input": "CCE adapter 必须只消费 cce.measurement_input.v1；baseline_state 只含状态值、时间、证据和认识论字段，不得含 subject_ref、身份、主体卡或人群标签。",
     "no_outcome_leakage": "发布后曝光、互动、行为和商业结果不得成为同一次 ex-ante 测量输入。",
     "transition_exactness": "delta 的键必须等于前后状态共同维度，且数值必须等于 after-before。",
     "epistemic_boundary": "文本/行为是 observed evidence；由它推断的心理状态必须标 inferred，模型分布必须标 derived。",

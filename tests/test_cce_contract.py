@@ -11,7 +11,7 @@ from cce_contract import validate_case  # noqa: E402
 from cce_foundation_adapter import adapt  # noqa: E402
 from cce_event_assemble import assemble  # noqa: E402
 from cce_subject_profile import build_from_cards, validate_collection  # noqa: E402
-from cce_case_assemble import build_request  # noqa: E402
+from cce_case_assemble import build_model_input, build_request  # noqa: E402
 from cce_foundation_prepare import fingerprint  # noqa: E402
 from cce_video_parse import _audio_capabilities  # noqa: E402
 
@@ -53,6 +53,18 @@ request = request_case["cce_requests"][0]
 assert request["context_snapshot_ref"] == request_case["context_snapshots"][0]["id"], request
 assert request["measurement_mode"] == "stimulus", request
 assert not any(k in request for k in ("subject_refs", "context_refs", "baseline_ref", "profile_version")), request
+model_input = build_model_input(request_case)
+assert model_input["kind"] == "cce.measurement_input.v1"
+assert "baseline_state" not in model_input
+assert "subject_ref" not in json.dumps(model_input) and "profile_version" not in json.dumps(model_input)
+nested_subject = copy.deepcopy(request_case)
+nested_subject["context_snapshots"][0]["subject_ref"] = "subject:must-not-leak"
+try:
+    build_model_input(nested_subject)
+except ValueError as exc:
+    assert "downstream Subject keys" in str(exc)
+else:
+    raise AssertionError("nested subject identity must not enter CCE model input")
 
 transition_source = copy.deepcopy(case)
 transition_source["cce_requests"] = []
@@ -65,6 +77,10 @@ transition_request_case = build_request(transition_source, "event_packet@v2", "t
 transition_request = transition_request_case["cce_requests"][0]
 assert transition_request["pre_state_snapshot_ref"] == "state:builder-before"
 assert transition_request["id"] != request["id"], "measurement mode/pre-state must participate in request identity"
+transition_model_input = build_model_input(transition_request_case)
+assert transition_model_input["baseline_state"]["dimensions"] == {"attention": 0.2}
+assert "subject_ref" not in json.dumps(transition_model_input)
+assert transition_model_input["boundary"].endswith("Subject is constructed downstream")
 
 platform_only = copy.deepcopy(case)
 platform_only["context_snapshots"][0]["dimensions"] = {}
@@ -104,7 +120,7 @@ assert card_verdict["ok"] and card_verdict["counts"]["reference_cards"] == 13, c
 assert all("profile_version" not in row and "subject_type" not in row for row in cards["cards"]), cards
 assert cards["kind"] == "cce.subject_card_collection.v1"
 assert all(row["subject_ref"].startswith("subject:reddit:") for row in cards["cards"])
-assert all("not a subject" not in row["limits"] for row in cards["cards"])
+assert all("not an active subject window" in row["limits"] for row in cards["cards"])
 assert cards["segment_capabilities"]["structural_subject_segments"].startswith("descriptive_allowed")
 
 subject_contract = json.loads((ROOT / "config" / "cce_subject_system_contract_v1.json").read_text(encoding="utf-8"))

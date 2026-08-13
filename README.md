@@ -23,12 +23,13 @@
 publish_id/UTM 商业事实 → conversion window
 ```
 
-主体使用稳定 `subject_id`，不做 `profile_version`。身份证据累加，状态带时间戳；
-`target/reached/activated/action/conversion` 是分析窗口，不是主体版本。
+稳定 `subject_id/subject_ref` 只用于跨证据 join，不做 `profile_version`；主体卡是历史证据/查询投影。
+真正的 Subject 是 `target/delivered/reached/activated/action/conversion` 阶段上的动态聚合窗口。
 
 CCE Foundation v2 区分三种测量：`stimulus`、`observed_response`、`transition`。
 Transition 允许有证据、带时间的 pre-state snapshot，输出精确 `Before/After/Delta`；
-这不等于把主体画像作为答案输入。Population 由逐成员/cell 分布与权重正式合成为 mixture，
+实际 CCE adapter 只消费删除 `subject_ref` 后的匿名 baseline state，不接触主体卡、身份或 Population 标签。
+Population 由逐成员/cell 分布与权重在测量后正式合成为 mixture，
 同时保留 composition、两两 JS heterogeneity、稳定 segment、unassigned mass 和 uncertainty。
 边际均值/中位数可以作为人群统计，但不能冒充一个人。完整边界见
 `docs/cce_chain_architecture_v3_1.md`。

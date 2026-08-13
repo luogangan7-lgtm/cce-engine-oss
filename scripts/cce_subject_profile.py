@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Materialize evidence-backed cards for stable Individual Subject entities.
+"""Materialize evidence-backed cards keyed to stable observed entities.
 
-A card is the current knowledge projection of one stable subject_id. It is not
-a population sample/weight, a current state, or a response to the current
-stimulus. The legacy module name remains part of the CLI compatibility surface.
+A card is an evidence/index projection keyed by one stable ``subject_ref``. It is
+not itself an active Subject window, population sample/weight, current state, or
+response to the current stimulus. The legacy module name remains for CLI compatibility.
 """
 from __future__ import annotations
 
@@ -63,6 +63,7 @@ def build_from_cards(cards: dict[str, Any], source: Path) -> dict[str, Any]:
             "confidence": {"readouts": confidence.get("读出n"), "contexts": confidence.get("情境数"),
                            "split_half_js_desire": confidence.get("折半JS欲望"), "status": confidence.get("合格线")},
             "limits": ["not a population sample", "not a population weight",
+                       "not an active subject window", "not a CCE model input",
                        "not a directly observed current state", "not a response to the current stimulus"],
         })
     return {

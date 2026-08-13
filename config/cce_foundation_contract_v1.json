@@ -10,7 +10,7 @@
     "time": "所有媒体时间均为秒，半开区间 [start,end)，且 0 <= start < end。帧号可作为定位辅助，不得替代上层时间。",
     "cce_boundary": "CCE 请求接受事件和一个带时间的 context_snapshot_ref。subject_ref、profile_version、baseline_ref、平台分发结果、受众结果和发布后互动不得成为同一次测量输入。平台身份可在 Context 中出现，曝光/浏览等分发结果不可出现。",
     "anti_leakage": "outcome 和 post_exposure 行为只在 evaluation/learning 平面出现，禁止成为同一次 ex-ante cce_request 的输入或特征。",
-    "subject_boundary": "主体本体由稳定 subject_id、稳定核心、append-only 身份证据和瞬时状态组成，不使用 profile_version/subject_version。subject_window 是主体在某时间与数据集合上的分析投影。主体卡只可作为辅助证据卡，不能成为 CCE 请求输入或窗口本体。",
+    "subject_boundary": "稳定 subject_ref 只是跨证据 join key，主体卡只是历史证据/查询投影；真正的分析主体是某时间窗口和数据集合上的动态占比聚合。二者都不能成为 CCE 模型输入。transition 只可消费删除 subject_ref 后的匿名 baseline_state。",
     "distribution": "平台分发记录与实际触达主体分开。曝光/浏览等聚合数不能证明谁被触达，也不能单独生成触达主体窗口。"
   },
   "planes": [

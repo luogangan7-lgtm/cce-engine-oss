@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Executable gates against collapsing heterogeneous populations into an average person."""
+import math
 import sys
 from pathlib import Path
 
@@ -21,7 +22,10 @@ assert len(population["segment_mixture"]) == 2, population
 assert population["heterogeneity"]["maximum"] > 0.8, population
 assert all(len(segment["member_refs"]) == 2 for segment in population["segment_mixture"]), population
 assert not population["unassigned_member_refs"] and population["unassigned_weight"] == 0
-assert population["population_mixture"]["marginal_distribution"] == {"approach": 0.4925, "avoid": 0.5075}
+expected_marginal = {"approach": 0.4925, "avoid": 0.5075}
+assert all(math.isclose(population["population_mixture"]["marginal_distribution"][key], value,
+                        rel_tol=0.0, abs_tol=1e-12)
+           for key, value in expected_marginal.items())
 assert population["population_mixture"]["marginal_semantics"] == "weighted population marginal; never an individual persona"
 assert population["population_mixture"]["component_quantiles"]["approach"]["p25"] == 0.01
 assert "aggregate_distribution" not in population and "mean_distribution" not in population

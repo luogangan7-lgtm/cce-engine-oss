@@ -1,14 +1,14 @@
 {
   "schema_name": "cce_subject_window_chain",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "status": "active",
-  "definition": "主体本体不是版本化画像；主体窗口才是指定时间和数据集合上的动态分析投影。",
+  "definition": "主体不是版本化画像或预先容器；主体是指定时间、数据集合、阶段和尺度上的动态占比聚合窗口。",
   "subject_ontology": {
-    "entity": "subject_id 稳定标识同一主体，不以 profile_version 复制出新主体。",
-    "core": "欲望基线等主体核心是稳定量；只能由有证据的更正记录修正，不能按每次互动重建。",
-    "identity": "身份线索是 append-only 累加量，保留 first_seen、last_seen 与 evidence_refs。",
-    "state": "情绪、行动倾向和激活占比是带 observed_at/window_ref/assertion/evidence_refs 的瞬时量；文本可观察，心理状态通常只能 inferred/derived。",
-    "window": "target/reached/activated/action/conversion 是分析投影，不等于主体本体。",
+    "entity": "subject_id/subject_ref 只稳定连接同一可识别成员的证据，不以 profile_version 复制，也不直接充当分析主体。",
+    "core": "欲望基线等慢变量属于历史证据缓存；只能由可追溯更正修正，不进入 CCE model input。",
+    "identity": "身份线索是 append-only 证据账本，保留 first_seen、last_seen 与 evidence_refs，不进入 CCE model input。",
+    "state": "情绪、行动倾向和激活占比是带 observed_at/window_ref/assertion/evidence_refs 的瞬时证据；transition 只消费匿名状态投影。",
+    "window": "target/delivered/reached/activated/action/conversion 才是分析主体，不是实体或卡片的版本。",
     "versioning": "只给 schema、模型、适配器和测量产物版本；禁止业务字段 profile_version/subject_version。"
   },
   "population_subject": {
@@ -43,6 +43,7 @@
     "action_to_conversion"
   ],
   "hard_gates": {
+    "no_subject_model_input": "CCE model input 中不得出现 subject_ref、主体卡、身份、角色或 Population 标签；只允许匿名 evidence-bound baseline_state。",
     "no_versioned_subject": "subject_entities 与 subject_windows 内出现 profile_version 或 subject_version 均失败。",
     "target_frozen_before_exposure": "target window 必须有 cce.target_population_spec.v1，包含五问和 planned distribution，且 frozen_at 不晚于窗口开始。",
     "delivered_distribution_evidence": "delivered window 必须引用平台 distribution records，并声明 anonymous aggregate/cohort/cell 的身份解析度。",

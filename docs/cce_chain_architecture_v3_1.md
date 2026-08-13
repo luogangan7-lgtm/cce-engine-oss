@@ -1,7 +1,10 @@
-# CCE 全链架构 v3.1：Individual → Segment → Population Subject
+# CCE 全链架构 v3.1：测量 → Individual / Segment / Population 聚合窗口
 
 状态：Draft PR 规范基线。v3.1 修正 v3 的矫枉过正：**禁止“均值冒充人群”，不等于禁止合成人群。**
 Population 必须合成，但合成结果是带定义、范围、权重、异质性和不确定性的混合分布主体，不是一个虚构的平均个人。
+
+最上位边界：**CCE 只测量动态占比和状态变化；Subject 是测量后的聚合窗口。** 完整 case 中的稳定
+`subject_ref` 只负责证据连接，主体卡只负责历史查询；CCE adapter 实际消费的匿名投影不得包含它们。
 
 ## 1. 两条正交轴
 
@@ -27,28 +30,27 @@ Target → Delivered → Reached → Activated → Action → Conversion
 ## 2. 完整主链
 
 ```text
-Real World
-   ├── Subject Space
-   │      ├── Individual: core + append-only identity + current state
-   │      ├── Dynamic Segment: explicit basis + membership probability
-   │      └── Population: definition + frame + mixture + uncertainty
-   ├── Universal Context
-   └── Input World
+Real World / Input World
            ↓
 Signal Decomposition / Multimodal Parsing
            ↓
 Observation → Atomic/Composite Event → Event Stream
            ↓
-Active Subject State = Subject × Context × evidence-bound baseline
+Event + Universal Context + optional anonymous evidence-bound baseline_state
            ↓
 CCE Measurement
    ├── stimulus
    ├── observed_response
    └── transition: Before → After → exact ΔState
            ↓
-Individual response distributions
+Dynamic distributions / exact State Transition
            ↓
-Weighted Population Synthesis
+Subject Aggregation Windows
+   ├── Individual: one identified member in a declared window
+   ├── Dynamic Segment: explicit basis + supported membership
+   └── Population: definition + frame + weighted mixture + uncertainty
+           ↓
+Population Synthesis
    ├── member/cell components
    ├── weights
    ├── population marginal + quantiles
@@ -62,21 +64,22 @@ Target / Delivered / Reached / Activated / Action / Conversion comparison
 Experiment / Attribution / Calibration / Feedback
 ```
 
-## 3. Individual Subject
+## 3. Individual 聚合尺度与证据卡
 
-Individual 采用三时间尺度：
+Individual Subject 不是预先装进 CCE 的人格。它是以单一可识别成员为 `population_set`、绑定阶段与时间窗的动态占比聚合。
+为了跨窗口连接证据，可以维护三类历史账本，但账本不是主体窗口，也不是模型特征：
 
 | 部分 | 规则 |
 |---|---|
-| Core | 欲望基线、价值观等稳定或慢变量；充分证据才能修正 |
-| Identity | 角色和关系身份只追加；保留 first/last seen、频率和近因激活 |
-| State | 注意、情绪、信任、意向等瞬时量；绑定 Context、时间、证据、置信、持续和衰减 |
+| Core evidence | 欲望基线、价值观等稳定或慢变量；充分证据才能修正；只用于历史解释 |
+| Identity ledger | 角色和关系身份只追加；保留 first/last seen、频率和近因激活；只用于 join/解释 |
+| State evidence | 注意、情绪、信任、意向等瞬时量；绑定 Context、时间、证据、置信、持续和衰减 |
 
 完整 56 参数域已机器化为 `config/cce_subject_system_contract_v1.json`。字段允许 `unknown`；不能为了填满 Schema 强推断。
 
-13 张 v3 主体卡是 13 个稳定 Individual Subject 的证据投影，包含欲望基线、需求配置、身份账本、行为频率、
-情境激活、关系阶段和置信。它们可以用于构造结构主体段和目标人群假设；但它们是便利样本，不能自行提供社区人口权重，
-也不能冒充当前刺激下的状态或响应。
+13 张 v3 主体卡是以稳定 `subject_ref` 连接的历史证据/查询投影，包含欲望基线、需求配置、身份账本、行为频率、
+情境激活、关系阶段和置信。它们可以提出结构段和目标人群假设；但卡片本身不是 active Subject，不进入 CCE model input，
+也不能提供社区人口权重或冒充当前刺激下的状态/响应。
 
 ## 4. Dynamic Segment
 
@@ -174,6 +177,7 @@ segmentation_status = insufficient_support
 8. target、delivered、reached、activated、action、conversion 每阶段必须使用自己的证据；分发记录不能直接冒充 reached member。
 9. 无实验时 segment/evolution 必须是 descriptive，不得声称 causal。
 10. 任一相邻阶段缺少可比证据，delta 必须 `NOT_TESTABLE`。
+11. CCE adapter 只能消费 `cce.measurement_input.v1`：Event、Universal Context、可选匿名 baseline_state；不得出现 subject_ref、主体卡、身份、角色或 Population 标签。
 
 ## 10. 方法依据
 

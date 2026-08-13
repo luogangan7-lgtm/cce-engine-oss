@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Build a context-bound CCE request from an evidence/event case.
+"""Build a context-bound CCE request and anonymous model-input projection.
 
 CCE is the measurement instrument. It receives events plus a time-bound
 Universal Context.  Transition mode may additionally receive an evidence-bound
 pre-state snapshot, but never a person/segment profile answer, platform delivery
-result or post-exposure outcome.
+result or post-exposure outcome. The model-input projection strips the snapshot's
+subject join key: that key remains outside CCE for downstream aggregation only.
 """
 from __future__ import annotations
 
@@ -17,6 +18,21 @@ from typing import Any
 
 from cce_contract import validate_case
 from cce_event_assemble import assemble
+
+
+MODEL_FORBIDDEN_KEYS = {
+    "subject_ref", "subject_refs", "subject_id", "profile_version", "subject_version",
+    "subject_card", "subject_cards", "segment_id", "population_id",
+}
+
+
+def _forbidden_model_keys(value: Any) -> set[str]:
+    if isinstance(value, dict):
+        return ({str(key) for key in value if key in MODEL_FORBIDDEN_KEYS}
+                | set().union(*(_forbidden_model_keys(item) for item in value.values()), set()))
+    if isinstance(value, list):
+        return set().union(*(_forbidden_model_keys(item) for item in value), set())
+    return set()
 
 
 def request_id(content_id: str, event_ids: list[str], measurement_mode: str,
@@ -54,6 +70,48 @@ def build_request(case: dict[str, Any], adapter: str, measurement_mode: str = "s
         raise ValueError("pre_state_snapshot_ref is only valid for transition mode")
     out["cce_requests"] = [request]
     return out
+
+
+def build_model_input(case: dict[str, Any], request_ref: str | None = None) -> dict[str, Any]:
+    """Project a validated case into the only payload a CCE adapter may consume.
+
+    Full cases retain ``subject_ref`` on state snapshots solely to join pre/post
+    evidence after measurement. This projection emits state values without that
+    identifier, so CCE conditions on an evidence-bound baseline state rather than
+    on a person, segment, profile, product audience, or population label.
+    """
+    verdict = validate_case(case)
+    if not verdict["ok"]:
+        raise ValueError("cannot project invalid CCE case:\n" + "\n".join(verdict["errors"]))
+    requests = [row for row in case.get("cce_requests", [])
+                if request_ref is None or row.get("id") == request_ref]
+    if len(requests) != 1:
+        raise ValueError("exactly one matching cce_request is required")
+    request = requests[0]
+    events = {row["id"]: row for row in case.get("events", [])}
+    contexts = {row["id"]: row for row in case.get("context_snapshots", [])}
+    payload = {
+        "kind": "cce.measurement_input.v1",
+        "request_ref": request["id"],
+        "measurement_mode": request["measurement_mode"],
+        "measurement_adapter": request["measurement_adapter"],
+        "prediction_time": request["prediction_time"],
+        "event_stream": [copy.deepcopy(events[ref]) for ref in request["event_refs"]],
+        "context_snapshot": copy.deepcopy(contexts[request["context_snapshot_ref"]]),
+        "boundary": "anonymous state measurement; Subject is constructed downstream",
+    }
+    if request["measurement_mode"] == "transition":
+        snapshots = {row["id"]: row for row in case.get("state_snapshots", [])}
+        snapshot = snapshots[request["pre_state_snapshot_ref"]]
+        payload["baseline_state"] = {
+            field: copy.deepcopy(snapshot[field])
+            for field in ("observed_at", "assertion", "dimensions", "evidence_refs",
+                          "confidence", "temporal_scope")
+        }
+    forbidden = _forbidden_model_keys(payload)
+    if forbidden:
+        raise ValueError("CCE model input contains downstream Subject keys: " + ", ".join(sorted(forbidden)))
+    return payload
 
 
 def main() -> None:

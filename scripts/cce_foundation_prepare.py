@@ -10,7 +10,7 @@ import hashlib
 import json
 from pathlib import Path
 
-from cce_case_assemble import build_request
+from cce_case_assemble import build_model_input, build_request
 from cce_contract import validate_case
 from cce_foundation_adapter import adapt
 from cce_subject_profile import build_from_cards, validate_collection
@@ -39,17 +39,24 @@ def main() -> None:
     request = build_request(evidence, "event_packet@v1")
     verdict = validate_case(request)
     if not verdict["ok"]: raise SystemExit("invalid CCE request:\n" + "\n".join(verdict["errors"]))
-    paths = {"evidence": args.outdir / "01_evidence.json", "measurement_request": args.outdir / "02_cce_request.json"}
-    write(paths["evidence"], evidence); write(paths["measurement_request"], request)
+    model_input = build_model_input(request)
+    paths = {
+        "evidence": args.outdir / "01_evidence.json",
+        "model_input": args.outdir / "02_cce_model_input.json",
+        "measurement_case": args.outdir / "03_measurement_case.json",
+    }
+    write(paths["evidence"], evidence)
+    write(paths["model_input"], model_input)
+    write(paths["measurement_case"], request)
     cards_status = "NOT_SUPPLIED"
     if args.cards:
         cards = build_from_cards(json.loads(args.cards.read_text(encoding="utf-8")), args.cards)
         card_verdict = validate_collection(cards)
         if not card_verdict["ok"]: raise SystemExit("invalid reference cards:\n" + "\n".join(card_verdict["errors"]))
-        paths["reference_cards"] = args.outdir / "03_reference_cards.json"; write(paths["reference_cards"], cards)
+        paths["reference_cards"] = args.outdir / "04_reference_cards.json"; write(paths["reference_cards"], cards)
         cards_status = "AUXILIARY_ONLY"
     manifest = {"kind": "cce.foundation.prepare_manifest.v2", "status": "READY_FOR_CONTENT_MEASUREMENT_ADAPTER",
-                "measurement_boundary": "No response result was generated. The packet is event + context only; subject windows are downstream.",
+                "measurement_boundary": "The CCE adapter consumes only the anonymous model_input projection. Subject join keys/cards/windows stay downstream.",
                 "source": {"parse_artifact": str(args.parse_artifact), "context_snapshot": str(args.context_snapshot),
                            "cards": str(args.cards) if args.cards else None},
                 "artifacts": {key: {"path": str(value), "sha256_16": fingerprint(value)} for key, value in paths.items()},
