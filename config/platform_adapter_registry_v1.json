@@ -25,6 +25,18 @@
         "direct_message": "^pm:[A-Za-z0-9._:-]{3,127}$"
       },
       "dynamic_space_rule": "A topic is a runtime context value. Adding or changing a topic never creates a new adapter version."
+    },
+    "quora": {
+      "adapter_id": "quora",
+      "adapter_version": "1.0.0",
+      "purpose": "Normalize Quora questions, answers, actors, topics, timestamps and links into CCE evidence/context records.",
+      "space_patterns": {
+        "community": "^topic/[A-Za-z0-9-]{2,80}$",
+        "profile": "^profile/[A-Za-z0-9-]{2,60}$",
+        "thread": "^q/[A-Za-z0-9-]{4,200}$",
+        "direct_message": "^dm:[A-Za-z0-9._:-]{3,127}$"
+      },
+      "dynamic_space_rule": "A question or topic is a runtime context value. Adding or changing one never creates a new adapter version."
     }
   }
 }
