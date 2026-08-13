@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
     inputs:
       submission_json:
-        description: "Complete cce.submission.v1 JSON envelope"
+        description: "Complete cce.submission.v1 schema 1.1.0 JSON envelope"
         required: true
         type: string
   repository_dispatch:
@@ -39,6 +39,7 @@ jobs:
         run: |
           python3 tests/test_cce_submission.py
           python3 tests/test_cce_contract.py
+          python3 tests/test_cce_population.py
           python3 tests/test_cce_window_chain.py
           python3 tests/test_cce_end_to_end.py
           python3 tests/test_cce_response_chain.py

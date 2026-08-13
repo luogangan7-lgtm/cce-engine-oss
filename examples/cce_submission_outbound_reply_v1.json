@@ -1,6 +1,6 @@
 {
   "kind": "cce.submission.v1",
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "submission_id": "submit:example:reply:001",
   "profile": "outbound_reply",
   "submitted_at": "2026-08-13T08:00:00Z",
@@ -18,7 +18,14 @@
       "guard_profile": "hearing_aid",
       "context": {
         "summary": "Public reply to a Reddit r/HearingAids member",
-        "declaration": {"进程位置": "在找方案", "关系位置": "首次接触", "社会在场": "半匿名", "信息环境": "推荐流", "情绪余温": "首轮无余温"}
+        "declaration": {"进程位置": "在找方案", "关系位置": "首次接触", "社会在场": "半匿名", "信息环境": "推荐流", "情绪余温": "首轮无余温"},
+        "dimensions": {
+          "time": {"value": "2026-08-13T07:50:00Z", "assertion": "observed", "evidence_refs": ["comment:example:001"]},
+          "social": {"value": "public member reply", "assertion": "observed", "evidence_refs": ["comment:example:001"]},
+          "relationship": {"value": "first contact", "assertion": "derived", "evidence_refs": ["comment:example:001"]},
+          "current_goal": {"value": "troubleshooting", "assertion": "inferred", "evidence_refs": ["comment:example:001"]}
+        },
+        "provenance": {"producer": "example", "version": "1.1.0"}
       },
       "reader": {
         "actor_ref": "reddit:u/example",

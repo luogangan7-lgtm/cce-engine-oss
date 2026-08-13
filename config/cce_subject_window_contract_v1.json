@@ -1,15 +1,23 @@
 {
   "schema_name": "cce_subject_window_chain",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "status": "active",
   "definition": "主体本体不是版本化画像；主体窗口才是指定时间和数据集合上的动态分析投影。",
   "subject_ontology": {
     "entity": "subject_id 稳定标识同一主体，不以 profile_version 复制出新主体。",
     "core": "欲望基线等主体核心是稳定量；只能由有证据的更正记录修正，不能按每次互动重建。",
     "identity": "身份线索是 append-only 累加量，保留 first_seen、last_seen 与 evidence_refs。",
-    "state": "情绪、行动倾向和激活占比是带 observed_at/window_ref 的瞬时量。",
+    "state": "情绪、行动倾向和激活占比是带 observed_at/window_ref/assertion/evidence_refs 的瞬时量；文本可观察，心理状态通常只能 inferred/derived。",
     "window": "target/reached/activated/action/conversion 是分析投影，不等于主体本体。",
     "versioning": "只给 schema、模型、适配器和测量产物版本；禁止业务字段 profile_version/subject_version。"
+  },
+  "population_projection": {
+    "member_distributions": "逐成员保留完整 CCE 分布，不得被聚合统计覆盖。",
+    "composition": "声明已知成员数量、coverage scope 与是否穷尽。",
+    "heterogeneity": "至少报告全成员两两 Jensen-Shannon divergence 的 pair_count/mean/minimum/maximum。",
+    "segment_mixture": "按响应相似性形成的描述性动态段；必须完整且无重叠地覆盖当前成员，权重和为1。",
+    "evolution": "相邻窗口可描述 create/continue/split/merge/disappear，但无实验时必须标 descriptive_not_causal。",
+    "forbidden": "aggregate_distribution 或 aggregate_layer_distributions 不能作为 Population Subject；算术均值最多是辅助统计。"
   },
   "window_types": {
     "target": "计划窗口：希望进入链路的人群规则或已声明集合。",
@@ -34,7 +42,9 @@
     "no_versioned_subject": "subject_entities 与 subject_windows 内出现 profile_version 或 subject_version 均失败。",
     "no_distribution_as_reach": "只有曝光、浏览、赞评总数时不得创建 reached window。",
     "member_evidence": "reached window 的每个 member_ref 必须有独立互动证据。",
-    "activation_evidence": "activated window 必须引用成员响应的有效 CCE measurement_result，内容侧 s8/作者文本读数不能替代。",
+    "activation_evidence": "activated window 必须引用成员响应的有效 derived CCE measurement_result，并包含保留逐成员分布和异质性的 population_analysis；内容侧 s8 不能替代。",
+    "no_average_person": "activated window 出现 aggregate_distribution/aggregate_layer_distributions，或缺少 member_distributions/composition/heterogeneity/segment_mixture 时失败。",
+    "epistemic_state": "评论文本是 observed evidence；response distribution 必须 derived；作者心理状态假设必须 inferred/derived。",
     "action_evidence": "action window 必须引用曝光后实际行为；历史经验、意向或内容 CTA 不算。",
     "conversion_join": "conversion window 必须有 publish_id 或等价 join key 串起发布与商业记录。",
     "no_fake_delta": "相邻两窗缺失、时间不对齐或不可比较时，delta 必须为 NOT_TESTABLE。"

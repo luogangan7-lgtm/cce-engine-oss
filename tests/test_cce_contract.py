@@ -51,7 +51,51 @@ request_verdict = validate_case(request_case)
 assert request_verdict["ok"] and request_verdict["counts"]["cce_requests"] == 1, request_verdict
 request = request_case["cce_requests"][0]
 assert request["context_snapshot_ref"] == request_case["context_snapshots"][0]["id"], request
+assert request["measurement_mode"] == "stimulus", request
 assert not any(k in request for k in ("subject_refs", "context_refs", "baseline_ref", "profile_version")), request
+
+transition_source = copy.deepcopy(case)
+transition_source["cce_requests"] = []
+transition_source["state_snapshots"] = [{
+    "id": "state:builder-before", "subject_ref": "subject:demo", "observed_at": "2026-08-13T07:59:00Z",
+    "assertion": "inferred", "dimensions": {"attention": 0.2}, "evidence_refs": ["evt:caption-001"],
+    "confidence": 0.9, "temporal_scope": "session",
+}]
+transition_request_case = build_request(transition_source, "event_packet@v2", "transition", "state:builder-before")
+transition_request = transition_request_case["cce_requests"][0]
+assert transition_request["pre_state_snapshot_ref"] == "state:builder-before"
+assert transition_request["id"] != request["id"], "measurement mode/pre-state must participate in request identity"
+
+platform_only = copy.deepcopy(case)
+platform_only["context_snapshots"][0]["dimensions"] = {}
+blocked = validate_case(platform_only)
+assert not blocked["ok"] and any("Universal Context" in e for e in blocked["errors"]), blocked
+
+transition = copy.deepcopy(case)
+transition["state_snapshots"] = [
+    {"id": "state:before", "subject_ref": "subject:demo", "observed_at": "2026-08-13T07:59:00Z",
+     "assertion": "inferred", "dimensions": {"attention": 0.2, "trust": 0.4},
+     "evidence_refs": ["evt:caption-001"], "confidence": 0.9, "temporal_scope": "session"},
+    {"id": "state:after", "subject_ref": "subject:demo", "observed_at": "2026-08-13T08:01:00Z",
+     "assertion": "inferred", "dimensions": {"attention": 0.6, "trust": 0.5},
+     "evidence_refs": ["evt:caption-001"], "confidence": 0.7, "temporal_scope": "session"},
+]
+transition["cce_requests"][0].update({"measurement_mode": "transition", "pre_state_snapshot_ref": "state:before"})
+transition["state_transitions"] = [{
+    "id": "transition:demo", "request_ref": "req:demo-001", "pre_state_snapshot_ref": "state:before",
+    "post_state_snapshot_ref": "state:after", "delta": {"attention": 0.4, "trust": 0.1},
+    "evidence_refs": ["evt:caption-001"], "confidence": 0.7,
+}]
+transition["measurement_results"] = [{
+    "id": "result:transition", "request_ref": "req:demo-001", "assertion": "derived",
+    "model_version": "test", "input_fingerprint": "sha256:test", "confidence": 0.7,
+    "evidence_refs": ["evt:caption-001"], "state_transition_ref": "transition:demo",
+}]
+assert validate_case(transition)["ok"], validate_case(transition)
+bad_delta = copy.deepcopy(transition)
+bad_delta["state_transitions"][0]["delta"]["attention"] = 0.1
+blocked = validate_case(bad_delta)
+assert not blocked["ok"] and any("state_after - state_before" in e for e in blocked["errors"]), blocked
 
 cards_path = ROOT / "docs" / "subject_cards_v3_20260813.json"
 cards = build_from_cards(json.loads(cards_path.read_text(encoding="utf-8")), cards_path)
@@ -63,4 +107,4 @@ assert len(fingerprint(ROOT / "examples" / "cce_foundation_case_v1.json")) == 16
 audio_capabilities = _audio_capabilities(True, ["BGM"])
 assert audio_capabilities["source_layers"]["bgm"]["status"] == "detected_not_separated", audio_capabilities
 
-print("PASS: context-bound CCE request, dynamic platform space, subject/profile rejection, leakage/time gates, event adapters, auxiliary reference cards, and audio boundary")
+print("PASS: three CCE modes, Universal Context, exact State Transition, subject-answer rejection, leakage/time gates, event adapters, reference cards, and audio boundary")

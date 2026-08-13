@@ -20,7 +20,7 @@ accuracy 是代码质量闸；其余校准、外部效度、主体模拟 workflo
 | 字段 | 含义 | Gate |
 |---|---|---|
 | `kind` | 固定 `cce.submission.v1` | 不相等即拒绝 |
-| `schema_version` | 固定 `1.0.0` | 禁止静默兼容未知版本 |
+| `schema_version` | 固定 `1.1.0` | 禁止静默兼容未知版本 |
 | `submission_id` | 一次不可变提交的幂等标识 | 改任何原文必须换 ID |
 | `profile` | `outbound_post` / `outbound_reply` / `subject_chain` | 决定冻结的执行链 |
 | `submitted_at` | ISO-8601 提交时点 | 用于审计，不是内容事件时间 |
@@ -51,7 +51,7 @@ accuracy 是代码质量闸；其余校准、外部效度、主体模拟 workflo
 | 身份 | `job_id`, `content_id`, `platform`, `platform_adapter.id/version`, `domain`, `language`, `speaker_role` |
 | 动态空间 | `surface.kind`, `surface.id`, `surface.observed_at` |
 | 待发布内容 | `text`, `text_sha256` |
-| 情境 | `context.summary`, `context.declaration` |
+| 情境 | `context.summary`, `context.declaration`, `context.dimensions`, `context.provenance` |
 | 出站安全 | `guard_profile` |
 
 情境声明的键值必须来自 `config/context_taxonomy.json`。不知道的面应明确填 taxonomy 允许的 `未知/未提及`，不能猜。
@@ -68,6 +68,8 @@ s0 context → s1 readout → s2 knots → s3 emotion policy → s4 outbound gua
 更换 subreddit 只更换带时间的 surface，不创建新 adapter。旧 s5/s6 与 s7/s8 属研究链，
 不再作为 outbound_post 生产完成条件。
 
+平台/surface/domain 只是 Universal Context 的平台场景。正式 Context 还可声明 `time/location/environment/device/session/social/relationship/life/task/current_goal`；每个已声明维度必须有 `value/assertion/evidence_refs`。normalized item 和 artifact metadata 保存完整 Context Snapshot，不能只保留拼接字符串。
+
 ### 3.2 `outbound_reply`
 
 用途：准备发送给具体对象的评论、私信或邮件回复。
@@ -77,7 +79,7 @@ s0 context → s1 readout → s2 knots → s3 emotion policy → s4 outbound gua
 | 分组 | 字段 |
 |---|---|
 | 身份 | `job_id`, `content_id`, `platform`, `platform_adapter.id/version`, `surface.kind/id/observed_at`, `domain`, `language`, `speaker_role`, `guard_profile` |
-| 情境 | `context.summary`, `context.declaration` |
+| 情境 | `context.summary`, `context.declaration`, `context.dimensions`, `context.provenance` |
 | 对方证据 | `reader.actor_ref`, `evidence_ref`, `observed_at`, `source`, `text`, `text_sha256` |
 | 我方草稿 | `draft.text`, `draft.text_sha256` |
 
@@ -106,7 +108,7 @@ s0 context → s1 readout → s2 knots → s3 emotion policy → s4 outbound gua
 evidence_ref · actor_ref · observed_at · source · text · text_sha256
 ```
 
-`response_source.context` 还必须声明 `platform/platform_adapter/surface/domain/summary`，使观测响应不再依赖
+`response_source.context` 还必须声明 `id/observed_at/platform/platform_adapter/surface/domain/summary/dimensions/provenance`，使观测响应不再依赖
 runner 内硬编码的 Reddit 语境。
 
 冻结执行链：
@@ -115,7 +117,9 @@ runner 内硬编码的 Reddit 语境。
 source/chain contract
 → 最多8路并行 response s0-s3
 → SHA-1 + SHA-256 精确回收
-→ stable subject + activated window
+→ stable subject + inferred state hypothesis
+→ member distributions + composition + heterogeneity + dynamic response segments
+→ activated window
 → subject audit + end-to-end audit
 ```
 

@@ -101,10 +101,11 @@ def adapt(parsed: dict[str, Any], source_path: Path, content_id: str | None = No
         })
 
     return {
-        "kind": "cce.analysis_case.v1",
+        "kind": "cce.analysis_case.v2",
         "content": {"id": cid, "format": "short_video", "source": source, "content_hash": content_hash},
         "observations": observations, "events": events,
-        "cce_requests": [], "measurement_results": [], "exposures": [], "outcomes": [],
+        "context_snapshots": [], "state_snapshots": [], "cce_requests": [],
+        "measurement_results": [], "state_transitions": [], "exposures": [], "outcomes": [],
     }
 
 

@@ -1,5 +1,5 @@
 {
-  "kind": "cce.analysis_case.v1",
+  "kind": "cce.analysis_case.v2",
   "content": {
     "id": "content:demo-001",
     "format": "short_video",
@@ -54,12 +54,21 @@
       "platform_adapter": {"id": "reddit", "version": "1.0.0"},
       "surface": {"kind": "community", "id": "r/HearingAids", "observed_at": "2026-08-13T08:00:00Z"},
       "domain": "hearing_aid",
-      "summary": "Runtime community context for the observed content event"
+      "summary": "Runtime community context for the observed content event",
+      "dimensions": {
+        "time": {"value": "2026-08-13T08:00:00Z", "assertion": "observed", "evidence_refs": ["content:demo-001"]},
+        "environment": {"value": "public semi-anonymous online community", "assertion": "observed", "evidence_refs": ["content:demo-001"]},
+        "social": {"value": "community discussion", "assertion": "derived", "evidence_refs": ["content:demo-001"]},
+        "current_goal": {"value": "educational discussion", "assertion": "inferred", "evidence_refs": ["content:demo-001"]}
+      },
+      "provenance": {"producer": "fixture", "version": "2.0.0"}
     }
   ],
+  "state_snapshots": [],
   "cce_requests": [
     {
       "id": "req:demo-001",
+      "measurement_mode": "stimulus",
       "measurement_adapter": "frozen_46d@2026-07",
       "event_refs": ["evt:caption-001", "evt:reinforcement-001"],
       "context_snapshot_ref": "context:demo-001:2026-08-13T08:00:00Z",
@@ -67,6 +76,7 @@
     }
   ],
   "measurement_results": [],
+  "state_transitions": [],
   "exposures": [],
   "outcomes": []
 }

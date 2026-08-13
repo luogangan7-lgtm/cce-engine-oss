@@ -54,14 +54,25 @@ with tempfile.TemporaryDirectory() as temp:
     assert audit["gates"]["activated_window"]["status"] == "PASS", audit
     assert audit["overall_status"] == "NOT_VERIFIED", audit
     activated_window = next(row for row in activated["subject_windows"] if row["window_type"] == "activated")
-    assert set(activated_window["aggregate_layer_distributions"]) == {"desire", "need", "emotion", "action"}
-    assert all(abs(sum(values.values()) - 1.0) < 1e-9
-               for values in activated_window["aggregate_layer_distributions"].values())
+    population = activated_window["population_analysis"]
+    assert set(population["member_distributions"]) == {row["actor_ref"] for row in source["responses"]}
+    assert population["heterogeneity"]["pair_count"] == 28
+    assert abs(sum(row["weight"] for row in population["segment_mixture"]) - 1.0) < 1e-9
+    assert population["segmentation"]["status"] == "descriptive_not_causal"
+    assert "aggregate_distribution" not in activated_window and "aggregate_layer_distributions" not in activated_window
+    mean_person = copy.deepcopy(activated)
+    mean_window = next(row for row in mean_person["subject_windows"] if row["window_type"] == "activated")
+    mean_window.pop("population_analysis")
+    mean_window["aggregate_distribution"] = {"activated": 0.5, "not_activated": 0.5}
+    assert not validate_chain(mean_person)["ok"]
     first = activated["response_measurements"][0]
+    assert first["assertion"] == "derived"
+    assert first["measurement_scope"] == "derived_response_text_distribution"
     assert first["provenance"]["s1_measurement_complete"] is True
     assert first["provenance"]["response_chain_complete"] is True
     assert first["provenance"]["response_chain_failed_at"] is None
     assert all("profile_version" not in row and "subject_version" not in row for row in activated["subject_entities"])
+    assert all(state["assertion"] == "inferred" for subject in activated["subject_entities"] for state in subject["state_observations"])
     broken = copy.deepcopy(source)
     broken["responses"][0]["text"] += " changed"
     try:
@@ -82,4 +93,4 @@ with tempfile.TemporaryDirectory() as temp:
     else:
         raise AssertionError("failed s1 measurement must be rejected")
 
-print("PASS: exact inbound fingerprints, response s0-s3 scope without outbound guard, stable subjects, instantaneous states, and activated aggregation")
+print("PASS: exact inbound fingerprints, response s0-s3 scope, inferred state boundary, stable subjects, and heterogeneity-preserving population projection")

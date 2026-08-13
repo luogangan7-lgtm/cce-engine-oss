@@ -8,12 +8,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from cce_end_to_end import audit_end_to_end  # noqa: E402
+from cce_population import build_population_analysis  # noqa: E402
 
 
 case = json.loads((ROOT / "examples" / "cce_foundation_case_v1.json").read_text(encoding="utf-8"))
 case["measurement_results"] = [{
     "id": "result:demo-001", "request_ref": "req:demo-001", "model_version": "frozen-test",
-    "input_fingerprint": "sha256:test", "distribution": {"desire": 0.5, "need": 0.5},
+    "input_fingerprint": "sha256:test", "assertion": "derived", "distribution": {"desire": 0.5, "need": 0.5},
     "confidence": 0.8, "evidence_refs": ["evt:caption-001"],
 }]
 
@@ -39,7 +40,8 @@ chain = {
          "evidence_refs": ["evidence:reach:1"], "member_evidence": {"subject:1": ["evidence:reach:1"]}},
         {"id": "window:activated", "window_type": "activated", "time_window": {"start": "2026-08-13T00:00:00Z", "end": "2026-08-13T04:00:00Z"},
          "population_set": {"kind": "measured_responses", "member_refs": ["subject:1"]},
-         "evidence_refs": ["evidence:response:1"], "measurement_result_refs": ["response:1"]},
+         "evidence_refs": ["evidence:response:1"], "measurement_result_refs": ["response:1"],
+         "population_analysis": build_population_analysis([{"actor_ref": "subject:1", "distribution": {"activated": 0.7, "not_activated": 0.3}}], "identified_inbound_only")},
         {"id": "window:action", "window_type": "action", "time_window": {"start": "2026-08-13T00:00:00Z", "end": "2026-08-13T04:00:00Z"},
          "population_set": {"kind": "observed_actions", "member_refs": ["subject:1"]},
          "evidence_refs": ["evidence:response:1"], "behavior_record_refs": ["behavior:1"]},
@@ -49,7 +51,7 @@ chain = {
     ],
     "response_measurements": [{
         "id": "response:1", "actor_ref": "subject:1", "response_evidence_refs": ["evidence:response:1"],
-        "model_version": "frozen-test", "input_fingerprint": "sha256:response",
+        "assertion": "derived", "model_version": "frozen-test", "input_fingerprint": "sha256:response",
         "distribution": {"activated": 0.7, "not_activated": 0.3}, "confidence": 0.8,
     }],
     "behavior_records": [{"id": "behavior:1", "actor_ref": "subject:1", "occurred_at": "2026-08-13T02:30:00Z",

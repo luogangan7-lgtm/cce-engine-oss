@@ -17,6 +17,8 @@ from typing import Any
 
 from cce_window_chain import audit_chain, validate_chain
 from cce_platform_adapter import validate_platform_context
+from cce_population import build_population_analysis
+from cce_contract import validate_context_snapshot
 from exp_v4_causal_chain import ACTIONS, EMOTIONS
 from exp_v4_full_validation import DESIRES, NEED_KEYS
 
@@ -48,14 +50,10 @@ def validate_response_source(source: dict[str, Any], chain: dict[str, Any]) -> d
     if source.get("kind") != "cce.response_source.v1":
         errors.append("kind must be cce.response_source.v1")
     context = source.get("context")
-    if not isinstance(context, dict) or any(not context.get(field) for field in (
-            "platform", "platform_adapter", "surface", "domain", "summary")):
-        errors.append("response source requires context.platform/platform_adapter/surface/domain/summary")
+    if not isinstance(context, dict) or not context.get("domain"):
+        errors.append("response source requires a complete Universal Context snapshot plus domain")
     else:
-        platform_verdict = validate_platform_context(
-            context.get("platform"), context.get("platform_adapter"), context.get("surface"),
-            "response_source.context")
-        errors.extend(platform_verdict["errors"])
+        errors.extend(validate_context_snapshot(context, "response_source.context"))
     content_ref = source.get("content_ref")
     if content_ref != (chain.get("content") or {}).get("id"):
         errors.append("response source content_ref must match chain content id")
@@ -115,6 +113,7 @@ def build_dispatch(source: dict[str, Any], chain: dict[str, Any]) -> dict[str, A
             "context": f"{context['platform']} {space['kind']} {space['id']} {context['domain']} "
                        f"inbound response to {source['content_ref']}: {context['summary']}",
             "ref_tag": f"post6-inbound-{comment_id}",
+            "context_snapshot": copy.deepcopy(context),
         })
     return {
         "event_type": "cce-batch",
@@ -175,7 +174,8 @@ def _measurement(row: dict[str, Any], artifact: tuple[dict[str, Any], dict[str, 
         "actor_ref": row["actor_ref"],
         "response_evidence_refs": [row["evidence_ref"]],
         "observed_at": row["observed_at"],
-        "measurement_scope": "observed_response_author_state",
+        "measurement_scope": "derived_response_text_distribution",
+        "assertion": "derived",
         "model_version": (readout.get("instrument") or {}).get("stage1", "unknown"),
         "input_fingerprint": f"sha1:{expected_sha1}",
         "distribution": flattened,
@@ -194,25 +194,6 @@ def _measurement(row: dict[str, Any], artifact: tuple[dict[str, Any], dict[str, 
             "k_ok": stage1.get("k_ok"),
         },
     }
-
-
-def _mean_distribution(measurements: list[dict[str, Any]]) -> dict[str, float]:
-    keys = set().union(*(row["distribution"] for row in measurements))
-    return {key: sum(row["distribution"].get(key, 0.0) for row in measurements) / len(measurements) for key in sorted(keys)}
-
-
-def _mean_layer_distributions(measurements: list[dict[str, Any]]) -> dict[str, dict[str, float]]:
-    """Preserve the four CCE probability spaces instead of only flattening them."""
-    out: dict[str, dict[str, float]] = {}
-    for layer in LAYER_LABELS:
-        keys = set().union(*(row["layer_distributions"][layer] for row in measurements))
-        values = {
-            key: sum(row["layer_distributions"][layer].get(key, 0.0) for row in measurements) / len(measurements)
-            for key in sorted(keys)
-        }
-        total = sum(values.values())
-        out[layer] = {key: value / total for key, value in values.items()}
-    return out
 
 
 def ingest(source: dict[str, Any], chain: dict[str, Any], artifacts_dir: Path) -> dict[str, Any]:
@@ -250,9 +231,7 @@ def ingest(source: dict[str, Any], chain: dict[str, Any], artifacts_dir: Path) -
         },
         "evidence_refs": [row["response_evidence_refs"][0] for row in measurements],
         "measurement_result_refs": [row["id"] for row in measurements],
-        "aggregate_distribution": _mean_distribution(measurements),
-        "aggregate_layer_distributions": _mean_layer_distributions(measurements),
-        "aggregation": "unweighted mean across exact observed inbound responses",
+        "population_analysis": build_population_analysis(measurements, "identified_inbound_only"),
     }
     windows = [row for row in out.get("subject_windows", []) if row.get("window_type") != "activated"]
     windows.append(activated)
@@ -278,6 +257,8 @@ def ingest(source: dict[str, Any], chain: dict[str, Any], artifacts_dir: Path) -
         state = {
             "observed_at": source_row["observed_at"], "window_ref": activated_id,
             "measurement_result_ref": measurement["id"], "evidence_refs": [source_row["evidence_ref"]],
+            "assertion": "inferred",
+            "semantics": "hypothesis about the author's state derived from observed response text; not a directly observed psychological fact",
         }
         if state not in subject["state_observations"]:
             subject["state_observations"].append(state)

@@ -1,5 +1,8 @@
 # CCE 全链架构 v2：平台稳定，场景动态，主体在测量下游形成
 
+> 状态：已由 `docs/cce_chain_architecture_v3.md` 取代。v2 的平台/社区边界继续有效；
+> “主体只在测量下游形成”和均值型 activated aggregation 已被 v3 修正。
+
 状态：Draft PR 的规范基线。本文以《CCE下游主体构建建议》中已经形成的
 `Subject → Context → Input → Observation/Event → CCE → Response → Aggregation → Feedback`
 为主干，只修正工程接线，不另造一套以 Reddit、助听器或 GitHub 为根的架构。

@@ -407,7 +407,7 @@ def main():
     ap.add_argument("--ref-post")
     ap.add_argument("--guard-profile", default="hearing_aid",
                     help="outbound compliance profile; platform/community independent")
-    ap.add_argument("--submission-meta", help="normalized cce.submission.v1 item metadata JSON")
+    ap.add_argument("--submission-meta", help="normalized cce.submission.v1 schema 1.1.0 item metadata JSON")
     a = ap.parse_args()
     os.makedirs(a.outdir, exist_ok=True)
     ctx = {"text_file": a.text_file, "context": a.context, "outdir": a.outdir,

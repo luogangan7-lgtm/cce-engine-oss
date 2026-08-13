@@ -49,6 +49,48 @@ def _distribution_is_valid(value: Any) -> bool:
             and math.isclose(sum(value.values()), 1.0, abs_tol=1e-6))
 
 
+def _validate_population_analysis(value: Any, members: list[str], errors: list[str], path: str) -> None:
+    if not isinstance(value, dict) or value.get("kind") != "cce.population_projection.v1":
+        errors.append(f"{path} requires cce.population_projection.v1")
+        return
+    member_distributions = value.get("member_distributions")
+    if not isinstance(member_distributions, dict) or set(member_distributions) != set(members):
+        errors.append(f"{path}.member_distributions must preserve every activated member")
+    else:
+        for member, distribution in member_distributions.items():
+            if not _distribution_is_valid(distribution):
+                errors.append(f"{path}.member_distributions[{member}] must sum to 1")
+    composition = value.get("composition") or {}
+    if composition.get("known_member_count") != len(members) or not composition.get("coverage_scope"):
+        errors.append(f"{path}.composition must declare known member count and coverage")
+    heterogeneity = value.get("heterogeneity") or {}
+    pair_count = len(members) * (len(members) - 1) // 2
+    if heterogeneity.get("metric") != "pairwise_jensen_shannon_divergence_bits" or heterogeneity.get("pair_count") != pair_count:
+        errors.append(f"{path}.heterogeneity must report pairwise JS across every member pair")
+    for key in ("mean", "minimum", "maximum"):
+        if not isinstance(heterogeneity.get(key), (int, float)) or not 0 <= heterogeneity[key] <= 1:
+            errors.append(f"{path}.heterogeneity.{key} must be in [0,1]")
+    mixture = value.get("segment_mixture")
+    if not isinstance(mixture, list) or not mixture:
+        errors.append(f"{path}.segment_mixture must be non-empty")
+    else:
+        segment_members = [member for segment in mixture for member in (segment.get("member_refs") or [])]
+        if sorted(segment_members) != sorted(members) or len(segment_members) != len(set(segment_members)):
+            errors.append(f"{path}.segment_mixture must partition activated members exactly once")
+        weights = [segment.get("weight") for segment in mixture]
+        if any(not isinstance(weight, (int, float)) or weight < 0 for weight in weights) or not math.isclose(sum(weights), 1.0, abs_tol=1e-6):
+            errors.append(f"{path}.segment_mixture weights must sum to 1")
+        for index, segment in enumerate(mixture):
+            if not segment.get("segment_id") or not _distribution_is_valid(segment.get("centroid_distribution")):
+                errors.append(f"{path}.segment_mixture[{index}] requires id and valid auxiliary centroid")
+            cohesion = segment.get("within_segment_mean_js")
+            if not isinstance(cohesion, (int, float)) or not 0 <= cohesion <= 1:
+                errors.append(f"{path}.segment_mixture[{index}].within_segment_mean_js must be in [0,1]")
+    segmentation = value.get("segmentation") or {}
+    if segmentation.get("status") != "descriptive_not_causal":
+        errors.append(f"{path}.segmentation must declare descriptive_not_causal")
+
+
 def _instant(value: Any) -> datetime | None:
     if not isinstance(value, str):
         return None
@@ -110,6 +152,8 @@ def validate_chain(bundle: dict[str, Any]) -> dict[str, Any]:
         for i, state in enumerate(states or []):
             if not isinstance(state, dict) or not state.get("observed_at") or not state.get("evidence_refs"):
                 errors.append(f"{p}.state_observations[{i}] requires observed_at and evidence_refs")
+            elif state.get("assertion") not in {"observed", "inferred", "derived", "unknown"}:
+                errors.append(f"{p}.state_observations[{i}] requires an epistemic assertion")
 
     by_type: dict[str, list[dict[str, Any]]] = {kind: [] for kind in WINDOW_TYPES}
     for wid, window in windows.items():
@@ -151,14 +195,11 @@ def validate_chain(bundle: dict[str, Any]) -> dict[str, Any]:
             refs = window.get("measurement_result_refs") or []
             if not refs or any(ref not in measurements for ref in refs):
                 errors.append(f"subject_windows[{wid}] activated window requires response measurements")
-            layers = window.get("aggregate_layer_distributions")
-            if layers is not None:
-                if not isinstance(layers, dict) or set(layers) != {"desire", "need", "emotion", "action"}:
-                    errors.append(f"subject_windows[{wid}].aggregate_layer_distributions requires four CCE layers")
-                else:
-                    for layer, values in layers.items():
-                        if not _distribution_is_valid(values):
-                            errors.append(f"subject_windows[{wid}].aggregate_layer_distributions[{layer}] must sum to 1")
+            if "aggregate_distribution" in window or "aggregate_layer_distributions" in window:
+                errors.append(f"subject_windows[{wid}] arithmetic-mean population fields are forbidden")
+            members = (window.get("population_set") or {}).get("member_refs") or []
+            _validate_population_analysis(window.get("population_analysis"), members, errors,
+                                          f"subject_windows[{wid}].population_analysis")
         if kind == "action":
             refs = window.get("behavior_record_refs") or []
             if not refs or any(ref not in behaviors for ref in refs):
@@ -180,11 +221,13 @@ def validate_chain(bundle: dict[str, Any]) -> dict[str, Any]:
     }
     for mid, row in measurements.items():
         p = f"response_measurements[{mid}]"
-        for field in ("actor_ref", "response_evidence_refs", "model_version", "input_fingerprint", "distribution", "confidence"):
+        for field in ("actor_ref", "response_evidence_refs", "assertion", "model_version", "input_fingerprint", "distribution", "confidence"):
             if row.get(field) in (None, "", []):
                 errors.append(f"{p} missing {field}")
         if row.get("actor_ref") not in reached_members:
             errors.append(f"{p}.actor_ref must belong to an observed reached window")
+        if row.get("assertion") != "derived":
+            errors.append(f"{p}.assertion must be derived; response text is observed evidence, not observed psychology")
         refs = row.get("response_evidence_refs") or []
         if any(ref not in evidence for ref in refs):
             errors.append(f"{p}.response_evidence_refs contains unknown evidence")

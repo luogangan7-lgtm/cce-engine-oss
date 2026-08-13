@@ -26,10 +26,16 @@ publish_id/UTM 商业事实 → conversion window
 主体使用稳定 `subject_id`，不做 `profile_version`。身份证据累加，状态带时间戳；
 `target/reached/activated/action/conversion` 是分析窗口，不是主体版本。
 
+CCE Foundation v2 区分三种测量：`stimulus`、`observed_response`、`transition`。
+Transition 允许有证据、带时间的 pre-state snapshot，输出精确 `Before/After/Delta`；
+这不等于把主体画像作为答案输入。Population 保留逐成员分布、composition、两两 JS
+heterogeneity 和描述性动态 segment，禁止用算术均值冒充“人群主体”。完整边界见
+`docs/cce_chain_architecture_v3.md`。
+
 ## 生产投料规范
 
 唯一生产入口是 `.github/workflows/cce-submit.yml`，只接受版本化的
-`cce.submission.v1`。三种 profile：
+`cce.submission.v1`（schema `1.1.0`）。三种 profile：
 
 | Profile | 用途 | 成功 Gate |
 |---|---|---|
@@ -101,7 +107,8 @@ jq -n --slurpfile submission examples/cce_submission_outbound_post_v1.json \
 ## skills/ — 十一层漏斗(应用层)
 
 `viral-content-recon` 是编排器, 强制走完整漏斗避免只拆表层。CCE 是它底下的引擎:
-suite 负责拆解与生成(事后闭环), 引擎负责事前预测。
+suite 负责拆解与生成，CCE 负责可追溯的动态测量与诊断；发布后 outcome 只用于实验、校准和反馈，
+不把同一次结果回灌成“事前预测”。
 
-⚠️ **粒度纪律(硬边界)**: 可预测的是**创作者/受众级**共振与**个体级**身份结构;
-**单帖级不可预测**(已三重实锤), 禁止任何"这条会爆"的宣称。
+⚠️ **粒度纪律(硬边界)**: 个体/人群读出必须有证据、时间和 coverage；动态 Segment 只作描述，
+**单帖级效果不可预测**，禁止任何“这条会爆”或由文本直接推出转化的宣称。

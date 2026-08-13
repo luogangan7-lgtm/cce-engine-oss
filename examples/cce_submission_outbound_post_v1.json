@@ -1,6 +1,6 @@
 {
   "kind": "cce.submission.v1",
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "submission_id": "submit:example:post:001",
   "profile": "outbound_post",
   "submitted_at": "2026-08-13T08:00:00Z",
@@ -20,7 +20,14 @@
       "text_sha256": "sha256:c16adff46fcd860163499404457bdabaaab50d4da828fc42680650460c7d31a9",
       "context": {
         "summary": "Reddit r/HearingAids public educational post from an identified manufacturer account",
-        "declaration": {"关系位置": "首次接触", "社会在场": "半匿名", "信息环境": "推荐流", "情绪余温": "首轮无余温"}
+        "declaration": {"关系位置": "首次接触", "社会在场": "半匿名", "信息环境": "推荐流", "情绪余温": "首轮无余温"},
+        "dimensions": {
+          "time": {"value": "2026-08-13T08:00:00Z", "assertion": "observed", "evidence_refs": ["content:example:post:001"]},
+          "environment": {"value": "public semi-anonymous online community", "assertion": "observed", "evidence_refs": ["content:example:post:001"]},
+          "relationship": {"value": "first contact", "assertion": "derived", "evidence_refs": ["content:example:post:001"]},
+          "current_goal": {"value": "educational discussion", "assertion": "inferred", "evidence_refs": ["content:example:post:001"]}
+        },
+        "provenance": {"producer": "example", "version": "1.1.0"}
       }
     }
   ]

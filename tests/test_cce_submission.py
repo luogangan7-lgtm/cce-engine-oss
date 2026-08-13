@@ -39,6 +39,11 @@ for profile, value in examples.items():
     verdict = validate_submission(value)
     assert verdict["ok"], (profile, verdict)
     assert verdict["normalized"]["profile"] == profile
+    if profile == "subject_chain":
+        assert verdict["normalized"]["response_source"]["context"]["dimensions"]
+    else:
+        snapshot = verdict["normalized"]["items"][0]["_meta"]["context_snapshot"]
+        assert snapshot["dimensions"] and snapshot["provenance"], snapshot
     with tempfile.TemporaryDirectory() as temp:
         result = write_package(value, Path(temp))
         assert result["items"] == (8 if profile == "subject_chain" else 1), result
@@ -81,6 +86,10 @@ bad_adapter = copy.deepcopy(examples["outbound_post"])
 bad_adapter["items"][0]["platform_adapter"]["version"] = "2.0.0"
 assert not validate_submission(bad_adapter)["ok"]
 
+platform_only_context = copy.deepcopy(examples["outbound_post"])
+platform_only_context["items"][0]["context"].pop("dimensions")
+assert not validate_submission(platform_only_context)["ok"]
+
 flat_surface = copy.deepcopy(examples["outbound_post"])
 flat_surface["items"][0]["surface"] = "r/HearingAids"
 assert not validate_submission(flat_surface)["ok"]
@@ -97,4 +106,4 @@ chain["subject_windows"][0]["profile_version"] = "v3"
 versioned_subject["subject_chain"] = chain
 assert not validate_submission(versioned_subject)["ok"]
 
-print("PASS: three profiles, dynamic community context, versioned platform adapter, s0-s4 production post chain, exact fingerprints, and non-versioned subjects")
+print("PASS: schema 1.1 profiles, Universal Context artifacts, dynamic community context, versioned platform adapter, s0-s4 production post chain, exact fingerprints, and non-versioned subjects")

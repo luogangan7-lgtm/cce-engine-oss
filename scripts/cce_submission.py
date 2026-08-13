@@ -13,10 +13,11 @@ from typing import Any
 from cce_response_chain import build_dispatch, validate_response_source
 from cce_platform_adapter import validate_platform_context
 from cce_window_chain import validate_chain
+from cce_contract import validate_context_snapshot
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCHEMA_VERSION = "1.0.0"
+SCHEMA_VERSION = "1.1.0"
 PROFILES = {"outbound_post", "outbound_reply", "subject_chain"}
 SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$")
 SHA256 = re.compile(r"^sha256:[0-9a-f]{64}$")
@@ -63,10 +64,11 @@ def _exact_text(obj: Any, path: str, errors: list[str]) -> None:
         errors.append(f"{path}.text_sha256 does not match exact UTF-8 text")
 
 
-def _context(value: Any, path: str, taxonomy: dict[str, list[str]], errors: list[str]) -> None:
-    _required(value, ("summary", "declaration"), path, errors)
+def _context(value: Any, path: str, taxonomy: dict[str, list[str]], errors: list[str],
+             platform_fields: dict[str, Any]) -> dict[str, Any] | None:
+    _required(value, ("summary", "declaration", "dimensions", "provenance"), path, errors)
     if not isinstance(value, dict) or not isinstance(value.get("declaration"), dict):
-        return
+        return None
     declaration = value["declaration"]
     if not declaration:
         errors.append(f"{path}.declaration must not be empty")
@@ -75,6 +77,15 @@ def _context(value: Any, path: str, taxonomy: dict[str, list[str]], errors: list
             errors.append(f"{path}.declaration unknown facet {key!r}")
         elif item not in taxonomy[key]:
             errors.append(f"{path}.declaration invalid {key}={item!r}")
+    snapshot = {
+        "id": platform_fields["id"], "observed_at": platform_fields["observed_at"],
+        "platform": platform_fields["platform"], "platform_adapter": platform_fields["platform_adapter"],
+        "surface": platform_fields["surface"], "domain": platform_fields["domain"],
+        "summary": value.get("summary"), "dimensions": value.get("dimensions"),
+        "provenance": value.get("provenance"),
+    }
+    errors.extend(validate_context_snapshot(snapshot, path))
+    return snapshot
 
 
 def _audience(value: Any, path: str, errors: list[str]) -> str | None:
@@ -190,7 +201,6 @@ def validate_submission(value: dict[str, Any]) -> dict[str, Any]:
                 errors.append(f"{path}.guard_profile is not registered")
             elif item.get("domain") not in (guard.get("allowed_domains") or []):
                 errors.append(f"{path}.guard_profile does not cover domain {item.get('domain')!r}")
-            _context(item.get("context"), f"{path}.context", taxonomy, errors)
             context = item.get("context") if isinstance(item.get("context"), dict) else {}
             platform_context = platform_verdict.get("canonical") or {}
             surface_id = ((platform_context.get("space") or {}).get("id")
@@ -199,13 +209,20 @@ def validate_submission(value: dict[str, Any]) -> dict[str, Any]:
                 f"{item.get('platform')} {surface_id or 'unknown-space'} {item.get('domain')}: "
                 f"{context.get('summary', '')}"
             )
+            context_snapshot = _context(item.get("context"), f"{path}.context", taxonomy, errors, {
+                "id": f"context:{item.get('content_id')}:{item.get('surface', {}).get('observed_at') if isinstance(item.get('surface'), dict) else 'unknown'}",
+                "observed_at": item.get("surface", {}).get("observed_at") if isinstance(item.get("surface"), dict) else None,
+                "platform": item.get("platform"), "platform_adapter": item.get("platform_adapter"),
+                "surface": item.get("surface"), "domain": item.get("domain"),
+            })
             meta = {"submission_id": value.get("submission_id"), "job_id": job_id,
                     "content_id": item.get("content_id"), "profile": profile,
                     "schema_version": SCHEMA_VERSION, "platform": item.get("platform"),
                     "platform_adapter": item.get("platform_adapter"), "surface": surface_id,
                     "surface_context": (platform_context.get("space") if isinstance(platform_context, dict) else None),
                     "domain": item.get("domain"), "speaker_role": item.get("speaker_role"),
-                    "guard_profile": item.get("guard_profile"), "language": item.get("language")}
+                    "guard_profile": item.get("guard_profile"), "language": item.get("language"),
+                    "context_snapshot": context_snapshot}
             if profile == "outbound_post":
                 _exact_text(item, path, errors)
                 normalized_items.append({"mode": "outbound_post", "text": item.get("text"),
@@ -272,7 +289,8 @@ def write_package(value: dict[str, Any], outdir: Path) -> dict[str, Any]:
                 "job_id": response.get("evidence_ref"), "content_id": content_id,
                 "profile": "subject_chain", "schema_version": SCHEMA_VERSION,
                 "text_sha256": response.get("text_sha256"), "actor_ref": response.get("actor_ref"),
-                "evidence_ref": response.get("evidence_ref")}
+                "evidence_ref": response.get("evidence_ref"),
+                "context_snapshot": (normalized.get("response_source") or {}).get("context")}
         normalized["items"] = items
     (outdir / "normalized.json").write_text(json.dumps(normalized, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (outdir / "items.json").write_text(json.dumps(items, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

@@ -1,11 +1,11 @@
 {
   "kind": "cce.submission_contract.v1",
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "entrypoint": "repository_dispatch:cce-submit",
   "max_parallel_items": 8,
   "common_required": [
     "kind=cce.submission.v1",
-    "schema_version=1.0.0",
+    "schema_version=1.1.0",
     "submission_id",
     "profile",
     "submitted_at",
@@ -19,7 +19,8 @@
       "required_per_item": [
         "job_id", "content_id", "text", "text_sha256", "platform", "platform_adapter.id",
         "platform_adapter.version", "surface.kind", "surface.id", "surface.observed_at", "domain",
-        "language", "speaker_role", "guard_profile", "context.summary", "context.declaration"
+        "language", "speaker_role", "guard_profile", "context.summary", "context.declaration",
+        "context.dimensions", "context.provenance"
       ],
       "success_gate": "manifest.complete=true and exact input fingerprint"
     },
@@ -29,7 +30,7 @@
       "required_per_item": [
         "job_id", "content_id", "platform", "platform_adapter.id", "platform_adapter.version",
         "surface.kind", "surface.id", "surface.observed_at", "domain", "language", "speaker_role",
-        "guard_profile", "context.summary", "context.declaration",
+        "guard_profile", "context.summary", "context.declaration", "context.dimensions", "context.provenance",
         "reader.actor_ref", "reader.evidence_ref", "reader.observed_at", "reader.source",
         "reader.text", "reader.text_sha256", "draft.text", "draft.text_sha256"
       ],
@@ -54,6 +55,11 @@
     "surface": "time-bound runtime context such as subreddit/channel/group/profile/thread",
     "domain": "runtime scene/category context, not an adapter identity",
     "rule": "changing r/HearingAids to another valid subreddit changes only surface.id and its snapshot time"
+  },
+  "universal_context_model": {
+    "dimensions": ["time", "location", "environment", "device", "session", "social", "relationship", "life", "task", "current_goal"],
+    "record": "each declared dimension carries value, assertion and evidence_refs; the snapshot also carries observed_at and provenance",
+    "rule": "platform/surface/domain are one platform scene inside Universal Context, not the whole Context model"
   },
   "outbound_guard_model": {
     "registry": "config/outbound_guard_registry_v1.json",
