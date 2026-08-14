@@ -1,0 +1,77 @@
+{
+  "kind": "cce.compliance_profiles",
+  "version": "1.0.0",
+  "note": "按品类 key 自动装载。**本文件目前只含 agent_memory**：仓库此前没有该文件，所有品类都走 cce_outbound_guard.py 的硬编码跨境层。未列入本文件的品类（含 hearing_aid）继续走硬编码回退，行为不变（2026-08-14 A/B 实测逐字一致）。若别处存在完整的 12 品类档案，**必须合并进来而不是覆盖本文件**。",
+  "profiles": {
+    "agent_memory": {
+      "category": "AI agent 记忆/上下文基础设施",
+      "engine_predictability": "高：引擎在需要可信度时会自动伸手抓 SaaS 行业最常见的信任信号（安全认证/规模/融资/可用性/地位），而 Humaux 一个都没有",
+      "credential_whitelist": [],
+      "credential_hallucination_forbidden": [
+        {
+          "term": "SOC 2/SOC2/SOC 2 Type II/SOC 2 Type 2"
+        },
+        {
+          "term": "ISO 27001/ISO27001/ISO 27017/ISO 27018"
+        },
+        {
+          "term": "HIPAA compliant/HIPAA certified/HIPAA audit"
+        },
+        {
+          "term": "GDPR certified/GDPR certification/GDPR audited"
+        },
+        {
+          "term": "PCI DSS/PCI-DSS/FedRAMP/CSA STAR/StateRAMP"
+        },
+        {
+          "term": "penetration tested/pen-tested by/third-party audited/independently audited"
+        },
+        {
+          "term": "Y Combinator/Techstars/a16z-backed/backed by a16z/Sequoia-backed"
+        },
+        {
+          "term": "seed round/Series A/Series B/pre-seed round/raised funding"
+        },
+        {
+          "term": "100% uptime/zero downtime/never loses data/guaranteed uptime/no data loss ever"
+        },
+        {
+          "term": "industry-leading/the leading memory/market-leading/the standard for agent memory/number one memory"
+        },
+        {
+          "term": "trusted by thousands/thousands of developers/used by hundreds of companies/enterprise customers include"
+        },
+        {
+          "term": "patent pending/patented technology"
+        }
+      ],
+      "efficacy_forbidden": [
+        {
+          "term": "never forgets/perfect recall/lossless memory/guarantees the agent remembers/eliminates hallucination/prevents hallucinations entirely"
+        },
+        {
+          "term": "always retrieves the right memory/100% recall/perfect retrieval accuracy"
+        }
+      ],
+      "category_specific_forbidden": [
+        {
+          "term": "SLA guaranteed/enterprise SLA/24-7 support team/dedicated account manager"
+        }
+      ]
+    }
+  },
+  "verified": {
+    "date": "2026-08-14",
+    "hearing_aid_unchanged": "假稿 clean=True []; 含FDA稿 clean=False ['FDA']; 干净稿 clean=True — 与无本文件时逐字一致",
+    "agent_memory_catches": [
+      "SOC 2",
+      "SOC 2 Type II",
+      "GDPR certified",
+      "HIPAA audit",
+      "seed round",
+      "Y Combinator",
+      "the leading memory"
+    ],
+    "known_gap": "数字型断言（如 '12,000 developers'、'uptime has been 100%'）拦不住：credential_hallucination_forbidden 走 _compile_terms 的字面子串匹配（re.escape），不支持正则。这类靠人工复核。"
+  }
+}
