@@ -37,6 +37,50 @@
         "direct_message": "^dm:[A-Za-z0-9._:-]{3,127}$"
       },
       "dynamic_space_rule": "A question or topic is a runtime context value. Adding or changing one never creates a new adapter version."
+    },
+    "instagram": {
+      "adapter_id": "instagram",
+      "adapter_version": "1.0.0",
+      "purpose": "Normalize Instagram profiles, feed posts, carousels, captions, hashtags, image/visual descriptors, bio-link state, actors, timestamps and delivery metrics into CCE evidence/context records. Protocol facts this adapter encodes: the image is the primary readout surface and the caption is subordinate to it; captions carry no clickable links (link lives in bio and must be declared as bio_link state); discovery is hashtag- and explore-driven; audience scans visually before reading.",
+      "space_patterns": {
+        "profile": "^@[A-Za-z0-9._]{1,30}$",
+        "thread": "^p:[A-Za-z0-9_-]{5,40}$",
+        "direct_message": "^dm:[A-Za-z0-9._:-]{3,127}$"
+      },
+      "dynamic_space_rule": "A profile or post shortcode is a runtime context value. Adding or changing one never creates a new Instagram adapter version."
+    },
+    "facebook": {
+      "adapter_id": "facebook",
+      "adapter_version": "1.0.0",
+      "purpose": "Normalize Facebook Page posts, link previews, captions, actors, page identity fields, timestamps and delivery metrics into CCE evidence/context records. Protocol facts this adapter encodes: feed posts carry clickable links with an auto-generated preview card; the audience skews older and mixed-intent (consumer and trade) and reads Page identity (name, category, address) as trust signals; long-form narrative posts are native to the surface; reshares and comments are the delivery mechanism.",
+      "space_patterns": {
+        "profile": "^page:[0-9]{5,20}$",
+        "thread": "^post:[0-9_]{5,40}$",
+        "direct_message": "^dm:[A-Za-z0-9._:-]{3,127}$"
+      },
+      "dynamic_space_rule": "A page id or post id is a runtime context value. Adding or changing one never creates a new Facebook adapter version."
+    },
+    "threads": {
+      "adapter_id": "threads",
+      "adapter_version": "1.0.0",
+      "purpose": "Normalize Threads profiles, text-first posts, reply chains, actors, timestamps and delivery metrics into CCE evidence/context records. Protocol facts this adapter encodes: hard 500-character limit with silent truncation (overflow is destroyed, not clipped visibly); the surface is conversational and text-first with optional attached media; the audience expects a spoken-register opinion or observation, not an announcement; a small number of hashtags (about three) aids distribution; links are clickable but de-emphasized by the feed.",
+      "space_patterns": {
+        "profile": "^@[A-Za-z0-9._]{1,30}$",
+        "thread": "^t:[A-Za-z0-9_-]{5,40}$",
+        "direct_message": "^dm:[A-Za-z0-9._:-]{3,127}$"
+      },
+      "dynamic_space_rule": "A profile or post is a runtime context value. Adding or changing one never creates a new Threads adapter version."
+    },
+    "x": {
+      "adapter_id": "x",
+      "adapter_version": "1.0.0",
+      "purpose": "Normalize X (Twitter) profiles, single posts, quote/reply chains, actors, timestamps, link wrapping and delivery metrics into CCE evidence/context records. Protocol facts this adapter encodes: 280-character limit with every URL wrapped to a fixed 23-character t.co token; the feed is fast-scroll and headline-driven, industry and B2B actors are native; the audience expects one anchored claim with a number and a link, digressions are skipped; media attaches without consuming characters.",
+      "space_patterns": {
+        "profile": "^@[A-Za-z0-9_]{1,15}$",
+        "thread": "^status:[0-9]{10,25}$",
+        "direct_message": "^dm:[A-Za-z0-9._:-]{3,127}$"
+      },
+      "dynamic_space_rule": "A profile or status id is a runtime context value. Adding or changing one never creates a new X adapter version."
     }
   }
 }
