@@ -91,7 +91,9 @@ s0 context → s1 readout → s2 knots → s3 emotion policy → s4 outbound gua
 对方↔草稿 四层/九结响应对齐
 ```
 
-通过定义：草稿 `manifest.complete=true`，且 `reply_alignment.verdict.PASS=true`。只测草稿或只跑 reply alignment 都不算完整。
+通过定义：草稿 `manifest.complete=true`。只测草稿不算完整。
+
+`reply_alignment` **不参与通过判定**，它是按需诊断（`cce-submit.yml` 的 `with_alignment`，默认关）。2026-08-10 实测该算子同稿重跑 3/8 翻转、|Δ对齐分| 均值 0.213 与 θ=0.35 同量级，自身口径即「不作放行/拦截依据」；2026-08-15 实测它占单项运行时间 81%，故改为需要时显式打开。关着跑时 `reply_alignment_pass` 为 `null`，属正常关闭态而非缺失。
 
 ### 3.3 `subject_chain`
 

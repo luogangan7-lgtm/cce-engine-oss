@@ -26,7 +26,8 @@
     },
     "outbound_reply": {
       "purpose": "我方回复发布前测量、真实性闸与响应对齐",
-      "stages": ["reader_baseline", "s0_context", "s1_readout", "s2_knots", "s3_emotion_policy", "s4_guard", "reply_alignment"],
+      "stages": ["reader_baseline", "s0_context", "s1_readout", "s2_knots", "s3_emotion_policy", "s4_guard"],
+      "optional_stages": ["reply_alignment"],
       "required_per_item": [
         "job_id", "content_id", "platform", "platform_adapter.id", "platform_adapter.version",
         "surface.kind", "surface.id", "surface.observed_at", "domain", "language", "speaker_role",
@@ -34,7 +35,7 @@
         "reader.actor_ref", "reader.evidence_ref", "reader.observed_at", "reader.source",
         "reader.text", "reader.text_sha256", "draft.text", "draft.text_sha256"
       ],
-      "success_gate": "engine manifest.complete=true and reply_alignment.PASS=true"
+      "success_gate": "engine manifest.complete=true。reply_alignment 是按需诊断(cce-submit.yml 的 with_alignment, 默认关), 不参与通过判定 —— 同稿重跑 3/8 翻转、|Δ|≈θ, 自身口径为「不作放行/拦截依据」; 关着跑时 reply_alignment_pass=null 属正常关闭态"
     },
     "subject_chain": {
       "purpose": "真实触达成员响应测量与下游窗口审计",

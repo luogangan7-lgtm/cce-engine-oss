@@ -65,6 +65,34 @@ with tempfile.TemporaryDirectory() as temp:
     aggregate = build_workflow_manifest(normalized, root / "artifacts")
     assert aggregate["complete"] is True, aggregate
 
+# 对齐诊断按需开启(2026-08-15): 没跑就没有 reply_alignment.json。
+# 关着跑必须照样 complete; 明确要求跑过而文件缺失才算错误。
+with tempfile.TemporaryDirectory() as temp:
+    root = Path(temp)
+    package = root / "package"
+    write_package(examples["outbound_reply"], package)
+    normalized = json.loads((package / "normalized.json").read_text(encoding="utf-8"))
+    item = normalized["items"][0]
+    artifact = root / "artifacts" / "item-0"
+    artifact.mkdir(parents=True)
+    (artifact / "manifest.json").write_text(json.dumps({
+        "text_sha256": item["_meta"]["text_sha256"], "complete": True, "failed_at": None,
+        "submission": item["_meta"], "stages": {"s1_readout": {"status": "OK"}},
+    }), encoding="utf-8")
+
+    off = build_workflow_manifest(normalized, root / "artifacts")
+    assert off["complete"] is True, off
+    assert off["jobs"][0]["reply_alignment_pass"] is None, off
+
+    required = build_workflow_manifest(normalized, root / "artifacts", require_alignment=True)
+    assert not required["complete"] and any("reply alignment missing" in e for e in required["errors"]), required
+
+    (artifact / "reply_alignment.json").write_text(
+        json.dumps({"verdict": {"PASS": True, "九结对齐": {"alignment_score": 0.72}}}), encoding="utf-8")
+    for flag in (False, True):
+        got = build_workflow_manifest(normalized, root / "artifacts", require_alignment=flag)
+        assert got["complete"] is True and got["jobs"][0]["reply_alignment_pass"] is True, got
+
 bad_hash = copy.deepcopy(examples["outbound_post"])
 bad_hash["items"][0]["text"] += " changed"
 assert not validate_submission(bad_hash)["ok"]

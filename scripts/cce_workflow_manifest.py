@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 
-def build(normalized: dict[str, Any], artifacts: Path) -> dict[str, Any]:
+def build(normalized: dict[str, Any], artifacts: Path, require_alignment: bool = False) -> dict[str, Any]:
     expected = {row["_meta"]["job_id"]: row for row in normalized.get("items", [])}
     found: dict[str, dict[str, Any]] = {}
     errors: list[str] = []
@@ -28,13 +28,14 @@ def build(normalized: dict[str, Any], artifacts: Path) -> dict[str, Any]:
             errors.append(f"exact input fingerprint mismatch for {job_id}")
         alignment = None
         alignment_path = path.with_name("reply_alignment.json")
-        if profile == "outbound_reply":
-            if not alignment_path.exists():
-                errors.append(f"reply alignment missing for {job_id}")
-            else:
-                alignment = json.loads(alignment_path.read_text(encoding="utf-8")).get("verdict") or {}
-                # 2026-08-13: 对齐算子只作诊断记录, 不再计入 errors——与 workflow 层同步
-                # (08-10 实测: 同稿重跑 3/8 翻转, 噪声≈θ; s6 口径"不作放行/拦截依据"; 禁布尔 gate)
+        # 2026-08-13: 对齐算子只作诊断记录, 其 verdict 不计入 errors——与 workflow 层同步
+        # (08-10 实测: 同稿重跑 3/8 翻转, 噪声≈θ; s6 口径"不作放行/拦截依据"; 禁布尔 gate)
+        # 2026-08-15: 该诊断已改为按需开启(cce-submit.yml with_alignment), 没跑就没有文件,
+        # 「缺文件」只有在明确要求跑过时才是错误, 否则是正常的关闭态。
+        if alignment_path.exists():
+            alignment = json.loads(alignment_path.read_text(encoding="utf-8")).get("verdict") or {}
+        elif profile == "outbound_reply" and require_alignment:
+            errors.append(f"reply alignment missing for {job_id}")
         measurement_complete = (manifest.get("stages") or {}).get("s1_readout", {}).get("status") == "OK"
         found[job_id] = {"job_id": job_id, "content_id": meta.get("content_id"),
             "profile": meta.get("profile"), "text_sha256": manifest.get("text_sha256"),
@@ -59,9 +60,11 @@ def main() -> None:
     parser.add_argument("--normalized", required=True, type=Path)
     parser.add_argument("--artifacts", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument("--require-alignment", action="store_true",
+                        help="对齐诊断本次被要求跑过, 缺 reply_alignment.json 算错误")
     args = parser.parse_args()
     normalized = json.loads(args.normalized.read_text(encoding="utf-8"))
-    manifest = build(normalized, args.artifacts)
+    manifest = build(normalized, args.artifacts, args.require_alignment)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"submission_id": manifest["submission_id"], "complete": manifest["complete"],

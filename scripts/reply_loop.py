@@ -11,6 +11,7 @@ reply 模式原链路 s1..s4 只解析对方, 写完就发, 没有对齐验证�
 用法: reply_loop.py --reader reader.txt --draft draft.txt --context "..." --out out.json
 """
 import os, sys, json, argparse, subprocess, collections
+from concurrent.futures import ThreadPoolExecutor
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
@@ -73,8 +74,13 @@ def main():
     reader = open(A.reader, encoding="utf-8").read().strip()
     draft = open(A.draft, encoding="utf-8").read().strip()
 
-    a = readout(reader, A.context + "(对方原文/写作基准侧)", A.k, "A_reader", outdir)
-    b = readout(draft, A.context + "(我方草稿/待验证侧)", A.k, "B_draft", outdir)
+    # 两侧读数互不依赖(b 不用 a 的任何结果), 并行跑。
+    # 2026-08-15 实测串行代价: run 31890090368 item0 的对齐闸 486s 里 389s 是 B 在等 A。
+    # 各自写 {tag}.txt / {tag}_readout.json, 文件名不冲突。
+    with ThreadPoolExecutor(max_workers=2) as ex:
+        fa = ex.submit(readout, reader, A.context + "(对方原文/写作基准侧)", A.k, "A_reader", outdir)
+        fb = ex.submit(readout, draft, A.context + "(我方草稿/待验证侧)", A.k, "B_draft", outdir)
+        a, b = fa.result(), fb.result()
 
     a_knots = {x["key"]: x["weight"] for x in a["stage2"]["knots"]}
     b_knots = {x["key"]: x["weight"] for x in b["stage2"]["knots"]}

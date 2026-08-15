@@ -23,6 +23,11 @@ on:
         description: "Complete cce.submission.v1 schema 1.1.0 JSON envelope"
         required: true
         type: string
+      with_alignment:
+        description: "Run the reader-to-draft alignment diagnostic (off by default: it is 81% of run time and its own spec forbids using it as a gate)"
+        required: false
+        default: false
+        type: boolean
   repository_dispatch:
     types: [cce-submit]
 
@@ -50,6 +55,7 @@ jobs:
           python3 tests/test_cce_end_to_end.py
           python3 tests/test_cce_response_chain.py
           python3 tests/test_cce_skill_contract.py
+          python3 tests/test_reply_loop_parallel.py
 
   prep:
     needs: contract
@@ -137,7 +143,7 @@ jobs:
             $(test -f run/ref.txt && echo "--ref-post run/ref.txt") \
             $(test -f run/context_decl.json && echo "--context-decl run/context_decl.json")
       - name: Reader-to-draft alignment gate
-        if: needs.prep.outputs.profile == 'outbound_reply'
+        if: needs.prep.outputs.profile == 'outbound_reply' && inputs.with_alignment
         env:
           CCE_ALIGN_THETA: ${{ vars.CCE_ALIGN_THETA || '0.35' }}
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
@@ -222,9 +228,12 @@ jobs:
       - id: manifest
         name: Build aggregate workflow manifest
         continue-on-error: true
+        env:
+          WITH_ALIGNMENT: ${{ inputs.with_alignment }}
         run: |
           python3 scripts/cce_workflow_manifest.py --normalized submission-package/normalized.json \
-            --artifacts item-artifacts --out submission-result/workflow-manifest.json
+            --artifacts item-artifacts --out submission-result/workflow-manifest.json \
+            $(test "$WITH_ALIGNMENT" = "true" && echo --require-alignment)
       - uses: actions/upload-artifact@v4
         if: always()
         with:
