@@ -1,0 +1,79 @@
+{
+  "kind": "cce.capability_registry.v1",
+  "version": "1.0.0",
+  "authority": {
+    "production_workflow_registry": "config/cce_workflow_registry_v1.json",
+    "architecture": "docs/cce_chain_architecture_v3_1.md",
+    "foundation_contract": "config/cce_foundation_contract_v2.json"
+  },
+  "status_meaning": {
+    "production_github": "可由登记的 GitHub 生产工作流运行并验证产物",
+    "component_only": "仓库已有实现或契约，但尚未接入生产 GitHub 入口",
+    "missing": "没有可诚实声称具备的实现"
+  },
+  "capabilities": [
+    {
+      "id": "outbound_post_measurement",
+      "status": "production_github",
+      "profile": "outbound_post",
+      "entrypoint": ".github/workflows/cce-submit.yml"
+    },
+    {
+      "id": "outbound_reply_measurement",
+      "status": "production_github",
+      "profile": "outbound_reply",
+      "entrypoint": ".github/workflows/cce-submit.yml"
+    },
+    {
+      "id": "subject_population_chain",
+      "status": "production_github",
+      "profile": "subject_chain",
+      "entrypoint": ".github/workflows/cce-submit.yml",
+      "constraints": [
+        "subject is downstream of events and context",
+        "population preserves distributions and segment weights",
+        "platform product and industry are context or objects, not subject roots"
+      ]
+    },
+    {
+      "id": "video_multimodal_parse_v5",
+      "status": "component_only",
+      "implementation": "scripts/cce_video_parse.py",
+      "implemented": [
+        "frame sampling",
+        "dual-model visual analysis",
+        "OCR authoritative channel",
+        "original-mix audio extraction and SenseVoice processing",
+        "six completeness gates"
+      ],
+      "missing": [
+        "production GitHub media-ingest workflow",
+        "audio source separation",
+        "speaker diarization",
+        "prosody metrics",
+        "mix metrics"
+      ],
+      "missing_state": "missing_no_capability"
+    },
+    {
+      "id": "foundation_observation_adapter",
+      "status": "component_only",
+      "implementation": "scripts/cce_foundation_adapter.py",
+      "output_boundary": "observations only; semantic and cross-modal events are later stages"
+    },
+    {
+      "id": "event_assembly",
+      "status": "component_only",
+      "implementation": "scripts/cce_event_assemble.py",
+      "output": ["atomic_event", "composite_event"]
+    },
+    {
+      "id": "standalone_image_ingest",
+      "status": "missing"
+    },
+    {
+      "id": "standalone_audio_ingest",
+      "status": "missing"
+    }
+  ]
+}

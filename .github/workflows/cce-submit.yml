@@ -1,4 +1,5 @@
 name: CCE Submit
+run-name: CCE ${{ inputs.submission_id || github.event.client_payload.submission.submission_id || github.run_id }}
 
 on:
   pull_request:
@@ -11,8 +12,13 @@ on:
       - "scripts/cce_*"
       - "tests/test_cce_*"
       - "examples/cce_*"
+      - "skills/**"
   workflow_dispatch:
     inputs:
+      submission_id:
+        description: "Exact submission_id used to identify this run"
+        required: true
+        type: string
       submission_json:
         description: "Complete cce.submission.v1 schema 1.1.0 JSON envelope"
         required: true
@@ -43,6 +49,7 @@ jobs:
           python3 tests/test_cce_window_chain.py
           python3 tests/test_cce_end_to_end.py
           python3 tests/test_cce_response_chain.py
+          python3 tests/test_cce_skill_contract.py
 
   prep:
     needs: contract
@@ -57,11 +64,16 @@ jobs:
       - id: package
         env:
           SUBMISSION_JSON: ${{ github.event_name == 'workflow_dispatch' && inputs.submission_json || toJSON(github.event.client_payload.submission) }}
+          EXPECTED_SUBMISSION_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.submission_id || github.event.client_payload.submission.submission_id }}
         run: |
           python3 - <<'PY'
-          import os
+          import json, os
           from pathlib import Path
-          Path("submission-input.json").write_text(os.environ["SUBMISSION_JSON"], encoding="utf-8")
+          raw = os.environ["SUBMISSION_JSON"]
+          data = json.loads(raw)
+          if data.get("submission_id") != os.environ["EXPECTED_SUBMISSION_ID"]:
+              raise SystemExit("dispatch submission_id does not match submission envelope")
+          Path("submission-input.json").write_text(raw, encoding="utf-8")
           PY
           python3 scripts/cce_submission.py submission-input.json --outdir submission-package
           python3 - <<'PY'

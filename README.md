@@ -42,7 +42,7 @@ Population 由逐成员/cell 分布与权重在测量后正式合成为 mixture�
 | Profile | 用途 | 成功 Gate |
 |---|---|---|
 | `outbound_post` | 帖子/邮件/文章发布前 s0–s4 | 精确指纹 + `manifest.complete=true` |
-| `outbound_reply` | 我方回复 s0–s4 + 对方响应对齐 | manifest 完整 + alignment PASS |
+| `outbound_reply` | 我方回复 s0–s4 + 对方响应对齐诊断 | manifest 完整；alignment 只记录、不作放行 gate |
 | `subject_chain` | 真实入站响应 s0–s3 → activated/下游审计 | 全员 s1 双指纹回收；业务结论另看窗口 gate |
 
 共同必填：`submission_id`、`producer/trace_id`、profile、逐字文本及 SHA-256、
@@ -106,11 +106,11 @@ jq -n --slurpfile submission examples/cce_submission_outbound_post_v1.json \
 | G-K1 top1 κ | 0.517–0.549 | ❌ 未达 0.6 |
 | G-K2 成本档增益 | −0.316 | ❌ 不如恒猜多数档 |
 
-## skills/ — 十一层漏斗(应用层)
+## skills/ — 单一 CCE 入口
 
-`viral-content-recon` 是编排器, 强制走完整漏斗避免只拆表层。CCE 是它底下的引擎:
-suite 负责拆解与生成，CCE 负责可追溯的动态测量与诊断；发布后 outcome 只用于实验、校准和反馈，
-不把同一次结果回灌成“事前预测”。
+Codex 只暴露一个 `CCE` Skill。它先读取 `config/cce_capability_registry_v1.json`，再区分生产 GitHub 能力、仓库组件和缺失能力；生产测量统一由 `scripts/cce_github_client.py` 提交 `cce-submit.yml`，并对 run、profile、完成状态和精确哈希做失败关闭核验。
+
+Skill 不运行本地 CCE、不保存分类学镜像，也不把平台、行业、输入模态或内部步骤拆成独立开关。当前视频解析 v5 属于仓库组件，尚未接入生产 GitHub 媒体入口。安装方式、层次边界和验收 gate 见 `docs/cce_skill_architecture_v1.md`。
 
 ⚠️ **粒度纪律(硬边界)**: 个体/人群读出必须有证据、时间和 coverage；动态 Segment 只作描述，
 **单帖级效果不可预测**，禁止任何“这条会爆”或由文本直接推出转化的宣称。
