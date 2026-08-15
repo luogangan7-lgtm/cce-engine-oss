@@ -81,6 +81,22 @@
         "direct_message": "^dm:[A-Za-z0-9._:-]{3,127}$"
       },
       "dynamic_space_rule": "A profile or status id is a runtime context value. Adding or changing one never creates a new X adapter version."
+    },
+    "owned_site": {
+      "adapter_id": "owned_site",
+      "adapter_version": "1.0.0",
+      "purpose": "Normalize copy published on a surface the speaker owns (marketing site, docs, landing page) into CCE evidence/context records. Unlike platform adapters there is no feed, no community norm and no ephemerality: the text is persistent, self-hosted and cross-checkable against sibling pages, so the burden of proof sits entirely with the speaker.",
+      "space_patterns": {
+        "owned_site": "^[a-z0-9.-]{4,253}/[A-Za-z0-9/_-]{0,200}$"
+      },
+      "dynamic_space_rule": "A page path is a runtime context value. Adding or changing a page never creates a new adapter version.",
+      "protocol_facts": {
+        "distribution": "none — the reader arrives with intent, usually from search or a direct link, not from an algorithmic feed",
+        "norm_source": "regulation and the speaker's own published commitments, not community rules",
+        "persistence": "permanent and re-readable; wording can be quoted back and compared verbatim across visits",
+        "authorship": "the speaker owns the surface, so nothing is moderated away and every claim is attributable",
+        "cross_surface_check": "the reader can open sibling pages in the same visit — a claim that contradicts another page on the same domain fails here in a way it would not on a feed"
+      }
     }
   }
 }
