@@ -82,15 +82,24 @@ jobs:
           } > prompt.txt
           # 官方推荐参数(1.8B/7B): temp 0.7 / top-p 0.6 / top-k 20 / repeat-penalty 1.05
           # -ngl 0 = 纯 CPU, runner 无 GPU
+          # -st = 单轮对话, 与模型卡一致。**不要用 -no-cnv**: 它关掉对话模式,
+          #      chat template 不生效, 一个 chat 调优模型被当纯补全用会直接退化
+          #      (实测 run 32015730063: 同一句重复 120 遍, 而 workflow 照样绿)。
           START=$(date +%s)
           llama-completion \
             --model "model/Hy-MT2-1.8B-$QUANT.gguf" \
-            -f prompt.txt --jinja -ngl 0 -no-cnv \
+            -f prompt.txt --jinja -ngl 0 -st \
             --temp 0.7 --top-p 0.6 --top-k 20 --repeat-penalty 1.05 \
             -n 1024 -t "$(nproc)" 2> llama.err > out.raw
           echo "耗时 $(( $(date +%s) - START ))s"
           python3 scripts/mt_extract.py out.raw prompt.txt > hymt2_en.txt
           echo "--- 译文 ---"; cat hymt2_en.txt
+
+      # 退化闸必须在指纹之前, 且必须能让整个 job 红。
+      # 上一轮的教训: 模型吐了 120 遍同一句, 指纹脚本照量不误并给出「--translated 不适用」的
+      # 自信结论 —— 一个在垃圾上报绿的闸, 比没有闸更坏。
+      - name: Degeneracy gate
+        run: python3 scripts/mt_fingerprint.py hymt2_en.txt --check-only
 
       - name: Compare fingerprints against DeepL baseline
         run: python3 scripts/mt_fingerprint.py hymt2_en.txt --label "Hy-MT2 $QUANT" | tee fingerprint.txt

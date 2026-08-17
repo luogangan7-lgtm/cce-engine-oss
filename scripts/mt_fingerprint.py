@@ -49,17 +49,54 @@ def measure(text: str) -> dict:
     }
 
 
+def degeneracy(text: str) -> tuple[bool, str]:
+    """模型是否退化（同句复读 / 极低词汇多样性）。
+
+    存在理由（2026-08-17 实测）：run 32015730063 里模型把
+    "I'm talking about a single individual." 吐了约 120 遍，
+    而 workflow 全绿、指纹脚本照量不误并给出了自信结论。
+    **一个在垃圾上报绿的闸比没有闸更坏**，所以这道检查必须能让整个 job 红。
+
+    根因是 llama-completion 传了 -no-cnv 关掉对话模式，chat template 没生效。
+    这里不修根因，只保证它下次不会再悄悄溜过去。
+    """
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    if lines:
+        top = max(set(lines), key=lines.count)
+        rep = lines.count(top) / len(lines)
+        if len(lines) >= 5 and rep >= 0.3:
+            return True, f"同一行重复 {lines.count(top)}/{len(lines)} 次（{rep:.0%}）：{top[:60]!r}"
+    words = text.split()
+    if len(words) >= 60:
+        ttr = len(set(w.lower().strip('.,!?;:') for w in words)) / len(words)
+        if ttr < 0.25:
+            return True, f"词汇多样性 {ttr:.2f} < 0.25（{len(words)} 词只有 {int(ttr*len(words))} 个不同词）"
+    return False, ""
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("path", type=Path)
     ap.add_argument("--label", default="candidate")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--check-only", action="store_true",
+                    help="只跑退化检查；退化则非零退出，用作 CI 闸")
     args = ap.parse_args()
 
     text = args.path.read_text(encoding="utf-8").strip()
     if not text:
         print("译文为空 —— 上游翻译步骤没产出，不是指纹问题", file=sys.stderr)
         return 2
+
+    bad, why = degeneracy(text)
+    if bad:
+        print(f"❌ 译文退化：{why}", file=sys.stderr)
+        print("   指纹不予计算 —— 在退化输出上算出来的密度不代表这个翻译器。", file=sys.stderr)
+        return 3
+    if args.check_only:
+        print("退化检查通过")
+        return 0
+
     m = measure(text)
 
     # 判据：em dash 密度与 DeepL 是否同量级（0.5x–2x 视为可沿用）
