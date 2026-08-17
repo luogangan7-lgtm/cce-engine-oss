@@ -70,10 +70,11 @@ jobs:
       - name: Translate all samples
         env:
           QUANT: ${{ inputs.quant || 'Q4_K_M' }}
+          SRC: ${{ inputs.source_file }}
         run: |
           set -euo pipefail
           mkdir -p out
-          for f in tests/data/mt_zh/*.txt; do
+          for f in ${SRC:-tests/data/mt_zh/*.txt}; do
             n=$(basename "$f" .txt)
             {
               printf 'Translate the following text into English. Note that you should only output the translated result without any additional explanation:\n\n'
