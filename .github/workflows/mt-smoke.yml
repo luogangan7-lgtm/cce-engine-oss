@@ -67,51 +67,48 @@ jobs:
           echo "LD_LIBRARY_PATH=$PWD/llama" >> "$GITHUB_ENV"
           ./llama/llama-completion --version 2>&1 | head -3 || true
 
-      - name: Translate
+      - name: Translate all samples
         env:
           QUANT: ${{ inputs.quant || 'Q4_K_M' }}
-          SRC: ${{ inputs.source_file }}
         run: |
           set -euo pipefail
-          if [ -n "$SRC" ] && [ -f "$SRC" ]; then cp "$SRC" src.txt; else cp tests/data/mt_smoke_zh.txt src.txt; fi
-          echo "源文 $(wc -m < src.txt) 字"
-          # 提示词用模型卡给的 Default Translation 英文档
-          {
-            printf 'Translate the following text into English. Note that you should only output the translated result without any additional explanation:\n\n'
-            cat src.txt
-          } > prompt.txt
-          # 官方推荐参数(1.8B/7B): temp 0.7 / top-p 0.6 / top-k 20 / repeat-penalty 1.05
-          # -ngl 0 = 纯 CPU, runner 无 GPU
-          # -st = 单轮对话, 与模型卡一致。**不要用 -no-cnv**: 它关掉对话模式,
-          #      chat template 不生效, 一个 chat 调优模型被当纯补全用会直接退化
-          #      (实测 run 32015730063: 同一句重复 120 遍, 而 workflow 照样绿)。
-          START=$(date +%s)
-          llama-completion \
-            --model "model/Hy-MT2-1.8B-$QUANT.gguf" \
-            -f prompt.txt --jinja -ngl 0 -st \
-            --temp 0.7 --top-p 0.6 --top-k 20 --repeat-penalty 1.05 \
-            -n 1024 -t "$(nproc)" 2> llama.err > out.raw
-          echo "耗时 $(( $(date +%s) - START ))s"
-          python3 scripts/mt_extract.py out.raw prompt.txt > hymt2_en.txt
-          echo "--- 译文 ---"; cat hymt2_en.txt
+          mkdir -p out
+          for f in tests/data/mt_zh/*.txt; do
+            n=$(basename "$f" .txt)
+            {
+              printf 'Translate the following text into English. Note that you should only output the translated result without any additional explanation:\n\n'
+              cat "$f"
+            } > "out/$n.prompt"
+            # 官方推荐参数(1.8B/7B): temp .7 / top-p .6 / top-k 20 / repeat-penalty 1.05
+            # -ngl 0 = 纯 CPU。-st = 单轮对话, 与模型卡一致。
+            # **不要用 -no-cnv**: 它关掉对话模式, chat template 不生效, chat 调优模型
+            # 会退化(实测 run 32015730063 同句复读 119/121 行, 而 workflow 照样绿)。
+            START=$(date +%s)
+            llama-completion --model "model/Hy-MT2-1.8B-$QUANT.gguf" \
+              -f "out/$n.prompt" --jinja -ngl 0 -st \
+              --temp 0.7 --top-p 0.6 --top-k 20 --repeat-penalty 1.05 \
+              -n 1024 -t "$(nproc)" 2> "out/$n.err" > "out/$n.raw"
+            python3 scripts/mt_extract.py "out/$n.raw" "out/$n.prompt" > "out/$n.en.txt"
+            echo "$n: 源 $(wc -m < "$f") 字 -> 译 $(wc -w < "out/$n.en.txt") 词, $(( $(date +%s) - START ))s"
+          done
 
-      # 退化闸必须在指纹之前, 且必须能让整个 job 红。
-      # 上一轮的教训: 模型吐了 120 遍同一句, 指纹脚本照量不误并给出「--translated 不适用」的
-      # 自信结论 —— 一个在垃圾上报绿的闸, 比没有闸更坏。
+      # 退化闸排在指纹之前, 任一样本退化即整个 job 红。
+      # 教训: 在垃圾上报绿的闸比没有闸更坏(见上方注释)。
       - name: Degeneracy gate
-        run: python3 scripts/mt_fingerprint.py hymt2_en.txt --check-only
+        run: |
+          set -euo pipefail
+          for f in out/*.en.txt; do
+            echo "== $f"
+            python3 scripts/mt_fingerprint.py "$f" --check-only
+          done
 
-      - name: Compare fingerprints against DeepL baseline
-        run: python3 scripts/mt_fingerprint.py hymt2_en.txt --label "Hy-MT2 $QUANT" | tee fingerprint.txt
-        env:
-          QUANT: ${{ inputs.quant || 'Q4_K_M' }}
+      - name: Fingerprint table
+        run: python3 scripts/mt_table.py out/*.en.txt | tee fingerprint.txt
 
       - uses: actions/upload-artifact@v4
         with:
           name: mt-smoke-${{ github.run_id }}
           path: |
-            src.txt
-            hymt2_en.txt
+            out/
             fingerprint.txt
-            llama.err
           retention-days: 90
