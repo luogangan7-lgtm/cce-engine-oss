@@ -11,7 +11,11 @@ import time
 from pathlib import Path
 from typing import Any
 
-DEFAULT_REPO = "luogangan7-lgtm/cce-engine"
+import os
+
+# 2026-08-17: 生产入口迁到公开仓。私库 cce-engine 的 Actions 用尽 2000 分钟/月配额,
+# 公开仓不计分钟数。私库保留不动(9 个已合并 PR 的 refs/pull/N/head 仍含改写前的提交)。
+DEFAULT_REPO = os.environ.get("CCE_REPO", "luogangan7-lgtm/cce-engine-oss")
 WORKFLOW = "cce-submit.yml"
 
 

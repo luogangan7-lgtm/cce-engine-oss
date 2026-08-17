@@ -5,10 +5,14 @@
 新调用统一发送 `cce.submission.v1` 到：
 
 ```text
+repo                           = luogangan7-lgtm/cce-engine-oss   ← 2026-08-17 起，公开仓
 repository_dispatch event_type = cce-submit
 workflow                       = .github/workflows/cce-submit.yml
 max parallel                   = 8
 ```
+
+仓库地址可用环境变量 `CCE_REPO` 覆盖（`scripts/cce_github_client.py` 读它）。
+**旧私库 `luogangan7-lgtm/cce-engine` 不再是入口**，见 §7。
 
 旧 `cce.yml`、`reply.yml`、`replybatch.yml` 只保留兼容，不接受新集成。
 accuracy 是代码质量闸；其余校准、外部效度、主体模拟 workflow 属研究工作流，不能用它们的成功状态声称生产 CCE 全链通过。
@@ -139,7 +143,8 @@ source/chain contract
 
 ## 5. 标准产物
 
-每次生产运行保留 90 天（与当前仓库上限一致）：
+每次生产运行的 GitHub artifact 保留 90 天（仓库上限），**过期后以 Supabase 归档为准**，见 §8。
+运行期内产出：
 
 1. `cce-submission-source`：原始 `submission.json`、规范化 `normalized.json`、冻结 `items.json`。
 2. 每项 artifact：outbound_post 的 s0–s4、outbound_reply 的回复链、subject response 的 s0–s3，以及带 submission/job/content/profile/双指纹的 `manifest.json`。
@@ -152,7 +157,7 @@ source/chain contract
 ```bash
 jq -n --slurpfile submission examples/cce_submission_outbound_post_v1.json \
   '{event_type:"cce-submit",client_payload:{submission:$submission[0]}}' \
-| gh api --method POST repos/luogangan7-lgtm/cce-engine/dispatches --input -
+| gh api --method POST repos/luogangan7-lgtm/cce-engine-oss/dispatches --input -
 ```
 
 三个可执行样例：
@@ -168,3 +173,131 @@ python3 scripts/cce_submission.py examples/cce_submission_outbound_post_v1.json
 ```
 
 本地预检不是 CCE 执行。只有 GitHub run URL、artifact 和对应 manifest 才是运行证据。
+
+---
+
+## 7 · 为什么生产入口是公开仓
+
+### 7.1 直接原因：Actions 配额
+
+私库 `cce-engine` 的 GitHub Actions 免费额度是 **2000 分钟/月**，2026-08-16 用尽（100%），
+下次重置 2026-09-01。CCE 是逐帖、逐条回复都要跑的链路，停两周等于停产。
+
+GitHub 对 **公开仓库的 Actions 不计分钟数**。这是唯一一条不需要自建机器、不需要付费、
+且不改动任何链路代码的出路。已否决的替代方案（不要重做）：
+
+| 方案 | 否决理由 |
+|---|---|
+| Cloudflare Workers / Pages | 跑不了 CCE 全链：无 Python 运行时、无 matrix 并发、单次执行有 CPU 上限 |
+| GitLab CI/CD | 免费额度 400 分钟/月，比现状更少 |
+| 自建 runner（本机 Mac） | 用户明确否决："只要不是部署在本地就行了" |
+
+### 7.2 为什么是新仓，不是把旧私库翻公开
+
+**旧私库不能翻公开。** 它有 9 个已合并的 PR，`refs/pull/N/head` 仍然指向历史改写**之前**的提交，
+那些提交里含 `hearingaids_others_20260809.json` / `hearingaids_chains_20260809.json`
+（1208 个真实 Reddit 用户名）。`git push --force` 改写 master 不会删除 `refs/pull/N/head`，
+GitHub 上任何人都能按 commit SHA 访问到。
+
+所以做法是：**新建 `cce-engine-oss`，只推改写后的干净历史（139 提交），旧私库保持私有、不动。**
+
+公开前做过的事，构成这一步的验收 gate：
+
+- 全仓 PII 扫描（**不是只扫 `accuracy/` 和 `corpus/`** —— 第一次只扫这两处，漏了
+  `config/knot_taxonomy.json`、`tests/`、`scripts/`，共 23 文件 / 86 个标识符）
+- 全局化名替换，带白名单（`BOTS` 集合里的 bot 名、公众人物名不得被改）
+- `git filter-repo --replace-text` **加 `--replace-message`** —— 只做前者会漏掉提交信息里的真名（实测漏 6 处）
+- 换名后重算 `text_sha256` 指纹（`examples/cce_submission_subject_chain_v1.json` 因此变更）
+- 全新克隆做外部人视角审计：无真名、无 `u/xxx`、无密钥、无 `.env`
+- `8/8` 测试 PASS
+
+**身份映射表不在这个仓库里，也永远不会进。** 它在本机 `/Volumes/data/cce-identified-vault/`
+（git 之外），含 `unified_pseudonym_map.json` 90 条与改写前的 `pre-filter-repo-backup.bundle`。
+
+### 7.3 一条已知的运维坑（会再遇到）
+
+新仓推完整段历史后，`gh workflow run` 会报
+`HTTP 404: workflow cce-submit.yml not found on the default branch`，**尽管文件确实在默认分支上**。
+
+原因：GitHub 只在 **workflow 路径出现在某次 push 的 diff 里** 时才索引该 workflow。
+一次性强推既有历史不触发索引，推一个不碰 workflow 的普通提交也不触发。
+
+修法：**改动 workflow 文件本身（追加一行注释即可）再推默认分支**，约 40 秒后转 `active`。
+
+派发后核归属必须用 `displayTitle` 或 `submission_id` 比对，
+**不能用 `gh run list -L 1` 取"最新 run"** —— 共享仓库里最新 run 往往是别的事件触发的。
+另：`gh workflow run ... | tail -1` 会让 `$?` 变成 `tail` 的返回码，派发失败也报成功；
+返回码要单独存。
+
+---
+
+## 8 · 数据存储与调用
+
+GitHub artifact 只保 90 天，且公开仓的 artifact **任何人可下载**。因此运行证据与识别态数据
+分两处存放，职责不重叠：
+
+| 存放处 | 内容 | 访问 |
+|---|---|---|
+| GitHub artifact（公开仓） | 90 天内的运行产物，**均为去标识化内容** | 公开可下 |
+| Supabase Postgres | 运行与产物的永久归档、识别态快照 | 仅 `service_role` |
+| 本机 vault（git 之外） | 化名↔真名映射、改写前 bundle | 不联网 |
+
+### 8.1 Supabase 端点与表
+
+```text
+PostgREST  https://ilbzgsghyxgppmpeicfo.supabase.co/rest/v1/
+认证       apikey + Authorization: Bearer <SUPABASE_SERVICE_KEY>   ← 走环境变量，禁止硬编码
+```
+
+| 表 | 行数（2026-08-17 实测） | 内容 |
+|---|---|---|
+| `cce_run_archive` | 337 | run 元数据：`run_id / name / display_title / event / conclusion / head_branch / html_url / raw` |
+| `cce_artifact_archive` | 1854 | 产物正文：`artifact_name / file_path / content`(jsonb) `/ content_text / size_bytes` |
+| `cce_identified_snapshot` | 4843 | 识别态评论快照：`post_id / comment_id / author / body / ups / created_utc / raw` |
+| `cce_pseudonym_map` | 17 | 化名↔真名，`kind` = `user_key`(16) / `mention`(1) |
+
+两条会绊人的实际口径（均为 2026-08-17 实测，不是推断）：
+
+1. **`manifest` 在 `file_path`，不在 `artifact_name`。** `artifact_name` 形如
+   `cce-item-0-<run_id>` / `cce-result-<run_id>` / `cce-submission-source`；
+   `file_path` 才是 `manifest.json` / `workflow-manifest.json` / `s0_context.json` …
+   按 `artifact_name=like.*manifest*` 查会返回空。
+2. **正文分两列存**：JSON 产物进 `content`(jsonb，1525 行)，非 JSON 进 `content_text`（329 行），
+   两者互补正好 1854。取 JSON 字段用 `content->>key`，不要对 `content_text` 用。
+
+`cce_run_archive.billable_minutes` **建了列但从未写入（非空行数 = 0）**，不要拿它算成本。
+
+### 8.2 调用示例
+
+```bash
+# 某次 run 的聚合结论
+curl -s "$SB_URL/cce_artifact_archive?file_path=eq.workflow-manifest.json\
+&artifact_name=eq.cce-result-31956489524&select=content" \
+  -H "apikey: $SB_KEY" -H "Authorization: Bearer $SB_KEY"
+
+# 某 item 是否跑完（jsonb 取值用 ->> ）
+curl -s "$SB_URL/cce_artifact_archive?file_path=eq.manifest.json\
+&artifact_name=like.cce-item-*-31956489524&select=artifact_name,content->>complete" \
+  -H "apikey: $SB_KEY" -H "Authorization: Bearer $SB_KEY"
+
+# 按 run 查结论
+curl -s "$SB_URL/cce_run_archive?run_id=eq.31956489524&select=display_title,conclusion,html_url" \
+  -H "apikey: $SB_KEY" -H "Authorization: Bearer $SB_KEY"
+```
+
+DDL 走 PostgREST 做不了。建表/改表必须用 Management API：
+
+```bash
+curl -X POST "https://api.supabase.com/v1/projects/<ref>/database/query" \
+  -H "Authorization: Bearer $SUPABASE_PAT" -H "Content-Type: application/json" \
+  -d '{"query":"<SQL>"}'
+```
+
+### 8.3 访问控制现状（2026-08-17 实测，非推断）
+
+四张表 `rls_on = true` 且 **策略数为 0**。启用 RLS 而无任何策略 = 除绕过 RLS 的 `service_role` 外
+一律拒绝，读写皆然。用 publishable(匿名) key 实测四表 `SELECT` 全部返回 `[]`。
+
+> **待办（未执行，需先确认）**：`cce_pseudonym_map` 是唯一能反解化名的东西，
+> 把它放在云端没有收益 —— 本机 vault 已有完整的 90 条，云上这 17 条既不完整、又是唯一的再识别风险面。
+> 建议从 Supabase 删除该表，只留 vault。**删除是破坏性操作，未执行，等确认。**
