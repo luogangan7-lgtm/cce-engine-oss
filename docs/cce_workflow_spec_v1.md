@@ -143,8 +143,8 @@ source/chain contract
 
 ## 5. 标准产物
 
-每次生产运行的 GitHub artifact 保留 90 天（仓库上限），**过期后以 Supabase 归档为准**，见 §8。
-运行期内产出：
+每次生产运行的 GitHub artifact 保留 90 天（仓库上限）。**过期后目前没有兜底** ——
+Supabase 里那批归档是一次性人工搬的，链路并没有在写它，见 §8.4。运行期内产出：
 
 1. `cce-submission-source`：原始 `submission.json`、规范化 `normalized.json`、冻结 `items.json`。
 2. 每项 artifact：outbound_post 的 s0–s4、outbound_reply 的回复链、subject response 的 s0–s3，以及带 submission/job/content/profile/双指纹的 `manifest.json`。
@@ -212,7 +212,11 @@ GitHub 上任何人都能按 commit SHA 访问到。
 - `8/8` 测试 PASS
 
 **身份映射表不在这个仓库里，也永远不会进。** 它在本机 `/Volumes/data/cce-identified-vault/`
-（git 之外），含 `unified_pseudonym_map.json` 90 条与改写前的 `pre-filter-repo-backup.bundle`。
+（git 之外），含 `unified_pseudonym_map.json`（现 434 条，见 §9）与各次改写前的 bundle 备份。
+
+> **这一轮 gate 并不充分，后来实测漏了 64 人。** 上面那套是 **Reddit 口径**，
+> 整个 hearingtracker 论坛平台不在扫描范围；而且只查结构化身份字段，
+> `u/xxx` 正文提及与叙述中的裸名两类整个漏掉。完整口径与两道可跑的闸见 §9。
 
 ### 7.3 一条已知的运维坑（会再遇到）
 
@@ -254,7 +258,9 @@ PostgREST  https://ilbzgsghyxgppmpeicfo.supabase.co/rest/v1/
 | `cce_run_archive` | 337 | run 元数据：`run_id / name / display_title / event / conclusion / head_branch / html_url / raw` |
 | `cce_artifact_archive` | 1854 | 产物正文：`artifact_name / file_path / content`(jsonb) `/ content_text / size_bytes` |
 | `cce_identified_snapshot` | 4843 | 识别态评论快照：`post_id / comment_id / author / body / ups / created_utc / raw` |
-| `cce_pseudonym_map` | 17 | 化名↔真名，`kind` = `user_key`(16) / `mention`(1) |
+
+**云端只有这三张，没有身份映射表。** 曾有过 `cce_pseudonym_map`，2026-08-17 已 `drop table`
+（删前导出至 vault，验证 vault 100% 覆盖后执行）。理由写在 §9.3。
 
 两条会绊人的实际口径（均为 2026-08-17 实测，不是推断）：
 
@@ -295,9 +301,106 @@ curl -X POST "https://api.supabase.com/v1/projects/<ref>/database/query" \
 
 ### 8.3 访问控制现状（2026-08-17 实测，非推断）
 
-四张表 `rls_on = true` 且 **策略数为 0**。启用 RLS 而无任何策略 = 除绕过 RLS 的 `service_role` 外
-一律拒绝，读写皆然。用 publishable(匿名) key 实测四表 `SELECT` 全部返回 `[]`。
+三张表 `rls_on = true` 且 **策略数为 0**。启用 RLS 而无任何策略 = 除绕过 RLS 的 `service_role` 外
+一律拒绝，读写皆然。用 publishable(匿名) key 实测三表 `SELECT` 全部返回 `[]`。
 
-> **待办（未执行，需先确认）**：`cce_pseudonym_map` 是唯一能反解化名的东西，
-> 把它放在云端没有收益 —— 本机 vault 已有完整的 90 条，云上这 17 条既不完整、又是唯一的再识别风险面。
-> 建议从 Supabase 删除该表，只留 vault。**删除是破坏性操作，未执行，等确认。**
+> 验 RLS 不要用「拿非法列名 POST 试写」——PostgREST 的 schema 校验发生在 RLS **之前**，
+> 会返回 `400 PGRST204`，根本没触到策略，是个无效探测。要权威结论就查 `pg_policy`：
+> ```sql
+> select c.relname, c.relrowsecurity, p.polname
+> from pg_class c join pg_namespace n on n.oid = c.relnamespace
+> left join pg_policy p on p.polrelid = c.oid
+> where n.nspname = 'public' and c.relname like 'cce_%';
+> ```
+
+### 8.4 归档现状：**目前没有任何代码在调用 Supabase**
+
+必须写明，否则会被这份文档误导：
+
+- 全仓 `grep -rIn "supabase\|postgrest" --include=*.py --include=*.yml --include=*.sh` **为空**
+- `cce-submit.yml` 只有 5 处 `upload-artifact`，**没有归档步骤**
+- 公开仓 secrets 只有 `MINIMAX_API_KEY` / `CCE_ALIGN_THETA`，**没有 `SUPABASE_*`**
+- 判据：2026-08-17 公开仓首跑 run `31993570335` **查库返回空**；库里最新一条停在
+  `31956489524`（08-16 15:43），正是人工迁移那批的末尾
+
+即：那 337 runs / 1854 artifacts 是**一次性人工搬过去的**（脚本未进仓），新跑的 run
+只进 GitHub artifact，**90 天后过期消失**。上面 §5 说的「过期后以 Supabase 归档为准」
+描述的是意图，**不是已经在跑的机制**。
+
+要补成真机制，需在 `cce-submit.yml` 聚合之后加归档步骤并在公开仓配 `SUPABASE_SERVICE_KEY`。
+两条前置约束：公开仓的 **workflow 日志任何人可看**，key 不得出现在日志里；
+`cce_identified_snapshot` 是识别态表，**绝不能由公开仓的 workflow 触碰**。
+
+---
+
+## 9 · 身份与化名规范（进链前必须满足）
+
+### 9.1 化名是链路里的身份主键，不是脱敏装饰
+
+`actor_ref` / `member_refs` 存的就是化名，形如 `reddit:u/user_46`。
+`scripts/cce_response_chain.py:93` 的 `if reached_members != seen_actors:` 比的正是这些字符串。
+**链路从头到尾看不到真名。**
+
+因此化名分配错了会**静默失败**：同一个人在两次测量里拿到两个化名，
+引擎把回访读者当成陌生人，而那道相等校验**拦不住**（两边用的是同一个错化名，等号照样成立）。
+2026-08-17 实测：post7 的 11 个外部回帖人里，`user_62` 与 `user_09`
+同时出现在 post6 的 reached 窗——**跨帖回访**。现分化名的话这两条主体线直接断掉。
+
+### 9.2 主键是 `(platform, platform_user_id)`，不是 handle
+
+**handle 会改、会弃、跨平台会撞车；平台账号 ID 不会。**
+
+| 平台 | ID 形态 | 取法 |
+|---|---|---|
+| reddit | `t2_<id>` | `GET /user/<name>/about.json` → `data.id` |
+| hearingtracker_forum | `ht:<user_id>` | `GET /u/<name>.json` → `user.id` |
+| xiaohongshu_or_douyin | `dy:<sec_uid前16位>` | 采集件的 `sec_uid_full` / `sec` / `sec16` |
+| youtube | `yt:@handle` | 源数据无 channel ID，**已标注 handle 不等于 channel ID** |
+
+映射表在 `/Volumes/data/cce-identified-vault/unified_pseudonym_map.json`（**git 之外，永不进仓**）。
+2026-08-17 状态：434 条 · 425 条带已验证 ID（98%）· 五平台。
+待补：quora / threads / facebook / instagram / x。
+
+### 9.3 真名的边界：本地可留，出仓必换
+
+- **本地识别层**（vault / `viral-skill-eval` / `cce_identified_snapshot`）**保留真名是刻意的** ——
+  研究要认人。风险在流出，不在存放。
+- **进公开仓的一律只有化名。** 公开仓 artifact 任何人可下载。
+- **身份映射表不上云。** 云端那张表既不完整、又是唯一能反解真名的东西，
+  收益为零而风险独占，已删除（§8.1）。
+
+不化名的三类，写死在闸的白名单里：
+我方账号 `luogangan`（就是仓库 owner，URL 里明摆着，洗正文属自欺）与 `Kira-kk`；
+以本人身份公开发言的公众人物；平台自己已打码的 handle（如淘宝的 `t***3` 形式）。
+
+### 9.4 两道闸（在 vault 内，不进仓）
+
+```bash
+python3 /Volumes/data/cce-identified-vault/validate_map.py      # 映射表自身
+python3 /Volumes/data/cce-identified-vault/check_boundary.py    # 识别层→公开层边界
+```
+
+`validate_map.py` 防：一人两化名 · 身份字段混进非身份信息 · 锚点缺失 · 仓内引用解不出。
+`check_boundary.py` 防：识别层的任何真实身份出现在公开仓，跨五平台，
+覆盖结构化字段、`u/xxx` 正文提及、叙述中的裸名三条路径。
+
+**两个闸都做过反向测试**（注入已知身份 → 必须变红），不是只会打印 PASS。
+
+### 9.5 写替换/扫描脚本时的四个坑（每个都实际踩过）
+
+1. **JSON 的 `\n` 转义会毁掉左边界。** 文件原文里换行是两字符 `\n`，所以名字左边挨着的是
+   字母 `n`，`\b` 与 `(?<![A-Za-z0-9_.-])` 都判为非边界，**整条跳过**。
+   → 解析 JSON 后在**解码字符串**上匹配，别对原始字节做正则。这个错犯过四次。
+2. **Python3 的 `\w` 匹配中文。** `(?![\w-])` 会让「<handle>是接受」「<handle>是解释性的」
+   这类紧跟汉字的名字漏掉（实测漏 8 处）。→ 右边界写 `(?![A-Za-z0-9_-])`。
+3. **`git filter-repo --replace-text` 是字面替换，不认边界。** 规则 `luogangan==>self_op`
+   把组织名 `luogangan7-lgtm` 改成了 `self_op7-lgtm`，全仓 URL 报废。
+   → 改写前必须验两件事：handle 互为子串、handle 是受保护字符串（org 名/仓名/域名）的子串。
+4. **扫描要排除 `.git`。** `COMMIT_EDITMSG` / `logs/HEAD` 是纯文本，
+   提交信息里提到某个化名就会被当成代码引用报错（记录本次合并的那条提交信息自己把闸弄红过）。
+
+### 9.6 被提到的第三方也是身份
+
+只查 `author` / `actor` 这类结构化字段会**整类漏掉**：被转述、被 `u/xxx` 提及、
+在分析叙述里被点名的人，从不进身份字段。2026-08-17 实测这一类在公开仓有 **64 人**，
+其中 50 人只以 `u/xxx` 形式出现，15 人是叙述中的裸名（含 `.txt` 文件）。
