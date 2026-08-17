@@ -68,6 +68,10 @@ def _context(value: Any, path: str, taxonomy: dict[str, list[str]], errors: list
              platform_fields: dict[str, Any]) -> dict[str, Any] | None:
     _required(value, ("summary", "declaration", "dimensions", "provenance"), path, errors)
     if not isinstance(value, dict) or not isinstance(value.get("declaration"), dict):
+        # 2026-08-17: 这里原本直接 return None 而不记 error, 于是 declaration 写成字符串时
+        # 整段九结校验被跳过、envelope 照样判过, 直到远端 prepare.py 才红
+        # ("context_decl 必须是非空 JSON 对象")。本地先验的存在意义就是拦住这个, 不能静默放行。
+        errors.append(f"{path}.declaration must be a JSON object of taxonomy facets")
         return None
     declaration = value["declaration"]
     if not declaration:
