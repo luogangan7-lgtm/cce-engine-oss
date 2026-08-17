@@ -60,8 +60,12 @@ jobs:
           curl -fL --retry 3 -o llama.tar.gz \
             "https://github.com/ggml-org/llama.cpp/releases/download/${LLAMA_TAG}/llama-${LLAMA_TAG}-bin-ubuntu-x64.tar.gz"
           mkdir -p llama && tar -xzf llama.tar.gz -C llama --strip-components=1
-          find llama -name 'llama-*' -type f -perm -u+x | head
-          echo "$PWD/llama/bin" >> "$GITHUB_PATH"
+          # 预编译包把二进制和 .so 一起放在解压根目录, 没有 bin/ 子目录 ——
+          # 照模型卡写的 ./build/bin/ 是源码编译的路径, 这里不适用(实测 exit 127)。
+          test -x llama/llama-completion || { echo "llama-completion 不在预期位置"; ls llama | head -30; exit 1; }
+          echo "$PWD/llama" >> "$GITHUB_PATH"
+          echo "LD_LIBRARY_PATH=$PWD/llama" >> "$GITHUB_ENV"
+          ./llama/llama-completion --version 2>&1 | head -3 || true
 
       - name: Translate
         env:
