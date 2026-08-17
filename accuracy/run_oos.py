@@ -20,7 +20,7 @@ for pid, p in SNAP["posts"].items():
     if ONLY and pid not in ONLY:
         continue
     for c in p["comments"]:
-        items.append({"id": c["id"], "b": c["body"], "post": pid, "author": c["author"],
+        items.append({"id": c["id"], "b": c["body"], "post": pid, "author": c.get("author"),   # 2026-08-17 去标识后该字段可能不存在
                       "ups": c["ups"], "seen": c["seen"], "followed_up": c["replied_to_op"]})
 print(f"待判 {len(items)} 条 · 样本外 {sum(1 for i in items if not i['seen'])} 条 · 标注者 {R.MODELS}", flush=True)
 
