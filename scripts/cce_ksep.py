@@ -107,8 +107,13 @@ def reproducibility(reps, fingerprints, name="text", intensity_tol=0.05):
 # ⚠️ 这个常量的三条限度, 引用它之前必须一起读:
 #  1. **一对文本, R=4, 35 种构型** —— 这是**一个**经验锚, 不是一个估计良好的常数。
 #     第二对独立文本跑出来之前, 别把它当作稳定阈值。
-#  2. **它来自最有利的一对**(Jaccard 最低 0.075; 其余对在 0.088–0.156)。
-#     即「最好情况下的可分离量级」, 不代表典型文本对。
+#  2. ~~它来自最有利的一对~~ —— **本条已被第二次实测证伪, 2026-08-18**。
+#     原以为 Jaccard 最低(0.075)= 给仪器最好的机会。run 32143785964 用 Jaccard
+#     **中位数**(0.1013, 典型对)跑出 T=0.22389, 是本对的 **3.0 倍**。
+#     ⇒ **词面相似度不预测可分离性。** 「最有利」那句话没有依据, 撤回。
+#     真正的限度改为: 本值是**两对中较小者**, 且两对的零分布水位差 2.4 倍
+#     (0.06278 vs 0.14944) ⇒ **不存在一个全局适用的 min_effect**;
+#     零分布水位由文本自身的组内变异决定, 请优先看每次比较自己的 null_max。
 #  3. **等长内容效应 0.07389 只有长度驱动效应(T0-vs-T2 = 0.40611)的 18.2%。**
 #     ⇒ 此前 T0-vs-T2 的"分离"约 82% 是长度。任何未控长度的分离结论都要按这个比例打折。
 MIN_EFFECT_EQUAL_LENGTH_20260818 = 0.06278
@@ -150,8 +155,17 @@ def separation(A, B, fpA, fpB, min_effect=None, alpha=0.05, nameA="A", nameB="B"
         verdict = "BELOW_MDE"
     else:
         verdict = "SEPARATED"
+    # 报出本次比较**自己的**零分布水位。理由(2026-08-18 实测):
+    #   两对等长文本的零分布 95 分位分别是 0.06278 与 0.14944, 差 2.4 倍 ——
+    #   零分布水位由文本自身的组内变异决定, **不存在一个全局适用的 min_effect**。
+    # ★ 并且 R=4 时 p<=0.05 需要 #{>=obs}==1, 即 obs 严格大于其余 34 个构型
+    #   ⇒ **p<=0.05 已经蕴含 obs > 本次零分布最大值**, min_effect 在 R=4 上
+    #   只在「整个零分布都被压在 min_effect 之下」时才起作用。它不是死分支, 但比看上去弱得多。
+    _nul = [x for x in splits if x < obs - 1e-12]
     return {"verdict": verdict, "T": obs, "p": p, "p_floor": p_floor,
-            "n_splits": len(splits), "min_effect": min_effect, "alpha": alpha}
+            "n_splits": len(splits), "min_effect": min_effect, "alpha": alpha,
+            "null_max": round(max(_nul), 5) if _nul else None,
+            "null_median": round(sorted(_nul)[len(_nul) // 2], 5) if _nul else None}
 
 def equivalence(A, B, fpA, fpB, min_effect, alpha=0.05, nameA="A", nameB="B"):
     """等价检验: 能不能主张两组**相同**(而不只是「没分开」)。

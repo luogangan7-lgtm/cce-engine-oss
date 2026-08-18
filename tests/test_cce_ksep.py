@@ -190,3 +190,30 @@ if FIX.exists():
     e02 = K.equivalence(_r["T0"], _r["T2"], _f["T0"], _f["T2"], min_effect=ME)
     assert e02["verdict"] == "NOT_EQUIVALENT"
     print("  equivalence 已钉: 同一 ⇒ 上界0 / 抖动大 ⇒ 拒绝主张相同 / T0-T1 差异低于分辨率")
+
+# ── 11. 零分布水位随文本变, 不存在全局 min_effect ───────────────────────────
+P2F = ROOT / "tests" / "data" / "second_pair_20260818.json"
+if P2F.exists() and EQL.exists():
+    d2 = json.loads(P2F.read_text(encoding="utf-8"))
+    A2 = [r["knots"] for r in d2["raw"]["A"]]
+    B2 = [r["knots"] for r in d2["raw"]["B"]]
+    s2 = K.separation(A2, B2, [f"x{i}" for i in range(4)], [f"y{i}" for i in range(4)],
+                      min_effect=ME)
+    assert s2["verdict"] == "SEPARATED" and abs(s2["T"] - 0.22389) < 5e-5, s2
+    assert abs(s2["p"] - 1 / 35) < 1e-9
+    # 两对的零分布水位差 2.4 倍 —— 全局 min_effect 站不住
+    d1 = json.loads(EQL.read_text(encoding="utf-8"))
+    s1 = K.separation([r["knots"] for r in d1["raw"]["A"]],
+                      [r["knots"] for r in d1["raw"]["B"]],
+                      [f"u{i}" for i in range(4)], [f"v{i}" for i in range(4)], min_effect=ME)
+    assert abs(s1["null_max"] - 0.06278) < 1e-4 and abs(s2["null_max"] - 0.14944) < 1e-4
+    assert s2["null_max"] / s1["null_max"] > 2.0, "两对零分布水位应差 2 倍以上"
+    # ★ R=4 时 p<=0.05 蕴含 obs > null_max (min_effect 在此规模上几乎不做功)
+    for s_ in (s1, s2):
+        assert s_["p"] > 0.05 or s_["T"] > s_["null_max"], \
+            "R=4 下 p<=0.05 必然意味着观测严格大于零分布最大值"
+    # ★ 词面相似度不预测可分离性: Jaccard 更高的一对反而 T 大 3 倍
+    assert d2["meta"]["jaccard"] > d1["meta"]["jaccard"] and s2["T"] > 3 * s1["T"], \
+        "Jaccard 更高却分得更开 —— 这条断言钉住『Jaccard 是好代理』已被证伪"
+    print("  零分布水位: 对1=%.5f 对2=%.5f (差 %.1f 倍); Jaccard 不预测可分离性"
+          % (s1["null_max"], s2["null_max"], s2["null_max"] / s1["null_max"]))
