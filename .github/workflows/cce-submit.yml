@@ -47,18 +47,15 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - name: Submission, content, subject-window, cross-plane and response gates
+        # 2026-08-18: 原先是硬编码的 11 行清单。新增测试文件若忘了加进去,
+        # 它就**永远不跑, 而 CI 照样全绿** —— 假检查, 且失效时无声。
+        # 改成遍历 + 数量下限自守: 路径写错/文件被误删会红, 不会静默跑零个。
         run: |
-          python3 tests/test_cce_submission.py
-          python3 tests/test_cce_contract.py
-          python3 tests/test_cce_population.py
-          python3 tests/test_cce_window_chain.py
-          python3 tests/test_cce_end_to_end.py
-          python3 tests/test_cce_response_chain.py
-          python3 tests/test_cce_skill_contract.py
-          python3 tests/test_reply_loop_parallel.py
-          python3 tests/test_cce_knot_stability.py
-          python3 tests/test_cce_within_js_gate.py
-          python3 tests/test_cce_measurement_system.py
+          set -euo pipefail
+          n=$(ls tests/test_*.py | wc -l)
+          echo "发现 $n 个测试文件"
+          test "$n" -ge 11 || { echo "❌ 只发现 $n 个(<11), 路径或文件出了问题"; exit 1; }
+          for t in tests/test_*.py; do echo "--- $t"; PYTHONDONTWRITEBYTECODE=1 python3 "$t"; done
 
   prep:
     needs: contract

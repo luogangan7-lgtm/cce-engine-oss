@@ -225,9 +225,17 @@ appraisal: {json.dumps(s1['appraisal'], ensure_ascii=False)}
 
 
 def stage2(text, s1, taxo):
-    # ★ 每份 s1 draw 各生成一份 prompt, s2 的 n 次抽样轮转使用。
-    # 此前是 s1 聚合后的 tops + pvs[0] 的 appraisal 拼成**一份**固定 prompt,
-    # 导致 s2 的所有抽样共享同一份 s1 噪声, 聚合再多次也削不掉它。
+    # 每份 s1 draw 各生成一份 prompt, s2 的 n 次抽样轮转使用。
+    # 此前是 s1 聚合后的 tops + pvs[0] 的 appraisal 拼成**一份**固定 prompt。
+    #
+    # ⚠️ 2026-08-18 当晚 probes/pairing_calibration.py (R=6 x 2臂, s1_pairing 作因子)
+    # 实测: **本次改动没有改善任何可测的东西。** 核心结口径下两臂的
+    # 实际 rep 间变动**都是 0.33**, 一点没动; 校准比 NEW 1.61 / OLD 1.33, 两臂皆过报。
+    # 原先写在这里的机理("s2 所有抽样共享同一份 s1 噪声, 聚合再多次也削不掉")
+    # **有反证**: 若 s1 真是大头, 解冻它应当改变 rep 间变动, 而它没有。
+    #
+    # 代码保留是因为零新增成本、且"不冻结一个已知噪声源"在原则上更干净。
+    # **但它的地位是结构性选择, 不是经过验证的改进** —— 不要拿它当已证结论往下推。
     s1_draws = s1.get("draws") or []
     if s1_draws:
         prompts = [_build_stage2_prompt(taxo, text,
