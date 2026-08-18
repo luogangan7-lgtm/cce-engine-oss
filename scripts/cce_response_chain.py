@@ -183,16 +183,28 @@ def _measurement(row: dict[str, Any], artifact: tuple[dict[str, Any], dict[str, 
         "confidence": repeatability,
         "confidence_semantics": "within-run repeatability; not probability of truth or causal attribution",
         # ★ 2026-08-18: confidence 的来源是同一次运行内 k 档温度之间的 JS 散布。
-        #   本轮实测反复表明**组内散布不等于跨次可复现性**(九结侧: 同一文本重跑
-        #   结集一致率仅 0.50/0.50/0.33, 而组内闸全绿)。
-        #   每条响应只被测一次 ⇒ 它的跨次信度**在结构上就没有被测量**。
-        #   把这个空缺写进数据, 而不是只写在注释里 —— 否则下游只看得见 confidence,
-        #   会把「组内稳」读成「这条读数可靠」。
+        #   每条 observed response **只被测一次** ⇒ 它的跨次信度**结构上没有被测量**。
+        #   把这个空缺写进数据而非只写在注释里, 否则下游只看得见 confidence。
+        #
+        #   ⚠️ 更正(run 32150369795, 60 次调用): 我最初写这段时的理由是
+        #   「组内散布不等于跨次可复现性 ⇒ confidence 可能**高估**可靠性」。
+        #   **对 stage1 四层, 那个方向被实测推翻**: across_run_js / within_js 的
+        #   中位数是 **0.36**(20 个 文本×层 格全部 <1), 即跨次散布比组内**小**,
+        #   而 ≈1/k=0.33 正是「每 rep 已平均 k=3 次」应有的结果
+        #   ⇒ **未检出超出组内抽样的跨次漂移**(与九结侧过散 1.20/p=0.159 同向)。
+        #
+        #   并且我那个比较**不是同口径的**: within 比的是单次 draw, across 比的是
+        #   已平均过的向量, 聚合层级不同。它能答「有没有额外漂移」(答: 没有),
+        #   **答不了「confidence 这个数值本身合不合适」**。
+        #   所以本字段保留的理由**只剩一条,而这条是硬的**: 单次测量给不出跨次信度。
+        #   不要再用「confidence 高估」当理由 —— 那条没有证据。
         "across_run_reliability": None,
         "across_run_reliability_reason": (
             "未测量: 每条 observed response 只跑一次 CCE, 没有独立重复。"
             "confidence 只覆盖同一次运行内的温度散布, 不覆盖重跑之间的变动。"
-            "需要跨次信度时必须对同一文本重跑并另行报出。"),
+            "需要跨次信度时必须对同一文本重跑并另行报出。"
+            "(注: run 32150369795 在 stage1 四层上未检出超出组内抽样的跨次漂移, "
+            "故本字段是「未测量」而非「已知不可靠」——两者不可混读。)"),
         "provenance": {
             "artifact": artifact_dir.name,
             "run_started": manifest.get("started"),

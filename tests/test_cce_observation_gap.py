@@ -37,3 +37,26 @@ assert "additionalProperties" not in csrc, \
     "若契约改成白名单模式, 本字段会被拒 —— 那时必须同步登记, 而不是删掉字段"
 
 print("test_cce_observation_gap: OK (空缺入数据 / 禁止默认满分 / 位置锁定 / 契约兼容)")
+
+# ── 6. 实测钉死: 字段的理由是「未测量」, 不是「已知不可靠」 ──────────────────
+import json, statistics as _st  # noqa: E402
+BL = ROOT / "tests" / "data" / "p2_stage1_baseline_20260818.json"
+if BL.exists():
+    bl = json.loads(BL.read_text(encoding="utf-8"))
+    # 6a. ★ stage1 也没有「空读数」: 无人称文本距均匀的 JS 与真人文本相当
+    j = bl["js_from_uniform"]
+    hum = _st.mean(j["HUMAN_base"].values())
+    fil = _st.mean(_st.mean(v.values()) for k, v in j.items() if k != "HUMAN_base")
+    assert 0.8 < fil / hum < 1.25, f"无人称/真人 JS 比 ={fil/hum:.2f}, 应当相当"
+    # 一张纯数字表被读出明确的欲望峰值 —— 这是「无空读数」最直观的证据
+    assert j["filler_numeric"]["desire_vec"] > 0.15, j["filler_numeric"]
+    # 6b. ★ across/within 全部 <1, 中位 ≈1/k —— **未检出**额外跨次漂移
+    rr = [c["ratio"] for row in bl["within_vs_across"].values()
+          for c in row.values() if c["ratio"]]
+    assert max(rr) < 1.0, f"若出现 >1 的格, 「未检出漂移」的说法需重审: max={max(rr)}"
+    assert 0.25 < _st.median(rr) < 0.55, f"中位应接近 1/k=0.33, 实得 {_st.median(rr):.2f}"
+    # 6c. ★ 反向断言: 禁止在代码里用「confidence 高估」当保留字段的理由(无证据)
+    assert "高估" not in src or "那条没有证据" in src, \
+        "「confidence 高估」已被 run 32150369795 推翻, 不得再作为理由留在代码里"
+    print("  实测已钉: stage1 无空读数(比值 %.2f) / across-within 中位 %.2f 未检出额外漂移"
+          % (fil / hum, _st.median(rr)))
