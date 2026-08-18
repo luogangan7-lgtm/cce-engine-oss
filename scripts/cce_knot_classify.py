@@ -98,7 +98,13 @@ def stage1(text, context, k):
     # 于是一个 rep 内所有 s2 抽样吃同一份抖过的 prompt ——
     # **s2 的聚合器在数学上碰不到 rep 间方差**, 无论 n 多大。
     # 把 k 份 s1 draw 分发给 n 份 s2 draw, s1 的方差才进得了 s2 的聚合。
+    # ★ 2026-08-18 draw ledger: 此前每个 draw 只留 tops(**顶层标签**)与 appraisal,
+    #   四层完整向量在算完 top 之后就被丢掉。后果(外部源码审计指出, 已核实):
+    #   事后无法重算不同聚合、无法重算 within_js、无法做维度级 bootstrap。
+    #   ★ API 调用比 JSON 存储贵得多 —— 事后发现 raw draw 没留是不可逆损失。
     per_draw = [{"from_temperature": T,
+                 "desire_vec": pv["desire_vec"], "need_vec": pv["need_vec"],
+                 "emotion_vec": pv["emotion_vec"], "action_vec": pv["action_vec"],
                  "tops": {"desire": top_label(pv["desire_vec"], DESIRES),
                           "need": top_label(pv["need_vec"], NEED_KEYS),
                           "emotion": top_label(pv["emotion_vec"], EMOTIONS),
@@ -273,6 +279,10 @@ def stage2(text, s1, taxo):
 #   对抗评审逐条指出后已改为显式常量 SUPPORT_RULE, 见下。
 #   教训: **声称「没有阈值」之前, 先找一遍藏在算术里的那个。**
 # ─────────────────────────────────────────────────────────────────────────────
+# 九结全集。draw ledger 要「缺席显式记 0」就必须有全集, 不能只列出现过的。
+KNOTS_ALL = ("pain_seek", "injustice", "belong", "reward", "display",
+             "itch", "suspend", "inertia", "audit")
+
 KNOT_N = int(os.environ.get("CCE_KNOT_N", "5"))
 
 # 少数派抽样不进输出。此前这条规则藏在 `median(缺席记0) > 0` 里, 从未被写下来。
@@ -332,6 +342,10 @@ def _stage2_draw(prompt, taxo, tag):
         if isinstance(d, dict) and isinstance(d.get("knots"), list) and d["knots"]:
             if not [x for x in d["knots"] if x.get("key") not in ok_keys]:
                 # 兼容: 模型偶尔仍吐 weight。统一落到 intensity。
+                # ★ 记录垫片是否触发 —— 若模型吐的是和为 1 的 weight(旧 schema),
+                #   那些 draw 与自由 intensity 的 draw **量纲不同**(max~0.4 vs ~0.9),
+                #   却一起进逐坐标中位数。静默量纲混合, 不落盘就永远看不见。
+                d["_weight_shim_fired"] = any("intensity" not in x for x in d["knots"])
                 for x in d["knots"]:
                     if "intensity" not in x:
                         x["intensity"] = x.get("weight", 0.0)
@@ -450,7 +464,16 @@ def _stage2_aggregate(prompt, taxo, n=None):
     _tot = sum(k["intensity"] for k in out_knots if k["support_majority"]) or 1.0
     for k in out_knots:
         k["weight"] = round(k["intensity"] / _tot, 4) if k["support_majority"] else 0.0
+    # ★ draw ledger: 完整 9 维向量, **缺席显式记 0** —— 只存 top1 或只存最终 intensity
+    #   都会永久失去 co-occurrence / latent structure / 替代阈值 / 替代聚合 的重研究能力。
+    draw_ledger = [{"draw_id": i,
+                    "knot_vector": {k: next((float(x["intensity"]) for x in d["knots"]
+                                             if x["key"] == k), 0.0) for k in KNOTS_ALL},
+                    "weight_shim_fired": bool(d.get("_weight_shim_fired")),
+                    "top1": max(d["knots"], key=lambda x: x["intensity"])["key"]}
+                   for i, d in enumerate(draws)]
     return {"knots": out_knots,
+            "draw_ledger": draw_ledger,
             "intensity": {k: round(v, 4) for k, v in sorted(inten.items(), key=lambda x: -x[1])},
             "families": families,
             "drive_brake": {"drive_mass": dm, "brake_mass": bm,
