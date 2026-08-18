@@ -182,6 +182,17 @@ def _measurement(row: dict[str, Any], artifact: tuple[dict[str, Any], dict[str, 
         "layer_distributions": layer_distributions,
         "confidence": repeatability,
         "confidence_semantics": "within-run repeatability; not probability of truth or causal attribution",
+        # ★ 2026-08-18: confidence 的来源是同一次运行内 k 档温度之间的 JS 散布。
+        #   本轮实测反复表明**组内散布不等于跨次可复现性**(九结侧: 同一文本重跑
+        #   结集一致率仅 0.50/0.50/0.33, 而组内闸全绿)。
+        #   每条响应只被测一次 ⇒ 它的跨次信度**在结构上就没有被测量**。
+        #   把这个空缺写进数据, 而不是只写在注释里 —— 否则下游只看得见 confidence,
+        #   会把「组内稳」读成「这条读数可靠」。
+        "across_run_reliability": None,
+        "across_run_reliability_reason": (
+            "未测量: 每条 observed response 只跑一次 CCE, 没有独立重复。"
+            "confidence 只覆盖同一次运行内的温度散布, 不覆盖重跑之间的变动。"
+            "需要跨次信度时必须对同一文本重跑并另行报出。"),
         "provenance": {
             "artifact": artifact_dir.name,
             "run_started": manifest.get("started"),
