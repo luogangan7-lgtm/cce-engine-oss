@@ -1,0 +1,38 @@
+name: probe
+# 通用探针入口。建它的原因: MINIMAX_API_KEY 只作为公开仓 secret 存在, 本地没有 ——
+# 此前 7 个探针都是"本地带着 key 跑完再提交", 一旦 key 不在手里就跑不动(实际发生)。
+# 走 Actions 后: 无需本地持有密钥, 且每次跑都留下 run_id 与 artifact, 取数动作可追溯。
+on:
+  workflow_dispatch:
+    inputs:
+      probe: {description: "探针路径, 如 probes/discriminability.py", required: true, type: string}
+      args:  {description: "位置参数(可空)", required: false, default: "", type: string}
+      env:   {description: "额外环境变量, 形如 DISC_REPS=4 CCE_KNOT_N=5", required: false, default: "", type: string}
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip}
+      - run: pip install -r requirements.txt
+      - name: 探针必须存在（不存在就红，别让它静默跑空）
+        run: test -f "${{ inputs.probe }}" || { echo "❌ 找不到 ${{ inputs.probe }}"; exit 1; }
+      - name: 跑探针
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: |
+          set -euo pipefail
+          for kv in ${{ inputs.env }}; do export "$kv"; done
+          python3 -u "${{ inputs.probe }}" ${{ inputs.args }} 2>&1 | tee /tmp/probe.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: probe-out
+          path: |
+            /tmp/probe.log
+            /tmp/*.json
+            results/knot_classify_raw/
+          if-no-files-found: warn
