@@ -93,10 +93,23 @@ def stage1(text, context, k):
             "need": top_label(avg["need_vec"], NEED_KEYS),
             "emotion": top_label(avg["emotion_vec"], EMOTIONS),
             "action": top_label(avg["action_vec"], ACTIONS)}
+    # 2026-08-18: 额外暴露**逐 draw** 的 tops/appraisal。
+    # 用途见 _stage2_aggregate 的 s1 配对: 此前 s2 的 n 次抽样共享同一份 pvs[0] 的 appraisal,
+    # 于是一个 rep 内所有 s2 抽样吃同一份抖过的 prompt ——
+    # **s2 的聚合器在数学上碰不到 rep 间方差**, 无论 n 多大。
+    # 把 k 份 s1 draw 分发给 n 份 s2 draw, s1 的方差才进得了 s2 的聚合。
+    per_draw = [{"from_temperature": T,
+                 "tops": {"desire": top_label(pv["desire_vec"], DESIRES),
+                          "need": top_label(pv["need_vec"], NEED_KEYS),
+                          "emotion": top_label(pv["emotion_vec"], EMOTIONS),
+                          "action": top_label(pv["action_vec"], ACTIONS)},
+                 "appraisal": pv.get("appraisal")}
+                for T, pv in paired]
     return {
         "k_requested": k, "k_ok": len(pvs),
         "layers": avg,
         "tops": tops,
+        "draws": per_draw,
         # ↓ 兼容保留(下游已有读法), 但出处已在 _provenance 与 single_draw 里写明
         "appraisal": pvs[0].get("appraisal"),
         "chain_trace": pvs[0].get("chain_trace", ""),
@@ -135,7 +148,7 @@ def _stage2_template(taxo):
     return _build_stage2_prompt(taxo, "<TEXT>", {"tops": "<TOPS>", "appraisal": "<APPRAISAL>"})
 
 
-def instrument_id(taxo, k=None, knot_n=None):
+def instrument_id(taxo, k=None, knot_n=None, s1_pairing=None):
     """当前仪器的完整定义 + 哈希。任何跨读数比较之前必须先比它。"""
     from exp_crossmodel_desire import MODELS
     m = MODELS["M3"]
@@ -144,7 +157,8 @@ def instrument_id(taxo, k=None, knot_n=None):
         "prompt_sha256": hashlib.sha256(_stage2_template(taxo).encode("utf-8")).hexdigest()[:16],
         "model": m["model"],
         "endpoint": m["base"],
-        "sampling_policy": {"s1_k": k, "s1_temps": _S1_BASE_TEMPS, "s2_n": knot_n or KNOT_N},
+        "sampling_policy": {"s1_k": k, "s1_temps": _S1_BASE_TEMPS, "s2_n": knot_n or KNOT_N,
+                            "s1_pairing": s1_pairing or "unspecified"},
         "aggregation_policy": {"support_rule": SUPPORT_RULE,
                                "intensity_stat": "median_of_nonzero",
                                "composition": "within_family_then_global_weight"},
@@ -211,9 +225,21 @@ appraisal: {json.dumps(s1['appraisal'], ensure_ascii=False)}
 
 
 def stage2(text, s1, taxo):
-    prompt = _build_stage2_prompt(taxo, text, s1)
-    out = _stage2_aggregate(prompt, taxo)
-    out["instrument"] = instrument_id(taxo, k=s1.get("k_requested"), knot_n=KNOT_N)
+    # ★ 每份 s1 draw 各生成一份 prompt, s2 的 n 次抽样轮转使用。
+    # 此前是 s1 聚合后的 tops + pvs[0] 的 appraisal 拼成**一份**固定 prompt,
+    # 导致 s2 的所有抽样共享同一份 s1 噪声, 聚合再多次也削不掉它。
+    s1_draws = s1.get("draws") or []
+    if s1_draws:
+        prompts = [_build_stage2_prompt(taxo, text,
+                                        {"tops": d["tops"], "appraisal": d["appraisal"]})
+                   for d in s1_draws]
+        pairing = f"round_robin_over_{len(s1_draws)}_s1_draws"
+    else:   # 兼容: 老调用方没有 draws 字段
+        prompts = _build_stage2_prompt(taxo, text, s1)
+        pairing = "single_s1_aggregate(legacy)"
+    out = _stage2_aggregate(prompts, taxo)
+    out["instrument"] = instrument_id(taxo, k=s1.get("k_requested"), knot_n=KNOT_N, s1_pairing=pairing)
+    out["s1_pairing"] = pairing
     return out
 
 
@@ -275,9 +301,16 @@ def _stage2_draw(prompt, taxo, tag):
 
 
 def _stage2_aggregate(prompt, taxo, n=None):
+    """prompt 可以是**一个字符串**, 也可以是**一列字符串**(每份对应一个 s1 draw)。
+
+    2026-08-18: 传列表时逐 draw 轮转 —— 这是「仪器边界必须包含 s1」的落地。
+    传单串时行为与改动前完全一致(兼容, 且用于离线测试)。
+    """
     n = n or KNOT_N
+    prompts = prompt if isinstance(prompt, (list, tuple)) else [prompt]
     with ThreadPoolExecutor(max_workers=min(5, n)) as ex:
-        draws = [d for d in ex.map(lambda i: _stage2_draw(prompt, taxo, f"d{i}"), range(n)) if d]
+        draws = [d for d in ex.map(
+            lambda i: _stage2_draw(prompts[i % len(prompts)], taxo, f"d{i}"), range(n)) if d]
     if not draws:
         raise RuntimeError(f"stage2 {n} 次抽样全部失败(raw 已存)")
 

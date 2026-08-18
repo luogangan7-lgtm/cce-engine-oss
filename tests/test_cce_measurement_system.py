@@ -114,4 +114,81 @@ wf = (ROOT / ".github" / "workflows" / "cce-submit.yml").read_text(encoding="utf
 assert "python3 tests/test_cce_measurement_system.py" in wf, \
     "本测试未进 cce-submit.yml 的执行清单 —— 那份清单是硬编码的, 不进去就永不执行"
 
-print("test_cce_measurement_system: OK (仪器六项 / 哈希随 prompt·n·本体变 / 跨仪器拒比 / usable×withheld 互斥 / 链路对齐 / CI 自防)")
+# ── 9. ★ 仪器边界包含 s1：n 次 s2 抽样必须吃到**不同**的 s1 draw ────────────
+# 天花板(2026-08-18 发现): 此前 s2 的 prompt 由 s1 聚合 tops + pvs[0] 的 appraisal 拼成**一份**,
+# 一个 rep 内 n 次 s2 抽样共享同一份抖过的 prompt
+# ⇒ **s2 的聚合器在数学上碰不到 rep 间方差**, 无论 n 多大。
+# 修法: k 份 s1 draw 轮转分发给 n 份 s2 draw。
+
+seen = []
+def _spy(prompt, taxo, tag):
+    seen.append(prompt)
+    return {"knots": [{"key": "display", "intensity": 0.6}], "levers_present": [], "notes": ""}
+
+orig = K._stage2_draw
+K._stage2_draw = _spy
+try:
+    s1_multi = {"k_requested": 3, "draws": [
+        {"from_temperature": 0.0, "tops": {"desire": "控制欲"}, "appraisal": {"a": 1}},
+        {"from_temperature": 0.3, "tops": {"desire": "确认欲"}, "appraisal": {"a": 2}},
+        {"from_temperature": 0.6, "tops": {"desire": "归属欲"}, "appraisal": {"a": 3}},
+    ]}
+    seen.clear()
+    out = K.stage2("some text", s1_multi, TAXO)
+finally:
+    K._stage2_draw = orig
+
+assert len(seen) == K.KNOT_N, f"应发出 {K.KNOT_N} 次抽样, 实际 {len(seen)}"
+assert len(set(seen)) == 3,     f"n={K.KNOT_N} 次抽样必须轮转 3 份不同的 s1 prompt, 实际只有 {len(set(seen))} 份不同 —— "     "全相同就说明 s1 方差仍被冻死在 prompt 里, 天花板没修掉"
+assert out["s1_pairing"] == "round_robin_over_3_s1_draws", out["s1_pairing"]
+# 三份 prompt 各自带着自己那份 s1 读数，不是同一份
+for tag in ("控制欲", "确认欲", "归属欲"):
+    assert any(tag in p for p in seen), f"prompt 里应出现 {tag}"
+
+# 9a. ★ 配对策略必须进 instrument_hash —— 改了配对就是换了仪器
+h_new = K.instrument_id(TAXO, k=3, knot_n=5, s1_pairing="round_robin_over_3_s1_draws")["instrument_hash"]
+h_old = K.instrument_id(TAXO, k=3, knot_n=5, s1_pairing="single_s1_aggregate(legacy)")["instrument_hash"]
+assert h_new != h_old, "配对策略变了必须换哈希, 否则新旧读数会被当成同一把尺子"
+
+# 9b. 兼容: 老调用方没有 draws 字段时退回单 prompt, 且策略如实标注为 legacy
+seen.clear(); K._stage2_draw = _spy
+try:
+    out2 = K.stage2("some text", {"k_requested": 3, "tops": {"desire": "控制欲"}, "appraisal": {}}, TAXO)
+finally:
+    K._stage2_draw = orig
+assert len(set(seen)) == 1, "无 draws 时应退回单 prompt"
+assert out2["s1_pairing"] == "single_s1_aggregate(legacy)", out2["s1_pairing"]
+assert out2["instrument"]["spec"]["sampling_policy"]["s1_pairing"] == "single_s1_aggregate(legacy)",     "legacy 路径必须如实标注, 不能伪装成已修"
+
+# ── 10. stage1 必须真的产出 draws（2026-08-18 变异测试找出的盲区）──────────
+# 上面第 9 节是手工构造 draws 喂给 stage2 的, 从没断言 stage1 会产出它 ——
+# 于是「stage1 不再暴露逐 draw」这个变异跑不红。补上。
+_NL = ["desire_vec", "need_vec", "emotion_vec", "action_vec"]
+_calls = {"n": 0}
+def _fake_parse(mkey, case, T, tag):
+    _calls["n"] += 1
+    i = _calls["n"]
+    pv = {L: [1.0 / (i + j + 1) for j in range(3)] for L in _NL}
+    pv["appraisal"] = {"draw": i}
+    pv["chain_trace"] = f"trace{i}"
+    return "raw", "p", pv, {}, True
+
+_orig_parse, _orig_tl = K.call_parse, K.top_label
+K.call_parse = _fake_parse
+K.top_label = lambda vec, labels: f"{labels[0]}@{round(vec[0], 3)}"   # 让逐 draw 的 top 可区分
+try:
+    s1 = K.stage1("text", "ctx", 3)
+finally:
+    K.call_parse, K.top_label = _orig_parse, _orig_tl
+
+assert "draws" in s1, "stage1 必须暴露逐 draw —— 否则 stage2 无从配对, 天花板照旧"
+assert len(s1["draws"]) == s1["k_ok"] == 3, s1["k_ok"]
+for dr in s1["draws"]:
+    assert {"from_temperature", "tops", "appraisal"} <= set(dr), dr
+# ★ 逐 draw 必须**各不相同**, 否则配对形同虚设
+assert len({json.dumps(d["appraisal"], sort_keys=True) for d in s1["draws"]}) == 3,     "三份 draw 的 appraisal 必须互不相同, 相同就说明没有真正逐 draw 保留"
+assert len({d["from_temperature"] for d in s1["draws"]}) == 3, s1["draws"]
+# 聚合项仍在, 且 draws 不替代它们
+assert "layers" in s1 and "tops" in s1 and "within_js" in s1
+
+print("test_cce_measurement_system: OK (仪器六项 / 哈希随 prompt·n·本体·配对变 / 跨仪器拒比 / usable×withheld 互斥 / stage1 产出 draws / s2 配对轮转 / 链路对齐 / CI 自防)")
