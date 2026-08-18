@@ -8,9 +8,10 @@
 以及: 此前每处扣发都是零散加的, 没有一个地方回答「这次运行哪些读数可用」,
 于是不确定性只在一条路上生效(reply_loop 曾照旧发 PASS/FAIL)。
 
-★ 本文件必须出现在 .github/workflows/cce-submit.yml 的硬编码测试命令清单里。
+★ CI 遍历 tests/test_*.py 执行, 本文件末尾断言那个遍历机制还在。
 """
 import json
+import re
 import os
 import sys
 from pathlib import Path
@@ -111,8 +112,13 @@ for mode, prof in (("reply", "outbound_reply"), ("outbound_post", "outbound_post
 
 # ── 8. 本文件必须在 CI 的硬编码执行清单里 ───────────────────────────────────
 wf = (ROOT / ".github" / "workflows" / "cce-submit.yml").read_text(encoding="utf-8")
-assert "python3 tests/test_cce_measurement_system.py" in wf, \
-    "本测试未进 cce-submit.yml 的执行清单 —— 那份清单是硬编码的, 不进去就永不执行"
+# 2026-08-18: CI 原先是**硬编码的 11 行清单**, 新增测试忘了加进去就永不执行(假检查, 且无声)。
+# 已改成遍历 tests/test_*.py + 数量下限自守。本断言随之从「我在清单里」
+# 改成「遍历机制还在」—— 后者更强: 它保证的是**所有**测试都跑, 不只是我自己。
+assert "for t in tests/test_*.py" in wf, \
+    "CI 必须遍历 tests/test_*.py —— 退回硬编码清单会让新增测试永不执行"
+assert re.search(r'test "\$n" -ge \d+', wf), \
+    "遍历必须配数量下限自守 —— 否则路径写错会静默跑零个测试而 CI 全绿"
 
 # ── 9. ★ 仪器边界包含 s1：n 次 s2 抽样必须吃到**不同**的 s1 draw ────────────
 # 天花板(2026-08-18 发现): 此前 s2 的 prompt 由 s1 聚合 tops + pvs[0] 的 appraisal 拼成**一份**,
@@ -192,3 +198,18 @@ assert len({d["from_temperature"] for d in s1["draws"]}) == 3, s1["draws"]
 assert "layers" in s1 and "tops" in s1 and "within_js" in s1
 
 print("test_cce_measurement_system: OK (仪器六项 / 哈希随 prompt·n·本体·配对变 / 跨仪器拒比 / usable×withheld 互斥 / stage1 产出 draws / s2 配对轮转 / 链路对齐 / CI 自防)")
+
+# ---------------------------------------------------------------------------
+# 2026-08-18: 统计量退化时不许返回可被读成"通过"的数。
+# 实际事故: 可分辨性探针的核心结取交集 → 空集 → 0/0 报成 inf,
+# 而判决线写的是 "D>=2 通过" —— 照字面读会宣布 P1 Reliability 通过。
+# 这是同一类失效的第四次(top1_stable n=1 恒真 · median(ws)>0 隐藏阈值 · 稀有结极差冒充稳定性)。
+# 共同结构: **边界条件下统计量返回了对作者有利的值, 且不报错。**
+_disc = (ROOT / "probes" / "discriminability.py").read_text(encoding="utf-8")
+assert 'float("inf")' not in _disc, \
+    "可分辨性探针不许在退化时返回 inf —— inf 会被 'D>=2 通过' 那条线读成通过"
+assert _disc.count("raise SystemExit") >= 2, \
+    "退化路径(核心结为空 / 分母为0)必须各自抛错, 不能静默给数"
+# 抛错信息里必须点名"判决线一条都不触发", 否则下一个人还是会去读那个数
+assert "判决线一条都不触发" in _disc or "判决线一条都不触发" in _disc, \
+    "退化时必须明说判决线不触发"

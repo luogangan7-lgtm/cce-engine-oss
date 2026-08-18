@@ -99,6 +99,10 @@ def one_rep(text):
             "top1": s2["sampling"]["top1_mode"]}
 
 
+def ksets_early(data):
+    return {n: sorted(set().union(*[set(r["knots"]) for r in reps])) for n, reps in data.items()}
+
+
 def rng(vals):
     return round(max(vals) - min(vals), 4) if len(vals) > 1 else 0.0
 
@@ -139,7 +143,23 @@ def main():
              for name, reps in data.items()}
     between_text = round(max((rng([means[n][k] for n in means]) for k in core), default=0.0), 4)
 
-    D = round(between_text / between_run, 3) if between_run else float("inf")
+    # ★★ 2026-08-18 实测踩中: 核心结为空 → 分子分母都是 0 → 0/0 原本报成 inf,
+    # 而判决线 3 写的是 "D>=2 通过" —— 照字面读会宣布 P1 Reliability 通过。
+    # **统计量退化时吐出对作者有利的答案**, 这是同一类失效的第四次
+    # (前三次: top1_stable 在 n=1 恒 True · median(ws)>0 隐藏阈值 · 稀有结极差冒充稳定性)。
+    # 改成: 退化时**抛错**, 绝不返回任何能被读成通过的数。
+    if not core:
+        raise SystemExit(
+            "❌ 统计量退化: 核心结为空(三份文本没有任何一个结在所有格子里都出现)。\n"
+            "   D 未定义, **判决线一条都不触发** —— 尤其不许把 inf 读成『D>=2 通过』。\n"
+            f"   各文本结集: {json.dumps(ksets_early(data), ensure_ascii=False)}\n"
+            "   注意: 结集互不相交本身可能是**最强的分辨力**, 但本统计量把它映射成了『没有数据』——\n"
+            "   这是设计缺陷, 需要换统计量, 不是把 inf 当通过。")
+    if between_run <= 0:
+        raise SystemExit(
+            "❌ 统计量退化: 重跑间变动为 0(分母)。D 未定义, 判决线一条都不触发。\n"
+            "   这可能是真的完美重测, 也可能是核心结太少/取样太粗 —— 两者不可由本统计量区分。")
+    D = round(between_text / between_run, 3)
 
     print("\n" + "=" * 74)
     print(f"  文本间变动 (信号)      {between_text}")

@@ -5,9 +5,10 @@
 每次都写进 manifest, 但此前**没有任何 gate 使用它**; 唯一动作是阈值 0.25 的 flag,
 实测 31 条里只触发 2 次 —— 接近永久绿。永久绿与永久红是同一种失效。
 
-★ 本文件必须同时出现在 .github/workflows/cce-submit.yml 的硬编码测试命令清单里。
+★ CI 遍历 tests/test_*.py 执行, 本文件末尾断言那个遍历机制还在。
 """
 import json
+import re
 import os
 import sys
 from pathlib import Path
@@ -81,7 +82,12 @@ assert r["tops"]["emotion"] is None, "0.30 同时超逐层阈值, top 也必须�
 
 # ── 7. 本文件必须在 CI 的硬编码执行清单里 ─────────────────────────────────
 wf = (ROOT / ".github" / "workflows" / "cce-submit.yml").read_text(encoding="utf-8")
-assert "python3 tests/test_cce_within_js_gate.py" in wf, \
-    "本测试未进 cce-submit.yml 的执行清单 —— 那份清单是硬编码的, 不进去就永不执行"
+# 2026-08-18: CI 原先是**硬编码的 11 行清单**, 新增测试忘了加进去就永不执行(假检查, 且无声)。
+# 已改成遍历 tests/test_*.py + 数量下限自守。本断言随之从「我在清单里」
+# 改成「遍历机制还在」—— 后者更强: 它保证的是**所有**测试都跑, 不只是我自己。
+assert "for t in tests/test_*.py" in wf, \
+    "CI 必须遍历 tests/test_*.py —— 退回硬编码清单会让新增测试永不执行"
+assert re.search(r'test "\$n" -ge \d+', wf), \
+    "遍历必须配数量下限自守 —— 否则路径写错会静默跑零个测试而 CI 全绿"
 
 print("test_cce_within_js_gate: OK (逐层阈值 / 扣发 top / 边界 / 缺失即红 / CI 自防)")

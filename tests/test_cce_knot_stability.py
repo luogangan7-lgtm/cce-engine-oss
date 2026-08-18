@@ -5,11 +5,12 @@
 完全相同的读数对 0/6, 单结权重极差 0.65。即 stage2 单次调用给出的是一次抽样, 不是一个测量,
 而它此前被当读数写进台账。本闸钉住聚合语义, 让这件事不能悄悄退回去。
 
-★ 本文件必须同时出现在 .github/workflows/cce-submit.yml 的 contract 作业命令清单里。
+★ CI 遍历 tests/test_*.py 执行, 本文件末尾断言那个遍历机制还在。
   那份清单是**硬编码的**, `tests/test_cce_*` 只是 PR 触发路径过滤, 不是执行清单 ——
   新增测试文件不改那份清单, 它就是一个从不运行的永久绿闸(2026-08-18 对抗评审指出, 已实查确认)。
 """
 import json
+import re
 import os
 import sys
 from pathlib import Path
@@ -127,8 +128,13 @@ assert [k["weight"] for k in r["knots"]] == sorted([k["weight"] for k in r["knot
 # ── 5. 本文件必须在 CI 的硬编码执行清单里 ──────────────────────────────────
 # 不做这条断言, 本文件就可能变成一个从不运行的永久绿闸 —— 它自己防它自己。
 wf = (ROOT / ".github" / "workflows" / "cce-submit.yml").read_text(encoding="utf-8")
-assert "python3 tests/test_cce_knot_stability.py" in wf, \
-    "本测试未进 cce-submit.yml 的执行清单 —— 那份清单是硬编码的, 不进去就永不执行"
+# 2026-08-18: CI 原先是**硬编码的 11 行清单**, 新增测试忘了加进去就永不执行(假检查, 且无声)。
+# 已改成遍历 tests/test_*.py + 数量下限自守。本断言随之从「我在清单里」
+# 改成「遍历机制还在」—— 后者更强: 它保证的是**所有**测试都跑, 不只是我自己。
+assert "for t in tests/test_*.py" in wf, \
+    "CI 必须遍历 tests/test_*.py —— 退回硬编码清单会让新增测试永不执行"
+assert re.search(r'test "\$n" -ge \d+', wf), \
+    "遍历必须配数量下限自守 —— 否则路径写错会静默跑零个测试而 CI 全绿"
 
 # ── 6. 四层结构 (重构文档 §22) ───────────────────────────────────────────────
 # 此前是单层 9-simplex: 权重和恒为 1 ⇒ 一个分量升必然压低其他 ⇒

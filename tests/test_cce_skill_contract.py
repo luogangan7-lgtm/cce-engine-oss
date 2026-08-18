@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import tempfile
 from pathlib import Path
 
@@ -122,7 +123,12 @@ def test_workflow_has_unique_dispatch_identity() -> None:
     assert "run-name: CCE ${{ inputs.submission_id" in workflow
     assert "submission_id:" in workflow
     assert "dispatch submission_id does not match submission envelope" in workflow
-    assert "python3 tests/test_cce_skill_contract.py" in workflow
+    # 2026-08-18: 原先断言"我在硬编码清单里"。清单已改成遍历 tests/test_*.py,
+    # 断言随之改成"遍历机制还在" —— 更强, 它保证所有测试都跑, 不只是我自己。
+    assert "for t in tests/test_*.py" in workflow, \
+        "CI 必须遍历 tests/test_*.py —— 退回硬编码清单会让新增测试永不执行"
+    assert re.search(r'test "\$n" -ge \d+', workflow), \
+        "遍历必须配数量下限自守 —— 否则路径写错会静默跑零个测试而 CI 全绿"
 
 
 if __name__ == "__main__":
