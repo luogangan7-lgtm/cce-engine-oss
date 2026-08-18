@@ -217,4 +217,33 @@ src = inspect.getsource(K.stage1)
 assert "paired" in src and "from_temperature\": paired[0][0]" in src.replace("'", '"'), \
     "from_temperature 必须取自真正成功的那一档, 不能恒取 temps[0]"
 
-print("test_cce_knot_stability: OK (聚合 / top1 / 反向测试 / 四层 / 强度×出现率分开 / 偶数n / provenance / CI 自防)")
+# ── 9. top1 判据的 n 依赖 (2026-08-18 对抗评审后修) ─────────────────────────
+# 旧字段 top1_stable = len(set(tops))==1 有两个问题:
+#   · n=1 时恒真 ⇒ 扣发闸在单抽下永不触发
+#   · P(全体一致) ≈ p^n, 随 n 单调下降是构造性的 ⇒ 提高 n 即收紧闸, 与现象无关
+# 这意味着「把 n 从 1 提到 5 后 top1_stable 变差」这句话在数学上是必然的, 不是发现。
+r1 = agg([[("display", 0.6), ("audit", 0.4)]])                  # n=1
+assert r1["sampling"]["top1_unanimous"] is True, "n=1 必然 unanimous —— 这正是问题"
+assert r1["sampling"]["top1_mode_share"] == 1.0, r1["sampling"]
+
+# 9a. ★ mode_share 跨 n 可比: 同一个「4/5 命中」在 n=5 与 n=10 上给相同的数
+five = agg([[("display", 0.6), ("audit", 0.4)]] * 4 + [[("audit", 0.6), ("display", 0.4)]])
+ten = agg([[("display", 0.6), ("audit", 0.4)]] * 8 + [[("audit", 0.6), ("display", 0.4)]] * 2)
+assert five["sampling"]["top1_mode_share"] == 0.8, five["sampling"]
+assert ten["sampling"]["top1_mode_share"] == 0.8, ten["sampling"]
+assert five["sampling"]["top1_mode_share"] == ten["sampling"]["top1_mode_share"], \
+    "同一命中率在不同 n 上必须给相同的 mode_share —— 这正是 unanimous 做不到的"
+assert five["sampling"]["top1_unanimous"] is False and ten["sampling"]["top1_unanimous"] is False
+
+# 9b. unanimous 在同一命中率下随 n 变化 —— 用反例钉死它不可跨 n 比较
+p8_n2 = agg([[("display", 0.6), ("audit", 0.4)]] * 2)
+p8_n5 = agg([[("display", 0.6), ("audit", 0.4)]] * 4 + [[("audit", 0.6), ("display", 0.4)]])
+assert p8_n2["sampling"]["top1_unanimous"] is True
+assert p8_n5["sampling"]["top1_unanimous"] is False
+# 两者的 mode_share 分别是 1.0 与 0.8 —— 差异来自抽样, 不来自被测对象
+
+# 9c. 众数身份也要报出来, 否则占比是个悬空的数
+assert five["sampling"]["top1_mode"] == "display", five["sampling"]
+assert "caveat_unanimous" in five["sampling"], "必须带上不可跨 n 比较的告诫"
+
+print("test_cce_knot_stability: OK (聚合 / 四层 / 强度×出现率 / 偶数n / provenance / top1 的 n 依赖 / CI 自防)")

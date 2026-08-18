@@ -231,9 +231,24 @@ def _stage2_aggregate(prompt, taxo, n=None):
                         "max": round(max(nz), 4) if nz else 0.0,
                         "range": round(max(nz) - min(nz), 4) if nz else 0.0}
 
-    # 首结身份稳定性: 二元, 无阈值。n 次抽样的 top-1 key 是否全部相同。
+    # 首结身份的抽样一致性。
+    #
+    # ⚠️ 2026-08-18 更正: 此前这个字段叫 top1_stable, 判据是 len(set(tops))==1。
+    #   那个名字与判据都有问题:
+    #   · **n=1 时 len(set)==1 恒成立** ⇒ 扣发闸在单抽下永不触发
+    #   · P(全体一致) ≈ p^n, 随 n 单调下降是**构造性**的 ——
+    #     把默认 n 从 1 提到 5, 等于凭算术收紧了闸, 与被测现象是否变化无关。
+    #     闸的严格度成了旋钮, 不是测量。
+    #   · 「stable」这个词把样本的性质说成了世界的性质。
+    #
+    # 改法: 主量报**众数占比**(跨 n 可比), 二元字段改名为 top1_unanimous ——
+    #   「一致」是样本的事实, 「稳定」是对世界的断言, 二者不该共用一个名字。
+    from collections import Counter as _C
     tops = [max(d["knots"], key=lambda x: x["intensity"])["key"] for d in draws]
-    top1_stable = len(set(tops)) == 1
+    _mode = _C(tops).most_common(1)[0]
+    mode_share = round(_mode[1] / len(tops), 4)
+    top1_unanimous = len(set(tops)) == 1
+    top1_stable = top1_unanimous   # 兼容别名, 语义同 unanimous; 新代码请用 mode_share
 
     # knots 保持 [[key, weight]] 的既有形状(weight 改为中位数), 下游 5 个消费者不需要改。
     merged = sorted(keys, key=lambda k: -stability[k]["intensity"])
@@ -292,7 +307,11 @@ def _stage2_aggregate(prompt, taxo, n=None):
             "levers_present": sorted({l for d in draws for l in (d.get("levers_present") or [])}),
             "notes": draws[0].get("notes", ""),
             "sampling": {"n_requested": n, "n_ok": len(draws),
+                         "top1_mode": _mode[0], "top1_mode_share": mode_share,
+                         "top1_unanimous": top1_unanimous,
                          "top1_stable": top1_stable, "top1_draws": tops,
+                         "caveat_unanimous": ("top1_unanimous 在 n=1 时恒真, 且 P≈p^n 随 n 单调下降 —— "
+                                              "跨不同 n 比较必须用 top1_mode_share, 不能用 unanimous"),
                          "max_range": round(max((v["range"] for v in stability.values()), default=0.0), 4),
                          "per_knot": stability},
             "caveat": ("单次抽样不是测量: 本结果为 n 次抽样的逐结中位数; "
