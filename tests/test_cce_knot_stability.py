@@ -64,9 +64,13 @@ r = agg([[("display", 1.0)],
          [("display", 1.0)]])
 b = r["sampling"]["per_knot"]["belong"]
 assert b["occur"] == 1 and b["n"] == 4, b
-assert b["median"] == 0.0, b                        # 4 次里 3 次为 0 → 中位数 0
-assert b["max"] == 0.2 and b["range"] == 0.2, b
-assert all(k["key"] != "belong" for k in r["knots"]), "中位数为 0 的结不进 knots"
+assert b["support"] == 0.25, b
+# 2026-08-18 语义更正: median/intensity 现在是「出现时的中位数」, 不掺 0 ——
+# 掺 0 会把「强度」与「出现率」乘在一起, 造成 occur=3/5 低估 25%、偶数 n 报半值。
+# 该结仍不进 knots, 但理由从「中位数为 0」改成显式的「支持度不过半」。
+assert b["intensity"] == 0.2, b
+assert b["range"] == 0.0, f"只出现 1 次, 极差应为 0 而非 0.2: {b}"
+assert all(k["key"] != "belong" for k in r["knots"]), "支持度不过半的结不进 knots"
 
 # ── 2. top1_stable 是二元判据, 不含阈值 ────────────────────────────────────
 same = agg([[("display", 0.6), ("audit", 0.4)]] * 4)
@@ -92,7 +96,14 @@ unstable = agg([[("pain_seek", 0.65)],
                 [("audit", 0.55), ("display", 0.45)],
                 [("pain_seek", 0.40), ("suspend", 0.35)]])
 assert unstable["sampling"]["top1_stable"] is False
-assert unstable["sampling"]["max_range"] >= 0.5, unstable["sampling"]
+# 2026-08-18: 原断言写 max_range >= 0.5, 那个数字是按**掺 0** 的旧语义标定的。
+# 新语义下同一输入是 0.35(pain_seek 出现时在 0.30–0.65 之间), 这才是真实极差。
+# 改成不依赖魔数的判据: 不稳结的极差必须显著大于同一次调用里稳定结的极差。
+_pk = unstable["sampling"]["per_knot"]
+_unstable_r = _pk["pain_seek"]["range"]          # 三次出现, 0.30/0.40/0.65
+_stable_r = _pk["suspend"]["range"]              # 单次出现, 极差 0
+assert _unstable_r > _stable_r + 0.2, (_unstable_r, _stable_r)
+assert unstable["sampling"]["max_range"] == _unstable_r, unstable["sampling"]
 
 # 3c. 部分抽样失败时分母必须跟着降, 不能拿失败当 0 稀释。
 partial = agg([[("display", 0.6)], None, [("display", 0.8)], None])
@@ -171,4 +182,39 @@ r3 = agg([[("reward", 0.5), ("audit", 0.5)]] * 3)
 assert r3["intensity"]["reward"] == 0.5, "intensity 是原始强度, 不随其他结变化"
 assert abs(r3["knots"][0]["weight"] - 0.5) < 1e-3, "weight 是组成, 此例恰为 0.5"
 
-print("test_cce_knot_stability: OK (聚合语义 / top1 二元判据 / 反向测试 / 形状兼容 / 四层结构 / CI 自防)")
+# ── 7. 强度与出现率分开 (2026-08-18 对抗评审后修) ────────────────────────────
+# 此前 median(缺席记 0) 把「强度」与「出现率」乘在一起, 后果:
+#   occur=3/5 时报值系统性低估约 25%; 偶数 n 上 occur=n/2 报真值的一半。
+r = agg([[("display", 0.4)], [("display", 0.4)], [("display", 0.4)], [("audit", 0.9)]])
+d = r["sampling"]["per_knot"]["display"]
+assert d["occur"] == 3 and d["n"] == 4, d
+assert d["support"] == 0.75, d
+assert d["intensity"] == 0.4, f"intensity 必须是**出现时**的中位数, 不掺 0: {d}"
+assert d["median"] == d["intensity"], "median 是兼容别名"
+assert d["range"] == 0.0, f"三次都是 0.4, 极差应为 0 而不是 0.4(掺 0 会算成 0.4): {d}"
+
+# 7a. ★ 偶数 n 的半值 bug: occur=n/2 时旧实现报真值的一半
+r = agg([[("display", 0.4)], [("display", 0.4)], [("audit", 0.9)], [("audit", 0.9)]])
+dd = r["sampling"]["per_knot"]["display"]
+assert dd["intensity"] == 0.4, f"n=4 occur=2 必须报 0.4 而不是 0.2: {dd}"
+assert dd["occur"] * 2 == dd["n"], dd
+assert all(k["key"] != "display" for k in r["knots"]), "严格多数才进输出, 2/4 不算多数"
+
+# 7b. 支持度阈值是显式的, 且能被读出来
+assert K.SUPPORT_RULE == "occur * 2 > n", K.SUPPORT_RULE
+assert K._has_support({"occur": 3, "n": 5}) and not K._has_support({"occur": 2, "n": 5})
+assert not K._has_support({"occur": 2, "n": 4}), "恰好一半不算多数"
+
+# 7c. knots 每项带 support, 下游能看见「这个读数有多少次抽样支持」
+r = agg([[("display", 0.6), ("audit", 0.4)]] * 3)
+assert all("support" in k for k in r["knots"]), r["knots"][0]
+assert r["knots"][0]["support"] == 1.0
+
+# ── 8. provenance: from_temperature 必须对应真正成功的那一档 ─────────────────
+# 一个专门记出处的字段记错出处, 比没有这个字段更坏。
+import inspect
+src = inspect.getsource(K.stage1)
+assert "paired" in src and "from_temperature\": paired[0][0]" in src.replace("'", '"'), \
+    "from_temperature 必须取自真正成功的那一档, 不能恒取 temps[0]"
+
+print("test_cce_knot_stability: OK (聚合 / top1 / 反向测试 / 四层 / 强度×出现率分开 / 偶数n / provenance / CI 自防)")

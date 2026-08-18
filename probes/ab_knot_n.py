@@ -25,7 +25,13 @@ def one_run(knot_n):
     K.KNOT_N = knot_n
     s1 = K.stage1(TEXT, CTX, 3)
     s2 = K.stage2(TEXT, s1, TAXO)
-    return [[k["key"], k["weight"]] for k in s2["knots"]]
+    # 2026-08-18: 此前只返回 [[key, weight]], 丢掉了 sampling ——
+    # 而 occur / top1_stable 正是这个 A/B 唯一能回答自己问题的字段。
+    # 对抗评审原话: 「探针丢掉了唯一能回答自己问题的字段」。
+    return {"knots": [[k["key"], k["weight"]] for k in s2["knots"]],
+            "intensity": s2.get("intensity"),
+            "sampling": s2.get("sampling"),
+            "support": {k["key"]: k.get("support") for k in s2["knots"]}}
 
 
 def score(runs, label):

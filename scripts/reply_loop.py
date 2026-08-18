@@ -91,7 +91,16 @@ def main():
 
     misses = [r["dim"] for L in layers.values() for r in L["逐维"] if not r["触达"]]
     need_ok = (layers["need_vec"]["触达率"] or 0) >= 0.5
+    # 2026-08-18: 补 top1_stable 守卫。此前不确定性只在 cce_full_run.py 的 s2 段生效
+    # (top1 不稳时扣发 playbook_primary), 而这里照旧拿被抖动过的 weight 算出 PASS/FAIL ——
+    # 同一份不可靠读数, 一条路上被扣住、另一条路上照发判决。爆炸半径不一致本身就是缺陷。
+    _unstable = [x.get("stage2", {}).get("sampling", {}).get("top1_stable") is False
+                 for x in (a, b) if isinstance(x, dict)]
     knot_ok = ka["alignment_score"] >= float(os.environ.get("CCE_ALIGN_THETA", "0.35"))
+    if any(_unstable):
+        # 不判 FAIL —— 判「不可判」。首结不稳时这个分数本身没有可解释性,
+        # 强行给 PASS 或 FAIL 都是把噪声当结论。
+        knot_ok = None
     verdict = {
         "对方九结": a_knots, "我方九结": b_knots,
         "九结对齐": ka,

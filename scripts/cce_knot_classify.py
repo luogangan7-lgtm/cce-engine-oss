@@ -72,7 +72,11 @@ def stage1(text, context, k):
         return None
 
     with ThreadPoolExecutor(max_workers=min(5, k)) as ex:
-        pvs = [p for p in ex.map(one, temps) if p]
+        # 2026-08-18: 此前只留 pvs, 丢掉了「哪一档温度成功了」——
+        # 于是 from_temperature 恒写 temps[0], 首档失败时记的是错的出处。
+        # 一个专门记出处的字段记错出处, 比没有这个字段更坏。
+        paired = [(T, p) for T, p in zip(temps, ex.map(one, temps)) if p]
+    pvs = [p for _, p in paired]
     if not pvs:
         raise RuntimeError("stage1 全部失败(raw 已存 results/knot_classify_raw/)")
     avg = {L: [sum(p[L][j] for p in pvs) / len(pvs) for j in range(len(pvs[0][L]))] for L in LAYERS}
@@ -99,7 +103,7 @@ def stage1(text, context, k):
         "single_draw": {
             "appraisal": pvs[0].get("appraisal"),
             "chain_trace": pvs[0].get("chain_trace", ""),
-            "from_temperature": temps[0],
+            "from_temperature": paired[0][0] if paired else None,
             "caveat": "单次抽样(温度阶梯第一档), 不是 K 次聚合; 与 layers/tops 不同口径, 不得并列引用",
         },
         "_provenance": {"aggregated": ["layers", "tops", "within_js"],
@@ -160,11 +164,24 @@ appraisal: {json.dumps(s1['appraisal'], ensure_ascii=False)}
 #   · 换端点         —— Qwen 3/6 vs MiniMax 6/6, 减半但不归零, 且需重标定全部基线
 # 剩下唯一诚实的方向: 承认不确定性, 报分布而不是报点值。
 #
-# ★ 刻意不设权重阈值。项目已有纪律: 差距落在噪声内的层禁止排名、CCE 输出禁止 argmax、
-#   不得再拍未校准阈值。故稳定性判据取一个**二元且客观**的量:
-#   n 次抽样的首结是否同一个 key。它不需要任何拍出来的数字。
+# ★ 稳定性判据取二元且客观的量: n 次抽样的首结是否同一个 key。它不需要拍数字。
+#
+# ⚠️ 2026-08-18 二次更正: 本处初稿写「刻意不设权重阈值」——**那句是假的**。
+#   聚合里 `median(ws) > 0`(缺席记 0)等价于一个未写下来的硬阈值 `occur > n/2`,
+#   它藏在中位数算术里, 没写成常量, 也就没法被质疑或校准。
+#   对抗评审逐条指出后已改为显式常量 SUPPORT_RULE, 见下。
+#   教训: **声称「没有阈值」之前, 先找一遍藏在算术里的那个。**
 # ─────────────────────────────────────────────────────────────────────────────
 KNOT_N = int(os.environ.get("CCE_KNOT_N", "5"))
+
+# 少数派抽样不进输出。此前这条规则藏在 `median(缺席记0) > 0` 里, 从未被写下来。
+# 现在写成常量, 是为了让它**可以被质疑与校准** —— 而不是为了给它辩护。
+# 奇数 n 上与旧行为完全等价; 偶数 n 上顺带修掉「occur=n/2 报真值一半」的 bug。
+SUPPORT_RULE = "occur * 2 > n"   # 严格多数
+
+
+def _has_support(st_k):
+    return st_k["occur"] * 2 > st_k["n"]
 
 
 def _stage2_draw(prompt, taxo, tag):
@@ -200,24 +217,34 @@ def _stage2_aggregate(prompt, taxo, n=None):
     for k in keys:
         ws = [next((x["intensity"] for x in d["knots"] if x["key"] == k), 0.0) for d in draws]
         nz = [w for w in ws if w > 0]
+        # 强度与出现率是两维, 不塌成一个数。
+        # 此前 median(ws)(缺席记 0) 把两者乘在了一起, 后果实测:
+        #   · occur=3/5 时报值系统性低估约 25%(蒙特卡洛 20 万次: 真 0.500 → 报 0.374)
+        #   · 偶数 n 上 occur=n/2 报**真值的一半**(n=4/6/8 实测 0.40 → 0.20)
+        #   · 且 median>0 本身就是一个藏在算术里的未校准阈值
         stability[k] = {"occur": len(nz), "n": len(draws),
-                        "median": round(statistics.median(ws), 4),
-                        "min": round(min(ws), 4), "max": round(max(ws), 4),
-                        "range": round(max(ws) - min(ws), 4)}
+                        "support": round(len(nz) / len(draws), 4),
+                        "intensity": round(statistics.median(nz), 4) if nz else 0.0,
+                        # median 保留为兼容别名, 语义已改为「出现时的强度中位数」
+                        "median": round(statistics.median(nz), 4) if nz else 0.0,
+                        "min": round(min(nz), 4) if nz else 0.0,
+                        "max": round(max(nz), 4) if nz else 0.0,
+                        "range": round(max(nz) - min(nz), 4) if nz else 0.0}
 
     # 首结身份稳定性: 二元, 无阈值。n 次抽样的 top-1 key 是否全部相同。
     tops = [max(d["knots"], key=lambda x: x["intensity"])["key"] for d in draws]
     top1_stable = len(set(tops)) == 1
 
     # knots 保持 [[key, weight]] 的既有形状(weight 改为中位数), 下游 5 个消费者不需要改。
-    merged = sorted(keys, key=lambda k: -stability[k]["median"])
+    merged = sorted(keys, key=lambda k: -stability[k]["intensity"])
     out_knots = []
     for k in merged:
-        if stability[k]["median"] <= 0:
+        if not _has_support(stability[k]):
             continue
         meta_k = next(m for m in taxo["knots"] if m["key"] == k)
         src = next((x for d in draws for x in d["knots"] if x["key"] == k), {})
-        out_knots.append({"key": k, "intensity": stability[k]["median"],
+        out_knots.append({"key": k, "intensity": stability[k]["intensity"],
+                          "support": stability[k]["support"],
                           # weight = 全局组成(和为1), 仅为兼容下游既有 {key: weight} 读法而保留。
                           # 真正的强度是 intensity, 它不受和为 1 的约束。
                           "weight": 0.0,   # 占位, 循环后统一回填
@@ -242,7 +269,7 @@ def _stage2_aggregate(prompt, taxo, n=None):
     #        可直接用于 §22.4 的 high/low drive × high/low brake 四象限。
     #        composition 与 mass 正交: 前者是形状, 后者是水平。
     fam_of = {m["key"]: m["family"] for m in taxo["knots"]}
-    inten = {k: stability[k]["median"] for k in keys if stability[k]["median"] > 0}
+    inten = {k: stability[k]["intensity"] for k in keys if _has_support(stability[k])}
     families = {}
     for fam in {"推动", "阻挡"}:
         mem = {k: v for k, v in inten.items() if fam_of.get(k) == fam}
