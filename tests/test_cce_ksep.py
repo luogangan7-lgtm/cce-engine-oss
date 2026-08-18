@@ -141,9 +141,13 @@ if EQL.exists():
                        [f"a{i}" for i in range(4)], [f"c{i}" for i in range(4)],
                        min_effect=K.MIN_EFFECT_EQUAL_LENGTH_20260818)
     assert r02["verdict"] == "SEPARATED" and r02["T"] > 0.4
-    # ★ 但它 82% 是长度 —— 这条注记必须在代码里, 不能只在文档里
-    assert "82%" in K.__doc__ or "82" in open(ROOT / "scripts" / "cce_ksep.py",
-                                              encoding="utf-8").read()
+    # ⚠️ 2026-08-18 外部评审(ChatGPT)抓到: 此处原为
+    #     assert "82%" in K.__doc__ or "82" in <cce_ksep.py 源码>
+    #   意图是「82% 那条注记必须留在代码里」。但 82% 说法当天稍后被撤回后,
+    #   源码里唯一含 "82" 的地方就变成了**那句划掉的撤回文本本身** ——
+    #   ★ 守卫靠「撤回它所守护之物的那句话」通过。而且是我写撤回时亲手造成的。
+    #   改法见文件末尾的「撤回清单机器检查」: 不再要求某个字符串存在,
+    #   而是要求**每一个已撤回的说法只能出现在撤回标记内**。
     print("  min_effect 锚点已钉: 等长 SEPARATED / T0-T1 NOT_SEPARATED / T0-T2 含长度混杂")
 
 # ── 10. equivalence(): NOT_SEPARATED 不等于「相同」 ─────────────────────────
@@ -275,3 +279,61 @@ if FSF.exists():
     assert max(t_eq) / 0.40611 > 0.5, \
         "等长内容效应的**上端**已达 T0-T2 的一半以上 —— 18.2% 那个比例不成立"
     print("  长度臂已钉: 内容同长度×5 ⇒ EQUIVALENT; 三候选垫料全点火(无空读数); 82%%说法已撤回")
+
+
+# ── 14. ★ 撤回清单必须是机器一致性检查, 不是散文 ────────────────────────────
+# 来源: 2026-08-18 外部评审指出「撤回清单还没有完全变成机器一致性检查」。
+# 规则: 已撤回的说法**只允许出现在撤回标记内**(~~删除线~~ / 撤回 / 推翻 / 证伪 / 已被)。
+#   任何一处活跃断言 = 红。这样撤回一次就永久生效, 不依赖谁记得。
+RETRACTED = {
+    "82%": "T0-T2 的分离约 82% 是长度",
+    "18.2%": "等长内容效应只有长度驱动效应的 18.2%",
+    "最有利": "Jaccard 最低 = 给仪器最好的机会",
+}
+_RETRACT_MARKS = ("~~", "撤回", "推翻", "证伪", "已被", "没有依据", "不成立")
+
+
+def _blocks(text):
+    """把源码切成「连续注释块」与普通行。撤回说明是**跨行**的 ——
+    标记常在块首行, 而理由在后续行。按单行判会红在撤回理由自己身上(实际发生过)。"""
+    out, cur, start = [], [], 0
+    for i, line in enumerate(text.split("\n"), 1):
+        if line.lstrip().startswith("#"):
+            if not cur:
+                start = i
+            cur.append((i, line))
+        else:
+            if cur:
+                out.append((start, cur))
+                cur = []
+            out.append((i, [(i, line)]))
+    if cur:
+        out.append((start, cur))
+    return out
+
+
+for _f in ("scripts/cce_ksep.py", "scripts/cce_knot_classify.py"):
+    for _start, _blk in _blocks((ROOT / _f).read_text(encoding="utf-8")):
+        _text = "\n".join(l for _, l in _blk)
+        if any(m in _text for m in _RETRACT_MARKS):
+            continue                      # 整块是撤回说明, 放行
+        for _i, _line in _blk:
+            for _tok, _why in RETRACTED.items():
+                assert _tok not in _line, (
+                    f"{_f}:{_i} 活跃地出现了已撤回的说法 {_tok!r}（{_why}）: {_line.strip()[:90]}")
+
+# ★ 反向测试: 一个**不含撤回标记的新块**里出现撤回说法, 规则必须抓住
+_fake = "x = 1\n\n# 等长内容效应只有长度驱动效应的 18.2%\n"
+_caught = False
+for _start, _blk in _blocks(_fake):
+    _text = "\n".join(l for _, l in _blk)
+    if any(m in _text for m in _RETRACT_MARKS):
+        continue
+    for _i, _line in _blk:
+        if any(t in _line for t in RETRACTED):
+            _caught = True
+assert _caught, "反向用例没被抓住 —— 本规则是装饰"
+# 撤回必须真的在代码里留痕(不能靠删掉整句蒙混)
+_src = (ROOT / "scripts" / "cce_ksep.py").read_text(encoding="utf-8")
+assert "~~" in _src and "撤回" in _src, "撤回必须留痕可追溯, 不能悄悄删句"
+print("  撤回清单已机器化: %d 条, 覆盖 2 个源文件, 含反向用例" % len(RETRACTED))
