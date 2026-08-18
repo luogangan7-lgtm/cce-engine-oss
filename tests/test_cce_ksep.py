@@ -248,3 +248,30 @@ if NAF.exists():
     assert K.reproducibility(rn["FILL"], fn["FILL"])["set_agreement"] == 1.0
     assert fill <= (pad - base), "PAD 多出的结必须包含垫料自己的结 —— 负对照前提不成立"
     print("  verdict3 已钉: BASE-PAD=UNDERPOWERED / 垫料自带 display+reward ⇒ 长度问题仍开放")
+
+# ── 13. 长度 per se 不驱动读数; 且仪器没有「空读数」这一档 ────────────────────
+FSF = ROOT / "tests" / "data" / "filler_screen_20260818.json"
+if FSF.exists():
+    fs = json.loads(FSF.read_text(encoding="utf-8"))
+    # 13a. ★ 三个不同文体的候选垫料**全部**点火 ⇒ 九结对任意文本都响应
+    assert all(not v["clean"] for v in fs["screen"].values()), fs["screen"]
+    assert set(fs["screen"]["filler_numeric"]["fired"]) >= {"pain_seek", "belong"}, \
+        "一张纯数字表读出 pain_seek/belong —— 这条是「无空读数」的最强证据, 不许弱化"
+    # 13b. ★ 内容逐字相同、长度 5 倍 → EQUIVALENT
+    v = fs["verdict3_BASE_REPEAT"]
+    assert v["verdict"] == "EQUIVALENT", v
+    assert v["equiv_upper"] < fs["min_effect"] and abs(v["T"] - 0.02056) < 5e-5, v
+    # 结集完全相同 —— 长度 5 倍没有多点火任何结
+    kb = set(fs["repro_BASE"]["stable_ranges"]) | set(fs["repro_BASE"]["flipping"])
+    kr = set(fs["repro_REPEAT"]["stable_ranges"]) | set(fs["repro_REPEAT"]["flipping"])
+    assert kb == kr == {"inertia", "injustice", "pain_seek", "suspend"}, (kb, kr)
+    # 13c. ★ 由此撤回「T0-T2 的分离 82% 是长度」
+    #      两条反证: 第二对等长 T=0.22389 是 T0-T2(0.40611) 的 55%; 且长度 per se 无效应。
+    d1 = json.loads(EQL.read_text(encoding="utf-8"))
+    d2 = json.loads(P2F.read_text(encoding="utf-8"))
+    t_eq = [K.separation([r["knots"] for r in d["raw"]["A"]], [r["knots"] for r in d["raw"]["B"]],
+                         [f"m{i}" for i in range(4)], [f"n{i}" for i in range(4)])["T"]
+            for d in (d1, d2)]
+    assert max(t_eq) / 0.40611 > 0.5, \
+        "等长内容效应的**上端**已达 T0-T2 的一半以上 —— 18.2% 那个比例不成立"
+    print("  长度臂已钉: 内容同长度×5 ⇒ EQUIVALENT; 三候选垫料全点火(无空读数); 82%%说法已撤回")
