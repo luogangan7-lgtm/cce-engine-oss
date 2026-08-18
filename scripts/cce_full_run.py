@@ -229,6 +229,11 @@ def s2(ctx):
     top1_stable = samp.get("top1_stable")
     return {"taxonomy": taxo.get("version"),
             "knots": [[k["key"], k["weight"]] for k in knots],
+            # 四层结构(§22): intensity 不受和为 1 约束; families 给族内组成与 mass;
+            # drive_brake 给 §22.4 的四象限。knots 的 weight 仍是全局组成, 仅为下游兼容。
+            "intensity": st2.get("intensity"),
+            "families": st2.get("families"),
+            "drive_brake": st2.get("drive_brake"),
             "n": samp.get("n_ok"), "top1_stable": top1_stable,
             "top1_draws": samp.get("top1_draws"), "max_range": samp.get("max_range"),
             "per_knot": samp.get("per_knot"),

@@ -32,7 +32,7 @@ def _stub(draws):
     def fake(prompt, taxo, tag):
         d = seq[state["i"] % len(seq)]
         state["i"] += 1
-        return None if d is None else {"knots": [{"key": k, "weight": w} for k, w in d],
+        return None if d is None else {"knots": [{"key": k, "intensity": w} for k, w in d],
                                        "levers_present": [], "notes": ""}
     return fake
 
@@ -119,4 +119,56 @@ wf = (ROOT / ".github" / "workflows" / "cce-submit.yml").read_text(encoding="utf
 assert "python3 tests/test_cce_knot_stability.py" in wf, \
     "本测试未进 cce-submit.yml 的执行清单 —— 那份清单是硬编码的, 不进去就永不执行"
 
-print("test_cce_knot_stability: OK (聚合语义 / top1 二元判据 / 4 项反向测试 / 形状兼容 / CI 自防)")
+# ── 6. 四层结构 (重构文档 §22) ───────────────────────────────────────────────
+# 此前是单层 9-simplex: 权重和恒为 1 ⇒ 一个分量升必然压低其他 ⇒
+# 「想要很强」与「审查也很强」不能同时表达。实测 21 次里 20 次总和恰为 1.0。
+r = agg([[("reward", 0.88), ("audit", 0.81)]] * 3)
+
+# 6a. ★ 独立强度不受和为 1 约束 —— 这是整个第 2 层存在的理由
+inten = r["intensity"]
+assert inten["reward"] == 0.88 and inten["audit"] == 0.81, inten
+assert abs(sum(inten.values()) - 1.0) > 0.5, \
+    f"intensity 不得被归一化, 当前和 {sum(inten.values())} —— 归一了就退回 simplex"
+
+# 6b. 族内组成各自和为 1, 两族分开
+fam = r["families"]
+assert abs(sum(fam["推动"]["composition"].values()) - 1.0) < 1e-6, fam["推动"]
+assert abs(sum(fam["阻挡"]["composition"].values()) - 1.0) < 1e-6, fam["阻挡"]
+assert set(fam["推动"]["composition"]) == {"reward"}, fam["推动"]
+assert set(fam["阻挡"]["composition"]) == {"audit"}, fam["阻挡"]
+
+# 6c. mass 与 intensity 同量纲(取族内最大), 不是求和 —— 求和会 >1 而丢掉量纲
+assert fam["推动"]["mass"] == 0.88 and fam["阻挡"]["mass"] == 0.81, fam
+
+# 6c-2. ★ 同族多结时 max 与 sum 才分得开。
+# 2026-08-18: 变异测试发现上一条抓不到「mass 改成求和」—— 每族只有 1 个活跃结时两者相等。
+# 这是测试自身的洞, 由变异测试找出来的, 补此用例钉死。
+multi = agg([[("reward", 0.6), ("belong", 0.5), ("display", 0.4),
+              ("audit", 0.7), ("suspend", 0.3)]] * 3)
+mf = multi["families"]
+assert mf["推动"]["mass"] == 0.6, f"推动族 mass 必须是最大值 0.6, 不是和 1.5: {mf['推动']}"
+assert mf["阻挡"]["mass"] == 0.7, f"阻挡族 mass 必须是最大值 0.7, 不是和 1.0: {mf['阻挡']}"
+assert mf["推动"]["members_active"] == 3 and mf["阻挡"]["members_active"] == 2, mf
+assert all(0.0 <= v <= 1.0 for f in mf.values() for v in [f["mass"]]), \
+    "mass 必须落在 [0,1] 与 intensity 同量纲 —— 求和会破坏这一点"
+assert abs(sum(mf["推动"]["composition"].values()) - 1.0) < 1e-6, mf["推动"]
+assert abs(sum(mf["阻挡"]["composition"].values()) - 1.0) < 1e-6, mf["阻挡"]
+db = r["drive_brake"]
+assert db["drive_mass"] == 0.88 and db["brake_mass"] == 0.81, db
+assert db["quadrant"] == "high_drive/high_brake", db
+
+# 6d. 高推动 + 低阻挡 必须与上面落在不同象限（否则象限是死的）
+r2 = agg([[("reward", 0.9), ("audit", 0.1)]] * 3)
+assert r2["drive_brake"]["quadrant"] == "high_drive/low_brake", r2["drive_brake"]
+
+# 6e. legacy weight 仍是全局组成(和为1), 下游 {key: weight} 读法不破
+w = {k["key"]: k["weight"] for k in r["knots"]}
+assert abs(sum(w.values()) - 1.0) < 1e-3, w
+assert all("intensity" in k for k in r["knots"]), "knots 每项必须同时带 intensity"
+
+# 6f. ★ 反向测试: 若聚合层把 intensity 归一了, 6a 必红 —— 这里再钉一次两者的关系
+r3 = agg([[("reward", 0.5), ("audit", 0.5)]] * 3)
+assert r3["intensity"]["reward"] == 0.5, "intensity 是原始强度, 不随其他结变化"
+assert abs(r3["knots"][0]["weight"] - 0.5) < 1e-3, "weight 是组成, 此例恰为 0.5"
+
+print("test_cce_knot_stability: OK (聚合语义 / top1 二元判据 / 反向测试 / 形状兼容 / 四层结构 / CI 自防)")

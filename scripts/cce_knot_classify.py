@@ -123,7 +123,13 @@ def stage2(text, s1, taxo):
 
 【补充判定槽】attribution(归责): self/other_agent/system/none。target_layer(闸门对象): consumption_goal/epistemic_trust/identity/fairness。
 【阻挡结特别提示】inertia 的行为签名是缺席与替代行为——认命句("but I understand it now"式)、长期忍受、伪装,即使文本表面是致谢也要识别。
-【多结】一个人可同时持多结(如 归属+惯性)。输出组合带权重(和=1),不要强行单选。
+【多结】一个人可同时持多结(如 归属+惯性)。
+【★强度独立打分, 不要归一】对每个结独立给 intensity ∈ [0,1]:
+  0 = 该结在这段内容里完全没有迹象; 1 = 强烈且明确。
+  **不同结的 intensity 互相独立, 不要求加起来等于 1** ——
+  「想要很强」与「审查也很强」可以同时成立(如 reward=0.85 且 audit=0.80),
+  强行让总和为 1 会逼着你在两个都真实存在的结之间人为压低一个。
+  只列 intensity > 0 的结; 没有迹象的结不要列。
 
 【第 1 级引擎读出(参考,不是真值)】
 四层首位: {json.dumps(s1['tops'], ensure_ascii=False)}
@@ -133,7 +139,7 @@ appraisal: {json.dumps(s1['appraisal'], ensure_ascii=False)}
 {text}
 
 只输出 JSON:
-{{"knots":[{{"key":"<九结key之一>","weight":0.0,"evidence_quote":"<原文引句>",
+{{"knots":[{{"key":"<九结key之一>","intensity":0.0,"evidence_quote":"<原文引句>",
   "signature":{{"congruence":"","need_status":"","coping":"","time":"","attribution":"","target_layer":""}},
   "desire_code":"","need_code":"","freshness_days_hint":0}}],
  "levers_present":["内容里出现的杠杆(若有)"],"notes":"<一句话>"}}"""
@@ -169,6 +175,10 @@ def _stage2_draw(prompt, taxo, tag):
         d = extract_json_robust(content, log_note=f"knot_s2_{tag}")
         if isinstance(d, dict) and isinstance(d.get("knots"), list) and d["knots"]:
             if not [x for x in d["knots"] if x.get("key") not in ok_keys]:
+                # 兼容: 模型偶尔仍吐 weight。统一落到 intensity。
+                for x in d["knots"]:
+                    if "intensity" not in x:
+                        x["intensity"] = x.get("weight", 0.0)
                 return d
         os.makedirs(RAW_DIR, exist_ok=True)
         with open(os.path.join(RAW_DIR, f"s2_fail_{int(time.time())}_{tag}_{att}.txt"),
@@ -184,11 +194,11 @@ def _stage2_aggregate(prompt, taxo, n=None):
     if not draws:
         raise RuntimeError(f"stage2 {n} 次抽样全部失败(raw 已存)")
 
-    # 每结: 出现次数 / 权重中位数 / 极差。缺席记 0 —— 分母恒为实际成功抽样数, 不是出现次数。
+    # 每结: 出现次数 / 强度中位数 / 极差。缺席记 0 —— 分母恒为实际成功抽样数, 不是出现次数。
     keys = {x["key"] for d in draws for x in d["knots"]}
     stability = {}
     for k in keys:
-        ws = [next((x["weight"] for x in d["knots"] if x["key"] == k), 0.0) for d in draws]
+        ws = [next((x["intensity"] for x in d["knots"] if x["key"] == k), 0.0) for d in draws]
         nz = [w for w in ws if w > 0]
         stability[k] = {"occur": len(nz), "n": len(draws),
                         "median": round(statistics.median(ws), 4),
@@ -196,7 +206,7 @@ def _stage2_aggregate(prompt, taxo, n=None):
                         "range": round(max(ws) - min(ws), 4)}
 
     # 首结身份稳定性: 二元, 无阈值。n 次抽样的 top-1 key 是否全部相同。
-    tops = [max(d["knots"], key=lambda x: x["weight"])["key"] for d in draws]
+    tops = [max(d["knots"], key=lambda x: x["intensity"])["key"] for d in draws]
     top1_stable = len(set(tops)) == 1
 
     # knots 保持 [[key, weight]] 的既有形状(weight 改为中位数), 下游 5 个消费者不需要改。
@@ -207,7 +217,11 @@ def _stage2_aggregate(prompt, taxo, n=None):
             continue
         meta_k = next(m for m in taxo["knots"] if m["key"] == k)
         src = next((x for d in draws for x in d["knots"] if x["key"] == k), {})
-        out_knots.append({"key": k, "weight": stability[k]["median"],
+        out_knots.append({"key": k, "intensity": stability[k]["median"],
+                          # weight = 全局组成(和为1), 仅为兼容下游既有 {key: weight} 读法而保留。
+                          # 真正的强度是 intensity, 它不受和为 1 的约束。
+                          "weight": 0.0,   # 占位, 循环后统一回填
+
                           "name": meta_k["name"], "family": meta_k["family"],
                           "playbook": meta_k["playbook"], "behavior_predicted": meta_k["behavior"],
                           "evidence_quote": src.get("evidence_quote", ""),
@@ -215,7 +229,39 @@ def _stage2_aggregate(prompt, taxo, n=None):
                           "desire_code": src.get("desire_code", ""),
                           "need_code": src.get("need_code", ""),
                           "freshness_days_hint": src.get("freshness_days_hint", 0)})
+    # ── 四层结构 (重构文档 §22) ────────────────────────────────────────────
+    # 此前只有单层 9-simplex: 权重和恒为 1 ⇒ compositional data ⇒
+    # 一个分量升必然压低其他 ⇒ 「想要很强」与「审查也很强」不能同时表达。
+    # 实测确证: 21 次观测里 20 次总和恰为 1.0。
+    #
+    # 第 2 层 独立强度 intensity ∈ [0,1], 各结互不约束(prompt 已明确禁止归一)。
+    # 第 3 层 族内组成 composition: 在推动族/阻挡族**各自内部**归一, 两族分别和为 1。
+    # 第 4 层 族质量 mass —— §22 未钉死其定义, 本实现取**族内最大强度**,
+    #        理由: §22.2 举例 reward=0.88 与 audit=0.81 同时成立(个体强度接近 1),
+    #        若 mass 取和则会 >1 而失去「强度」量纲; 取最大值使 mass 与 intensity 同量纲,
+    #        可直接用于 §22.4 的 high/low drive × high/low brake 四象限。
+    #        composition 与 mass 正交: 前者是形状, 后者是水平。
+    fam_of = {m["key"]: m["family"] for m in taxo["knots"]}
+    inten = {k: stability[k]["median"] for k in keys if stability[k]["median"] > 0}
+    families = {}
+    for fam in {"推动", "阻挡"}:
+        mem = {k: v for k, v in inten.items() if fam_of.get(k) == fam}
+        tot = sum(mem.values())
+        families[fam] = {
+            "mass": round(max(mem.values()), 4) if mem else 0.0,
+            "composition": {k: round(v / tot, 4) for k, v in sorted(mem.items(), key=lambda x: -x[1])} if tot else {},
+            "members_active": len(mem)}
+    dm, bm = families["推动"]["mass"], families["阻挡"]["mass"]
+    _tot = sum(k["intensity"] for k in out_knots) or 1.0
+    for k in out_knots:
+        k["weight"] = round(k["intensity"] / _tot, 4)
     return {"knots": out_knots,
+            "intensity": {k: round(v, 4) for k, v in sorted(inten.items(), key=lambda x: -x[1])},
+            "families": families,
+            "drive_brake": {"drive_mass": dm, "brake_mass": bm,
+                            "quadrant": f"{'high' if dm >= 0.5 else 'low'}_drive/"
+                                        f"{'high' if bm >= 0.5 else 'low'}_brake",
+                            "note": "象限切点 0.5 是量纲中点, 不是校准阈值; 仅作分类标签, 不得作判据"},
             "levers_present": sorted({l for d in draws for l in (d.get("levers_present") or [])}),
             "notes": draws[0].get("notes", ""),
             "sampling": {"n_requested": n, "n_ok": len(draws),
