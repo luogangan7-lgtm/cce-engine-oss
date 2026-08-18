@@ -68,10 +68,23 @@ assert b["occur"] == 1 and b["n"] == 4, b
 assert b["support"] == 0.25, b
 # 2026-08-18 语义更正: median/intensity 现在是「出现时的中位数」, 不掺 0 ——
 # 掺 0 会把「强度」与「出现率」乘在一起, 造成 occur=3/5 低估 25%、偶数 n 报半值。
-# 该结仍不进 knots, 但理由从「中位数为 0」改成显式的「支持度不过半」。
 assert b["intensity"] == 0.2, b
 assert b["range"] == 0.0, f"只出现 1 次, 极差应为 0 而非 0.2: {b}"
-assert all(k["key"] != "belong" for k in r["knots"]), "支持度不过半的结不进 knots"
+
+# ★ 2026-08-18 三次更正 —— 本处旧断言是 `belong 不进 knots`。
+#   那条编码的是**已被废止的契约**: support 闸当过滤器用。
+#   实测 P1a FAIL(3/3 文本有结在闸上翻转, 结集一致率 0.50/0.50/0.33), 且
+#   occur/n 的抖动过散参数仅 1.20(p=0.159) ⇒ 仪器没漂移, 是布尔闸把
+#   一个 ±0.22 的测量洗成了干净的类别。闸已降为注记。
+#   ⚠️ 不是删掉这条断言, 是**换成新契约下必须成立的那条** ——
+#      少数派结必须**在** knots 里, 且带得动它自己的不确定度, weight 恒 0。
+bk = next((k for k in r["knots"] if k["key"] == "belong"), None)
+assert bk is not None, "少数派结必须发布, 不得再被 continue 掉"
+assert bk["support_majority"] is False and bk["weight"] == 0.0
+assert bk["occur"] == 1 and bk["n"] == 4
+assert bk["support_ci95"][1] > bk["support"], "必须带 Wilson 区间, 且上界高于点估计"
+assert all(k["weight"] == 0.0 for k in r["knots"] if not k["support_majority"])
+assert abs(sum(k["weight"] for k in r["knots"]) - 1.0) < 1e-9, "过闸结 weight 仍和为 1"
 
 # ── 2. top1_stable 是二元判据, 不含阈值 ────────────────────────────────────
 same = agg([[("display", 0.6), ("audit", 0.4)]] * 4)
@@ -204,7 +217,12 @@ r = agg([[("display", 0.4)], [("display", 0.4)], [("audit", 0.9)], [("audit", 0.
 dd = r["sampling"]["per_knot"]["display"]
 assert dd["intensity"] == 0.4, f"n=4 occur=2 必须报 0.4 而不是 0.2: {dd}"
 assert dd["occur"] * 2 == dd["n"], dd
-assert all(k["key"] != "display" for k in r["knots"]), "严格多数才进输出, 2/4 不算多数"
+# 旧断言是「2/4 不进输出」。同上, 闸已降为注记 —— 改测它现在必须成立的样子:
+# 恰好一半**进**输出, 但 support_majority=False、weight=0, 且区间横跨 0.5。
+_d = next((k for k in r["knots"] if k["key"] == "display"), None)
+assert _d is not None and _d["support_majority"] is False and _d["weight"] == 0.0
+assert _d["support_ci95"][0] < 0.5 < _d["support_ci95"][1], \
+    f"occur=n/2 的区间必须横跨 0.5 —— 这正是「切在这里区分不开」的量化表达: {_d['support_ci95']}"
 
 # 7b. 支持度阈值是显式的, 且能被读出来
 assert K.SUPPORT_RULE == "occur * 2 > n", K.SUPPORT_RULE

@@ -23,7 +23,7 @@ CCE 两级流水线 · 统一入口(供任何 agent 调用)
 纪律: 全占比(结组合带权,允许多结,禁单 argmax 断言);解析失败全量存 raw 不截断;
       结论引用须带 config 里的 status 标注(G-K1/2/3 未验)。
 """
-import os, sys, json, time, hashlib, argparse, statistics
+import os, sys, json, time, math, hashlib, argparse, statistics
 ROOT = os.environ.get("VSE_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # .env 自加载(Windows/n8n 无 shell source;显式 utf-8 防 GBK 解码失败)
@@ -279,6 +279,24 @@ KNOT_N = int(os.environ.get("CCE_KNOT_N", "5"))
 # 现在写成常量, 是为了让它**可以被质疑与校准** —— 而不是为了给它辩护。
 # 奇数 n 上与旧行为完全等价; 偶数 n 上顺带修掉「occur=n/2 报真值一半」的 bug。
 SUPPORT_RULE = "occur * 2 > n"   # 严格多数
+#
+# ★ 2026-08-18 三次更正 —— 本规则**不再当过滤器用, 只当注记**。
+#   实测(run 32130867661, 3 文本 × R=4): 3/3 文本各有一个结在这条线上翻转,
+#   重跑之间结集完全相同的比例只有 0.50/0.50/0.33。P1a 判 FAIL。
+#
+#   根因不是 n 太小, 是**在一个连续量上切一刀**: 让输出布尔不稳的 p 区间宽度
+#   n=5→0.507, n=20→0.277 —— 4 倍成本只压掉一半, O(1/√n)。
+#
+#   但更要紧的是另一半实测: occur/n 的 rep 间抖动 **过散参数 1.20, X²/df=1.23, p=0.159**
+#   ⇒ **无法拒绝「抖动全部来自 n=5 抽样」**。仪器没有额外漂移。
+#   所以问题从来不是仪器不稳, 是**把一个 ±0.22 的测量洗成了一个干净的布尔**。
+#
+#   修法: knots 发布**全部被观测到的结**, 每条自带 occur/n 与 Wilson 95% 区间;
+#   本规则只留在 support_majority 字段里, 供需要布尔的下游自行决定。
+#   weight 仍只在过闸结上归一 ⇒ 下游 {key: weight} 逐值不变。
+#
+#   ⚠️ 我此前把「量化步长 ±0.2(一个计数)」说成了可复现性 —— 那是两回事。
+#      实测 rep 间极差最大 0.60(3 个计数), 与二项预期一致。
 
 # s1 温度阶梯。提为常量供 instrument_id 引用 —— 改它就是换仪器。
 _S1_BASE_TEMPS = [0.0, 0.3, 0.6, 0.9, 0.15, 0.45, 0.75]
@@ -286,6 +304,23 @@ _S1_BASE_TEMPS = [0.0, 0.3, 0.6, 0.9, 0.15, 0.45, 0.75]
 
 def _has_support(st_k):
     return st_k["occur"] * 2 > st_k["n"]
+
+
+def _wilson(occur, n, z=1.96):
+    """occur/n 的 Wilson 95% 区间。
+
+    不用 sqrt(p(1-p)/n): 它在 occur=0 或 occur=n 时给 se=0,
+    等于宣称「5 次全中 ⇒ 完全确定」。Wilson 在边界不塌 ——
+    实测 5/5 给 [0.566, 1.0], 即**全票通过的结, 真值也可能低到 0.57**。
+    这正是布尔闸藏起来的那部分。
+    """
+    if n <= 0:
+        return [0.0, 1.0]
+    p = occur / n
+    d = 1 + z * z / n
+    c = (p + z * z / (2 * n)) / d
+    h = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
+    return [round(max(0.0, c - h), 4), round(min(1.0, c + h), 4)]
 
 
 def _stage2_draw(prompt, taxo, tag):
@@ -365,12 +400,15 @@ def _stage2_aggregate(prompt, taxo, n=None):
     merged = sorted(keys, key=lambda k: -stability[k]["intensity"])
     out_knots = []
     for k in merged:
-        if not _has_support(stability[k]):
-            continue
+        # ★ 不再 `continue` 掉少数派 —— 那是把测到的东西丢掉。
+        #   全部发布, 用 support_majority 注记它是否过闸。
         meta_k = next(m for m in taxo["knots"] if m["key"] == k)
         src = next((x for d in draws for x in d["knots"] if x["key"] == k), {})
         out_knots.append({"key": k, "intensity": stability[k]["intensity"],
                           "support": stability[k]["support"],
+                          "occur": stability[k]["occur"], "n": stability[k]["n"],
+                          "support_ci95": _wilson(stability[k]["occur"], stability[k]["n"]),
+                          "support_majority": _has_support(stability[k]),
                           # weight = 全局组成(和为1), 仅为兼容下游既有 {key: weight} 读法而保留。
                           # 真正的强度是 intensity, 它不受和为 1 的约束。
                           "weight": 0.0,   # 占位, 循环后统一回填
@@ -405,9 +443,13 @@ def _stage2_aggregate(prompt, taxo, n=None):
             "composition": {k: round(v / tot, 4) for k, v in sorted(mem.items(), key=lambda x: -x[1])} if tot else {},
             "members_active": len(mem)}
     dm, bm = families["推动"]["mass"], families["阻挡"]["mass"]
-    _tot = sum(k["intensity"] for k in out_knots) or 1.0
+    # weight 仍**只在过闸结上**归一, 未过闸者恒 0.0 ——
+    # 下游 5 个消费者读的是 {key: weight}, 这样它们逐值不变(已验: hooks_for 取 top2 不受
+    # 零权重影响; cce_align_v2.score 的 w*c / w*hit 项对 w=0 恒为 0)。
+    # 想用全部证据的消费者请读 support / support_ci95, 不要读 weight。
+    _tot = sum(k["intensity"] for k in out_knots if k["support_majority"]) or 1.0
     for k in out_knots:
-        k["weight"] = round(k["intensity"] / _tot, 4)
+        k["weight"] = round(k["intensity"] / _tot, 4) if k["support_majority"] else 0.0
     return {"knots": out_knots,
             "intensity": {k: round(v, 4) for k, v in sorted(inten.items(), key=lambda x: -x[1])},
             "families": families,
