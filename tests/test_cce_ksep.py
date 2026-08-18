@@ -145,3 +145,48 @@ if EQL.exists():
     assert "82%" in K.__doc__ or "82" in open(ROOT / "scripts" / "cce_ksep.py",
                                               encoding="utf-8").read()
     print("  min_effect 锚点已钉: 等长 SEPARATED / T0-T1 NOT_SEPARATED / T0-T2 含长度混杂")
+
+# ── 10. equivalence(): NOT_SEPARATED 不等于「相同」 ─────────────────────────
+ME = K.MIN_EFFECT_EQUAL_LENGTH_20260818
+F4 = ["p", "q", "r", "s"]
+
+# 10a. 没有 min_effect ⇒ 不给任何肯定判决(与 separation 同一纪律)
+assert K.equivalence(A, B, FP, ["e", "f", "g", "h"], min_effect=None)["verdict"] == "UNCALIBRATED"
+
+# 10b. 组内恒定且两组逐字节相同 ⇒ 上界必须恰为 0
+#      (不能用 A: 它第 4 个 rep 是 0.88, 自助会产生非零上界 —— 我最初就写错了这条前提)
+CONST = [{"audit": .5}] * 4
+same = K.equivalence(CONST, [dict(x) for x in CONST], F4, ["e", "f", "g", "h"], min_effect=ME)
+assert same["upper"] == 0.0 and same["verdict"] == "EQUIVALENT", same
+assert same["n_boot"] == 4 ** 4 * 4 ** 4, f"必须穷举自助(确定性), 实得 {same['n_boot']}"
+# 组内**有**抖动时上界必须 >0 —— 否则说明自助根本没在重抽
+jit = K.equivalence(A, [dict(x) for x in A], FP, ["e", "f", "g", "h"], min_effect=ME)
+assert jit["T"] == 0.0 and jit["upper"] > 0.0, f"组内抖动必须反映在上界里: {jit}"
+
+# 10c. 差异巨大 ⇒ NOT_EQUIVALENT
+big = K.equivalence(A, B, FP, ["e", "f", "g", "h"], min_effect=ME)
+assert big["verdict"] == "NOT_EQUIVALENT" and big["upper"] > ME
+
+# 10d. ★★ 核心反向测试: 均值相同但组内抖动巨大
+#      → separation 判 NOT_SEPARATED(T≈0), 但**不能**因此说「相同」。
+#      若 equivalence 在这里也判 EQUIVALENT, 它就没起到任何作用。
+jitA = [{"audit": .1}, {"audit": .9}, {"audit": .1}, {"audit": .9}]
+jitB = [{"audit": .9}, {"audit": .1}, {"audit": .9}, {"audit": .1}]
+fj = ["j1", "j2", "j3", "j4"]
+sj = K.separation(jitA, jitB, fj, ["k1", "k2", "k3", "k4"], min_effect=ME)
+ej = K.equivalence(jitA, jitB, fj, ["k1", "k2", "k3", "k4"], min_effect=ME)
+assert sj["T"] < 1e-9 and sj["verdict"] in ("NOT_SEPARATED", "BELOW_MDE"), sj
+assert ej["verdict"] == "NOT_EQUIVALENT", \
+    f"均值相同但抖动巨大时**不得**主张相同, 否则本函数没起作用: {ej}"
+assert ej["upper"] > ME, ej
+
+# 10e. 真实数据: T0-T1 分不开, 且上界低于分辨率 ⇒ 可主张「差异低于当前分辨率」
+if FIX.exists():
+    _r = {t: [x["knots"] for x in v] for t, v in json.loads(FIX.read_text(encoding="utf-8"))["raw"].items()}
+    _f = {t: [f"{t}{i}" for i in range(4)] for t in _r}
+    e01 = K.equivalence(_r["T0"], _r["T1"], _f["T0"], _f["T1"], min_effect=ME)
+    assert e01["verdict"] == "EQUIVALENT" and e01["upper"] < ME, e01
+    assert abs(e01["upper"] - 0.03542) < 1e-4, e01
+    e02 = K.equivalence(_r["T0"], _r["T2"], _f["T0"], _f["T2"], min_effect=ME)
+    assert e02["verdict"] == "NOT_EQUIVALENT"
+    print("  equivalence 已钉: 同一 ⇒ 上界0 / 抖动大 ⇒ 拒绝主张相同 / T0-T1 差异低于分辨率")

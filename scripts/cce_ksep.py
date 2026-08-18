@@ -152,3 +152,34 @@ def separation(A, B, fpA, fpB, min_effect=None, alpha=0.05, nameA="A", nameB="B"
         verdict = "SEPARATED"
     return {"verdict": verdict, "T": obs, "p": p, "p_floor": p_floor,
             "n_splits": len(splits), "min_effect": min_effect, "alpha": alpha}
+
+def equivalence(A, B, fpA, fpB, min_effect, alpha=0.05, nameA="A", nameB="B"):
+    """等价检验: 能不能主张两组**相同**(而不只是「没分开」)。
+
+    ★ 存在理由: `separation` 的 NOT_SEPARATED **不等于相同** —— 它是
+      「没有证据说不同」, 不是「有证据说相同」。二者混用是经典的
+      「不显著即无差异」谬误。要主张相同, 必须证明 T 的**上界**低于 min_effect。
+
+    做法: 组内对 rep 做**穷举自助**(R=4 → 每组 4^4=256 种重抽, 两组 65536 对),
+      取 T 的 (1-alpha) 分位作上界。穷举而非随机 ⇒ 完全确定、可复现、无随机种子。
+
+    ⚠️ 诚实边界: R=4 的自助分布只由 4 个点撑起, **很粗**。
+      结论是指示性的, 不是精确置信区间。R 越小越保守地读它。
+      本函数不会在 min_effect=None 时给任何肯定判决。
+    """
+    _check(A, fpA, nameA)
+    _check(B, fpB, nameB)
+    if min_effect is None:
+        return {"verdict": "UNCALIBRATED", "T": _T(A, B), "upper": None,
+                "min_effect": None, "alpha": alpha}
+    RA, RB = len(A), len(B)
+    ma = [_meanvec([A[i] for i in c]) for c in itertools.product(range(RA), repeat=RA)]
+    mb = [_meanvec([B[i] for i in c]) for c in itertools.product(range(RB), repeat=RB)]
+    ts = sorted(sum(abs(x - y) for x, y in zip(u, v)) / len(KNOTS)
+                for u in ma for v in mb)
+    upper = ts[min(len(ts) - 1, int(round((1 - alpha) * (len(ts) - 1))))]
+    return {"verdict": "EQUIVALENT" if upper < min_effect else "NOT_EQUIVALENT",
+            "T": _T(A, B), "upper": round(upper, 5), "n_boot": len(ts),
+            "min_effect": min_effect, "alpha": alpha,
+            "note": ("EQUIVALENT = T 的自助上界低于 min_effect, 可主张「差异小于当前分辨率」; "
+                     "NOT_EQUIVALENT ≠ 不同, 只是**还不能主张相同**")}

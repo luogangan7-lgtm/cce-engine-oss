@@ -85,6 +85,17 @@ assert by["belong"]["weight"] == 0.0 and by["suspend"]["weight"] == 0.0
 assert abs(sum(v["weight"] for v in by.values()) - 1.0) < 1e-9, "过闸结的 weight 仍须和为 1"
 
 # ── 5. ★★ 真正的下游: score() 三个数值字段必须逐值相同 ─────────────────────
+#
+# ⚠️ 2026-08-18: 本节初稿直接调 A.score(detect=True) —— 那会让 dissolve_hit 发
+#   **真实 LLM 调用**(3 次表决/结)。本地无 key 时它重试到超时后返回 (0.0, "检测失败"),
+#   于是 dissolution 两边恒为 0, **拆除那一半是空过的**, 而单文件耗时 124 秒。
+#   一个既慢又测不到东西的检查, 正是「检查必须能观察到失败」要防的。
+#
+#   改法: 把 dissolve_hit 打成**非零**常量桩。这样既离线确定, 又真的让
+#   `w * hit` 这一项带上非零 hit —— 零权重是否杀掉贡献, 才第一次被真正检验。
+_orig_hit = A.dissolve_hit
+A.dissolve_hit = lambda knot, text, votes=3: (0.7, "stub")
+
 TEXT = ("Can't hear across the table? Don't blame the aid. Try the seat. "
         "Here's the mechanism and the next step you can take tonight.")
 POST = {"pain_seek": 0.6, "audit": 0.4}
@@ -98,6 +109,14 @@ for mode in ("post", "reply"):
         assert a[f] == b[f], f"{mode}/{f}: 零权重条目改变了下游分数 {a[f]} != {b[f]}"
     assert len(b["detail"]) > len(a["detail"]), "detail 应多出零贡献行(无消费者, 已核)"
     assert all(d["contrib"] == 0.0 for d in b["detail"] if d["knot"] in ("belong", "suspend"))
+    # 桩必须真的生效: 阻挡族的 response 应为 0.7 而不是 0.0(检测失败)
+    blk = [d for d in b["detail"] if d["mode"] != "共鸣"]
+    assert blk and all(d["response"] == 0.7 for d in blk), \
+        f"桩没生效, 本节又在空过: {blk[:2]}"
+    # ★ 非零 hit 下, 零权重结的贡献仍为 0 —— 这才是真正被检验的那一步
+    assert any(d["knot"] in ("belong", "suspend") and d["response"] == 0.7
+               for d in blk), "零权重结必须**参与**检测却贡献 0, 而不是被跳过"
+A.dissolve_hit = _orig_hit
 
 # hooks_for 取 top2, 零权重不得挤进来
 import reply_batch as RB  # noqa: E402
