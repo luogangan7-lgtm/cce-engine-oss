@@ -114,3 +114,34 @@ assert re.search(r'test "\$n" -ge \d+', wf), \
     "遍历必须配数量下限自守 —— 否则路径写错会静默跑零个测试而 CI 全绿"
 
 print("test_cce_ksep: OK (守卫反向测试 8 条 / PASS分支不可达 / PSI反例 / 真实数据复现)")
+
+# ── 9. min_effect 的经验锚 (oss run 32141330271, 等长阳性对照) ───────────────
+assert K.MIN_EFFECT_EQUAL_LENGTH_20260818 == 0.06278
+EQL = ROOT / "tests" / "data" / "equal_length_20260818.json"
+if EQL.exists():
+    d = json.loads(EQL.read_text(encoding="utf-8"))
+    A4 = [r["knots"] for r in d["raw"]["A"]]
+    B4 = [r["knots"] for r in d["raw"]["B"]]
+    fa = [f"A{i}" for i in range(4)]
+    fb = [f"B{i}" for i in range(4)]
+    s = K.separation(A4, B4, fa, fb, min_effect=K.MIN_EFFECT_EQUAL_LENGTH_20260818)
+    assert abs(s["T"] - 0.07389) < 5e-5, s
+    assert abs(s["p"] - 1 / 35) < 1e-9, "观测必须是零分布里最大的那个"
+    assert s["verdict"] == "SEPARATED", s
+    assert d["meta"]["a_len"] == 293 and d["meta"]["b_len"] == 289, "等长前提"
+    assert d["meta"]["jaccard"] == min(x[1] for x in d["meta"]["jaccard_all"]), \
+        "必须是 Jaccard 最低的一对 —— 选择规则只用词面, 不看九结读数"
+    # ★ 标定后回判旧数据: T0-vs-T1 落在 min_effect 之下
+    raw0 = json.loads(FIX.read_text(encoding="utf-8"))["raw"]
+    r01 = K.separation([r["knots"] for r in raw0["T0"]], [r["knots"] for r in raw0["T1"]],
+                       [f"a{i}" for i in range(4)], [f"b{i}" for i in range(4)],
+                       min_effect=K.MIN_EFFECT_EQUAL_LENGTH_20260818)
+    assert r01["verdict"] == "NOT_SEPARATED", f"T0-T1 p=0.0571>alpha, 应判不分离: {r01}"
+    r02 = K.separation([r["knots"] for r in raw0["T0"]], [r["knots"] for r in raw0["T2"]],
+                       [f"a{i}" for i in range(4)], [f"c{i}" for i in range(4)],
+                       min_effect=K.MIN_EFFECT_EQUAL_LENGTH_20260818)
+    assert r02["verdict"] == "SEPARATED" and r02["T"] > 0.4
+    # ★ 但它 82% 是长度 —— 这条注记必须在代码里, 不能只在文档里
+    assert "82%" in K.__doc__ or "82" in open(ROOT / "scripts" / "cce_ksep.py",
+                                              encoding="utf-8").read()
+    print("  min_effect 锚点已钉: 等长 SEPARATED / T0-T1 NOT_SEPARATED / T0-T2 含长度混杂")
