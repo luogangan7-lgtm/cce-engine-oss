@@ -1,80 +1,149 @@
 {
-  "kind": "cce.submission_contract.v1",
-  "schema_version": "1.1.0",
-  "entrypoint": "repository_dispatch:cce-submit",
-  "max_parallel_items": 8,
-  "common_required": [
-    "kind=cce.submission.v1",
-    "schema_version=1.1.0",
-    "submission_id",
-    "profile",
-    "submitted_at",
-    "producer.system",
-    "producer.trace_id"
-  ],
-  "profiles": {
-    "outbound_post": {
-      "purpose": "发布前内容测量与发布硬闸",
-      "stages": ["s0_context", "s1_readout", "s2_knots", "s3_emotion_policy", "s4_guard"],
-      "required_per_item": [
-        "job_id", "content_id", "text", "text_sha256", "platform", "platform_adapter.id",
-        "platform_adapter.version", "surface.kind", "surface.id", "surface.observed_at", "domain",
-        "language", "speaker_role", "guard_profile", "context.summary", "context.declaration",
-        "context.dimensions", "context.provenance"
-      ],
-      "success_gate": "manifest.complete=true and exact input fingerprint"
-    },
-    "outbound_reply": {
-      "purpose": "我方回复发布前测量、真实性闸与响应对齐",
-      "stages": ["reader_baseline", "s0_context", "s1_readout", "s2_knots", "s3_emotion_policy", "s4_guard"],
-      "optional_stages": ["reply_alignment"],
-      "required_per_item": [
-        "job_id", "content_id", "platform", "platform_adapter.id", "platform_adapter.version",
-        "surface.kind", "surface.id", "surface.observed_at", "domain", "language", "speaker_role",
-        "guard_profile", "context.summary", "context.declaration", "context.dimensions", "context.provenance",
-        "reader.actor_ref", "reader.evidence_ref", "reader.observed_at", "reader.source",
-        "reader.text", "reader.text_sha256", "draft.text", "draft.text_sha256"
-      ],
-      "success_gate": "engine manifest.complete=true。reply_alignment 是按需诊断(cce-submit.yml 的 with_alignment, 默认关), 不参与通过判定 —— 同稿重跑 3/8 翻转、|Δ|≈θ, 自身口径为「不作放行/拦截依据」; 关着跑时 reply_alignment_pass=null 属正常关闭态"
-    },
-    "subject_chain": {
-      "purpose": "真实触达成员响应测量与下游窗口审计",
-      "stages": ["source_validation", "parallel_s0_s1_measurement", "exact_fingerprint_join", "activated_aggregation", "end_to_end_audit"],
-      "required": ["subject_chain + response_source, inline or repository path with sha256"],
-      "success_gate": "all response s1 measurements valid; business VERIFIED remains evidence-dependent"
-    }
+ "kind": "cce.submission_contract.v1",
+ "schema_version": "1.1.0",
+ "entrypoint": "repository_dispatch:cce-submit",
+ "max_parallel_items": 8,
+ "common_required": [
+  "kind=cce.submission.v1",
+  "schema_version=1.1.0",
+  "submission_id",
+  "profile",
+  "submitted_at",
+  "producer.system",
+  "producer.trace_id"
+ ],
+ "profiles": {
+  "outbound_post": {
+   "purpose": "发布前内容测量与发布硬闸",
+   "stages": [
+    "s0_context",
+    "s1_readout",
+    "s2_knots",
+    "s3_emotion_policy",
+    "s4_guard",
+    "qualified_readout"
+   ],
+   "required_per_item": [
+    "job_id",
+    "content_id",
+    "text",
+    "text_sha256",
+    "platform",
+    "platform_adapter.id",
+    "platform_adapter.version",
+    "surface.kind",
+    "surface.id",
+    "surface.observed_at",
+    "domain",
+    "language",
+    "speaker_role",
+    "guard_profile",
+    "context.summary",
+    "context.declaration",
+    "context.dimensions",
+    "context.provenance"
+   ],
+   "success_gate": "manifest.complete=true and exact input fingerprint"
   },
-  "fingerprint_policy": {
-    "algorithm": "sha256",
-    "format": "sha256:<64 lowercase hex>",
-    "scope": "UTF-8 bytes of the exact submitted text",
-    "rule": "any text change requires a new fingerprint and a new submission_id/job_id"
+  "outbound_reply": {
+   "purpose": "我方回复发布前测量、真实性闸与响应对齐",
+   "stages": [
+    "reader_baseline",
+    "s0_context",
+    "s1_readout",
+    "s2_knots",
+    "s3_emotion_policy",
+    "s4_guard",
+    "qualified_readout"
+   ],
+   "optional_stages": [
+    "reply_alignment"
+   ],
+   "required_per_item": [
+    "job_id",
+    "content_id",
+    "platform",
+    "platform_adapter.id",
+    "platform_adapter.version",
+    "surface.kind",
+    "surface.id",
+    "surface.observed_at",
+    "domain",
+    "language",
+    "speaker_role",
+    "guard_profile",
+    "context.summary",
+    "context.declaration",
+    "context.dimensions",
+    "context.provenance",
+    "reader.actor_ref",
+    "reader.evidence_ref",
+    "reader.observed_at",
+    "reader.source",
+    "reader.text",
+    "reader.text_sha256",
+    "draft.text",
+    "draft.text_sha256"
+   ],
+   "success_gate": "engine manifest.complete=true。reply_alignment 是按需诊断(cce-submit.yml 的 with_alignment, 默认关), 不参与通过判定 —— 同稿重跑 3/8 翻转、|Δ|≈θ, 自身口径为「不作放行/拦截依据」; 关着跑时 reply_alignment_pass=null 属正常关闭态"
   },
-  "platform_context_model": {
-    "platform": "stable platform id backed by config/platform_adapter_registry_v1.json",
-    "platform_adapter": "versioned protocol normalizer; never includes a community id",
-    "surface": "time-bound runtime context such as subreddit/channel/group/profile/thread",
-    "domain": "runtime scene/category context, not an adapter identity",
-    "rule": "changing r/HearingAids to another valid subreddit changes only surface.id and its snapshot time"
-  },
-  "universal_context_model": {
-    "dimensions": ["time", "location", "environment", "device", "session", "social", "relationship", "life", "task", "current_goal"],
-    "record": "each declared dimension carries value, assertion and evidence_refs; the snapshot also carries observed_at and provenance",
-    "rule": "platform/surface/domain are one platform scene inside Universal Context, not the whole Context model"
-  },
-  "outbound_guard_model": {
-    "registry": "config/outbound_guard_registry_v1.json",
-    "rule": "domain capability is validated by a guard profile and never by the platform adapter"
-  },
-  "audience_policy": {
-    "production_status": "not a prerequisite of outbound_post CCE measurement",
-    "reason": "community/audience is a dynamic subject/context window and must not be frozen into the platform adapter",
-    "legacy_research": "s5/s6 may consume a separately frozen corpus for a declared experiment; s7/s8 remain research-only"
-  },
-  "output_contract": {
-    "source_artifact": "immutable submitted and normalized envelope",
-    "per_item_artifact": "engine outputs plus manifest carrying submission/job/content/profile ids and SHA-256",
-    "aggregate_artifact": "workflow-manifest.json with per-item states; subject_chain also emits subject-window and end-to-end audits",
-    "retention_days": 90
+  "subject_chain": {
+   "purpose": "真实触达成员响应测量与下游窗口审计",
+   "stages": [
+    "source_validation",
+    "parallel_s0_s1_measurement",
+    "exact_fingerprint_join",
+    "activated_aggregation",
+    "end_to_end_audit"
+   ],
+   "required": [
+    "subject_chain + response_source, inline or repository path with sha256"
+   ],
+   "success_gate": "all response s1 measurements valid; business VERIFIED remains evidence-dependent"
   }
+ },
+ "fingerprint_policy": {
+  "algorithm": "sha256",
+  "format": "sha256:<64 lowercase hex>",
+  "scope": "UTF-8 bytes of the exact submitted text",
+  "rule": "any text change requires a new fingerprint and a new submission_id/job_id"
+ },
+ "platform_context_model": {
+  "platform": "stable platform id backed by config/platform_adapter_registry_v1.json",
+  "platform_adapter": "versioned protocol normalizer; never includes a community id",
+  "surface": "time-bound runtime context such as subreddit/channel/group/profile/thread",
+  "domain": "runtime scene/category context, not an adapter identity",
+  "rule": "changing r/HearingAids to another valid subreddit changes only surface.id and its snapshot time"
+ },
+ "universal_context_model": {
+  "dimensions": [
+   "time",
+   "location",
+   "environment",
+   "device",
+   "session",
+   "social",
+   "relationship",
+   "life",
+   "task",
+   "current_goal"
+  ],
+  "record": "each declared dimension carries value, assertion and evidence_refs; the snapshot also carries observed_at and provenance",
+  "rule": "platform/surface/domain are one platform scene inside Universal Context, not the whole Context model"
+ },
+ "outbound_guard_model": {
+  "registry": "config/outbound_guard_registry_v1.json",
+  "rule": "domain capability is validated by a guard profile and never by the platform adapter"
+ },
+ "audience_policy": {
+  "production_status": "not a prerequisite of outbound_post CCE measurement",
+  "reason": "community/audience is a dynamic subject/context window and must not be frozen into the platform adapter",
+  "legacy_research": "s5/s6 may consume a separately frozen corpus for a declared experiment; s7/s8 remain research-only"
+ },
+ "output_contract": {
+  "source_artifact": "immutable submitted and normalized envelope",
+  "per_item_artifact": "engine outputs plus manifest carrying submission/job/content/profile ids and SHA-256",
+  "aggregate_artifact": "workflow-manifest.json with per-item states; subject_chain also emits subject-window and end-to-end audits",
+  "retention_days": 90
+ }
 }

@@ -58,7 +58,7 @@ def stage1(text, context, k):
             f"以下是内容全文(仅文本, 无任何互动数据):\n\n{text}\n\n"
             f"(注: 请对『写下这段内容的这一个人』反推其心理因果链四层占比分布。这是一个个体，不是群体。)")
     # 温度梯度按 k 自适应展开(修 2026-08-08: 原写死3档,--k>3 时静默降为3)
-    _base = [0.0, 0.3, 0.6, 0.9, 0.15, 0.45, 0.75]
+    _base = _S1_BASE_TEMPS
     temps = _base[:k] if k <= len(_base) else _base + [round(0.05 * i, 2) for i in range(1, k - len(_base) + 1)]
 
     def one(T):
@@ -113,7 +113,67 @@ def stage1(text, context, k):
     }
 
 
-def stage2(text, s1, taxo):
+# ─────────────────────────────────────────────────────────────────────────────
+# Measurement System · Instrument Definition (2026-08-18)
+#
+# 存在理由: 2026-08-18 的一组 A/B 作废, 根因是**prompt 与采样数一起变了而无人察觉** ——
+# 当时没有「仪器」这个一等概念, 两臂看起来只差一个环境变量。
+# 仪器版本化之后, 那种混淆在**构造上**不可能发生: 两臂 instrument_hash 不同, 跑之前就能拦。
+#
+# 覆盖六项(缺一项都可能让两次读数不可比):
+#   ontology_version  九结分类学版本
+#   prompt_sha256     ★ 由**模板文本本身**导出 —— 改一个字哈希就变, 忘不掉
+#   model / endpoint  模型与端点(服务端微调 = 换仪器, 见既有「仪器漂移」纪律)
+#   sampling_policy   s1 的 k 与温度阶梯 / s2 的 n
+#   aggregation_policy 支持度规则与强度统计量
+# ─────────────────────────────────────────────────────────────────────────────
+def _stage2_template(taxo):
+    """把 prompt 里**不随内容变化**的部分单独构造出来, 用于取仪器哈希。
+
+    关键: 变量位用固定哨兵占位。这样哈希只反映「仪器」, 不反映「被测对象」。
+    """
+    return _build_stage2_prompt(taxo, "<TEXT>", {"tops": "<TOPS>", "appraisal": "<APPRAISAL>"})
+
+
+def instrument_id(taxo, k=None, knot_n=None):
+    """当前仪器的完整定义 + 哈希。任何跨读数比较之前必须先比它。"""
+    from exp_crossmodel_desire import MODELS
+    m = MODELS["M3"]
+    spec = {
+        "ontology_version": taxo.get("version"),
+        "prompt_sha256": hashlib.sha256(_stage2_template(taxo).encode("utf-8")).hexdigest()[:16],
+        "model": m["model"],
+        "endpoint": m["base"],
+        "sampling_policy": {"s1_k": k, "s1_temps": _S1_BASE_TEMPS, "s2_n": knot_n or KNOT_N},
+        "aggregation_policy": {"support_rule": SUPPORT_RULE,
+                               "intensity_stat": "median_of_nonzero",
+                               "composition": "within_family_then_global_weight"},
+    }
+    h = hashlib.sha256(json.dumps(spec, ensure_ascii=False, sort_keys=True).encode("utf-8")).hexdigest()[:16]
+    return {"instrument_hash": h, "spec": spec}
+
+
+def assert_same_instrument(readouts, what="跨读数比较"):
+    """★ 不同仪器的读数不可比。这是那次 A/B 作废的直接教训, 写成可执行的拦截。"""
+    hs = {r.get("instrument", {}).get("instrument_hash") for r in readouts}
+    # 缺失先判 —— 它比「不同」更具体, 且此前放在后面会被前一分支吞掉,
+    # 报出「涉及 2 个不同仪器 [只列了1个]」这种自相矛盾的诊断。
+    # 一个诊断信息自己报错数量, 比没有诊断更坏。
+    if None in hs:
+        n_missing = sum(1 for r in readouts
+                        if not r.get("instrument", {}).get("instrument_hash"))
+        raise RuntimeError(
+            f"{what}被拒绝: {n_missing}/{len(readouts)} 个读数不带 instrument_hash, "
+            "无从判断是否同一把尺子。没有仪器标识的读数不参与任何比较。")
+    if len(hs) > 1:
+        raise RuntimeError(
+            f"{what}被拒绝: 涉及 {len(hs)} 个不同仪器 {sorted(hs)}。"
+            "换了仪器就是换了尺子, 读数不可直接比较 —— "
+            "2026-08-18 的一组 A/B 正是因为 prompt 与采样数一起变了而作废。")
+    return hs.pop()
+
+
+def _build_stage2_prompt(taxo, text, s1):
     knots_brief = "\n".join(
         f"- {k['key']}({k['name']}|{k['family']}): 签名={json.dumps(k['signature'], ensure_ascii=False)}; "
         f"典型codes={json.dumps(k['typical_codes'], ensure_ascii=False)}; 行为={k['behavior'][:60]}"
@@ -147,7 +207,14 @@ appraisal: {json.dumps(s1['appraisal'], ensure_ascii=False)}
   "signature":{{"congruence":"","need_status":"","coping":"","time":"","attribution":"","target_layer":""}},
   "desire_code":"","need_code":"","freshness_days_hint":0}}],
  "levers_present":["内容里出现的杠杆(若有)"],"notes":"<一句话>"}}"""
-    return _stage2_aggregate(prompt, taxo)
+    return prompt
+
+
+def stage2(text, s1, taxo):
+    prompt = _build_stage2_prompt(taxo, text, s1)
+    out = _stage2_aggregate(prompt, taxo)
+    out["instrument"] = instrument_id(taxo, k=s1.get("k_requested"), knot_n=KNOT_N)
+    return out
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -178,6 +245,9 @@ KNOT_N = int(os.environ.get("CCE_KNOT_N", "5"))
 # 现在写成常量, 是为了让它**可以被质疑与校准** —— 而不是为了给它辩护。
 # 奇数 n 上与旧行为完全等价; 偶数 n 上顺带修掉「occur=n/2 报真值一半」的 bug。
 SUPPORT_RULE = "occur * 2 > n"   # 严格多数
+
+# s1 温度阶梯。提为常量供 instrument_id 引用 —— 改它就是换仪器。
+_S1_BASE_TEMPS = [0.0, 0.3, 0.6, 0.9, 0.15, 0.45, 0.75]
 
 
 def _has_support(st_k):

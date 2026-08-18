@@ -235,6 +235,8 @@ def s2(ctx):
             "families": st2.get("families"),
             "drive_brake": st2.get("drive_brake"),
             "n": samp.get("n_ok"), "top1_stable": top1_stable,
+            "top1_mode_share": samp.get("top1_mode_share"), "top1_mode": samp.get("top1_mode"),
+            "instrument": st2.get("instrument", {}).get("instrument_hash"),
             "top1_draws": samp.get("top1_draws"), "max_range": samp.get("max_range"),
             "per_knot": samp.get("per_knot"),
             "playbook_primary": (knots[0].get("playbook", "")[:120]
@@ -465,13 +467,51 @@ def s8(ctx):
             "note": "弱注=与随机不可区分,照实报告"}
 
 
+@stage("qualified_readout")
+def qualified(ctx):
+    """Measurement System 的出口闸(2026-08-18 新增)。
+
+    此前每一处扣发都是零散加的: s1 超噪声底扣发该层 top、s2 首结不稳扣发 playbook。
+    问题不在于它们不对, 而在于**没有一个地方回答「这次运行到底哪些读数可用」** ——
+    于是下游各自决定看不看, 结果就是不确定性只在一条路上生效(reply_loop 曾照旧发 PASS/FAIL)。
+
+    本段不调模型, 只把前面各段的扣发决定收敛成一个具名对象:
+        usable   —— 允许进入下游 / Population Field 的读数
+        withheld —— 被扣发的, 连同扣发理由
+    纪律: **只有 usable 里的东西允许被引用。** 不在 usable 里的, 不是「弱证据」, 是没有读数。
+
+    并带上 instrument_hash —— 跨读数比较之前必须先比它(见 cce_knot_classify.assert_same_instrument)。
+    """
+    s1m, s2m = MANIFEST.get("s1_readout", {}), MANIFEST.get("s2_knots", {})
+    usable, withheld = {}, {}
+    for name, val in (s1m.get("tops") or {}).items():
+        (usable if val is not None else withheld)[f"s1.tops.{name}"] = (
+            val if val is not None else (s1m.get("tops_withheld") or {}).get(name, "超噪声底"))
+    if s2m.get("playbook_primary"):
+        usable["s2.playbook_primary"] = s2m["playbook_primary"]
+    else:
+        withheld["s2.playbook_primary"] = s2m.get("playbook_withheld_reason") or "未产出"
+    # 分布类读数始终可用, 但必须带 n 与不确定性一起引用 —— 单个点估从来不是 usable。
+    if s2m.get("knots"):
+        usable["s2.distribution"] = {"knots": s2m["knots"], "intensity": s2m.get("intensity"),
+                                     "n": s2m.get("n"), "top1_mode_share": s2m.get("top1_mode_share"),
+                                     "max_range": s2m.get("max_range")}
+    inst = (ctx.get("cce") or {}).get("stage2", {}).get("instrument") or {}
+    return {"instrument_hash": inst.get("instrument_hash"),
+            "instrument_spec": inst.get("spec"),
+            "usable_keys": sorted(usable), "withheld": withheld,
+            "usable_count": len(usable), "withheld_count": len(withheld),
+            "rule": "只有 usable 里的读数允许进入下游/Population Field; "
+                    "withheld 不是弱证据, 是没有读数。跨读数比较前必须先比 instrument_hash。"}
+
+
 CHAINS = {
     # 2026-08-18: reply 链补入 reader_baseline —— 契约一直声明它, 实现一直不存在。
     # 顺序与 config/cce_submission_contract_v1.json 的 profiles.outbound_reply.stages 逐位相等,
     # 由 tests/test_cce_submission.py 与 cce_workflow_manifest 的 chain 断言双向钉死。
-    "reply": [reader_baseline, s0, s1, s2, s3, s4],
+    "reply": [reader_baseline, s0, s1, s2, s3, s4, qualified],
     "response": [s0, s1, s2, s3],
-    "outbound_post": [s0, s1, s2, s3, s4],
+    "outbound_post": [s0, s1, s2, s3, s4, qualified],
     "post": [s0, s1, s2, s3, s4, s5, s6, s7, s8],
 }
 

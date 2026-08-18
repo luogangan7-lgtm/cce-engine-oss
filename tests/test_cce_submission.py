@@ -27,8 +27,10 @@ submission_contract = json.loads((ROOT / "config" / "cce_submission_contract_v1.
 assert registry["production_entrypoint"] == ".github/workflows/cce-submit.yml"
 assert all((ROOT / path).is_file() for path in registry["workflows"]), registry
 assert [path for path, meta in registry["workflows"].items() if meta["class"] == "production"] == [registry["production_entrypoint"]]
+# 2026-08-18: 追加 qualified_readout —— Measurement System 的出口闸。
+# 这份硬编码期望是**冻结期望**, 动它必须是有意的: 本次是有意加段, 不是被动跟随。
 assert submission_contract["profiles"]["outbound_post"]["stages"] == [
-    "s0_context", "s1_readout", "s2_knots", "s3_emotion_policy", "s4_guard"
+    "s0_context", "s1_readout", "s2_knots", "s3_emotion_policy", "s4_guard", "qualified_readout"
 ]
 assert [stage.stage_name for stage in CHAINS["outbound_post"]] == submission_contract["profiles"]["outbound_post"]["stages"]
 # 2026-08-18: 补上缺失的孪生断言。此前只钉 outbound_post, 不钉 outbound_reply ——
