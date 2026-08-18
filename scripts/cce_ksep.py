@@ -197,3 +197,38 @@ def equivalence(A, B, fpA, fpB, min_effect, alpha=0.05, nameA="A", nameB="B"):
             "min_effect": min_effect, "alpha": alpha,
             "note": ("EQUIVALENT = T 的自助上界低于 min_effect, 可主张「差异小于当前分辨率」; "
                      "NOT_EQUIVALENT ≠ 不同, 只是**还不能主张相同**")}
+
+
+def verdict3(A, B, fpA, fpB, min_effect, alpha=0.05, nameA="A", nameB="B"):
+    """三分判决 —— 唯一允许被探针引用的结论出口。
+
+    ★ 存在理由(2026-08-18, run 32143780680 实地翻车):
+      length_null_arm 探针自己写了 `if p > 0.05 or T < min_effect: 判定没有效应`。
+      那一行**把 p>0.05 当成了「无效应」的证据**, 并且在 T=0.10792(高于 min_effect
+      0.06278)时仍打印「低于当前分辨率」。实际同一对数据 equivalence 判 NOT_EQUIVALENT
+      ⇒ 正确结论是**欠功效**, 既不能说不同也不能说相同。
+
+      每个探针各判一次 = 每个探针各错一次。判决收进这里, 只错一处、只修一处。
+
+    三种出口, 没有第四种:
+      SEPARATED    分离检验拒绝零假设 ⇒ 有证据说**不同**
+      EQUIVALENT   T 的自助上界低于 min_effect ⇒ 有证据说**差异小于当前分辨率**
+      UNDERPOWERED 两者都不成立 ⇒ **既不能说不同, 也不能说相同**。不是「没有差异」。
+    """
+    sep = separation(A, B, fpA, fpB, min_effect=min_effect, alpha=alpha,
+                     nameA=nameA, nameB=nameB)
+    eq = equivalence(A, B, fpA, fpB, min_effect=min_effect, alpha=alpha,
+                     nameA=nameA, nameB=nameB)
+    if min_effect is None:
+        v = "UNCALIBRATED"
+    elif sep["verdict"] == "SEPARATED":
+        v = "SEPARATED"
+    elif eq["verdict"] == "EQUIVALENT":
+        v = "EQUIVALENT"
+    else:
+        v = "UNDERPOWERED"
+    return {"verdict": v, "T": sep["T"], "p": sep["p"],
+            "equiv_upper": eq.get("upper"), "null_max": sep.get("null_max"),
+            "min_effect": min_effect, "separation": sep, "equivalence": eq,
+            "note": ("UNDERPOWERED 不是「没有差异」—— 它是「这个 R 下判不出来」。"
+                     "禁止把它读成阴性结论。")}

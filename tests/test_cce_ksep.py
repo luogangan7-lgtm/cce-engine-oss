@@ -217,3 +217,34 @@ if P2F.exists() and EQL.exists():
         "Jaccard 更高却分得更开 —— 这条断言钉住『Jaccard 是好代理』已被证伪"
     print("  零分布水位: 对1=%.5f 对2=%.5f (差 %.1f 倍); Jaccard 不预测可分离性"
           % (s1["null_max"], s2["null_max"], s2["null_max"] / s1["null_max"]))
+
+# ── 12. verdict3(): 三分判决, 禁止把 p>0.05 读成「无差异」 ───────────────────
+NAF = ROOT / "tests" / "data" / "length_null_arm_20260818.json"
+assert K.verdict3(A, B, FP, ["e", "f", "g", "h"], min_effect=None)["verdict"] == "UNCALIBRATED"
+# 12a. 明显不同 ⇒ SEPARATED
+assert K.verdict3(A, B, FP, ["e", "f", "g", "h"], min_effect=ME)["verdict"] == "SEPARATED"
+# 12b. 恒定且相同 ⇒ EQUIVALENT
+_c = [{"audit": .5}] * 4
+assert K.verdict3(_c, [dict(x) for x in _c], F4, ["e", "f", "g", "h"],
+                  min_effect=ME)["verdict"] == "EQUIVALENT"
+# 12c. ★★ 核心: 均值同但抖动大 ⇒ UNDERPOWERED, **不得**判 EQUIVALENT
+v = K.verdict3(jitA, jitB, fj, ["k1", "k2", "k3", "k4"], min_effect=ME)
+assert v["verdict"] == "UNDERPOWERED", f"抖动大时必须判欠功效而非相同: {v}"
+assert "不是「没有差异」" in v["note"]
+# 12d. ★ 真实翻车案例: BASE vs PAD 必须判 UNDERPOWERED
+if NAF.exists():
+    dn = json.loads(NAF.read_text(encoding="utf-8"))
+    rn = {k: [x["knots"] for x in vv] for k, vv in dn["raw"].items()}
+    fn = {k: [f"{k}{i}" for i in range(4)] for k in rn}
+    vb = K.verdict3(rn["BASE"], rn["PAD"], fn["BASE"], fn["PAD"], min_effect=ME)
+    assert vb["verdict"] == "UNDERPOWERED", vb
+    assert abs(vb["T"] - 0.10792) < 5e-5 and abs(vb["p"] - 3 / 35) < 1e-9
+    assert vb["T"] > ME, "T 高于 min_effect —— 「低于分辨率」的说法在此为假"
+    # 垫料**不是**无结的: 单独跑就点火 display+reward, 且完全稳定
+    fill = set().union(*[set(x) for x in rn["FILL"]])
+    base = set().union(*[set(x) for x in rn["BASE"]])
+    pad = set().union(*[set(x) for x in rn["PAD"]])
+    assert fill == {"display", "reward"}, fill
+    assert K.reproducibility(rn["FILL"], fn["FILL"])["set_agreement"] == 1.0
+    assert fill <= (pad - base), "PAD 多出的结必须包含垫料自己的结 —— 负对照前提不成立"
+    print("  verdict3 已钉: BASE-PAD=UNDERPOWERED / 垫料自带 display+reward ⇒ 长度问题仍开放")

@@ -97,12 +97,27 @@ if __name__ == "__main__":
                           fps[a], fps[b], min_effect=ME, nameA=a, nameB=b)
         res[f"sep_{a}_{b}"] = s
         print(f"\n★ {a} vs {b}: {s['verdict']}  T={s['T']:.5f}  p={s['p']:.4f}")
-    m = res["sep_BASE_PAD"]
+    # ⚠️ 2026-08-18 修: 此处原为 `if p > 0.05 or T < ME: 判定没有推动读数`。
+    #   那一行把 **p>0.05 当成了「无效应」的证据**, 且在 T=0.10792(高于 min_effect)
+    #   时仍打印「低于当前分辨率」。判决一律走 KSEP.verdict3, 探针不自己判。
+    v = KS.verdict3([r["knots"] for r in raw["BASE"]], [r["knots"] for r in raw["PAD"]],
+                    fps["BASE"], fps["PAD"], min_effect=ME, nameA="BASE", nameB="PAD")
+    res["verdict3_BASE_PAD"] = v
     print("\n=== 主判 ===")
-    if m["p"] > 0.05 or m["T"] < ME:
-        print("  垫料**没有**推动读数(低于当前分辨率) ⇒ 长度本身不是驱动源")
-    else:
-        print("  ★★ 垫料推动了读数 ⇒ 跨长度的九结比较全部不可用")
+    print({"SEPARATED": "  ★★ 垫料推动了读数 ⇒ 跨长度的九结比较全部不可用",
+           "EQUIVALENT": "  垫料没有推动读数(差异小于当前分辨率) ⇒ 长度本身不是驱动源",
+           "UNDERPOWERED": "  ★ 欠功效: 既不能说不同, 也不能说相同。**不是阴性结论。**",
+           "UNCALIBRATED": "  未标定, 无判决"}[v["verdict"]])
+    print(f"    T={v['T']:.5f}  p={v['p']:.4f}  等价上界={v['equiv_upper']}  min_effect={ME}")
+    # 负对照的前提检查: 垫料自己带不带结
+    fl = sorted(set().union(*[set(r["knots"]) for r in raw["FILL"]]))
+    bs = set().union(*[set(r["knots"]) for r in raw["BASE"]])
+    pd_ = set().union(*[set(r["knots"]) for r in raw["PAD"]])
+    res["filler_knots"] = fl
+    if fl:
+        print(f"  ⚠️ 垫料**自带结** {fl}; PAD 比 BASE 多出 {sorted(pd_ - bs)}"
+              f", 其中 {sorted(set(fl) & (pd_ - bs))} 来自垫料")
+        print("     ⇒ 「无结垫料」前提不成立, **本臂无法回答长度问题**。这正是第三臂的用途。")
     with open("/tmp/length_null_arm.json", "w", encoding="utf-8") as f:
         json.dump(res, f, ensure_ascii=False, indent=1)
     print("写出 /tmp/length_null_arm.json")
