@@ -81,15 +81,30 @@ def stage1(text, context, k):
         within = {L: round(sum(js_divergence(pvs[i][L], pvs[j][L])
                                for i in range(len(pvs)) for j in range(i + 1, len(pvs)))
                            / (len(pvs) * (len(pvs) - 1) / 2), 4) for L in LAYERS}
+    # 2026-08-18: 同一个返回体里此前混着两种统计口径且无任何标注 ——
+    #   layers/tops = K 次采样的聚合;  appraisal/chain_trace = pvs[0] 即单次抽样。
+    # 下游若把它们等同看待就是口径混用。现在显式分开: 聚合项与单抽项各自归组,
+    # 单抽项保留在 `single_draw` 下并带 caveat, 顶层同名键仍在(兼容), 但加 `_provenance` 说明。
+    tops = {"desire": top_label(avg["desire_vec"], DESIRES),
+            "need": top_label(avg["need_vec"], NEED_KEYS),
+            "emotion": top_label(avg["emotion_vec"], EMOTIONS),
+            "action": top_label(avg["action_vec"], ACTIONS)}
     return {
         "k_requested": k, "k_ok": len(pvs),
         "layers": avg,
-        "tops": {"desire": top_label(avg["desire_vec"], DESIRES),
-                 "need": top_label(avg["need_vec"], NEED_KEYS),
-                 "emotion": top_label(avg["emotion_vec"], EMOTIONS),
-                 "action": top_label(avg["action_vec"], ACTIONS)},
+        "tops": tops,
+        # ↓ 兼容保留(下游已有读法), 但出处已在 _provenance 与 single_draw 里写明
         "appraisal": pvs[0].get("appraisal"),
         "chain_trace": pvs[0].get("chain_trace", ""),
+        "single_draw": {
+            "appraisal": pvs[0].get("appraisal"),
+            "chain_trace": pvs[0].get("chain_trace", ""),
+            "from_temperature": temps[0],
+            "caveat": "单次抽样(温度阶梯第一档), 不是 K 次聚合; 与 layers/tops 不同口径, 不得并列引用",
+        },
+        "_provenance": {"aggregated": ["layers", "tops", "within_js"],
+                        "single_draw": ["appraisal", "chain_trace"],
+                        "n": len(pvs)},
         "within_js": within,
     }
 

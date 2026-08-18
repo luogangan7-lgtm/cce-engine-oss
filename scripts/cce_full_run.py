@@ -169,15 +169,47 @@ def s0(ctx):
                        if fill < 0.5 else "填充度足够")}
 
 
+# 2026-08-18: within_js 是这台仪器的自测噪声底 —— K 次采样两两的 JS 散度。
+# 它每次都算、每次都写进 manifest, **但此前没有任何 gate 使用它**;
+# 唯一的动作是阈值 0.25 的 high_divergence_flag, 而实测 31 条里只触发 2 次 —— 接近永久绿。
+# 按本项目铁律, 永久绿与永久红是同一种失效: 读数与被测对象无关, 于是没人再看它。
+#
+# 阈值改为逐层从实测分布标定(中位数 + 2×MAD, n=31, 2026-08-17/18 全部生产与测试 run):
+#   desire 0.076→0.120 · need 0.108→0.161 · emotion 0.108→0.157 · action 0.088→0.125
+# ⚠️ 这组阈值是在这 31 条上标定的, 首次样本外检验就是它上线之后的每一次生产运行。
+#    不得用同一批数据既标定又验收 —— 若上线后触发率与这里的 6/7/2/2 显著不同, 以样本外为准重标。
+#
+# 动作不是让 build 红, 而是**扣发该层的 top 标签** —— 与 s2 的 playbook 扣发同一逻辑:
+# 一个内部离散超过自身噪声底的层, 它的 top 是在读噪声。这与既有纪律同源
+# (「差距落在噪声内的层禁止排名」「情绪层禁单top」「CCE 输出禁止 argmax」)。
+WITHIN_JS_MAX = {"desire_vec": 0.120, "need_vec": 0.161,
+                 "emotion_vec": 0.157, "action_vec": 0.125}
+_LAYER_OF_TOP = {"desire": "desire_vec", "need": "need_vec",
+                 "emotion": "emotion_vec", "action": "action_vec"}
+
+
 @stage("s1_readout")
 def s1(ctx):
     d = run_knot_classify(ctx["text_file"], ctx["context"], ctx["k"], f"{ctx['outdir']}/s1_readout.json")
     ctx["cce"] = d
     js = d["stage1"]["within_js"]
-    flag = {l: v for l, v in js.items() if v > 0.25}
+    if not js:
+        # k_ok < 2 时算不出两两散度 —— 没有噪声读数就没有可信度判断, 这是真失败不是缺省。
+        raise RuntimeError(f"within_js 缺失(k_ok={d['stage1'].get('k_ok')}): "
+                           "少于 2 次成功采样时无法给出噪声底, 不得静默放行")
+    over = {l: round(v, 4) for l, v in js.items() if v > WITHIN_JS_MAX.get(l, 1.0)}
+    tops = dict(d["stage1"]["tops"])
+    withheld = {}
+    for name, layer in _LAYER_OF_TOP.items():
+        if layer in over:
+            withheld[name] = f"{layer} within_js={over[layer]} > {WITHIN_JS_MAX[layer]}"
+            tops[name] = None
     return {"file": "s1_readout.json", "within_js": js,
-            "high_divergence_flag": flag or None,
-            "tops": d["stage1"]["tops"]}
+            "within_js_max": WITHIN_JS_MAX,
+            "over_noise_floor": over or None,
+            "tops": tops,
+            "tops_withheld": withheld or None,
+            "high_divergence_flag": {l: v for l, v in js.items() if v > 0.25} or None}
 
 
 @stage("s2_knots")
