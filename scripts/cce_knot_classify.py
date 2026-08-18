@@ -23,7 +23,7 @@ CCE 两级流水线 · 统一入口(供任何 agent 调用)
 纪律: 全占比(结组合带权,允许多结,禁单 argmax 断言);解析失败全量存 raw 不截断;
       结论引用须带 config 里的 status 标注(G-K1/2/3 未验)。
 """
-import os, sys, json, time, hashlib, argparse
+import os, sys, json, time, hashlib, argparse, statistics
 ROOT = os.environ.get("VSE_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # .env 自加载(Windows/n8n 无 shell source;显式 utf-8 防 GBK 解码失败)
@@ -122,24 +122,93 @@ appraisal: {json.dumps(s1['appraisal'], ensure_ascii=False)}
   "signature":{{"congruence":"","need_status":"","coping":"","time":"","attribution":"","target_layer":""}},
   "desire_code":"","need_code":"","freshness_days_hint":0}}],
  "levers_present":["内容里出现的杠杆(若有)"],"notes":"<一句话>"}}"""
+    return _stage2_aggregate(prompt, taxo)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 2026-08-18: stage2 由「1 次抽样」改为「n 次抽样 + 聚合」。
+#
+# 为什么必须改: 同项重跑实测(run 32096357295, 整项指纹逐字相同, 断言经反向测试)
+#   · 完全相同的读数对 0/6
+#   · 单结权重极差 0.65 (pain_seek 四次里 0.65 / 0.50 / 0.40 / 完全缺席)
+# 即单次调用给出的是一次抽样, 不是一个测量。此前它被当读数写进台账。
+#
+# 为什么不是别的修法(P0-0 探针实测, probes/seed_probe.py):
+#   · 加 seed        —— 两个端点都接受该参数但不实现它(同 prompt n=6 仍 6 个不同输出)
+#   · 调 temperature —— temperature=0.0 本身就不产生确定性(6/6 全不同)
+#   · 换端点         —— Qwen 3/6 vs MiniMax 6/6, 减半但不归零, 且需重标定全部基线
+# 剩下唯一诚实的方向: 承认不确定性, 报分布而不是报点值。
+#
+# ★ 刻意不设权重阈值。项目已有纪律: 差距落在噪声内的层禁止排名、CCE 输出禁止 argmax、
+#   不得再拍未校准阈值。故稳定性判据取一个**二元且客观**的量:
+#   n 次抽样的首结是否同一个 key。它不需要任何拍出来的数字。
+# ─────────────────────────────────────────────────────────────────────────────
+KNOT_N = int(os.environ.get("CCE_KNOT_N", "5"))
+
+
+def _stage2_draw(prompt, taxo, tag):
+    """一次抽样。失败重试 3 次, 全失败返回 None(由聚合层决定是否致命)。"""
+    ok_keys = {k["key"] for k in taxo["knots"]}
     for att in range(3):
-        content, meta = call_model("M3", prompt, temperature=0.0)
-        d = extract_json_robust(content, log_note="knot_s2")
+        content, _ = call_model("M3", prompt, temperature=0.0)
+        d = extract_json_robust(content, log_note=f"knot_s2_{tag}")
         if isinstance(d, dict) and isinstance(d.get("knots"), list) and d["knots"]:
-            ok_keys = {k["key"] for k in taxo["knots"]}
-            bad = [x for x in d["knots"] if x.get("key") not in ok_keys]
-            if not bad:
-                for x in d["knots"]:
-                    meta_k = next(k for k in taxo["knots"] if k["key"] == x["key"])
-                    x["name"] = meta_k["name"]
-                    x["family"] = meta_k["family"]
-                    x["playbook"] = meta_k["playbook"]
-                    x["behavior_predicted"] = meta_k["behavior"]
+            if not [x for x in d["knots"] if x.get("key") not in ok_keys]:
                 return d
         os.makedirs(RAW_DIR, exist_ok=True)
-        with open(os.path.join(RAW_DIR, f"s2_fail_{int(time.time())}_{att}.txt"), "w", encoding="utf-8") as f:
+        with open(os.path.join(RAW_DIR, f"s2_fail_{int(time.time())}_{tag}_{att}.txt"),
+                  "w", encoding="utf-8") as f:
             f.write(content or "")
-    raise RuntimeError("stage2 三次全失败(raw 已存)")
+    return None
+
+
+def _stage2_aggregate(prompt, taxo, n=None):
+    n = n or KNOT_N
+    with ThreadPoolExecutor(max_workers=min(5, n)) as ex:
+        draws = [d for d in ex.map(lambda i: _stage2_draw(prompt, taxo, f"d{i}"), range(n)) if d]
+    if not draws:
+        raise RuntimeError(f"stage2 {n} 次抽样全部失败(raw 已存)")
+
+    # 每结: 出现次数 / 权重中位数 / 极差。缺席记 0 —— 分母恒为实际成功抽样数, 不是出现次数。
+    keys = {x["key"] for d in draws for x in d["knots"]}
+    stability = {}
+    for k in keys:
+        ws = [next((x["weight"] for x in d["knots"] if x["key"] == k), 0.0) for d in draws]
+        nz = [w for w in ws if w > 0]
+        stability[k] = {"occur": len(nz), "n": len(draws),
+                        "median": round(statistics.median(ws), 4),
+                        "min": round(min(ws), 4), "max": round(max(ws), 4),
+                        "range": round(max(ws) - min(ws), 4)}
+
+    # 首结身份稳定性: 二元, 无阈值。n 次抽样的 top-1 key 是否全部相同。
+    tops = [max(d["knots"], key=lambda x: x["weight"])["key"] for d in draws]
+    top1_stable = len(set(tops)) == 1
+
+    # knots 保持 [[key, weight]] 的既有形状(weight 改为中位数), 下游 5 个消费者不需要改。
+    merged = sorted(keys, key=lambda k: -stability[k]["median"])
+    out_knots = []
+    for k in merged:
+        if stability[k]["median"] <= 0:
+            continue
+        meta_k = next(m for m in taxo["knots"] if m["key"] == k)
+        src = next((x for d in draws for x in d["knots"] if x["key"] == k), {})
+        out_knots.append({"key": k, "weight": stability[k]["median"],
+                          "name": meta_k["name"], "family": meta_k["family"],
+                          "playbook": meta_k["playbook"], "behavior_predicted": meta_k["behavior"],
+                          "evidence_quote": src.get("evidence_quote", ""),
+                          "signature": src.get("signature", {}),
+                          "desire_code": src.get("desire_code", ""),
+                          "need_code": src.get("need_code", ""),
+                          "freshness_days_hint": src.get("freshness_days_hint", 0)})
+    return {"knots": out_knots,
+            "levers_present": sorted({l for d in draws for l in (d.get("levers_present") or [])}),
+            "notes": draws[0].get("notes", ""),
+            "sampling": {"n_requested": n, "n_ok": len(draws),
+                         "top1_stable": top1_stable, "top1_draws": tops,
+                         "max_range": round(max((v["range"] for v in stability.values()), default=0.0), 4),
+                         "per_knot": stability},
+            "caveat": ("单次抽样不是测量: 本结果为 n 次抽样的逐结中位数; "
+                       "top1_stable=false 时首结身份本身不可复现, 不得作断言依据")}
 
 
 def main():

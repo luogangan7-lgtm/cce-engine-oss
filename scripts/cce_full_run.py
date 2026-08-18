@@ -187,9 +187,23 @@ def s2(ctx):
     PINNED_TAXO = os.environ.get("CCE_TAXO_VERSION", "1.3.1")
     if taxo.get("version") != PINNED_TAXO:
         raise RuntimeError(f"taxonomy版本漂移: {taxo.get('version')} != {PINNED_TAXO}")
-    knots = ctx["cce"]["stage2"]["knots"]
-    return {"taxonomy": taxo.get("version"), "knots": [[k["key"], k["weight"]] for k in knots],
-            "playbook_primary": knots[0].get("playbook", "")[:120] if knots else None}
+    st2 = ctx["cce"]["stage2"]
+    knots = st2["knots"]
+    samp = st2.get("sampling") or {}
+    # 2026-08-18: playbook_primary 是整条链里唯一直接指挥「怎么写」的字段。
+    # 若 n 次抽样连首结是哪个都不一致, 就没有「首结的打法」可发 —— 此处置 None,
+    # 让不确定性在做决策的地方生效, 而不是只躺在 manifest 里没人看。
+    # 判据是二元的(首结 key 是否全同), 不含任何未校准阈值。
+    top1_stable = samp.get("top1_stable")
+    return {"taxonomy": taxo.get("version"),
+            "knots": [[k["key"], k["weight"]] for k in knots],
+            "n": samp.get("n_ok"), "top1_stable": top1_stable,
+            "top1_draws": samp.get("top1_draws"), "max_range": samp.get("max_range"),
+            "per_knot": samp.get("per_knot"),
+            "playbook_primary": (knots[0].get("playbook", "")[:120]
+                                 if knots and top1_stable is not False else None),
+            "playbook_withheld_reason": (None if top1_stable is not False else
+                                         f"top1 不稳: {samp.get('top1_draws')}")}
 
 
 @stage("s3_emotion_policy")
