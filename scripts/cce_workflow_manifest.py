@@ -7,12 +7,24 @@ import json
 from pathlib import Path
 from typing import Any
 
+# 2026-08-18: 契约里声明的段清单必须与引擎实跑的 manifest.chain 逐位相等。
+# 此前无任何断言, 后果实测: outbound_reply 契约声明 6 段、引擎跑 5 段,
+# reader_baseline 在 5 个真实 run 里 0 次出现, 而 complete=true 检测不到 ——
+# complete 只回答「CHAINS[mode] 这张表里的段跑完没有」, 不回答「这张表对不对」。
+CONTRACT = json.loads(
+    (Path(__file__).resolve().parents[1] / "config" / "cce_submission_contract_v1.json")
+    .read_text(encoding="utf-8"))
+
 
 def build(normalized: dict[str, Any], artifacts: Path, require_alignment: bool = False) -> dict[str, Any]:
     expected = {row["_meta"]["job_id"]: row for row in normalized.get("items", [])}
     found: dict[str, dict[str, Any]] = {}
     errors: list[str] = []
     profile = normalized.get("profile")
+    # subject_chain 的 stages 是流程概念名(source_validation 等), 不是引擎 stage_name,
+    # 两者不同域 —— 只对出站两档做逐位比对, 否则 subject-aggregate 会永久红。
+    expected_stages = (CONTRACT["profiles"][profile]["stages"]
+                       if profile in {"outbound_post", "outbound_reply"} else None)
     for path in artifacts.rglob("manifest.json"):
         manifest = json.loads(path.read_text(encoding="utf-8"))
         meta = manifest.get("submission") or {}
@@ -26,6 +38,11 @@ def build(normalized: dict[str, Any], artifacts: Path, require_alignment: bool =
         item = expected[job_id]
         if manifest.get("text_sha256") != item["_meta"].get("text_sha256"):
             errors.append(f"exact input fingerprint mismatch for {job_id}")
+        # 严格列表相等: 顺序也是契约的一部分, 不用集合/子集。
+        # optional_stages(reply_alignment) 不并入 —— 它由 reply_loop.py 写进独立文件, 从不进 chain。
+        if expected_stages is not None and manifest.get("chain") != expected_stages:
+            errors.append(f"contract chain mismatch for {job_id}: "
+                          f"ran {manifest.get('chain')} != contract {expected_stages}")
         alignment = None
         alignment_path = path.with_name("reply_alignment.json")
         # 2026-08-13: 对齐算子只作诊断记录, 其 verdict 不计入 errors——与 workflow 层同步

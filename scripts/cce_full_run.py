@@ -84,6 +84,32 @@ def run_knot_classify(text_file, context, k, out):
     return d
 
 
+@stage("reader_baseline")
+def reader_baseline(ctx):
+    """读者基线(仅 reply 链) —— 用同一把尺量读者那条评论，而不是只量我方草稿。
+
+    2026-08-18: 本段此前在 config/cce_submission_contract_v1.json 里被声明为 outbound_reply
+    的第一段, 但**仓库里没有任何实现**, CHAINS["reply"] 也不含它 —— 契约声明了一个任何代码
+    都产不出的段, 而聚合层 complete=true 检测不到这种缺失(见 cce_workflow_manifest 的 chain 断言)。
+    后果: outbound_reply 与 outbound_post 在实际执行上无差别, 「回复过了 CCE」这句话
+    的历史含义仅等于「我方草稿过了 outbound_post 那五段」, 不含任何读者侧测量。
+
+    补上它的理由不是为了让断言变绿 —— 是因为不量读者, reply 这个 profile 就没有存在意义。
+    数据一直都在(prepare.py 早已写出 run/reader.txt), 缺的只是这十几行。
+    """
+    rf = ctx.get("reader_file")
+    if not rf or not os.path.exists(rf):
+        raise RuntimeError("reply 链必须有 run/reader.txt —— 读者原文缺失时不得静默跳过本段")
+    body = open(rf, encoding="utf-8").read().strip()
+    if not body:
+        raise RuntimeError("run/reader.txt 为空")
+    d = run_knot_classify(rf, ctx["context"], ctx["k"], f"{ctx['outdir']}/reader_baseline.json")
+    ctx["reader_cce"] = d
+    return {"file": "reader_baseline.json", "reader_chars": len(body),
+            "tops": d["stage1"]["tops"], "within_js": d["stage1"]["within_js"],
+            "knots": [[k["key"], k["weight"]] for k in d["stage2"]["knots"]]}
+
+
 @stage("s0_context")
 def s0(ctx):
     """情境层(第五层) —— 部分可观测, 三态: 已声明 / 读出 / 未知(走先验)。
@@ -389,7 +415,10 @@ def s8(ctx):
 
 
 CHAINS = {
-    "reply": [s0, s1, s2, s3, s4],
+    # 2026-08-18: reply 链补入 reader_baseline —— 契约一直声明它, 实现一直不存在。
+    # 顺序与 config/cce_submission_contract_v1.json 的 profiles.outbound_reply.stages 逐位相等,
+    # 由 tests/test_cce_submission.py 与 cce_workflow_manifest 的 chain 断言双向钉死。
+    "reply": [reader_baseline, s0, s1, s2, s3, s4],
     "response": [s0, s1, s2, s3],
     "outbound_post": [s0, s1, s2, s3, s4],
     "post": [s0, s1, s2, s3, s4, s5, s6, s7, s8],
@@ -403,6 +432,7 @@ def main():
     ap.add_argument("--context", required=True)
     ap.add_argument("--outdir", required=True)
     ap.add_argument("--audience-file")
+    ap.add_argument("--reader-file", help="reply 链的读者原文(run/reader.txt); reader_baseline 段必需")
     ap.add_argument("--context-decl", help="情境声明(JSON文件或内联JSON); 生产时应显式声明已知面")
     ap.add_argument("--ref-post")
     ap.add_argument("--guard-profile", default="hearing_aid",
@@ -411,6 +441,7 @@ def main():
     a = ap.parse_args()
     os.makedirs(a.outdir, exist_ok=True)
     ctx = {"text_file": a.text_file, "context": a.context, "outdir": a.outdir,
+           "reader_file": a.reader_file,
            "audience_file": a.audience_file, "ref_post": a.ref_post,
            "context_decl": a.context_decl, "guard_profile": a.guard_profile,
            "k": 5 if a.mode in {"post", "outbound_post"} else 3}
