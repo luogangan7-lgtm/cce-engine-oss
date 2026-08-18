@@ -26,7 +26,7 @@
 
 成本: T 份文本 × R 次 × (s1 3 + s2 5) 次调用。T=3 R=4 → 96 次。
 """
-import json, os, statistics as st, sys, time
+import json, os, re, statistics as st, sys, time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,16 +42,49 @@ VERDICT_LINES = [
     "1 < D < 2 → 能分辨但信噪比薄。单条读数不可单独使用, 必须配 n 次重复才能出结论",
     "D >= 2  → 分辨力可用, P1 的 Reliability 项通过, 可进 P2",
     "★混杂: 逐结均值若随文本长度单调 → D 主要由长度驱动, 是弱分辨, 上面三条降一档读",
+    "★分支(DISC_SELECT=jaccard, 仅在 length 臂 D<=1 时跑): 词面最不像的一对若 D 仍<=1 → **仪器盲**, "
+    "九结读数与被测文本无关, §22 四层结构与下游一切分析全部作废重来; 若 D 明显>1 → **语料同质**, "
+    "仪器有能力但真实语料区分度低, 结论降为「本语料上不可用」而非「仪器不可用」",
 ]
 
 
-def pick_texts():
-    """写死的选样规则 —— 长度升序取首/中/末, 不看内容。"""
+SELECT = os.environ.get("DISC_SELECT", "length")   # length | jaccard
+
+
+def _corpus():
     items = json.loads((ROOT / "run_items" / "reddit_20260810.json").read_text(encoding="utf-8"))
     if isinstance(items, dict):
         items = items.get("items") or items.get("run_items") or []
     texts = sorted({(it["reader"] or "").strip() for it in items if (it.get("reader") or "").strip()}, key=len)
     assert len(texts) >= 3, f"语料只有 {len(texts)} 份唯一 reader 文本, 不足以做可分辨性"
+    return texts
+
+
+def pick_texts():
+    """两条写死的选样规则, 都不由我按内容挑。
+
+    length  (默认): 长度升序取首/中/末。**操作相关**的那个数 ——
+            仪器分不分得出「我实际喂给它的那些东西」。带长度混杂, 已登记。
+
+    jaccard (分支): 取词集 Jaccard 相似度**最低**的一对(纯机械, 无内容判断)。
+            **能力上界**的那个数 —— 连真实语料里词面最不像的两份都分不出,
+            那就是仪器盲, 而不是语料同质。
+            ★ 这条分支在 length 臂出数**之前**写入(见 git 历史), 不是照结果补的。
+    """
+    texts = _corpus()
+    if SELECT == "jaccard":
+        def toks(t):
+            return set(re.findall(r"[a-z']{3,}", t.lower()))
+        tk = [toks(t) for t in texts]
+        best, pair = 2.0, (0, 1)
+        for i in range(len(texts)):
+            for j in range(i + 1, len(texts)):
+                u = tk[i] | tk[j]
+                sim = len(tk[i] & tk[j]) / len(u) if u else 1.0
+                if sim < best:
+                    best, pair = sim, (i, j)
+        print(f"  [jaccard] 最不相似的一对 sim={best:.4f}")
+        return [(f"T{n}", texts[j]) for n, j in enumerate(pair)]
     idx = [0, len(texts) // 2, len(texts) - 1]
     return [(f"T{i}", texts[j]) for i, j in enumerate(idx)]   # 已按长度升序, T0<T1<T2
 
