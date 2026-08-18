@@ -125,7 +125,9 @@ jobs:
           ITEM_INDEX: ${{ matrix.i }}
         run: python3 .github/prepare.py
       - name: Outbound style gate
-        if: needs.prep.outputs.profile == 'outbound_reply'
+        # 2026-08-18: 原 if 只匹配 outbound_reply, 于是 outbound_post 从不过链上文风闸,
+        # 帖子的文风数字全部只来自本地手跑, 不是管道强制的。两档都开。
+        if: needs.prep.outputs.profile == 'outbound_post' || needs.prep.outputs.profile == 'outbound_reply'
         run: python3 scripts/style_check.py run/input.txt
       - name: Run profile-frozen CCE chain
         env:
@@ -138,6 +140,7 @@ jobs:
             --context "$(cat run/context)" \
             --outdir run/out \
             --submission-meta run/submission_meta.json \
+            $(test -f run/reader.txt && echo "--reader-file run/reader.txt") \
             $(test -f run/guard_profile && echo "--guard-profile $(cat run/guard_profile)") \
             $(test -f run/audience.txt && echo "--audience-file run/audience.txt") \
             $(test -f run/ref.txt && echo "--ref-post run/ref.txt") \

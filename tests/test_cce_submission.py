@@ -31,6 +31,9 @@ assert submission_contract["profiles"]["outbound_post"]["stages"] == [
     "s0_context", "s1_readout", "s2_knots", "s3_emotion_policy", "s4_guard"
 ]
 assert [stage.stage_name for stage in CHAINS["outbound_post"]] == submission_contract["profiles"]["outbound_post"]["stages"]
+# 2026-08-18: 补上缺失的孪生断言。此前只钉 outbound_post, 不钉 outbound_reply ——
+# 于是契约写 6 段、CHAINS["reply"] 只有 5 段, 静态层与聚合层都看不见, 持续数周。
+assert [stage.stage_name for stage in CHAINS["reply"]] == submission_contract["profiles"]["outbound_reply"]["stages"]
 assert [stage.stage_name for stage in CHAINS["response"]] == [
     "s0_context", "s1_readout", "s2_knots", "s3_emotion_policy"
 ]
@@ -61,6 +64,7 @@ with tempfile.TemporaryDirectory() as temp:
     (artifact / "manifest.json").write_text(json.dumps({
         "text_sha256": item["_meta"]["text_sha256"], "complete": True, "failed_at": None,
         "submission": item["_meta"], "stages": {"s1_readout": {"status": "OK"}},
+        "chain": submission_contract["profiles"]["outbound_post"]["stages"],
     }), encoding="utf-8")
     aggregate = build_workflow_manifest(normalized, root / "artifacts")
     assert aggregate["complete"] is True, aggregate
@@ -78,6 +82,7 @@ with tempfile.TemporaryDirectory() as temp:
     (artifact / "manifest.json").write_text(json.dumps({
         "text_sha256": item["_meta"]["text_sha256"], "complete": True, "failed_at": None,
         "submission": item["_meta"], "stages": {"s1_readout": {"status": "OK"}},
+        "chain": submission_contract["profiles"]["outbound_reply"]["stages"],
     }), encoding="utf-8")
 
     off = build_workflow_manifest(normalized, root / "artifacts")
@@ -135,3 +140,32 @@ versioned_subject["subject_chain"] = chain
 assert not validate_submission(versioned_subject)["ok"]
 
 print("PASS: schema 1.1 profiles, Universal Context artifacts, dynamic community context, versioned platform adapter, s0-s4 production post chain, exact fingerprints, and non-versioned subjects")
+
+# 2026-08-18 新增: chain 断言的反向测试。
+# 纪律: 不做反向测试的断言等同于没有断言 —— 它必须能被观察到失败。
+with tempfile.TemporaryDirectory() as temp:
+    root = Path(temp)
+    package = root / "package"
+    write_package(examples["outbound_reply"], package)
+    normalized = json.loads((package / "normalized.json").read_text(encoding="utf-8"))
+    item = normalized["items"][0]
+    contract_chain = submission_contract["profiles"]["outbound_reply"]["stages"]
+
+    def _mk(chain):
+        art = root / f"rt-{abs(hash(tuple(chain)))}"
+        (art / "item-0").mkdir(parents=True)
+        (art / "item-0" / "manifest.json").write_text(json.dumps({
+            "text_sha256": item["_meta"]["text_sha256"], "complete": True, "failed_at": None,
+            "submission": item["_meta"], "stages": {"s1_readout": {"status": "OK"}},
+            "chain": chain,
+        }), encoding="utf-8")
+        return build_workflow_manifest(normalized, art)
+
+    assert _mk(contract_chain)["complete"] is True, "契约链必须绿"
+    dropped = _mk([s for s in contract_chain if s != "reader_baseline"])
+    assert not dropped["complete"] and any("contract chain mismatch" in e for e in dropped["errors"]), \
+        "摘掉 reader_baseline 必须红 —— 这正是 2026-08-18 之前持续数周未被发现的那个缺陷"
+    reordered = _mk([contract_chain[1], contract_chain[0]] + contract_chain[2:])
+    assert not reordered["complete"], "顺序也是契约的一部分, 乱序必须红"
+
+print("test_cce_submission: OK (含 chain 断言反向测试)")
