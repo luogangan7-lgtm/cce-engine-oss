@@ -25,12 +25,16 @@ import cce_full_run as C           # noqa: E402
 
 TAXO = json.loads((ROOT / "config" / "knot_taxonomy.json").read_text(encoding="utf-8"))
 
-# ── 1. Instrument Definition 覆盖六项，缺一不可 ─────────────────────────────
+# ── 1. Instrument Definition 覆盖七项，缺一不可 ─────────────────────────────
+# ⚠️ 2026-08-18 [2/4]: 原为六项, 其中 `prompt_sha256` **只哈希了 stage2 模板** ——
+#   改 stage1 的 prompt 不换指纹, 即**静默换仪器**, 正是 instrument_id 要防的事。
+#   已拆成 s1_prompt_sha256 / s2_prompt_sha256 两项。断言随之更新, 不是删除。
 inst = K.instrument_id(TAXO, k=3, knot_n=5)
 spec = inst["spec"]
-for f in ("ontology_version", "prompt_sha256", "model", "endpoint",
-          "sampling_policy", "aggregation_policy"):
+for f in ("ontology_version", "s1_prompt_sha256", "s2_prompt_sha256", "model",
+          "endpoint", "sampling_policy", "aggregation_policy"):
     assert f in spec, f"仪器定义缺 {f}"
+assert "prompt_sha256" not in spec, "单一 prompt_sha256 已废止 —— 它盖不住 stage1"
 assert len(inst["instrument_hash"]) == 16, inst
 
 # ── 2. ★ 采样数变了 → 哈希必须变（这正是那次 A/B 的一半混淆）────────────────

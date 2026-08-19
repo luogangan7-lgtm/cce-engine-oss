@@ -151,8 +151,9 @@ def _measurement(row: dict[str, Any], artifact: tuple[dict[str, Any], dict[str, 
         raise ValueError(f"remote CCE s1 failed for {row['evidence_ref']}")
     stage1 = readout.get("stage1") or {}
     vectors = stage1.get("layers") or {}
-    layer_distributions: dict[str, dict[str, float]] = {}
+    layer_distributions: dict[str, dict[str, float] | None] = {}
     flattened: dict[str, float] = {}
+    abstained: list[str] = []
     for layer, (vector_key, labels) in LAYER_LABELS.items():
         vector = vectors.get(vector_key)
         if not isinstance(vector, list) or len(vector) != len(labels):
@@ -161,11 +162,18 @@ def _measurement(row: dict[str, Any], artifact: tuple[dict[str, Any], dict[str, 
             raise ValueError(f"{row['evidence_ref']} invalid values in {vector_key}")
         total = sum(vector)
         if total <= 0:
-            raise ValueError(f"{row['evidence_ref']} empty {vector_key}")
+            # ★ 2026-08-18 [2/4]: 此前这里 raise —— 零分布在契约上不可能表达,
+            #   于是「仪器读不出东西」与「管线坏了」不可区分, 前者被当成后者。
+            #   现在它是**合法弃权**: 记为 abstain, 不产出 distribution。
+            #   注意这不等于「这个人没有心理活动」, 而是「本次测量不够资格被解释成心理读数」。
+            abstained.append(f"{layer}:{vector_key}")
+            layer_distributions[layer] = None
+            continue
         layer_distributions[layer] = {label: value / total for label, value in zip(labels, vector)}
         flattened.update({f"{layer}:{label}": value / total / len(LAYER_LABELS) for label, value in zip(labels, vector)})
     flat_total = sum(flattened.values())
-    flattened = {key: value / flat_total for key, value in flattened.items()}
+    flattened = ({key: value / flat_total for key, value in flattened.items()}
+                 if flat_total > 0 else {})
     within = [value for value in (stage1.get("within_js") or {}).values() if isinstance(value, (int, float))]
     repeatability = max(0.0, min(1.0, 1.0 - sum(within) / len(within))) if within else 0.0
     comment_id = row["evidence_ref"].split(":", 1)[-1]
@@ -175,6 +183,9 @@ def _measurement(row: dict[str, Any], artifact: tuple[dict[str, Any], dict[str, 
         "response_evidence_refs": [row["evidence_ref"]],
         "observed_at": row["observed_at"],
         "measurement_scope": "derived_response_text_distribution",
+        # 四层全弃权 = 本条响应不产出心理读数; 部分弃权 = 该层为 None, 其余仍可用。
+        "measurement_status": "abstain" if len(abstained) == len(LAYER_LABELS) else "qualified",
+        "abstained_layers": abstained,
         "assertion": "derived",
         "model_version": (readout.get("instrument") or {}).get("stage1", "unknown"),
         "input_fingerprint": f"sha1:{expected_sha1}",

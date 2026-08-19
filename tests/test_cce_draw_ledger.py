@@ -80,9 +80,15 @@ assert all(r["weight_shim_fired"] is True for r in _agg(SPEC, shim=True)["draw_l
 #   我第一次写这条测试时猜错了字符串, 于是它报「ledger 改变了指纹」——
 #   一个**假阳性**, 差点让我以为改坏了仪器。断言里写死真实值, 不再猜。
 spec = K.instrument_id(TAXO, k=3, knot_n=5, s1_pairing="round_robin_over_3_s1_draws")
-assert spec["instrument_hash"] == "57ec6cf478d3875e", (
-    f"★ draw ledger 改变了仪器指纹({spec['instrument_hash']}) —— 那会让今天六个 run 全部不可比")
+# ⚠️ 2026-08-18 [2/4]: 本断言原为 `== "57ec6cf478d3875e"`。
+#   [2/4] 把 s1 prompt 与 abstention 策略纳入指纹, **哈希必然改变** ——
+#   物理仪器没变, 变的是身份定义更完整了。断言更新为新哈希 + 换代桥接, 不是删除。
+assert spec["instrument_hash"] == "287d07a0ef1ea78e", (
+    f"仪器指纹变了({spec['instrument_hash']}) —— 若非有意换代, 先查是什么改动引起的")
+assert K.LEGACY_INSTRUMENT_20260818["old_hash"] == "57ec6cf478d3875e", "换代桥接必须留着"
+# ★ ledger 本身仍必须是**仪器中性**的: 它是输出字段, 不该出现在仪器定义里
 assert "draw_ledger" not in json.dumps(spec["spec"]), "ledger 不该出现在仪器定义里"
+assert "KNOTS_ALL" not in json.dumps(spec["spec"])
 
 # ── 4b. ★ s1_pairing 嵌了**运行时成功数**, 指纹随之变 —— 钉住这个已知性质 ──
 #   一次瞬时 API 失败(k_ok < k_requested)就会换一把尺子。
@@ -92,7 +98,7 @@ _h = {n: K.instrument_id(TAXO, k=3, knot_n=5,
                          s1_pairing=f"round_robin_over_{n}_s1_draws")["instrument_hash"]
       for n in (1, 2, 3)}
 assert len(set(_h.values())) == 3, "s1 成功数不同必须给出不同仪器 —— 否则会静默混比"
-assert _h[3] == "57ec6cf478d3875e"
+assert _h[3] == "287d07a0ef1ea78e", "n=3 应给出当前(换代后)指纹"
 
 # ── 5. 反向测试: 去掉「缺席记 0」, 断言必须红 ────────────────────────────────
 _partial = {k: v for k, v in led[3]["knot_vector"].items() if v > 0}

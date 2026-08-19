@@ -53,10 +53,23 @@ RAW_DIR = os.path.join(ROOT, "results/knot_classify_raw")
 LAYERS = ("desire_vec", "need_vec", "emotion_vec", "action_vec")
 
 
-def stage1(text, context, k):
-    case = (f"平台/形态: {context}\n"
+# ★ 2026-08-18 [2/4] 补一个真洞: 此前 `prompt_sha256` **只哈希了 `_stage2_template`** ——
+#   stage1 的 prompt 根本没进仪器指纹。改那句「请对这一个人反推…这是一个个体」
+#   **不会改变 instrument_hash** ⇒ **静默换仪器**, 正是 instrument_id 当初要防的事。
+#   现在 s1 与 s2 各出一份模板哈希, 两边都忘不掉。
+def _stage1_template(context="<CONTEXT>", text="<TEXT>"):
+    """stage1 prompt 里**不随内容变化**的部分, 变量位用哨兵占位, 用于取仪器哈希。"""
+    return _stage1_case(text, context)
+
+
+def _stage1_case(text, context):
+    return (f"平台/形态: {context}\n"
             f"以下是内容全文(仅文本, 无任何互动数据):\n\n{text}\n\n"
             f"(注: 请对『写下这段内容的这一个人』反推其心理因果链四层占比分布。这是一个个体，不是群体。)")
+
+
+def stage1(text, context, k):
+    case = _stage1_case(text, context)
     # 温度梯度按 k 自适应展开(修 2026-08-08: 原写死3档,--k>3 时静默降为3)
     _base = _S1_BASE_TEMPS
     temps = _base[:k] if k <= len(_base) else _base + [round(0.05 * i, 2) for i in range(1, k - len(_base) + 1)]
@@ -154,20 +167,40 @@ def _stage2_template(taxo):
     return _build_stage2_prompt(taxo, "<TEXT>", {"tops": "<TOPS>", "appraisal": "<APPRAISAL>"})
 
 
+# ★ 仪器换代桥接。2026-08-18 [2/4] 把 s1 prompt 与 abstention 纳入指纹后, 哈希必然改变。
+#   **物理仪器没变**(prompt 原文、模型、端点、采样策略全同), 变的是「身份定义更完整了」。
+#   为了让当日六个 run 仍能与后续对账, 把换代关系钉在这里, 并由测试守住:
+#   旧哈希 57ec6cf478d3875e 对应的 s1 prompt sha 就是下面这个;
+#   若将来 s1 prompt 被改动, 该 sha 变化 ⇒ 桥接断开 ⇒ 当日数据**不再**可与新数据比较。
+LEGACY_INSTRUMENT_20260818 = {
+    "old_hash": "57ec6cf478d3875e",
+    "s1_prompt_sha256": "d73764202b732e98",
+    "s2_prompt_sha256": "b8d0f60d66d10f12",
+    "runs": ["32130867661", "32141330271", "32143780680",
+             "32143785964", "32147076464", "32150369795"],
+    "note": ("旧指纹未覆盖 s1 prompt 与 abstention 策略。物理仪器与新指纹一致, "
+             "当且仅当 s1_prompt_sha256/s2_prompt_sha256 与此处记录相同。"),
+}
+
+
 def instrument_id(taxo, k=None, knot_n=None, s1_pairing=None):
     """当前仪器的完整定义 + 哈希。任何跨读数比较之前必须先比它。"""
     from exp_crossmodel_desire import MODELS
     m = MODELS["M3"]
     spec = {
         "ontology_version": taxo.get("version"),
-        "prompt_sha256": hashlib.sha256(_stage2_template(taxo).encode("utf-8")).hexdigest()[:16],
+        # 拆成两份: 此前只有 s2, 改 s1 prompt 不换指纹(静默换仪器)。两边都要覆盖。
+        "s1_prompt_sha256": hashlib.sha256(_stage1_template().encode("utf-8")).hexdigest()[:16],
+        "s2_prompt_sha256": hashlib.sha256(_stage2_template(taxo).encode("utf-8")).hexdigest()[:16],
         "model": m["model"],
         "endpoint": m["base"],
         "sampling_policy": {"s1_k": k, "s1_temps": _S1_BASE_TEMPS, "s2_n": knot_n or KNOT_N,
                             "s1_pairing": s1_pairing or "unspecified"},
         "aggregation_policy": {"support_rule": SUPPORT_RULE,
                                "intensity_stat": "median_of_nonzero",
-                               "composition": "within_family_then_global_weight"},
+                               "composition": "within_family_then_global_weight",
+                               # 空 knots 从「解析失败」改为「合法弃权」—— 行为变了就是换仪器
+                               "abstention": ABSTENTION_POLICY},
     }
     h = hashlib.sha256(json.dumps(spec, ensure_ascii=False, sort_keys=True).encode("utf-8")).hexdigest()[:16]
     return {"instrument_hash": h, "spec": spec}
@@ -283,6 +316,15 @@ def stage2(text, s1, taxo):
 KNOTS_ALL = ("pain_seek", "injustice", "belong", "reward", "display",
              "itch", "suspend", "inertia", "audit")
 
+# 弃权策略。此前 `{"knots": []}` 被当成解析失败去重试 —— 模型就算想说「读不出」也说不出口。
+# 现在它是**合法弃权**。注意: 这不代表 stage1 的 prompt 允许模型弃权(那句话仍要求"反推"),
+# 那是另一次改动, 且会再换一次仪器 —— 见 ABSTENTION_S1_NOTE。
+ABSTENTION_POLICY = "empty_knots_is_abstain_v1"
+ABSTENTION_S1_NOTE = (
+    "stage1 prompt 仍要求『对写下这段内容的这一个人反推』, 未授权模型判断『有没有主体』。"
+    "本次只打通 stage2 与 ingest 两处通道; 改 s1 prompt 会再换一次仪器并使当日标定失效, "
+    "属独立决策。")
+
 KNOT_N = int(os.environ.get("CCE_KNOT_N", "5"))
 
 # 少数派抽样不进输出。此前这条规则藏在 `median(缺席记0) > 0` 里, 从未被写下来。
@@ -339,7 +381,9 @@ def _stage2_draw(prompt, taxo, tag):
     for att in range(3):
         content, _ = call_model("M3", prompt, temperature=0.0)
         d = extract_json_robust(content, log_note=f"knot_s2_{tag}")
-        if isinstance(d, dict) and isinstance(d.get("knots"), list) and d["knots"]:
+        # ★ 去掉 `and d["knots"]`: 空列表此前被当成解析失败去重试 ——
+        #   模型就算想说「这里读不出人」也说不出口。现在它是合法弃权。
+        if isinstance(d, dict) and isinstance(d.get("knots"), list):
             if not [x for x in d["knots"] if x.get("key") not in ok_keys]:
                 # 兼容: 模型偶尔仍吐 weight。统一落到 intensity。
                 # ★ 记录垫片是否触发 —— 若模型吐的是和为 1 的 weight(旧 schema),
@@ -404,9 +448,24 @@ def _stage2_aggregate(prompt, taxo, n=None):
     # 改法: 主量报**众数占比**(跨 n 可比), 二元字段改名为 top1_unanimous ——
     #   「一致」是样本的事实, 「稳定」是对世界的断言, 二者不该共用一个名字。
     from collections import Counter as _C
-    tops = [max(d["knots"], key=lambda x: x["intensity"])["key"] for d in draws]
+    # 弃权的 draw 没有 top1 —— 它不投票, 但**必须计入分母**, 否则弃权会抬高众数占比。
+    tops = [max(d["knots"], key=lambda x: x["intensity"])["key"] for d in draws if d["knots"]]
+    n_abstain = sum(1 for d in draws if not d["knots"])
+    if not tops:
+        return {"knots": [], "measurement_status": "abstain",
+                "abstain_reason": f"{n_abstain}/{len(draws)} 次抽样均未读出任何结",
+                "draw_ledger": [{"draw_id": i, "abstained": True,
+                                 "knot_vector": {k: 0.0 for k in KNOTS_ALL}}
+                                for i in range(len(draws))],
+                "intensity": {}, "families": {}, "levers_present": [], "notes": "",
+                "sampling": {"n_requested": n, "n_ok": len(draws), "n_abstain": n_abstain,
+                             "top1_mode": None, "top1_mode_share": 0.0,
+                             "top1_unanimous": False, "top1_stable": False,
+                             "top1_draws": [], "max_range": 0.0, "per_knot": {}},
+                "caveat": "全体弃权: 这不是「没有信号强度」, 是仪器声明本次不产出心理读数。"}
     _mode = _C(tops).most_common(1)[0]
-    mode_share = round(_mode[1] / len(tops), 4)
+    # ★ 分母用 len(draws) 而不是 len(tops): 弃权若不计入分母, 弃权越多众数占比越高
+    mode_share = round(_mode[1] / len(draws), 4)
     top1_unanimous = len(set(tops)) == 1
     top1_stable = top1_unanimous   # 兼容别名, 语义同 unanimous; 新代码请用 mode_share
 
@@ -470,9 +529,13 @@ def _stage2_aggregate(prompt, taxo, n=None):
                     "knot_vector": {k: next((float(x["intensity"]) for x in d["knots"]
                                              if x["key"] == k), 0.0) for k in KNOTS_ALL},
                     "weight_shim_fired": bool(d.get("_weight_shim_fired")),
-                    "top1": max(d["knots"], key=lambda x: x["intensity"])["key"]}
+                    "abstained": not d["knots"],
+                    "top1": (max(d["knots"], key=lambda x: x["intensity"])["key"]
+                             if d["knots"] else None)}
                    for i, d in enumerate(draws)]
     return {"knots": out_knots,
+            "measurement_status": "qualified" if out_knots else "abstain",
+            "n_abstain": n_abstain,
             "draw_ledger": draw_ledger,
             "intensity": {k: round(v, 4) for k, v in sorted(inten.items(), key=lambda x: -x[1])},
             "families": families,
