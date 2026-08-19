@@ -48,21 +48,42 @@ VERDICT_LINES = [
     "③ 型 I 受控, power 随 R 单调上升但 R=8 仍 <0.80 → INSUFFICIENT_AT_R8(需 R>8 或效应太小)",
     "④ 型 I 受控, 但 power 在所有 R 上都**没有明显高于零参照** → PAIR_MAY_BE_NULL:"
     " 这对文本可能本来就没有差异, **不能用它标定 power**, 需另找已知有效应的一对",
-    "★ 以上四支对 (型I是否受控, R* 是否存在, power 是否高于零参照) 穷尽且互斥。",
+    "⑤ 任一臂合格 rep < 4 → INSUFFICIENT_DATA(投料损耗过大, 子集分析做不了)。"
+    "失败与弃权都会压低有效 R —— **名义 R 不等于推断 R**, 三个计数都要上报",
+    "★ 以上五支对 (数据是否够, 型I是否受控, R* 是否存在, power 是否高于零参照) 穷尽且互斥。",
     "★ 子集分析用**不放回真子集**, 不是 bootstrap —— 但仍条件于这 8 个真实 rep。",
     "★ 禁止事后改文本、改 R、改判决线。",
 ]
 
 
 def _rep(text):
-    s1 = K.stage1(text, CTX, KK)
+    """三种状态, 不是两种: qualified / abstained / **failed**。
+
+    ★ 2026-08-19 run 32240552713 教训: T0 臂 8/8 跑完后, T0b 的某个 rep 三档全失败
+      (原始件内容为空 ⇒ **API 调用本身失败**, 不是 prompt 破坏解析),
+      stage1 按设计抛错, 于是**整轮 192 调用作废**, 已花掉的六十多次也白花。
+
+    ⚠️ 修法**不是**加重试: 每档内部已重试 3 次(9 次连续失败已是突发故障),
+       而 rep 级重试会**条件化于成功, 把真实失败率藏起来** —— 与「抽到够两个为止」同病。
+       正确做法: 失败是第三种状态, 如实记录并继续, 让 R_failed 可见。
+    """
+    try:
+        s1 = K.stage1(text, CTX, KK)
+    except RuntimeError as e:
+        return {"qualified": False, "failed": True, "k_valid": None,
+                "error": str(e)[:120], "knots": None}
     for need in ("k_valid", "k_attempted", "measurement_status", "abstained"):
         if need not in s1:
             raise KeyError(f"stage1 缺 {need} —— 禁止兜底")
     if s1["abstained"] or s1["k_valid"] < 2:
-        return {"qualified": False, "k_valid": s1["k_valid"], "knots": None}
-    s2 = K.stage2(text, s1, TAXO)
-    return {"qualified": True, "k_valid": s1["k_valid"],
+        return {"qualified": False, "failed": False, "k_valid": s1["k_valid"],
+                "abstained": s1["abstained"], "knots": None}
+    try:
+        s2 = K.stage2(text, s1, TAXO)
+    except RuntimeError as e:
+        return {"qualified": False, "failed": True, "k_valid": s1["k_valid"],
+                "error": "stage2: " + str(e)[:110], "knots": None}
+    return {"qualified": True, "failed": False, "k_valid": s1["k_valid"],
             "instrument": s2["instrument"]["instrument_hash"],
             "qualification_policy": s2["instrument"].get("qualification_policy_hash"),
             "knots": {x["key"]: x["intensity"] for x in s2["knots"]},
@@ -118,7 +139,10 @@ if __name__ == "__main__":
     for name, t in arms.items():
         raw[name] = [_rep(t) for _ in range(R)]
         q = sum(1 for r in raw[name] if r["qualified"])
-        print(f"  {name}: R_qualified/R_requested = {q}/{R}  k_valid={[r['k_valid'] for r in raw[name]]}")
+        fl = sum(1 for r in raw[name] if r.get("failed"))
+        ab = sum(1 for r in raw[name] if r.get("abstained"))
+        print(f"  {name}: R_qualified={q}/{R}  失败={fl}  弃权={ab}  "
+              f"k_valid={[r['k_valid'] for r in raw[name]]}")
 
     res = {"instrument": inst["instrument_hash"],
            "qualification_policy": inst["qualification_policy_hash"],
@@ -126,6 +150,18 @@ if __name__ == "__main__":
            "alpha": ALPHA, "power_target": POWER_TARGET}
     Q = {n: [r["knots"] for r in v if r["qualified"]] for n, v in raw.items()}
     res["R_qualified"] = {n: len(v) for n, v in Q.items()}
+    res["R_failed"] = {n: sum(1 for r in v if r.get("failed")) for n, v in raw.items()}
+    res["R_abstained"] = {n: sum(1 for r in v if r.get("abstained")) for n, v in raw.items()}
+    # ★ 名义 R 不等于推断 R —— 失败与弃权都会压低它, 必须让下游看见
+    print(f"\nR_requested={R}  R_qualified={res['R_qualified']}  "
+          f"R_failed={res['R_failed']}  R_abstained={res['R_abstained']}")
+    if min(res["R_qualified"].values()) < 4:
+        res["verdict"] = (f"INSUFFICIENT_DATA: 某臂合格 rep 不足 4 "
+                          f"({res['R_qualified']}), 无法做 R>=4 的子集分析")
+        print("\n=== 判决 ===\n  " + res["verdict"])
+        with open("/tmp/live_r8_calibration.json", "w", encoding="utf-8") as f:
+            json.dump(res, f, ensure_ascii=False, indent=1)
+        sys.exit(0)
 
     print(f"\n{'R':>3} {'power(T0-T1)':>14} {'null(T0-T0b)':>14}  差")
     curve = {}
