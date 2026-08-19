@@ -295,3 +295,33 @@ assert 'raise KeyError' in _gq and "禁止兜底" in _gq
 # 反向: 构造一行含兜底的代码行, 规则必须抓住
 assert any('s1.get(' in _l for _l in ['    x = s1.get("k_valid", 3)']), "反向用例自检"
 print("  弃权分支同构已钉: k_valid=0 / k_ok=0 / draws 保留 / 两分支键集一致 / 探针无兜底")
+
+# ── 18. Gen3 资格实验(前登记, run 32231676330) ─────────────────────────────
+GQF = ROOT / "tests" / "data" / "gen3_qualification_20260819.json"
+VOID = ROOT / "tests" / "data" / "gen3_qualification_20260819_VOID.json"
+if GQF.exists():
+    gq = json.loads(GQF.read_text(encoding="utf-8"))
+    assert gq["instrument"] == "ea70b373d5bef630" and gq["K"] == 3 and gq["R_requested"] == 4
+    # ★ 通道自检必须先过, 否则真人侧的零不可读
+    assert gq["Nd"] == 1.0 and gq["Nf"] == 1.0, "阴性对照必须确证弃权"
+    # 修复验证: 弃权时 k_valid 报 0(上一轮因缺键+兜底错报成 3)
+    assert all(r["k_valid"] == 0 for r in gq["control"]["reps"]), \
+        "★ 全体弃权时 k_valid 必须是 0 —— 报 3 正是上一轮作废的原因"
+    assert gq["U"] == 0.0 and gq["F"] == 0.0
+    assert gq["verdict"].startswith("ADOPT_PENDING_MARGIN")
+    assert gq["R_qualified_rep_observations"] == gq["R_total_rep_observations"] == 48
+    # ★★ U=0 **不等于** U 真的是 0: 48 观测的三法则上界 ≈ 3/48 = 0.0625
+    assert 3 / gq["R_total_rep_observations"] > 0.06, "三法则上界必须被记住, 不许把 0 读成不会发生"
+    # ★★ 且同一台 gen3 的上一轮**确实**观测到 U>0(T02 两个 rep k_valid=1)
+    fp = json.loads((ROOT / "tests" / "data" /
+                     "abstention_false_positive_20260819.json").read_text(encoding="utf-8"))
+    assert any(3 - x < 2 for v in fp["human"].values() for x in v["n_abstain"]), \
+        "★ 上一轮 gen3 观测到过 k_valid<2 —— 本轮的 U=0 不得被读成『从不发生』"
+if VOID.exists():
+    v = json.loads(VOID.read_text(encoding="utf-8"))
+    assert "VOID_REASON" in v and v["verdict"].startswith("INDETERMINATE"), \
+        "作废轮次必须带作废理由, 且不得被当成有效结果引用"
+    assert all(r["abstained"] for r in v["control"]["reps"]), \
+        "作废轮的阴性对照其实是全体弃权的 —— 这条钉住『Nd=0 是仪器缺陷不是通道死』"
+print("  gen3 资格实验已钉: 通道 Nd=1.0 / U=F=0 / ADOPT_PENDING_MARGIN / "
+      "三法则上界 0.0625 / 上一轮观测到过 U>0 / 作废轮带 VOID 理由")
