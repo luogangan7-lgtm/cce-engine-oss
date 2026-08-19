@@ -57,6 +57,17 @@ MODELS = {
         "append_path": True,
         "max_tokens": 6000,
         "force_temp": 1.0,   # kimi-k3 只允许 temperature=1
+        # ⚠️ 2026-08-01 实测 429 account suspended(欠费)。owner 2026-08-19 确认只用
+        #    阿里云与 MiniMax 两个订阅 ⇒ 本条**不进任何现役流程**, 保留仅为历史可读。
+        "unavailable": "owner 未订阅(2026-08-19)",
+    },
+    # 阿里云 Token Plan 共享 Credits 下的同族备选(千问家族), 用于 G2 降级或额度分流
+    "Qwen3.7max": {
+        "model": "qwen3.7-max",
+        "base": os.environ.get("ALIYUN_API_BASE", ""),
+        "key_env": "ALIYUN_API_KEY",
+        "append_path": True,
+        "max_tokens": 6000,
     },
 }
 

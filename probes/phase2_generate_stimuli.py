@@ -37,7 +37,16 @@ from exp_crossmodel_desire import call_model, MODELS  # noqa: E402
 # ── 前登记参数 ──────────────────────────────────────────────────────────────
 MEASUREMENT_MODEL = "M3"          # ★ 测量仪器不动(gen4 565470cf26c16d01)
 GENERATORS = {"G1": "Qwen3.8", "G2": "GLM5.2"}    # 两个与测量模型**不同家族**的生成器
-VERIFIER = "KimiK3"               # G3: 独立盲验, 与 G1/G2 也不同家族
+# ★★ 盲验改为**交叉验证**, 不再用第三个家族。
+#   原设计是独立的 G3(KimiK3), 但 owner 只订阅阿里云与 MiniMax 两家 ⇒ 手上只有两个家族。
+#   为什么**不能**拿 MiniMax-M3 顶 G3: 它是测量模型。用它筛「这段确实改变了处境」,
+#   留下的就是**它自己认为变了**的那些变体 ⇒ 按测量模型的判断筛刺激, 会把可分辨性
+#   系统性抬高。这是循环, 比少一个家族严重得多。
+#   ⇒ 每个生成器的产出交给**另一个家族**盲验: 永不自评, 永不用测量模型评。
+#   ⚠️ 已知限度: 验证者恰是另一个生成器 ⇒ 两者若共享同一语言先验, 该盲验查不出来。
+#      故 blind_rule_check 只作**规则合规**的二次确认, 不作「扰动强度」的裁定。
+VERIFIER_OF = {"G1": "GLM5.2", "G2": "Qwen3.8"}
+VERIFIER_MODE = "CROSS_FAMILY_NO_THIRD_PARTY"
 ASSIGN_SEED = 20260819
 MAX_REGEN = 3                     # 冻结重生成次数上限
 LEN_LO, LEN_HI = 0.85, 1.15
@@ -151,10 +160,10 @@ if __name__ == "__main__":
     asg = assign(bases)
     from collections import Counter
     print(f"base n={len(bases)}  分配 {dict(Counter(asg.values()))}  "
-          f"生成器 {GENERATORS}  验证器 {VERIFIER}")
+          f"生成器 {GENERATORS}  交叉盲验 {VERIFIER_OF} ({VERIFIER_MODE})")
     print(f"计划调用 {len(bases)*len(ARMS)} 次(不含重试, 上限 ×{MAX_REGEN})")
-    missing = [m for m in set(GENERATORS.values()) | {VERIFIER}
-               if not os.environ.get(MODELS[m]["key_env"])]
+    need = set(GENERATORS.values()) | set(VERIFIER_OF.values())
+    missing = [m for m in sorted(need) if not os.environ.get(MODELS[m]["key_env"])]
     if missing or "--dry" in sys.argv:
         print("  缺 key:", {m: MODELS[m]["key_env"] for m in missing} or "无")
         recs, log = generate(bases[:1], asg, dry=True)
@@ -165,10 +174,26 @@ if __name__ == "__main__":
     ok = [r for r in recs if "text" in r]
     out = ROOT / "tests" / "data" / "phase2" / "stimuli_frozen.json"
     out.write_text(json.dumps({"status": "ONTOLOGY_BLINDED_SYNTHETIC",
-                               "generators": GENERATORS, "verifier": VERIFIER,
+                               "generators": GENERATORS, "verifier_of": VERIFIER_OF,
+                               "verifier_mode": VERIFIER_MODE,
                                "assign_seed": ASSIGN_SEED, "max_regen": MAX_REGEN,
                                "len_bounds": [LEN_LO, LEN_HI],
                                "n_ok": len(ok), "n_failed": len(recs) - len(ok),
                                "variants": recs, "attempts": log},
                               ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"  产出 {len(ok)}/{len(recs)} 通过机器验收 → {out.relative_to(ROOT)}")
+
+
+def preflight():
+    """花钱之前先探活。每个现役模型发一次最小请求，报可用性与真实报错。
+
+    ★ 存在的理由: 上一次「模型可用性」是 2026-08-01 记的, 早已可能过期。
+      断言现状必须查来, 不能想来 —— 探活比读旧笔记可靠。
+    """
+    out = {}
+    for tag, mk in sorted({**{f"gen:{k}": v for k, v in GENERATORS.items()},
+                           **{f"verify:{k}": v for k, v in VERIFIER_OF.items()}}.items()):
+        txt, meta = call_model(mk, "Reply with the single word: ok", temperature=0.0)
+        out[tag] = {"model": MODELS[mk]["model"], "alive": bool(txt.strip()),
+                    "reply": txt.strip()[:40], "error": meta.get("error")}
+    return out

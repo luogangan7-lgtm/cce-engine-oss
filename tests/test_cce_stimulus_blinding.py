@@ -24,8 +24,18 @@ from exp_crossmodel_desire import MODELS  # noqa: E402
 meas = MODELS[G.MEASUREMENT_MODEL]["model"]
 for tag, mk in G.GENERATORS.items():
     assert MODELS[mk]["model"] != meas, f"★ {tag} 与测量模型同款 ⇒ 自己生成自己读"
-assert MODELS[G.VERIFIER]["model"] not in {MODELS[mk]["model"] for mk in G.GENERATORS.values()}, \
-    "★ G3 盲验必须独立于 G1/G2, 否则是生成器给自己发合格证"
+# 交叉盲验(手上只有阿里云与 MiniMax 两个家族, 无第三方)
+for gfam, vk in G.VERIFIER_OF.items():
+    assert MODELS[vk]["model"] != MODELS[G.GENERATORS[gfam]]["model"], \
+        f"★ {gfam} 自评自 ⇒ 生成器给自己发合格证"
+    assert MODELS[vk]["model"] != meas, \
+        ("★★ 用测量模型当盲验 = 按测量模型自己的判断筛刺激, "
+         "留下的都是它认为变了的那些 ⇒ 可分辨性被系统性抬高。这是循环。")
+assert set(G.VERIFIER_OF) == set(G.GENERATORS)
+# 不许悄悄把停用模型接回现役流程
+assert "unavailable" not in MODELS.get("KimiK3", {}) or \
+    "KimiK3" not in set(G.GENERATORS.values()) | set(G.VERIFIER_OF.values()), \
+    "★ 已标记不可用的模型不得出现在现役流程里"
 
 # ── 2. 逐臂规则里不得泄露「A 应被读出 / B 不应」这个预期 ───────────────────
 for arm, rule in G.ARM_RULES.items():
