@@ -164,7 +164,31 @@ DELTA_RESOLUTION = None
 # SESOI: 「CCE contrast 小到什么程度, 我们愿意当作实际无意义」。
 # 只能来自真实下游结果 / 决策成本 / 机制实验 / 预注册的业务意义。
 # 现在没有 ⇒ 明写 None。**填 None 比硬塞 0.06278 科学。**
-SESOI = None
+SESOI = None   # 兼容别名, 指向下面的 semantic 档; 新代码请用 SIGNIFICANCE_CONTRACT
+
+# ★★ 2026-08-19 外部评审: 我把三种**互不相通**的「显著性」混在一个 SESOI 里了。
+#   混用的后果不是算错, 是**留了一个迟早有人往里塞数的字段**。拆成三块, 各自独立标定:
+SIGNIFICANCE_CONTRACT = {
+    # ① 测量分辨率: 多大差异才明显超过仪器自己的重复测量误差。
+    #    **可以不依赖任何产品数据**, 由同文本重复测量标定。
+    #    ⚠️ 但它**绝不能改名叫 SESOI** —— minimal detectable change ≠ minimally important change。
+    "measurement": {"status": "NOT_CALIBRATED", "delta_resolution": None,
+                    "how_to_calibrate": "same-input repeated runs × 多文本类别 → T_same 分布, "
+                                        "且应出 resolution_profile 而非单一全局常量"},
+    # ② 语义/解释显著性: 差异大到什么程度会**改变对文本的解释**。
+    #    ★ 这一档**不需要销售/转化数据**就能建立 —— 用外部人类锚:
+    #      构造大量文本对 → 取 T_CCE → 盲评人类判「same / trivially / meaningfully different」
+    #      → 估 P(human meaningful | T_CCE) → 得 δ_semantic。
+    "interpretive": {"status": "NOT_CALIBRATED", "semantic_sesoi": None,
+                     "how_to_calibrate": "external blind human anchor, 见上"},
+    # ③ 行为/业务显著性: 需要真实下游结果(点击/线索/成交)。没有就是没有。
+    "behavioral": {"status": "NOT_AVAILABLE", "behavioral_sesoi": None,
+                   "why": "当前无 outcome anchor; 且当前采集剖面下因果不可识别"},
+    # ⚠️ Lakens 那条「无理论时可用当前功效能检出的最小效应」若将来采用,
+    #   必须命名为 design_sensitivity_bound, **不得**叫 practical significance ——
+    #   它回答「我这套设计能研究多小的效应」, 不回答「多大的差异才有意义」。
+    "design_sensitivity_bound": None,
+}
 
 
 def separation(A, B, fpA, fpB, alpha=0.05, sesoi=None, nameA="A", nameB="B"):

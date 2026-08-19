@@ -45,6 +45,46 @@ def _index(rows: list[dict[str, Any]], key: str) -> dict[str, dict[str, Any]]:
     return out
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# ★★ 因果能力闸 (2026-08-19, 外部评审判定 + 我方逐行核实)
+#
+# 本文件 L93 强制 `reached_members == seen_actors` —— 这是**防伪造触达**的好设计,
+# 但它同时意味着一件很少被说破的事:
+#
+#   **当前的 reached 窗在构造上就等于「被观测到的响应者集合」。**
+#   于是 响应者/触达者 恒等于 1 —— 「激活率」在本契约下**不是测量, 是常数**。
+#
+# 因此我们观测到的是  P(state | responded)
+#           而不是  P(state | reached)
+#           更不是  P(state | assigned exposure)
+#
+# 三样东西同时缺席: 曝光分母 · 曝光前状态 · 同期未曝光对照。
+# ⇒ 在当前 response acquisition 下, **因果识别结构性不可得**, 不是「还没写代码」。
+#
+# ⚠️ 但这**不是**说 CCE 永远不能做因果 —— DiD 也可以建在
+#    repeated cross-sections 上(不要求前后是同一批人), 只是需要下列证据剖面之一。
+CAUSAL_CAPABILITY = {
+    "current_acquisition_profile": "response_source.v1 / subject_chain",
+    "supported": False,
+    "max_grade": "DESCRIPTIVE",
+    "reason": ["no exposure denominator",
+               "no pre-exposure state",
+               "no concurrent unexposed control",
+               "observed members are conditioned on having responded (L93)"],
+    "allowed_claims": ["DESCRIPTIVE", "COMPARATIVE_DESCRIPTIVE", "ASSOCIATIONAL"],
+    # ★ 下游禁止把「响应者分布变了」自动改写成「内容改变了人群」
+    "forbidden_claims": ["CAUSED", "INCREASED", "REDUCED", "ACTIVATED_BY",
+                         "STATE_TRANSITION_CAUSED_BY_CONTENT"],
+    "required_evidence_profiles_to_unlock": [
+        "randomized_exposure",
+        "panel_pre_post_with_control",
+        "repeated_cross_section_pre_post_control",
+        "validated_quasi_experiment"],
+    "note": ("reached 这个词在当前契约下名不副实(它等于 responded)。未改名是为了不动"
+             "已冻结的产物与契约; 但**任何以 reached 为分母的比率都不可信**, 见本模块测试。"),
+}
+
+
 def validate_response_source(source: dict[str, Any], chain: dict[str, Any]) -> dict[str, Any]:
     errors: list[str] = []
     if source.get("kind") != "cce.response_source.v1":
@@ -185,6 +225,8 @@ def _measurement(row: dict[str, Any], artifact: tuple[dict[str, Any], dict[str, 
         "measurement_scope": "derived_response_text_distribution",
         # 四层全弃权 = 本条响应不产出心理读数; 部分弃权 = 该层为 None, 其余仍可用。
         "measurement_status": "abstain" if len(abstained) == len(LAYER_LABELS) else "qualified",
+        # ★ 因果等级随每条读数走, 免得下游自己脑补。见 CAUSAL_CAPABILITY。
+        "causal_grade": CAUSAL_CAPABILITY["max_grade"],
         "abstained_layers": abstained,
         "assertion": "derived",
         "model_version": (readout.get("instrument") or {}).get("stage1", "unknown"),
