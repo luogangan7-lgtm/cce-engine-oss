@@ -20,6 +20,14 @@ KSEP 的 `min_effect` 现在是 None ⇒ verdict 恒为 UNCALIBRATED ⇒ **PASS 
    而批次效应**抬高**分离度 —— 那是假阳性方向, 绝不能省这一步。
 
 ## 判决线(前登记)
+
+⚠️ 历史注记(2026-08-18 [3/4], **不改动上述前登记文本** —— 前登记禁止事后修改):
+   本探针跑完后, `min_effect` 这个概念被拆成三个互不相容的语义
+   (仪器分辨率 / SESOI / 等价边界)。本次产出的 0.06278 现被降级为
+   `KSEP.PAIR1_NULL_CALIBRATION_STATISTIC`, 角色 CALIBRATION_ONLY ——
+   它是**这一对文本自己的置换零分布水位**, 不是「多大的差异才值得关心」。
+   故本探针判决线里「min_effect 可标定 / PASS 分支从此存在」的措辞,
+   按今天的理解应读作「拿到了 pair-1 的噪声水位」, 而**不是**「拿到了实践显著性阈值」。
 """
 import json, os, sys
 from pathlib import Path

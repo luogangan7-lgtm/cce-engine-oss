@@ -29,7 +29,9 @@ R = int(os.environ.get("PAIR2_REPS", "4"))
 MAXLEN = int(os.environ.get("PAIR2_MAXLEN", "293"))
 CTX = "reddit r/HearingAids hearing_aid: 第二对等长对照"
 TAXO = json.loads((ROOT / "config" / "knot_taxonomy.json").read_text(encoding="utf-8"))
-ME = KS.MIN_EFFECT_EQUAL_LENGTH_20260818
+# [3/4] 常量已降级: 它是 pair-1 自己的置换零分布水位, **不是 SESOI**。
+# 传给判据时必须带 margin_is_sesoi=False, 否则会被读成「等价」。
+ME = KS.PAIR1_NULL_CALIBRATION_STATISTIC["value"]
 EXCLUDE = (0, 10)   # Stage1 用过
 
 VERDICT_LINES = [
@@ -103,14 +105,14 @@ if __name__ == "__main__":
     assert len(fp_all) == 1, f"仪器指纹不唯一 {fp_all} —— 本次作废"
     print(f"\n仪器指纹全程一致: {list(fp_all)[0]}")
     fps = {n: [f"{n}{i}" for i in range(R)] for n in raw}
-    res = {"meta": meta, "R": R, "min_effect_prior": ME, "raw": raw,
+    res = {"meta": meta, "R": R, "margin_prior": ME, "margin_is_sesoi": False, "raw": raw,
            "verdict_lines": VERDICT_LINES}
     for n in raw:
         rep = KS.reproducibility([r["knots"] for r in raw[n]], fps[n], name=n)
         res[f"repro_{n}"] = rep
         print(f"\n{n}: {rep['verdict']}  结集一致率={rep['set_agreement']:.3f}  翻转={rep['flipping']}")
     s = KS.separation([r["knots"] for r in raw["A"]], [r["knots"] for r in raw["B"]],
-                      fps["A"], fps["B"], min_effect=ME)
+                      fps["A"], fps["B"], margin=ME, margin_is_sesoi=False)
     res["separation"] = s
     print(f"\n★ 分离: {s['verdict']}  T={s['T']:.5f}  p={s['p']:.4f}  (Stage1 最有利对 T=0.07389)")
     print("\n=== 判决 ===")

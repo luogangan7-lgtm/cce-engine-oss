@@ -29,7 +29,9 @@ import cce_ksep as KS           # noqa: E402
 R = int(os.environ.get("NULL_REPS", "4"))
 CTX = "reddit r/HearingAids hearing_aid: 长度零假设臂"
 TAXO = json.loads((ROOT / "config" / "knot_taxonomy.json").read_text(encoding="utf-8"))
-ME = KS.MIN_EFFECT_EQUAL_LENGTH_20260818
+# [3/4] 常量已降级: 它是 pair-1 自己的置换零分布水位, **不是 SESOI**。
+# 传给判据时必须带 margin_is_sesoi=False, 否则会被读成「等价」。
+ME = KS.PAIR1_NULL_CALIBRATION_STATISTIC["value"]
 
 VERDICT_LINES = [
     "★主判 BASE vs PAD: p>0.05 或 T<min_effect(%.5f) → 垫料**没有**推动读数 ⇒ "
@@ -86,7 +88,7 @@ if __name__ == "__main__":
 
     fps = {n: [f"{n}{i}" for i in range(R)] for n in raw}
     res = {"arms_len": {k: len(v) for k, v in arms.items()}, "R": R,
-           "min_effect": ME, "raw": raw, "verdict_lines": VERDICT_LINES}
+           "margin": ME, "margin_is_sesoi": False, "raw": raw, "verdict_lines": VERDICT_LINES}
     for n in raw:
         rep = KS.reproducibility([r["knots"] for r in raw[n]], fps[n], name=n)
         res[f"repro_{n}"] = rep
@@ -94,14 +96,14 @@ if __name__ == "__main__":
               f"翻转={rep['flipping']}  结={sorted(set().union(*[set(r['knots']) for r in raw[n]]))}")
     for a, b in (("BASE", "PAD"), ("BASE", "FILL"), ("PAD", "FILL")):
         s = KS.separation([r["knots"] for r in raw[a]], [r["knots"] for r in raw[b]],
-                          fps[a], fps[b], min_effect=ME, nameA=a, nameB=b)
+                          fps[a], fps[b], margin=ME, margin_is_sesoi=False, nameA=a, nameB=b)
         res[f"sep_{a}_{b}"] = s
         print(f"\n★ {a} vs {b}: {s['verdict']}  T={s['T']:.5f}  p={s['p']:.4f}")
     # ⚠️ 2026-08-18 修: 此处原为 `if p > 0.05 or T < ME: 判定没有推动读数`。
     #   那一行把 **p>0.05 当成了「无效应」的证据**, 且在 T=0.10792(高于 min_effect)
     #   时仍打印「低于当前分辨率」。判决一律走 KSEP.verdict3, 探针不自己判。
     v = KS.verdict3([r["knots"] for r in raw["BASE"]], [r["knots"] for r in raw["PAD"]],
-                    fps["BASE"], fps["PAD"], min_effect=ME, nameA="BASE", nameB="PAD")
+                    fps["BASE"], fps["PAD"], margin=ME, margin_is_sesoi=False, nameA="BASE", nameB="PAD")
     res["verdict3_BASE_PAD"] = v
     print("\n=== 主判 ===")
     print({"SEPARATED": "  ★★ 垫料推动了读数 ⇒ 跨长度的九结比较全部不可用",

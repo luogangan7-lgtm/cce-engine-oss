@@ -62,11 +62,15 @@ assert abs(r["worst_range"] - 0.20) < 1e-9
 A = [{"audit": .9}, {"audit": .9}, {"audit": .9}, {"audit": .88}]
 B = [{"belong": .9}, {"belong": .9}, {"belong": .9}, {"belong": .88}]
 s = K.separation(A, B, FP, ["e", "f", "g", "h"])
-assert s["verdict"] == "UNCALIBRATED", \
-    "没有阳性对照标定的 min_effect 时, 只能是 UNCALIBRATED —— PASS 分支必须不存在"
-assert s["min_effect"] is None
+# ⚠️ [3/4] 旧断言: 无 min_effect 时 separation 判 UNCALIBRATED。
+#   现在 separation 的 verdict **只回答统计问题**(SEPARATED/NOT_SEPARATED),
+#   实践显著性挪到正交的 practical 块 —— 把两者合成一个 verdict 正是概念混用的源头。
+assert s["verdict"] == "SEPARATED", "统计上确实分开了"
+assert s["practical"]["status"] == "NOT_CALIBRATED", \
+    "★ 没有 SESOI 就不许给实践显著性判决 —— 更不许拿零分布水位顶替"
+assert s["practical"]["sesoi"] is None
 # 给了 min_effect 才可能 SEPARATED
-s2 = K.separation(A, B, FP, ["e", "f", "g", "h"], min_effect=0.01)
+s2 = K.separation(A, B, FP, ["e", "f", "g", "h"], sesoi=0.01)
 assert s2["verdict"] == "SEPARATED", s2
 
 # ── 4. ★ PSI 的致命反例: 期望读数逐结相同、仅一侧抖动大 ─────────────────────
@@ -74,9 +78,9 @@ assert s2["verdict"] == "SEPARATED", s2
 # KSEP 用位置检验, 必须给 T≈0 / 不拒绝。
 steady = [{"audit": .5}] * 4
 jittery = [{"audit": .3}, {"audit": .7}, {"audit": .3}, {"audit": .7}]
-s = K.separation(steady, jittery, FP, ["e", "f", "g", "h"], min_effect=0.001)
+s = K.separation(steady, jittery, FP, ["e", "f", "g", "h"], sesoi=0.001)
 assert s["T"] < 1e-9, f"离散度不对称不得产生位置效应, 实得 T={s['T']}"
-assert s["verdict"] in ("NOT_SEPARATED", "BELOW_MDE"), s
+assert s["verdict"] == "NOT_SEPARATED", s
 
 # ── 5. R 太小时 p 下限过粗 -> 抛错, 而不是给一个永远不显著的 p ───────────────
 # R=4: C(8,4)/2 = 35 -> p_floor = 1/35 = 0.0286 <= 0.05, 可用
@@ -84,7 +88,7 @@ assert K.separation(A, B, FP, ["e", "f", "g", "h"])["n_splits"] == 35
 _raises(lambda: K.separation(A[:3], B[:3], FP[:3], ["e", "f", "g"]), "R=3 < 4")
 
 # ── 6. 完全相同的两组 -> T=0, p=1.0, 绝不能读成分离 ──────────────────────────
-s = K.separation(A, [dict(x) for x in A], FP, ["e", "f", "g", "h"], min_effect=0.001)
+s = K.separation(A, [dict(x) for x in A], FP, ["e", "f", "g", "h"], sesoi=0.001)
 assert s["T"] == 0.0 and s["p"] == 1.0 and s["verdict"] == "NOT_SEPARATED"
 
 # ── 7. 真实数据复现(2026-08-18 run 32130867661) ──────────────────────────────
@@ -116,7 +120,7 @@ assert re.search(r'test "\$n" -ge \d+', wf), \
 print("test_cce_ksep: OK (守卫反向测试 8 条 / PASS分支不可达 / PSI反例 / 真实数据复现)")
 
 # ── 9. min_effect 的经验锚 (oss run 32141330271, 等长阳性对照) ───────────────
-assert K.MIN_EFFECT_EQUAL_LENGTH_20260818 == 0.06278
+assert K.PAIR1_NULL_CALIBRATION_STATISTIC["value"] == 0.06278
 EQL = ROOT / "tests" / "data" / "equal_length_20260818.json"
 if EQL.exists():
     d = json.loads(EQL.read_text(encoding="utf-8"))
@@ -124,7 +128,7 @@ if EQL.exists():
     B4 = [r["knots"] for r in d["raw"]["B"]]
     fa = [f"A{i}" for i in range(4)]
     fb = [f"B{i}" for i in range(4)]
-    s = K.separation(A4, B4, fa, fb, min_effect=K.MIN_EFFECT_EQUAL_LENGTH_20260818)
+    s = K.separation(A4, B4, fa, fb, sesoi=K.PAIR1_NULL_CALIBRATION_STATISTIC["value"])
     assert abs(s["T"] - 0.07389) < 5e-5, s
     assert abs(s["p"] - 1 / 35) < 1e-9, "观测必须是零分布里最大的那个"
     assert s["verdict"] == "SEPARATED", s
@@ -135,11 +139,11 @@ if EQL.exists():
     raw0 = json.loads(FIX.read_text(encoding="utf-8"))["raw"]
     r01 = K.separation([r["knots"] for r in raw0["T0"]], [r["knots"] for r in raw0["T1"]],
                        [f"a{i}" for i in range(4)], [f"b{i}" for i in range(4)],
-                       min_effect=K.MIN_EFFECT_EQUAL_LENGTH_20260818)
+                       sesoi=K.PAIR1_NULL_CALIBRATION_STATISTIC["value"])
     assert r01["verdict"] == "NOT_SEPARATED", f"T0-T1 p=0.0571>alpha, 应判不分离: {r01}"
     r02 = K.separation([r["knots"] for r in raw0["T0"]], [r["knots"] for r in raw0["T2"]],
                        [f"a{i}" for i in range(4)], [f"c{i}" for i in range(4)],
-                       min_effect=K.MIN_EFFECT_EQUAL_LENGTH_20260818)
+                       sesoi=K.PAIR1_NULL_CALIBRATION_STATISTIC["value"])
     assert r02["verdict"] == "SEPARATED" and r02["T"] > 0.4
     # ⚠️ 2026-08-18 外部评审(ChatGPT)抓到: 此处原为
     #     assert "82%" in K.__doc__ or "82" in <cce_ksep.py 源码>
@@ -151,25 +155,29 @@ if EQL.exists():
     print("  min_effect 锚点已钉: 等长 SEPARATED / T0-T1 NOT_SEPARATED / T0-T2 含长度混杂")
 
 # ── 10. equivalence(): NOT_SEPARATED 不等于「相同」 ─────────────────────────
-ME = K.MIN_EFFECT_EQUAL_LENGTH_20260818
+ME = K.PAIR1_NULL_CALIBRATION_STATISTIC["value"]
 F4 = ["p", "q", "r", "s"]
 
 # 10a. 没有 min_effect ⇒ 不给任何肯定判决(与 separation 同一纪律)
-assert K.equivalence(A, B, FP, ["e", "f", "g", "h"], min_effect=None)["verdict"] == "UNCALIBRATED"
+assert K.equivalence(A, B, FP, ["e", "f", "g", "h"], margin=None)["verdict"] == "UNCALIBRATED"
 
 # 10b. 组内恒定且两组逐字节相同 ⇒ 上界必须恰为 0
 #      (不能用 A: 它第 4 个 rep 是 0.88, 自助会产生非零上界 —— 我最初就写错了这条前提)
 CONST = [{"audit": .5}] * 4
-same = K.equivalence(CONST, [dict(x) for x in CONST], F4, ["e", "f", "g", "h"], min_effect=ME)
-assert same["upper"] == 0.0 and same["verdict"] == "EQUIVALENT", same
+same = K.equivalence(CONST, [dict(x) for x in CONST], F4, ["e", "f", "g", "h"], margin=ME)
+# ★ margin 不是已标定 SESOI ⇒ 只能说「低于该 margin」, **不许说等价**
+assert same["upper"] == 0.0 and same["verdict"] == "BELOW_CALIBRATION_MARGIN", same
+_sesoi = K.equivalence(CONST, [dict(x) for x in CONST], F4, ["e", "f", "g", "h"],
+                       margin=ME, margin_is_sesoi=True)
+assert _sesoi["verdict"] == "EQUIVALENT", "声明为 SESOI 后 EQUIVALENT 才可达"
 assert same["n_boot"] == 4 ** 4 * 4 ** 4, f"必须穷举自助(确定性), 实得 {same['n_boot']}"
 # 组内**有**抖动时上界必须 >0 —— 否则说明自助根本没在重抽
-jit = K.equivalence(A, [dict(x) for x in A], FP, ["e", "f", "g", "h"], min_effect=ME)
+jit = K.equivalence(A, [dict(x) for x in A], FP, ["e", "f", "g", "h"], margin=ME)
 assert jit["T"] == 0.0 and jit["upper"] > 0.0, f"组内抖动必须反映在上界里: {jit}"
 
 # 10c. 差异巨大 ⇒ NOT_EQUIVALENT
-big = K.equivalence(A, B, FP, ["e", "f", "g", "h"], min_effect=ME)
-assert big["verdict"] == "NOT_EQUIVALENT" and big["upper"] > ME
+big = K.equivalence(A, B, FP, ["e", "f", "g", "h"], margin=ME)
+assert big["verdict"] == "ABOVE_CALIBRATION_MARGIN" and big["upper"] > ME
 
 # 10d. ★★ 核心反向测试: 均值相同但组内抖动巨大
 #      → separation 判 NOT_SEPARATED(T≈0), 但**不能**因此说「相同」。
@@ -177,10 +185,10 @@ assert big["verdict"] == "NOT_EQUIVALENT" and big["upper"] > ME
 jitA = [{"audit": .1}, {"audit": .9}, {"audit": .1}, {"audit": .9}]
 jitB = [{"audit": .9}, {"audit": .1}, {"audit": .9}, {"audit": .1}]
 fj = ["j1", "j2", "j3", "j4"]
-sj = K.separation(jitA, jitB, fj, ["k1", "k2", "k3", "k4"], min_effect=ME)
-ej = K.equivalence(jitA, jitB, fj, ["k1", "k2", "k3", "k4"], min_effect=ME)
-assert sj["T"] < 1e-9 and sj["verdict"] in ("NOT_SEPARATED", "BELOW_MDE"), sj
-assert ej["verdict"] == "NOT_EQUIVALENT", \
+sj = K.separation(jitA, jitB, fj, ["k1", "k2", "k3", "k4"])
+ej = K.equivalence(jitA, jitB, fj, ["k1", "k2", "k3", "k4"], margin=ME)
+assert sj["T"] < 1e-9 and sj["verdict"] == "NOT_SEPARATED", sj
+assert ej["verdict"] == "ABOVE_CALIBRATION_MARGIN", \
     f"均值相同但抖动巨大时**不得**主张相同, 否则本函数没起作用: {ej}"
 assert ej["upper"] > ME, ej
 
@@ -188,11 +196,12 @@ assert ej["upper"] > ME, ej
 if FIX.exists():
     _r = {t: [x["knots"] for x in v] for t, v in json.loads(FIX.read_text(encoding="utf-8"))["raw"].items()}
     _f = {t: [f"{t}{i}" for i in range(4)] for t in _r}
-    e01 = K.equivalence(_r["T0"], _r["T1"], _f["T0"], _f["T1"], min_effect=ME)
-    assert e01["verdict"] == "EQUIVALENT" and e01["upper"] < ME, e01
+    e01 = K.equivalence(_r["T0"], _r["T1"], _f["T0"], _f["T1"], margin=ME)
+    # ★ 旧断言是 EQUIVALENT。margin 只是 pair-1 的噪声水位, 不是 SESOI ⇒ 降级。
+    assert e01["verdict"] == "BELOW_CALIBRATION_MARGIN" and e01["upper"] < ME, e01
     assert abs(e01["upper"] - 0.03542) < 1e-4, e01
-    e02 = K.equivalence(_r["T0"], _r["T2"], _f["T0"], _f["T2"], min_effect=ME)
-    assert e02["verdict"] == "NOT_EQUIVALENT"
+    e02 = K.equivalence(_r["T0"], _r["T2"], _f["T0"], _f["T2"], margin=ME)
+    assert e02["verdict"] == "ABOVE_CALIBRATION_MARGIN"
     print("  equivalence 已钉: 同一 ⇒ 上界0 / 抖动大 ⇒ 拒绝主张相同 / T0-T1 差异低于分辨率")
 
 # ── 11. 零分布水位随文本变, 不存在全局 min_effect ───────────────────────────
@@ -201,15 +210,14 @@ if P2F.exists() and EQL.exists():
     d2 = json.loads(P2F.read_text(encoding="utf-8"))
     A2 = [r["knots"] for r in d2["raw"]["A"]]
     B2 = [r["knots"] for r in d2["raw"]["B"]]
-    s2 = K.separation(A2, B2, [f"x{i}" for i in range(4)], [f"y{i}" for i in range(4)],
-                      min_effect=ME)
+    s2 = K.separation(A2, B2, [f"x{i}" for i in range(4)], [f"y{i}" for i in range(4)])
     assert s2["verdict"] == "SEPARATED" and abs(s2["T"] - 0.22389) < 5e-5, s2
     assert abs(s2["p"] - 1 / 35) < 1e-9
     # 两对的零分布水位差 2.4 倍 —— 全局 min_effect 站不住
     d1 = json.loads(EQL.read_text(encoding="utf-8"))
     s1 = K.separation([r["knots"] for r in d1["raw"]["A"]],
                       [r["knots"] for r in d1["raw"]["B"]],
-                      [f"u{i}" for i in range(4)], [f"v{i}" for i in range(4)], min_effect=ME)
+                      [f"u{i}" for i in range(4)], [f"v{i}" for i in range(4)])
     assert abs(s1["null_max"] - 0.06278) < 1e-4 and abs(s2["null_max"] - 0.14944) < 1e-4
     assert s2["null_max"] / s1["null_max"] > 2.0, "两对零分布水位应差 2 倍以上"
     # ★ R=4 时 p<=0.05 蕴含 obs > null_max (min_effect 在此规模上几乎不做功)
@@ -224,23 +232,31 @@ if P2F.exists() and EQL.exists():
 
 # ── 12. verdict3(): 三分判决, 禁止把 p>0.05 读成「无差异」 ───────────────────
 NAF = ROOT / "tests" / "data" / "length_null_arm_20260818.json"
-assert K.verdict3(A, B, FP, ["e", "f", "g", "h"], min_effect=None)["verdict"] == "UNCALIBRATED"
+# ⚠️ 旧断言: margin=None ⇒ UNCALIBRATED。现在统计与实践正交 ——
+#   A/B 统计上确实分开, 所以 verdict 是 SEPARATED, 实践块另说 NOT_CALIBRATED。
+_v0 = K.verdict3(A, B, FP, ["e", "f", "g", "h"], margin=None)
+assert _v0["verdict"] == "SEPARATED" and _v0["practical"]["status"] == "NOT_CALIBRATED"
+# UNCALIBRATED 只在「统计上没分开 + 没有 margin」时出现
+_v1 = K.verdict3(jitA, jitB, fj, ["k1", "k2", "k3", "k4"], margin=None)
+assert _v1["verdict"] == "UNCALIBRATED", _v1
 # 12a. 明显不同 ⇒ SEPARATED
-assert K.verdict3(A, B, FP, ["e", "f", "g", "h"], min_effect=ME)["verdict"] == "SEPARATED"
-# 12b. 恒定且相同 ⇒ EQUIVALENT
+assert K.verdict3(A, B, FP, ["e", "f", "g", "h"], margin=ME)["verdict"] == "SEPARATED"
+# 12b. 恒定且相同: margin 非 SESOI ⇒ BELOW_CALIBRATION_MARGIN; 声明为 SESOI 才是 EQUIVALENT
 _c = [{"audit": .5}] * 4
 assert K.verdict3(_c, [dict(x) for x in _c], F4, ["e", "f", "g", "h"],
-                  min_effect=ME)["verdict"] == "EQUIVALENT"
+                  margin=ME)["verdict"] == "BELOW_CALIBRATION_MARGIN"
+assert K.verdict3(_c, [dict(x) for x in _c], F4, ["e", "f", "g", "h"],
+                  margin=ME, margin_is_sesoi=True)["verdict"] == "EQUIVALENT"
 # 12c. ★★ 核心: 均值同但抖动大 ⇒ UNDERPOWERED, **不得**判 EQUIVALENT
-v = K.verdict3(jitA, jitB, fj, ["k1", "k2", "k3", "k4"], min_effect=ME)
+v = K.verdict3(jitA, jitB, fj, ["k1", "k2", "k3", "k4"], margin=ME)
 assert v["verdict"] == "UNDERPOWERED", f"抖动大时必须判欠功效而非相同: {v}"
-assert "不是「没有差异」" in v["note"]
+assert "不是「没有差异」" in v["note"] and "不是「等价」" in v["note"]
 # 12d. ★ 真实翻车案例: BASE vs PAD 必须判 UNDERPOWERED
 if NAF.exists():
     dn = json.loads(NAF.read_text(encoding="utf-8"))
     rn = {k: [x["knots"] for x in vv] for k, vv in dn["raw"].items()}
     fn = {k: [f"{k}{i}" for i in range(4)] for k in rn}
-    vb = K.verdict3(rn["BASE"], rn["PAD"], fn["BASE"], fn["PAD"], min_effect=ME)
+    vb = K.verdict3(rn["BASE"], rn["PAD"], fn["BASE"], fn["PAD"], margin=ME)
     assert vb["verdict"] == "UNDERPOWERED", vb
     assert abs(vb["T"] - 0.10792) < 5e-5 and abs(vb["p"] - 3 / 35) < 1e-9
     assert vb["T"] > ME, "T 高于 min_effect —— 「低于分辨率」的说法在此为假"
@@ -261,10 +277,17 @@ if FSF.exists():
     assert all(not v["clean"] for v in fs["screen"].values()), fs["screen"]
     assert set(fs["screen"]["filler_numeric"]["fired"]) >= {"pain_seek", "belong"}, \
         "一张纯数字表读出 pain_seek/belong —— 这条是「无空读数」的最强证据, 不许弱化"
-    # 13b. ★ 内容逐字相同、长度 5 倍 → EQUIVALENT
+    # 13b. ★ 内容逐字相同、长度 5 倍 → 当时判 EQUIVALENT
+    #   ⚠️ 固化数据是**历史记录, 不改写**: 它的键仍是 min_effect, verdict 仍是 EQUIVALENT。
+    #   但 [3/4] 之后该判决已降级 —— 那个 margin 只是 pair-1 的置换噪声水位, 不是 SESOI,
+    #   所以正确读法是 **BELOW_CALIBRATION_MARGIN**(「低于一个未标定的 margin」),
+    #   而**不是**「已证明两种条件实际等价」。
     v = fs["verdict3_BASE_REPEAT"]
-    assert v["verdict"] == "EQUIVALENT", v
+    assert v["verdict"] == "EQUIVALENT", "历史记录原样保留"
     assert v["equiv_upper"] < fs["min_effect"] and abs(v["T"] - 0.02056) < 5e-5, v
+    # 钉住降级本身: 同样的数在新语义下不得再被读成 EQUIVALENT
+    assert K.SESOI is None, "SESOI 仍未标定 ⇒ 任何 EQUIVALENT 宣称都缺依据"
+    assert K.PAIR1_NULL_CALIBRATION_STATISTIC["role"] == "CALIBRATION_ONLY"
     # 结集完全相同 —— 长度 5 倍没有多点火任何结
     kb = set(fs["repro_BASE"]["stable_ranges"]) | set(fs["repro_BASE"]["flipping"])
     kr = set(fs["repro_REPEAT"]["stable_ranges"]) | set(fs["repro_REPEAT"]["flipping"])
@@ -337,3 +360,14 @@ assert _caught, "反向用例没被抓住 —— 本规则是装饰"
 _src = (ROOT / "scripts" / "cce_ksep.py").read_text(encoding="utf-8")
 assert "~~" in _src and "撤回" in _src, "撤回必须留痕可追溯, 不能悄悄删句"
 print("  撤回清单已机器化: %d 条, 覆盖 2 个源文件, 含反向用例" % len(RETRACTED))
+
+# ── 15. [4/4] inferential target 必须写准 ──────────────────────────────────
+_ks = (ROOT / "scripts" / "cce_ksep.py").read_text(encoding="utf-8")
+assert "label exchangeability" in _ks, \
+    "置换检验的零假设必须写明是可交换/同分布, 不是「仅位置相等」"
+assert "不一般保证精确 level-α" in _ks, "必须写明未 studentize 的限制"
+# 反向: 若有人把「位置检验」写回去且不带修正说明, 这条要能抓住
+for _i, _l in enumerate(_ks.split("\n"), 1):
+    if "位置检验" in _l:
+        assert "此前" in _l or "不够准" in _l, f"cce_ksep.py:{_i} 又把零假设说成位置检验: {_l.strip()[:70]}"
+print("  inferential target 已钉: label exchangeability, 非仅位置相等")

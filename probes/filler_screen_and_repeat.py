@@ -43,7 +43,9 @@ R_FULL = int(os.environ.get("FS_REPS", "4"))
 REPEAT_N = int(os.environ.get("FS_REPEAT_N", "5"))
 CTX = "reddit r/HearingAids hearing_aid: 垫料筛选与长度对照"
 TAXO = json.loads((ROOT / "config" / "knot_taxonomy.json").read_text(encoding="utf-8"))
-ME = KS.MIN_EFFECT_EQUAL_LENGTH_20260818
+# [3/4] 常量已降级: 它是 pair-1 自己的置换零分布水位, **不是 SESOI**。
+# 传给判据时必须带 margin_is_sesoi=False, 否则会被读成「等价」。
+ME = KS.PAIR1_NULL_CALIBRATION_STATISTIC["value"]
 CANDS = ["filler_numeric", "filler_legal", "filler_procedural"]
 
 VERDICT_LINES = [
@@ -90,7 +92,7 @@ if __name__ == "__main__":
         print("\n[DRYRUN] 不发调用。")
         sys.exit(0)
 
-    res = {"verdict_lines": VERDICT_LINES, "min_effect": ME,
+    res = {"verdict_lines": VERDICT_LINES, "margin": ME, "margin_is_sesoi": False,
            "lens": {"BASE": len(base), "REPEAT": len(repeat),
                     **{c: len(t) for c, t in fillers.items()}}}
 
@@ -123,7 +125,7 @@ if __name__ == "__main__":
               f"结={sorted(set().union(*[set(r['knots']) for r in raw[n]]))}")
 
     v = KS.verdict3([r["knots"] for r in raw["BASE"]], [r["knots"] for r in raw["REPEAT"]],
-                    fp["BASE"], fp["REPEAT"], min_effect=ME, nameA="BASE", nameB="REPEAT")
+                    fp["BASE"], fp["REPEAT"], margin=ME, margin_is_sesoi=False, nameA="BASE", nameB="REPEAT")
     res["verdict3_BASE_REPEAT"] = v
     print("\n=== ★ 腿B 主判 (内容逐字相同, 仅长度变) ===")
     print({"EQUIVALENT": "  强证据: 长度本身不驱动读数 ⇒ 跨长度九结比较可用",
@@ -133,7 +135,7 @@ if __name__ == "__main__":
     print(f"    T={v['T']:.5f}  p={v['p']:.4f}  等价上界={v['equiv_upper']}  null_max={v['null_max']}")
     if winners:
         v2 = KS.verdict3([r["knots"] for r in raw["BASE"]], [r["knots"] for r in raw["PAD_best"]],
-                         fp["BASE"], fp["PAD_best"], min_effect=ME)
+                         fp["BASE"], fp["PAD_best"], margin=ME, margin_is_sesoi=False)
         res["verdict3_BASE_PADbest"] = v2
         print(f"\n  交叉验证 BASE vs PAD_best({winners[0]}): {v2['verdict']}  "
               f"T={v2['T']:.5f} p={v2['p']:.4f}")
