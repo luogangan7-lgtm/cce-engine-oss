@@ -1,0 +1,101 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.25,
+      "确认欲": 0.15,
+      "超越欲": 0.0,
+      "归属欲": 0.10,
+      "控制欲": 0.10,
+      "安全感欲": 0.40,
+      "向往欲": 0.0
+    },
+    "note": "核心驱动力是安全感欲：SSHL 是突如其来的感官丧失+未知病因，最大威胁是『脑子里长了什么』，所以 MRI/CT 全正常时立即触发安全感释放（『thank goodness』）。摆脱欲来自想脱离听力事件本身。确认欲来自发帖行为本身——他需要一个听众确认『这种不明原因很常见/我的反应合理』。归属欲隐性激活：主动来到 hearing discussion 版，说明在找同类。控制欲中等——想握住『到底是什么原因』这个答案。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "SSHL 突发后做 MRI/CT 排查严重病因，结果正常但病因仍不明",
+      "weight": 0.35,
+      "derived_from": "由 安全感欲 经『影像学结果未知』情境事件衍生——读者想『知道风险到底有多大、到底是什么病』"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "所有客观检查都正常，但 SSHL 已发生，需要解释机制",
+      "weight": 0.20,
+      "derived_from": "由 安全感欲 + 控制欲 经『病因缺失』情境衍生——『把现象想明白』"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "SSHL 本身带来的听力下降与惊吓已经发生，需要缓解残余不适/焦虑",
+      "weight": 0.10,
+      "derived_from": "由 摆脱欲 衍生——让这次医疗事件带来的心理负担停下来"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "在 hearing discussion 版发帖，主动进入 SSHL 患者群",
+      "weight": 0.15,
+      "derived_from": "由 归属欲 衍生——找同类，确认『我这种情况并不孤单、也有人这样』
+    },
+    {
+      "code": "N13_情感慰藉",
+      "context_slot": "发帖时仍带着『bad part』的余悸，需要被共情/被安慰",
+      "weight": 0.10,
+      "derived_from": "由 确认欲 经『病因不明让我有点不安』衍生——被接纳、听到『这很常见』"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "做完了该做的检查但病因仍空缺，局面没真正握住",
+      "weight": 0.10,
+      "derived_from": "由 控制欲 衍生——想把『接下来怎么监控/复诊』的主导权拿回来"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "中",
+    "note": "MRI+CT+lab 全 normal 是强促进信号，『thank goodness』直接标记为已满足+正。但病因仍 unknown 是一个未被解决的次级缺口（威胁+未满足），所以 coping_potential 只能给『中』——最坏的被排除了，但『为什么』还没拿住。这解释为什么 relief 是主情绪但同时残留 fear/curiosity。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.05,
+      "gratitude感激": 0.20,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.45,
+      "approval认同": 0.05,
+      "curiosity好奇": 0.10,
+      "fear恐惧": 0.10,
+      "sadness悲伤": 0.05,
+      "anger愤怒": 0.0
+    },
+    "note": "由 需求 N01×正 goal_congruence 派生出主情绪 relief（『thank goodness』= relief 的口语化标记），次级是 gratitude（对结果正常的庆幸）。未满足的次级缺口 N01/N04 仍残留 fear（如果没排除干净怎么办）+ curiosity（到底是什么原因）。Sadness 微小权重对应『bad part』对病因不明的轻微失落。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.30,
+      "avoidance回避": 0.10,
+      "attend关注": 0.35,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.05,
+      "interrupt中断": 0.15,
+      "dominate支配": 0.05
+    },
+    "note": "relief+gratitude → approach（向社区贴近、寻求同类经验）；未满足的病因缺口 → attend（持续关注/监控原因）+ interrupt（想中断这种悬而未决状态，去追问医生）。agonistic 微小权重对应『没查出原因让我有点不满』。"
+  },
+  "chain_trace": "安全感欲 →(情境:突发 SSHL+MRI/CT 结果待定+病因仍不明)→ 需求 N01_确定性(35%)+N04_理解世界(20%) →(评价:MRI/CT 全 normal=促进+已满足→正,coping 中=最坏已排除但病因未解)→ 情绪 relief(主)+gratitude+残留 fear/curiosity → 行动倾向 attend(持续关注病因)+approach(贴向社区找同类)",
+  "evidence": {
+    "desire": "I got a MRI last year for SSHL and thought it was gonna be bad / Everything came back normal",
+    "need": "They dont know what caused my SSHL / Everything came back normal",
+    "emotion": "thank goodness / The bad part is they dont know what caused my SSHL",
+    "action": "I got a MRI last year for SSHL... They did a CT scan also and some labs（主动完成全套检查并到 hearing discussion 版发帖 = approach + attend）"
+  }
+}
+```
