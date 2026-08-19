@@ -68,6 +68,22 @@ PROTOCOL_AMENDMENTS = [
      "scope": "对所有 base / 所有臂 / 两个生成器**一律适用**, 不针对某一层或某个失败样本",
      "block": "重跑一次完整 block 后即停; **不许看结果再加**",
      "expected": "单臂通过率 1-(1-0.317)^8 ≈ 94%"},
+    {"id": 2, "at": "2026-08-20", "field": "blind_verify_violation_policy",
+     "from": "UNSPECIFIED(前登记缺口)", "to": "regenerate_once_then_exclude_from_primary",
+     "trigger": ("交叉盲验 115 条得 108 FOLLOWS / 7 VIOLATES; 其中 **B1 违规 4/24 = 17%** —— "
+                 "B1 是**不变性对照臂**, 变体若真改了内容就不再是对照, "
+                 "混入会让 B 臂表现得像弱 A 臂, 可能造出假的 SURFACE_SENSITIVE 判决"),
+     "outcome_dependent": False,
+     "why_not": "观察到的是**规则合规判决**, 不是任何 T/p/ladder —— 此刻仍一次测量都没做",
+     "rule": [
+         "① 对 VIOLATES 的臂重生成**一个完整 block**(同规则同上限), 再盲验一次",
+         "② 仍 VIOLATES 的: **保留文本不删**, 标 blind_rule_check=VIOLATES",
+         "③ primary 分析**只用 FOLLOWS**; sensitivity 分析用**全部通过机器验收**的变体",
+         "④ 两者若在任一 headline 判决上不一致 ⇒ 该判决记 INDETERMINATE, 需新数据",
+     ],
+     "why_both": ("盲验者本身是另一个生成器(已知限度), 把单个 LLM 判决当真值去删刺激 = 过度信任它。"
+                  "两套都报, 分歧本身就是结论, 我事后无裁量空间"),
+     "block": "只重生成一轮; 不许反复重生成到验证者满意"},
 ]
 ARMS = ("A1", "A2", "A3", "B1", "B2")
 
