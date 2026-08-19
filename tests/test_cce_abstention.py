@@ -69,9 +69,13 @@ assert '"measurement_status"' in src and '"abstained_layers"' in src
 spec = K.instrument_id(TAXO, k=3, knot_n=5,
                        s1_pairing="round_robin_over_3_s1_draws")["spec"]
 assert "s1_prompt_sha256" in spec and "s2_prompt_sha256" in spec
-assert spec["s1_prompt_sha256"] == K.LEGACY_INSTRUMENT_20260818["s1_prompt_sha256"], \
-    "★ s1 prompt 变了 —— 当日六个 run 的换代桥接就此断开, 不得再与新数据比较"
-assert spec["s2_prompt_sha256"] == K.LEGACY_INSTRUMENT_20260818["s2_prompt_sha256"]
+# ⚠️ [2/4] 时这里断言 s1 prompt **必须等于** gen1 —— 那是当时的契约(本次不许动 s1)。
+#   本次(第三处开口)**有意**改了 s1 prompt, 于是这条绊线响了。它响得对: 桥接确实断了。
+#   新契约不是「不许变」, 而是「**变了必须在谱系里有记录, 且标定随之作废**」。
+assert spec["s1_prompt_sha256"] != K.INSTRUMENT_LINEAGE[0]["s1_prompt_sha256"], \
+    "s1 prompt 应已改为允许弃权 —— 若与 gen1 相同, 说明第三处开口没真正落地"
+assert spec["s2_prompt_sha256"] == K.INSTRUMENT_LINEAGE[0]["s2_prompt_sha256"], \
+    "s2 prompt 本次不该动"
 assert spec["aggregation_policy"]["abstention"] == K.ABSTENTION_POLICY
 
 # 反向: 改一个字的 s1 prompt 必须换哈希(这正是此前做不到的)
@@ -81,16 +85,68 @@ _alt = hashlib.sha256((K._stage1_template() + "。").encode()).hexdigest()[:16]
 assert _now != _alt, "★ s1 prompt 改一个字必须换指纹 —— 否则又是静默换仪器"
 
 # ── 7. 换代桥接必须诚实: 六个 run 全在册, 且旧哈希写死 ───────────────────────
+# 别名仍指向 gen1(旧引用不破), 但键名随谱系统一为 hash
 lg = K.LEGACY_INSTRUMENT_20260818
-assert lg["old_hash"] == "57ec6cf478d3875e" and len(lg["runs"]) == 6
+assert lg is K.INSTRUMENT_LINEAGE[0]
+assert lg["hash"] == "57ec6cf478d3875e" and len(lg["runs"]) == 6
 assert "32150369795" in lg["runs"]
 
 # ── 8. s1 prompt **未**被改动 —— 本次只通 2/3 两处, 不许悄悄动第 1 处 ────────
 assert "反推其心理因果链四层占比分布" in src or True  # s1 在另一文件
 k_src = (ROOT / "scripts" / "cce_knot_classify.py").read_text(encoding="utf-8")
-assert "请对『写下这段内容的这一个人』反推" in k_src, \
-    "s1 prompt 本次不得改动 —— 改它会再换一次仪器并使当日标定失效, 属独立决策"
-assert "ABSTENTION_S1_NOTE" in k_src, "必须显式记下第 1 处未通及其理由"
+# ⚠️ 同上: [2/4] 时断言「s1 prompt 原文仍在」。本次已按用户批准改动, 契约随之更新 ——
+#   现在要断言的是: 改动**保留了原有语义**(仍要求对个体反推), 只是**追加**了弃权出口,
+#   而不是把整段指令换掉。两者的读数可比性完全不同。
+assert "请对『写下这段内容的这一个人』" in k_src and "这是一个个体，不是群体" in k_src, \
+    "★ 弃权出口是**追加**的, 不得把原有的个体反推指令删掉或改写"
+assert "若它**不是个人表达**" in k_src, "必须有明确的弃权条件描述"
+assert "ABSTENTION_S1_NOTE" in k_src, "保留历史说明, 记录这一处曾经未通及其理由"
 
 print("test_cce_abstention: OK (全体/部分弃权 · 分母不被抬高 · ingest 不再 raise · "
       "s1 进指纹 · 换代桥接 · s1 prompt 未动)")
+
+# ── 9. [第三处开口] stage1 prompt 现在允许模型声明「无可推断主体」 ──────────
+k_src2 = (ROOT / "scripts" / "cce_knot_classify.py").read_text(encoding="utf-8")
+assert "no_inferable_subject" in k_src2, "s1 prompt 必须给出显式弃权字段"
+assert "不要为它构造一个人" in k_src2
+# ★ 弃权信号必须**显式**, 不得拿全零向量当弃权
+from exp_v4_full_validation import top_label, DESIRES  # noqa: E402
+assert top_label([0.0] * len(DESIRES), DESIRES) == DESIRES[0], \
+    "共享 top_label 对全零返回第一个标签 —— 这正是不能拿全零当弃权信号的理由"
+assert "全零守卫" in k_src2 and "sum(vec) > 0" in k_src2, \
+    "stage1 必须自带全零守卫, 否则全零会被报成一个自信的假 top"
+
+# ── 10. stage1 弃权 ⇒ stage2 不发任何调用 ──────────────────────────────────
+r = K.stage2("x", {"abstained": True, "abstain_reason": "纯数据表", "k_requested": 3}, TAXO)
+assert r["measurement_status"] == "abstain" and r["knots"] == []
+assert r["sampling"]["n_ok"] == 0, "s1 已弃权还发 s2 调用 = 白烧钱且在为不存在的主体造结"
+assert "stage1 弃权" in r["abstain_reason"]
+
+# ── 11. ★★ 仪器谱系与标定可搬性 ────────────────────────────────────────────
+lin = K.INSTRUMENT_LINEAGE
+assert [g["gen"] for g in lin] == [1, 2, 3]
+assert lin[0]["hash"] == "57ec6cf478d3875e" and len(lin[0]["runs"]) == 6
+assert lin[1]["hash"] == "287d07a0ef1ea78e" and lin[1]["runs"] == []
+assert lin[2]["hash"] is None, "gen3 的 hash 由代码现算, 写死会与实现漂移"
+
+_cur = K.instrument_id(TAXO, k=3, knot_n=5,
+                       s1_pairing="round_robin_over_3_s1_draws")["instrument_hash"]
+for _g in (1, 2):
+    _t = K.calibration_transfers(_g, _cur, TAXO, k=3, knot_n=5,
+                                 s1_pairing="round_robin_over_3_s1_draws")
+    assert _t["transfers"] is False, \
+        f"★ gen{_g} 的标定不得被当成对 gen3 有效 —— s1 prompt 变了, 被测对象收到的指令不同"
+# ★ 判据必须是 prompt 相同而**不是** hash 相同: gen1→gen2 hash 变了但标定仍适用
+assert lin[0]["s1_prompt_sha256"] == lin[1]["s1_prompt_sha256"], \
+    "gen1 与 gen2 的 s1 prompt 必须相同 —— 那次只是身份定义变完整, 物理仪器没变"
+assert lin[0]["hash"] != lin[1]["hash"], "但 hash 确实变了 ⇒ 可搬性判据不能用 hash"
+
+# ── 12. KSEP 的标定常量必须自己声明「对当前仪器不适用」 ──────────────────────
+import cce_ksep as KS  # noqa: E402
+c = KS.PAIR1_NULL_CALIBRATION_STATISTIC
+assert c["measured_on_instrument"] == "57ec6cf478d3875e"
+assert c["transfers_to_current"] is False, \
+    "★ 标定常量必须自己说清它对当前仪器不适用, 否则会被后来的 agent 直接拿去用"
+assert KS.SESOI is None and KS.DELTA_RESOLUTION is None
+
+print("test_cce_abstention[9-12]: OK (s1 弃权 · 全零不当弃权 · s2 零调用 · 谱系 · 标定不可搬)")

@@ -65,7 +65,11 @@ def _stage1_template(context="<CONTEXT>", text="<TEXT>"):
 def _stage1_case(text, context):
     return (f"平台/形态: {context}\n"
             f"以下是内容全文(仅文本, 无任何互动数据):\n\n{text}\n\n"
-            f"(注: 请对『写下这段内容的这一个人』反推其心理因果链四层占比分布。这是一个个体，不是群体。)")
+            f"(注: 若这段内容确实是某一个人写下的自我表达，请对『写下这段内容的这一个人』"
+            f"反推其心理因果链四层占比分布——这是一个个体，不是群体。\n"
+            f"若它**不是个人表达**（例如纯数据表、条款样板、说明书、操作步骤、代码、目录、"
+            f"日志），请在 JSON 顶层返回 \"no_inferable_subject\": true 并说明理由，"
+            f"**不要为它构造一个人**。四层分布此时留空或省略即可。)")
 
 
 def stage1(text, context, k):
@@ -77,7 +81,12 @@ def stage1(text, context, k):
     def one(T):
         for att in range(3):
             c, p, pv, m, ok = call_parse("M3", case, T, f"knot_s1_T{T}")
+            # ★ 弃权信号必须**显式**。绝不能拿「全零向量」当弃权 ——
+            #   top_label(全零) 会返回第一个标签(实测: 拥有欲), 即一个自信的假读数。
+            if isinstance(p, dict) and p.get("no_inferable_subject") is True:
+                return {"_abstained": True, "_reason": str(p.get("reason", ""))[:200]}
             if ok:
+                pv["_abstained"] = False
                 return pv
             os.makedirs(RAW_DIR, exist_ok=True)
             with open(os.path.join(RAW_DIR, f"s1_fail_{int(time.time())}_{T}_{att}.txt"), "w", encoding="utf-8") as f:
@@ -89,9 +98,20 @@ def stage1(text, context, k):
         # 于是 from_temperature 恒写 temps[0], 首档失败时记的是错的出处。
         # 一个专门记出处的字段记错出处, 比没有这个字段更坏。
         paired = [(T, p) for T, p in zip(temps, ex.map(one, temps)) if p]
-    pvs = [p for _, p in paired]
-    if not pvs:
+    pvs_all = [p for _, p in paired]
+    if not pvs_all:
         raise RuntimeError("stage1 全部失败(raw 已存 results/knot_classify_raw/)")
+    # 弃权与失败必须分开: 失败是管线坏了, 弃权是仪器声明「这里读不出人」。
+    n_abstain = sum(1 for p in pvs_all if p.get("_abstained"))
+    pvs = [p for p in pvs_all if not p.get("_abstained")]
+    if not pvs:
+        return {"k_requested": k, "k_ok": len(pvs_all), "n_abstain": n_abstain,
+                "abstained": True,
+                "abstain_reason": next((p.get("_reason") for p in pvs_all if p.get("_reason")),
+                                       "全部 draw 声明无可推断主体"),
+                "layers": {}, "tops": {}, "draws": [], "within_js": None,
+                "caveat": ("stage1 全体弃权: 这不是「四层分布都是 0」, "
+                           "而是仪器声明本次输入不构成个人表达, 不产出心理读数。")}
     avg = {L: [sum(p[L][j] for p in pvs) / len(pvs) for j in range(len(pvs[0][L]))] for L in LAYERS}
     within = None
     if len(pvs) >= 2:
@@ -102,10 +122,15 @@ def stage1(text, context, k):
     #   layers/tops = K 次采样的聚合;  appraisal/chain_trace = pvs[0] 即单次抽样。
     # 下游若把它们等同看待就是口径混用。现在显式分开: 聚合项与单抽项各自归组,
     # 单抽项保留在 `single_draw` 下并带 caveat, 顶层同名键仍在(兼容), 但加 `_provenance` 说明。
-    tops = {"desire": top_label(avg["desire_vec"], DESIRES),
-            "need": top_label(avg["need_vec"], NEED_KEYS),
-            "emotion": top_label(avg["emotion_vec"], EMOTIONS),
-            "action": top_label(avg["action_vec"], ACTIONS)}
+    # ★ 全零守卫: top_label 对全零向量会返回**第一个标签**(实测 拥有欲) —— 一个自信的假读数。
+    #   共享的 top_label 被别处也在用, 不动它; 在本处加守卫。
+    def _top(vec, keys):
+        return top_label(vec, keys) if vec and sum(vec) > 0 else None
+
+    tops = {"desire": _top(avg["desire_vec"], DESIRES),
+            "need": _top(avg["need_vec"], NEED_KEYS),
+            "emotion": _top(avg["emotion_vec"], EMOTIONS),
+            "action": _top(avg["action_vec"], ACTIONS)}
     # 2026-08-18: 额外暴露**逐 draw** 的 tops/appraisal。
     # 用途见 _stage2_aggregate 的 s1 配对: 此前 s2 的 n 次抽样共享同一份 pvs[0] 的 appraisal,
     # 于是一个 rep 内所有 s2 抽样吃同一份抖过的 prompt ——
@@ -115,17 +140,23 @@ def stage1(text, context, k):
     #   四层完整向量在算完 top 之后就被丢掉。后果(外部源码审计指出, 已核实):
     #   事后无法重算不同聚合、无法重算 within_js、无法做维度级 bootstrap。
     #   ★ API 调用比 JSON 存储贵得多 —— 事后发现 raw draw 没留是不可逆损失。
-    per_draw = [{"from_temperature": T,
-                 "desire_vec": pv["desire_vec"], "need_vec": pv["need_vec"],
-                 "emotion_vec": pv["emotion_vec"], "action_vec": pv["action_vec"],
-                 "tops": {"desire": top_label(pv["desire_vec"], DESIRES),
-                          "need": top_label(pv["need_vec"], NEED_KEYS),
-                          "emotion": top_label(pv["emotion_vec"], EMOTIONS),
-                          "action": top_label(pv["action_vec"], ACTIONS)},
-                 "appraisal": pv.get("appraisal")}
+    per_draw = [({"from_temperature": T, "abstained": True,
+                  "reason": pv.get("_reason", ""),
+                  "desire_vec": None, "need_vec": None,
+                  "emotion_vec": None, "action_vec": None,
+                  "tops": {}, "appraisal": None}
+                 if pv.get("_abstained") else
+                 {"from_temperature": T, "abstained": False,
+                  "desire_vec": pv["desire_vec"], "need_vec": pv["need_vec"],
+                  "emotion_vec": pv["emotion_vec"], "action_vec": pv["action_vec"],
+                  "tops": {"desire": _top(pv["desire_vec"], DESIRES),
+                           "need": _top(pv["need_vec"], NEED_KEYS),
+                           "emotion": _top(pv["emotion_vec"], EMOTIONS),
+                           "action": _top(pv["action_vec"], ACTIONS)},
+                  "appraisal": pv.get("appraisal")})
                 for T, pv in paired]
     return {
-        "k_requested": k, "k_ok": len(pvs),
+        "k_requested": k, "k_ok": len(pvs_all), "n_abstain": n_abstain, "abstained": False,
         "layers": avg,
         "tops": tops,
         "draws": per_draw,
@@ -172,15 +203,43 @@ def _stage2_template(taxo):
 #   为了让当日六个 run 仍能与后续对账, 把换代关系钉在这里, 并由测试守住:
 #   旧哈希 57ec6cf478d3875e 对应的 s1 prompt sha 就是下面这个;
 #   若将来 s1 prompt 被改动, 该 sha 变化 ⇒ 桥接断开 ⇒ 当日数据**不再**可与新数据比较。
-LEGACY_INSTRUMENT_20260818 = {
-    "old_hash": "57ec6cf478d3875e",
-    "s1_prompt_sha256": "d73764202b732e98",
-    "s2_prompt_sha256": "b8d0f60d66d10f12",
-    "runs": ["32130867661", "32141330271", "32143780680",
-             "32143785964", "32147076464", "32150369795"],
-    "note": ("旧指纹未覆盖 s1 prompt 与 abstention 策略。物理仪器与新指纹一致, "
-             "当且仅当 s1_prompt_sha256/s2_prompt_sha256 与此处记录相同。"),
-}
+# ★ 仪器谱系。每一代都记清楚「哪些数据是它产的」与「上一代的标定还能不能用」。
+INSTRUMENT_LINEAGE = [
+    {"gen": 1, "hash": "57ec6cf478d3875e", "s1_prompt_sha256": "d73764202b732e98",
+     "s2_prompt_sha256": "b8d0f60d66d10f12",
+     "runs": ["32130867661", "32141330271", "32143780680",
+              "32143785964", "32147076464", "32150369795"],
+     "note": "2026-08-18 当日全部六次实测。指纹未覆盖 s1 prompt 与 abstention 策略。"},
+    {"gen": 2, "hash": "287d07a0ef1ea78e", "s1_prompt_sha256": "d73764202b732e98",
+     "s2_prompt_sha256": "b8d0f60d66d10f12", "runs": [],
+     "note": ("[2/4] 把 s1 prompt 与 abstention 策略纳入指纹。**物理仪器与 gen1 相同**"
+              "(prompt 原文/模型/端点/采样策略全同), 只是身份定义更完整 ⇒ "
+              "gen1 的数据与标定对 gen2 **仍然适用**。")},
+    {"gen": 3, "hash": None, "s1_prompt_sha256": None, "s2_prompt_sha256": None, "runs": [],
+     "note": ("stage1 prompt 改为**允许模型声明无可推断主体**(no_inferable_subject)。"
+              "★ 这是**物理仪器变了** —— 被测对象收到的指令不同, 读数分布可能整体移动。"
+              "⇒ **gen1/gen2 的标定对 gen3 不适用**, 必须重新标定。"
+              "hash 留 None: 它由代码现算, 写死会与实现漂移。")},
+]
+# 兼容别名(旧引用仍可用)
+LEGACY_INSTRUMENT_20260818 = INSTRUMENT_LINEAGE[0]
+
+
+def calibration_transfers(from_gen, to_hash, taxo, k=3, knot_n=None, s1_pairing=None):
+    """上一代的标定能不能搬到当前仪器上。
+
+    判据不是「hash 相同」—— gen1→gen2 hash 变了但物理仪器没变, 标定仍适用。
+    真正的判据是: **被测对象收到的指令是否相同**, 即 s1/s2 prompt sha 是否相同。
+    """
+    src = next(g for g in INSTRUMENT_LINEAGE if g["gen"] == from_gen)
+    cur = instrument_id(taxo, k=k, knot_n=knot_n, s1_pairing=s1_pairing)["spec"]
+    same_prompt = (src["s1_prompt_sha256"] == cur["s1_prompt_sha256"]
+                   and src["s2_prompt_sha256"] == cur["s2_prompt_sha256"])
+    return {"transfers": same_prompt,
+            "reason": ("prompt 相同 ⇒ 物理仪器相同, 标定可搬" if same_prompt else
+                       "★ prompt 已变 ⇒ 被测对象收到的指令不同 ⇒ 标定**不可搬**, 必须重标定"),
+            "from_gen": from_gen, "to_hash": to_hash,
+            "src_s1": src["s1_prompt_sha256"], "cur_s1": cur["s1_prompt_sha256"]}
 
 
 def instrument_id(taxo, k=None, knot_n=None, s1_pairing=None):
@@ -276,6 +335,20 @@ def stage2(text, s1, taxo):
     # 代码保留是因为零新增成本、且"不冻结一个已知噪声源"在原则上更干净。
     # **但它的地位是结构性选择, 不是经过验证的改进** —— 不要拿它当已证结论往下推。
     s1_draws = s1.get("draws") or []
+    # ★ s1 已弃权 ⇒ 不必再发 s2 调用(既省钱又避免为不存在的主体构造九结)
+    if s1.get("abstained"):
+        return {"knots": [], "measurement_status": "abstain",
+                "abstain_reason": "stage1 弃权: " + str(s1.get("abstain_reason", "")),
+                "draw_ledger": [], "intensity": {}, "families": {},
+                "levers_present": [], "notes": "", "n_abstain": 0,
+                "s1_pairing": "n/a(s1_abstained)",
+                "instrument": instrument_id(taxo, k=s1.get("k_requested"), knot_n=KNOT_N,
+                                            s1_pairing="n/a(s1_abstained)"),
+                "sampling": {"n_requested": 0, "n_ok": 0, "top1_mode": None,
+                             "top1_mode_share": 0.0, "top1_unanimous": False,
+                             "top1_stable": False, "top1_draws": [], "max_range": 0.0,
+                             "per_knot": {}},
+                "caveat": "stage1 声明无可推断主体 ⇒ 本次不产出九结, 且未发起 s2 调用。"}
     if s1_draws:
         prompts = [_build_stage2_prompt(taxo, text,
                                         {"tops": d["tops"], "appraisal": d["appraisal"]})

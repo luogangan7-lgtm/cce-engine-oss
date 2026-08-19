@@ -122,6 +122,13 @@ PAIR1_NULL_CALIBRATION_STATISTIC = {
     "what_it_is": "run 32141330271 那一对等长文本自己的置换零分布 95 分位(=该对 null_max)",
     "what_it_is_not": "不是 SESOI, 不是全局仪器分辨率, 不是等价边界",
     "do_not": "不得用它对产生它的那一对数据做 confirmatory 判决(evaluation leakage)",
+    # ★ 2026-08-19: stage1 prompt 已改为允许弃权 ⇒ **物理仪器变了**(gen3)。
+    #   本统计量测于 gen1(57ec6cf478d3875e), 其 s1 prompt sha = d73764202b732e98。
+    #   ⇒ 它对 gen3 **不适用**, 需重新标定。用 cce_knot_classify.calibration_transfers() 判。
+    "measured_on_instrument": "57ec6cf478d3875e",
+    "measured_on_s1_prompt_sha256": "d73764202b732e98",
+    "transfers_to_current": False,
+    "why_not": "gen3 改了 s1 prompt(允许声明无可推断主体), 被测对象收到的指令不同。",
 }
 
 # 仪器分辨率: 需要**独立的同文本重复校准语料**(同一文本 × 独立重跑 × 多个文本类别),
