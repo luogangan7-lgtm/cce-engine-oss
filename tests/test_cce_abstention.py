@@ -150,3 +150,27 @@ assert c["transfers_to_current"] is False, \
 assert KS.SESOI is None and KS.DELTA_RESOLUTION is None
 
 print("test_cce_abstention[9-12]: OK (s1 弃权 · 全零不当弃权 · s2 零调用 · 谱系 · 标定不可搬)")
+
+# ── 13. gen3 验收 gate 实测(run 32223866100, 30 次调用) ─────────────────────
+AUF = ROOT / "tests" / "data" / "abstention_uptake_20260819.json"
+if AUF.exists():
+    au = json.loads(AUF.read_text(encoding="utf-8"))
+    assert au["instrument"] == "ea70b373d5bef630", "验收必须跑在 gen3 上"
+    assert au["s1_prompt_sha256"] == "eadcdcdac46a5180"
+    # ★ 阴性侧: 四份中性垫料**每一个 draw** 都弃权(不只是「至少一个 rep」)
+    neg = {k: v for k, v in au["by_text"].items() if "应当弃权" in k}
+    assert len(neg) == 4
+    for k, v in neg.items():
+        assert v["any_abstention"] is True, k
+        assert all(r["n_abstain"] == 3 for r in v["reps"]), \
+            f"{k}: 期望每 rep 3/3 draw 弃权, 实得 {[r['n_abstain'] for r in v['reps']]}"
+    # ★ 阳性侧: 真人文本零弃权 —— 过度触发比改动前更坏
+    pos = au["by_text"]["HUMAN_base(应当不弃权)"]
+    assert pos["any_abstention"] is False and all(r["n_abstain"] == 0 for r in pos["reps"]), \
+        "★ 真人文本被判无主体 = 过度触发, 会静默缩掉 P2 的语料, 必须回滚"
+    assert au["verdict"].startswith("通过")
+    # ★ 诚实边界: R=2 / 4 份垫料 / **仅 1 份真人文本** —— 这是筛选不是测量。
+    assert au["R"] == 2, "R=2 是筛选; 不得据此报弃权率"
+    assert len([k for k in au["by_text"] if "应当不弃权" in k]) == 1, \
+        "★ 只测了 1 份真人文本 —— 假阳性(过度触发)方向证据很薄, 需要全语料扫"
+    print("  gen3 验收已钉: 阴性 4/4 全 draw 弃权 · 阳性零弃权 · 但假阳性侧仅 n=1")
