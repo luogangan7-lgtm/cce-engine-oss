@@ -174,3 +174,30 @@ if AUF.exists():
     assert len([k for k in au["by_text"] if "应当不弃权" in k]) == 1, \
         "★ 只测了 1 份真人文本 —— 假阳性(过度触发)方向证据很薄, 需要全语料扫"
     print("  gen3 验收已钉: 阴性 4/4 全 draw 弃权 · 阳性零弃权 · 但假阳性侧仅 n=1")
+
+# ── 14. 假阳性收口(run 32224198135, 72 调用) ───────────────────────────────
+AFF = ROOT / "tests" / "data" / "abstention_false_positive_20260819.json"
+if AFF.exists():
+    af = json.loads(AFF.read_text(encoding="utf-8"))
+    assert af["instrument"] == "ea70b373d5bef630"
+    # 通道必须是活的, 否则真人侧零弃权不可读作好消息
+    assert any(af["control"]["n_abstain"]), "★阴性对照未弃权 ⇒ 通道死, 整轮作废"
+    hum = af["human"]
+    assert len(hum) == 12, "12 份真实语料不挑不排"
+    # ★ 灾难性失败(整条被判无主体)**没有**发生
+    assert not any(any(v["abstained"]) for v in hum.values()), \
+        "★ 若有真人文本被**整条**判无主体, 那是必须立刻回滚的灾难性失败"
+    # ★ 但部分弃权确实发生: 4/12, 最差 T02 两个 rep 都丢 2/3 draw
+    part = {k: v for k, v in hum.items() if any(v["n_abstain"])}
+    assert set(part) == {"T01", "T02", "T03", "T10"}, sorted(part)
+    assert max(hum["T02"]["n_abstain"]) == 2, "T02 最差丢 2/3 draw ⇒ 有效 k=1"
+    # ★★ 有效 k=1 的下游后果: within_js 需要 >=2 个 draw, 故该闸跑不了
+    import inspect  # noqa: E402
+    assert "if len(pvs) >= 2:" in inspect.getsource(K.stage1), \
+        "within_js 需 >=2 draw —— 部分弃权把有效 k 压到 1 时该闸静默失效"
+    # ★ 前登记缺口(必须记着, 不许悄悄补): 判决线把弃权当**二元**(有/无),
+    #   而实际现象是**分级**的(0-3 个 draw)。这与 0.36 那次是同一类失败。
+    assert "误伤率 >1/12 即建议回滚" in "".join(af["verdict_lines"]), \
+        "前登记原文必须留着 —— 事后重新解释判决线正是它要防的事"
+    print("  假阳性收口已钉: 通道活 · 无整条误判 · 部分弃权 4/12(T02 有效k=1) · "
+          "前登记把分级现象写成了二元")
