@@ -83,9 +83,9 @@ spec = K.instrument_id(TAXO, k=3, knot_n=5, s1_pairing="round_robin_over_3_s1_dr
 # ⚠️ 2026-08-18 [2/4]: 本断言原为 `== "57ec6cf478d3875e"`。
 #   [2/4] 把 s1 prompt 与 abstention 策略纳入指纹, **哈希必然改变** ——
 #   物理仪器没变, 变的是身份定义更完整了。断言更新为新哈希 + 换代桥接, 不是删除。
-assert spec["instrument_hash"] == "ea70b373d5bef630", (
+assert spec["instrument_hash"] == "565470cf26c16d01", (
     f"仪器指纹变了({spec['instrument_hash']}) —— 若非有意换代, 先查是什么改动引起的。\n"
-    f"当前谱系: gen1 57ec6cf478d3875e → gen2 287d07a0ef1ea78e → gen3(本代)")
+    f"当前谱系: gen1→gen2→gen3 ea70b373d5bef630→gen4(本代, 仅重划哈希作用域)")
 assert K.INSTRUMENT_LINEAGE[0]["hash"] == "57ec6cf478d3875e", "谱系首代必须留着"
 # ★ ledger 本身仍必须是**仪器中性**的: 它是输出字段, 不该出现在仪器定义里
 assert "draw_ledger" not in json.dumps(spec["spec"]), "ledger 不该出现在仪器定义里"
@@ -99,7 +99,7 @@ _h = {n: K.instrument_id(TAXO, k=3, knot_n=5,
                          s1_pairing=f"round_robin_over_{n}_s1_draws")["instrument_hash"]
       for n in (1, 2, 3)}
 assert len(set(_h.values())) == 3, "s1 成功数不同必须给出不同仪器 —— 否则会静默混比"
-assert _h[3] == "ea70b373d5bef630", "n=3 应给出当前(gen3)指纹"
+assert _h[3] == "565470cf26c16d01", "n=3 应给出当前(gen4)指纹"
 
 # ── 5. 反向测试: 去掉「缺席记 0」, 断言必须红 ────────────────────────────────
 _partial = {k: v for k, v in led[3]["knot_vector"].items() if v > 0}

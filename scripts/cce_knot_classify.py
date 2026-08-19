@@ -207,7 +207,11 @@ def stage1(text, context, k):
 #   prompt_sha256     ★ 由**模板文本本身**导出 —— 改一个字哈希就变, 忘不掉
 #   model / endpoint  模型与端点(服务端微调 = 换仪器, 见既有「仪器漂移」纪律)
 #   sampling_policy   s1 的 k 与温度阶梯 / s2 的 n
-#   aggregation_policy 支持度规则与强度统计量
+#
+# ★ 2026-08-19 重划: aggregation_policy 从 instrument_hash 里**移出**, 归入
+#   qualification_policy_hash。判据 = 「改它之后已采集的 raw draw 还能不能用」——
+#   support_rule / intensity_stat / abstention / k_valid 都能从 draw ledger 重算,
+#   不该让仪器标定作废(重标定要真投料, 代价不对等)。
 # ─────────────────────────────────────────────────────────────────────────────
 def _stage2_template(taxo):
     """把 prompt 里**不随内容变化**的部分单独构造出来, 用于取仪器哈希。
@@ -234,11 +238,20 @@ INSTRUMENT_LINEAGE = [
      "note": ("[2/4] 把 s1 prompt 与 abstention 策略纳入指纹。**物理仪器与 gen1 相同**"
               "(prompt 原文/模型/端点/采样策略全同), 只是身份定义更完整 ⇒ "
               "gen1 的数据与标定对 gen2 **仍然适用**。")},
-    {"gen": 3, "hash": None, "s1_prompt_sha256": None, "s2_prompt_sha256": None, "runs": [],
+    {"gen": 3, "hash": "ea70b373d5bef630",
+     "s1_prompt_sha256": "eadcdcdac46a5180", "s2_prompt_sha256": "b8d0f60d66d10f12",
+     "runs": ["32223866100", "32224198135", "32227550589(VOID)", "32231676330"],
      "note": ("stage1 prompt 改为**允许模型声明无可推断主体**(no_inferable_subject)。"
               "★ 这是**物理仪器变了** —— 被测对象收到的指令不同, 读数分布可能整体移动。"
               "⇒ **gen1/gen2 的标定对 gen3 不适用**, 必须重新标定。"
               "hash 留 None: 它由代码现算, 写死会与实现漂移。")},
+    {"gen": 4, "hash": None,
+     "s1_prompt_sha256": "eadcdcdac46a5180", "s2_prompt_sha256": "b8d0f60d66d10f12",
+     "runs": [],
+     "note": ("把 aggregation_policy 从 instrument_hash 移出, 归入 qualification_policy_hash。"
+              "★ **物理仪器与 gen3 完全相同**(prompt/model/endpoint/采样策略全同), "
+              "只是标识符重新划界 —— 与 gen1→gen2 同性质 ⇒ **gen3 的标定对 gen4 仍适用**。"
+              "判据: 改它之后已采集的 raw draw 还能不能用。hash 留 None(由代码现算)。")},
 ]
 # 兼容别名(旧引用仍可用)
 LEGACY_INSTRUMENT_20260818 = INSTRUMENT_LINEAGE[0]
@@ -294,8 +307,31 @@ def instrument_id(taxo, k=None, knot_n=None, s1_pairing=None):
                                # 空 knots 从「解析失败」改为「合法弃权」—— 行为变了就是换仪器
                                "abstention": ABSTENTION_POLICY},
     }
-    h = hashlib.sha256(json.dumps(spec, ensure_ascii=False, sort_keys=True).encode("utf-8")).hexdigest()[:16]
-    return {"instrument_hash": h, "spec": spec}
+    # ★★ 2026-08-19: 拆成两个哈希。判据不是「prompt vs schema」, 而是**可操作的一条**:
+    #     改了它之后, **已采集的原始 draw 还能不能用**?
+    #       不能用(必须重新投料) → instrument      —— 它决定 draw 本身
+    #       能用(可从 draw ledger 重算) → qualification policy —— 它只决定怎么解读 draw
+    #   为什么要拆: 此前 support_rule / intensity_stat / abstention / k_valid 这些
+    #   **可重算**的策略也进了 instrument_hash, 于是每修一次资格协议就白白作废一次仪器标定
+    #   (而重标定要真投料)。外部评审指出后, 按上述判据重划。
+    #   ⚠️ spec 仍原样保留全部字段(不改形状), 以免 calibration 的 depends_on 路径失效。
+    _INSTRUMENT_FIELDS = ("ontology_version", "s1_prompt_sha256", "s2_prompt_sha256",
+                          "model", "endpoint", "sampling_policy")
+    _POLICY_FIELDS = ("aggregation_policy", "qualification_policy")
+    spec["qualification_policy"] = {
+        "k_valid_min": 2,            # <2 ⇒ WITHHOLD(within_js 数学上需要 >=2 个有效 draw)
+        "insufficient_replicates": "WITHHOLD",
+        "abstain_semantics": ABSTENTION_POLICY,
+        "statuses": ["qualified", "abstain", "insufficient_replicates"],
+    }
+    ih = hashlib.sha256(json.dumps({k: spec[k] for k in _INSTRUMENT_FIELDS},
+                                   ensure_ascii=False, sort_keys=True).encode()).hexdigest()[:16]
+    qh = hashlib.sha256(json.dumps({k: spec[k] for k in _POLICY_FIELDS},
+                                   ensure_ascii=False, sort_keys=True).encode()).hexdigest()[:16]
+    return {"instrument_hash": ih, "qualification_policy_hash": qh, "spec": spec,
+            "hash_scope": {"instrument": list(_INSTRUMENT_FIELDS),
+                           "qualification_policy": list(_POLICY_FIELDS),
+                           "criterion": "改它之后已采集的 raw draw 还能不能用"}}
 
 
 def assert_same_instrument(readouts, what="跨读数比较"):

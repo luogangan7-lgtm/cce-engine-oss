@@ -124,10 +124,15 @@ assert "stage1 弃权" in r["abstain_reason"]
 
 # ── 11. ★★ 仪器谱系与标定可搬性 ────────────────────────────────────────────
 lin = K.INSTRUMENT_LINEAGE
-assert [g["gen"] for g in lin] == [1, 2, 3]
+assert [g["gen"] for g in lin] == [1, 2, 3, 4]
 assert lin[0]["hash"] == "57ec6cf478d3875e" and len(lin[0]["runs"]) == 6
 assert lin[1]["hash"] == "287d07a0ef1ea78e" and lin[1]["runs"] == []
-assert lin[2]["hash"] is None, "gen3 的 hash 由代码现算, 写死会与实现漂移"
+assert lin[2]["hash"] == "ea70b373d5bef630" and len(lin[2]["runs"]) == 4, "gen3 的四个 run"
+assert lin[3]["hash"] is None, "当代 hash 由代码现算, 写死会与实现漂移"
+# ★ 只有**改了物理仪器**的换代才让标定作废: gen1→gen2 与 gen3→gen4 都只是重划标识符
+assert lin[0]["s1_prompt_sha256"] == lin[1]["s1_prompt_sha256"], "gen1/gen2 物理同一"
+assert lin[2]["s1_prompt_sha256"] == lin[3]["s1_prompt_sha256"], "gen3/gen4 物理同一"
+assert lin[1]["s1_prompt_sha256"] != lin[2]["s1_prompt_sha256"], "gen2→gen3 才是真换仪器"
 
 # ⚠️ 2026-08-19 外部评审纠正: 初版拿「prompt 相同」当**通用迁移律**太松 ——
 #   prompt 一字未改但 s2 的 n、聚合统计量、support 规则、配对、端点变了, 噪声底一样会变。
