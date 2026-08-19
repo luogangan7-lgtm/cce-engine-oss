@@ -84,7 +84,8 @@ assert G.assign(bases, seed=G.ASSIGN_SEED + 1) != a1, "★ 换 seed 结果不变
 
 # ── 8. 失败不许被伪造成功：dry run 必须落 GENERATION_FAILED ────────────────
 recs, log = G.generate(bases[:1], a1, dry=True)
-assert all(r.get("status") == "GENERATION_FAILED" for r in recs)
+assert recs and all(r.get("status") == "GENERATION_FAILED" for r in recs), \
+    "★ dry 跑必须只含本次结果 —— 若继承了真实 checkpoint, 这条守卫就失效了"
 assert len(log) == len(G.ARMS) * G.MAX_REGEN, "★ 每次尝试都要记账, 不能只记最后一次"
 assert not any("text" in r for r in recs), "★ 失败的臂不得带出文本"
 

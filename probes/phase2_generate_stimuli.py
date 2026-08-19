@@ -210,7 +210,9 @@ def _one(b, arm, gfam, dry=False):
 
 
 def generate(bases, assignment, dry=False, workers=WORKERS):
-    done = _done_keys()
+    # ★ dry 是冒烟测试, **不得继承真实 checkpoint** —— 否则空跑会把真实成功记录
+    #   混进结果, 让「失败必须落 GENERATION_FAILED」这类守卫失效(踩过一次)。
+    done = {} if dry else _done_keys()
     tasks = [(b, arm) for b in bases for arm in ARMS
              if (b["base_id"], arm) not in done]
     recs, attempts_log = list(done.values()), []
