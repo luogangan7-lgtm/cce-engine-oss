@@ -243,3 +243,55 @@ assert '"tops": {}' in fr, "重复数不足时不得产出 tops"
 # ★ 明确禁止「抽到够两个为止」—— 那会条件化于模型愿意给读数, 隐藏真实弃权倾向
 assert "绝不能退回单 draw 继续当合格读数" in fr
 print("  k 计数与 withhold 已钉: k_ok=有效数 / insufficient_replicates / 不 raise / 无 tops")
+
+# ── 16. ★ 弃权分支必须与非弃权分支**同构** —— 同一个 bug 的第二现场 ────────
+# 2026-08-19: k_ok 把弃权算成成功这个 bug 我只修了非弃权分支, 弃权分支照旧。
+# 后果: 全体弃权被记成 k_valid=3(经探针兜底), 通道自检读出 Nd=0, **156 次调用整轮作废**。
+_o = K.call_parse
+K.call_parse = lambda mk, c, T, n: ("", {"no_inferable_subject": True, "reason": "纯数据表"},
+                                    None, {}, False)
+try:
+    _ab = K.stage1("x", "ctx", 3)
+finally:
+    K.call_parse = _o
+assert _ab["abstained"] is True and _ab["measurement_status"] == "abstain"
+assert _ab["k_attempted"] == 3 and _ab["k_valid"] == 0 and _ab["k_abstained"] == 3
+assert _ab["k_ok"] == 0, "★ 弃权分支的 k_ok 也必须是**有效**数(0), 不能是尝试数"
+# ★ draws 不得为空 —— 否则逐 draw 弃权率无从计算, 通道自检失效
+assert len(_ab["draws"]) == 3 and all(d["abstained"] for d in _ab["draws"]), \
+    "★ 弃权分支必须保留逐 draw 记录, 否则阴性对照的 Nd 算不出来"
+# ★ 两个分支的键集合必须一致(结构同构), 防「只修了一处」再次发生
+_o = K.call_parse
+_i = {"n": 0}
+
+
+def _ok(mk, c, T, n):
+    pv = {"desire_vec": [1.0] + [0] * 8, "need_vec": [1.0] + [0] * 16,
+          "emotion_vec": [1.0] + [0] * 12, "action_vec": [1.0] + [0] * 6,
+          "need_slots": {}, "appraisal": {}, "chain_trace": "", "evidence": {}}
+    return "", {}, pv, {}, True
+
+
+K.call_parse = _ok
+try:
+    _no = K.stage1("x", "ctx", 3)
+finally:
+    K.call_parse = _o
+_common = {"k_requested", "k_attempted", "k_valid", "k_abstained", "k_ok",
+           "measurement_status", "abstained", "layers", "tops", "draws", "within_js"}
+assert _common <= set(_ab), f"弃权分支缺 {_common - set(_ab)}"
+assert _common <= set(_no), f"正常分支缺 {_common - set(_no)}"
+
+# ── 17. ★ 探针禁止对自己的 schema 用 .get(key, default) ────────────────────
+# ⚠️ 初版写的是 `assert 's1.get("k_valid"' not in 全文` —— 它抓住了**解释旧 bug 的注释本身**。
+#   与今天早上「82%」那次同形: 断言字符串存在/不存在的守卫, 总被解释它的文字绊倒。
+#   改为只看**非注释的代码行**。
+_gq = (ROOT / "probes" / "gen3_qualification.py").read_text(encoding="utf-8")
+_code = [l for l in _gq.split("\n") if not l.lstrip().startswith("#")]
+for _l in _code:
+    assert 's1.get(' not in _l, \
+        f"★ 兜底把 schema 漂移变成自信的错数 —— 缺键必须当场炸, 不许 .get 默认值: {_l.strip()[:70]}"
+assert 'raise KeyError' in _gq and "禁止兜底" in _gq
+# 反向: 构造一行含兜底的代码行, 规则必须抓住
+assert any('s1.get(' in _l for _l in ['    x = s1.get("k_valid", 3)']), "反向用例自检"
+print("  弃权分支同构已钉: k_valid=0 / k_ok=0 / draws 保留 / 两分支键集一致 / 探针无兜底")

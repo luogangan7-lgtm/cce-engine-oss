@@ -105,11 +105,23 @@ def stage1(text, context, k):
     n_abstain = sum(1 for p in pvs_all if p.get("_abstained"))
     pvs = [p for p in pvs_all if not p.get("_abstained")]
     if not pvs:
-        return {"k_requested": k, "k_ok": len(pvs_all), "n_abstain": n_abstain,
-                "abstained": True,
+        # ★ 2026-08-19 修三处(同一个 bug 的第二现场):
+        #   ① k_ok 曾是 len(pvs_all) —— 把**弃权的 draw 也算成成功**。上一轮只修了非弃权分支。
+        #   ② 缺 k_attempted/k_valid/k_abstained/measurement_status, 下游用新键会静默兜底。
+        #   ③ draws 曾是 [] —— 逐 draw 弃权率无从计算, 通道自检失效(实际害我作废了一整轮 156 调用)。
+        return {"k_requested": k, "k_attempted": len(pvs_all), "k_valid": 0,
+                "k_abstained": n_abstain, "k_ok": 0,
+                "measurement_status": "abstain",
+                "n_abstain": n_abstain, "abstained": True,
                 "abstain_reason": next((p.get("_reason") for p in pvs_all if p.get("_reason")),
                                        "全部 draw 声明无可推断主体"),
-                "layers": {}, "tops": {}, "draws": [], "within_js": None,
+                "layers": {}, "tops": {},
+                "draws": [{"from_temperature": T, "abstained": True,
+                           "reason": pv.get("_reason", ""), "tops": {},
+                           "desire_vec": None, "need_vec": None,
+                           "emotion_vec": None, "action_vec": None, "appraisal": None}
+                          for T, pv in paired],
+                "within_js": None,
                 "caveat": ("stage1 全体弃权: 这不是「四层分布都是 0」, "
                            "而是仪器声明本次输入不构成个人表达, 不产出心理读数。")}
     avg = {L: [sum(p[L][j] for p in pvs) / len(pvs) for j in range(len(pvs[0][L]))] for L in LAYERS}

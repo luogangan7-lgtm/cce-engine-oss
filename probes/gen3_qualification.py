@@ -58,13 +58,22 @@ VERDICT_LINES = [
 
 def _rep(text):
     s1 = K.stage1(text, CTX, KK)
-    return {"k_attempted": s1.get("k_attempted", s1.get("k_ok")),
-            "k_valid": s1.get("k_valid", s1.get("k_ok")),
-            "k_abstained": s1.get("k_abstained", s1.get("n_abstain", 0)),
-            "abstained": bool(s1.get("abstained")),
-            "measurement_status": s1.get("measurement_status"),
-            "draws": [{"t": d.get("from_temperature"), "abstained": d.get("abstained")}
-                      for d in (s1.get("draws") or [])]}
+    # ★ 2026-08-19: 初版这里写的是 s1.get("k_valid", s1.get("k_ok")) —— **兜底害死了一整轮**。
+    #   stage1 的弃权分支当时没有 k_valid 键, 兜底取到 k_ok=3(它自己也把弃权算成了成功),
+    #   于是「全体弃权」被记成 k_valid=3, 通道自检读出 Nd=0, 156 次调用整轮作废。
+    #   ⇒ **对自己的 schema 禁止用 .get(key, default)**: 它把 schema 漂移变成自信的错数。
+    #      缺键就该当场炸。
+    for _need in ("k_attempted", "k_valid", "k_abstained", "measurement_status",
+                  "abstained", "draws"):
+        if _need not in s1:
+            raise KeyError(f"stage1 返回体缺 {_need} —— 禁止兜底, 缺键即失败")
+    return {"k_attempted": s1["k_attempted"],
+            "k_valid": s1["k_valid"],
+            "k_abstained": s1["k_abstained"],
+            "abstained": bool(s1["abstained"]),
+            "measurement_status": s1["measurement_status"],
+            "draws": [{"t": d["from_temperature"], "abstained": d["abstained"]}
+                      for d in s1["draws"]]}
 
 
 if __name__ == "__main__":
