@@ -1,0 +1,82 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.5,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.1,
+      "安全感欲": 0.4,
+      "向往欲": 0.0
+    },
+    "note": "作者面临听力下降和突发耳鸣的身体不适，核心激活了想摆脱当前痛苦状态的「摆脱欲」；同时因前期医生检查敷衍、用药无效，对病情恶化或误诊产生担忧，强烈激活了想消除健康风险的「安全感欲」；面对下一步医疗决策，轻微激活了想掌控自己医疗流程的「控制欲」。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "左耳闷堵且用药5天无好转，昨晚同一只耳朵开始出现耳鸣",
+      "weight": 0.4,
+      "derived_from": "由<摆脱欲>经<听力未恢复且新增耳鸣症状>衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "两次就诊均未做听力测试，仅凭一分钟检查就开过敏药，当前治疗无效导致对真实病因和预后充满不确定",
+      "weight": 0.4,
+      "derived_from": "由<安全感欲>经<前期医疗处理草率且病情出现新变化>衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "面临下周常规复诊或提前联系诊所要求转诊ENT（耳鼻喉专科）的决策节点",
+      "weight": 0.2,
+      "derived_from": "由<控制欲>经<需要决定下一步医疗行动路径>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "听力受损和耳鸣对健康目标高度相关(0.9)。病情未好转且新增耳鸣，加上前期医生未做听力测试，对健康构成「威胁」；消除痛苦和获得确诊的需求处于「未满足」状态，导致「负」向目标一致性。但作者仍有途径寻求专科医生(ENT)介入，应对潜能为「中」，因此情绪以恐惧和寻求解答为主，而非彻底绝望。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.2,
+      "fear恐惧": 0.5,
+      "sadness悲伤": 0.1,
+      "anger愤怒": 0.2
+    },
+    "note": "负向goal_congruence且需求未满足，直接推导出对听力永久受损和病情恶化的「fear恐惧」(0.5)；对医生每次只检查一分钟就开药的敷衍态度产生轻微的「anger愤怒」(0.2)；对身体不适和无奈产生「sadness悲伤」(0.1)；为了弄清到底怎么回事并寻求下一步建议，激发了在论坛发帖探讨的「curiosity好奇」(0.2)。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.3,
+      "avoidance回避": 0.0,
+      "attend关注": 0.5,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.2,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "安全感欲 →(左耳闷用药5天无效且突发耳鸣、前期医生未做听力测试的情境)→ N01_确定性 →(评价: 威胁/未满足/负, 应对潜能中)→ fear恐惧 → attend关注(发帖探讨病情并密切关注下一步转诊ENT的选项)",
+  "evidence": {
+    "desire": "my left ear became muffled", "tinnitus started in the same ear",
+    "need": "Neither appointment included a hearing test", "five days have passed... with no change in hearing",
+    "emotion": "each ear examination lasted about a minute before allergy medication was prescribed", "tinnitus started",
+    "action": "I can contact the clinic sooner to ask about placing the referral now"
+  }
+}
+```

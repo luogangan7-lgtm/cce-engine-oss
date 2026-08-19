@@ -1,0 +1,88 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.45,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.15,
+      "控制欲": 0.3,
+      "安全感欲": 0.1,
+      "向往欲": 0.0
+    },
+    "note": "观众/作者核心被激活的是摆脱欲（想摆脱耳聋和激素带来的体重增加、腹胀等痛苦状态），其次是控制欲（想通过管理饮食和作息重新掌控身体恢复节奏），以及归属欲（在痛苦中寻找同类经验以获得群体支持）和安全感欲（消除听力受损和身体失控的风险）。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "突发性耳聋及服用高剂量泼尼松导致体重增加、糖渴望和腹部膨胀的身心不适处境",
+      "weight": 0.4,
+      "derived_from": "由<摆脱欲>经<药物副作用导致身体失控与不适>衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "身体因药物副作用失控、情绪和睡眠受影响的被动处境",
+      "weight": 0.3,
+      "derived_from": "由<控制欲>经<试图通过研究饮食和作息来夺回身体主导权>衍生"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "经历罕见且痛苦的副作用时感到孤立，需要确认自己不是唯一承受这些的人",
+      "weight": 0.15,
+      "derived_from": "由<归属欲>经<寻找有相同经历的人并查看他们如何应对>衍生"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "面对激素副作用带来的未知身体反应，需要弄明白如何科学应对",
+      "weight": 0.15,
+      "derived_from": "由<安全感欲>经<搜索和研究最佳的饮食与情绪管理方法>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "药物副作用（体重增加、腹胀）对摆脱痛苦和掌控局面的需求构成了直接威胁，且当前仍在服药、尚未恢复基线（未满足），导致目标一致性为负，引发悲伤与担忧；但作者正在积极研究应对方法并寻找同类经验，具备中等应对潜能，使得情绪没有滑向彻底的绝望，而是转化为持续关注的行动。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.2,
+      "relief宽慰": 0.0,
+      "approval认同": 0.2,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.2,
+      "sadness悲伤": 0.4,
+      "anger愤怒": 0.0
+    },
+    "note": "需求受威胁且未满足（负向一致性）直接推导出高权重的sadness悲伤（对腹胀和体重增加的难过）与fear恐惧（对能否恢复基线的担忧）；同时，中等应对潜能和对他人的共情推导出love爱（My heart is with you）与approval认同（认可他人寻找经验的价值）。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.3,
+      "avoidance回避": 0.1,
+      "attend关注": 0.4,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.2
+    }
+  },
+  "chain_trace": "摆脱欲 →(突发性耳聋及服用泼尼松导致体重增加与腹胀等副作用的情境)→ 需求N06_摆脱痛苦 →(评价: 副作用构成威胁且需求未满足导致目标一致性为负，但具备中等应对潜能)→ 情绪sadness悲伤 → 行动倾向attend关注(持续研究饮食作息与他人经验以寻求恢复) 的完整一句话推导。",
+  "evidence": {
+    "desire": "woke up totally deaf in my right ear", "feel my gut balloon out",
+    "need": "researching the best ways to eat and manage my mood/sleep cycle", "looking into others experiences",
+    "emotion": "seriously tough on me", "My heart is with you",
+    "action": "keep researching", "Keep looking into others experiences"
+  }
+}
+```

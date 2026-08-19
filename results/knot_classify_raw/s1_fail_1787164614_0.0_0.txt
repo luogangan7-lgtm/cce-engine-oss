@@ -1,0 +1,82 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.5,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.2,
+      "安全感欲": 0.3,
+      "向往欲": 0.0
+    },
+    "note": "作者正经历耳朵闷、听力下降及新增的耳鸣，强烈想要摆脱这种生理痛苦(摆脱欲)；同时面对不明原因的听力受损和医生的敷衍，急需消除健康风险的不确定性(安全感欲)；并在被动的医疗流程中试图拿回下一步就医决策的主导权(控制欲)。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "左耳持续闷堵、听力下降且昨晚开始出现耳鸣的生理不适处境",
+      "weight": 0.4,
+      "derived_from": "由<摆脱欲>经<听力受损及耳鸣症状持续加重>衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "前两次就医均未做听力测试、仅凭一分钟检查就开过敏药，且吃药5天无效的原因不明处境",
+      "weight": 0.4,
+      "derived_from": "由<安全感欲>经<医疗诊断敷衍且症状恶化带来健康风险盲区>衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "在被动接受初级保健医生'等两周再看'的医嘱下，需要决定是等下周复诊还是立刻要求转诊ENT的决策处境",
+      "weight": 0.2,
+      "derived_from": "由<控制欲>经<对当前医疗方案不信任且需规划下一步行动>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "听力下降和耳鸣对健康目标构成直接威胁，且前序医疗未满足确诊和缓解的需求(威胁+未满足=负向)；但作者仍有途径通过要求转诊ENT来改变现状，应对潜能中等，这决定了情绪以恐惧和愤怒为主，并导向寻求进一步帮助的趋近行动。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.5,
+      "sadness悲伤": 0.1,
+      "anger愤怒": 0.4
+    },
+    "note": "症状加重(耳鸣)且未获明确诊断引发对听力永久受损的fear恐惧(威胁+未满足)；对医生每次只检查一分钟且不做听力测试的敷衍态度产生anger愤怒(目标受阻+归因于他人)；对身体不适的持续感到轻微sadness悲伤。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.6,
+      "avoidance回避": 0.0,
+      "attend关注": 0.1,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.3,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "安全感欲 →(左耳听力下降且新增耳鸣，而前两次就医均未做听力测试且吃药无效)→ N01_确定性 →(评价:威胁/未满足/负,应对潜能中)→ fear恐惧 → approach趋近",
+  "evidence": {
+    "desire": "my left ear became muffled", "Last night, tinnitus started in the same ear.",
+    "need": "Neither appointment included a hearing test", "request a referral to an ENT",
+    "emotion": "each ear examination lasted about a minute before allergy medication was prescribed", "five days have passed since the walk-in appointment with no change in hearing",
+    "action": "contact the clinic sooner to ask about placing the referral now"
+  }
+}
+```

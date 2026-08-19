@@ -1,0 +1,82 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.6,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.1,
+      "安全感欲": 0.3,
+      "向往欲": 0.0
+    },
+    "note": "听力受损和无力承担高昂费用激发了摆脱当前困境的欲望；面对真假难辨的广告和掠夺性贷款，激发了消除不确定性和规避风险的安全感欲；不想被高息贷款控制体现了微弱的控制欲。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "看到多个不同名称且真实性存疑的工伤听力补偿广告，需要确认其是否合法",
+      "weight": 0.4,
+      "derived_from": "由<安全感欲>经<看到多个不同名称且真实性存疑的补偿广告>衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "患有工伤听力损失和耳鸣，且无力支付高昂的助听器费用，急需缓解生理与经济双重痛苦",
+      "weight": 0.3,
+      "derived_from": "由<摆脱欲>经<患有工伤听力损失和耳鸣且无力支付高昂费用>衍生"
+    },
+    {
+      "code": "N07_占有资源",
+      "context_slot": "需要通过合法途径免费获得助听器这一具体医疗物资",
+      "weight": 0.3,
+      "derived_from": "由<摆脱欲>经<需要获得助听器以改善听力>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "广告的真实性存疑和潜在的高利贷陷阱构成了对财务和健康的明确威胁，且获取助听器的核心需求处于未满足状态，导致整体评价为负，激发恐惧与探究情绪。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.3,
+      "fear恐惧": 0.5,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.2
+    },
+    "note": "需求未满足且面临骗局/高利贷威胁(负向congruence)直接导出fear恐惧(担心被骗/负债)和anger愤怒(对高昂物价和掠夺性贷款的愤慨)；同时为了消除威胁，产生curiosity好奇以寻求真实信息。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.1,
+      "avoidance回避": 0.4,
+      "attend关注": 0.5,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "摆脱欲与安全感欲 →(面临听力受损且无力购买助听器，同时看到真实性存疑的免费补偿广告)→ N01_确定性与N06_摆脱痛苦 →(评价: 威胁/未满足/负, 应对潜能中)→ fear恐惧与curiosity好奇 → attend关注与avoidance回避",
+  "evidence": {
+    "desire": "workplace hearing loss and tinnitus", "cant afford the absolutely insane cost",
+    "need": "Are they legit??", "get you hearing aids at no cost",
+    "emotion": "predatory payment plans", "disgustingly excessive interest",
+    "action": "Has anyone tried and succeeded", "sure as hell aren't going on"
+  }
+}
+```

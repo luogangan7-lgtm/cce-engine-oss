@@ -1,0 +1,82 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.5,
+      "成为欲": 0.0,
+      "摆脱欲": 0.3,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.0,
+      "安全感欲": 0.2,
+      "向往欲": 0.0
+    },
+    "note": "发帖人核心想要获得助听设备(拥有欲)，同时想摆脱听力受损及高昂财务压力带来的痛苦(摆脱欲)，并在面对可疑广告时渴望消除被骗的风险(安全感欲)。"
+  },
+  "need_layer": [
+    {
+      "code": "N07_占有资源",
+      "context_slot": "买不起昂贵助听器但看到声称免费提供的广告",
+      "weight": 0.4,
+      "derived_from": "由<拥有欲>经<看到Facebook免费助听设备广告>衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "面对多个声称免费的Facebook广告不知真假，担心是骗局",
+      "weight": 0.4,
+      "derived_from": "由<安全感欲>经<面对可疑的免费赔付广告>衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "承受听力受损(tinnitus and deafness)及高昂价格带来的身心与财务压力",
+      "weight": 0.2,
+      "derived_from": "由<摆脱欲>经<面临健康受损与财务剥削双重困境>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "听力设备对发帖人高度相关，但高昂价格和可疑广告使其需求处于未满足状态，且面临财务剥削和欺诈的威胁，导致负向评价，从而激发恐惧、愤怒与好奇。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.4,
+      "fear恐惧": 0.4,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.2
+    },
+    "note": "需求未满足且面临欺诈与债务威胁(goal_congruence为负)引发fear恐惧；对未知服务真假的探究引发curiosity好奇；对剥削性定价的感知引发anger愤怒。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.1,
+      "avoidance回避": 0.3,
+      "attend关注": 0.6,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "拥有欲与安全感欲 →(面临买不起助听器且看到可疑免费广告的情境)→ N01_确定性与N07_占有资源 →(评价: 威胁/未满足/负向, 应对潜能中)→ fear恐惧与curiosity好奇 → attend关注(发帖询问网友以获取真实信息)",
+  "evidence": {
+    "desire": "purchasing auditory devices", "supply auditory equipment for free",
+    "need": "Are these services actually genuine? Has anybody used them and had success?",
+    "emotion": "exploitative installment schemes", "outrageously steep rates",
+    "action": "Are these services actually genuine? Has anybody used them and had success?"
+  }
+}
+```

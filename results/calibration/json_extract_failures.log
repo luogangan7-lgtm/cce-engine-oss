@@ -12835,3 +12835,1831 @@ OK writing the JSON now. Final.
 
 ===== 2026-08-20 01:57:47 knot_s1_T0.6 [empty] =====
 <EMPTY>
+
+===== 2026-08-20 02:09:29 knot_s1_T0.3 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.4,
+      "成为欲": 0.0,
+      "摆脱欲": 0.3,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.0,
+      "安全感欲": 0.3,
+      "向往欲": 0.0
+    },
+    "note": "作者核心想要获得助听设备(拥有欲)，同时想摆脱听力受损及被高昂价格剥削的痛苦状态(摆脱欲)，并在面对未知广告时想消除被骗的风险与不确定性(安全感欲)。"
+  },
+  "need_layer": [
+    {
+      "code": "N07_占有资源",
+      "context_slot": "在买不起独立购买的助听器且拒绝高利贷分期时，想要免费或低成本获得助听设备",
+      "weight": 0.4,
+      "derived_from": "由<拥有欲>经<无力支付高昂原价且排斥剥削性贷款>情境衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "在看到Facebook上声称免费提供设备的职业性耳聋赔偿广告时，想要确认这些服务是否真实可靠",
+      "weight": 0.4,
+      "derived_from": "由<安全感欲>经<面对多个声称免费的陌生公司广告>情境衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "在承受听力问题以及市场定价过高带来的财务与心理双重压力时，想要缓解这种被剥削的不适感",
+      "weight": 0.2,
+      "derived_from": "由<摆脱欲>经<面临ridiculous price和exploitative schemes>情境衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "目标高度相关(0.9)，但当前面临高昂价格和潜在骗局的双重威胁(congruence_direction=威胁)，且尚未获得设备或确认真假(need_status=未满足)，导致负向评价(goal_congruence=负)；作者通过发帖求助具备一定的应对策略(coping_potential=中)，促使情绪向恐惧与愤怒倾斜。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.2,
+      "fear恐惧": 0.4,
+      "sadness悲伤": 0.1,
+      "anger愤怒": 0.3
+    },
+    "note": "需求未满足且面临威胁(负向评价)导出fear恐惧(怕被骗/怕陷入债务)和anger愤怒(对高昂价格和剥削性贷款的愤慨)；中等应对潜能导出curiosity好奇(想知道广告是否真实)，以及轻微的sadness悲伤(对买不起设备的无奈)。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.2,
+      "avoidance回避": 0.3,
+      "attend关注": 0.5,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "安全感欲 →(看到Facebook免费助听器广告且自身无力支付高昂原价的情境)→ N01_确定性 →(评价:方向威胁/状态未满足/目标负向,应对潜能中)→ fear恐惧 → attend关注(发帖询问他人经验以消除不确定性)",
+  "evidence": {
+    "desire": "purchasing auditory devices independently", "supply auditory equipment for free",
+    "need": "Are these services actually genuine?", "cannot pay the ridiculous price",
+    "emotion": "exploitative installment schemes", "outrageously steep rates",
+    "action": "Has anybody used them and had success?"
+  }
+}
+```
+
+===== 2026-08-20 02:11:05 knot_s1_T0.6 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.5,
+      "成为欲": 0.0,
+      "摆脱欲": 0.3,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.0,
+      "安全感欲": 0.2,
+      "向往欲": 0.0
+    },
+    "note": "发帖人核心想要获得助听设备(拥有欲)，同时想摆脱听力受损及高昂财务压力带来的痛苦(摆脱欲)，并在面对可疑广告时渴望消除被骗的风险(安全感欲)。"
+  },
+  "need_layer": [
+    {
+      "code": "N07_占有资源",
+      "context_slot": "买不起昂贵助听器但看到声称免费提供的广告",
+      "weight": 0.4,
+      "derived_from": "由<拥有欲>经<看到Facebook免费助听设备广告>衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "面对多个声称免费的Facebook广告不知真假，担心是骗局",
+      "weight": 0.4,
+      "derived_from": "由<安全感欲>经<面对可疑的免费赔付广告>衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "承受听力受损(tinnitus and deafness)及高昂价格带来的身心与财务压力",
+      "weight": 0.2,
+      "derived_from": "由<摆脱欲>经<面临健康受损与财务剥削双重困境>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "听力设备对发帖人高度相关，但高昂价格和可疑广告使其需求处于未满足状态，且面临财务剥削和欺诈的威胁，导致负向评价，从而激发恐惧、愤怒与好奇。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.4,
+      "fear恐惧": 0.4,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.2
+    },
+    "note": "需求未满足且面临欺诈与债务威胁(goal_congruence为负)引发fear恐惧；对未知服务真假的探究引发curiosity好奇；对剥削性定价的感知引发anger愤怒。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.1,
+      "avoidance回避": 0.3,
+      "attend关注": 0.6,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "拥有欲与安全感欲 →(面临买不起助听器且看到可疑免费广告的情境)→ N01_确定性与N07_占有资源 →(评价: 威胁/未满足/负向, 应对潜能中)→ fear恐惧与curiosity好奇 → attend关注(发帖询问网友以获取真实信息)",
+  "evidence": {
+    "desire": "purchasing auditory devices", "supply auditory equipment for free",
+    "need": "Are these services actually genuine? Has anybody used them and had success?",
+    "emotion": "exploitative installment schemes", "outrageously steep rates",
+    "action": "Are these services actually genuine? Has anybody used them and had success?"
+  }
+}
+```
+
+===== 2026-08-20 02:12:32 knot_s1_T0.6 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.2,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.5,
+      "安全感欲": 0.3,
+      "向往欲": 0.0
+    },
+    "note": "患者面临听力下降及潜在严重疾病（肿瘤）的威胁，核心激活了消除未知恐惧的「安全感欲」；同时通过带问题清单、订购助听器、停用不合适设备，强烈体现了重新掌控自身健康与生活节奏的「控制欲」；部分激活了想摆脱听力受损不便的「摆脱欲」。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "面对听力下降原因不明及疑似肿瘤的医疗排查情境",
+      "weight": 0.4,
+      "derived_from": "由<安全感欲>经<做MRI排查肿瘤及确诊听力损失类型>衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "在既往可能沟通不畅的就医经历后，需要夺回医患沟通与听力管理主导权的情境",
+      "weight": 0.4,
+      "derived_from": "由<控制欲>经<带书面问题清单就诊并得到详细解答、自主决定退役AirPods>衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "双侧感音神经性听力损失导致日常听觉受限的情境",
+      "weight": 0.2,
+      "derived_from": "由<摆脱欲>经<订购助听器以干预听力损失>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "MRI排除肿瘤且确诊病因（促进+已满足），带问题清单获得了医生的详细解答（促进+已满足），应对潜能极高（有明确诊断和干预计划），整体评价为高度正向，直接推导出强烈的宽慰感与自我效能感。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.1,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.2,
+      "love爱": 0.0,
+      "relief宽慰": 0.5,
+      "approval认同": 0.2,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.0
+    },
+    "note": "MRI无肿瘤且确诊带来强烈的「relief宽慰」；自己这次准备充分（带问题清单）并获得有效沟通，产生了对自我行为的「pride自豪」；对听力师详细解答的专业服务产生「approval认同」；事情顺利推进带来轻微「joy喜悦」。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.5,
+      "avoidance回避": 0.0,
+      "attend关注": 0.3,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.2
+    }
+  },
+  "chain_trace": "安全感欲与控制欲 →(面临听力下降及排查肿瘤的就医情境)→ N01_确定性与N02_掌控局面 →(评价: 促进/已满足/正, 高应对潜能)→ relief宽慰与pride自豪 → approach趋近。",
+  "evidence": {
+    "desire": "MRI showed no tumour", "Brought a written list of questions",
+    "need": "MRI showed no tumour", "Brought a written list of questions this time, audiologist answered each one in detail", "hearing aids ordered",
+    "emotion": "MRI showed no tumour", "audiologist answered each one in detail",
+    "action": "hearing aids ordered, fitting scheduled for Thursday", "Retired the AirPods"
+  }
+}
+```
+
+===== 2026-08-20 02:12:34 knot_s1_T0.3 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.2,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.4,
+      "安全感欲": 0.4,
+      "向往欲": 0.0
+    },
+    "note": "作者面临听力下降及未知病因，核心诉求是排除严重疾病风险（安全感欲），并通过主动提问和获取干预方案来重新掌控自己的健康状况（控制欲），同时希望减轻听力受损带来的生活不便（摆脱欲）。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "听力下降且原因不明，等待MRI和ENT检查结果的处境",
+      "weight": 0.4,
+      "derived_from": "由<安全感欲>经<面临未知病因的就医检查情境>衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "在医疗沟通中处于信息弱势，需要明确后续治疗方案的处境",
+      "weight": 0.4,
+      "derived_from": "由<控制欲>经<带问题清单就诊并与医生详细沟通的情境>衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "承受双侧感音神经性听力损失及长期耳鸣带来的生活不适",
+      "weight": 0.2,
+      "derived_from": "由<摆脱欲>经<确诊听力损失并寻求助听器干预的情境>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "MRI排除肿瘤且医生详细解答了问题，内容高度相关且促进了确定性与掌控感的需求，需求在当下得到满足，评价为正向；有了明确的诊断和助听器方案，应对潜能高，从而引发宽慰等正向情绪。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.2,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.5,
+      "approval认同": 0.2,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.1,
+      "anger愤怒": 0.0
+    },
+    "note": "排除肿瘤和获得详细解答（促进+已满足）直接推导出强烈的relief宽慰和joy喜悦，对医生的专业解答产生approval认同；而耳鸣未变和退役旧设备则带来轻微的sadness悲伤（丧失感）。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.6,
+      "avoidance回避": 0.1,
+      "attend关注": 0.3,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "安全感欲 →(面临听力下降及未知病因的就医情境)→ N01_确定性 →(评价:促进/已满足/正,高应对潜能)→ relief宽慰 → approach趋近",
+  "evidence": {
+    "desire": "MRI showed no tumour", "Brought a written list of questions",
+    "need": "Bilateral sensorineural hearing loss confirmed", "audiologist answered each one in detail",
+    "emotion": "MRI showed no tumour", "Tinnitus unchanged since age 17",
+    "action": "hearing aids ordered, fitting scheduled", "Retired the AirPods"
+  }
+}
+```
+
+===== 2026-08-20 02:21:15 knot_s1_T0.3 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.5,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.3,
+      "安全感欲": 0.2,
+      "向往欲": 0.0
+    },
+    "note": "作者正经历听力下降和耳鸣的身体不适，强烈想要摆脱这种痛苦状态（摆脱欲）；同时面对医生敷衍的检查，想要夺回对自己健康医疗决策的主导权（控制欲），并消除听力可能永久受损的未知风险（安全感欲）。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "左耳闷且吃药5天无效，昨晚同一只耳朵又开始耳鸣",
+      "weight": 0.4,
+      "derived_from": "由<摆脱欲>经<听力未恢复且新增耳鸣症状>衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "前期两次就诊医生均只检查一分钟且未做听力测试，作者需要决定是下周复诊提转诊还是现在联系诊所",
+      "weight": 0.3,
+      "derived_from": "由<控制欲>经<医疗过程被动且医生敷衍>衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "有多年过敏史但以前没听力下降，目前吃药无效且出现新症状，需要明确到底是不是过敏引起的",
+      "weight": 0.3,
+      "derived_from": "由<安全感欲>经<病情不明且常规治疗无效>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "听力恶化与新增耳鸣构成直接健康威胁(congruence_direction=威胁)，且前期医疗敷衍导致痛苦与掌控需求均未满足(need_status=未满足)，导出负向目标一致性(goal_congruence=负)；但作者仍有复诊预约可主动要求转诊，具备一定应对能力(coping_potential=中)，因此激发出以恐惧和愤怒为主的高强度负向情绪，而非彻底绝望。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.1,
+      "fear恐惧": 0.5,
+      "sadness悲伤": 0.1,
+      "anger愤怒": 0.3
+    },
+    "note": "需求未满足且面临健康威胁(负向一致性)直接导出fear恐惧(对听力受损的担忧)和anger愤怒(对医生敷衍了事的不满)；中等应对潜能保留了curiosity好奇(探索下一步最优就医策略)，少量sadness悲伤源于对身体机能下降的无奈。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.5,
+      "avoidance回避": 0.0,
+      "attend关注": 0.2,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.3,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "摆脱欲与控制欲 →(左耳闷吃药无效且新增耳鸣、前期医生检查仅一分钟未做听力测试的情境)→ 需求N06_摆脱痛苦与N02_掌控局面 →(评价:方向为威胁、需求未满足、目标一致性为负、应对潜能为中)→ 情绪fear恐惧与anger愤怒 → 行动倾向approach趋近与agonistic对抗",
+  "evidence": {
+    "desire": "my left ear became muffled", "tinnitus started in the same ear", "each ear examination lasted about a minute",
+    "need": "five days have passed since the walk-in appointment with no change in hearing", "request a referral to an ENT",
+    "emotion": "Neither appointment included a hearing test", "Last night, tinnitus started",
+    "action": "I can contact the clinic sooner to ask about placing the referral now"
+  }
+}
+```
+
+===== 2026-08-20 02:31:33 knot_s1_T0.0 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.5,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.1,
+      "安全感欲": 0.4,
+      "向往欲": 0.0
+    },
+    "note": "作者面临听力下降和突发耳鸣的身体不适，核心激活了想摆脱当前痛苦状态的「摆脱欲」；同时因前期医生检查敷衍、用药无效，对病情恶化或误诊产生担忧，强烈激活了想消除健康风险的「安全感欲」；面对下一步医疗决策，轻微激活了想掌控自己医疗流程的「控制欲」。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "左耳闷堵且用药5天无好转，昨晚同一只耳朵开始出现耳鸣",
+      "weight": 0.4,
+      "derived_from": "由<摆脱欲>经<听力未恢复且新增耳鸣症状>衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "两次就诊均未做听力测试，仅凭一分钟检查就开过敏药，当前治疗无效导致对真实病因和预后充满不确定",
+      "weight": 0.4,
+      "derived_from": "由<安全感欲>经<前期医疗处理草率且病情出现新变化>衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "面临下周常规复诊或提前联系诊所要求转诊ENT（耳鼻喉专科）的决策节点",
+      "weight": 0.2,
+      "derived_from": "由<控制欲>经<需要决定下一步医疗行动路径>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "听力受损和耳鸣对健康目标高度相关(0.9)。病情未好转且新增耳鸣，加上前期医生未做听力测试，对健康构成「威胁」；消除痛苦和获得确诊的需求处于「未满足」状态，导致「负」向目标一致性。但作者仍有途径寻求专科医生(ENT)介入，应对潜能为「中」，因此情绪以恐惧和寻求解答为主，而非彻底绝望。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.2,
+      "fear恐惧": 0.5,
+      "sadness悲伤": 0.1,
+      "anger愤怒": 0.2
+    },
+    "note": "负向goal_congruence且需求未满足，直接推导出对听力永久受损和病情恶化的「fear恐惧」(0.5)；对医生每次只检查一分钟就开药的敷衍态度产生轻微的「anger愤怒」(0.2)；对身体不适和无奈产生「sadness悲伤」(0.1)；为了弄清到底怎么回事并寻求下一步建议，激发了在论坛发帖探讨的「curiosity好奇」(0.2)。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.3,
+      "avoidance回避": 0.0,
+      "attend关注": 0.5,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.2,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "安全感欲 →(左耳闷用药5天无效且突发耳鸣、前期医生未做听力测试的情境)→ N01_确定性 →(评价: 威胁/未满足/负, 应对潜能中)→ fear恐惧 → attend关注(发帖探讨病情并密切关注下一步转诊ENT的选项)",
+  "evidence": {
+    "desire": "my left ear became muffled", "tinnitus started in the same ear",
+    "need": "Neither appointment included a hearing test", "five days have passed... with no change in hearing",
+    "emotion": "each ear examination lasted about a minute before allergy medication was prescribed", "tinnitus started",
+    "action": "I can contact the clinic sooner to ask about placing the referral now"
+  }
+}
+```
+
+===== 2026-08-20 02:36:54 knot_s1_T0.0 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.5,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.2,
+      "安全感欲": 0.3,
+      "向往欲": 0.0
+    },
+    "note": "作者正经历耳朵闷、听力下降及新增的耳鸣，强烈想要摆脱这种生理痛苦(摆脱欲)；同时面对不明原因的听力受损和医生的敷衍，急需消除健康风险的不确定性(安全感欲)；并在被动的医疗流程中试图拿回下一步就医决策的主导权(控制欲)。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "左耳持续闷堵、听力下降且昨晚开始出现耳鸣的生理不适处境",
+      "weight": 0.4,
+      "derived_from": "由<摆脱欲>经<听力受损及耳鸣症状持续加重>衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "前两次就医均未做听力测试、仅凭一分钟检查就开过敏药，且吃药5天无效的原因不明处境",
+      "weight": 0.4,
+      "derived_from": "由<安全感欲>经<医疗诊断敷衍且症状恶化带来健康风险盲区>衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "在被动接受初级保健医生'等两周再看'的医嘱下，需要决定是等下周复诊还是立刻要求转诊ENT的决策处境",
+      "weight": 0.2,
+      "derived_from": "由<控制欲>经<对当前医疗方案不信任且需规划下一步行动>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "听力下降和耳鸣对健康目标构成直接威胁，且前序医疗未满足确诊和缓解的需求(威胁+未满足=负向)；但作者仍有途径通过要求转诊ENT来改变现状，应对潜能中等，这决定了情绪以恐惧和愤怒为主，并导向寻求进一步帮助的趋近行动。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.5,
+      "sadness悲伤": 0.1,
+      "anger愤怒": 0.4
+    },
+    "note": "症状加重(耳鸣)且未获明确诊断引发对听力永久受损的fear恐惧(威胁+未满足)；对医生每次只检查一分钟且不做听力测试的敷衍态度产生anger愤怒(目标受阻+归因于他人)；对身体不适的持续感到轻微sadness悲伤。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.6,
+      "avoidance回避": 0.0,
+      "attend关注": 0.1,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.3,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "安全感欲 →(左耳听力下降且新增耳鸣，而前两次就医均未做听力测试且吃药无效)→ N01_确定性 →(评价:威胁/未满足/负,应对潜能中)→ fear恐惧 → approach趋近",
+  "evidence": {
+    "desire": "my left ear became muffled", "Last night, tinnitus started in the same ear.",
+    "need": "Neither appointment included a hearing test", "request a referral to an ENT",
+    "emotion": "each ear examination lasted about a minute before allergy medication was prescribed", "five days have passed since the walk-in appointment with no change in hearing",
+    "action": "contact the clinic sooner to ask about placing the referral now"
+  }
+}
+```
+
+===== 2026-08-20 02:37:14 knot_s1_T0.0 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.4,
+      "确认欲": 0.2,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.3,
+      "安全感欲": 0.1,
+      "向往欲": 0.0
+    },
+    "note": "观众面临听力下降及社会病耻感，核心被激活的是想摆脱当前沟通困境与心理负担的'摆脱欲'，想掌控自身健康与选择的'控制欲'，以及想确认佩戴助听器是正确选择的'确认欲'。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "正面临听力损失带来的沟通挑战和心理病耻感(stigma)",
+      "weight": 0.4,
+      "derived_from": "由<摆脱欲>经<面临听力挑战与病耻感情境>衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "面对听力下降和选择助听器时的未知与风险",
+      "weight": 0.3,
+      "derived_from": "由<控制欲>经<需要选择助听器且缺乏专业信息的情境>衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "对佩戴助听器感到羞耻或犹豫，需要专业背书来确认这是正确的",
+      "weight": 0.2,
+      "derived_from": "由<确认欲>经<面对助听器社会病耻感的情境>衍生"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "对听力损失的机制和助听器的工作原理有认知缺口",
+      "weight": 0.1,
+      "derived_from": "由<控制欲>经<想要理解自身听力状况的情境>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.85,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "内容提供了专业支持与克服病耻感的承诺，对目标受众高度相关且方向为促进；预告本身带来了心理上的确定感与接纳(已满足)，使目标一致性为正，且专家答疑提供了极高的应对潜能，从而推导出宽慰、认同与好奇等正向情绪。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.1,
+      "gratitude感激": 0.1,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.2,
+      "approval认同": 0.3,
+      "curiosity好奇": 0.3,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.0
+    },
+    "note": "需求(摆脱痛苦/获得确定性)在促进且已满足(获得专业支持承诺)的评价下，推导出对专家理念的approval认同、对改善生活的relief宽慰，以及对即将提问的curiosity好奇和joy喜悦。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.6,
+      "avoidance回避": 0.0,
+      "attend关注": 0.4,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "摆脱欲 →(面临听力损失挑战与助听器病耻感情境)→ N06_摆脱痛苦 →(评价:促进/已满足/正,高应对潜能)→ relief宽慰与approval认同 → approach趋近",
+  "evidence": {
+    "desire": "navigate the challenges that come with hearing loss", "overcome the stigma",
+    "need": "understand their hearing, choose hearing aids",
+    "emotion": "improve confidence, and overall quality of life", "overcome the stigma",
+    "action": "answering your questions on August 20th"
+  }
+}
+```
+
+===== 2026-08-20 02:47:21 knot_s1_T0.3 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.6,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.1,
+      "安全感欲": 0.3,
+      "向往欲": 0.0
+    },
+    "note": "患者左耳闷堵、听力下降且新增耳鸣，核心诉求是摆脱当前的生理痛苦状态（摆脱欲），同时担心听力永久受损或病情恶化，渴望消除健康风险与不确定性（安全感欲），并希望通过主动干预掌控自己的健康走向（控制欲）。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "左耳闷堵5天未好转且昨晚开始出现耳鸣的生理不适处境",
+      "weight": 0.5,
+      "derived_from": "由<摆脱欲>经<飞行后耳部症状持续且加重>衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "使用鼻喷剂5天无效且新增耳鸣，不知道听力是否能恢复、风险到底多大的处境",
+      "weight": 0.3,
+      "derived_from": "由<安全感欲>经<治疗方案无效且症状出现新变化>衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "初级保健医生未做听力测试且仅被动安排两周后复诊，患者处于被动等待的处境",
+      "weight": 0.2,
+      "derived_from": "由<控制欲>经<医疗处置消极导致局面失控>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 1.0,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "听力未恢复且新增耳鸣直接威胁健康目标（威胁），且当前的医疗方案未能解决痛苦和不确定性（未满足），导致强烈的负向评价；但患者认为自己仍能通过要求转诊或提前复诊来改变现状，具备一定的应对潜能（中），从而将情绪转化为主动求助而非彻底绝望。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.6,
+      "sadness悲伤": 0.1,
+      "anger愤怒": 0.3
+    },
+    "note": "症状加重（新增耳鸣）且治疗无效触发了对健康受损的强烈担忧（fear恐惧）；初级保健医生未做听力测试且仅让被动等待两周的不作为，引发了对医疗处置的不满（anger愤怒）；对健康状况下降产生轻微失落（sadness悲伤）。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.6,
+      "avoidance回避": 0.0,
+      "attend关注": 0.1,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.3,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "摆脱欲与安全感欲 →(飞行后左耳闷堵5天未好转且新增耳鸣，而首诊医生仅安排两周后复诊)→ N06_摆脱痛苦与N01_确定性 →(评价:威胁/未满足/负, coping中)→ fear恐惧与anger愤怒 → approach趋近与agonistic对抗 (主动打电话要求提前复诊或转诊ENT)。",
+  "evidence": {
+    "desire": "left ear became muffled", "ringing sound began",
+    "need": "asked whether an earlier recheck or an ENT referral could be arranged",
+    "emotion": "hearing level has not changed", "ringing sound began",
+    "action": "called the primary-care office and asked whether an earlier recheck or an ENT referral could be arranged"
+  }
+}
+```
+
+===== 2026-08-20 02:51:28 knot_s1_T0.3 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.45,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.15,
+      "控制欲": 0.3,
+      "安全感欲": 0.1,
+      "向往欲": 0.0
+    },
+    "note": "观众/作者核心被激活的是摆脱欲（想摆脱耳聋和激素带来的体重增加、腹胀等痛苦状态），其次是控制欲（想通过管理饮食和作息重新掌控身体恢复节奏），以及归属欲（在痛苦中寻找同类经验以获得群体支持）和安全感欲（消除听力受损和身体失控的风险）。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "突发性耳聋及服用高剂量泼尼松导致体重增加、糖渴望和腹部膨胀的身心不适处境",
+      "weight": 0.4,
+      "derived_from": "由<摆脱欲>经<药物副作用导致身体失控与不适>衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "身体因药物副作用失控、情绪和睡眠受影响的被动处境",
+      "weight": 0.3,
+      "derived_from": "由<控制欲>经<试图通过研究饮食和作息来夺回身体主导权>衍生"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "经历罕见且痛苦的副作用时感到孤立，需要确认自己不是唯一承受这些的人",
+      "weight": 0.15,
+      "derived_from": "由<归属欲>经<寻找有相同经历的人并查看他们如何应对>衍生"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "面对激素副作用带来的未知身体反应，需要弄明白如何科学应对",
+      "weight": 0.15,
+      "derived_from": "由<安全感欲>经<搜索和研究最佳的饮食与情绪管理方法>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "药物副作用（体重增加、腹胀）对摆脱痛苦和掌控局面的需求构成了直接威胁，且当前仍在服药、尚未恢复基线（未满足），导致目标一致性为负，引发悲伤与担忧；但作者正在积极研究应对方法并寻找同类经验，具备中等应对潜能，使得情绪没有滑向彻底的绝望，而是转化为持续关注的行动。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.2,
+      "relief宽慰": 0.0,
+      "approval认同": 0.2,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.2,
+      "sadness悲伤": 0.4,
+      "anger愤怒": 0.0
+    },
+    "note": "需求受威胁且未满足（负向一致性）直接推导出高权重的sadness悲伤（对腹胀和体重增加的难过）与fear恐惧（对能否恢复基线的担忧）；同时，中等应对潜能和对他人的共情推导出love爱（My heart is with you）与approval认同（认可他人寻找经验的价值）。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.3,
+      "avoidance回避": 0.1,
+      "attend关注": 0.4,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.2
+    }
+  },
+  "chain_trace": "摆脱欲 →(突发性耳聋及服用泼尼松导致体重增加与腹胀等副作用的情境)→ 需求N06_摆脱痛苦 →(评价: 副作用构成威胁且需求未满足导致目标一致性为负，但具备中等应对潜能)→ 情绪sadness悲伤 → 行动倾向attend关注(持续研究饮食作息与他人经验以寻求恢复) 的完整一句话推导。",
+  "evidence": {
+    "desire": "woke up totally deaf in my right ear", "feel my gut balloon out",
+    "need": "researching the best ways to eat and manage my mood/sleep cycle", "looking into others experiences",
+    "emotion": "seriously tough on me", "My heart is with you",
+    "action": "keep researching", "Keep looking into others experiences"
+  }
+}
+```
+
+===== 2026-08-20 02:53:26 knot_s1_T0.3 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.6,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.1,
+      "安全感欲": 0.3,
+      "向往欲": 0.0
+    },
+    "note": "听力受损和无力承担高昂费用激发了摆脱当前困境的欲望；面对真假难辨的广告和掠夺性贷款，激发了消除不确定性和规避风险的安全感欲；不想被高息贷款控制体现了微弱的控制欲。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "看到多个不同名称且真实性存疑的工伤听力补偿广告，需要确认其是否合法",
+      "weight": 0.4,
+      "derived_from": "由<安全感欲>经<看到多个不同名称且真实性存疑的补偿广告>衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "患有工伤听力损失和耳鸣，且无力支付高昂的助听器费用，急需缓解生理与经济双重痛苦",
+      "weight": 0.3,
+      "derived_from": "由<摆脱欲>经<患有工伤听力损失和耳鸣且无力支付高昂费用>衍生"
+    },
+    {
+      "code": "N07_占有资源",
+      "context_slot": "需要通过合法途径免费获得助听器这一具体医疗物资",
+      "weight": 0.3,
+      "derived_from": "由<摆脱欲>经<需要获得助听器以改善听力>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "广告的真实性存疑和潜在的高利贷陷阱构成了对财务和健康的明确威胁，且获取助听器的核心需求处于未满足状态，导致整体评价为负，激发恐惧与探究情绪。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.3,
+      "fear恐惧": 0.5,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.2
+    },
+    "note": "需求未满足且面临骗局/高利贷威胁(负向congruence)直接导出fear恐惧(担心被骗/负债)和anger愤怒(对高昂物价和掠夺性贷款的愤慨)；同时为了消除威胁，产生curiosity好奇以寻求真实信息。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.1,
+      "avoidance回避": 0.4,
+      "attend关注": 0.5,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "摆脱欲与安全感欲 →(面临听力受损且无力购买助听器，同时看到真实性存疑的免费补偿广告)→ N01_确定性与N06_摆脱痛苦 →(评价: 威胁/未满足/负, 应对潜能中)→ fear恐惧与curiosity好奇 → attend关注与avoidance回避",
+  "evidence": {
+    "desire": "workplace hearing loss and tinnitus", "cant afford the absolutely insane cost",
+    "need": "Are they legit??", "get you hearing aids at no cost",
+    "emotion": "predatory payment plans", "disgustingly excessive interest",
+    "action": "Has anyone tried and succeeded", "sure as hell aren't going on"
+  }
+}
+```
+
+===== 2026-08-20 03:02:28 knot_s1_T0.6 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.5,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.15,
+      "安全感欲": 0.35,
+      "向往欲": 0.0
+    },
+    "note": "作者正经历听力下降和耳鸣的身体不适，强烈渴望摆脱这种痛苦状态（摆脱欲）；同时面对病情未好转和初级医疗安排的滞后，渴望消除健康风险与不确定性（安全感欲）；并在就医流程中试图夺回对自己健康管理的主动权（控制欲）。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "左耳持续闷堵、听力未恢复且新增耳鸣的生理不适处境",
+      "weight": 0.4,
+      "derived_from": "由<摆脱欲>经<飞行后左耳闷且用药5天无效、新增耳鸣>衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "用药5天无效且初级医生未做听力测试，面临听力可能永久受损的风险处境",
+      "weight": 0.4,
+      "derived_from": "由<安全感欲>经<初级保健医生未做听力测试且安排两周后复诊>衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "医生被动安排两周后复诊，患者认为时间过长需要干预的就医流程处境",
+      "weight": 0.2,
+      "derived_from": "由<控制欲>经<主动打电话要求提前复诊或转诊ENT>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 1.0,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "听力未恢复且新增耳鸣对健康目标构成直接威胁，当前医疗方案未能满足摆脱痛苦和获得确定性的需求（未满足），导致负向评价；但作者主动联系诊所要求转诊，展现出一定的应对潜能（中），而非完全无助。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.6,
+      "sadness悲伤": 0.2,
+      "anger愤怒": 0.2
+    },
+    "note": "需求受阻且面临健康威胁（负向评价）直接激发了对听力永久受损的担忧（fear恐惧）；对听力丧失和耳鸣的无奈引发失落（sadness悲伤）；对治疗无效及初级医生未做听力测试且拖延复诊产生轻微挫败与不满（anger愤怒）。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.5,
+      "avoidance回避": 0.0,
+      "attend关注": 0.3,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.2,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    },
+    "note": "面对中等应对潜能的负向情境，作者采取主动寻求解决的策略（approach趋近），密切关注自身症状变化（attend关注），并对现有的保守医疗安排提出异议以争取更好资源（agonistic对抗）。"
+  },
+  "chain_trace": "摆脱欲与安全感欲 →(飞行后左耳闷且用药5天无效、新增耳鸣的情境)→ N06_摆脱痛苦与N01_确定性需求 →(评价: 威胁/未满足/负向, 应对潜能中)→ fear恐惧情绪 → approach趋近与agonistic对抗行动倾向。",
+  "evidence": {
+    "desire": "my left ear became muffled", "a ringing sound began",
+    "need": "asked whether an earlier recheck or an ENT referral could be arranged",
+    "emotion": "the hearing level has not changed. Last night, a ringing sound began",
+    "action": "I called the primary-care office and asked whether an earlier recheck or an ENT referral could be arranged."
+  }
+}
+```
+
+===== 2026-08-20 03:03:18 knot_s1_T0.6 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.5,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.2,
+      "安全感欲": 0.3,
+      "向往欲": 0.0
+    },
+    "note": "发帖人正经历耳朵闷塞与耳鸣的生理不适，强烈渴望摆脱这种痛苦状态（摆脱欲）；同时面对听力未恢复和病情变化，渴望消除健康受损的不确定性与风险（安全感欲）；在医疗系统被动等待中，渴望重新掌控自己的就医进程和健康（控制欲）。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "左耳闷塞持续5天未缓解，且新增了耳鸣症状",
+      "weight": 0.4,
+      "derived_from": "由<摆脱欲>经<飞行后耳朵闷塞且用药无效并出现耳鸣>衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "初级保健医生未做听力测试且让等两周，自己不知道听力是否会永久受损",
+      "weight": 0.4,
+      "derived_from": "由<安全感欲>经<医疗评估不充分且症状加重>衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "在常规复诊流程中处于被动等待状态，需要主动推动医疗进程",
+      "weight": 0.2,
+      "derived_from": "由<控制欲>经<被安排两周后复诊但症状恶化>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 1.0,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "听力问题直接威胁核心健康目标（高相关度），症状加重且医生未做充分检查构成明确威胁（方向=威胁），痛苦和不确定性均未解决（状态=未满足），导致负向目标一致性；但患者仍有能力主动打电话要求转诊，具备中等应对潜能。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.5,
+      "sadness悲伤": 0.2,
+      "anger愤怒": 0.3
+    },
+    "note": "需求未满足且面临健康威胁，催生了担心听力永久受损的fear恐惧（主情绪）；对PCP不作为（未做听力测试、消极等待）产生anger愤怒；对身体持续不适和求医不顺感到sadness悲伤。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.5,
+      "avoidance回避": 0.0,
+      "attend关注": 0.2,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.3,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "摆脱欲与安全感欲 →(飞行后左耳闷塞且用药五天无效并新增耳鸣的情境)→ 需求N06_摆脱痛苦与N01_确定性 →(评价:方向威胁/状态未满足/目标负向/应对潜能中)→ 情绪fear恐惧与anger愤怒 → 行动倾向approach趋近与agonistic对抗。",
+  "evidence": {
+    "desire": "left ear became muffled", "ringing sound began",
+    "need": "hearing level has not changed", "asked whether an earlier recheck or an ENT referral could be arranged",
+    "emotion": "did not perform a hearing test", "hearing level has not changed",
+    "action": "called the primary-care office and asked whether an earlier recheck or an ENT referral could be arranged"
+  }
+}
+```
+
+===== 2026-08-20 03:04:42 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:03 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:14 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:14 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:16 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:23 knot_s2_d2 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:23 knot_s2_d4 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:23 knot_s2_d3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:23 knot_s2_d1 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:26 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:26 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:28 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:28 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:28 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:35 knot_s2_d3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:35 knot_s2_d4 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:35 knot_s2_d1 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:35 knot_s2_d2 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:39 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:39 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:39 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:39 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:39 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:41 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:41 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:48 knot_s2_d4 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:48 knot_s2_d3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:48 knot_s2_d2 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:48 knot_s2_d1 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:49 knot_s2_d1 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:49 knot_s2_d4 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:49 knot_s2_d2 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:49 knot_s2_d0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:49 knot_s2_d3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:52 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:52 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:52 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:53 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:05:54 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:00 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:00 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:01 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:02 knot_s2_d1 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:02 knot_s2_d2 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:02 knot_s2_d0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:02 knot_s2_d4 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:02 knot_s2_d3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:03 knot_s2_d0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:03 knot_s2_d4 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:03 knot_s2_d2 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:03 knot_s2_d3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:04 knot_s2_d1 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:04 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:04 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:04 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:07 knot_s2_d2 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:07 knot_s2_d0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:07 knot_s2_d1 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:07 knot_s2_d3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:07 knot_s2_d4 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:07 knot_s2_d3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:07 knot_s2_d1 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:07 knot_s2_d0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:07 knot_s2_d4 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:07 knot_s2_d2 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:11 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:11 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:11 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:13 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:13 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:13 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:14 knot_s2_d1 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:14 knot_s2_d2 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:14 knot_s2_d0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:14 knot_s2_d4 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:14 knot_s2_d3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:16 knot_s2_d0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:16 knot_s2_d2 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:16 knot_s2_d3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:16 knot_s2_d4 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:16 knot_s2_d1 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:19 knot_s2_d0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:19 knot_s2_d2 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:19 knot_s2_d1 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:19 knot_s2_d4 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:19 knot_s2_d3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:19 knot_s2_d1 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:19 knot_s2_d0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:19 knot_s2_d3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:19 knot_s2_d4 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:19 knot_s2_d2 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:22 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:22 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:22 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:24 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:24 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:24 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:26 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:26 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:26 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:28 knot_s2_d0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:28 knot_s2_d3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:29 knot_s2_d4 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:29 knot_s2_d2 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:29 knot_s2_d1 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:32 knot_s2_d2 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:32 knot_s2_d0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:32 knot_s2_d4 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:32 knot_s2_d1 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:32 knot_s2_d3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:32 knot_s2_d1 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:32 knot_s2_d3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:32 knot_s2_d0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:32 knot_s2_d4 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:32 knot_s2_d2 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:32 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:32 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:33 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:34 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:34 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:34 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:36 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:36 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:36 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:43 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:43 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:43 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:45 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:45 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:45 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:47 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:47 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:47 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:54 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:54 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:54 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:56 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:56 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:56 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:58 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:58 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:06:58 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:04 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:05 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:05 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:06 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:06 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:06 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:08 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:08 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:08 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:15 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:15 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:15 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:17 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:17 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:17 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:19 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:19 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:19 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:26 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:26 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:26 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:28 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:28 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:28 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:30 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:30 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:30 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:36 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:36 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:36 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:38 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:38 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:39 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:40 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:40 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:41 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:47 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:47 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:47 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:49 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:49 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:49 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:51 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:51 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:51 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:58 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:58 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:07:58 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:00 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:00 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:00 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:02 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:02 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:02 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:09 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:09 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:09 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:10 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:10 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:10 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:12 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:12 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:12 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:19 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:19 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:19 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:21 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:21 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:21 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:23 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:23 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:23 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:30 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:30 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:30 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:32 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:32 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:32 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:34 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:34 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:34 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:40 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:41 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:41 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:42 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:42 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:42 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:44 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:44 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:44 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:53 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:53 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:53 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:55 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:55 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:08:55 knot_s1_T0.0 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:09:06 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:09:06 knot_s1_T0.3 [empty] =====
+<EMPTY>
+
+===== 2026-08-20 03:09:06 knot_s1_T0.0 [empty] =====
+<EMPTY>

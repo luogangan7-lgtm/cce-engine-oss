@@ -1,0 +1,82 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.6,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.1,
+      "安全感欲": 0.3,
+      "向往欲": 0.0
+    },
+    "note": "患者左耳闷堵、听力下降且新增耳鸣，核心诉求是摆脱当前的生理痛苦状态（摆脱欲），同时担心听力永久受损或病情恶化，渴望消除健康风险与不确定性（安全感欲），并希望通过主动干预掌控自己的健康走向（控制欲）。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "左耳闷堵5天未好转且昨晚开始出现耳鸣的生理不适处境",
+      "weight": 0.5,
+      "derived_from": "由<摆脱欲>经<飞行后耳部症状持续且加重>衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "使用鼻喷剂5天无效且新增耳鸣，不知道听力是否能恢复、风险到底多大的处境",
+      "weight": 0.3,
+      "derived_from": "由<安全感欲>经<治疗方案无效且症状出现新变化>衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "初级保健医生未做听力测试且仅被动安排两周后复诊，患者处于被动等待的处境",
+      "weight": 0.2,
+      "derived_from": "由<控制欲>经<医疗处置消极导致局面失控>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 1.0,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "听力未恢复且新增耳鸣直接威胁健康目标（威胁），且当前的医疗方案未能解决痛苦和不确定性（未满足），导致强烈的负向评价；但患者认为自己仍能通过要求转诊或提前复诊来改变现状，具备一定的应对潜能（中），从而将情绪转化为主动求助而非彻底绝望。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.6,
+      "sadness悲伤": 0.1,
+      "anger愤怒": 0.3
+    },
+    "note": "症状加重（新增耳鸣）且治疗无效触发了对健康受损的强烈担忧（fear恐惧）；初级保健医生未做听力测试且仅让被动等待两周的不作为，引发了对医疗处置的不满（anger愤怒）；对健康状况下降产生轻微失落（sadness悲伤）。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.6,
+      "avoidance回避": 0.0,
+      "attend关注": 0.1,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.3,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "摆脱欲与安全感欲 →(飞行后左耳闷堵5天未好转且新增耳鸣，而首诊医生仅安排两周后复诊)→ N06_摆脱痛苦与N01_确定性 →(评价:威胁/未满足/负, coping中)→ fear恐惧与anger愤怒 → approach趋近与agonistic对抗 (主动打电话要求提前复诊或转诊ENT)。",
+  "evidence": {
+    "desire": "left ear became muffled", "ringing sound began",
+    "need": "asked whether an earlier recheck or an ENT referral could be arranged",
+    "emotion": "hearing level has not changed", "ringing sound began",
+    "action": "called the primary-care office and asked whether an earlier recheck or an ENT referral could be arranged"
+  }
+}
+```

@@ -1,0 +1,82 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.5,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.3,
+      "安全感欲": 0.2,
+      "向往欲": 0.0
+    },
+    "note": "作者正经历听力下降和耳鸣的身体不适，强烈想要摆脱这种痛苦状态（摆脱欲）；同时面对医生敷衍的检查，想要夺回对自己健康医疗决策的主导权（控制欲），并消除听力可能永久受损的未知风险（安全感欲）。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "左耳闷且吃药5天无效，昨晚同一只耳朵又开始耳鸣",
+      "weight": 0.4,
+      "derived_from": "由<摆脱欲>经<听力未恢复且新增耳鸣症状>衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "前期两次就诊医生均只检查一分钟且未做听力测试，作者需要决定是下周复诊提转诊还是现在联系诊所",
+      "weight": 0.3,
+      "derived_from": "由<控制欲>经<医疗过程被动且医生敷衍>衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "有多年过敏史但以前没听力下降，目前吃药无效且出现新症状，需要明确到底是不是过敏引起的",
+      "weight": 0.3,
+      "derived_from": "由<安全感欲>经<病情不明且常规治疗无效>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "听力恶化与新增耳鸣构成直接健康威胁(congruence_direction=威胁)，且前期医疗敷衍导致痛苦与掌控需求均未满足(need_status=未满足)，导出负向目标一致性(goal_congruence=负)；但作者仍有复诊预约可主动要求转诊，具备一定应对能力(coping_potential=中)，因此激发出以恐惧和愤怒为主的高强度负向情绪，而非彻底绝望。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.1,
+      "fear恐惧": 0.5,
+      "sadness悲伤": 0.1,
+      "anger愤怒": 0.3
+    },
+    "note": "需求未满足且面临健康威胁(负向一致性)直接导出fear恐惧(对听力受损的担忧)和anger愤怒(对医生敷衍了事的不满)；中等应对潜能保留了curiosity好奇(探索下一步最优就医策略)，少量sadness悲伤源于对身体机能下降的无奈。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.5,
+      "avoidance回避": 0.0,
+      "attend关注": 0.2,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.3,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "摆脱欲与控制欲 →(左耳闷吃药无效且新增耳鸣、前期医生检查仅一分钟未做听力测试的情境)→ 需求N06_摆脱痛苦与N02_掌控局面 →(评价:方向为威胁、需求未满足、目标一致性为负、应对潜能为中)→ 情绪fear恐惧与anger愤怒 → 行动倾向approach趋近与agonistic对抗",
+  "evidence": {
+    "desire": "my left ear became muffled", "tinnitus started in the same ear", "each ear examination lasted about a minute",
+    "need": "five days have passed since the walk-in appointment with no change in hearing", "request a referral to an ENT",
+    "emotion": "Neither appointment included a hearing test", "Last night, tinnitus started",
+    "action": "I can contact the clinic sooner to ask about placing the referral now"
+  }
+}
+```

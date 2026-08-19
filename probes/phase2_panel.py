@@ -83,11 +83,27 @@ def main():
     done = _done()
     tasks = [(a, i) for a in man["arms"] for i in range(R)
              if (a["base_id"], a["arm"], i) not in done]
-    # ★★ 必须打散。清单里 L0/L0b 排在全部生成臂之前, 顺序执行会让
-    #   **任何随时间衰减的故障(限流/服务降级)直接映射成臂的差异**。
-    #   2026-08-20 实测教训: 首轮未打散 ⇒ L0 4% vs B1 65% 不合格,
-    #   而 M3 限流(HTTP200+空content) 恰在后半程发生 ⇒ 两者完全混杂, 整轮作废。
-    random.Random(SHUFFLE_SEED).shuffle(tasks)
+    # ★★ 顺序必须与**被比较的因子(臂)**无关, 否则任何随时间衰减的故障
+    #   (限流/服务降级/配额耗尽)会直接**做成**一个看起来很漂亮的臂间效应。
+    #   2026-08-20 实测: 首轮未打散 ⇒ L0 4% vs B1 65%, 打散后 10-24% 各臂齐平
+    #   ⇒ 那个"生成文本更难读"的戏剧性发现完全是顺序造成的假象。
+    #
+    # ★ 但**完全打散**又踩了第二个坑: 294 reps 摊在 166 个臂上, 只有 3 个臂凑够 R=4
+    #   ⇒ 中断后一个 base 都分析不了。
+    # ⇒ 正解: **按 base 分块随机** —— base 的顺序随机, base 内 7 臂连续跑完。
+    #   臂间对比仍受时间保护(同一 base 的臂几乎同时跑, 衰减对各臂等同作用),
+    #   而中断时已完成的 base 是**完整可分析**的。两个性质同时拿到。
+    rng = random.Random(SHUFFLE_SEED)
+    by_base = {}
+    for t in tasks:
+        by_base.setdefault(t[0]["base_id"], []).append(t)
+    order = sorted(by_base)
+    rng.shuffle(order)
+    tasks = []
+    for b in order:
+        blk = by_base[b]
+        rng.shuffle(blk)          # base 内也打散, 避免臂在块内固定次序
+        tasks += blk
     print(f"臂 {len(man['arms'])} × R={R} = {len(man['arms'])*R} reps; "
           f"已完成 {len(done)}, 待办 {len(tasks)} ⇒ {len(tasks)*(KK+5)} 次调用")
     if os.environ.get("P2_DRYRUN"):
@@ -138,7 +154,7 @@ def main():
             if len(_recent) == INFRA_WINDOW and sum(_recent) / INFRA_WINDOW > INFRA_TRIP:
                 _tripped.set()
                 print(f"\n★ 熔断: 近 {INFRA_WINDOW} 个 rep 中 {sum(_recent)} 个有 INFRA 失败 "
-                      f"⇒ 疑似限流(M3 历史约 3h 冷却)。已落盘, 冷却后重跑本脚本自动续。", flush=True)
+                      f"⇒ 疑似限流/配额耗尽。已落盘, 恢复后重跑本脚本自动续(按 base 分块, 已完成的 base 完整)。", flush=True)
             if cnt["done"] % 20 == 0 or cnt["done"] == n:
                 el = time.time() - t0
                 print(f"  [{cnt['done']}/{n}] qualified={cnt['qualified']} "
