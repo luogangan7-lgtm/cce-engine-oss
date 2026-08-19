@@ -76,3 +76,34 @@ assert "拿仪器对它自己的定义做检验" in src, \
 
 print("test_cce_ladder_design: OK (六臂齐 / 去词化可证伪 / 无假阳性 / 长度极差<15% / "
       "B保内容 A变姿态 / 命名纪律)")
+
+# ── 7. Phase 1 实测（run 32246651860，192 调用） ─────────────────────────────
+import json  # noqa: E402
+PLF = ROOT / "tests" / "data" / "perturbation_ladder_20260819.json"
+if PLF.exists():
+    pl = json.loads(PLF.read_text(encoding="utf-8"))
+    assert pl["instrument"] == "565470cf26c16d01" and pl["verdict"].startswith("LADDER_USABLE")
+    c = pl["comparisons"]
+    # ① 零参照不分开（型 I 前提）
+    assert not c["L0b"]["separated"], "零参照分开则整轮不可读"
+    # ② ★ 不变性：表层改写比 L0 自己重跑**还更接近** L0
+    for b in ("B1", "B2"):
+        assert not c[b]["separated"], f"{b} 不该分开 —— 姿态未变"
+        assert c[b]["T"] < c["L0b"]["T"], \
+            f"★ {b} 的 T({c[b]['T']}) 应低于零参照({c['L0b']['T']}) —— 同义/格式改写不产生可测位移"
+    # ③ ★★ 敏感性：去词化的情境/立场改变被读出，且远高于零参照
+    for a in ("A1", "A3"):
+        assert c[a]["separated"] and c[a]["T"] > 6 * c["L0b"]["T"], \
+            f"★ {a} 必须分开且远高于零参照 —— 否则是 SEMANTIC_BLIND(真证伪)"
+    # ④ ★ 禁止两处过度声称（写进数据，不只写在报告里）
+    sn = pl["scope_note"]
+    assert "不能说: 它专门在读「心理姿态」" in sn, \
+        "★ A 臂同时改了所说的事 —— 姿态与内容改变在本设计里分不开，不得声称只读姿态"
+    assert "单调性" in sn and "Phase 2" in sn, "★ 前登记禁止本轮宣称 T(A1)<T(A3)"
+    assert "n=1 base text" in sn
+    # ⑤ attempt ledger 真的在记：本轮有 4 次 INFRA 重试，没有 ledger 就完全不可见
+    inf = sum(r["op"]["n_infra_failed"] for v in pl["raw"].values() for r in v)
+    assert inf > 0, "本轮确有 infra 重试；若为 0 需复查 ledger 是否真的在记"
+    assert any(r["op"]["first_attempt_success_rate"] < 1.0
+               for v in pl["raw"].values() for r in v), "首次失败必须留痕"
+    print("  Phase1 已钉: B 轴不动(低于零参照) / A 轴 6.5-9.8 倍 / 两处过度声称已封 / ledger 生效")
