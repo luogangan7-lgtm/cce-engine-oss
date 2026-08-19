@@ -72,15 +72,55 @@ def _stage1_case(text, context):
             f"**不要为它构造一个人**。四层分布此时留空或省略即可。)")
 
 
+def _op_summary(attempts):
+    """operational 账本。★ 绝不与 measurement 混: 前者问「调用成功了吗」,
+    后者问「在能解析的条件下仪器读出了什么」。混账会让 infra 抖动伪装成仪器不稳。"""
+    by_t = {}
+    for a in attempts:
+        by_t.setdefault(a["temperature"], []).append(a)
+    first_ok = sum(1 for v in by_t.values() if v[0]["status"] in ("SUCCESS", "ABSTAIN"))
+    return {"attempts": attempts, "n_attempts": len(attempts), "n_draws": len(by_t),
+            "first_attempt_success": first_ok,
+            "first_attempt_success_rate": round(first_ok / len(by_t), 4) if by_t else None,
+            "n_infra_failed": sum(1 for a in attempts if a["status"] == "INFRA_FAILED"),
+            "n_parse_failed": sum(1 for a in attempts if a["status"] == "PARSE_FAILED"),
+            "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+            "caveat": ("PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, "
+                       "等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。")}
+
+
 def stage1(text, context, k):
     case = _stage1_case(text, context)
     # 温度梯度按 k 自适应展开(修 2026-08-08: 原写死3档,--k>3 时静默降为3)
     _base = _S1_BASE_TEMPS
     temps = _base[:k] if k <= len(_base) else _base + [round(0.05 * i, 2) for i in range(1, k - len(_base) + 1)]
 
+    # ★ 2026-08-19 attempt ledger: one() **本来就每档重试 3 次, 但一次都没记录** ——
+    #   于是 first_attempt_success 率至今未知, 也分不清「传输故障」与「仪器行为」。
+    #   外部评审的判定: **重试本身不是污染; 「失败被重试成功后从记录里消失」才是。**
+    #   ⚠️ 本次**只记录, 不改重试行为** —— 改重试策略会影响拿到哪些 draw(属仪器变更),
+    #      先量出「解析失败被重试掉」的频率, 再决定要不要按错误类别分流。
+    #   两本账必须分开: measurement(在能解析的条件下仪器如何) vs operational(真实调用成功率)。
+    attempts = []
+
+    def _classify(content, meta, ok, parsed):
+        if isinstance(parsed, dict) and parsed.get("no_inferable_subject") is True:
+            return "ABSTAIN", None
+        if ok:
+            return "SUCCESS", None
+        err = (meta or {}).get("error")
+        if not content:
+            # 空 body ⇒ 归因于传输/服务(**可重试**类)
+            return "INFRA_FAILED", (err or "empty_body")
+        # 有内容但解析/schema 不过 ⇒ **仪器行为**, 不是基础设施
+        return "PARSE_FAILED", (err or "unparseable_or_schema_violation")
+
     def one(T):
         for att in range(3):
             c, p, pv, m, ok = call_parse("M3", case, T, f"knot_s1_T{T}")
+            _st, _ec = _classify(c, m, ok, p)
+            attempts.append({"temperature": T, "attempt": att + 1,
+                             "status": _st, "error_class": _ec})
             # ★ 弃权信号必须**显式**。绝不能拿「全零向量」当弃权 ——
             #   top_label(全零) 会返回第一个标签(实测: 拥有欲), 即一个自信的假读数。
             if isinstance(p, dict) and p.get("no_inferable_subject") is True:
@@ -109,7 +149,8 @@ def stage1(text, context, k):
         #   ① k_ok 曾是 len(pvs_all) —— 把**弃权的 draw 也算成成功**。上一轮只修了非弃权分支。
         #   ② 缺 k_attempted/k_valid/k_abstained/measurement_status, 下游用新键会静默兜底。
         #   ③ draws 曾是 [] —— 逐 draw 弃权率无从计算, 通道自检失效(实际害我作废了一整轮 156 调用)。
-        return {"k_requested": k, "k_attempted": len(pvs_all), "k_valid": 0,
+        return {"operational": _op_summary(attempts),
+                "k_requested": k, "k_attempted": len(pvs_all), "k_valid": 0,
                 "k_abstained": n_abstain, "k_ok": 0,
                 "measurement_status": "abstain",
                 "n_abstain": n_abstain, "abstained": True,
@@ -171,6 +212,8 @@ def stage1(text, context, k):
         # ★ 2026-08-19: k_ok 曾把**弃权的 draw 也算成成功**(len(pvs_all)) ——
         #   于是 2/3 弃权时它报 k_ok=3, 下游以为拿到了三档。外部评审指出后实测确认。
         #   现在三个计数各归各: attempted / valid / abstained, k_ok 只等于 valid。
+        # ★ 两本账分开: operational 只描述调用层, 不进 measurement 判决
+        "operational": _op_summary(attempts),
         "k_requested": k, "k_attempted": len(pvs_all), "k_valid": len(pvs),
         "k_abstained": n_abstain, "k_ok": len(pvs),
         "n_abstain": n_abstain, "abstained": False,
