@@ -27,7 +27,8 @@ bias, 而且**比 LLM 生成的威胁更大** —— 我不仅懂自然语言, �
   B2 归一化后与原文逐字相同  ★ 「只改格式标点」是**可完全机器验证**的
   超过 MAX_REGEN 仍不过 → GENERATION_FAILED(不伪造, 不替补, 进 operational 账)
 """
-import json, os, random, re, sys, hashlib
+import json, os, random, re, sys, hashlib, threading
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -48,8 +49,26 @@ GENERATORS = {"G1": "Qwen3.8", "G2": "GLM5.2"}    # 两个与测量模型**不�
 VERIFIER_OF = {"G1": "GLM5.2", "G2": "Qwen3.8"}
 VERIFIER_MODE = "CROSS_FAMILY_NO_THIRD_PARTY"
 ASSIGN_SEED = 20260819
-MAX_REGEN = 3                     # 冻结重生成次数上限
+MAX_REGEN = 8                     # ★ amendment #1 后的值(原 3), 见 PROTOCOL_AMENDMENTS
 LEN_LO, LEN_HI = 0.85, 1.15
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 协议修订记录。**带时间戳 + 原因 + 「修订时尚无任何 T」的声明**, 缺一不可。
+# 判据(外部评审 2026-08-19): 修订依据是 **operational 事实**(生成器格式合规率 / 语料容量)
+# 还是 **实验 outcome**(T/p/ladder)? 前者在结果出现前透明更新不引入 outcome-dependent
+# flexibility; 后者是 data-dependent deviation。两者风险不同类。
+PROTOCOL_AMENDMENTS = [
+    {"id": 1, "at": "2026-08-19", "field": "MAX_REGEN", "from": 3, "to": 8,
+     "trigger": ("G2(glm-5.2) 每次尝试的格式合规率实测约 31.7%(19/60 首次通过), "
+                 "3 次上限下 ladder 完备 base 仅 16/24 < coverage gate 20"),
+     "evidence": "tests/data/phase2/stimuli_pre_amendment_maxregen3.json(修订前的完整结果)",
+     "outcome_dependent": False,
+     "why_not": ("观察到的是**生成器的格式合规率**(operational), "
+                 "不是任何 T / p / ladder 结果 —— 此刻 Phase 2 一次测量都还没做"),
+     "scope": "对所有 base / 所有臂 / 两个生成器**一律适用**, 不针对某一层或某个失败样本",
+     "block": "重跑一次完整 block 后即停; **不许看结果再加**",
+     "expected": "单臂通过率 1-(1-0.317)^8 ≈ 94%"},
+]
 ARMS = ("A1", "A2", "A3", "B1", "B2")
 
 # ★ 逐臂规则。措辞刻意中性 —— 不含「这会/不会改变读数」这类预期泄露。
@@ -122,34 +141,88 @@ def gen_one(gkey, arm, base, temperature=0.7):
     return out.strip(), meta, hashlib.sha256(prompt.encode()).hexdigest()[:16]
 
 
-def generate(bases, assignment, dry=False):
-    recs, attempts_log = [], []
-    for b in bases:
-        gfam = assignment[b["base_id"]]
-        gkey = GENERATORS[gfam]
-        for arm in ARMS:
-            got = None
-            for attempt in range(1, MAX_REGEN + 1):
-                if dry:
-                    text, meta, psha = "", {"error": "DRY_RUN"}, "dry"
-                else:
-                    text, meta, psha = gen_one(gkey, arm, b["text"])
-                ok, fails = check(arm, b["text"], text) if text else (False, ["NO_OUTPUT"])
-                attempts_log.append({"base_id": b["base_id"], "arm": arm, "attempt": attempt,
-                                     "generator_family": gfam, "ok": ok, "failures": fails,
-                                     "error": meta.get("error")})
-                if ok:
-                    got = {"base_id": b["base_id"], "arm": arm, "text": text,
-                           "stimulus_provenance": {
-                               "base_text_id": b["base_id"], "arm": arm,
-                               "generator_family": gfam,
-                               "generator_model_version": MODELS[gkey]["model"],
-                               "prompt_sha256": psha, "attempt_index": attempt,
-                               "machine_checks": "PASS", "blind_rule_check": "PENDING_G3"},
-                           "length_ratio": round(len(text) / len(b["text"]), 4)}
-                    break
-            recs.append(got or {"base_id": b["base_id"], "arm": arm,
-                                "status": "GENERATION_FAILED", "attempts": MAX_REGEN})
+CKPT = ROOT / "tests" / "data" / "phase2" / "stimuli_checkpoint.jsonl"
+WORKERS = 6          # 端点实测 25-55s/次; 6 路并发把 120 次压到 ~15min
+_lock = threading.Lock()
+
+
+def _done_keys():
+    """已完成的 (base_id, arm) —— 支持中断续跑。
+
+    ★ 这条是踩出来的: 初版**跑完才落盘**, 中途一停 2 小时调用全丢。
+      长任务没有 checkpoint = 一次意外就把已花的钱清零。
+    """
+    if not CKPT.exists():
+        return {}
+    out = {}
+    for line in CKPT.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            r = json.loads(line)
+            if "text" in r:                 # ★ 只有成功才算 done
+                out[(r["base_id"], r["arm"])] = r   # 失败的要在新 MAX_REGEN 下重来
+    return out
+
+
+def _one(b, arm, gfam, dry=False):
+    """单臂: 生成 → 机器验收 → 不过就重生成, 上限 MAX_REGEN。返回 (记录, 尝试日志)。"""
+    gkey = GENERATORS[gfam]
+    log = []
+    for attempt in range(1, MAX_REGEN + 1):
+        if dry:
+            text, meta, psha = "", {"error": "DRY_RUN"}, "dry"
+        else:
+            text, meta, psha = gen_one(gkey, arm, b["text"])
+        ok, fails = check(arm, b["text"], text) if text else (False, ["NO_OUTPUT"])
+        log.append({"base_id": b["base_id"], "arm": arm, "attempt": attempt,
+                    "generator_family": gfam, "ok": ok, "failures": fails,
+                    "error": meta.get("error")})
+        if ok:
+            return {"base_id": b["base_id"], "arm": arm, "text": text,
+                    "length_stratum": b.get("length_stratum"),
+                    "length_ratio": round(len(text) / len(b["text"]), 4),
+                    "stimulus_provenance": {
+                        "base_text_id": b["base_id"], "arm": arm,
+                        "generator_family": gfam,
+                        "generator_model_version": MODELS[gkey]["model"],
+                        "prompt_sha256": psha, "attempt_index": attempt,
+                        "machine_checks": "PASS", "blind_rule_check": "PENDING_CROSS",
+                        "verifier_family": VERIFIER_OF[gfam]}}, log
+    # ★ 不伪造、不替补、不换更短的 base —— 那会让 generation feasibility 反改 sampling frame
+    return {"base_id": b["base_id"], "arm": arm, "status": "GENERATION_FAILED",
+            "length_stratum": b.get("length_stratum"), "attempts": MAX_REGEN,
+            "last_failures": log[-1]["failures"]}, log
+
+
+def generate(bases, assignment, dry=False, workers=WORKERS):
+    done = _done_keys()
+    tasks = [(b, arm) for b in bases for arm in ARMS
+             if (b["base_id"], arm) not in done]
+    recs, attempts_log = list(done.values()), []
+    if done:
+        print(f"  续跑: 已完成 {len(done)}, 待办 {len(tasks)}")
+    n = len(tasks)
+
+    def run(t):
+        b, arm = t
+        rec, log = _one(b, arm, assignment[b["base_id"]], dry=dry)
+        with _lock:
+            recs.append(rec)
+            attempts_log.extend(log)
+            if not dry:
+                with CKPT.open("a", encoding="utf-8") as fh:
+                    fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+            k = len(recs) - len(done)
+            print(f"  [{k}/{n}] {rec['base_id'][:8]} {arm} "
+                  f"{'OK' if 'text' in rec else 'FAILED ' + str(rec.get('last_failures'))}",
+                  flush=True)
+        return rec
+
+    if dry or workers <= 1:
+        for t in tasks:
+            run(t)
+    else:
+        with ThreadPoolExecutor(max_workers=workers) as ex:
+            list(ex.map(run, tasks))
     return recs, attempts_log
 
 
