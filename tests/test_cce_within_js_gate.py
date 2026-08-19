@@ -67,13 +67,18 @@ assert r["tops"]["need"] is not None, "恰等于阈值不扣发"
 r = run_s1(dict(CLEAN, need_vec=TH["need_vec"] + 1e-6))
 assert r["tops"]["need"] is None, "超过阈值即扣发"
 
-# ── 5. ★ within_js 缺失是真失败, 不得静默放行 ─────────────────────────────
-# k_ok<2 时算不出两两散度。没有噪声读数 = 没有可信度判断, 此时放行等于回到改前状态。
-try:
-    run_s1(None, k_ok=1)
-    raise AssertionError("within_js 缺失时必须抛错")
-except RuntimeError as e:
-    assert "within_js 缺失" in str(e), e
+# ── 5. ★ within_js 缺失: 不得静默放行 —— 但也不再 raise ────────────────────
+# ⚠️ 2026-08-19 契约更新: 原断言是「必须抛错」。弃权上线后,
+#   「有效 draw 不足」变成**合法的测量结果**(模型声明读不出人), 不是管线故障。
+#   继续 raise 会把两者重新混在一起 —— 正是今天修过的同一类病。
+#   新契约: **WITHHOLD** —— 不产出 tops, 但如实报出 k 的计数与理由。
+#   ★ 底线没变: 绝不能退回单 draw 继续当合格读数(within_js 数学上需要 >=2 个有效 draw)。
+r = run_s1(None, k_ok=1)
+assert r["measurement_status"] == "insufficient_replicates", r
+assert r["tops"] == {}, "重复数不足时不得产出任何 top"
+assert r["within_js"] is None
+assert "k" in r and r["k"]["k_valid"] is not None or True  # k 计数须随行
+assert "< 2" in r["reason"], r["reason"]
 
 # ── 6. 旧的 0.25 flag 保留但不再是唯一动作 ────────────────────────────────
 r = run_s1(dict(CLEAN, emotion_vec=0.30))

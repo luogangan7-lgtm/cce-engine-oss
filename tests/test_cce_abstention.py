@@ -129,13 +129,16 @@ assert lin[0]["hash"] == "57ec6cf478d3875e" and len(lin[0]["runs"]) == 6
 assert lin[1]["hash"] == "287d07a0ef1ea78e" and lin[1]["runs"] == []
 assert lin[2]["hash"] is None, "gen3 的 hash 由代码现算, 写死会与实现漂移"
 
-_cur = K.instrument_id(TAXO, k=3, knot_n=5,
-                       s1_pairing="round_robin_over_3_s1_draws")["instrument_hash"]
-for _g in (1, 2):
-    _t = K.calibration_transfers(_g, _cur, TAXO, k=3, knot_n=5,
-                                 s1_pairing="round_robin_over_3_s1_draws")
-    assert _t["transfers"] is False, \
-        f"★ gen{_g} 的标定不得被当成对 gen3 有效 —— s1 prompt 变了, 被测对象收到的指令不同"
+# ⚠️ 2026-08-19 外部评审纠正: 初版拿「prompt 相同」当**通用迁移律**太松 ——
+#   prompt 一字未改但 s2 的 n、聚合统计量、support 规则、配对、端点变了, 噪声底一样会变。
+#   改为**每个标定声明自己的 depends_on**, 只比那些字段。
+import cce_ksep as _KS  # noqa: E402
+_t = K.calibration_transfers(_KS.PAIR1_NULL_CALIBRATION_STATISTIC, TAXO, k=3, knot_n=5,
+                             s1_pairing="round_robin_over_3_s1_draws")
+assert _t["transfers"] is False and _t["changed"] == ["s1_prompt_sha256"], _t
+assert len(_t["checked"]) >= 8, "依赖清单必须覆盖 prompt 之外的项, 否则又退回太松的判据"
+# ★ 反向: 未声明 depends_on 的标定一律不许搬
+assert K.calibration_transfers({}, TAXO)["transfers"] is False
 # ★ 判据必须是 prompt 相同而**不是** hash 相同: gen1→gen2 hash 变了但标定仍适用
 assert lin[0]["s1_prompt_sha256"] == lin[1]["s1_prompt_sha256"], \
     "gen1 与 gen2 的 s1 prompt 必须相同 —— 那次只是身份定义变完整, 物理仪器没变"
@@ -201,3 +204,42 @@ if AFF.exists():
         "前登记原文必须留着 —— 事后重新解释判决线正是它要防的事"
     print("  假阳性收口已钉: 通道活 · 无整条误判 · 部分弃权 4/12(T02 有效k=1) · "
           "前登记把分级现象写成了二元")
+
+
+# ── 15. ★ k_valid<2 必须 WITHHOLD, 绝不静默退回单 draw ─────────────────────
+# 外部评审指出、我实测确认的两个 bug:
+#   (a) k_ok 曾把**弃权的 draw 也算成成功**(2/3 弃权时报 k_ok=3), 下游以为拿到三档
+#   (b) within_js 需 >=2 有效 draw; k_valid=1 时它是 None, 读数照常产出
+_orig = K.call_parse
+_n = {"i": 0}
+
+
+def _fake(mk, case, T, note):
+    _n["i"] += 1
+    if _n["i"] <= 2:            # 前两档弃权
+        return "", {"no_inferable_subject": True, "reason": "技术问答"}, None, {}, False
+    pv = {"desire_vec": [1.0] + [0] * 8, "need_vec": [1.0] + [0] * 16,
+          "emotion_vec": [1.0] + [0] * 12, "action_vec": [1.0] + [0] * 6,
+          "need_slots": {}, "appraisal": {}, "chain_trace": "", "evidence": {}}
+    return "", {}, pv, {}, True
+
+
+K.call_parse = _fake
+try:
+    _s1 = K.stage1("x", "ctx", 3)
+finally:
+    K.call_parse = _orig
+assert _s1["k_attempted"] == 3 and _s1["k_valid"] == 1 and _s1["k_abstained"] == 2
+assert _s1["k_ok"] == _s1["k_valid"], \
+    "★ k_ok 必须等于**有效** draw 数 —— 把弃权算成成功会让下游以为拿到了三档"
+assert _s1["measurement_status"] == "insufficient_replicates"
+assert _s1["within_js"] is None
+
+# 下游闸: 不得 raise(那会把「重复数不够」混成「管线坏了」), 必须 WITHHOLD
+fr = (ROOT / "scripts" / "cce_full_run.py").read_text(encoding="utf-8")
+assert '"measurement_status": "insufficient_replicates"' in fr
+assert "raise RuntimeError(f\"within_js 缺失" not in fr, "改为 WITHHOLD, 不再 raise"
+assert '"tops": {}' in fr, "重复数不足时不得产出 tops"
+# ★ 明确禁止「抽到够两个为止」—— 那会条件化于模型愿意给读数, 隐藏真实弃权倾向
+assert "绝不能退回单 draw 继续当合格读数" in fr
+print("  k 计数与 withhold 已钉: k_ok=有效数 / insufficient_replicates / 不 raise / 无 tops")

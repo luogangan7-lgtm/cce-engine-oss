@@ -156,7 +156,14 @@ def stage1(text, context, k):
                   "appraisal": pv.get("appraisal")})
                 for T, pv in paired]
     return {
-        "k_requested": k, "k_ok": len(pvs_all), "n_abstain": n_abstain, "abstained": False,
+        # ★ 2026-08-19: k_ok 曾把**弃权的 draw 也算成成功**(len(pvs_all)) ——
+        #   于是 2/3 弃权时它报 k_ok=3, 下游以为拿到了三档。外部评审指出后实测确认。
+        #   现在三个计数各归各: attempted / valid / abstained, k_ok 只等于 valid。
+        "k_requested": k, "k_attempted": len(pvs_all), "k_valid": len(pvs),
+        "k_abstained": n_abstain, "k_ok": len(pvs),
+        "n_abstain": n_abstain, "abstained": False,
+        # k_valid<2 时组内散布无从计算 ⇒ 这是**合法的测量不足**, 不是管线故障。
+        "measurement_status": ("insufficient_replicates" if len(pvs) < 2 else "qualified"),
         "layers": avg,
         "tops": tops,
         "draws": per_draw,
@@ -225,21 +232,35 @@ INSTRUMENT_LINEAGE = [
 LEGACY_INSTRUMENT_20260818 = INSTRUMENT_LINEAGE[0]
 
 
-def calibration_transfers(from_gen, to_hash, taxo, k=3, knot_n=None, s1_pairing=None):
-    """上一代的标定能不能搬到当前仪器上。
+def _spec_field(spec, path):
+    cur = spec
+    for part in path.split("."):
+        cur = (cur or {}).get(part)
+    return cur
 
-    判据不是「hash 相同」—— gen1→gen2 hash 变了但物理仪器没变, 标定仍适用。
-    真正的判据是: **被测对象收到的指令是否相同**, 即 s1/s2 prompt sha 是否相同。
+
+def calibration_transfers(calibration, taxo, k=3, knot_n=None, s1_pairing=None):
+    """某个标定能不能搬到当前仪器上。
+
+    ⚠️ 2026-08-19 外部评审纠正: 初版拿「s1/s2 prompt 相同」当**通用迁移律**, **太松**。
+       prompt 一字未改, 但 s2 的 n 从 5 改到 10、median 改成 mean、support 规则改了、
+       s1 配对改了、端点换了 —— 读数分布与噪声底都会变, 标定同样失效。
+       正确做法: **每个标定自己声明它依赖仪器定义的哪些部分**, 只比那些。
+       比「整个 instrument_hash 必须相同」更精细, 比「prompt 相同就搬」更安全。
+
+    calibration: 需含 `depends_on`(仪器 spec 里的字段路径列表) 与 `snapshot`(当时的取值)。
     """
-    src = next(g for g in INSTRUMENT_LINEAGE if g["gen"] == from_gen)
+    dep = calibration.get("depends_on")
+    snap = calibration.get("snapshot")
+    if not dep or not snap:
+        return {"transfers": False, "reason": "标定未声明 depends_on/snapshot ⇒ 无法判定, 一律不搬"}
     cur = instrument_id(taxo, k=k, knot_n=knot_n, s1_pairing=s1_pairing)["spec"]
-    same_prompt = (src["s1_prompt_sha256"] == cur["s1_prompt_sha256"]
-                   and src["s2_prompt_sha256"] == cur["s2_prompt_sha256"])
-    return {"transfers": same_prompt,
-            "reason": ("prompt 相同 ⇒ 物理仪器相同, 标定可搬" if same_prompt else
-                       "★ prompt 已变 ⇒ 被测对象收到的指令不同 ⇒ 标定**不可搬**, 必须重标定"),
-            "from_gen": from_gen, "to_hash": to_hash,
-            "src_s1": src["s1_prompt_sha256"], "cur_s1": cur["s1_prompt_sha256"]}
+    changed = [d for d in dep if _spec_field(cur, d) != snap.get(d)]
+    return {"transfers": not changed,
+            "changed": changed,
+            "reason": ("所依赖的仪器字段全部未变 ⇒ 标定可搬" if not changed else
+                       f"★ 依赖字段已变 {changed} ⇒ 标定**不可搬**, 必须重标定"),
+            "checked": dep}
 
 
 def instrument_id(taxo, k=None, knot_n=None, s1_pairing=None):

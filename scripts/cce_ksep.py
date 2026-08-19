@@ -129,6 +129,20 @@ PAIR1_NULL_CALIBRATION_STATISTIC = {
     "measured_on_s1_prompt_sha256": "d73764202b732e98",
     "transfers_to_current": False,
     "why_not": "gen3 改了 s1 prompt(允许声明无可推断主体), 被测对象收到的指令不同。",
+    # ★ 每个标定自己声明依赖仪器定义的哪些部分(外部评审纠正: prompt 相同 != 标定可搬 ——
+    #   n / 聚合统计量 / support 规则 / 配对 / 端点 变了, 噪声底一样会变)。
+    "depends_on": ["s1_prompt_sha256", "s2_prompt_sha256", "model", "endpoint",
+                   "ontology_version", "sampling_policy.s2_n",
+                   "sampling_policy.s1_pairing", "aggregation_policy.support_rule",
+                   "aggregation_policy.intensity_stat"],
+    "snapshot": {"s1_prompt_sha256": "d73764202b732e98",
+                 "s2_prompt_sha256": "b8d0f60d66d10f12",
+                 "model": "MiniMax-M3",
+                 "endpoint": "https://api.minimaxi.com/v1/text/chatcompletion_v2",
+                 "ontology_version": "1.3.1", "sampling_policy.s2_n": 5,
+                 "sampling_policy.s1_pairing": "round_robin_over_3_s1_draws",
+                 "aggregation_policy.support_rule": "occur * 2 > n",
+                 "aggregation_policy.intensity_stat": "median_of_nonzero"},
 }
 
 # 仪器分辨率: 需要**独立的同文本重复校准语料**(同一文本 × 独立重跑 × 多个文本类别),

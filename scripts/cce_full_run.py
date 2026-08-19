@@ -193,10 +193,28 @@ def s1(ctx):
     d = run_knot_classify(ctx["text_file"], ctx["context"], ctx["k"], f"{ctx['outdir']}/s1_readout.json")
     ctx["cce"] = d
     js = d["stage1"]["within_js"]
+    st = d["stage1"]
+    if st.get("abstained"):
+        # ★ 仪器声明这段输入不构成个人表达 —— 合法弃权, 不是失败。
+        return {"file": "s1_readout.json", "measurement_status": "abstain",
+                "abstain_reason": st.get("abstain_reason", ""),
+                "within_js": None, "tops": {}, "tops_withheld": None,
+                "over_noise_floor": None, "high_divergence_flag": None,
+                "k": {kk: st.get(kk) for kk in
+                      ("k_requested", "k_attempted", "k_valid", "k_abstained")}}
     if not js:
-        # k_ok < 2 时算不出两两散度 —— 没有噪声读数就没有可信度判断, 这是真失败不是缺省。
-        raise RuntimeError(f"within_js 缺失(k_ok={d['stage1'].get('k_ok')}): "
-                           "少于 2 次成功采样时无法给出噪声底, 不得静默放行")
+        # ★ 2026-08-19 改: 此前这里 raise。弃权上线后, 「有效 draw 不足」是**合法的
+        #   测量结果**, 不是管线故障 —— raise 会把两者重新混在一起(今天修过的同一类病)。
+        #   改为 WITHHOLD: 不产出 tops, 但如实报出 k 的三个计数, 让下游知道为什么没有。
+        #   ⚠️ 绝不能退回单 draw 继续当合格读数: within_js 数学上需要 >=2 个有效 draw。
+        return {"file": "s1_readout.json",
+                "measurement_status": "insufficient_replicates",
+                "reason": (f"有效 draw {st.get('k_valid')}/{st.get('k_attempted')} "
+                           f"(弃权 {st.get('k_abstained')}) < 2, 组内散布无从计算"),
+                "within_js": None, "tops": {}, "tops_withheld": "all(insufficient_replicates)",
+                "over_noise_floor": None, "high_divergence_flag": None,
+                "k": {kk: st.get(kk) for kk in
+                      ("k_requested", "k_attempted", "k_valid", "k_abstained")}}
     over = {l: round(v, 4) for l, v in js.items() if v > WITHIN_JS_MAX.get(l, 1.0)}
     tops = dict(d["stage1"]["tops"])
     withheld = {}
@@ -204,7 +222,10 @@ def s1(ctx):
         if layer in over:
             withheld[name] = f"{layer} within_js={over[layer]} > {WITHIN_JS_MAX[layer]}"
             tops[name] = None
-    return {"file": "s1_readout.json", "within_js": js,
+    return {"file": "s1_readout.json", "measurement_status": "qualified",
+            "k": {kk: st.get(kk) for kk in
+                  ("k_requested", "k_attempted", "k_valid", "k_abstained")},
+            "within_js": js,
             "within_js_max": WITHIN_JS_MAX,
             "over_noise_floor": over or None,
             "tops": tops,
