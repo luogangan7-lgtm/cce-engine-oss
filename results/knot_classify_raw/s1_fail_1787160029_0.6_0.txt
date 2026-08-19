@@ -1,0 +1,107 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.20,
+      "确认欲": 0.15,
+      "超越欲": 0.0,
+      "归属欲": 0.10,
+      "控制欲": 0.10,
+      "安全感欲": 0.45,
+      "向往欲": 0.0
+    },
+    "note": "主驱动是安全感欲——SSHL(突发性感音神经性耳聋)本身是重大健康威胁，'I expected bad news'显示了对坏结果的预期性恐惧。次驱动是摆脱欲(想甩掉病因不明的悬置状态)和确认欲(想被告知'没事'、'你正常')。控制欲对应'想知道为什么'，归属欲对应发到 hearing discussion 子版寻找同类患者。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "SSHL病因不明的就医后情境，做完CT/验血仍无结论",
+      "weight": 0.30,
+      "derived_from": "由安全感欲 经 'CT scan and lab work... all results were normal' 但病因仍未排除的医学不确定情境衍生"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "SSHL发作已一年，'they don't know what caused my SSHL'，想搞清楚机制",
+      "weight": 0.25,
+      "derived_from": "由控制欲 经 'The frustrating part is they don't know what caused my SSHL' 衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "检查结果正常，需要医生/数据/他人来背书'我没大事'",
+      "weight": 0.15,
+      "derived_from": "由确认欲 经 'all results were normal' 想要被确认没问题的情境衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "SSHL带来的听力损失与反复就医的焦虑本身是不适状态",
+      "weight": 0.10,
+      "derived_from": "由摆脱欲 经 SSHL持续存在、医疗流程反复的情境衍生"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "在 reddit hearing discussion 板块发贴，潜在寻找 SSHL 同病者",
+      "weight": 0.10,
+      "derived_from": "由归属欲 经 'hearing discussion' 板块的同质性人群情境衍生"
+    },
+    {
+      "code": "N13_情感慰藉",
+      "context_slot": "'Thank goodness' 显示需要被接纳、被安慰',
+      "weight": 0.05,
+      "derived_from": "由安全感欲 经 经历了健康惊吓后需要被共情的情境衍生"
+    },
+    {
+      "code": "N12_情感联结",
+      "context_slot": "发贴本身即邀请相似经历者回应",
+      "weight": 0.05,
+      "derived_from": "由归属欲 经 发贴寻求他人回应的行为情境衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.90,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "中",
+    "note": "评价分两段：对'排除更坏诊断'这一近端目标，结果正常是促进+已满足→正情绪(relief/感激)；对'找到SSHL病因'这一远端目标，结果是威胁+未满足→负情绪(frustration/curiosity悬置)。整体以'促进/已满足'为主(因为'Thank goodness'是显性主调)，但未满足的次级需求让 anger/curiosity 仍占一定权重。coping_potential为中——个人无法让医生给出病因，但可继续发贴、参与社群、追踪文献。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.10,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.45,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.15,
+      "fear恐惧": 0.05,
+      "sadness悲伤": 0.05,
+      "anger愤怒": 0.20
+    },
+    "note": "主情绪 relief 来自'促进+已满足'(检查正常、MRI去年也正常，'Thank goodness'显性证据)。次情绪 anger(frustration)来自次级需求(N04/N01)未满足——'The frustrating part is they don't know what caused my SSHL'。curiosity 来自病因未解、对解释仍有缺口。gratitude 是对结果好的感激。fear 是'I expected bad news'残留的轻度警觉。sadness 是对身体未完全恢复的轻微失落。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.30,
+      "avoidance回避": 0.10,
+      "attend关注": 0.30,
+      "reject拒斥": 0.05,
+      "agonistic对抗": 0.15,
+      "interrupt中断": 0.05,
+      "dominate支配": 0.05
+    },
+    "note": "approach 体现为发贴(趋近社群、趋近信息源)；attend 体现为继续监测(CT/验血/MRI 等数据点)；agonistic 体现为对'病因未明'的不甘与对医学未给出答案的隐性对抗；avoidance 是对坏消息预期的回避残余；dominate 是想通过叙述掌控自己的叙事。"
+  },
+  "chain_trace": "安全感欲 →(SSHL后做CT/验血/MRI，检查结果正常但病因仍不明的就医后情境)→ N01_确定性+N04_理解世界(主导)+N10_自我确认 → 评价:对'排除坏诊断'是促进+已满足，对'弄清病因'是威胁+未满足，整体以正为主、应对潜能为中 → 情绪以relief宽慰为主，叠加anger愤怒(frustration)+curiosity好奇+感激 → 行动倾向以approach趋近(发贴)+attend关注(继续追踪)为主，伴agonistic对抗(对病因不明的挫折)",
+  "evidence": {
+    "desire": "安全感欲/摆脱欲: 'I expected bad news'、'The frustrating part is they don't know what caused my SSHL';归属欲/确认欲: 发在 reddit hearing discussion;控制欲: 'The frustrating part is they don't know...'",
+    "need": "N01_确定性+N04_理解世界: 'they don't know what caused my SSHL';N10_自我确认: 'all results were normal. Thank goodness';N11_归属群体: 平台为 'reddit hearing discussion'",
+    "emotion": "relief: 'Thank goodness, my MRI last year for SSHL was normal';anger/curiosity: 'The frustrating part is they don't know what caused my SSHL';gratitude: 'all results were normal';fear: 'though I expected bad news'",
+    "action": "approach+attend: 选择在 hearing discussion 发贴并继续罗列多项检查结果(CT/lab/MRI)以持续追踪;agonistic: 'The frustrating part'隐含对未解病因的对抗"
+  }
+}
+```

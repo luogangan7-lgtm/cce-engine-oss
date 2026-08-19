@@ -25,7 +25,7 @@ context 字符串对**所有臂逐字相同** —— 否则 context 成为混杂
   空 body 已归 INFRA_FAILED(不进弃权/解析失败, 故不污染 U/F)。但若近窗口 INFRA 率飙高,
   继续跑只会把 5312 次调用烧成一堆 INFRA_FAILED ⇒ 主动熔断, 等冷却(历史约 3h)后续跑。
 """
-import json, os, sys, threading, time
+import json, os, random, sys, threading, time
 from collections import Counter, deque
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -42,7 +42,9 @@ WORKERS = int(os.environ.get("P2_WORKERS", "9"))   # 实测稳态 9 workers ≈ 
 CTX = "reddit hearing discussion: 多 base 标定面板"  # ★ 所有臂逐字相同
 TAXO = json.loads((ROOT / "config" / "knot_taxonomy.json").read_text(encoding="utf-8"))
 
-INFRA_WINDOW, INFRA_TRIP = 40, 0.5    # 近 40 次里 INFRA 超半 ⇒ 熔断
+SHUFFLE_SEED = 20260820           # 冻结: 任务顺序可复现且与臂身份无关
+MAX_CALLS_PER_MIN = 45            # 实测稳态 ~50; 首轮跑到 73/min 撞限流, 留余量
+INFRA_WINDOW, INFRA_TRIP = 40, 0.35    # 近 40 次里 INFRA 超半 ⇒ 熔断
 _lock = threading.Lock()
 _recent = deque(maxlen=INFRA_WINDOW)
 _tripped = threading.Event()
@@ -81,6 +83,11 @@ def main():
     done = _done()
     tasks = [(a, i) for a in man["arms"] for i in range(R)
              if (a["base_id"], a["arm"], i) not in done]
+    # ★★ 必须打散。清单里 L0/L0b 排在全部生成臂之前, 顺序执行会让
+    #   **任何随时间衰减的故障(限流/服务降级)直接映射成臂的差异**。
+    #   2026-08-20 实测教训: 首轮未打散 ⇒ L0 4% vs B1 65% 不合格,
+    #   而 M3 限流(HTTP200+空content) 恰在后半程发生 ⇒ 两者完全混杂, 整轮作废。
+    random.Random(SHUFFLE_SEED).shuffle(tasks)
     print(f"臂 {len(man['arms'])} × R={R} = {len(man['arms'])*R} reps; "
           f"已完成 {len(done)}, 待办 {len(tasks)} ⇒ {len(tasks)*(KK+5)} 次调用")
     if os.environ.get("P2_DRYRUN"):
@@ -89,15 +96,30 @@ def main():
     n, t0 = len(tasks), time.time()
     cnt = Counter()
 
+    _pace = {"next": time.time()}
+    _min_gap = 60.0 / (MAX_CALLS_PER_MIN / (KK + 5))   # 每 rep 的最小间隔
+
     def run(t):
         arm, i = t
         if _tripped.is_set():
             return
+        with _lock:                                   # 全局节流, 防止再撞限流
+            now = time.time()
+            wait = max(0.0, _pace["next"] - now)
+            _pace["next"] = max(now, _pace["next"]) + _min_gap
+        if wait:
+            time.sleep(wait)
         try:
             r = _rep(arm["text"])
-        except Exception as e:                       # 不吞异常, 如实记账
-            r = {"qualified": False, "k_valid": 0, "abstained": False,
-                 "op": {"error": type(e).__name__ + ": " + str(e)[:120]}, "knots": None}
+        except Exception as e:
+            # ★ 绝不伪造 k_valid=0 —— 那会把 stage2 的**基础设施失败**误记成
+            #   「stage1 重复不足」, 与项目既有教训同类(静默失败被算成仪器行为)。
+            msg = f"{type(e).__name__}: {e}"
+            stage = ("stage2" if "stage2" in msg else
+                     "stage1" if "stage1" in msg else "unknown")
+            r = {"qualified": False, "k_valid": None, "abstained": None,
+                 "stage_failed": stage, "infra_suspected": "全部失败" in msg,
+                 "op": {"error": msg[:160]}, "knots": None}
         rec = {"base_id": arm["base_id"], "arm": arm["arm"], "rep": i,
                "length_stratum": arm["length_stratum"],
                "generator_family": arm["generator_family"],
@@ -108,7 +130,10 @@ def main():
                 fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
             cnt["done"] += 1
             cnt["qualified" if r["qualified"] else "unqualified"] += 1
-            infra = (r.get("op") or {}).get("n_infra_failed", 0)
+            # ★ 熔断必须覆盖 stage2: stage1 有 attempt ledger, **stage2 没有** ——
+            #   首轮 213 次 stage2 空返回对熔断器全程隐形, 熔断从未触发。
+            infra = ((r.get("op") or {}).get("n_infra_failed", 0)
+                     or r.get("infra_suspected"))
             _recent.append(1 if infra else 0)
             if len(_recent) == INFRA_WINDOW and sum(_recent) / INFRA_WINDOW > INFRA_TRIP:
                 _tripped.set()

@@ -1,0 +1,95 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.05,
+      "摆脱欲": 0.10,
+      "确认欲": 0.20,
+      "超越欲": 0.0,
+      "归属欲": 0.05,
+      "控制欲": 0.10,
+      "安全感欲": 0.50,
+      "向往欲": 0.0
+    },
+    "note": "写作者的核心驱动力是安全感欲(被双侧触发：既想帮OP消除'未诊断疾病'的健康不确定性，也想替OP规避错失治疗窗口的风险)；其次是确认欲(想确认自己的医学知识/建议是对的，并借'You're not overreacting'确认OP的警觉合理)；摆脱欲来自'rather than just waiting it out'隐含的'让OP摆脱被动等待的危险态'；控制欲体现在'I'd ask for...'的指令性；归属欲与成为欲仅微弱，作为热心版友的身份展演。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "看到OP报告'单侧新发听力下降+耳鸣且无改善'，对'这到底是不是中耳积液/更严重病因'的诊断不明确",
+      "weight": 0.35,
+      "derived_from": "由安全感欲 经'新发单侧聋+耳鸣无改善'这一医疗情境事件衍生：风险未量化，需通过听力测试把不确定性降下来"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "OP可能误以为只是积液，认知缺口：积液 vs 单侧聋伴耳鸣的鉴别",
+      "weight": 0.20,
+      "derived_from": "由确认欲+安全感欲 经'症状归因不明'情境衍生：先帮OP把'什么能/不能解释这些症状'讲明白"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "OP正在承受听力下降+耳鸣的不适，且处于'怕麻烦/怕反应过度'的被动态",
+      "weight": 0.15,
+      "derived_from": "由摆脱欲 经'单侧听力损失+耳鸣持续无改善'情境衍生：促使OP脱离当前不适与潜在恶化"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "写作者自身医学常识/建议的准确性需要被OP接受，OP的'过激'自责也被反向证伪",
+      "weight": 0.15,
+      "derived_from": "由确认欲 衍生：'You're not overreacting'既确认OP合理，也隐含确认自己判断标准正确"
+    },
+    {
+      "code": "N13_情感慰藉",
+      "context_slot": "OP可能因犹豫就医而自责/焦虑，需要被无条件接纳',
+      "weight": 0.15,
+      "derived_from": "由归属欲+确认欲 经'OP自我怀疑是否过激'情境衍生：先给情绪接住再讲方案"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "情境与OP的健康目标高度相关；写作者的回复同时给出'你没错(情感)+有解(行为路径=ENT/听力学转诊)'，属于促进+当场部分已满足→正情绪；且清晰的下一步让OP coping potential 高，所以主导情绪是宽慰/认同而非恐惧。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.05,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.15,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.05,
+      "love爱": 0.0,
+      "relief宽慰": 0.25,
+      "approval认同": 0.35,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.10,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.05
+    },
+    "note": "由'需求(N01/N13/N10)×促进+已满足+高coping'导出主导正情绪：approval认同('You're not overreacting'最直接的词面证据)+relief宽慰(给出明确路径后的释然)；次为desire渴望(推动OP转诊)；低剂量fear(对'不处理可能恶化'的轻微警示)与anger(对'just waiting it out'的轻微拒斥)。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.40,
+      "avoidance回避": 0.0,
+      "attend关注": 0.35,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.05,
+      "interrupt中断": 0.05,
+      "dominate支配": 0.15
+    },
+    "note": "approach+attend占主导：写作者强烈推OP走向专业医疗并把注意力集中到'无改善'这一关键信号；dominate体现为'I'd ask for an ENT/audiology referral'的指令式语气；agonistic+interrupt微触发于对'just waiting it out'的否定与打断。"
+  },
+  "chain_trace": "安全感欲 →(情境:刷到OP描述'单侧新发听力下降伴耳鸣且无改善')→ 需求N01_确定性(降低诊断未明的健康风险) + N04_理解世界(鉴别积液 vs 严重病因) →(评价:促进+已满足+coping高)→ 情绪approval认同+relief宽慰+desire渴望 → 行动倾向approach趋近 + attend关注 + dominate支配(明确指令OP去做ENT/听力学转诊)的完整推导。",
+  "evidence": {
+    "desire": "deserves a proper hearing test rather than just waiting it out; I'd ask for an ENT/audiology referral, especially since there's been no improvement",
+    "need": "Fluid can definitely cause muffled hearing, but new one-sided hearing loss plus tinnitus deserves a proper hearing test",
+    "emotion": "You're not overreacting",
+    "action": "I'd ask for an ENT/audiology referral, especially since there's been no improvement"
+  }
+}
+```

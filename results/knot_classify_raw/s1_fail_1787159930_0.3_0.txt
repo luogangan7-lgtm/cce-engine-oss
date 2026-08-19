@@ -1,0 +1,95 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.25,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.10,
+      "控制欲": 0.20,
+      "安全感欲": 0.40,
+      "向往欲": 0.05
+    },
+    "note": "主体是反复给突发性耳聋患者做 MRI/CT/化验的一线记录者；潜变量层面最强烈的是对'病因未知'这一不确定性的消除渴望(安全感欲)与对'无能为力'职业状态本身的脱离(摆脱欲)，同时还有把诊断流程握回手里的控制欲，以及在 reddit hearing 板块发言隐含的'找同行/同病者'的归属欲。向往欲是零星残留——向往能像教科书那样对每例都给出病因的工作状态。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "反复记录突发性耳聋患者影像与化验，病因始终标为 unidentified",
+      "weight": 0.40,
+      "derived_from": "由 安全感欲 经「病因长期悬而未决」这一情境事件衍生——需要把'原因不明'降到'原因已知'"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "影像正常、化验正常，却确有听力突然丧失的临床表现",
+      "weight": 0.25,
+      "derived_from": "由 安全感欲 + 摆脱欲 经「检查结果与临床表现脱节」衍生——需要把认知缺口补上、把'为什么会突然聋'这件事想明白"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "作为记录者，长期面对'每例都是 idiopathic'的累积无力感",
+      "weight": 0.20,
+      "derived_from": "由 摆脱欲 经「明知有患者在聋却找不到原因」的持续情境衍生——需要让这种职业性的挫败与同情负荷停下来"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "检查手段已经穷尽，但病因仍不在掌控内",
+      "weight": 0.10,
+      "derived_from": "由 控制欲 经「能做的都做了，方向盘依然不在手里」衍生——需要重新握住对诊断走向的主导权"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "在 reddit hearing 讨论板块发帖",
+      "weight": 0.05,
+      "derived_from": "由 归属欲 经「在专业内部找不到共鸣、转向公共讨论区寻找同类」衍生——需要确认自己不是唯一一个被 idiopathic 困住的人"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "低",
+    "note": "对一名诊断者而言，'病因不明'= 核心目标直接被阻断，因此 goal_relevance 极高；内容本身没有提供任何解法，只是把'每例都是 unidentified'这一未被满足的状态原样摆出来(威胁+未满足 → 负)；且现有工具(MRI/CT/lab)对这类病因并无破解能力，应对潜能被压到低。这一组合决定情绪不会走向 relief/joy，而是沉向 fear/sadness 区域。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.10,
+      "curiosity好奇": 0.15,
+      "fear恐惧": 0.20,
+      "sadness悲伤": 0.45,
+      "anger愤怒": 0.10
+    },
+    "note": "由 N01/N04 在 威胁+未满足+低 coping 下推出：主导情绪是面对'每例都 unidentified'的悲伤性无力(sadness 0.45)，叠加对病因/预后不可知的恐惧(fear 0.20)，以及对现有诊疗工具有限性的压抑性愤怒(anger 0.10)；残留的 curiosity(0.15)来自尚未放弃的'理解世界'动机，approval(0.10)来自对自己仍在坚持记录这一行为的微弱自我肯定。没有任何促进/已满足通道，所以 relief/joy/pride 全部为 0。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.20,
+      "avoidance回避": 0.10,
+      "attend关注": 0.35,
+      "reject拒斥": 0.10,
+      "agonistic对抗": 0.10,
+      "interrupt中断": 0.15,
+      "dominate支配": 0.0
+    },
+    "note": "主体当前最显化的行为是持续记录(attend 0.35)——'I record'本身就是一种高强度关注动作；在 reddit 发帖属于 interrupt(0.15)——打破专业内部沉默、向外部社区抛出议题；approach(0.20)对应寻找同类与潜在解释；agonistic(0.10)对应'对 idiopathic 标签的不甘';avoidance(0.10)与 reject(0.10)对应在情感层面对挫败感的轻微退避与对工具局限性的拒认。dominate 在这条链条里无据可推，归 0。"
+  },
+  "chain_trace": "主体的主导欲望是 安全感欲(对病因不确定性的消除)，由'反复记录突发性耳聋患者的 MRI/CT/化验'这一情境事件触发，衍生出 N01_确定性(需要让每例病因从 unidentified 变为 identified)与 N04_理解世界(需要弄清影像正常为何仍会突聋)；在 appraisal 层面，情境对核心目标 goal_relevance 极高(0.95)，但内容本身是 威胁 且 need_status 未满足，coping_potential 低，于是 goal_congruence 为负；负向评价+低应对潜能推出主导情绪为 sadness(0.45)与 fear(0.20)，并残留 curiosity(0.15)与 approval(0.10)；这些情绪经 Frijda 通道输出为 attend(持续记录,0.35)+ approach(发帖寻同类,0.20)+ interrupt(向公共讨论区抛出议题,0.15)+ agonistic/avoidance/reject 各 0.10 的混合行动倾向，从而在行为上表现为'一边仍逐例做记录，一边到 reddit hearing 讨论区把这种 idiopathic 困境讲出来'。"
+  "evidence": {
+    "desire": "「The cause of each hearing loss remains unidentified」(对病因未知的直接陈述 → 安全感欲/摆脱欲的源头)；「I record the MRI, CT scan, and lab results」(持续抓取证据的强迫式记录 → 控制欲的体现)",
+    "need": "「The cause of each hearing loss remains unidentified」= N01_确定性；「The images show no abnormalities」与「cause … remains unidentified」之间的鸿沟 = N04_理解世界；通篇无解的累积 = N06_摆脱痛苦",
+    "emotion": "「remains unidentified」×多次出现= sadness 的无解感；影像/化验全正常却实有聋= fear 的不可知感；选择把'每例都不明'作为一个模式抛出而不是单纯记病历= 被压抑的 anger/agonistic",
+    "action": "「I record … for patients」= attend(0.35)的逐例记录行为；帖子本身落在 reddit hearing discussion 板块= interrupt(0.15)+ approach(0.20) 寻同类的发帖动作"
+  }
+}
+```
