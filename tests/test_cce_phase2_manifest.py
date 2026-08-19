@@ -23,8 +23,12 @@ from exp_crossmodel_desire import MODELS  # noqa: E402
 M = json.loads((P / "panel_manifest.json").read_text(encoding="utf-8"))
 
 # ── 1. 仪器身份 ─────────────────────────────────────────────────────────────
-assert M["measurement_instrument"]["instrument_hash"] == "565470cf26c16d01"
-assert M["measurement_instrument"]["model"] == MODELS[G.MEASUREMENT_MODEL]["model"] == "MiniMax-M3"
+MI = M["measurement_instrument"]
+assert MI["instrument_hash"] == "eb487df50f5aec31" and MI["gen"] == 5
+# 换代必须**显式记录从哪一代来**, 否则「标定不可搬」这件事会在下游丢失
+assert MI["changed_from"]["instrument_hash"] == "565470cf26c16d01"
+assert MI["residual_limitation"] and MI["reproducibility"], \
+    "★ 换到一台会过期的仪器上, 限度与可复现性必须写进 artifact"
 
 # ── 2. 测量模型不得参与刺激构造 ─────────────────────────────────────────────
 meas = MODELS[G.MEASUREMENT_MODEL]["model"]

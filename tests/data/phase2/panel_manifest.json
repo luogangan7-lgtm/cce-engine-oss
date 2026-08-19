@@ -1,11 +1,20 @@
 {
  "status": "ONTOLOGY_BLINDED_SYNTHETIC",
  "measurement_instrument": {
-  "model": "MiniMax-M3",
-  "instrument_hash": "565470cf26c16d01",
-  "gen": 4
+  "model": "qwen3.7-max",
+  "instrument_hash": "eb487df50f5aec31",
+  "gen": 5,
+  "changed_from": {
+   "model": "MiniMax-M3",
+   "instrument_hash": "565470cf26c16d01",
+   "gen": 4
+  },
+  "why": "owner 指示改用阿里云订阅跑; MiniMax 处于限流冷却窗口",
+  "why_not_qwen38_or_glm": "那两个分别是本面板的 G1/G2 刺激生成器, 用它们测量 = 自己写的自己读",
+  "residual_limitation": "订阅内无非 qwen/非 GLM 的第三家族 ⇒ G1 生成的 12 个 base 与仪器同属 qwen 家族(版本不同)。generator 随机分配 ⇒ 该重叠可测, 必须按 generator_family 分组报告读数",
+  "reproducibility": "阿里云订阅约 2026-08-22 到期, 届时本仪器不可复现"
  },
- "note": "测量仪器不变(换模型=换仪器); 生成器与盲验者均非测量模型",
+ "note": "测量模型 = 仪器身份; 本清单已换代为 gen5。生成器与测量模型仍**模型级互不相同**",
  "analysis_sets": {
   "primary": "blind_rule_check in {FOLLOWS, NOT_APPLICABLE}",
   "sensitivity": "全部通过机器验收的臂",

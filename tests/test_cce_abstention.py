@@ -124,7 +124,14 @@ assert "stage1 弃权" in r["abstain_reason"]
 
 # ── 11. ★★ 仪器谱系与标定可搬性 ────────────────────────────────────────────
 lin = K.INSTRUMENT_LINEAGE
-assert [g["gen"] for g in lin] == [1, 2, 3, 4]
+assert [g["gen"] for g in lin] == [1, 2, 3, 4, 5], "换代必须登记进谱系, 不许只改代码不留代"
+# ★ gen5 换的是**测量模型**(阿里云 qwen3.7-max) —— 换模型 = 换仪器, 不是换算力。
+#   谱系里必须写明它与生成器的关系, 否则下游读不出「为什么不是 qwen3.8」。
+g5 = lin[4]
+assert g5["hash"] == "eb487df50f5aec31" and g5["model"] == "qwen3.7-max"
+assert "自己写的自己读" in g5["note"], "★ 必须写明为何不选 qwen3.8/glm-5.2(它们是刺激生成器)"
+assert "同属 qwen 家族" in g5["note"], "★ 残留的家族级重叠必须写出来, 不许只说模型不同"
+assert "不可复现" in g5["note"], "★ 订阅到期后仪器不可得, 这条必须随谱系走"
 assert lin[0]["hash"] == "57ec6cf478d3875e" and len(lin[0]["runs"]) == 6
 assert lin[1]["hash"] == "287d07a0ef1ea78e" and lin[1]["runs"] == []
 assert lin[2]["hash"] == "ea70b373d5bef630" and len(lin[2]["runs"]) == 4, "gen3 的四个 run"

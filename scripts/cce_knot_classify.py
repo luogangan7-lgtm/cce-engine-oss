@@ -49,6 +49,15 @@ from exp_v4_causal_chain import EMOTIONS, ACTIONS
 from exp_crossmodel_desire import call_model
 
 TAXO_PATH = os.path.join(ROOT, "config/knot_taxonomy.json")
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 测量模型 = **仪器身份的一部分**(model/endpoint 都在 _INSTRUMENT_FIELDS 里)。
+# 改它 ⇒ instrument_hash 变 ⇒ **换代**, 上一代的标定一律不可搬。
+# 之所以做成 env 而不是散落三处硬编码: 此前 "M3" 写死在 stage1/stage2/instrument_id
+# 三个地方, 想换测量模型就得改三处 —— 漏改一处就会得到一台**半新半旧的嵌合仪器**,
+# 而 instrument_hash 只反映改过的那处, 看起来还很正常。
+MEASUREMENT_MODEL = os.environ.get("CCE_MEASUREMENT_MODEL", "M3")
+
 RAW_DIR = os.path.join(ROOT, "results/knot_classify_raw")
 LAYERS = ("desire_vec", "need_vec", "emotion_vec", "action_vec")
 
@@ -117,7 +126,7 @@ def stage1(text, context, k):
 
     def one(T):
         for att in range(3):
-            c, p, pv, m, ok = call_parse("M3", case, T, f"knot_s1_T{T}")
+            c, p, pv, m, ok = call_parse(MEASUREMENT_MODEL, case, T, f"knot_s1_T{T}")
             _st, _ec = _classify(c, m, ok, p)
             attempts.append({"temperature": T, "attempt": att + 1,
                              "status": _st, "error_class": _ec})
@@ -295,6 +304,19 @@ INSTRUMENT_LINEAGE = [
               "★ **物理仪器与 gen3 完全相同**(prompt/model/endpoint/采样策略全同), "
               "只是标识符重新划界 —— 与 gen1→gen2 同性质 ⇒ **gen3 的标定对 gen4 仍适用**。"
               "判据: 改它之后已采集的 raw draw 还能不能用。hash 留 None(由代码现算)。")},
+    {"gen": 5, "hash": "eb487df50f5aec31",
+     "s1_prompt_sha256": "eadcdcdac46a5180", "s2_prompt_sha256": "b8d0f60d66d10f12",
+     "model": "qwen3.7-max", "runs": [],
+     "note": ("★ **测量模型换成阿里云 qwen3.7-max** ⇒ 这是**换仪器**, 不是换算力。"
+              "gen1-gen4 的一切标定对 gen5 **不适用**(实测佐证: gen1→gen4 只改 prompt, "
+              "同一对文本效应量就变 2.8 倍; 换模型家族比那大得多)。"
+              "为什么选 qwen3.7-max 而不是 qwen3.8/glm-5.2: 后两者分别是 Phase 2 的 "
+              "G1/G2 **刺激生成器**, 用它们测量 = 自己写的自己读。"
+              "⚠️ 残留限度: 阿里云订阅里没有非 qwen/非 GLM 的第三家族, 故 G1 生成的 12 个 base "
+              "与仪器**同属 qwen 家族**(版本不同)。generator 是随机分配的 ⇒ "
+              "该重叠**本身可测**(G1 组 vs G2 组读数差异会暴露它), 必须分组报告。"
+              "⚠️ 订阅约 2026-08-22 到期 ⇒ 这台仪器届时**不可复现**, "
+              "其 profile 只能标 ESTIMATED_SCOPED 且注明仪器已不可得。")},
 ]
 # 兼容别名(旧引用仍可用)
 LEGACY_INSTRUMENT_20260818 = INSTRUMENT_LINEAGE[0]
@@ -421,7 +443,7 @@ def adopt_verdict(n_qualified, n_unqualified, n_parse_failed, per_base=None,
 def instrument_id(taxo, k=None, knot_n=None, s1_pairing=None):
     """当前仪器的完整定义 + 哈希。任何跨读数比较之前必须先比它。"""
     from exp_crossmodel_desire import MODELS
-    m = MODELS["M3"]
+    m = MODELS[MEASUREMENT_MODEL]
     spec = {
         "ontology_version": taxo.get("version"),
         # 拆成两份: 此前只有 s2, 改 s1 prompt 不换指纹(静默换仪器)。两边都要覆盖。
@@ -652,7 +674,7 @@ def _stage2_draw(prompt, taxo, tag):
     """一次抽样。失败重试 3 次, 全失败返回 None(由聚合层决定是否致命)。"""
     ok_keys = {k["key"] for k in taxo["knots"]}
     for att in range(3):
-        content, _ = call_model("M3", prompt, temperature=0.0)
+        content, _ = call_model(MEASUREMENT_MODEL, prompt, temperature=0.0)
         d = extract_json_robust(content, log_note=f"knot_s2_{tag}")
         # ★ 去掉 `and d["knots"]`: 空列表此前被当成解析失败去重试 ——
         #   模型就算想说「这里读不出人」也说不出口。现在它是合法弃权。

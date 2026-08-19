@@ -61,9 +61,20 @@ MODELS = {
         #    阿里云与 MiniMax 两个订阅 ⇒ 本条**不进任何现役流程**, 保留仅为历史可读。
         "unavailable": "owner 未订阅(2026-08-19)",
     },
-    # 阿里云 Token Plan 共享 Credits 下的同族备选(千问家族), 用于 G2 降级或额度分流
+    # 阿里云 Token Plan 共享 Credits 下的同族备选(千问家族)。
+    # ★ 2026-08-20: qwen3.7-max 被选作 **gen5 测量仪器** —— 理由是它**既不是 G1 也不是 G2**,
+    #   避免「自己写的自己读」。已知残留限度: 订阅里没有非 qwen/非 GLM 的第三家族,
+    #   故 G1(qwen3.8) 生成的那 12 个 base 与仪器**同属 qwen 家族**(版本不同)。
+    #   好在 generator 是随机分配的 ⇒ 该重叠**本身可测**(G1 组 vs G2 组读数差异会暴露它)。
     "Qwen3.7max": {
         "model": "qwen3.7-max",
+        "base": os.environ.get("ALIYUN_API_BASE", ""),
+        "key_env": "ALIYUN_API_KEY",
+        "append_path": True,
+        "max_tokens": 6000,
+    },
+    "Qwen3.7plus": {
+        "model": "qwen3.7-plus",
         "base": os.environ.get("ALIYUN_API_BASE", ""),
         "key_env": "ALIYUN_API_KEY",
         "append_path": True,
