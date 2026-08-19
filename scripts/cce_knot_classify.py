@@ -331,6 +331,93 @@ def calibration_transfers(calibration, taxo, k=3, knot_n=None, s1_pairing=None):
             "checked": dep}
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# 资格 margin（ADOPT 闸）—— 2026-08-19 外部评审定值
+#
+# ★★ 出处必须写对: 这是**工程 QA 预算**, 不是「文献证明 5% 缺失安全」。
+#   缺失数据方法学明确: 缺失**比例本身**不决定偏倚可否接受, 偏倚取决于 missingness
+#   mechanism / 辅助信息 / 缺失与目标变量的关系。即使低 missingness, 非随机选择下
+#   也可能有系统偏倚 ⇒ **不存在普适的「低于 X% 就没事」阈值**。
+#   在 owner 未给 coverage spec 前, 这是替系统冻结的保守契约, 来源标为 ENGINEERING_BUDGET。
+#
+# ★ 闸必须用**单侧 95% 上界**, 不能用点估计: 1/48 = 2.1% 看着 <5%, 但不确定性仍很大。
+#   零事件精确上界 = 1 - alpha**(1/n):
+#     n=48 → 6.05% > 5% ⇒ gen3 的 0/48 正确地停在 PENDING, 不是 ADOPT
+#     要让上界 ≤5% 需 n >= 59 个零事件 rep (1/n <= ln.95/ln.05 = 0.017122)
+# ★ 禁止从已观测的 0/48 或 2/72 倒推 margin —— 那是「看完结果再决定什么损失可接受」。
+QUALIFICATION_MARGIN = {
+    "F_max": 0.0,      # 解析/schema 失败: 范畴性规则, 出一个就 ROLLBACK
+    "U_max": 0.05,     # unqualified(弃权/资格不足)率的**上界**上限
+    "bound": "exact_one_sided_95_upper",
+    "provenance": "ENGINEERING_BUDGET",   # ★ 不是 LITERATURE_DERIVED
+    "concentration_flag": {"per_base_unqualified_min": 2, "per_base_reps": 4,
+                           "effect": "ADOPT_WITH_RESTRICTIONS"},
+    "why_concentration": "总体 4% 但全集中在一种表达形式, 会被均值洗掉 ⇒ 必须另报 U_by_base",
+}
+
+
+def binom_upper(x, n, alpha=0.05):
+    """x/n 的**精确单侧 95% 上界**(Clopper-Pearson 上侧)。
+
+    x=0 有闭式 1 - alpha**(1/n); x>0 用二分求满足 P(X<=x | p) = alpha 的 p。
+    不引 scipy —— 本模块目前只依赖 math。
+    """
+    if n <= 0:
+        raise ValueError("n 必须 > 0")
+    if x < 0 or x > n:
+        raise ValueError("x 必须在 [0, n]")
+    if x == n:
+        return 1.0
+    if x == 0:
+        return 1.0 - alpha ** (1.0 / n)
+
+    def tail(p):   # P(X <= x)
+        return sum(math.comb(n, i) * p ** i * (1 - p) ** (n - i) for i in range(x + 1))
+
+    lo, hi = 0.0, 1.0
+    for _ in range(200):
+        mid = (lo + hi) / 2
+        if tail(mid) > alpha:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
+def adopt_verdict(n_qualified, n_unqualified, n_parse_failed, per_base=None,
+                  margin=None, channel_live=True):
+    """gen 级资格判决。**唯一**允许把仪器升到 ADOPT 的入口。
+
+    per_base: {base_id: n_unqualified} —— 用于集中度警报。总体率达标但集中在少数
+              base 上时, selection risk 并未消失, 降级为 ADOPT_WITH_RESTRICTIONS。
+    """
+    m = margin or QUALIFICATION_MARGIN
+    n = n_qualified + n_unqualified
+    if n <= 0:
+        return {"verdict": "NO_DATA", "reason": "没有 rep"}
+    if n_parse_failed > m["F_max"] * max(n, 1) or (m["F_max"] == 0.0 and n_parse_failed > 0):
+        return {"verdict": "ROLLBACK", "reason": f"F={n_parse_failed} > F_max={m['F_max']}",
+                "n": n, "u_upper95": None}
+    if not channel_live:
+        return {"verdict": "ROLLBACK", "reason": "阴性通道自检未过(channel_dead) ⇒ 仪器在错报",
+                "n": n}
+    upper = binom_upper(n_unqualified, n, alpha=0.05)
+    cf = m["concentration_flag"]
+    hot = sorted(b for b, u in (per_base or {}).items() if u >= cf["per_base_unqualified_min"])
+    if upper > m["U_max"]:
+        need = math.ceil(math.log(1 - 0.95) / math.log(1 - m["U_max"])) if n_unqualified == 0 else None
+        return {"verdict": "ADOPT_PENDING_PRECISION", "n": n, "u_hat": n_unqualified / n,
+                "u_upper95": upper, "u_max": m["U_max"],
+                "reason": f"单侧95%上界 {upper:.4f} > U_max {m['U_max']}",
+                "zero_event_n_needed": need, "concentration_flag": hot}
+    if hot:
+        return {"verdict": "ADOPT_WITH_RESTRICTIONS", "n": n, "u_upper95": upper,
+                "concentration_flag": hot,
+                "reason": f"总体达标但 unqualified 集中在 {hot} ⇒ selection risk 未解除"}
+    return {"verdict": "ADOPT", "n": n, "u_hat": n_unqualified / n, "u_upper95": upper,
+            "u_max": m["U_max"], "concentration_flag": []}
+
+
 def instrument_id(taxo, k=None, knot_n=None, s1_pairing=None):
     """当前仪器的完整定义 + 哈希。任何跨读数比较之前必须先比它。"""
     from exp_crossmodel_desire import MODELS
@@ -366,6 +453,7 @@ def instrument_id(taxo, k=None, knot_n=None, s1_pairing=None):
         "insufficient_replicates": "WITHHOLD",
         "abstain_semantics": ABSTENTION_POLICY,
         "statuses": ["qualified", "abstain", "insufficient_replicates"],
+        "margin": QUALIFICATION_MARGIN,
     }
     ih = hashlib.sha256(json.dumps({k: spec[k] for k in _INSTRUMENT_FIELDS},
                                    ensure_ascii=False, sort_keys=True).encode()).hexdigest()[:16]

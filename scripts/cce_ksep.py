@@ -168,19 +168,98 @@ SESOI = None   # 兼容别名, 指向下面的 semantic 档; 新代码请用 SIG
 
 # ★★ 2026-08-19 外部评审: 我把三种**互不相通**的「显著性」混在一个 SESOI 里了。
 #   混用的后果不是算错, 是**留了一个迟早有人往里塞数的字段**。拆成三块, 各自独立标定:
+# ─────────────────────────────────────────────────────────────────────────────
+# 分辨率的**四级**状态 —— 2026-08-19 外部评审定档。
+# 为什么要四级而不是 CALIBRATED / NOT_CALIBRATED 两级:
+#   两级会逼着人把一个**局部** profile 叫成 CALIBRATED, 下游随即当成全局常数。
+#   「真正的缺陷不是窄语料, 而是给一个局部 profile 起一个听起来像全局真理的名字。」
+RESOLUTION_STATUS = (
+    "POINT_OBSERVED",     # 单文本单点(gen4 现状: T_same=0.00611 @ T0, R=8)
+    "ESTIMATED_SCOPED",   # 多 base、但限定 scope 内估出分布(Phase 2 做完到这一级)
+    "VALIDATED_SCOPED",   # 用**新的一批同 scope 文本**验证过上面的 profile/quantiles
+    "CALIBRATED_BROAD",   # 跨 source/domain/length 扩展 + fresh validation 之后
+)
+
+# scope 硬声明必须进 **artifact**, 不能只写文档 —— 文档不会在下游读数时被执行。
+# ★ 下游请求 global_resolution ⇒ 一律 NOT_CALIBRATED, **禁止**拿 scoped median 顶上。
+SCOPE_CLAIM = {
+    "allowed": ("gen4 resolution within the predefined text scope",
+                "within-scope cross-base heterogeneity",
+                "within-scope perturbation discriminability",
+                "within-scope surface invariance"),
+    "forbidden": ("global CCE resolution", "cross-platform resolution",
+                  "cross-domain calibration", "universal delta_resolution"),
+    "rationale": ("Generalizability Theory: 先定义 universe of generalization; "
+                  "某 facet 只观察到一个 level 时该 facet 的方差**不可识别**, "
+                  "故不得外推到未采样条件。"),
+}
+
+
+def global_resolution():
+    """任何「全局分辨率」请求的**唯一**出口。永远不给数。
+
+    存在的理由: 不留这个函数, 下游会自己去 resolution_profile 里取 median 当全局常量 ——
+    这正是 0.06278 当初的下场(一个对的数放错了作用域)。
+    """
+    return {"status": "NOT_CALIBRATED", "delta_resolution": None,
+            "why": "scoped profile 不能顶替全局标定", "scope_claim": SCOPE_CLAIM}
+
+
+# 刺激文本溯源 —— generator 是一个**facet**, 不是透明无影响的工具。
+# Phase 2 必须分 generator_family 报 T_A / T_B / ladder ordering:
+#   若 G1 的 ladder 很漂亮而 G2 完全没有 ⇒ **不得**合并后宣称 instrument 有稳定 discriminability。
+STIMULUS_PROVENANCE_FIELDS = ("base_text_id", "arm", "generator_family",
+                              "generator_model_version", "prompt_sha256",
+                              "attempt_index", "machine_checks", "blind_rule_check")
+STIMULUS_STATUS = "ONTOLOGY_BLINDED_SYNTHETIC"   # ★ 不是「无偏」
+
+
 SIGNIFICANCE_CONTRACT = {
     # ① 测量分辨率: 多大差异才明显超过仪器自己的重复测量误差。
     #    **可以不依赖任何产品数据**, 由同文本重复测量标定。
     #    ⚠️ 但它**绝不能改名叫 SESOI** —— minimal detectable change ≠ minimally important change。
-    "measurement": {"status": "NOT_CALIBRATED", "delta_resolution": None,
+    "measurement": {"status": "POINT_OBSERVED", "delta_resolution": None,
+                    "resolution_status_ladder": RESOLUTION_STATUS,
                     "how_to_calibrate": "same-input repeated runs × 多文本类别 → T_same 分布, "
                                         "且应出 resolution_profile 而非单一全局常量"},
     # ② 语义/解释显著性: 差异大到什么程度会**改变对文本的解释**。
     #    ★ 这一档**不需要销售/转化数据**就能建立 —— 用外部人类锚:
     #      构造大量文本对 → 取 T_CCE → 盲评人类判「same / trivially / meaningfully different」
     #      → 估 P(human meaningful | T_CCE) → 得 δ_semantic。
-    "interpretive": {"status": "NOT_CALIBRATED", "semantic_sesoi": None,
-                     "how_to_calibrate": "external blind human anchor, 见上"},
+    #    ★★ 2026-08-19 外部评审定档: 状态**不是** NOT_CALIBRATED(读起来像「还没做」),
+    #      而是 BLOCKED_EXTERNAL_ANCHOR —— 缺的是**外部真值**, 不是算力或预算。
+    #      判决: LLM judge 可以做 exploratory proxy, **不能**解锁 human semantic SESOI。
+    #      理由: 独立模型 ≠ 独立真值。不同 LLM 仍共享预训练语料、对长度/风格/权威措辞的
+    #      偏好、类似 RLHF, 且已知有 position / verbosity / self-preference bias。
+    #      「Qwen+GLM 一致」只支持 multi-model proxy agreement, 不支持 human ground truth。
+    #      (同源教训: 两模型被同一份上游先验锚定, 一致度读起来像质量信号。)
+    #      ⚠️ 作者本人盲评亦**不得**进入 formal calibration —— ontology 作者兼实验设计者,
+    #        隐藏 CCE 数值也隐藏不了对设计的先验。只能存为 AUTHOR_EXPLORATORY_LABEL。
+    "interpretive": {
+        "human": {"status": "BLOCKED_EXTERNAL_ANCHOR", "semantic_sesoi": None,
+                  "unblock_requires": {
+                      "n_independent_human_judges": 3,   # 不需要懂 CCE
+                      "n_text_pairs": "30-50",
+                      "must_include_arms": ["L0b_same", "B1", "B2", "A1", "A2", "A3"],
+                      "blinding": "ontology-free 提问 + 随机顺序",
+                      "accept_anchor_first": ["agreement", "consistency", "ordinal_behavior"],
+                      "note": "先验收人类锚**自身**的性质, 再去关联 CCE 的 T"}},
+        # proxy 允许收, 但永远不许把上面的 status 改掉
+        "llm_proxy": {"status": "AVAILABLE_EXPLORATORY", "ontology_blinded": True,
+                      "judge_families": ["qwen", "glm"],
+                      "output": "pairwise_difference_probability",
+                      "blinding_contract": [
+                          "judge 看不到九结 taxonomy",
+                          "judge 看不到 CCE prompt",
+                          "judge 看不到 T 与任何 readout",
+                          "judge 看不到 A1/A2/A3 等臂标签",
+                          "不注入 CCE 上游 appraisal / prior",
+                          "只看随机顺序的两段原始文本",
+                          "提问用 ontology-free 自然语言(不含本体词汇)",
+                          "换不同模型家族 + 随机交换 A/B 顺序"],
+                      "why_still_not_sesoi": "独立模型 ≠ 独立真值; 见上",
+                      "future_value": "拿到真人锚后可检验 proxy 能否迁移"},
+        "semantic_sesoi": None},   # 顶层保留 None, 任何代码想读一个数都读到 None
     # ③ 行为/业务显著性: 需要真实下游结果(点击/线索/成交)。没有就是没有。
     "behavioral": {"status": "NOT_AVAILABLE", "behavioral_sesoi": None,
                    "why": "当前无 outcome anchor; 且当前采集剖面下因果不可识别"},

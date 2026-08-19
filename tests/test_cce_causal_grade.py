@@ -68,8 +68,19 @@ assert SC["interpretive"]["semantic_sesoi"] is None
 assert SC["behavioral"]["status"] == "NOT_AVAILABLE"
 # ★ 分辨率不得被改名成 SESOI(minimal detectable change ≠ minimally important change)
 assert "delta_resolution" in SC["measurement"] and "sesoi" not in SC["measurement"]
-# ★ 语义档必须写明「不需要产品数据也能标定」的路径, 否则它会被当成永远填不上的坑
-assert "human anchor" in SC["interpretive"]["how_to_calibrate"]
+# ★ 2026-08-19: 语义档改判 BLOCKED_EXTERNAL_ANCHOR —— 缺的是外部真值, 不是算力
+IN = SC["interpretive"]
+assert IN["human"]["status"] == "BLOCKED_EXTERNAL_ANCHOR"
+assert IN["human"]["semantic_sesoi"] is None
+assert IN["human"]["unblock_requires"]["n_independent_human_judges"] >= 3
+# ★★ LLM proxy 绝不许把 human 档解锁: 独立模型 ≠ 独立真值
+assert IN["llm_proxy"]["status"] == "AVAILABLE_EXPLORATORY"
+assert IN["llm_proxy"]["ontology_blinded"] is True
+assert IN["llm_proxy"].get("semantic_sesoi") is None and "sesoi" not in IN["llm_proxy"]
+# proxy 的盲化契约必须明文列出「看不到九结 taxonomy」, 否则它就退化成 CCE 自评 CCE
+assert any("taxonomy" in c for c in IN["llm_proxy"]["blinding_contract"])
+# ★ 作者本人不得进入 formal calibration(利益冲突: ontology 作者兼实验设计者)
+assert "AUTHOR_EXPLORATORY_LABEL" in open(ROOT / "scripts/cce_ksep.py", encoding="utf-8").read()
 # ★ 反向: 不许出现一个笼统的 practical_significance 字段
 assert "practical_significance" not in str(SC), \
     "笼统字段迟早会被塞一个数进去 —— 这正是 0.06278 当初的下场"
