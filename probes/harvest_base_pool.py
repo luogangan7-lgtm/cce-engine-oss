@@ -120,6 +120,30 @@ def select(rows, seed=SEED, n_total=N_BASE):
             "remaining_primary": len(remaining)}
 
 
+def select_extension(rows, n=8, exclude=(), seed=SEED, floor=2):
+    """+8 扩展块 —— **同一条 T-盲规则**，只是从剩余池里继续取。
+
+    ★ 前登记要求扩展块「预先确定」: 必须在扩展数据出现**之前**选定, 且
+      **不得**根据前 24 个 base 的 T 来挑。本函数只用长度层与冻结 seed。
+    ★ floor 为何是 2 而不是主样本的 3: 3 层 × 3 = 9 > 8 个名额, 装不下。
+      这是名额数决定的算术约束, 不是看了结果才改的规则 ——
+      选取时**扩展块一次测量都还没做**。
+    """
+    pool = [r for r in rows if r["eligibility"] == "PRIMARY" and r["length_stratum"]
+            and r["base_id"] not in set(exclude)]
+    counts = Counter(r["length_stratum"] for r in pool)
+    alloc, short = allocate(counts, n_total=n, floor=floor)
+    rng = random.Random(seed + 1000)        # 与主样本不同的流, 避免重叠取法
+    chosen = []
+    for k in STRATA:
+        cand = sorted((r for r in pool if r["length_stratum"] == k), key=lambda r: r["base_id"])
+        take = alloc.get(k, 0)
+        chosen += rng.sample(cand, take) if take else []
+    chosen.sort(key=lambda r: r["base_id"])
+    return {"chosen": chosen, "alloc": dict(alloc), "stratum_counts": dict(counts),
+            "unfilled": short, "floor": floor, "seed": seed + 1000}
+
+
 if __name__ == "__main__":
     rows = harvest()
     prim = [r for r in rows if r["eligibility"] == "PRIMARY"]
