@@ -1,0 +1,113 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.05,
+      "摆脱欲": 0.0,
+      "确认欲": 0.20,
+      "超越欲": 0.0,
+      "归属欲": 0.10,
+      "控制欲": 0.15,
+      "安全感欲": 0.50,
+      "向往欲": 0.0
+    },
+    "note": "这是一段医疗建议的书写者(个体)。核心驱动力是 安全感欲(单侧听力下降+耳鸣+未改善的医疗风险信号需要被认真对待);次要驱动是 确认欲(既要确认自己的医学判断是对的,也想替 OP 确认她的担忧不是夸大);控制欲 体现在'我建议...应该...'这种指导句式中;归属欲 体现为作为 hearing subreddit 中'懂行的过来人'身份;成为欲 仅极微——表现为想成为那个给出专业建议的人。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "OP 自述单侧听力下降伴耳鸣且未改善,急需把'到底是不是大问题'这个不确定状态降下来",
+      "weight": 0.30,
+      "derived_from": "由 安全感欲 经 'recent single-ear hearing loss with ringing should receive a full hearing evaluation' 这一情境事件衍生——恐惧要靠确定性来消除"
+    },
+    {
+      "code": "N12_情感联结",
+      "context_slot": "OP 可能怀疑自己在夸大症状,writer 用 'You aren't exaggerating' 先建立共情与联结",
+      "weight": 0.15,
+      "derived_from": "由 归属欲 经 'OP 感到自己的症状可能不严重/不好意思认真对待' 这一情境衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "目前处在'等它自己好'的被动状态,需要重新握方向盘",
+      "weight": 0.15,
+      "derived_from": "由 控制欲 经 'nothing has improved... instead of simply waiting' 这一情境衍生"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "OP 把症状归因于'积液',writer 需要把这个解释驳倒,把机制讲清",
+      "weight": 0.10,
+      "derived_from": "由 确认欲 经 'Although fluid can certainly make hearing feel blocked' 这一对照解释衍生"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "OP 不知道该找什么科、做什么检查,需要被赋能",
+      "weight": 0.10,
+      "derived_from": "由 安全感欲+确认欲 经 'I'd request an ENT/audiology referral' 这一可执行建议衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "writer 也在借这条评论确认/演练自己的医学知识",
+      "weight": 0.10,
+      "derived_from": "由 确认欲+成为欲 经 writer 主动输出专业判断这一行为衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "OP 正承受听觉受阻+耳鸣的不适,需要缓解",
+      "weight": 0.05,
+      "derived_from": "由 安全感欲 经 OP 实际的躯体不适情境衍生"
+    },
+    {
+      "code": "N15_放松休憩",
+      "context_slot": "OP 处于'等待自愈'的紧绷/焦虑中,writer 想给一点'这事有解'的喘息",
+      "weight": 0.05,
+      "derived_from": "由 归属欲+情感联结 经 'You aren't exaggerating' 给予情绪减压衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "writer 自己写下这段建议时,对自身目标(把不确定性降下来、给出可执行方案)的评估:目标高度相关(单侧+耳鸣+不改善=红旗症);内容本身就是促进(直接给出 ENT/audiology referral 这一具体动作);需要当场被满足(给出了明确路径+反驳了错误解释);writer 自身应对潜能高(有医学知识/经验,确信自己的建议是靠谱的)。综合下来 goal_congruence 为正,情绪基调应是 positive 偏 informative 的肯定感与宽慰感,而非 fear/anger。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.05,
+      "desire渴望": 0.15,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.05,
+      "love爱": 0.0,
+      "relief宽慰": 0.20,
+      "approval认同": 0.35,
+      "curiosity好奇": 0.05,
+      "fear恐惧": 0.10,
+      "sadness悲伤": 0.05,
+      "anger愤怒": 0.0
+    },
+    "note": "由 N01_确定性(高相关+促进+已满足)→ 正向情绪出口为 approval认同('You aren't exaggerating' 是核心锚点)+ relief宽慰(终于给了明确方案);由 N02_掌控局面→ desire渴望(想要 OP 立刻行动);由 N04/N03(认知+赋能)→ 微弱 pride自豪(我有这个知识)与 curiosity好奇(对症状机制的兴趣);fear恐惧 是背景色——writer 写下'recent single-ear hearing loss with ringing should receive a full hearing evaluation'时,字里行间有对延误诊断的隐忧;微量 gratitude 是对 OP 来发帖寻求帮助的肯定;sadness 是对 OP 当前处境的共情。anger=0 因为 writer 不在对抗谁,只是在纠正一个错误假设。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.40,
+      "avoidance回避": 0.0,
+      "attend关注": 0.20,
+      "reject拒斥": 0.10,
+      "agonistic对抗": 0.05,
+      "interrupt中断": 0.10,
+      "dominate支配": 0.15
+    },
+    "note": "approach 主导——writer 推动 OP 走向 ENT/audiology 这一具体行动;attend 体现对医学细节(单侧/耳鸣/不改善/积液vs真性病变)的仔细甄别;reject+agonistic 一起用于驳掉'just fluid / just wait'这一替代方案('instead of simply waiting' 是显式对抗);interrupt 用于打断 OP 的被动等待;dominate 体现在'I'd request... should receive... instead of...'的指导语气。"
+  },
+  "chain_trace": "安全感欲(主导)+确认欲+控制欲+归属欲 →(情境:单侧听力下降伴耳鸣且未改善、OP 倾向归因于积液并继续等待)→ 需求 N01_确定性 + N02_掌控局面 + N12_情感联结 + N04_理解世界 →(评价:目标高度相关 0.9 + 方向促进 + 当场已满足 + writer 自身应对潜能高 → goal_congruence 正)→ 情绪以 approval认同(0.35)+ relief宽慰(0.20) 为主色,辅以 desire渴望 + 微弱 fear恐惧(背景担忧) → 行动倾向以 approach趋近(推动就医)为绝对主导,叠加 attend关注(甄别症状)+ dominate支配(指导句式)+ interrupt中断(打断等待) + reject拒斥(驳掉积液解释) 的完整推导链。"
+  "evidence": {
+    "desire": "recent single-ear hearing loss with ringing should receive a full hearing evaluation",
+    "need": "I'd request an ENT/audiology referral",
+    "emotion": "You aren't exaggerating",
+    "action": "should receive a full hearing evaluation instead of simply waiting"
+  }
+}
+```

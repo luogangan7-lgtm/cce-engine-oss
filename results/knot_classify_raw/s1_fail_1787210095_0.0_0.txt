@@ -1,0 +1,71 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.28,
+      "成为欲": 0.02,
+      "摆脱欲": 0.14,
+      "确认欲": 0.05,
+      "超越欲": 0.00,
+      "归属欲": 0.00,
+      "控制欲": 0.18,
+      "安全感欲": 0.32,
+      "向往欲": 0.01
+    },
+    "note": "安全感欲最高:买家最怕'花大钱后还要再掏钱/被坑'，所以对保修覆盖、receiver坏了怎么办、是否要续会员才能保修反复追问;拥有欲次之:已经决定'about to buy'，目标是把HA拿到手;控制欲来自'phone tag'那段——他想掌控自己的时间表而不是被门店回电牵着走;摆脱欲是底层听力困扰带来的隐含动机;确认欲对应'我选Costco这条路对不对'(略低)."
+  },
+  "need_layer": [
+    {"code": "N01_确定性", "context_slot": "首次购入助听器,面对未知的保修范围/额外费用/续费条件", "weight": 0.30, "derived_from": "由'安全感欲'经'即将在Costco购入HA、保修细则不明'衍生"},
+    {"code": "N07_占有资源", "context_slot": "已经把助听器作为待购目标,关注的是价格/充电器/延保等可购买标的", "weight": 0.25, "derived_from": "由'拥有欲'经'about to buy some new HAs'衍生"},
+    {"code": "N02_掌控局面", "context_slot": "门店电话打不通,只能在工作间隙被回电,陷入被动等待", "weight": 0.15, "derived_from": "由'控制欲'经'frustrating game of phone tag, they don't answer the phone'衍生"},
+    {"code": "N05_优化效率", "context_slot": "希望用最少的时间完成预约/到店调整,而不是被流程消耗", "weight": 0.12, "derived_from": "由'控制欲+拥有欲'经'不能walk in必须appointment,还要续保'衍生"},
+    {"code": "N03_提升能力", "context_slot": "新用户需要建立'HA选购与售后'这套知识", "weight": 0.10, "derived_from": "由'安全感欲'经'Is there anything else I need to know about purchasing through Costco'衍生"},
+    {"code": "N06_摆脱痛苦", "context_slot": "当前HA已用5年,新购是为了解决听力下降带来的生活不便(隐含)", "weight": 0.08, "derived_from": "由'摆脱欲'经'需要新助听器替代旧机'衍生"}
+  ],
+  "appraisal": {
+    "goal_relevance": 0.85,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "高度相关——这是他近期最大决策;但当前情境是'威胁':门店电话打不通=流程障碍,保修未知+可能再付费=经济风险,都需要先解决才能下单;应对潜能给'中'——他清楚自己解决不了,所以把问题抛给社区求助,知道答案在人群里."
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.00,
+      "joy喜悦": 0.02,
+      "gratitude感激": 0.00,
+      "desire渴望": 0.20,
+      "nostalgia怀旧": 0.00,
+      "pride自豪": 0.00,
+      "love爱": 0.00,
+      "relief宽慰": 0.00,
+      "approval认同": 0.05,
+      "curiosity好奇": 0.35,
+      "fear恐惧": 0.18,
+      "sadness悲伤": 0.05,
+      "anger愤怒": 0.15
+    },
+    "note": "curiosity好奇最高——大量开放式问题,'have some questions... Is there anything else I need to know';desire渴望来自N07占有资源已确定目标;fear恐惧由N01确定性缺失+未满足→害怕'pay more out of pocket than the original purchase price';anger愤怒由'frustrating game of phone tag'直接给出;sadness是对'又要花钱/又要折腾'的轻微低落;joy/relief几乎为0因为还没得到任何答案."
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.35,
+      "avoidance回避": 0.08,
+      "attend关注": 0.40,
+      "reject拒斥": 0.02,
+      "agonistic对抗": 0.05,
+      "interrupt中断": 0.02,
+      "dominate支配": 0.08
+    },
+    "note": "approach趋近+attend关注是主轴:已经准备买且正在密集收集信息;avoidance+reject是若有'延保不划算/还要续会员'会被劝退的可能;agonistic对抗对应他对phone tag流程的不满;dominate支配是他想自己掌控时间表的倾向."
+  },
+  "chain_trace": "安全感欲(怕踩坑/怕再付费)+拥有欲(想拿到HA) →(即将在Costco购入助听器,保修范围与门店流程均不明)→ 需求N01_确定性(把保修/费用/续费条件搞清楚)+N07_占有资源(把HA弄到手)+N02_掌控局面(不再被phone tag牵着走) →(评价:goal_relevance=0.85高度相关,congruence_direction=威胁,need_status=未满足,goal_congruence=负,coping_potential=中——他自己解不了,转而求助于社区)→ 情绪curiosity好奇(密集提问)+fear恐惧(怕超支)+anger愤怒(对phone tag)+desire渴望 → 行动倾向attend关注(海量信息收集)+approach趋近(已决心购买)+dominate支配(想绕过电话流程)+agonistic对抗(对门店流程不满).",
+  "evidence": {
+    "desire": "about to buy some new has", "is the only way to schedule an appointment by phone?... frustrating game of phone tag", "Does that cover everything that might go wrong, or are there some situations where I might have to pay more out of pocket than the original purchase price?",
+    "need": "Does that cover everything that might go wrong?"(N01); "about to buy some new has... charger included or extra? ... how much does it cost?"(N07); "it becomes a frustrating game of phone tag... I'm working and can't always take personal calls"(N02); "I don't see an online scheduling option... Any suggestions or work arounds"(N05); "Is there anything else I need to know about purchasing through Costco?"(N03); "I've had my current pair for more than 5 years"(N06隐含,旧机到期)",
+    "emotion": "have some questions... Any suggestions or work arounds"(curiosity); "are there some situations where I might have to pay more out of pocket than the original purchase price"(fear); "it becomes a frustrating game of phone tag"(anger/frustration); "Is it worth it to buy one? ... I believe there's a 3 year warranty"(desire+uncertainty)",
+    "action": "about to buy"(approach); "have some questions ... Does anyone here have an extended warranty? How long can you extend for and how much does it cost?"(attend); "Any suggestions or work arounds for scheduling appointments?"(dominate+agonistic); "Or is battery powered better?"(avoidance的备选)"
+  }
+}
+```

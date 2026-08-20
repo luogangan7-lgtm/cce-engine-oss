@@ -24,11 +24,12 @@ M = json.loads((P / "panel_manifest.json").read_text(encoding="utf-8"))
 
 # ── 1. 仪器身份 ─────────────────────────────────────────────────────────────
 MI = M["measurement_instrument"]
-assert MI["instrument_hash"] == "eb487df50f5aec31" and MI["gen"] == 5
-# 换代必须**显式记录从哪一代来**, 否则「标定不可搬」这件事会在下游丢失
-assert MI["changed_from"]["instrument_hash"] == "565470cf26c16d01"
-assert MI["residual_limitation"] and MI["reproducibility"], \
-    "★ 换到一台会过期的仪器上, 限度与可复现性必须写进 artifact"
+assert MI["instrument_hash"] == "565470cf26c16d01" and MI["gen"] == 4
+# ★ 换过代就必须留痕: 「用过 gen5、为什么放弃、那批数据在哪」不能只活在对话里
+rv = MI["reverted_from"]
+assert rv["instrument_hash"] == "eb487df50f5aec31" and "周配额" in rv["why"]
+assert "不与 gen4 数据混用" in rv["why"], "★ 两台仪器的数据不得混, 这条必须写死"
+assert (P / "panel_gen5_partial_294_quota_exhausted.jsonl").exists(), "★ gen5 部分数据必须留档"
 
 # ── 2. 测量模型不得参与刺激构造 ─────────────────────────────────────────────
 meas = MODELS[G.MEASUREMENT_MODEL]["model"]

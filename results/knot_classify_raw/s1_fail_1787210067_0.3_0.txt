@@ -1,0 +1,50 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.30,
+      "确认欲": 0.20,
+      "超越欲": 0.0,
+      "归属欲": 0.15,
+      "控制欲": 0.25,
+      "安全感欲": 0.10,
+      "向往欲": 0.0
+    },
+    "note": "作者为临床工作者, 反复执行 MRI/CT/实验室检查却得不到确定病因的处境激活: 摆脱欲(想摆脱诊断僵局), 控制欲(想控制诊疗过程与结果), 确认欲(想确认此现象非孤例、被同行理解), 归属欲(寻找面对同样难题的同行), 安全感欲(对患者预后与自身专业确定性的双重需求)"
+  },
+  "need_layer": [
+    {"code": "N01_确定性", "context_slot": "对突发性耳聋患者做完所有检查后仍无明确病因", "weight": 0.30, "derived_from": "由控制欲+安全感欲 经「the cause of each hearing loss remains unidentified」情境衍生"},
+    {"code": "N06_摆脱痛苦", "context_slot": "反复记录却找不到答案的职业无力感", "weight": 0.20, "derived_from": "由摆脱欲 经「影像无异常、病因不明」衍生"},
+    {"code": "N04_理解世界", "context_slot": "影像学与实验室结果与症状之间的认知缺口", "weight": 0.20, "derived_from": "由控制欲+确认欲 经「图表记录显示原因不明」衍生"},
+    {"code": "N10_自我确认", "context_slot": "在reddit同行社区中确认这种诊断困境是行业共性而非个人失误", "weight": 0.15, "derived_from": "由确认欲 经「reddit hearing discussion 公共讨论区」情境衍生"},
+    {"code": "N11_归属群体", "context_slot": "寻找同样面对突发性耳聋诊断边界的临床同行", "weight": 0.15, "derived_from": "由归属欲 经「reddit 听力讨论社区」情境衍生"}
+  ],
+  "appraisal": {
+    "goal_relevance": 0.90,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "低",
+    "note": "内容对写作者的核心目标(确诊+理解病因)是直接威胁: 影像无异常、病因不明, 既未获得确定性也未获得解决路径, 应对潜能低(受医学边界限制), 由此决定负性情绪主导(sadness 为主, fear/anger 次之)"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.10,
+      "curiosity好奇": 0.10,
+      "fear恐惧": 0.20,
+      "sadness悲伤": 0.45,
+      "anger愤怒": 0.15
+    },
+    "note": "需求 N01/N04/N06 × 负向 congruence(威胁+未满足+coping=低) → 主要导出负情绪: sadness(对医学边界的无力感), fear(对病因长期未明的持续焦虑), anger(对诊断工具局限性的不满); 次要: 残余 curiosity(仍想弄清)+approval(自我安慰: '这非我一人之过')"
+  },
+  "action_tendency_layer":

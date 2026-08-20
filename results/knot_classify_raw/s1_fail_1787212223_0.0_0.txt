@@ -1,0 +1,100 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.30,
+      "确认欲": 0.10,
+      "超越欲": 0.0,
+      "归属欲": 0.05,
+      "控制欲": 0.20,
+      "安全感欲": 0.35,
+      "向往欲": 0.0
+    },
+    "note": "文本呈现高压氧治疗中的医疗安全失误——知情同意书遗漏感音神经性耳聋、忽略腹部手术史与用药。读者最被激活的是安全感欲（消除不可控医疗风险）与摆脱欲（脱离这种被丢进腔体、无人把关的危险处境），辅以控制欲（夺回对自身医疗决策的支配权）和确认欲（在相关社群中验证'这种事真的在发生、我不是孤例'），归属欲作为副线（找到受害同温层）。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "面对高压氧治疗这一医疗情境，希望明确真实风险清单与禁忌症筛查是否被落实",
+      "weight": 0.30,
+      "derived_from": "由安全感欲(0.35)经'知情同意书遗漏感音神经性耳聋'这一情境事件衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "患者在密闭加压舱内被设备与流程裹挟，无法喊停、无法质询",
+      "weight": 0.20,
+      "derived_from": "由控制欲(0.20)经'钢门关上、压力上升'的情境衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "左耳出现高频耳鸣、可能正发生听力损伤进行性恶化",
+      "weight": 0.20,
+      "derived_from": "由摆脱欲(0.30)经'左耳响起高频音'的急性不适事件衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "怀疑/已经遭遇医疗机构疏忽，需要在社群中确认'这种疏漏是不正常的'",
+      "weight": 0.15,
+      "derived_from": "由确认欲(0.10)经'等候室另一个人在搜 Oxygen Health Systems'的旁观对比衍生"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "希望加入听损/医疗受害讨论社群，与经历类似的人互相印证",
+      "weight": 0.10,
+      "derived_from": "由归属欲(0.05)经'在 hearing discussion 发文'的发布动作衍生"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "想弄明白为什么一个标准医疗流程会漏掉这么多前置检查",
+      "weight": 0.05,
+      "derived_from": "由安全感欲(0.35)经'contragindications reviews 早就在网上可查'的认知缺口衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "低",
+    "note": "情境对'安全+控制+确定性'目标高度相关；内容方向是揭示威胁（机构失误正在发生）且没有当场被解决（门关着、没人问、压力还在升）；应对潜能极低——密闭加压舱内的人无法自主中断流程，外部人只能事后搜索。因此评价派生出强烈负情绪（愤怒+恐惧），且行动倾向偏向对抗/中断/回避而非趋近。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.02,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.08,
+      "curiosity好奇": 0.05,
+      "fear恐惧": 0.30,
+      "sadness悲伤": 0.15,
+      "anger愤怒": 0.40
+    },
+    "note": "由 N01/N02/N06 需求 × goal_congruence=负 推出主情绪为 anger（机构疏漏：未问腹部手术/未核用药/未做耳咽管检查→道德愤怒）与 fear（密闭+症状进行中+无法喊停→对听力永久损伤的恐惧），sadness 来自对已经/正在发生不可逆损伤的哀感；少量 approval 指向对等候室搜索者的认同（少数正向信号），curiosity 来自对'为什么会这样'的认知追寻，desire 微弱指向'希望制度被修正'。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.05,
+      "avoidance回避": 0.25,
+      "attend关注": 0.10,
+      "reject拒斥": 0.10,
+      "agonistic对抗": 0.30,
+      "interrupt中断": 0.15,
+      "dominate支配": 0.05
+    }
+  },
+  "chain_trace": "安全感欲(0.35)+摆脱欲(0.30)+控制欲(0.20) →(高压氧舱漏检腹部手术/用药/未告知感音神经性耳聋这一情境事件)→ 需求 N01_确定性(0.30)+N02_掌控局面(0.20)+N06_摆脱痛苦(0.20) →(评价:威胁+未满足+应对潜能低→goal_congruence 负)→ 情绪 anger 愤怒(0.40)+fear 恐惧(0.30)+sadness 悲伤(0.15) → 行动倾向 agonistic 对抗(0.30,要求追责/曝光)+avoidance 回避(0.25,远离此类机构)+interrupt 中断(0.15,喊停流程)+reject 拒斥(0.10,拒签类似同意书) 的完整推导。"
+  "evidence": {
+    "desire": "‘The attached single page lists general barotrauma but omits sensorineural hearing loss’ / ‘No one asks about the stitches from last week’s abdominal operation or checks the current medication list’（安全感欲、摆脱欲、控制欲被激活）",
+    "need": "‘pre-session Eustachian tube checks, recent surgery screening, and contraindication reviews’（N01 确定性+N02 掌控）; ‘A high-pitched tone begins in the left ear’（N06 摆脱痛苦）; ‘typing the words “Oxygen Health Systems” into a search bar’（N10/N11 自我确认+归属群体）",
+    "emotion": "‘The heavy steel door stays shut’（fear, helplessness）; ‘omits sensorineural hearing loss’ / ‘No one asks…’（anger, moral outrage）; 高频音 + 密闭不可逆 = sadness",
+    "action": "在 hearing discussion 发文 + 等候室人搜索机构名（attend+agonistic）; 隐含‘别去这种地方’（avoidance）; ‘The heavy steel door stays shut’ 暗含希望有人 interrupt/拉开门"
+  }
+}
+```

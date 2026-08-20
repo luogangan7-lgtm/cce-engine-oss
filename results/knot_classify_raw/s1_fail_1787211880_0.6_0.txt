@@ -1,0 +1,95 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.20,
+      "确认欲": 0.25,
+      "超越欲": 0.0,
+      "归属欲": 0.30,
+      "控制欲": 0.10,
+      "安全感欲": 0.15,
+      "向往欲": 0.0
+    },
+    "note": "归属欲权重最高：结尾'asked whether other workers had visited clinics'是显式的同类搜寻信号（机制子型：相同身体状况的同行群体）。确认欲次之：'not one moment when my hearing changed'是对自身经验合理性的反复确认。摆脱欲来自反复误听的社交痛。安全感欲来自听力下降的渐进不确定性。控制欲体现在主动去诊所、配戴设备的行动上。拥有欲/成为欲/超越欲/向往欲在文本中无明显触发。"
+  },
+  "need_layer": [
+    {
+      "code": "N11_归属群体",
+      "context_slot": "听力逐渐下降后，想知道同行中是否还有别人也去过听力诊所，确认'我不是唯一一个'",
+      "weight": 0.30,
+      "derived_from": "由归属欲经'同事是否也有同样经历'这一情境事件衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "听力是渐进式退化而非单点事件，叙述者反复描述各种补偿行为以确认'我的确在经历这个变化、它是真的'",
+      "weight": 0.25,
+      "derived_from": "由确认欲经'变化无明确起点'的情境衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "柜台与后厨反复误听、说'what?'、提前抢答等社交尴尬与工作失能",
+      "weight": 0.20,
+      "derived_from": "由摆脱欲经'工作场景中持续误听'的情境衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "听力是逐渐变差而非一次事件，希望通过诊所测试把模糊的退化变成明确的诊断结果",
+      "weight": 0.15,
+      "derived_from": "由安全感欲经'渐进而非突变的听力变化'的情境衍生"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "去诊所做测听、配戴耳后设备以恢复日常工作中的听力功能",
+      "weight": 0.10,
+      "derived_from": "由控制欲经'去诊所测试+配戴助听器'的行动衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "中",
+    "note": "目标相关度极高（听力=核心工作能力+社交能力）。内容方向是促进：诊所给出了明确诊断，助听器也配上了，把'未满足'的N06/N01部分变成了'已满足'。但归属欲对应的N11在文本结尾仍悬置（'asked whether other workers had visited clinics'是问句而非答案），所以整体coping_potential只是中而非高——身体/认知层面的需求已被处理，但群体归属层面仍处于未关闭状态。goal_congruence取正，因为主要冲突已解，残余焦虑不主导情绪。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.15,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.25,
+      "approval认同": 0.20,
+      "curiosity好奇": 0.30,
+      "fear恐惧": 0.10,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.0
+    },
+    "note": "curiosity好奇主导：来自N11未满足+coping中等——'asked whether other workers had visited clinics'是开放的探索性提问，对应'想知道别人是否一样'的好奇。relief宽慰来自N06/N01已满足（已配戴设备+已确诊）。approval认同来自N10自我确认的满足——'not one moment when my hearing changed'这种陈述本身是自我叙事合法化，会触发被自己/被叙述所认同的情绪。nostalgia怀旧：叙述者明显在做'before/after'的时间回溯。fear恐惧残余：来自coping中位的未闭合不确定感。joy/sadness/anger在文本中无触发。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.30,
+      "avoidance回避": 0.0,
+      "attend关注": 0.35,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.20,
+      "dominate支配": 0.15
+    },
+    "note": "attend关注占最高：整段叙述是对自身行为模式的细致观察（看口型、调音量、说'what?'、提前抢答）。approach趋近：'visited a clinic''placed a device behind my ear'是显式的趋近行动。interrupt中断：'I said "what?", and then answered before the person spoke again'——这本身就是打断沟通流的回避性中断动作。dominate支配：通过配戴设备、主动求医来夺回对听觉场景的控制。"
+  },
+  "chain_trace": "归属欲（机制子型：同行同病群体）→（情境：听力在工作中渐变、说'what?'却抢答、最后开口问'其他同事是否也去过诊所'）→ 需求N11_归属群体（权重0.30）+ N10_自我确认+N06_摆脱痛苦 →（评价：goal_relevance=0.9, direction=促进, need_status=已满足, congruence=正, coping=中——身体面已解但群体面未闭）→ 情绪curiosity好奇(0.30)+relief宽慰(0.25)+approval认同(0.20) → 行动倾向attend关注(0.35)+approach趋近(0.30)+interrupt中断(0.20) 的完整推导：归属欲在coping中位、未被完全满足的条件下，导出好奇驱动的信息搜寻行动倾向。",
+  "evidence": {
+    "desire": "'I placed a device behind my ear and asked whether other workers had visited clinics' ——归属欲的同类搜寻；'not one moment when my hearing changed' ——确认欲的合理化叙述",
+    "need": "'asked whether other workers had visited clinics' ——N11归属群体；'I asked customers to repeat orders when the grinder was running. I watched the mouths of people speaking' ——N06摆脱痛苦；'sat in a booth, and wore headphones while tones played' ——N01确定性",
+    "emotion": "'There were repeated incidents... I asked customers to repeat orders... I watched the mouths of people speaking' ——叙述性回溯对应nostalgia；'visited a clinic... placed a device behind my ear' ——已解决后对应relief；'asked whether other workers had visited clinics' ——开放问句对应curiosity",
+    "action": "'I watched the mouths of people speaking across the counter' ——attend关注；'I visited a clinic, sat in a booth, and wore headphones while tones played' ——approach趋近；'I said \"what?\", and then answered before the person spoke again' ——interrupt中断；'I turned the radio volume higher... I placed a device behind my ear' ——dominate支配"
+  }
+}
+```
