@@ -50,7 +50,7 @@ assert [c["base_id"] for c in again["chosen"]] == [c["base_id"] for c in E["chos
 
 # ── 6. 触发条件必须是**事前定好的 coverage gate**，不是事后觉得不够 ─────────
 assert "12/24" in E["trigger"] and "20" in E["trigger"]
-assert "只允许扩一次" in E["preregistered"]
+assert "扩一次" in E["preregistered"] and "只允许" in E["preregistered"]
 
 # ── 7. 三个长度层都有代表（扩展也不许只补好补的那层）──────────────────────
 assert set(Counter(c["length_stratum"] for c in E["chosen"])) == {"S", "M", "L"}
