@@ -5,36 +5,36 @@
   "G2": "Qwen3.8"
  },
  "limitation": "验证者恰是另一个生成器; 两者若共享同一语言先验, 这道盲验查不出来。⇒ 只作规则合规的二次确认, 不作扰动强度裁定。",
- "n": 118,
+ "n": 158,
  "by_verdict": {
-  "FOLLOWS": 115,
+  "FOLLOWS": 155,
   "VIOLATES": 3
  },
  "by_arm": {
   "A1": {
-   "FOLLOWS": 24
+   "FOLLOWS": 32
   },
   "A2": {
-   "FOLLOWS": 22,
+   "FOLLOWS": 30,
    "VIOLATES": 2
   },
   "A3": {
-   "FOLLOWS": 24
+   "FOLLOWS": 32
   },
   "B1": {
-   "FOLLOWS": 23,
+   "FOLLOWS": 30,
    "VIOLATES": 1
   },
   "B2": {
-   "FOLLOWS": 22
+   "FOLLOWS": 31
   }
  },
  "by_generator": {
   "G1": {
-   "FOLLOWS": 60
+   "FOLLOWS": 76
   },
   "G2": {
-   "FOLLOWS": 55,
+   "FOLLOWS": 79,
    "VIOLATES": 3
   }
  },
@@ -1217,6 +1217,406 @@
    "verifier_model": "qwen3.8-max-preview",
    "verdict": "VIOLATES",
    "reason": "VERDICT: VIOLATES\nIt still contains a direct question, so it does not describe only circumstances and actions.",
+   "error": null
+  },
+  {
+   "base_id": "2eca26909ed2",
+   "arm": "A3",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nIt substantially shifts the speaker’s situation and describes only actions and circumstances without naming feelings, evaluations, motives, or inner states.",
+   "error": null
+  },
+  {
+   "base_id": "2eca26909ed2",
+   "arm": "B1",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nIt preserves the original meaning and speaker’s situation while using synonyms and changing the sentence order.",
+   "error": null
+  },
+  {
+   "base_id": "6def5ddbcf25",
+   "arm": "B2",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nPassage B changes only punctuation and line breaks without adding, removing, or altering any words.",
+   "error": null
+  },
+  {
+   "base_id": "69d98096ae94",
+   "arm": "B2",
+   "generator_family": "G1",
+   "verifier_family": "GLM5.2",
+   "verifier_model": "glm-5.2",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nPassage B only removes bullet points and line breaks without altering any words.",
+   "error": null
+  },
+  {
+   "base_id": "80769cc0222a",
+   "arm": "A1",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nIt shifts to the speaker’s own actions and describes only observable circumstances without naming feelings or inner states.",
+   "error": null
+  },
+  {
+   "base_id": "2eca26909ed2",
+   "arm": "A2",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nIt moderately shifts the situation and describes only actions and circumstances without naming feelings, evaluations, motives, or inner states.",
+   "error": null
+  },
+  {
+   "base_id": "712fc175d4bf",
+   "arm": "A3",
+   "generator_family": "G1",
+   "verifier_family": "GLM5.2",
+   "verifier_model": "glm-5.2",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nThe passage shifts the perspective to a technician testing the hearing aid in a lab, describing only objective actions and circumstances without naming any inner states or feelings.",
+   "error": null
+  },
+  {
+   "base_id": "2eca26909ed2",
+   "arm": "A1",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nIt shifts the circumstances slightly and describes only actions and circumstances without naming feelings, evaluations, motives, or inner states.",
+   "error": null
+  },
+  {
+   "base_id": "80769cc0222a",
+   "arm": "B1",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nIt preserves the original meaning and situation while using synonyms and changing the sentence order.",
+   "error": null
+  },
+  {
+   "base_id": "712fc175d4bf",
+   "arm": "A1",
+   "generator_family": "G1",
+   "verifier_family": "GLM5.2",
+   "verifier_model": "glm-5.2",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nPassage B shifts the speaker's situation to having already scheduled an appointment and tested conditions, while strictly describing only actions and circumstances without naming any ",
+   "error": null
+  },
+  {
+   "base_id": "712fc175d4bf",
+   "arm": "B2",
+   "generator_family": "G1",
+   "verifier_family": "GLM5.2",
+   "verifier_model": "glm-5.2",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nPassage B only removed the bold formatting from the original text without changing, adding, or removing any words.",
+   "error": null
+  },
+  {
+   "base_id": "80769cc0222a",
+   "arm": "A2",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nIt shifts the advice into a first-person account and describes only actions without naming feelings or evaluations.",
+   "error": null
+  },
+  {
+   "base_id": "80769cc0222a",
+   "arm": "B2",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nThe words are identical; only punctuation and line breaks differ.",
+   "error": null
+  },
+  {
+   "base_id": "712fc175d4bf",
+   "arm": "A2",
+   "generator_family": "G1",
+   "verifier_family": "GLM5.2",
+   "verifier_model": "glm-5.2",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nPassage B shifts the situation moderately and describes only observable circumstances and actions, omitting all feelings, evaluations, motives, and inner states.",
+   "error": null
+  },
+  {
+   "base_id": "919671d9d867",
+   "arm": "A2",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nIt moderately shifts the speaker’s situation into concrete actions and describes only observable circumstances without naming feelings, evaluations, motives, or inner states.",
+   "error": null
+  },
+  {
+   "base_id": "2eca26909ed2",
+   "arm": "B2",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nPassage B keeps all the words identical and changes only punctuation and line breaks.",
+   "error": null
+  },
+  {
+   "base_id": "80769cc0222a",
+   "arm": "A3",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nIt shifts from advice to a first-person report of completed actions and names no feelings, evaluations, motives, or inner states.",
+   "error": null
+  },
+  {
+   "base_id": "919671d9d867",
+   "arm": "B1",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nIt preserves the original meaning and speaker situation while using synonyms and reordering the sentences.",
+   "error": null
+  },
+  {
+   "base_id": "919671d9d867",
+   "arm": "A3",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nThe speaker’s position shifts from a person seeking support to an administrator/organizer, and it describes only actions and circumstances without naming feelings, evaluations, motive",
+   "error": null
+  },
+  {
+   "base_id": "9f0d49fe019d",
+   "arm": "A2",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nPassage B moderately shifts the speaker’s work setting and role while describing only circumstances and actions without naming feelings, evaluations, motives, or inner states.",
+   "error": null
+  },
+  {
+   "base_id": "a05bd9ac0645",
+   "arm": "A2",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nThe passage shifts the speaker to an examination-room scene and describes only actions and circumstances without naming feelings, evaluations, motives, or inner states.",
+   "error": null
+  },
+  {
+   "base_id": "919671d9d867",
+   "arm": "A1",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nIt shifts the situation into concrete actions and avoids naming feelings, evaluations, motives, or inner states.",
+   "error": null
+  },
+  {
+   "base_id": "a05bd9ac0645",
+   "arm": "B1",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nIt preserves the original meaning and speaker’s situation while using synonyms and changing the sentence order.",
+   "error": null
+  },
+  {
+   "base_id": "712fc175d4bf",
+   "arm": "B1",
+   "generator_family": "G1",
+   "verifier_family": "GLM5.2",
+   "verifier_model": "glm-5.2",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nPassage B preserves the original meaning, uses synonyms, and successfully rearranges the sentence order.",
+   "error": null
+  },
+  {
+   "base_id": "9f0d49fe019d",
+   "arm": "A3",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nThe speaker shifts from a hearing-aid user to a professional fitter and describes only actions and circumstances without naming feelings, evaluations, motives, or inner states.",
+   "error": null
+  },
+  {
+   "base_id": "9f0d49fe019d",
+   "arm": "A1",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nPassage B shifts the scene slightly and describes only circumstances and actions without naming feelings, evaluations, motives, or inner states.",
+   "error": null
+  },
+  {
+   "base_id": "919671d9d867",
+   "arm": "B2",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nOnly capitalization, punctuation, and apostrophe style were adjusted, with no words changed, added, or removed.",
+   "error": null
+  },
+  {
+   "base_id": "a05bd9ac0645",
+   "arm": "A3",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nPassage B substantially shifts the speaker to the surgeon and describes only actions and circumstances without naming feelings, evaluations, motives, or inner states.",
+   "error": null
+  },
+  {
+   "base_id": "aec90e410e4e",
+   "arm": "A2",
+   "generator_family": "G1",
+   "verifier_family": "GLM5.2",
+   "verifier_model": "glm-5.2",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nThe rewrite shifts the speaker's situation moderately and describes only actions and physical circumstances without naming any feelings or inner states.",
+   "error": null
+  },
+  {
+   "base_id": "aec90e410e4e",
+   "arm": "A3",
+   "generator_family": "G1",
+   "verifier_family": "GLM5.2",
+   "verifier_model": "glm-5.2",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nPassage B shifts the speaker's situation substantially and describes only circumstances and actions without naming any feelings, evaluations, motives, or inner states.",
+   "error": null
+  },
+  {
+   "base_id": "a05bd9ac0645",
+   "arm": "A1",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nIt shifts the speaker’s details and presents only reported actions and circumstances without naming feelings or inner states.",
+   "error": null
+  },
+  {
+   "base_id": "aec90e410e4e",
+   "arm": "B1",
+   "generator_family": "G1",
+   "verifier_family": "GLM5.2",
+   "verifier_model": "glm-5.2",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nThe meaning and situation are preserved, synonyms are used, and the sentence order is changed by moving the main question to the beginning.",
+   "error": null
+  },
+  {
+   "base_id": "aec90e410e4e",
+   "arm": "A1",
+   "generator_family": "G1",
+   "verifier_family": "GLM5.2",
+   "verifier_model": "glm-5.2",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nIt removes all feelings and inner states, describing only observable actions and circumstances while slightly shifting the speaker's position to actively preparing practical accommoda",
+   "error": null
+  },
+  {
+   "base_id": "a05bd9ac0645",
+   "arm": "B2",
+   "generator_family": "G2",
+   "verifier_family": "Qwen3.8",
+   "verifier_model": "qwen3.8-max-preview",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nIt changes only punctuation and line breaks while keeping every word identical.",
+   "error": null
+  },
+  {
+   "base_id": "e325d3b185aa",
+   "arm": "B2",
+   "generator_family": "G1",
+   "verifier_family": "GLM5.2",
+   "verifier_model": "glm-5.2",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nPassage B only removes markdown formatting (bold, italics, bullet points) without changing, adding, or removing any words.",
+   "error": null
+  },
+  {
+   "base_id": "aec90e410e4e",
+   "arm": "B2",
+   "generator_family": "G1",
+   "verifier_family": "GLM5.2",
+   "verifier_model": "glm-5.2",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nThe only changes made are the addition of line breaks, which is permitted by the rule.",
+   "error": null
+  },
+  {
+   "base_id": "e325d3b185aa",
+   "arm": "B1",
+   "generator_family": "G1",
+   "verifier_family": "GLM5.2",
+   "verifier_model": "glm-5.2",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nPassage B successfully reorders the sentences, uses synonyms throughout, and preserves the original meaning and context.",
+   "error": null
+  },
+  {
+   "base_id": "e325d3b185aa",
+   "arm": "A3",
+   "generator_family": "G1",
+   "verifier_family": "GLM5.2",
+   "verifier_model": "glm-5.2",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nThe perspective shifts from the parent to the son, and the text describes only external actions and circumstances without naming any feelings, evaluations, or inner states.",
+   "error": null
+  },
+  {
+   "base_id": "e325d3b185aa",
+   "arm": "A2",
+   "generator_family": "G1",
+   "verifier_family": "GLM5.2",
+   "verifier_model": "glm-5.2",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nPassage B shifts the speaker's situation moderately and objectively describes only circumstances and actions, successfully removing all feelings, evaluations, motives, and inner state",
+   "error": null
+  },
+  {
+   "base_id": "e325d3b185aa",
+   "arm": "A1",
+   "generator_family": "G1",
+   "verifier_family": "GLM5.2",
+   "verifier_model": "glm-5.2",
+   "verdict": "FOLLOWS",
+   "reason": "VERDICT: FOLLOWS\nPassage B shifts the perspective to the patient and describes only objective circumstances and actions without naming any feelings, evaluations, or inner states.",
    "error": null
   }
  ]

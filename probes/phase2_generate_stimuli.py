@@ -245,8 +245,12 @@ def generate(bases, assignment, dry=False, workers=WORKERS):
 
 
 if __name__ == "__main__":
-    frozen = json.loads((ROOT / "tests" / "data" / "phase2"
-                         / "base_sample_frozen.json").read_text(encoding="utf-8"))
+    # 扩展块并入后走同一条流程: checkpoint 按 (base_id, arm) 去重,
+    # 主 24 个 base 已生成过的臂会被跳过, 只补扩展块的 40 段。
+    _f = ROOT / "tests" / "data" / "phase2" / "base_sample_with_extension.json"
+    if not _f.exists():
+        _f = ROOT / "tests" / "data" / "phase2" / "base_sample_frozen.json"
+    frozen = json.loads(_f.read_text(encoding="utf-8"))
     bases = frozen["chosen"]
     asg = assign(bases)
     from collections import Counter

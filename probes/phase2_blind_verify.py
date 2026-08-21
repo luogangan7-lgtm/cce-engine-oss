@@ -55,9 +55,11 @@ def _done():
 def main():
     st = json.loads((ROOT / "tests" / "data" / "phase2"
                      / "stimuli_frozen.json").read_text(encoding="utf-8"))
-    bases = {b["base_id"]: b["text"] for b in json.loads(
-        (ROOT / "tests" / "data" / "phase2"
-         / "base_sample_frozen.json").read_text(encoding="utf-8"))["chosen"]}
+    _f = ROOT / "tests" / "data" / "phase2" / "base_sample_with_extension.json"
+    if not _f.exists():
+        _f = ROOT / "tests" / "data" / "phase2" / "base_sample_frozen.json"
+    bases = {b["base_id"]: b["text"]
+             for b in json.loads(_f.read_text(encoding="utf-8"))["chosen"]}
     todo = [v for v in st["variants"] if "text" in v
             and (v["base_id"], v["arm"]) not in _done()]
     print(f"待验 {len(todo)} 条 (已完成 {len(_done())})")
