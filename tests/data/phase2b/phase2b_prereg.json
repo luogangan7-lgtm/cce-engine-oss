@@ -1,0 +1,68 @@
+{
+ "block": "PHASE_2B_GENERALIZATION_PILOT",
+ "frozen_at": "2026-08-22T07:51Z",
+ "frozen_before_seeing_new_corpus": true,
+ "status_ceiling": "GENERALIZATION_PILOT",
+ "not_allowed": "不得与 Phase 2 的 32 条混在一起, 也不得把 Phase 2 重新解释成「本来就是跨域验证」",
+ "why": "Phase 2 的 scope 是 hearing consumer discussion 单一 source_family; across_source_families 与 across_domains 均为 NOT_ESTABLISHED。某 facet 只观察到一个 level 时其方差不可识别(Generalizability Theory)。",
+ "design_target": {
+  "source_format_families": 3,
+  "domains": 2,
+  "length_bands": 3,
+  "bases_per_cell": 2,
+  "total_bases": 36,
+  "families_required": [
+   "forum/community long-form",
+   "review/Q&A/consumer feedback",
+   "short-form comment/social reply"
+  ],
+  "domains_required": [
+   "hearing/助听器",
+   "一个与 hearing 无关的 domain"
+  ]
+ },
+ "length_bands": {
+  "S": [
+   150,
+   599
+  ],
+  "M": [
+   600,
+   1199
+  ],
+  "L": [
+   1200,
+   2000
+  ]
+ },
+ "length_bands_note": "★ 沿用 Phase 2 的冻结带 —— 满足「在看新 corpus 前冻结」, 且保持可比性。不得按新 corpus 的 T 或任何测量结果重切。",
+ "selection": {
+  "t_blind": true,
+  "rule": "同 Phase 2: 去重 · 长度带 · 冻结 seed 随机 · 层内不按内容挑",
+  "seed": 20260822
+ },
+ "arms": [
+  "L0",
+  "L0b",
+  "A1",
+  "A2",
+  "A3",
+  "B1",
+  "B2"
+ ],
+ "R": 4,
+ "measurement_instrument": "gen4 MiniMax-M3 565470cf26c16d01 —— 与 Phase 2 同一台, 否则不可比",
+ "generators": "G1=qwen3.8-max-preview / G2=glm-5.2 (阿里云, 与测量模型不同家族), 交叉盲验",
+ "primary_questions": [
+  "T_same(分辨率) 是否跨 source_family 与 domain 稳定? Phase 2 内实测跨度 7.5 倍且与长度无关",
+  "B1 的词面不变性失败是否也出现在其它 domain/family? 若是, 则该缺陷是 instrument property 而非 hearing-language property",
+  "A 轴灵敏度是否跨域保持"
+ ],
+ "prespecified_outcomes": [
+  "① B1 在新域同样 FAILED ⇒ wording_method_effect 是 instrument property, 不限于听力语料",
+  "② B1 在新域 COMPATIBLE ⇒ 该缺陷与 hearing 语料特性相关, scope 可细分",
+  "③ 覆盖不足(complete cells < 2/3) ⇒ INSUFFICIENT_COVERAGE, 不得从缺格外推",
+  "④ 型 I 在新域失控 ⇒ 整轮不可读(与 Phase 1 判决线①同)"
+ ],
+ "stop_rule": "36 个预定 base 全部 attempt 后停止; 不按 T/p 提前停; 不替换结果不好的 base; 不再扩展"
+}
