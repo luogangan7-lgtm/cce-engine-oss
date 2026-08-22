@@ -218,10 +218,47 @@ SIGNIFICANCE_CONTRACT = {
     # ① 测量分辨率: 多大差异才明显超过仪器自己的重复测量误差。
     #    **可以不依赖任何产品数据**, 由同文本重复测量标定。
     #    ⚠️ 但它**绝不能改名叫 SESOI** —— minimal detectable change ≠ minimally important change。
-    "measurement": {"status": "POINT_OBSERVED", "delta_resolution": None,
-                    "resolution_status_ladder": RESOLUTION_STATUS,
-                    "how_to_calibrate": "same-input repeated runs × 多文本类别 → T_same 分布, "
-                                        "且应出 resolution_profile 而非单一全局常量"},
+    # ★ 2026-08-22: Phase 2 做完(32 base / 880 reps / gen4 单一仪器)后
+    #   POINT_OBSERVED → **ESTIMATED_SCOPED**。凭据是 29 个 base 的 T_same 分布, 不是一个点。
+    "measurement": {
+        "status": "ESTIMATED_SCOPED",
+        # ★★ delta_resolution 仍为 None, 且**必须**保持 None:
+        #   外部评审红线 ——「一次买两样可以, 拿其中一样给另一样现场发毕业证不可以」。
+        #   拿本批 L0/L0b 的分位数去给**同一批** A 臂当合格阈值 = calibration 与
+        #   validation 混在同一批数据里。要给出一个阈值, 需要**新的一批同 scope 文本**
+        #   验证本 profile 之后(那才是 VALIDATED_SCOPED)。
+        "delta_resolution": None,
+        "resolution_status_ladder": RESOLUTION_STATUS,
+        "resolution_profile": {
+            "source": "tests/data/phase2/resolution_profile.json",
+            "instrument": "565470cf26c16d01",  # gen4 MiniMax-M3
+            "sampling_policy": {"R": 4, "K": 3},
+            "n_base": 29, "median": 0.03153, "q75": 0.05319, "q95": 0.07056,
+            "min": 0.01056, "max": 0.07889, "spread_ratio": 7.5,
+            # ★ 长度层中位数几乎持平(S .0317 / M .0400 / L .0315)
+            #   ⇒ 7.5 倍跨度是**文本间**差异, **不是长度驱动**的。
+            #   故不得按长度分层建阈值 —— 那会把不存在的规律写进契约。
+            "by_length_stratum": {"S": 0.03167, "M": 0.04, "L": 0.03153},
+            "length_is_not_the_driver": True,
+        },
+        "scope": {
+            "domain": "hearing_or_hearing_aid_lived_experience",
+            "source_family": "hearing_consumer_discussion",
+            "source_sites": ["reddit_r_HearingAids", "reddit_r_HearingLoss",
+                             "reddit_r_hardofhearing"],
+            "format": "user_generated_discussion_text",
+            "eligible_chars": [150, 2000],
+            "sampling": "preregistered_length_stratified",
+            "across_source_families": "NOT_ESTABLISHED",
+            "across_domains": "NOT_ESTABLISHED",
+        },
+        "known_gaps": [
+            "coverage gate 未过: ladder 完备 18/32 < 20; 前登记只允许扩一次且已用掉",
+            "A2/A3 弃权率 12%/17%(真人 2%) ⇒ 其 T 分布条件于合格子集, 存活样本可能有偏",
+        ],
+        "how_to_calibrate": "same-input repeated runs × 多文本类别 → T_same 分布, "
+                            "且应出 resolution_profile 而非单一全局常量",
+    },
     # ② 语义/解释显著性: 差异大到什么程度会**改变对文本的解释**。
     #    ★ 这一档**不需要销售/转化数据**就能建立 —— 用外部人类锚:
     #      构造大量文本对 → 取 T_CCE → 盲评人类判「same / trivially / meaningfully different」

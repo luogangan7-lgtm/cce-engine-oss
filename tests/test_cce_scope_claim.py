@@ -21,10 +21,24 @@ import cce_ksep as KS  # noqa: E402
 # ── 1. 四级状态且顺序不许乱 ─────────────────────────────────────────────────
 assert KS.RESOLUTION_STATUS == ("POINT_OBSERVED", "ESTIMATED_SCOPED",
                                 "VALIDATED_SCOPED", "CALIBRATED_BROAD")
-# gen4 现状只有一个文本一个点
-assert KS.SIGNIFICANCE_CONTRACT["measurement"]["status"] == "POINT_OBSERVED"
-assert KS.SIGNIFICANCE_CONTRACT["measurement"]["delta_resolution"] is None, \
-    "一个文本不构成 profile —— 拿到一个数就填是老毛病"
+# ★ 2026-08-22 Phase 2 后升到 ESTIMATED_SCOPED(29 个 base 的分布, 不是一个点)
+M = KS.SIGNIFICANCE_CONTRACT["measurement"]
+assert M["status"] == "ESTIMATED_SCOPED" and M["status"] in KS.RESOLUTION_STATUS
+# ★★ 升级了状态但 delta_resolution **仍必须是 None** —— 这是最容易破的一条:
+#   拿本批 L0/L0b 的分位数给**同一批** A 臂当阈值 = calibration 与 validation 混用。
+assert M["delta_resolution"] is None, \
+    "★ 有了 profile 就填一个数 = 拿本批数据给本批发毕业证"
+rp = M["resolution_profile"]
+assert rp["n_base"] >= 24 and rp["instrument"] == "565470cf26c16d01"
+assert rp["spread_ratio"] > 5, "跨度必须记下来 —— 它正是「不存在全局常量」的证据"
+# ★ 长度不是驱动因素这条必须显式, 否则日后会有人按长度分层建阈值
+assert rp["length_is_not_the_driver"] is True
+lo, hi = min(rp["by_length_stratum"].values()), max(rp["by_length_stratum"].values())
+assert hi / lo < 1.5, f"层间中位数比 {hi/lo:.2f} —— 若真差很多, 上面那条断言就该改"
+# ★ scope 与已知缺口必须随 profile 走, 不许只报好消息
+assert M["scope"]["across_domains"] == "NOT_ESTABLISHED"
+assert any("coverage gate 未过" in g for g in M["known_gaps"])
+assert any("弃权" in g for g in M["known_gaps"])
 
 # ── 2. 全局分辨率的唯一出口：永远 NOT_CALIBRATED ────────────────────────────
 g = KS.global_resolution()
