@@ -53,7 +53,14 @@ for a in arms:
 # 每个 base 都必须有完整的零参照对(resolution 不依赖任何生成内容)
 n_base = len({a["base_id"] for a in arms})
 c = Counter(a["arm"] for a in arms)
-assert c["L0"] == c["L0b"] == n_base == 24
+# 不写死 24: 扩展块触发后是 24+8。守的是**不变量** —— 每个 base 都必须有零参照对,
+# 因为 resolution 完全不依赖生成内容, 任何 base 缺 L0/L0b 都是采集漏了。
+assert c["L0"] == c["L0b"] == n_base, "★ 有 base 缺零参照臂 ⇒ 该 base 的分辨率无法计算"
+ext = M.get("extension_block")
+assert n_base == 24 + (ext["n_bases"] if ext else 0), f"base 数 {n_base} 与扩展块登记不符"
+if ext:
+    assert ext["same_instrument"].startswith("gen4"), "★ 扩展块必须与主面板同一台仪器"
+    assert "预先确定" in ext["preregistered"]
 
 # ── 4. 协议修订留痕 ─────────────────────────────────────────────────────────
 am = M["protocol_amendments"]

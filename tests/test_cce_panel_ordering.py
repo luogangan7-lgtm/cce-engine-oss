@@ -55,7 +55,8 @@ for t in tasks:
         seen.add(b)
         runs += 1
         prev = b
-assert runs == 24, f"★ 应正好 24 个连续 base 块, 实得 {runs}"
+n_base = len({a["base_id"] for a in man["arms"]})   # 扩展块触发后是 32, 不写死
+assert runs == n_base, f"★ 连续 base 块数应等于 base 数 {n_base}, 实得 {runs}"
 # 可复现 + 换 seed 换顺序
 assert build(PP.SHUFFLE_SEED) == tasks, "★ 顺序不可复现 ⇒ 事后无法核对跑的是哪一批"
 assert build(PP.SHUFFLE_SEED + 1) != tasks
