@@ -1,0 +1,97 @@
+{
+ "question": "B1 的假灵敏度是哪一层在动?",
+ "finding_1": {
+  "claim": "不是单个结失灵, 而是九维**弥散**变化",
+  "evidence": "前 2 结占比 B1_separated 35.4% vs A3_separated 31.1% —— 几乎相同"
+ },
+ "finding_2": {
+  "claim": "B1 分开时的位移量约为真实内容变化的一半, 不是边缘噪声",
+  "evidence": "总|Δ| B1_separated 0.9439 vs A3_separated 1.8511 (51%); 且是 B1_not_separated 0.403 的 2.3 倍"
+ },
+ "finding_3": {
+  "claim": "★ 词面效应**不是整体电平漂移** ⇒ 去公共成分的度量救不了",
+  "hypothesis_tested": "若为电平漂移, 去电平后 B1 应比 A3 缩得多",
+  "result": "B1_separated 缩减 -2%, A3_separated +1% —— 都约等于零",
+  "implication": "词面改变的是**分布形状本身**, 不是幅度"
+ },
+ "status": "EXPLORATORY_ON_METRIC_DEVELOPMENT_SET",
+ "caveat": "Phase 2 只能作为 metric-development set。此处**否定**一个候选(去电平)是有效剪枝, 但任何**选中**某度量的结论必须用新数据确认。",
+ "groups": {
+  "B1_separated": {
+   "n": 7,
+   "median_T_raw": 0.10167,
+   "median_T_centered": 0.10336,
+   "level_removal_shrinkage": -0.017,
+   "total_abs_delta": 0.9439,
+   "top2_share": 0.354,
+   "per_knot": {
+    "audit": 0.1168,
+    "belong": 0.1582,
+    "display": 0.1623,
+    "inertia": 0.0839,
+    "injustice": 0.0498,
+    "itch": 0.0036,
+    "pain_seek": 0.172,
+    "reward": 0.1255,
+    "suspend": 0.0718
+   }
+  },
+  "B1_not_separated": {
+   "n": 19,
+   "median_T_raw": 0.04278,
+   "median_T_centered": 0.04676,
+   "level_removal_shrinkage": -0.093,
+   "total_abs_delta": 0.403,
+   "top2_share": 0.343,
+   "per_knot": {
+    "audit": 0.0605,
+    "belong": 0.0675,
+    "display": 0.045,
+    "inertia": 0.0499,
+    "injustice": 0.0278,
+    "itch": 0.0109,
+    "pain_seek": 0.0413,
+    "reward": 0.0293,
+    "suspend": 0.0708
+   }
+  },
+  "A3_separated": {
+   "n": 19,
+   "median_T_raw": 0.19806,
+   "median_T_centered": 0.19559,
+   "level_removal_shrinkage": 0.012,
+   "total_abs_delta": 1.8511,
+   "top2_share": 0.311,
+   "per_knot": {
+    "audit": 0.2185,
+    "belong": 0.2682,
+    "display": 0.3072,
+    "inertia": 0.2162,
+    "injustice": 0.1364,
+    "itch": 0.0141,
+    "pain_seek": 0.2516,
+    "reward": 0.2175,
+    "suspend": 0.2214
+   }
+  },
+  "null_L0b": {
+   "n": 29,
+   "median_T_raw": 0.03153,
+   "median_T_centered": 0.03611,
+   "level_removal_shrinkage": -0.145,
+   "total_abs_delta": 0.3557,
+   "top2_share": 0.317,
+   "per_knot": {
+    "audit": 0.0562,
+    "belong": 0.0485,
+    "display": 0.0566,
+    "inertia": 0.0471,
+    "injustice": 0.0209,
+    "itch": 0.0118,
+    "pain_seek": 0.0544,
+    "reward": 0.0247,
+    "suspend": 0.0355
+   }
+  }
+ }
+}

@@ -54,7 +54,8 @@ def assemble(case: dict[str, Any]) -> dict[str, Any]:
         event = {
             "id": eid, "event_type": event_type, "layer": "atomic", "assertion": "derived",
             "time": obs["time"], "member_refs": [obs["id"]], "evidence_refs": [obs["id"]],
-            "confidence": 1.0,
+            # 该事件是**既有观测的 1:1 复述** ⇒ 给定成员即必然为真, 不是测量结果。
+            "confidence": 1.0, "confidence_basis": "definitional",
             "provenance": {"producer": "cce_event_assemble", "version": ASSEMBLER_VERSION},
         }
         events.append(event); atomic.append(event); existing.add(eid)
@@ -75,7 +76,9 @@ def assemble(case: dict[str, Any]) -> dict[str, Any]:
                 "assertion": "derived", "time": intersection(visual, text),
                 "member_refs": [visual["id"], text["id"]],
                 "evidence_refs": visual["evidence_refs"] + text["evidence_refs"],
-                "confidence": 1.0, "relations": ["synchronizes"],
+                # 「两区间重叠」由时间戳算出 ⇒ 构造上必然为真, 不是同步强度的度量。
+                "confidence": 1.0, "confidence_basis": "definitional",
+                "relations": ["synchronizes"],
                 "provenance": {"producer": "cce_event_assemble", "version": ASSEMBLER_VERSION},
             })
             existing.add(eid)

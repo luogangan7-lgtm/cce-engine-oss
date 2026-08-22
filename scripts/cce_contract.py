@@ -28,6 +28,12 @@ CONTEXT_DIMENSIONS = {
 }
 
 
+# confidence=1.0 的合法依据。**不许**再出现没有依据的裸 1.0。
+CONFIDENCE_BASIS = {"definitional", "unreported_by_detector", "measured"}
+# ★ 只有 basis=="measured" 的 confidence 允许进入下游加权; 其余两种是结构性/占位值。
+CONFIDENCE_WEIGHTABLE = {"measured"}
+
+
 def _err(errors: list[str], path: str, message: str) -> None:
     errors.append(f"{path}: {message}")
 
@@ -155,6 +161,14 @@ def validate_case(case: dict[str, Any]) -> dict[str, Any]:
             _err(errors, p + ".assertion", f"must be one of {sorted(VALID_ASSERTIONS)}")
         if not isinstance(event.get("confidence"), (int, float)) or not 0 <= event["confidence"] <= 1:
             _err(errors, p + ".confidence", "must be in [0,1]")
+        # ★★ 恒为 1.0 的置信度**比没有这个字段更坏** —— 下游会以为那是测出来的。
+        #   故 confidence==1.0 必须显式声明它凭什么是 1.0:
+        #     definitional            事件由构造必然为真(既有观测的复述 / 时间戳算出的重叠)
+        #     unreported_by_detector  检测器根本不给置信度 ⇒ 1.0 只是占位, 下游**不得**据此加权
+        #     measured                真的测出来的(目前无此来源)
+        elif event["confidence"] == 1.0 and event.get("confidence_basis") not in CONFIDENCE_BASIS:
+            _err(errors, p + ".confidence_basis",
+                 f"confidence=1.0 必须声明依据, 取值须属于 {sorted(CONFIDENCE_BASIS)}")
         if "time" in event and not _time_is_valid(event["time"]):
             _err(errors, p + ".time", "must be a finite half-open [start,end) interval")
         for ref in event.get("member_refs", []):

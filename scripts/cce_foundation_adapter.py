@@ -98,6 +98,9 @@ def adapt(parsed: dict[str, Any], source_path: Path, content_id: str | None = No
             "id": f"evt:shot-cut:{name}:{index}", "event_type": "shot_boundary", "layer": "atomic",
             "assertion": "observed", "time": timepoint(cut, duration), "member_refs": [obs_id],
             "evidence_refs": [obs_id], "confidence": 1.0,
+            # ★ shot_boundaries 只是一串时间戳, **检测器不给置信度** ⇒ 1.0 是占位,
+            #   下游不得据此加权(见 cce_contract.CONFIDENCE_WEIGHTABLE)。
+            "confidence_basis": "unreported_by_detector",
         })
 
     return {

@@ -353,7 +353,14 @@ METRIC_BAKEOFF = {"status": "RESEARCH_TRACK_NOT_STARTED",
                   "candidates": ("L1", "whitened", "shrinkage-Mahalanobis", "energy distance"),
                   "must_recalibrate_if_changed": ("null", "type1", "resolution",
                                                   "discriminability", "equivalence"),
-                  "same_batch_selection_forbidden": True}
+                  "same_batch_selection_forbidden": True,
+                  # ★ 已被 Phase 2 数据**剪掉**的候选(否定候选是有效剪枝, 不需新数据确认):
+                  #   「去公共成分/去整体电平」—— 实测去电平后 B1_separated 缩减 -2%、
+                  #   A3_separated +1%, 都约等于零 ⇒ 词面效应**不是电平漂移**,
+                  #   改变的是九维**分布形状本身**, 任何只移除公共成分的度量救不了。
+                  #   佐证: 变化是弥散的(前 2 结占比 B1 35.4% vs A3 31.1%, 几乎相同),
+                  #   不是某个结失灵 ⇒ 也不能靠修某一条 rubric 解决。
+                  "pruned_candidates": {"remove_common_component": "tests/data/phase2/b1_layer_decomposition.json"}}
 
 
 def separation(A, B, fpA, fpB, alpha=0.05, sesoi=None, nameA="A", nameB="B"):
