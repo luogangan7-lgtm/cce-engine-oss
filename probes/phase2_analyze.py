@@ -83,6 +83,42 @@ def profile(cs, arm):
             "n_separated": sum(1 for c in cs if c["arm"] == arm and c["separated"])}
 
 
+def manski_bounds(cs, manifest):
+    """无需 MAR 假设的最坏界（partial identification）。
+
+    ★ 外部评审判决: **不许**把弃权填成 T=0 或 T=max 再当真实值 ——
+      T 根本没被测出来, 不是「测出来为零」。
+    ★ 对二元终点(SEPARATED/NOT)最干净:
+        lower = S/N   (假设所有弃权都不会分开)
+        upper = (S+M)/N (假设所有弃权都会分开)
+    ★ 不用 IPW: 它需要 qualification ⟂ 未观测 T | 协变量(近似 MAR),
+      而 A2/A3 本身就改变 qualification rate, 没有证据支持该假设。
+    ★ 也不用 Lee bounds: 需要更强的个体级 monotonic selection 假设。
+    """
+    from collections import defaultdict
+    planned = defaultdict(set)
+    for a in manifest["arms"]:
+        planned[a["arm"]].add(a["base_id"])
+    meas, sep = defaultdict(set), defaultdict(set)
+    for c in cs:
+        meas[c["arm"]].add(c["base_id"])
+        if c["separated"]:
+            sep[c["arm"]].add(c["base_id"])
+    out = {}
+    for arm in sorted(planned):
+        if arm == "L0":       # 参照臂本身不构成对比, 出现在界表里是假条目
+            continue
+        N = len(planned[arm])
+        if not N:
+            continue
+        m, S = len(meas[arm]), len(sep[arm])
+        M = N - m
+        out[arm] = {"N": N, "measured": m, "missing": M, "separated": S,
+                    "lower": round(S / N, 3), "upper": round((S + M) / N, 3),
+                    "conditional_on_qualification": round(S / m, 3) if m else None}
+    return out
+
+
 def summarize(cs):
     null = {c["base_id"]: c["T"] for c in cs if c["arm"] == "L0b"}
     res = {"resolution_profile_candidate": profile(cs, "L0b"),
@@ -116,7 +152,9 @@ if __name__ == "__main__":
     out = {}
     for label, only in (("primary", True), ("sensitivity", False)):
         cs, fnd = contrasts(rows, only)
+        man = json.loads((P / "panel_manifest.json").read_text(encoding="utf-8"))
         out[label] = {"n_contrasts": len(cs), "summary": summarize(cs),
+                      "manski_bounds": manski_bounds(cs, man),
                       "findings": fnd, "contrasts": cs}
         s = out[label]["summary"]
         print(f"\n--- {label} ({len(cs)} 组对比) ---")
@@ -129,5 +167,9 @@ if __name__ == "__main__":
             print(f"  ★ findings: {len(fnd)} 条 —— {Counter(f['issue'] for f in fnd)}")
     (P / "panel_analysis.json").write_text(json.dumps(out, ensure_ascii=False, indent=1),
                                            encoding="utf-8")
+    print("\n★ 无假设最坏界 (primary):")
+    for a, b in out["primary"]["manski_bounds"].items():
+        print(f"   {a}: [{b['lower']:.3f}, {b['upper']:.3f}]  "
+              f"(N={b['N']} 缺失{b['missing']} 条件值 {b['conditional_on_qualification']})")
     print("\n→ tests/data/phase2/panel_analysis.json")
     print("★ 本脚本不出合格判定: 禁止拿本批 L0/L0b 分位数给同一批 A 臂当阈值。")

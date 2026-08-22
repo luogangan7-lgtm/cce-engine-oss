@@ -1,0 +1,77 @@
+{
+ "phase2": {
+  "overall_status": "PARTIALLY_CONCLUSIVE",
+  "why_not_void": "resolution 的 29 对与 B1 的 26 对本身达标; 只有 joint ladder 终点欠覆盖"
+ },
+ "resolution": {
+  "status": "ESTIMATED_SCOPED",
+  "n_null_pairs": 29,
+  "median": 0.03153,
+  "spread_ratio": 7.5
+ },
+ "type1": {
+  "status": "SUPPORTED_IN_SCOPE",
+  "separated": 0,
+  "n": 29,
+  "manski_upper": 0.094
+ },
+ "joint_ladder": {
+  "status": "INCONCLUSIVE_COVERAGE",
+  "complete_bases": 18,
+  "prereg_required": 20,
+  "note": "扩展机会已用尽; **不得**再说 Phase 2 ladder confirmed"
+ },
+ "B1_invariance": {
+  "status": "FAILED",
+  "separated": "7/26",
+  "denominator": 26,
+  "manski": [
+   0.226,
+   0.387
+  ],
+  "assumption_free": "下界 0.226 >> 不变性对照期望 ~0.05 ⇒ 结论不依赖任何缺失机制假设",
+  "blind_proxy_P_DIFFERENT": 0.0
+ },
+ "B2_invariance": {
+  "status": "COMPATIBLE",
+  "separated": "3/28",
+  "denominator": 28,
+  "manski": [
+   0.103,
+   0.138
+  ]
+ },
+ "A3_sensitivity": {
+  "status": "CONDITIONAL_ON_QUALIFICATION",
+  "separated": "19/20",
+  "manski": [
+   0.594,
+   0.969
+  ],
+  "assumption_free": "下界 0.594 已远高于零参照 ⇒ 灵敏度结论亦不依赖缺失机制假设",
+  "missing": 12,
+  "abstain_rate": 0.17
+ },
+ "T_distribution": {
+  "status": "CONDITIONAL_ON_QUALIFICATION",
+  "forbidden": "不得给 T 伪造 population-wide mean; 弃权不是「测出来为零」"
+ },
+ "qualification_extension": {
+  "additional_n": 55,
+  "fixed_n": true,
+  "total_target": 311,
+  "current": {
+   "events": 9,
+   "n": 256,
+   "upper95": 0.06055
+  },
+  "decision_at_end": "只看一次; 若事件仍为 9 则 upper95=0.049955 过闸, 否则重算 exact upper",
+  "no_optional_stopping": "固定-n Clopper-Pearson **不是**为 optional stopping 设计的; 要边跑边停必须改用 anytime-valid confidence sequence",
+  "escalation": {
+   "9": 311,
+   "10": 336,
+   "11": 361,
+   "12": 386
+  }
+ }
+}

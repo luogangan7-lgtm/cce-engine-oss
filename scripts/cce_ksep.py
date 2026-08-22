@@ -307,6 +307,55 @@ SIGNIFICANCE_CONTRACT = {
 }
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# ★★ gen4 的正式定性 —— 2026-08-22 Phase 2 实测后由外部评审重写。
+#
+# 我拟的「在处境层面是好比较器，在词面层面不是」被判**仍然说过头**:
+#   B1 已证明「处境与说话人状态被独立盲评认为没有变化」(124 次判断 P(DIFFERENT)=0.000),
+#   而 CCE 仍有 7/26 判分开 ⇒ 「在处境层面是好比较器」这半句站不住。
+INSTRUMENT_CHARACTERIZATION = {
+    "gen": 4, "instrument_hash": "565470cf26c16d01",
+    "is": ("对「内容 + 表述方式」共同敏感的 representation-sensitive contrast detector"),
+    "semantic_form_invariance": "FAILED",     # 同义改写会移动读数
+    "wording_method_effect": "DETECTED",      # 心理测量学里的 wording/method effect
+    "interpretation": {
+        "separated_means": "CCE representation differs",
+        "does_not_mean": ("subject situation differs", "psychological construct differs"),
+        "T_means": "仪器内部的分离统计量",
+        "T_does_not_mean": "语义差异的大小",   # 非单调已直接打掉这条
+    },
+    "allowed_uses": (
+        "同输入重复 / instrumentation QA（same-text reproducibility、drift、版本比较）",
+        "表述被严格控制的实验对比（固定模板与措辞策略，只改一个预定义因素）",
+        "representation-sensitive change detector（明确承认检测的是表征变化）",
+    ),
+    "forbidden_uses": (
+        "自由文本 A vs 自由文本 B → SEPARATED → 推断两个主体的心理/处境真的不同",
+        "T 越大 ⇒ 心理差异越大",
+    ),
+    # ★ 术语归位: 这不是经典跨组 DIF(同一 item 在不同人群上), 而是
+    #   **alternate-form / wording-method invariance** —— 改变的是输入表述本身。
+    "psychometric_frame": "alternate-form / wording-method invariance, not cross-group DIF",
+    "evidence": {"B1_separated": "7/26", "B1_proxy_P_DIFFERENT": 0.0,
+                 "B1_manski_lower_bound": 0.226,   # 全部缺失都不分开时仍有 22.6%
+                 "monotonicity_cce": 0.18, "monotonicity_blind_proxy": 0.81},
+}
+
+# 度量替换属于**研究轨**, 不动生产 T。理由(外部评审):
+#   非单调可能来自四层中的任意一层(文本→九结表征→rep 聚合→均值向量→L1 距离),
+#   不能先把最后一层判有罪。
+# ★ 我提的 pair-local 马氏距离有一个硬问题: 每臂 R=4 而维度 p=9 ⇒ n << p,
+#   样本协方差病态甚至不可逆, 必须 shrinkage/正则化。
+# ★ 且换度量后 null 分布 / 型 I / resolution / discriminability / equivalence **全部要重标**;
+#   若在 Phase 2 上选中某度量, Phase 2 只能算 metric-development set, 必须拿新数据确认。
+METRIC_BAKEOFF = {"status": "RESEARCH_TRACK_NOT_STARTED",
+                  "production_metric": "sep_l1_v1 (mean-vector L1 / 9) —— 冻结, 不动",
+                  "candidates": ("L1", "whitened", "shrinkage-Mahalanobis", "energy distance"),
+                  "must_recalibrate_if_changed": ("null", "type1", "resolution",
+                                                  "discriminability", "equivalence"),
+                  "same_batch_selection_forbidden": True}
+
+
 def separation(A, B, fpA, fpB, alpha=0.05, sesoi=None, nameA="A", nameB="B"):
     """两文本可分离性。精确置换检验。
 
