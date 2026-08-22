@@ -1,0 +1,112 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.15,
+      "摆脱欲": 0.20,
+      "确认欲": 0.05,
+      "超越欲": 0.0,
+      "归属欲": 0.20,
+      "控制欲": 0.20,
+      "安全感欲": 0.15,
+      "向往欲": 0.05
+    },
+    "note": "三类最强欲望：摆脱欲(想脱离'voice still halts, hands still fumble'的沟通困境)、归属欲(走进当地聋人/听障社区中心，与五位成员围坐交流)、控制欲(主动提交无障碍设备/字幕服务申请，携带新平板去办公室)。成为欲来自治疗中的语音/手语练习，渴望升级沟通能力。安全感欲来自想消除每日沟通的不确定性与卡顿。确认欲(给'你'写这封信即寻求被理解)与向往欲(想象流畅沟通的画面)为次要辅助。"
+  },
+  "need_layer": [
+    {
+      "code": "N11_归属群体",
+      "context_slot": "听力障碍者初入本地聋人与听障社区中心，与五位成员同桌纸笔与手机打字交流",
+      "weight": 0.20,
+      "derived_from": "由归属欲经'走进社区中心、与同伴同桌'事件衍生"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "治疗师配手语翻译陪同，练习发声、纠正日常交流卡顿",
+      "weight": 0.20,
+      "derived_from": "由成为欲经'参加治疗课程、练习vocalizing'事件衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "主动向单位提交工作场所无障碍设备与字幕服务的表格",
+      "weight": 0.15,
+      "derived_from": "由控制欲经'提交申请、携带平板到办公室'事件衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "日常与健听人交流中声音卡顿、手势笨拙带来的持续挫败",
+      "weight": 0.15,
+      "derived_from": "由摆脱欲经'voice still halts, hands still fumble'事件衍生"
+    },
+    {
+      "code": "N12_情感联结",
+      "context_slot": "把这段更新以文字形式发送给特定的'你'",
+      "weight": 0.10,
+      "derived_from": "由确认欲+归属欲经'I am sending this note to you'事件衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "依赖语音转文字App、手语翻译、字幕服务来稳定每一次对话的输出",
+      "weight": 0.10,
+      "derived_from": "由安全感欲经'speech-to-text applications run on my phone screen'事件衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "以叙述方式向对方汇报自己的进展，寻求被看见与被认可",
+      "weight": 0.05,
+      "derived_from": "由确认欲经'给特定对象写这封信'事件衍生"
+    },
+    {
+      "code": "N14_代入理想",
+      "context_slot": "想象中治疗成功后流畅发声的自己",
+      "weight": 0.05,
+      "derived_from": "由向往欲经'practice vocalizing'的练习动作衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.92,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "中",
+    "note": "内容本身就是作者对'你'的进度汇报——治疗开始、社区进入、办公无障碍设备已到手，每一步都是对归属/能力/掌控需求的实际推进(direction=促进)。这封信能写出来这一事实本身就是 need_status=已满足(他已能通过文字向对方完整地说明自己的状态)。但'appraisal'也内嵌了'voice still halts / hands still fumble'这一未被完全解决的事实，所以 coping_potential 评为中(能动性强但沟通常态仍未完全掌握)。综合 goal_congruence=正，情绪基调为正向混合少量未完成感。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.05,
+      "joy喜悦": 0.05,
+      "gratitude感激": 0.15,
+      "desire渴望": 0.15,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.10,
+      "love爱": 0.10,
+      "relief宽慰": 0.15,
+      "approval认同": 0.10,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.15,
+      "anger愤怒": 0.0
+    },
+    "note": "由 N11/N03/N02 已满足(促进+已满足→正)推出 relief宽慰+gratitude感激+pride自豪+approval认同：由 N06 未完全满足但已在行动中(促进+部分已满足)推出 desire渴望+joy 微弱喜悦；由 N06 的残余痛感(声音卡顿、手笨)推出 sadness悲伤。love 来自向'你'写信的情感联结。admiration 微量来自对自己'敢于走出去'的自嘲式肯定。无 fear/anger/curiosity/nostalgia 触发。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.45,
+      "avoidance回避": 0.0,
+      "attend关注": 0.30,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.25
+    }
+  },
+  "chain_trace": "摆脱欲+归属欲+控制欲 →(听力受损、参加治疗、走入社群中心、提交无障碍设备申请)→ N06摆脱痛苦+N11归属群体+N03提升能力+N02掌控局面 →(评价:goal_relevance=0.92 高度相关、direction=促进、need_status=已满足、congruence=正、coping=中)→ relief宽慰+gratitude感激+sadness悲伤+desire渴望+pride自豪 → approach趋近+attend关注+dominate支配：作者以'主动走进治疗、走进社群、提交表格、携带平板、给'你'写信'这一连串趋近与掌控行为，把多重未满足需求推向'已在做、做得通'的完成态，残存的'voice halts'转为渴望与轻伤的复合情绪而非回避。"
+  "evidence": {
+    "desire": "摆脱欲:'my voice still halts and my hands still fumble during everyday exchanges with hearing people'；归属欲:'I went to the local deaf and hard-of-hearing community center last week. I sat at a table with five other members'；控制欲:'I submitted the forms for the workplace accessibility devices and captioning services. I carry the new tablet with me to the office'；成为欲:'I am attending the therapy sessions now... I practice vocalizing'",
+    "need": "N11:'We passed paper notes back and forth and typed messages on our phone screens'；N03:'The interpreter sits beside me in the clinic room, translating the spoken words into signs. I practice vocalizing'；N02:'I submitted the forms for the workplace accessibility devices and captioning services'；N06:'my voice still halts and my hands still fumble during everyday exchanges'；N12:'I am sending this note to you'；N01:'The speech-to-text applications run on my phone screen'",
+    "emotion": "relief宽慰:'I am attending the therapy sessions now'；gratitude感激:'The interpreter sits beside me in the clinic room'；sadness悲伤:'my voice still halts and my hands still fumble'；desire渴望:'I practice vocalizing'；pride自豪:'I submitted the forms... I carry the new tablet'；love爱:'I am sending this note to you'",
+    "action": "approach趋近:'I went to the local deaf and hard-of-hearing community center last week' / 'I am attending the therapy sessions now'；dominate支配:'I submitted the forms for the workplace accessibility devices and captioning services. I carry the new tablet with me to the office'；attend关注:'I read your message... I am sending this note to you'"
+  }
+}
+```

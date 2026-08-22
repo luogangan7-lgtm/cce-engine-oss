@@ -1,0 +1,94 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.00,
+      "成为欲": 0.00,
+      "摆脱欲": 0.15,
+      "确认欲": 0.10,
+      "超越欲": 0.00,
+      "归属欲": 0.10,
+      "控制欲": 0.25,
+      "安全感欲": 0.40,
+      "向往欲": 0.00
+    },
+    "note": "主导欲望是安全感欲——孩子即将手术、反复感染、恢复期未明,父母本能地要消除对儿子健康与手术的未知风险;其次是控制欲——'Our dilemma is when to schedule it'是对'何时/如何做这个决定'的主导权渴望;摆脱欲指向希望孩子摆脱'recurrent, very painful left middle-ear infections';确认欲是想验证自己安排(选 winter vs summer)是对的;归属欲体现在主动寻找'tympanoplasty/middle-ear surgery with otherwise good hearing'的同类经验。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "儿子即将做鼓室成形术,恢复时长、是否会出现 tinnitus/pressure/popping/dizziness、术后感冒风险等都不确定,要在术前把未知风险量化",
+      "weight": 0.35,
+      "derived_from": "由<安全感欲>经<孩子需手术且恢复期信息缺失>衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "要在'12月 fall semester finals 后'与'next summer 更长窗口'之间二选一,重新握住手术时机的方向盘",
+      "weight": 0.25,
+      "derived_from": "由<控制欲>经<大学开学与手术窗口的取舍冲突>衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "儿子持续反复发作'very painful left middle-ear infections',且冬季更频繁,需要让这种痛苦停下来",
+      "weight": 0.15,
+      "derived_from": "由<摆脱欲>经<反复中耳感染且冬天加重>衍生"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "作为父母需要具备判断'3-4 周寒假 vs 更长暑假'谁更合适的决策能力,需先学会真实世界恢复数据",
+      "weight": 0.15,
+      "derived_from": "由<控制欲+确认欲>经<缺乏真实恢复经验可借鉴>衍生"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "想找到'has had tympanoplasty/middle-ear surgery with otherwise good hearing going into surgery'这一窄定义下的同类",
+      "weight": 0.10,
+      "derived_from": "由<归属欲>经<自己情境罕见(基底听力很好的成人做鼓室成形)难以与身边人共情>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.90,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "情境对父母目标(儿子健康、手术顺利、决策正确)高度相关;内容揭示了威胁(反复感染、手术必要性、恢复期未知)却尚未提供解法,故 need_status=未满足,派生 goal_congruence=负;医生说'routine procedure, no CT needed'、给了'one week off, no flying two weeks'等明确参数,使 coping_potential 评中——有专业资源、也有明确候选方案,但'真实恢复体感'和'术后感冒'两个子问题父母自己无法预判,所以不会到高。负向 congruence + 中等 coping → 触发 fear 为主、curiosity 为辅。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.00,
+      "joy喜悦": 0.00,
+      "gratitude感激": 0.00,
+      "desire渴望": 0.00,
+      "nostalgia怀旧": 0.00,
+      "pride自豪": 0.00,
+      "love爱": 0.00,
+      "relief宽慰": 0.10,
+      "approval认同": 0.05,
+      "curiosity好奇": 0.30,
+      "fear恐惧": 0.40,
+      "sadness悲伤": 0.05,
+      "anger愤怒": 0.10
+    },
+    "note": "fear(0.40)从'威胁+未满足+中等应对'直接导出——反复感染/手术/恢复未知/冬天感冒风险;curiosity(0.30)与恐惧共生,因为提问本身就是应对行为,'How long... When did... Did you have lingering... How long before you felt 100%?'是信息搜寻驱动的认知性好奇;relief(0.10)来自医生明确告知'routine procedure, no CT needed, approximately one week off'的可控信号;anger(0.10)是轻度恼火——T-tube 早年放置时迁移到中耳并滞留多年这件事隐含对原始医疗处置的不满;approval/sadness 各 0.05 是边缘残余。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.30,
+      "avoidance回避": 0.15,
+      "attend关注": 0.40,
+      "reject拒斥": 0.00,
+      "agonistic对抗": 0.10,
+      "interrupt中断": 0.00,
+      "dominate支配": 0.05
+    }
+  },
+  "chain_trace": "安全感欲(担心儿子健康与手术未知风险) →(情境事件:18岁儿子需做鼓室成形术移除滞留 T-tube,反复中耳感染,要在 3-4 周寒假与更长暑假间二选一)→ N01_确定性(想量化真实恢复体感与术后风险) →(评价:goal_relevance 0.9 / 威胁 / 未满足 / goal_congruence 负 / coping_potential 中)→ fear恐惧(主)+ curiosity好奇(辅) → 行动倾向: attend关注(逐条问恢复时长、听力正常化、tinnitus、压力感、头晕、感冒、100% 时刻)+ approach趋近(主动寻找'tympanoplasty with otherwise good hearing'的同类)+ avoidance回避(回避'冬天恢复期+感冒'风险)+ agonistic对抗(对早年 T-tube 滞留问题的隐性不满) 的一条连贯推导链。"
+  "evidence": {
+    "desire": "安全感欲:\"ret... retained T-tube from his middle ear\"、\"recurrent, very painful left middle-ear infections\"、\"Our dilemma is when to schedule it\";控制欲:\"If you could choose between having surgery during a 3–4 week winter break or waiting for a longer summer break, which would you choose?\";摆脱欲:\"He continues to have recurrent, very painful left middle-ear infections\";归属欲:\"I'd especially love to hear from anyone who has had tympanoplasty/middle-ear surgery with otherwise good hearing going into surgery.\"",
+    "need": "N01_确定性:\"How long did your ear actually feel weird/full/muffled after tympanoplasty?\"、\"When did your hearing feel normal again?\"、\"How long before you felt 100%?\"、\"Did you have lingering tinnitus, pressure, popping, dizziness, etc.?\";N02_掌控局面:\"Our dilemma is when to schedule it\"、\"We could do it after his fall semester finals in December... or wait until next summer\";N06_摆脱痛苦:\"recurrent, very painful left middle-ear infections. He tends to get sick more during the winter\";N03_提升能力:\"I'm mostly wondering about the real-world recovery\";N11_归属群体:\"I'd especially love to hear from anyone who has had tympanoplasty/middle-ear surgery with otherwise good hearing going into surgery.\"",
+    "emotion": "fear 隐含于\"very painful\"、\"retained\"、\"How long before you felt 100%?\"、\"Did you have any problems getting a cold during recovery?\";curiosity 显性于 6 个连问;relief 隐含于\"He considers it a routine procedure and does not expect a CT to be necessary\";anger 隐含于\"The tube was placed when he was a young child, migrated into the middle ear, and somehow remained there for years\"的'somehow'反问语气。",
+    "action": "attend:连珠炮式 6 个问题逐项询问;approach:\"I'd especially love to hear from anyone who has had tympanoplasty/middle-ear surgery\";avoidance:\"Did you have any problems getting a cold during recovery?\"隐含规避冬天恢复;agonistic:对原始 T-tube 处置的不满(隐含)。"
+  }
+}
+```

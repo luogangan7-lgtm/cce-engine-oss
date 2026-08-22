@@ -1,0 +1,95 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.05,
+      "摆脱欲": 0.05,
+      "确认欲": 0.25,
+      "超越欲": 0.0,
+      "归属欲": 0.30,
+      "控制欲": 0.15,
+      "安全感欲": 0.20,
+      "向往欲": 0.0
+    },
+    "note": "作者在 hearing loss 社群中作为过来人发言：归属欲(自己属于这个戴助听器/听力困扰的群体)最强；确认欲次之(想确认'重新调机+要求言语清晰度'这套解法是对的，借由他人采纳来背书自己当年做对了)；安全感欲(替自己/他人消除助听器长期未调带来的不确定感)；控制欲('you should absolutely'的祈使句式体现对局面主导)；摆脱欲(摆脱当年自己经历过的不被听清的痛);成为欲微弱(想被当作有经验的、能给指引的人)。"
+  },
+  "need_layer": [
+    {
+      "code": "N03_提升能力",
+      "context_slot": "助听器戴了几年后听不清人声的 fellow 患者",
+      "weight": 0.35,
+      "derived_from": "归属欲(同群体) + 确认欲(我的经验是对的) → 经『网友反馈听不清言语』情境 → 衍生出『把自己验过的可迁移方法(测听+重编程+要求言语清晰度)传出去』的结果需求"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "戴机多年但没复测/没重调的人，面对'是不是该换/再调'的未知",
+      "weight": 0.25,
+      "derived_from": "安全感欲 + 控制欲 → 经『几年没动过参数很可能已不匹配』情境 → 衍生出『把模糊的事讲死、给出明确动作链(测-调-提要求)』"
+    },
+    {
+      "code": "N12_情感联结",
+      "context_slot": "Reddit hearing 讨论帖里跟帖的同病相怜者",
+      "weight": 0.20,
+      "derived_from": "归属欲 → 经『在群体里遇到和自己当年一样迷茫的人』情境 → 衍生出『通过给出有用建议建立同温层温度联结』
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "作者自己当年做过同样的事并得到改善",
+      "weight": 0.15,
+      "derived_from": "确认欲 → 经『把自己的方法再讲一遍、看对方是否采用』情境 → 衍生出『借他人照做来印证自己当年的选择/判断没选错』"
+    },
+    {
+      "code": "N05_优化效率",
+      "context_slot": "听力门诊流程里如何一次把诉求说清",
+      "weight": 0.05,
+      "derived_from": "控制欲 → 经『门诊时间有限、不会说就被打发』情境 → 衍生出『告诉对方用一句最精准的话(speech clarity)打中要害』"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.85,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "目标相关度高：写这条建议正是为了推进上述几项需求；内容本身是'给出可执行方法'——既促进目标又当场把需求满足(发出一刻就已完成'帮助/确认/联结'，不依赖对方真的去执行)；应对潜能为高，作者有亲身验证过的解法且表达笃定('you should absolutely')，所以情绪走向正价高唤醒：认同+渴望+宽慰，而非恐惧/焦虑。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.05,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.05,
+      "desire渴望": 0.25,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.05,
+      "love爱": 0.0,
+      "relief宽慰": 0.15,
+      "approval认同": 0.30,
+      "curiosity好奇": 0.05,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.0
+    },
+    "note": "评价=促进+已满足→正价情绪。approval认同(对'复测+重编程'这套方案的自我背书)权重最高；desire渴望(对OP'你真的应该去'的推动感)由控制欲+促进直接派生；relief宽慰(想到对方做了就能解决)由安全感欲+高应对潜能派生；零恐惧/悲伤是因为 appraisal 没有威胁/未满足槽位。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.45,
+      "avoidance回避": 0.0,
+      "attend关注": 0.20,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.05,
+      "dominate支配": 0.30
+    },
+    "note": "approach 主导：写出一条具体可执行建议(趋近给方案)；dominate 次强：祈使句+绝对化副词('should absolutely')+指定对方的台词('Tell the audiologist that...')体现对OP下一步动作的支配；attend 表征对OP具体处境(几年没动过)的事先关注；微弱 interrupt 因为这条是插入建议而非铺陈。"
+  },
+  "chain_trace": "归属欲+确认欲+安全感欲(作者作为 hearing 社群过来人，想帮同群体把'戴了几年机但言语不清晰'这件事讲死) →(情境：网友发帖说听不清、且可能几年没调过)→ 需求 N03_提升能力(给出测听+重编程+向听力师提 speech clarity 的话术) + N01_确定性(把模糊该不该去变成必须去) + N12_情感联结(同群体温度) →(评价：goal_relevance 高、congruence 促进、need_status 已满足——发出即满足、coping 高——作者亲身验证过)→ 情绪 approval认同 + desire渴望 + relief宽慰(均为正价) → 行动倾向 approach趋近(把方法递过去) + dominate支配('you should absolutely' / 直接替对方编好台词)",
+  "evidence": {
+    "desire": "归属欲+确认欲: 'If its been a few years, you should absolutely get a hearing test and have them re programmed'（将自己验证过的方案向外输出，借OP采纳来确认自己当年没做错）；安全感欲+控制欲: 'you should absolutely'、'Tell the audiologist that your having a bad time with speech clarity'（绝对化祈使+替对方写台词）",
+    "need": "N03_提升能力: 'you should absolutely get a hearing test and have them re programmed'；N01_确定性: 'If its been a few years' 条件句把'要不要去'的模糊收口成'去'；N12_情感联结+N10_自我确认: 'Tell the audiologist that your having a bad time with speech clarity'——把自己验过的话术交给同群体使用",
+    "emotion": "approval+desire: 'you should absolutely'（对方案的强烈认同与对OP去执行的推动渴望）；relief: 'have them re programmed'（预设对方做了就能好，含有释然）",
+    "action": "approach+dominate: 'you should absolutely get a hearing test and have them re programmed. Tell the audiologist that...'（趋近递方案 + 替对方安排好下一步的支配性话术）"
+  }
+}
+```
