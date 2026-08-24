@@ -1,0 +1,89 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.20,
+      "确认欲": 0.35,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.15,
+      "安全感欲": 0.30,
+      "向往欲": 0.0
+    },
+    "note": "核心是确认欲：发帖人明确写'I want to confirm a couple things it tells me'，不信任AI结论、要求人类律师验证。次要是安全感欲——恐惧败诉/反诉/律师费赔付，对ILSDRA能否真正兜底感到不确定。摆脱欲来自想终结不合理扣费和诉讼纠缠；控制欲来自想夺回在被lawyer up的对手面前的主动权。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "小房东案件中,房东超期43天才寄出明细,发帖人自认稳赢,但对手律师准备以'邮寄丢失'和反诉反扑,发帖人来求确定性背书",
+      "weight": 0.45,
+      "derived_from": "确认欲 + 安全感欲 → 在自认稳赢却遭对方律师威胁的情境下,要确认'我是不是真的稳赢'、'法律是否真能给我确定性'"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "对方律师的'邮件丢了'抗辩是否成立?反诉和律师费诉求是否合法?——需要把法律规则应用到本案事实",
+      "weight": 0.25,
+      "derived_from": "确认欲 → 对'律师说的话我听不太懂、到底有没有道理'产生认知缺口,要把这块法律拼图拼上"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "对手已经lawyered up并发出反诉+律师费威胁,自己单兵面对有律师的对手,想重新握住方向盘",
+      "weight": 0.20,
+      "derived_from": "控制欲 → 在被对方律师占据话语权、可能反客为主的情境下,要把局面夺回来"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "不合理的押金扣费、被对方律师以更高金额反咬的持续心理压力,需要让这个难受的状态停掉",
+      "weight": 0.10,
+      "derived_from": "摆脱欲 → 承受着纠纷+反诉威胁带来的精神消耗,想结束这一切"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "goal_relevance极高——整件事就是发帖人当前最大关切;congruence为'威胁':发帖内容本身就是揭示风险('threatens countersuit'、'for me to pay them more money than my security deposit'),把已经lawyer up的对手策略曝光在自己面前;need_status未满足——他只是来提问,还没有得到确认,需求处于'悬而未决'焦虑态;coping_potential中:他有邮戳物证、ILSDRA法条、自认clear-cut,具备一定应对资源,但对手有律师且要反诉,自己只是'pretty sure',所以不是高应对。负向×中等应对潜能→激活fear为主、辅以anger和curiosity-seeking。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.03,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.05,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.02,
+      "love爱": 0.0,
+      "relief宽慰": 0.05,
+      "approval认同": 0.05,
+      "curiosity好奇": 0.15,
+      "fear恐惧": 0.40,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.25,
+      "": 0.0
+    },
+    "note": "情绪由'威胁+未满足+中等应对'派生:恐惧是主导——fear of losing a sure-thing case、fear of countersuit、fear of attorney fees('threatens countersuit for me to pay them more money');愤怒是第二——对'charged me for a bunch of unreasonable things'和对'lawyered up'以势压人的反感;好奇驱动发帖本身('Thoughts?');有微弱的宽慰/认同/渴望,因为自认clear-cut带来自信,但被恐惧压住。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.35,
+      "avoidance回避": 0.05,
+      "attend关注": 0.25,
+      "reject拒斥": 0.05,
+      "agonistic对抗": 0.20,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.10
+    }
+  },
+  "chain_trace": "确认欲+安全感欲 →(对手律师提出反诉+律师费威胁、'邮件丢失'抗辩,稳赢案生变)→ N01_确定性(想确认'我真的稳赢吗') →(评价:congruence=威胁/need_status=未满足/coping_potential=中 → goal_congruence=负)→ 情绪fear恐惧为主、辅以anger愤怒和curiosity好奇 → 行动倾向approach趋近(上网求证)+attend关注(细究每个法律细节)+agonistic对抗(准备迎战反诉)+dominate支配(想把局面拿回来)。"
+  "evidence": {
+    "desire": "'I obviously don't like trusting AI to help me with this, so I want to confirm a couple things it tells me with one or more hopefully lawyer internet strangers.' / 'This should be a clear-cut win for me based on the ILSDRA. The judge would HAVE to follow the clear and specific requirement of this law, right?'",
+    "need": "'Their lawyer also threatens countersuit for me to pay them more money than my security deposit for the alleged damages and also for their attorney fees.' / 'Their lawyer is going to claim they sent it well within the 30 days, since the statement inside the envelope is dated earlier, and that it must have gotten lost the mail.' / 'Thoughts?'",
+    "emotion": "恐惧:'I’m pretty sure they can’t counter sue if my side of the case is as surefire a win as I think it is'(不确信的语气暗示焦虑);愤怒:'charged me for a bunch of (I think) unreasonable things';好奇:'Thoughts?';微弱宽慰/自信:'This should be a clear-cut win'、'The judge would HAVE to follow'",
+    "action": "'I want to confirm a couple things it tells me with one or more hopefully lawyer internet strangers'(趋近求证);'I’ve already filed a small claims complaint'(已采取对抗行动);'The envelope I have from them was postmarked 43 days after I moved out'(细致关注证据);'They’ve lawyered up'(识别对方对抗姿态)"
+  }
+}
+```
