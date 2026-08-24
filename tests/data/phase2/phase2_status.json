@@ -109,5 +109,41 @@
    },
    "correct_forward_action": "下一轮**新开前登记**, 把「链接罗列/无个人表达的汇总贴」写进 eligibility 排除项。★ 不许回头改本轮 frame —— 那是看到结果后改规则"
   }
+ },
+ "verifier_sensitivity_analysis": {
+  "ran_at": "2026-08-24",
+  "status": "POST_HOC_SENSITIVITY_ONLY",
+  "★not_primary": "Phase 2 前登记的验证者是 CROSS_FAMILY。**看到结果后换验证者重定 primary = 事后改判据**, 一律不许。DeepSeek 这一轮只作敏感性分析。",
+  "same_stimuli_two_judges": {
+   "cross_family": {
+    "violates": 3,
+    "n": 158,
+    "rate": 0.019
+   },
+   "deepseek_third_party": {
+    "violates": 43,
+    "n": 158,
+    "rate": 0.272
+   }
+  },
+  "finding_1": {
+   "claim": "2% vs 27% 的差距主要来自**判官**, 不是刺激",
+   "evidence": "同一批刺激; Phase 2B 的 DeepSeek 违规率 34% 与 Phase 2 的 27% 只差一点",
+   "implication": "★ Phase 2 的 2% 确实被共享先验放水(验证者=另一生成器, 该限度早已写进代码); 两轮 blind_rule_check **不可直接互比**"
+  },
+  "finding_2": {
+   "claim": "★★ B1 在**两个**判官下都干净 ⇒ SURFACE_SENSITIVE 不是刺激污染造成的",
+   "evidence": "交叉家族 B1 违规 1/26; **DeepSeek B1 违规 0/31**",
+   "implication": "最严的判官认定这批 B1 变体确实「内容与处境未变」, 而 CCE 仍判 7/26 分开 ⇒ 词面假灵敏度的结论**被加强**, 不是被削弱"
+  },
+  "finding_3": {
+   "claim": "A3 在 DeepSeek 下 19/32 被判违规, 但主要是**标尺不同**",
+   "evidence": "理由多为 shifts the situation but still **implies** the speaker's goals —— 规则写的是不得**命名**(name)感受/动机, DeepSeek 在按不得**暗示**判; 另有 B2 违规实为**弯引号 vs 直引号**的排印差异(我的机器检验归一化时抹掉了)",
+   "implication": "不推翻 A3 灵敏度(其 Manski 下界 0.594 本就不依赖缺失机制假设)"
+  },
+  "artifacts": {
+   "preregistered_primary": "blind_verify_frozen.json (CROSS_FAMILY, 已恢复为正式件)",
+   "post_hoc": "blind_verify_deepseek_posthoc.json"
+  }
  }
 }

@@ -104,5 +104,24 @@ def upper(x, n, alpha=0.05):
 
 assert upper(9, 311) <= 0.05 < upper(9, 310), "★ 55 这个数必须能算出来, 不能只是抄来的"
 
+# ── 8. 换验证者只能是**事后敏感性分析**, 不得重定 primary ──────────────────
+if "verifier_sensitivity_analysis" in S:
+    V = S["verifier_sensitivity_analysis"]
+    assert V["status"] == "POST_HOC_SENSITIVITY_ONLY"
+    assert "事后改判据" in V["★not_primary"], \
+        "★ 看到结果后换验证者重定 primary = 事后改判据, 这条警告必须在件里"
+    # 正式件必须仍是前登记的那个验证者
+    assert "CROSS_FAMILY" in V["artifacts"]["preregistered_primary"]
+    assert (P / "blind_verify_deepseek_posthoc.json").exists()
+    bv = json.loads((P / "blind_verify_frozen.json").read_text(encoding="utf-8"))
+    assert bv["mode"] == "CROSS_FAMILY_NO_THIRD_PARTY", \
+        "★ 正式件被换成了事后跑的那个验证者 —— primary 已被污染"
+    # ★★ 最关键: 判官换了, 但 B1 在两个判官下都干净 ⇒ headline 不是刺激污染造成的
+    tj = V["same_stimuli_two_judges"]
+    assert tj["deepseek_third_party"]["rate"] > tj["cross_family"]["rate"] * 5, \
+        "两个判官的严格度差异是本节存在的前提"
+    assert "B1" in V["finding_2"]["evidence"] and "0/31" in V["finding_2"]["evidence"]
+    assert "不可直接互比" in V["finding_1"]["implication"]
+
 print("test_cce_phase2_status: OK (定性不退回/解释禁止项/度量不换/分端点状态/"
       "无假设界下仍成立/扩展固定n且算术自核)")

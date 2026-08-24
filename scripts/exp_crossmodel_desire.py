@@ -73,6 +73,18 @@ MODELS = {
         "append_path": True,
         "max_tokens": 6000,
     },
+    # ★ 2026-08-24 阿里云订阅到期后接入。DeepSeek 的价值**不是**替代 G1/G2 ——
+    #   它只有一个家族, 撑不起「两个生成器」这个 facet。
+    #   它补的是一个更好的位置: **真正独立的第三方盲验者**
+    #   (≠G1 千问 · ≠G2 GLM · ≠测量模型 MiniMax-M3), 比 Phase 2 用的
+    #   CROSS_FAMILY_NO_THIRD_PARTY(验证者恰是另一个生成器)更强。
+    "DeepSeek": {
+        "model": "deepseek-chat",
+        "base": os.environ.get("DEEPSEEK_API_BASE", "https://api.deepseek.com/v1"),
+        "key_env": "DEEPSEEK_API_KEY",
+        "append_path": True,
+        "max_tokens": 6000,
+    },
     "Qwen3.7plus": {
         "model": "qwen3.7-plus",
         "base": os.environ.get("ALIYUN_API_BASE", ""),

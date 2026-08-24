@@ -26,6 +26,16 @@ sys.path.insert(0, str(ROOT / "probes"))
 from exp_crossmodel_desire import call_model, MODELS   # noqa: E402
 from phase2_generate_stimuli import ARM_RULES, VERIFIER_OF, GENERATORS  # noqa: E402
 
+# ★★ 2026-08-24: 可切到**真正独立的第三方**盲验者。
+#   Phase 2 用的是 CROSS_FAMILY_NO_THIRD_PARTY —— 验证者恰是**另一个生成器**,
+#   已知限度写在代码里: 两者若共享同一语言先验, 这道盲验查不出来。
+#   DeepSeek 接入后, 它 ≠G1(千问) ≠G2(GLM) ≠测量模型(MiniMax-M3) ⇒ 真第三方。
+#   ⚠️ 但这也意味着 **Phase 2 与 Phase 2B 的盲验强度不同**, 两轮的 blind_rule_check
+#      不可直接互比 —— 必须随结果标注(见 verifier_mode)。
+THIRD_PARTY = os.environ.get("CCE_VERIFIER")       # 例: DeepSeek
+if THIRD_PARTY:
+    VERIFIER_OF = {g: THIRD_PARTY for g in GENERATORS}
+
 # ★ 同一套盲验逻辑复用到 Phase 2B: 只切数据目录, 规则一字不改
 P = ROOT / "tests" / "data" / os.environ.get("CCE_PHASE_DIR", "phase2")
 CKPT = P / "blind_verify_checkpoint.jsonl"
@@ -91,9 +101,16 @@ def main():
     allrec = [json.loads(l) for l in CKPT.read_text(encoding="utf-8").splitlines() if l.strip()]
     res = P / "blind_verify_frozen.json"
     res.write_text(json.dumps({
-        "mode": "CROSS_FAMILY_NO_THIRD_PARTY", "verifier_of": VERIFIER_OF,
-        "limitation": ("验证者恰是另一个生成器; 两者若共享同一语言先验, 这道盲验查不出来。"
-                       "⇒ 只作规则合规的二次确认, 不作扰动强度裁定。"),
+        "mode": ("INDEPENDENT_THIRD_PARTY" if THIRD_PARTY else "CROSS_FAMILY_NO_THIRD_PARTY"),
+        "verifier_of": VERIFIER_OF,
+        "not_comparable_to": ("Phase 2 用的是 CROSS_FAMILY(验证者=另一生成器), 本轮是独立第三方 "
+                              "⇒ 两轮盲验强度不同, blind_rule_check 不可直接互比"
+                              if THIRD_PARTY else None),
+        "limitation": (("验证者与两个生成器、与测量模型均不同家族 ⇒ 切断了自评与"
+                        "「按测量模型判断筛刺激」两条循环。仍不作扰动强度裁定。")
+                       if THIRD_PARTY else
+                       ("验证者恰是另一个生成器; 两者若共享同一语言先验, 这道盲验查不出来。"
+                        "⇒ 只作规则合规的二次确认, 不作扰动强度裁定。")),
         "n": len(allrec),
         "by_verdict": dict(Counter(r["verdict"] for r in allrec)),
         "by_arm": {a: dict(Counter(r["verdict"] for r in allrec if r["arm"] == a))
