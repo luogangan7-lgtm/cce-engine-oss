@@ -15,7 +15,7 @@ owner 只订阅阿里云与 MiniMax ⇒ 手上只有两个家族, 而 MiniMax �
 验证者恰是**另一个生成器**。两者若共享同一语言先验, 这道盲验查不出来。
 ⇒ blind_rule_check 只作**规则合规**的二次确认, **不作「扰动强度」的裁定**。
 """
-import json, sys, threading
+import json, os, sys, threading
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -26,7 +26,9 @@ sys.path.insert(0, str(ROOT / "probes"))
 from exp_crossmodel_desire import call_model, MODELS   # noqa: E402
 from phase2_generate_stimuli import ARM_RULES, VERIFIER_OF, GENERATORS  # noqa: E402
 
-CKPT = ROOT / "tests" / "data" / "phase2" / "blind_verify_checkpoint.jsonl"
+# ★ 同一套盲验逻辑复用到 Phase 2B: 只切数据目录, 规则一字不改
+P = ROOT / "tests" / "data" / os.environ.get("CCE_PHASE_DIR", "phase2")
+CKPT = P / "blind_verify_checkpoint.jsonl"
 WORKERS = 6
 _lock = threading.Lock()
 
@@ -53,11 +55,10 @@ def _done():
 
 
 def main():
-    st = json.loads((ROOT / "tests" / "data" / "phase2"
-                     / "stimuli_frozen.json").read_text(encoding="utf-8"))
-    _f = ROOT / "tests" / "data" / "phase2" / "base_sample_with_extension.json"
+    st = json.loads((P / "stimuli_frozen.json").read_text(encoding="utf-8"))
+    _f = P / "base_sample_with_extension.json"
     if not _f.exists():
-        _f = ROOT / "tests" / "data" / "phase2" / "base_sample_frozen.json"
+        _f = P / "base_sample_frozen.json"
     bases = {b["base_id"]: b["text"]
              for b in json.loads(_f.read_text(encoding="utf-8"))["chosen"]}
     todo = [v for v in st["variants"] if "text" in v
@@ -88,7 +89,7 @@ def main():
         list(ex.map(run, todo))
 
     allrec = [json.loads(l) for l in CKPT.read_text(encoding="utf-8").splitlines() if l.strip()]
-    res = ROOT / "tests" / "data" / "phase2" / "blind_verify_frozen.json"
+    res = P / "blind_verify_frozen.json"
     res.write_text(json.dumps({
         "mode": "CROSS_FAMILY_NO_THIRD_PARTY", "verifier_of": VERIFIER_OF,
         "limitation": ("验证者恰是另一个生成器; 两者若共享同一语言先验, 这道盲验查不出来。"

@@ -32,6 +32,9 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# ★ 同一套生成/验收逻辑复用到 Phase 2B: 只切数据目录, **不改任何规则**
+#   (规则一变就不是同一套刺激构造流程, 两批不可比)
+DATA = ROOT / "tests" / "data" / os.environ.get("CCE_PHASE_DIR", "phase2")
 sys.path.insert(0, str(ROOT / "scripts"))
 from exp_crossmodel_desire import call_model, MODELS  # noqa: E402
 
@@ -157,7 +160,7 @@ def gen_one(gkey, arm, base, temperature=0.7):
     return out.strip(), meta, hashlib.sha256(prompt.encode()).hexdigest()[:16]
 
 
-CKPT = ROOT / "tests" / "data" / "phase2" / "stimuli_checkpoint.jsonl"
+CKPT = DATA / "stimuli_checkpoint.jsonl"
 WORKERS = 6          # 端点实测 25-55s/次; 6 路并发把 120 次压到 ~15min
 _lock = threading.Lock()
 
@@ -247,9 +250,9 @@ def generate(bases, assignment, dry=False, workers=WORKERS):
 if __name__ == "__main__":
     # 扩展块并入后走同一条流程: checkpoint 按 (base_id, arm) 去重,
     # 主 24 个 base 已生成过的臂会被跳过, 只补扩展块的 40 段。
-    _f = ROOT / "tests" / "data" / "phase2" / "base_sample_with_extension.json"
+    _f = DATA / "base_sample_with_extension.json"
     if not _f.exists():
-        _f = ROOT / "tests" / "data" / "phase2" / "base_sample_frozen.json"
+        _f = DATA / "base_sample_frozen.json"
     frozen = json.loads(_f.read_text(encoding="utf-8"))
     bases = frozen["chosen"]
     asg = assign(bases)
@@ -267,7 +270,7 @@ if __name__ == "__main__":
         sys.exit(0 if "--dry" in sys.argv else 1)
     recs, log = generate(bases, asg)
     ok = [r for r in recs if "text" in r]
-    out = ROOT / "tests" / "data" / "phase2" / "stimuli_frozen.json"
+    out = DATA / "stimuli_frozen.json"
     out.write_text(json.dumps({"status": "ONTOLOGY_BLINDED_SYNTHETIC",
                                "generators": GENERATORS, "verifier_of": VERIFIER_OF,
                                "verifier_mode": VERIFIER_MODE,

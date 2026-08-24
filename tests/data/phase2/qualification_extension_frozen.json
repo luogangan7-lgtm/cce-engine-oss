@@ -1,0 +1,120 @@
+{
+ "block": "QUALIFICATION_PRECISION_EXTENSION",
+ "frozen_at": "2026-08-24T03:30Z",
+ "preregistered_in": "tests/data/phase2/phase2_status.json#qualification_extension",
+ "why": "真人原文 U=9/256=3.5% 但精确单侧95%上界 6.05% > U_max 5% ⇒ ADOPT_PENDING_PRECISION",
+ "arithmetic": {
+  "current": {
+   "events": 9,
+   "n": 256,
+   "upper95": 0.06055
+  },
+  "target": {
+   "n": 311,
+   "upper95_if_events_stay_9": 0.049955
+  },
+  "n310_fails": 0.050114,
+  "escalation_if_more_events": {
+   "10": 336,
+   "11": 361,
+   "12": 386
+  }
+ },
+ "design": {
+  "n_base": 7,
+  "arms": [
+   "L0",
+   "L0b"
+  ],
+  "R": 4,
+  "reps": 56,
+  "calls": 448,
+  "alloc": {
+   "S": 3,
+   "M": 2,
+   "L": 2
+  },
+  "seed": 20260824,
+  "t_blind": true,
+  "selection": "同一冻结 frame + 同一分层规则, 排除已用过的 32 个 base"
+ },
+ "instrument": "gen4 565470cf26c16d01 —— 必须与主面板同一台, 否则 U 不可合并",
+ "discipline": {
+  "fixed_n": true,
+  "look_once": "★ 只在跑完后看一次。固定-n Clopper-Pearson **不是**为 optional stopping 设计的",
+  "no_early_stop": "不许边跑边看上界, 一过 5% 就停",
+  "if_more_events": "若新增样本里再出事件, 按 escalation 表重算, **不自动续采**"
+ },
+ "chosen": [
+  {
+   "base_id": "0d7b3e7a50b6",
+   "base_length_chars": 629,
+   "source_site": "reddit_r_HearingAids",
+   "listing": "new",
+   "url": "https://www.reddit.com/r/HearingAids/comments/1vn2lku/cookie_bite_loss_and_costco/",
+   "text": "New to the game after being recently recommended for HAs by a local audiologist due to “Cookie Bite” loss. Not how I imagined checking my hearing would’ve gone, but lines up with struggles I’ve had for a while with conversations. \n\nI liked the Oticon Intent 3 that was suggested, but cost ($3k plus) is a defining factor (K-8 Teacher). Will need to travel some distance to Costco (US), but plan on making the trip soon. \n\nI understand the premium level factor and going through the Costco process, but am curious about recent advice and suggestions- what’s worked for you? Worth seeking a location with the SoundGear AMP? Thanks!",
+   "length_stratum": "M",
+   "eligibility": "PRIMARY"
+  },
+  {
+   "base_id": "421287e62d06",
+   "base_length_chars": 1391,
+   "source_site": "reddit_r_HearingAids",
+   "listing": "new",
+   "url": "https://www.reddit.com/r/HearingAids/comments/1vmy7k8/getting_hearing_aids_this_weekend/",
+   "text": "I had my Costco test done this past weekend and tried the Philips and Rexton models.  Kind of wanted to try the Jabras but didn't have time.\n\nI went in thinking that I wanted the Philips but when trying them they just didn't sound natural, kind of like a mechanical sound.  My wife's voice just didn't sound natural at all, at least not in my left ear which is much worse than the right.  It might have been just the settings but it seemed like I was picking up a lot of other peoples conversations near me but I couldn't make out what was being said.  I was kind of being overloaded on sound but not able to distinguish what was going on.\n\nThen came the Rexton's which seemed to be much more natural sounding.  I felt that maybe I still couldn't hear as well as the Philips so I turned up the volume but that also came with kind of a white noise in the background.  I did walk outside and the white noise seemed to be less.  The tech said that noise is a common complaint with the Rextons.\n\nIn the end I chose the Rextons because of the more natural sound and the domes were much more comfortable.  What are tips do you all have for a first time user?  I'm also curious should I try a closed dome for my left ear and open for my right for my hearing loss below?\n\nhttps://preview.redd.it/2a1zn8dnz1jh1.png?width=822&amp;format=png&amp;auto=webp&amp;s=c695caeafef4a1bb2d144cced35dcdf993e58e79",
+   "length_stratum": "L",
+   "eligibility": "PRIMARY"
+  },
+  {
+   "base_id": "6377cfd2d151",
+   "base_length_chars": 266,
+   "source_site": "reddit_r_HearingLoss",
+   "listing": "comments",
+   "url": "https://www.reddit.com/r/HearingLoss/comments/1vp8cpz/sudden_hearing_loss_from_a_hyperbaric_oxygen/p43tnux/",
+   "text": "I did it for SSNL in my right ear, and then it caused SSNL in my left ear. We immediately jumped on it with steroids and injections  and even more HBOT (lol) but I only got some low frequency back and no high frequency. Was devastated to lose hearing in my good ear.",
+   "length_stratum": "S",
+   "eligibility": "PRIMARY"
+  },
+  {
+   "base_id": "8def53272fb6",
+   "base_length_chars": 582,
+   "source_site": "reddit_r_HearingAids",
+   "listing": "comments",
+   "url": "https://www.reddit.com/r/HearingAids/comments/1vs709v/jabra_enhance_pro_30s_going_back_to_costco/p4jow1a/",
+   "text": "I had some Jabra's as Costco loaners while my hearing aids were out having their batteries replaced.  I believe they were 20's.  I really liked the charging case.  It looks like it would be great for traveling.  One thing I realized was the AI stuff was altering the ambient sound.  I walked into t a room, and a few seconds (?) later the sound changed.  It made me realize I could not trust the hearing aids to provide me with an accurate representation of what was going on around me.  Nice as they were, they weren't for me.  It has made we wary of any HAs that promote AI stuff.",
+   "length_stratum": "S",
+   "eligibility": "PRIMARY"
+  },
+  {
+   "base_id": "9d21118dc35b",
+   "base_length_chars": 751,
+   "source_site": "reddit_r_HearingLoss",
+   "listing": "new",
+   "url": "https://www.reddit.com/r/HearingLoss/comments/1vhh810/classroom_assistance_for_1st_grader_with_slight/",
+   "text": "Hello! My son (6) has a slight hearing loss that comes and goes with his allergies. At this time, his doctor thinks he'll grow out of it, and it doesn't merit any intervention.\n\n  \nWhat are some things I can do/provide to make it easier for him to hear in class when his allergies are acting up? Last year, he ended up falling behind in reading in the second semester because of this. Using the sound phone seemed to really help him with his speech and letter sounds, but is there something he could use to hear the teacher better? Like a sound-enhancing ear muff? \n\n  \nHe's only 6, so I'm trying to avoid anything that would be inserted inside his ear. I also don't want to make the issue any worse. \n\n  \nDoes anyone have a recommendation? Thank you!",
+   "length_stratum": "M",
+   "eligibility": "PRIMARY"
+  },
+  {
+   "base_id": "b9cfe36db7e5",
+   "base_length_chars": 443,
+   "source_site": "reddit_r_HearingLoss",
+   "listing": "comments",
+   "url": "https://www.reddit.com/r/HearingLoss/comments/1tfugqp/how_and_when_did_you_realize_you_might_have/p4f3qqp/",
+   "text": "I (38 yo) was listening to a podcast while lying in bed with my phone on the right side of my head. When I moved it to the left, the volume seemed to go down. Switched a couple more times and yep. My left ear was not picking up the sounds as well. After months of tests it turned out that I have hearing loss in both ears, but left is the worst. I wear a hearing aid on the left now. It helps. I do feel like my hearing is getting wore though.",
+   "length_stratum": "S",
+   "eligibility": "PRIMARY"
+  },
+  {
+   "base_id": "d9763af82730",
+   "base_length_chars": 1349,
+   "source_site": "reddit_r_HearingAids",
+   "listing": "new",
+   "url": "https://www.reddit.com/r/HearingAids/comments/1vnlnw6/help_to_adjust_has/",
+   "text": "Hello, as a user of hearing aids with open domes or custom earmolds, what advice would you give regarding the process of fine-tuning the sound until it becomes less harsh and clearer, whether for the hearing aids themselves or when using Bluetooth to listen to music and other audio?  \nFor example, less background noise and clearer speech, reducing harshness and discomfort.  \nMy own voice also sounds strange to me—it sounds like I have a cold! I also notice harsh sounds such as the crinkling of plastic bags, loud chewing sounds, and other similar noises, etc. \n\nWhat tips and key points would you recommend we focus on so that we can describe our experience clearly to the audiologist, making it easier for them to understand what we are hearing and fine-tune the hearing aids accurately and effectively? This is especially helpful if the audiologist is relatively inexperienced.\n\nI understand that these things vary depending on the hearing-aid manufacturer and from person to person based on the type and degree of hearing loss, but I’d really appreciate it if you could share your experience so that others can benefit from it as well—and hopefully reduce the number of trips we need to make to the audiology center.\n\nBy the way, my hearing aids are Starkey.\n\nI suffer from moderate to moderately severe hearing loss in the high frequencies.",
+   "length_stratum": "L",
+   "eligibility": "PRIMARY"
+  }
+ ]
+}

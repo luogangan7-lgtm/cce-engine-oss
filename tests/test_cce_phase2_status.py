@@ -62,6 +62,26 @@ assert "不是「测出来为零」" in S["T_distribution"]["forbidden"]
 
 # ── 6. 资格闸扩展必须是**固定 n、只看一次** ────────────────────────────────
 Q = S["qualification_extension"]
+# ── 7. 扩展跑完后的结果与纪律 ──────────────────────────────────────────────
+if "result" in Q:
+    Rr = Q["result"]
+    assert Rr["combined"]["n"] >= Q["total_target"], "★ 没跑够 n 就不许看结果"
+    assert Rr["combined"]["upper95"] <= 0.05, "精度闸: 上界必须 <= U_max"
+    # ★ 精度达标≠可以全量 ADOPT: 集中度旗标仍然拦着
+    assert Rr["verdict"] == "ADOPT_WITH_RESTRICTIONS"
+    assert "CONCENTRATION_FLAG" in Rr["why_not_full_adopt"]
+    # ★★ 事后剔除只能当诊断: 看到结果再决定剔谁 = selection-on-outcome
+    ph = Rr["post_hoc_diagnostic"]
+    assert ph["excluding_flagged_base"]["verdict"] == "ADOPT"
+    assert "selection-on-outcome" in ph["★caveat"], \
+        "★ 事后诊断必须自带「不得当正式判决」的警告, 否则下游会把它读成结论"
+    assert Rr["verdict"] != ph["excluding_flagged_base"]["verdict"], \
+        "★ 正式判决不得等于事后剔除后的判决"
+    # 前向修法必须是**新开前登记**, 不是回头改本轮 frame
+    fwd = Rr["correct_forward_action"]
+    assert "新开前登记" in fwd and "不许回头改" in fwd
+    # 旗标 base 的成因要写明, 否则「受限」会被读成不明原因
+    assert Rr["flagged_base_diagnosis"]["failure_types"]
 assert Q["fixed_n"] is True and Q["additional_n"] == 55 and Q["total_target"] == 311
 assert "anytime-valid" in Q["no_optional_stopping"], \
     "★ 用固定-n Clopper-Pearson 做滚动监控是错的, 这条必须写明"
