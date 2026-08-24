@@ -1,0 +1,101 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.20,
+      "确认欲": 0.08,
+      "超越欲": 0.0,
+      "归属欲": 0.10,
+      "控制欲": 0.12,
+      "安全感欲": 0.50,
+      "向往欲": 0.0
+    },
+    "note": "鼓膜穿孔是一个直接威胁身体完整性与听力的健康事件，最强激活的是消除不确定性/恐惧的「安全感欲」；同时希望穿孔愈合、听力恢复属于「摆脱欲」；担心做错事（能不能用耳机、能不能沾水）属于想夺回对病情节奏主导权的「控制欲」；想听到与自己类似经历的人则是「归属欲」中的『同病相怜型』子型（不要求身份群体，共享经历即可）。「确认欲」极弱，仅在『我是不是该继续等』的隐性求背书中出现。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "21岁，鼓膜穿孔正在愈合，但愈合时长、是否完全闭合、听力是否完全恢复均未知",
+      "weight": 0.38,
+      "derived_from": "由「安全感欲」经『鼓膜穿孔这一具体健康威胁事件』衍生——核心是把『多久能好、听力能否回来』这种不确定性压下来"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "穿孔愈合期该做什么、不该做什么，缺乏第一手参照",
+      "weight": 0.18,
+      "derived_from": "由「安全感欲」+「控制欲」经『日常行为是否会影响愈合（耳机/沾水）』衍生——把『该回避什么』这条因果想明白"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "当前护理方式是否正确、是否需要改变",
+      "weight": 0.12,
+      "derived_from": "由「控制欲」衍生——习得可迁移的居家护理方法/避坑清单"
+    },
+    {
+      "code": "N12_情感联结",
+      "context_slot": "医生已给出标准答复但缺少共情与个体化参照",
+      "weight": 0.14,
+      "derived_from": "由「归属欲」(同病相怜子型)衍生——和有过穿孔经历的人建立有温度的连接、获得『你不是一个人』的体感"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "穿孔带来的不适/听力受损/对日常用耳的干扰",
+      "weight": 0.10,
+      "derived_from": "由「摆脱欲」衍生——让不适停下来、恢复正常用耳"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "已经按医嘱保持耳朵干燥、想确认自己做法没错",
+      "weight": 0.08,
+      "derived_from": "由「确认欲」衍生——隐性地求背书『我现在这样等就对』
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "穿孔本身是健康威胁；医生说『在愈合』提供了部分促进，但愈合时长、听力预后、护理细节三大疑问尚未被回答，因此 need_status 仍是未满足→目标一致性为负；观众觉得『按医嘱做』有部分应对能力但对结果缺乏掌控，故 coping_potential 为中。这一组合（威胁+未满足+中应对）按 appraisal 规则应导出 fear 为主，并伴随 curiosity。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.02,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.10,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.28,
+      "fear恐惧": 0.42,
+      "sadness悲伤": 0.10,
+      "anger愤怒": 0.08
+    },
+    "note": "需求×负向 goal_congruence（威胁+未满足）→ 主情绪为 fear（怕愈合不了、怕听力回不来）；同时因主动求助、未放弃行动，配合中应对潜能，导出 curiosity 主导的信息搜集期待；医生说在愈合给出一小口 relief；'Should I just continue waiting' 透出无力感→ sadness；'hole is slowly closing' 与 'give it time' 之间的耐心消耗→ 低度 anger/不耐烦。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.45,
+      "avoidance回避": 0.15,
+      "attend关注": 0.35,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.05,
+      "dominate支配": 0.0
+    },
+    "note": "curiosity + fear（中等应对潜能）→ 趋近（来发问、找人问）+ 关注（仔细读每一条回复）；未满足感与威胁感→ 回避（已经下意识避免把耳机/水放进耳朵）；耐心被消耗→ 中断（不打算无限期干等）。"
+  },
+  "chain_trace": "安全感欲（消除鼓膜穿孔带来的健康不确定性）→(情境事件：21岁确诊鼓膜穿孔、医生说在愈合但未给具体时长/预后/护理细节)→ 需求 N01_确定性（核心）+N04_理解世界+N03_提升能力+N12_情感联结 →(评价：goal_relevance≈0.95，威胁方向，未满足，负向一致性，中等应对潜能)→ 情绪以 fear恐惧 为主，叠加 curiosity好奇，少量 relief宽慰 与 sadness悲伤 → 行动倾向以 approach趋近（主动发帖求助）和 attend关注（细读同类经历）为主，伴随 avoidance回避（已自觉避开耳机/进水）。",
+  "evidence": {
+    "desire": "I'm 21 and I have a tympanic membrane (eardrum) perforation. I've already consulted a doctor, and he told me that the hole is slowly closing/healing and that I should give it time.",
+    "need": "How long did your perforation take to completely close? / Did your hearing return completely after it closed? / I wanted to hear from people who have had something similar. / What things should I stay away from while it heals? / Should I just continue waiting since my doctor can see that it's getting smaller.",
+    "emotion": "the hole is slowly closing/healing（微弱 relief） / Should I just continue waiting（fear+sadness，耐心被消耗）",
+    "action": "Just looking for other people's experiences, especially anyone who had a perforation that took a while to close. / I'm keeping the ear dry and following my doctor's advice."
+  }
+}
+```

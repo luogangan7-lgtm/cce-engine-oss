@@ -21002,3 +21002,1452 @@ OK final JSON:
   }
 }
 ```
+
+===== 2026-08-24 12:21:25 knot_s1_T0.0 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.30,
+      "确认欲": 0.15,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.15,
+      "安全感欲": 0.40,
+      "向往欲": 0.0
+    },
+    "note": "核心欲望是「安全感欲」——面对鼓膜穿孔的医学不确定性，急需消除'会不会好/多久能好/听力能不能完全回来'的悬念；「摆脱欲」次之，想要摆脱穿孔状态与听不到的状态；「控制欲」表现为想知道哪些事能做哪些不能做以掌控愈合；「确认欲」表现为想从他人经验中确认'继续等医生说的对不对'。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "鼓膜穿孔随访期，医生说在缩小但未给出明确时间表",
+      "weight": 0.45,
+      "derived_from": "由「安全感欲」经情境事件'医生只说在缩小、要继续等'衍生——缺口在'到底还要等多久、结果会怎样'"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "愈合期内日常生活行为约束未知（能否戴耳机、避免什么）",
+      "weight": 0.20,
+      "derived_from": "由「控制欲」经情境'医生只笼统说给时间自己长，未给具体行为清单'衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "鼓膜有洞、听力受影响、可能有不适感",
+      "weight": 0.20,
+      "derived_from": "由「摆脱欲」衍生——想把穿孔这个负状态从身上去掉"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "想理解穿孔愈合的典型路径与个体差异",
+      "weight": 0.15,
+      "derived_from": "由「确认欲」衍生——想通过他人经验把'穿孔愈合'这件事的因果图景弄明白"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "穿孔本身直接威胁'听力正常'与'健康'两个目标，goal_relevance 极高；当前信息只够支持'在缩小'这一个事实点，愈合时长/能否戴耳机/听力是否完全恢复全为悬置未解，因此 direction=威胁 + status=未满足 → 负 valence；coping_potential 居中是因为用户已经在执行医嘱并主动求助社群，具备一定应对资源，但结果仍取决于生理恢复，故为中。这一负向评价同时叠加一层轻度促进（医生说在缩小），故情绪为'恐惧+好奇'的混合而非纯恐惧。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.05,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.15,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.40,
+      "fear恐惧": 0.30,
+      "sadness悲伤": 0.05,
+      "anger愤怒": 0.05
+    },
+    "note": "由'需求未满足+威胁+coping=中'导出负向基底情绪（fear 为主：担心听力恢复不全/穿孔不闭合），但因用户已主动进入信息搜寻（趋近应对），好奇被强力激活并压过恐惧成为主导——这符合'威胁但有应对路径'时的典型 appraisal→emotion 模式；relief 来自'在缩小'这一正向线索提供的局部已满足感；sadness/anger 各占极小份额，反映'戴不了耳机/生活受限'的低强度挫折。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.25,
+      "avoidance回避": 0.15,
+      "attend关注": 0.50,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.10,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "安全感欲+摆脱欲 →(情境：21岁、鼓膜穿孔随访、医生只说'在缩小、要继续等')→ N01_确定性(weight 0.45) + N06_摆脱痛苦 + N03_提升能力 + N04_理解世界 →(评价：goal_relevance 0.95、direction=威胁、status=未满足 → goal_congruence=负、coping_potential=中)→ fear恐惧(0.30) + curiosity好奇(0.40) + relief宽慰(0.15) → attend关注(0.50) + approach趋近(0.25) + avoidance回避(0.15) + interrupt中断(0.10)，完整对应'上网发帖、逐条提问、保持耳朵干燥、按医嘱等待'的可观测行为。"
+  "evidence": {
+    "desire": "原文 'the hole is shrinking and instructed me to give it more time to close on its own' + 'Did your hearing return completely after it closed?'（=想要消除不确定性/想要摆脱穿孔）",
+    "need": "原文 'How long did your perforation take to completely close?' / 'Can I use earphones or AirPods while it heals, or do I avoid putting anything in that ear?' / 'What things do I stay away from while it heals?' / 'Do I continue waiting since the doctor sees it getting smaller?'（=确定性 + 能力清单）",
+    "emotion": "原文 'I went back to the doctor yesterday for a follow-up examination. He reported that the hole is shrinking'（=relief 线索） + 'I am asking people who have had something similar to answer the following'（=fear 驱动的信息搜寻）",
+    "action": "原文 'I am keeping the ear dry and following the doctor's instructions.' + 'I am asking people who have had something similar to answer the following:' + 列出五条问题（=attend + approach + avoidance 的具体可观测行为）"
+  }
+}
+```
+
+===== 2026-08-24 12:21:41 knot_s1_T0.6 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.18,
+      "确认欲": 0.17,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.13,
+      "安全感欲": 0.52,
+      "向往欲": 0.0
+    },
+    "note": "核心驱动力是安全感欲——鼓膜穿孔是一种身体完整性与健康的不确定风险,患者急于消除对愈合时长、能否恢复听力、哪些动作会加重病情的未知;摆脱欲来自'想甩掉穿孔状态回到正常耳朵';确认欲来自'医生说在缩小'的初步信号需要被同病相怜者背书;控制欲来自想明确耳塞/耳机/日常行为边界"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "21岁患者鼓膜穿孔随访,医生说在缩小但需继续等待,患者面对愈合时长、能否用耳机、需避开什么的未知",
+      "weight": 0.45,
+      "derived_from": "由「安全感欲」经「医生给出'在缩小但需更长时间'的模糊结果、缺乏具体时间表」这一情境事件衍生——要拿到一个可量化的愈合预期与可不可以/不该做的明确清单"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "鼓膜穿孔愈合机制不透明,患者缺乏同类经验,想理解'继续等'是否合理、听力是否真的能完全恢复",
+      "weight": 0.30,
+      "derived_from": "由「安全感欲」+「确认欲」经「自己不是医生、医生信息颗粒度有限」的情境衍生——要理解这个病在别人身上到底怎么走完的"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "日常生活中要不要塞耳机、要不要避开某些动作,患者希望在'被动等待愈合'的处境里拿回对日常行为的主导权",
+      "weight": 0.15,
+      "derived_from": "由「控制欲」经「穿孔状态下大量日常动作(耳机/游泳/洗澡/飞行)变得不可做」的情境衍生——要重新握住'我能做/不能做什么'的边界"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "鼓膜穿孔本身带来不适感、听力下降、不能进水不能戴耳机的持续负状态",
+      "weight": 0.10,
+      "derived_from": "由「摆脱欲」经「穿孔持续存在、听力暂受影响、行为受限」的情境衍生——要这个不舒服的状态停下来"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "目标相关度极高(直接关系健康与听力);内容本身是求助帖,但底层情境对'恢复完整听力+安全日常'这一目标构成威胁(穿孔还没闭合、能不能用耳机未知、听力能不能100%恢复未知);发帖当下需求显然未被满足——所以是威胁×未满足→负向情绪;应对潜能为中:患者已经在按医嘱'保持耳朵干燥、听医生的话',但愈合速度本身不可控,只能通过求经验来降低不确定性,所以是中等可控,既不彻底无助(不会压垮成纯恐惧),也不充足(会留出明显焦虑)"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.06,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.10,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.33,
+      "fear恐惧": 0.42,
+      "sadness悲伤": 0.06,
+      "anger愤怒": 0.03
+    },
+    "note": "fear恐惧从「N01_确定性威胁×未满足」+「coping_potential中」推出——还没愈合、不知道能不能恢复听力、不确定耳机行不行,是典型的'知道有风险但不知道多大'的悬置恐惧;curiosity好奇从「N04_理解世界×未满足」+「主动发起提问」推出——他在主动向同类采信息;relief宽慰从医生'洞在缩小'这一微弱促进信号推出,作为恐惧的微弱对冲;desire渴望指向想'完全闭合'和'听力完全恢复'的趋近目标;少量sadness与anger是穿孔状态对正常生活侵蚀带来的次级情绪"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.22,
+      "avoidance回避": 0.20,
+      "attend关注": 0.43,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.15,
+      "dominate支配": 0.0
+    },
+    "note": "attend关注是主轴——他正在向同类征询五项具体经验;approach趋近体现为'向有类似经历的人靠近获取信息';avoidance回避体现为'避开会伤害耳朵的行为'(耳机/特定动作);interrupt中断体现为'暂停/中断正常日常'(暂时不戴耳机、耳朵保持干燥)"
+  },
+  "chain_trace": "安全感欲为主、摆脱欲与确认欲为辅 →(情境:21岁,鼓膜穿孔随访,医生说在缩小但需继续等,且日常能不能用耳机/听力能不能100%回来都不确定)→ 需求N01_确定性(想知道愈合时长与能做不能做的边界)+N04_理解世界(想理解别人身上这病怎么走完)+N02_掌控局面(想夺回日常行为主导权) →(评价:goal_relevance极高 / 方向=威胁 / need_status=未满足 / goal_congruence=负 / coping_potential=中)→ 情绪fear恐惧为主、curiosity好奇为辅(带一点relief宽慰) → 行动倾向attend关注为主、approach趋近(向同类求经验)与avoidance回避(避开可能加重穿孔的行为)并行、interrupt中断(暂停正常耳机/进水行为)"
+  "evidence": {
+    "desire": "安全感欲:'I have a tympanic membrane perforation… instructed me to give it more time to close on its own' / 'How long did your perforation take to completely close?';摆脱欲:整段都在谈'close / return completely';确认欲:'Do I continue waiting since the doctor sees it getting smaller?';控制欲:'Can I use earphones or AirPods while it heals, or do I avoid putting anything in that ear? What things do I stay away from while it heals?'",
+    "need": "N01_确定性:'How long… completely close?' 'Did your hearing return completely after it closed?';N04_理解世界:'I am requesting other people's experiences, specifically from anyone whose perforation took a while to close';N02_掌控局面:'Can I use earphones… or do I avoid… What things do I stay away from';N06_摆脱痛苦:整段暗含'让穿孔闭合、让听力回来'的去除负状态目标",
+    "emotion": "fear:'the hole is shrinking' 但 'give it more time' + 'Did your hearing return completely?' 暴露对结果的不确定;curiosity:'I am asking people who have had something similar to answer the following' + 五条结构化提问;relief:'the hole is shrinking' 的微弱正向信号;sadness/desire:'return completely' 既是对恢复的渴望也是对可能不恢复的低落",
+    "action": "attend:'I am asking people who have had something similar to answer the following';approach:'I am requesting other people's experiences';avoidance:'do I avoid putting anything in that ear?' 'What things do I stay away from';interrupt:'I am keeping the ear dry and following the doctor's instructions' (中断正常行为)"
+  }
+}
+```
+
+===== 2026-08-24 12:23:29 knot_s1_T0.6 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.18,
+      "确认欲": 0.05,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.32,
+      "安全感欲": 0.45,
+      "向往欲": 0.0
+    },
+    "note": "21岁鼓膜穿孔术后，正在等待移植物成活。底层是「我要把这个未愈合的身体状态搞定、不要再恶化了」(安全感欲：消除健康不确定性、怕移植物失败)。同时「我严格遵守医嘱、主动搜集别人时间线」反映出对康复过程的主导感(控制欲)。次级是摆脱欲——摆脱穿孔、摆脱术后不适、恢复正常听力。归属欲/确认欲只作为极轻的副产物(希望别人说『我也经历过』来验证自己)。
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "术后第一天，移植物成活与否、愈合时程均未知",
+      "weight": 0.42,
+      "derived_from": "由安全感欲(怕移植物失败/听力不能恢复)经'鼓膜穿孔三个月未自愈+昨日刚做移植'情境衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "身体正在愈合，自己对'移植物是否贴附成功'无直接感知能力",
+      "weight": 0.23,
+      "derived_from": "由控制欲(我要主导康复流程)经'我无法直接看到鼓膜内部、需要通过外部动作+信息检索夺回主动权'情境衍生"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "对术后每一天该做什么、什么时候能塞耳机/运动、复查间隔等具体机制不清楚",
+      "weight": 0.18,
+      "derived_from": "由安全感欲(把说不通的恢复过程想明白)经'信息空白：别人术后第几天拆外敷料/复查/恢复基线听力'情境衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "当前处于术后包扎、抗生素治疗、限制活动的不便与轻微不适状态",
+      "weight": 0.10,
+      "derived_from": "由摆脱欲(让这种带敷料/限活动/耳内有填塞的不适停下)经'刚做完手术、耳内还有内填塞'情境衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "想验证自己目前'保持干燥、清洁、按方服药'这一套做法是否正确",
+      "weight": 0.07,
+      "derived_from": "由确认欲(我做的是对的)经'我已按医嘱执行,但不知道对不对'情境衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "中性",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "goal_relevance 极高——内容就是他本人的手术。congruence_direction 判定为中性：他人的回答可能促进(确认时间线)也可能威胁(听到有人失败/拖很久)。need_status 明显未满足：他刚发问，答案尚未获得。两者综合→goal_congruence 负，强度由不确定性驱动。coping_potential 评估为中：他能做的(保持干燥、服药、搜集信息)已经做了，但移植物生成本身不完全在他控制下——既不是高(无法彻底掌控结果)也不是低(信息搜集与遵医嘱确实能改善预期)。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.02,
+      "desire渴望": 0.05,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.03,
+      "curiosity好奇": 0.32,
+      "fear恐惧": 0.48,
+      "sadness悲伤": 0.05,
+      "anger愤怒": 0.05
+    },
+    "note": "主导情绪由 N01_确定性 × 负congruence(威胁+未满足) → fear恐惧：怕移植物不贴附、怕听力不能回到基线(原文用 'perforation did not close'、'grafts took extended periods' 即在主动检索失败样本);N04_理解世界 × 未满足 → curiosity好奇(5个清单式问题,对别人timeline的强信息渴求);N02_掌控局面 × 负congruence → 低度anger(对'自己看不到鼓膜'这件事有点挫败,只占5%);relief 几乎为0,因为还没有答案进来;gratitude 2% 是对自己还没发的预期/对将来回答者的微弱提前感激。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.42,
+      "avoidance回避": 0.28,
+      "attend关注": 0.25,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.05
+    },
+    "note": "approach 最强——主动发帖问5个具体问题 = 信息趋近(原文 'I am posting questions', 'I am collecting the post-surgery timelines of others');avoidance 次之——避免一切可能让移植物脱落的动作(原文 'keeping the ear dry, keeping the bandage clean', 'What physical activities did you stop performing');attend 高——对自身伤口状态、他人回复的持续监测;dominate 微弱——对自己康复流程的微小主导感(发问即在塑造对话)。"
+  },
+  "chain_trace": "安全感欲(怕移植物失败) →(鼓膜穿孔三个月未自愈+昨日刚做组织移植手术)→ N01_确定性(要知道移植物多久能成活、听力何时回到基线) →(评价:congruence中性偏威胁+need_status未满足→goal_congruence负, coping_potential中)→ fear恐惧(0.48) + curiosity好奇(0.32) → approach趋近(发帖搜集他人时间线)+ avoidance回避(停止可能影响移植物的一切活动)+ attend关注(严密监测伤口与回复) 的完整推导。",
+  "evidence": {
+    "desire": "安全感欲:'The tympanic membrane perforation did not close after three months'/'grafts took extended periods to fully integrate'(主动检索失败案例=恐惧触发);控制欲:'I am keeping the ear dry, keeping the bandage clean, and taking the prescribed antibiotics'/'I am collecting the post-surgery timelines of others';摆脱欲:'perforation did not close'/'recover to baseline levels'",
+    "need": "N01_确定性:'How many days passed before the surgeon removed the outer bandage?'/'Did your hearing test results return to baseline levels';N02_掌控局面:'I am keeping the ear dry, keeping the bandage clean';N04_理解世界:'What physical activities did you stop performing while the graft attached?';N06_摆脱痛苦:'the operated ear during the recovery period';N10_自我确认:5个清单式问题隐含的'我做对了吗'",
+    "emotion": "fear恐惧:'perforation did not close'/'grafts took extended periods to fully integrate';curiosity好奇:'I am posting questions for individuals who underwent this procedure' + 5个连续问号;anger/挫败:'A surgeon placed a tissue graft'(被动语态,事情发生在他身上)",
+    "action": "approach趋近:'I am posting questions'/'I am collecting the post-surgery timelines of others';avoidance回避:'keeping the ear dry, keeping the bandage clean'/'What physical activities did you stop performing';attend关注:整篇结构化的5问清单 + 附移植物照片"
+  }
+}
+```
+
+===== 2026-08-24 12:24:02 knot_s1_T0.0 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.20,
+      "确认欲": 0.08,
+      "超越欲": 0.0,
+      "归属欲": 0.10,
+      "控制欲": 0.12,
+      "安全感欲": 0.50,
+      "向往欲": 0.0
+    },
+    "note": "鼓膜穿孔是一个直接威胁身体完整性与听力的健康事件，最强激活的是消除不确定性/恐惧的「安全感欲」；同时希望穿孔愈合、听力恢复属于「摆脱欲」；担心做错事（能不能用耳机、能不能沾水）属于想夺回对病情节奏主导权的「控制欲」；想听到与自己类似经历的人则是「归属欲」中的『同病相怜型』子型（不要求身份群体，共享经历即可）。「确认欲」极弱，仅在『我是不是该继续等』的隐性求背书中出现。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "21岁，鼓膜穿孔正在愈合，但愈合时长、是否完全闭合、听力是否完全恢复均未知",
+      "weight": 0.38,
+      "derived_from": "由「安全感欲」经『鼓膜穿孔这一具体健康威胁事件』衍生——核心是把『多久能好、听力能否回来』这种不确定性压下来"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "穿孔愈合期该做什么、不该做什么，缺乏第一手参照",
+      "weight": 0.18,
+      "derived_from": "由「安全感欲」+「控制欲」经『日常行为是否会影响愈合（耳机/沾水）』衍生——把『该回避什么』这条因果想明白"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "当前护理方式是否正确、是否需要改变",
+      "weight": 0.12,
+      "derived_from": "由「控制欲」衍生——习得可迁移的居家护理方法/避坑清单"
+    },
+    {
+      "code": "N12_情感联结",
+      "context_slot": "医生已给出标准答复但缺少共情与个体化参照",
+      "weight": 0.14,
+      "derived_from": "由「归属欲」(同病相怜子型)衍生——和有过穿孔经历的人建立有温度的连接、获得『你不是一个人』的体感"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "穿孔带来的不适/听力受损/对日常用耳的干扰",
+      "weight": 0.10,
+      "derived_from": "由「摆脱欲」衍生——让不适停下来、恢复正常用耳"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "已经按医嘱保持耳朵干燥、想确认自己做法没错",
+      "weight": 0.08,
+      "derived_from": "由「确认欲」衍生——隐性地求背书『我现在这样等就对』
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "穿孔本身是健康威胁；医生说『在愈合』提供了部分促进，但愈合时长、听力预后、护理细节三大疑问尚未被回答，因此 need_status 仍是未满足→目标一致性为负；观众觉得『按医嘱做』有部分应对能力但对结果缺乏掌控，故 coping_potential 为中。这一组合（威胁+未满足+中应对）按 appraisal 规则应导出 fear 为主，并伴随 curiosity。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.02,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.10,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.28,
+      "fear恐惧": 0.42,
+      "sadness悲伤": 0.10,
+      "anger愤怒": 0.08
+    },
+    "note": "需求×负向 goal_congruence（威胁+未满足）→ 主情绪为 fear（怕愈合不了、怕听力回不来）；同时因主动求助、未放弃行动，配合中应对潜能，导出 curiosity 主导的信息搜集期待；医生说在愈合给出一小口 relief；'Should I just continue waiting' 透出无力感→ sadness；'hole is slowly closing' 与 'give it time' 之间的耐心消耗→ 低度 anger/不耐烦。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.45,
+      "avoidance回避": 0.15,
+      "attend关注": 0.35,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.05,
+      "dominate支配": 0.0
+    },
+    "note": "curiosity + fear（中等应对潜能）→ 趋近（来发问、找人问）+ 关注（仔细读每一条回复）；未满足感与威胁感→ 回避（已经下意识避免把耳机/水放进耳朵）；耐心被消耗→ 中断（不打算无限期干等）。"
+  },
+  "chain_trace": "安全感欲（消除鼓膜穿孔带来的健康不确定性）→(情境事件：21岁确诊鼓膜穿孔、医生说在愈合但未给具体时长/预后/护理细节)→ 需求 N01_确定性（核心）+N04_理解世界+N03_提升能力+N12_情感联结 →(评价：goal_relevance≈0.95，威胁方向，未满足，负向一致性，中等应对潜能)→ 情绪以 fear恐惧 为主，叠加 curiosity好奇，少量 relief宽慰 与 sadness悲伤 → 行动倾向以 approach趋近（主动发帖求助）和 attend关注（细读同类经历）为主，伴随 avoidance回避（已自觉避开耳机/进水）。",
+  "evidence": {
+    "desire": "I'm 21 and I have a tympanic membrane (eardrum) perforation. I've already consulted a doctor, and he told me that the hole is slowly closing/healing and that I should give it time.",
+    "need": "How long did your perforation take to completely close? / Did your hearing return completely after it closed? / I wanted to hear from people who have had something similar. / What things should I stay away from while it heals? / Should I just continue waiting since my doctor can see that it's getting smaller.",
+    "emotion": "the hole is slowly closing/healing（微弱 relief） / Should I just continue waiting（fear+sadness，耐心被消耗）",
+    "action": "Just looking for other people's experiences, especially anyone who had a perforation that took a while to close. / I'm keeping the ear dry and following my doctor's advice."
+  }
+}
+```
+
+===== 2026-08-24 12:34:00 knot_s2_d2 =====
+Let me analyze this content carefully.
+
+The text describes a person holding a document (invoice/legal paper) that is:
+1. Addressed to a deceased person, not the mother
+2. Mother's signature is absent
+3. Account will transfer to collections
+4. Agency will close the file without matching name
+5. But if a court summons arrives with mother's name, she will accept service
+6. The person is taking it to the postal counter to return-to-sender, then recycle
+
+Let me identify the knots (预装动机配置):
+
+**pain_seek (痛点·求解结)**:
+- The person is describing a problem (invoice to deceased person that could escalate)
+- They have a clear coping plan (return to sender + recycle)
+- They're not really seeking help - they've already determined the action
+- "I am taking the envelope to the postal counter..." - this is a solution statement, not a help-seeking query
+- Coping is high (they have a plan), need_status partially being addressed
+- Intensity: moderate - the threat is described but they're not asking for help, they're stating their plan
+- Actually, the action is already determined. This isn't really pain_seek because they're not求助-ing, they've already decided
+- Intensity: ~0.3-0.4 (problem identified, solution in motion, not求助)
+
+**injustice (不平·问责结)**:
+- There's a system failure here - the agency sent mail to deceased
+- "It is addressed to a deceased individual, not to my mother"
+- But the person is not really doing public shaming, not writing a公开信
+- They're taking individual action (return to sender), not organizing pressure
+- Attribution: system (the agency is at fault)
+- Intensity: low-moderate - there's a sense of unfairness but no公开施压 behavior
+- Intensity: ~0.2-0.3
+
+**belong (归属·确认结)**:
+- Mentioning mother - "she will accept the service" - this reveals family care/protection
+- But no self-exposure, no "only me?" question
+- Intensity: very low
+- ~0.1
+
+**reward (爽点·回报结)**:
+- Not applicable - no satisfaction, no thanks
+- Intensity: 0
+
+**display (确证·展示结)**:
+- The text is very structured, methodical, showing competence
+- "I am holding the printed document in my hand" - precise observation
+- The person is demonstrating they understand the legal/financial system
+- This reads like a structured explanation, possibly for confirmation
+- But there's no纠错亮牌, no举反例晒型号
+- The display might be implicit - showing "I understand this correctly"
+- Intensity: moderate
+- ~0.4-0.5
+
+**itch (痒点·投影结)**:
+- Not applicable
+- Intensity: 0
+
+**suspend (悬置·焦虑结)**:
+- Hmm, this could apply - the person has identified a future risk ("If a court summons arrives bearing her name, she will accept the service")
+- The future decision/threat is acknowledged
+- But the person is taking action (return to sender), not really悬置
+- The威胁 is "future court summons" but they're blocking it now
+- Need_status: 未满足 (the system risk isn't fully closed)
+- Coping: 中/高 (they have a plan)
+- Time: 未来 (the court summons risk is future)
+- Attribution: system (the agency)
+- Target_layer: consumption_goal (or maybe epistemic_trust about the system?)
+- Wait, suspend is about decision悬置. The person is making a decision (return to sender), not悬置 it. So suspend doesn't quite fit.
+- Intensity: low
+- ~0.2
+
+**inertia (惯性·缺席结)**:
+- The mother might be in this state? "she will accept the service" suggests she doesn't understand
+- But the person is NOT in inertia - they're actively acting
+- The mother is mentioned as the one in inertia (passively accepting)
+- Intensity for the writer: 0
+- Could note the mother is in inertia
+
+**audit (验真·审计结)**:
+- Very interesting! The person is auditing the system:
+  - "The consultation fee for legal counsel exceeds the total balance on this invoice" - checking facts
+  - "Her signature is absent from the enclosed paperwork" - verification
+  - "The account will transfer to the collections department, but the agency will close the file without a matching name" - tracing the logic
+  - "If a court summons arrives bearing her name, she will accept the service" - testing the vulnerability
+- The person is mentally auditing the entire process to find the vulnerability
+- Attribution: other_agent/system (the agency)
+- Target_layer: epistemic_trust? No - audit targets epistemic_trust
+- Wait, the audit here is about the system's logic flow, not about trusting the content/author
+- The person is verifying the system's behavior
+- Hmm, audit is "验真·审计结" - auditing for truth/verification
+- "Her signature is absent" - they're checking
+- "the agency will close the file without a matching name" - they're testing the hypothesis
+- This is more like a system audit
+- Intensity: high
+- The entire text is a structured verification of the problem and solution
+- Intensity: ~0.7
+
+Wait, let me reconsider. The text reads more like:
+1. Problem identification
+2. Risk analysis
+3. Solution execution plan
+
+This is a very methodical, almost bureaucratic description. The person is:
+- Holding the document
+- Noting discrepancies (addressee, signature)
+- Tracing system flow (collections, agency closure)
+- Identifying the vulnerability (mother would accept service)
+- Executing a solution (return to sender, recycle)
+
+This looks like a display/确证 behavior - showing they understand the situation thoroughly. The structure is like "let me walk you through this carefully":
+- "The consultation fee for legal counsel exceeds the total balance" - context
+- "It is addressed to a deceased individual, not to my mother" - problem
+- "Her signature is absent" - verification
+- "The account will transfer to the collections department, but the agency will close the file without a matching name" - analysis
+- "If a court summons arrives bearing her name, she will accept the service" - risk
+- "I am taking the envelope to the postal counter... I will place the invoice in the recycling bin" - action
+
+This is structured, methodical display behavior. The person is showing competence.
+
+Let me also reconsider audit:
+- The audit is about "验证 the system's logic"
+- The person is mentally walking through: what happens if I don't act?
+- Account → collections → agency closes file (no match) → BUT court summons with mother's name → she accepts
+- This is auditing the process for vulnerabilities
+- audit signature: congruence=威胁, need_status=未满足, coping=高, time=现在, attribution=other_agent, target_layer=epistemic_trust
+
+But the person's audit here isn't about whether the content/advice is true - it's about whether the system will work as expected. So target_layer might be different.
+
+Actually, the audit knot as defined is about "公开揭穿/对质/查资历" and "解决前阻断内容采纳". This doesn't quite fit either. The person isn't质疑 content; they're auditing a process.
+
+Hmm. Let me think about this more carefully.
+
+Looking at the text again, the dominant feature is:
+1. Clear problem
+2. Clear solution
+3. Methodical, structured presentation
+4. Protective action for mother
+5. Recognition of remaining risk
+
+The strongest signals:
+- **display** (确证·展示结): Structured, methodical, showing competence. The person is demonstrating they understand the situation. The text is structured like a legal analysis.
+- **pain_seek** (痛点·求解结): Problem is identified, solution is being executed, but the person isn't really asking for help. They've already decided. However, the need_status is partially unaddressed because the systemic risk remains.
+- **audit** (验真·审计结): The person is verifying the system's behavior. They're checking: signature absent? agency will close file? mother will accept service?
+- **injustice** (不平·问责结): The system sent mail to a deceased person. There's a clear "this shouldn't have happened" but the person isn't doing public pressure.
+- **inertia** (for the mother): She's in inertia - she will passively accept service.
+
+Let me re-examine the audit signature:
+- congruence: 威胁 ✓ (the system poses threat)
+- need_status: 未满足 ✓ (vulnerability remains)
+- coping: 高 (they have a plan)
+- time: 现在 ✓
+- attribution: other_agent (the agency) or system
+- target_layer: epistemic_trust
+
+But the person isn't really questioning trust in a content/source. They're auditing a process. Maybe audit doesn't perfectly fit.
+
+Let me think about display again:
+- congruence: 促进 ✓
+- need_status: 已满足 ✓ (problem is being addressed)
+- coping: 高 ✓
+- time: 现在 ✓
+- attribution: none
+- target_layer: identity
+
+The person is showing they have it under control. Structured presentation. This fits display.
+
+But display typically includes "纠错亮牌/举反例晒型号/结构化长评/承诺回访". The text is structured but not exactly纠错亮牌. It's more of a problem statement + solution.
+
+Hmm. Let me think differently. The text could be:
+- A Reddit post asking if they're handling it correctly
+- A structured post showing competence to receive validation
+- An audit/checklist being verbalized
+
+If it's the first case: pain_seek would be high (asking for confirmation)
+If it's the second case: display would be high
+If it's the third case: audit would be high
+
+The text is in present tense, action-pending ("I am taking", "I will place"). This suggests the action hasn't been taken yet, or is being narrated as it's about to happen. This could be:
+- A post seeking validation before action (pain_seek + display)
+- A "let me show you my plan" post (display)
+- A stream of consciousness (mixed)
+
+The question is: is this person求助-ing or showcasing?
+
+Given the structured, complete, solution-oriented nature, I lean toward display. The person has already determined the solution. They're not asking for help; they're showing what they're doing.
+
+But the problem identification and risk awareness ("If a court summons arrives bearing her name, she will accept the service") suggests they're processing the problem thoroughly. This could be:
+- Display: showing they understand
+- Pain_seek: implicit need for confirmation
+- Audit: verifying the system
+
+Let me try to weight these:
+
+**Display**: ~0.65-0.7
+- Structured presentation
+- Showing competence
+- Solution already determined
+- Methodical walk-through
+
+**Pain_seek**: ~0.3-0.4
+- Problem identified
+- Need for confirmation? Maybe implicit
+- Coping is high (solution in motion)
+
+**Audit**: ~0.5-0.6
+- Verifying system behavior
+- Checking: signature? agency closure? court summons?
+- Looking for vulnerability
+- "If... then..." logic chains
+
+**Injustice**: ~0.2
+- System failure (mail to deceased)
+- But no public pressure, no organizing
+- Just mention of the problem
+
+**Suspend**: ~0.2
+- Future court summons risk acknowledged
+- But not really悬置 - action is being taken
+
+**Inertia (for mother)**: ~0.1 (mentioned but not the writer's own state)
+
+Let me finalize:
+
+Primary knots:
+1. **display** - intensity ~0.65
+   - Evidence: structured methodical walk-through, showing competence, "I am holding the printed document in my hand"
+   - Signature: congruence=促进, need_status=已满足, coping=高, time=现在, attribution=none, target_layer=identity
+   - Desire: 确认欲/超越欲
+   - Need: N10/N09
+
+2. **audit** - intensity ~0.6
+   - Evidence: "Her signature is absent from the enclosed paperwork", "the agency will close the file without a matching name", "If a court summons arrives bearing her name, she will accept the service"
+   - Signature: congruence=威胁, need_status=未满足, coping=高, time=现在, attribution=other_agent, target_layer=epistemic_trust
+   - Desire: 确认欲/安全感欲
+   - Need: N10/N01
+
+3. **pain_seek** - intensity ~0.3
+   - Evidence: "The consultation fee for legal counsel exceeds the total balance on this invoice"
+   - Signature: congruence=威胁, need_status=未满足, coping=中/高, time=现在, attribution=system, target_layer=consumption_goal
+   - Desire: 摆脱欲/控制欲
+   - Need: N06/N02
+
+4. **injustice** - intensity ~0.2
+   - Evidence: "It is addressed to a deceased individual" (system sent wrong mail)
+   - Signature: congruence=威胁, need_status=已发生, coping=中, time=过去, attribution=other_agent, target_layer=fairness
+   - Desire: 确认欲/控制欲
+   - Need: N02/N09
+
+Wait, I should think about this more. The person is describing a real-time situation with clear stakes. The mother is being protected. The action is already decided.
+
+Let me re-examine the audit: the audit knot is defined as "验真·审计结" with behavior "公开揭穿/对质/查资历" and target_layer "epistemic_trust". The text isn't really doing公开揭穿. It's more of an internal verification walk-through. So audit might not be the right call.
+
+Actually, the "audit" behavior is "公开揭穿/对质/查资历" - but the more general concept is "auditing the system for vulnerabilities". The person here is mentally auditing the entire process flow to find what could go wrong. This is a private audit, not a public one. Hmm.
+
+Let me reconsider. The audit knot might still apply if the target_layer is "epistemic_trust" - the person is checking whether their understanding of the system is correct. But typically audit is about trust in a source/agent, not system processes.
+
+Actually, looking at the system prompt again: "audit's target_layer: epistemic_trust" and "解决前阻断内容采纳". This is about content adoption. The text doesn't really block content adoption. So audit is a stretch.
+
+Let me reweight:
+- **display**: ~0.7 (dominant)
+- **pain_seek**: ~0.35 (problem is real, but solution is in motion)
+- **injustice**: ~0.25 (system failure noted)
+- **suspend**: ~0.2 (future risk acknowledged)
+
+The audit might be too much. Let me drop it.
+
+Actually wait, looking again at the text:
+
+"Her signature is absent from the enclosed paperwork. The account will transfer to the collections department, but the agency will close the file without a matching name. If a court summons arrives bearing her name, she will accept the service."
+
+This is a clear audit/logic check. The person is mentally walking through what happens at each step. This is auditing the system to identify the vulnerability. The "If a court summons arrives bearing her name, she will accept the service" is the key vulnerability identification.
+
+The audit knot is about trust verification. Here, the person is verifying the system's logic flow. Could be considered an audit.
+
+Hmm, let me keep audit at moderate intensity (~0.5).
+
+Also, I want to reconsider the "悬置" angle. The future risk is clearly identified:
+- "If a court summons arrives bearing her name, she will accept the service"
+- This is a悬置 concern - it's a future risk that the current action doesn't fully resolve
+- But the person is taking action (return to sender), so they're not really悬置-ing
+- The悬置 might be: even after return to sender, will the agency still try to reach someone at this address?
+- This is a minor悬置
+
+Let me also consider the protective instinct for mother. This could be:
+- belong (protecting family)
+- injustice (the mother is being unfairly targeted)
+- pain_seek (the threat to mother is the problem)
+
+The mother-related content suggests:
+- injustice ~0.3 (mother shouldn't be the target)
+- belong ~0.2 (family protection)
+
+OK let me finalize my analysis:
+
+**Dominant knots:**
+
+1. **display** (确证·展示结) - intensity: 0.70
+   - Structured, methodical presentation
+   - Showing competence
+   - Solution in motion
+   - "I am holding the printed document in my hand" - precise observation
+   - "I am taking the envelope to the postal counter, stating the addressee is deceased, and requesting a return-to-sender stamp. I will place the invoice in the recycling bin." - clear action plan
+
+2. **audit** (验真·审计结) - intensity: 0.55
+   - Mental walk-through of system logic
+   - Identifying vulnerability: "If a court summons arrives bearing her name, she will accept the service"
+   - Checking facts: "Her signature is absent from the enclosed paperwork"
+   - Testing system behavior: "the agency will close the file without a matching name"
+   - But this is private audit, not public - so intensity is moderate
+
+3. **pain_seek** (痛点·求解结) - intensity: 0.35
+   - Problem identified: "The consultation fee for legal counsel exceeds the total balance on this invoice"
+   - Need status: partially unmet (systemic risk remains)
+   - Coping: medium-high (solution in motion)
+   - But not求助-ing, solution is determined
+
+4. **injustice** (不平·问责结) - intensity: 0.25
+   - "It is addressed to a deceased individual, not to my mother"
+   - System sent mail to deceased person
+   - But no public pressure, no organizing
+   - The action is individual correction, not system accountability
+
+5. **suspend** (悬置·焦虑结) - intensity: 0.20
+   - "If a court summons arrives bearing her name, she will accept the service" - future risk
+   - But action is being taken, so not really悬置
+
+6. **inertia** (惯性·缺席结) - for the mother, ~0.15
+   - "she will accept the service" - passive acceptance
+   - But the mother isn't the speaker; this is the speaker's observation
+   - The speaker might be compensating for mother's inertia
+
+Let me consider belong (归属):
+- The mother is mentioned, suggesting family care
+- "she will accept the service" - protectiveness
+- But not自我暴露式发帖 with "only me?" question
+- Intensity: ~0.15
+
+OK let me also check pain_seek more carefully:
+- pain_seek is about求助 - high-cost behavior: "详述症状+已试步骤+照做回报+询盘"
+- The text DOES detail: what the situation is (symptoms), what they're doing about it (steps), what the expected outcome is
+- "I am taking the envelope to the postal counter, stating the addressee is deceased, and requesting a return-to-sender stamp. I will place the invoice in the recycling bin."
+- This could be "已试步骤" (steps being taken)
+- The询盘 part isn't explicit, but the structured presentation could be implicit求助
+
+Hmm, the pain_seek signature includes the 6/6 internal conditions. Let me check:
+- desire: 摆脱欲/控制欲/安全感欲 ✓ (want to be rid of this problem, control the situation)
+- need: N06 (safety)/N02 (control)/N01 (security) ✓
+- attribution: system ✓
+- target_layer: consumption_goal (the financial account issue)
+- coping: 中/高 ✓ (solution in motion)
+- congruence: 威胁 ✓
+- need_status: 未满足 (systemic risk not fully closed) ✓
+- time: 现在 ✓
+
+The 6/6 conditions seem mostly met. So pain_seek could be higher than I initially thought. But the behavior is already "doing" rather than "asking for help". So pain_seek might be 0.4-0.5 if implicit求助 is present.
+
+Let me settle on:
+- display: 0.70
+- audit: 0.55
+- pain_seek: 0.40
+- injustice: 0.25
+- suspend: 0.20
+- inertia: 0.10 (for the mother, secondary)
+
+Actually, I want to reconsider audit one more time. The audit knot is defined as:
+- 验真·审计结|阻挡
+- congruence: 威胁
+- need_status: 未满足
+- coping: 高
+- time: 现在
+- attribution: other_agent
+- target_layer: epistemic_trust
+- desire: 确认欲/安全感欲
+- need: N10/N01
+- behavior: 公开揭穿/对质/查资历
+- "解决前阻断内容采纳"
+- "说服链路的前置闸门,排在所有结之前"
+
+The text doesn't show "公开揭穿/对质/查资历". The audit is internal/private. The "阻断内容采纳" doesn't apply. The target_layer "epistemic_trust" doesn't fit (the person isn't questioning content trust, they're tracing system logic).
+
+So audit might not be the right call. Let me drop it and reconsider.
+
+What about the systematic logic walk-through? Could it be display? Yes, definitely. Could it be pain_seek? Yes, the detailed problem analysis suggests求助意图. 
+
+Let me look at this differently. The text could be a Reddit/help forum post. The format is:
+- Title-like opener: "The consultation fee for legal counsel exceeds the total balance on this invoice"
+- Situation: "I am holding the printed document in my hand. It is addressed to a deceased individual, not to my mother. Her signature is absent from the enclosed paperwork."
+- Risk analysis: "The account will transfer to the collections department, but the agency will close the file without a matching name. If a court summons arrives bearing her name, she will accept the service."
+- Plan: "I am taking the envelope to the postal counter, stating the addressee is deceased, and requesting a return-to-sender stamp. I will place the invoice in the recycling bin."
+
+This looks like a structured post where the person is:
+1. Presenting the problem
+2. Analyzing the risk
+3. Stating their plan
+4. Implicitly seeking validation
+
+So this is high in display AND pain_seek.
+
+Final assessment:
+- **display**: 0.70 (structured, methodical, showing competence, solution in motion)
+- **pain_seek**: 0.45 (problem detailed, plan stated, implicit求助 for confirmation)
+- **injustice**: 0.25 (system failure noted but no public action)
+- **suspend**: 0.20 (future risk acknowledged)
+- **inertia**: 0.10 (mother is in inertia, mentioned)
+- **audit**: 0.40 (mental verification of system logic, though not公开)
+
+Hmm, I'm going to keep audit at moderate because the "If a court summons arrives bearing her name, she will accept the service" is clearly a vulnerability identification, which is auditing behavior. But it's private, not public. So 0.40 is fair.
+
+Actually, let me think about audit again. The audit knot is about "auditing source/content trust". The text is auditing a process/system, not content. So audit might not apply.
+
+But the broader concept of "audit" - verifying the logic of a situation - is clearly present. The person is mentally walking through: account → collections → agency closure → court summons risk.
+
+I'll keep audit at 0.40 but note the caveat.
+
+Wait, looking more carefully at the audit definition: "attribution: other_agent" and "target_layer: epistemic_trust". The attribution here could be other_agent (the agency). The target_layer... hmm, "epistemic_trust" is about trust in knowledge/claims. The person is verifying whether their understanding of the system is correct. This could be considered epistemic trust in the system.
+
+OK I'll keep audit at 0.45.
+
+Final knots:
+1. display: 0.70
+2. audit: 0.45
+3. pain_seek: 0.40
+4. injustice: 0.25
+5. suspend: 0.20
+6. inertia: 0.10
+
+Now let me think about levers:
+- 好奇缺口: "If a court summons arrives bearing her name, she will accept the service" - this creates curiosity about what happens next, but it's not really a content lever; it's a natural narrative element
+- 稀缺紧迫: not really present
+- 从众: not present
+- 种草: not present
+- 风险揭示: "If a court summons arrives bearing her name" - this is a risk reveal, but it's not really a lever, it's the content's own problem statement
+
+I don't see strong levers. The text is descriptive, not persuasive. Maybe "风险揭示" (risk revelation) as a soft lever, but it's more of a content feature than a manipulation lever.
+
+Actually, "If a court summons arrives bearing her name, she will accept the service" is a hook that creates悬念 and reveals a risk. This could be considered a 好奇缺口/悬念 lever - making the reader wonder what happens next. But it's not a strong lever, more of a narrative device.
+
+I'll list minimal/no significant levers.
+
+Now let me check freshness_days_hint:
+- The situation is happening now ("I am holding", "I am taking", "I will place")
+- This is an active, ongoing situation
+- Freshness: 1-3 days (very fresh)
+
+OK let me write the JSON output.
+
+Actually, I want to reconsider one more time. The pain_seek intensity: is this求助 or display?
+
+Looking at the behavior signature for pain_seek: "求助通道·高成本:详述症状+已试步骤+照做回报+询盘"
+- 详述症状 ✓ "It is addressed to a deceased individual, not to my mother. Her signature is absent..."
+- 已试步骤 - this is the planned action, not steps already tried. "I am taking..." is future action.
+- 照做回报 - "I will place the invoice in the recycling bin" - this is planned回报
+- 询盘 - implicit; the person is presenting a complete plan and may be seeking validation
+
+The pain_seek behavior is "high-cost求助". The text doesn't have explicit询盘. But the structure of presenting a complete plan and asking for confirmation could be considered求助.
+
+I'll set pain_seek at 0.40, indicating it's there but not dominant.
+
+Display: 0.70 is appropriate because:
+- Structured, methodical
+- Showing competence
+- Complete solution presented
+- No explicit求助
+
+Let me also consider whether the mother is in inertia. The text says "she will accept the service" - the mother would passively accept a court summons. This is the speaker's observation, not the speaker's own state. But the speaker might be acting to compensate for the mother's inertia.
+
+In the system prompt: "inertia 的行为签名是缺席与替代行为——认命句、长期忍受、伪装"
+The mother here isn't explicitly showing these behaviors, but "she will accept the service" suggests passive compliance. This could be inertia.
+
+But the speaker is the one doing the action. The mother is mentioned. So the mother's inertia is background information.
+
+Should I include inertia in the knots? The system prompt says: "只列 intensity > 0 的结; 没有迹象的结不要列。" The inertia is present in the mother, but the speaker is acting. So the speaker's own inertia is low (maybe 0.1 because they're not the one in inertia). But the mother is mentioned as being in inertia.
+
+Hmm, the knot is about the person making the post, not about people mentioned. So I should focus on the speaker's knots.
+
+The speaker's knots:
+- display: 0.70
+- audit: 0.45
+- pain_seek: 0.40
+- injustice: 0.25
+- suspend: 0.20
+- inertia: 0.05 (very low, the speaker is acting, not in inertia)
+
+Wait, the system prompt says multi-knot: "一个人可同时持多结(如 归属+惯性)". So a person can have multiple knots. The speaker is primarily in display + audit, with secondary pain_seek and minor injustice/suspend.
+
+I'll drop inertia from the speaker's knots since the speaker is clearly acting.
+
+Actually, the system prompt says to classify the content/text, not just the speaker. Let me re-read:
+"你是 CCE 结分类器" - CCE knot classifier
+"待分类内容" - content to classify
+
+So I classify the knots present in the content. The content shows:
+- The speaker's state (display, audit, pain_seek, injustice, suspend)
+- The mother's state (inertia - mentioned)
+
+I think I should include the mother's inertia as a mentioned knot, but with low intensity since it's background.
+
+Actually, I think the safer interpretation is: classify the knots that the content is primarily expressing/promoting. The content primarily shows the speaker's display + audit + pain_seek. The mother is mentioned but secondary.
+
+OK final knots:
+1. display: 0.70
+2. audit: 0.45
+3. pain_seek: 0.40
+4. injustice: 0.25
+5. suspend: 0.20
+
+Levers: minimal, maybe 风险揭示 as a soft feature, but not a strong lever.
+
+Notes: This is a structured, methodical description of handling an erroneous invoice, primarily showcasing competence (display) with secondary audit/pain_seek components.
+
+Let me write the JSON now.
+
+Actually, one more thought. Looking at the audit signature again:
+- target_layer: epistemic_trust
+- The text is auditing the system's logic flow, not content trust
+
+The audit knot as defined is specifically about content/claim verification. The text isn't questioning any content claim; it's tracing a system process. So audit might not fit.
+
+But the broader behavior of "auditing" is present. The person is checking the logic of the situation. This is similar to audit.
+
+I'll set audit at 0.40 (moderate) and note that it's a system audit rather than content audit.
+
+Alternatively, I could reclassify the audit-like behavior as part of display (showing the thorough analysis) or pain_seek (presenting the full picture for求助).
+
+OK let me settle:
+- display: 0.72
+- pain_seek: 0.40
+- audit: 0.40
+- injustice: 0.25
+- suspend: 0.20
+
+These are my final intensities.
+
+Wait, I want to double-check by looking at the engine readout:
+- 首位: 控制欲, N02_掌控局面, 恐惧, 趋近
+- appraisal: goal_relevance 0.92, congruence 威胁, need_status 未满足, coping 中
+
+The engine readout emphasizes:
+- 控制欲 (control desire) - matches display's 确认欲/超越欲 and pain_seek's 摆脱欲/控制欲
+- N02 (control) - matches display and pain_seek
+- 恐惧 (fear) - matches pain_seek and audit
+- 趋近 (approach) - matches display and pain_seek (action-oriented)
+- 威胁 (threat) - matches pain_seek, audit, injustice, suspend
+- 未满足 (unmet) - matches pain_seek, audit, suspend
+- 中 (medium coping) - matches pain_seek
+
+The engine readout aligns with my analysis: pain_seek and audit are the threat-side knots, display is the control/showing side.
+
+OK let me finalize:
+
+**Knots:**
+1. **display** - 0.72
+   - Evidence: "I am holding the printed document in my hand. It is addressed to a deceased individual, not to my mother. Her signature is absent from the enclosed paperwork."
+   - Signature: 促进, 已满足, 高, 现在, none, identity
+   - Desire: 确认欲/超越欲
+   - Need: N10/N09
+   - Freshness: 1 day (very fresh, real-time)
+
+2. **audit** - 0.45
+   - Evidence: "The account will transfer to the collections department, but the agency will close the file without a matching name. If a court summons arrives bearing her name, she will accept the service."
+   - Signature: 威胁, 未满足, 高, 现在, other_agent, epistemic_trust
+   - Desire: 确认欲/安全感欲
+   - Need: N10/N01
+   - Freshness: 1-2 days
+
+3. **pain_seek** - 0.40
+   - Evidence: "The consultation fee for legal counsel exceeds the total balance on this invoice"
+   - Signature: 威胁, 未满足, 中, 现在, system, consumption_goal
+   - Desire: 摆脱欲/控制欲
+   - Need: N06/N02
+   - Freshness: 1-2 days
+
+4. **injustice** - 0.25
+   - Evidence: "It is addressed to a deceased individual, not to my mother"
+   - Signature: 威胁, 已发生, 中, 过去, other_agent, fairness
+   - Desire: 确认欲/控制欲
+   - Need: N02/N09
+   - Freshness: 3-5 days
+
+5. **suspend** - 0.20
+   - Evidence: "If a court summons arrives bearing her name, she will accept the service"
+   - Signature: 促进与威胁并存, 未满足, 不确定, 未来, none, consumption_goal
+   - Desire: 安全感欲/摆脱欲
+   - Need: N01/N06
+   - Freshness: 1-2 days
+
+Levers: 
+- 风险揭示 (risk revelation) as a soft narrative device, not a strong manipulation lever
+- The "If X then Y" structure creates悬念, but it's content-driven not lever-driven
+
+I'll list 风险揭示 as a soft lever or note that no strong content-side levers are present.
+
+Actually, the levers list is about "内容里出现的杠杆(若有)". The content's own structure doesn't strongly employ curiosity gaps, scarcity, social proof, or种草. It's more of a problem-solution narrative. So minimal levers.
+
+Let me write the final JSON.
+
+One more consideration: the "If a court summons arrives bearing her name, she will accept the service" is a conditional risk statement. This is a 风险揭示 that could be considered a lever (creating concern). But it's also the natural problem statement. I'll note it as a soft lever.
+
+OK writing JSON now.
+
+Hmm, also reconsidering - the pain_seek here. The person's plan is already complete. They're not really求助. The format is closer to a "let me show you my analysis and plan" (display). So pain_seek might be even lower, like 0.30.
+
+But the engine readout says coping is "中" not "高". And the action plan is detailed but might not be fully validated. So pain_seek could be 0.35-0.40.
+
+Let me go with:
+- display: 0.72
+- audit: 0.45
+- pain_seek: 0.35
+- injustice: 0.25
+- suspend: 0.20
+
+Final.
+
+Actually, the engine readout says coping=中, not 高. The person's plan is laid out but the systemic risk remains. So pain_seek at 0.40 is appropriate.
+
+OK writing JSON.
+
+For freshness_days_hint:
+- The situation is active, real-time ("I am holding", "I am taking")
+- The invoice was sent recently (presumably)
+- Freshness: 1-3 days
+
+Let me also reconsider the display signature. Display is "确证·展示结":
+- congruence: 促进
+- need_status: 已满足
+- coping: 高
+- time: 现在
+- attribution: none
+- target_layer: identity
+
+Is need_status "已满足"? The person has a plan and is executing. The problem is being addressed. So 已满足 fits. Coping is high (clear plan). Time is 现在. Attribution is none. Target_layer is identity (showing competence/identity).
+
+This fits well.
+
+For audit:
+- congruence: 威胁 (the system poses a threat)
+- need_status: 未满足 (the vulnerability remains)
+- coping: 高 (they have a plan)
+- time: 现在
+- attribution: other_agent (the agency)
+- target_layer: epistemic_trust (questioning system behavior)
+
+This fits reasonably, though the epistemic_trust target_layer is a stretch.
+
+For pain_seek:
+- congruence: 威胁
+- need_status: 未满足
+- coping: 中
+- time: 现在
+- attribution: system
+- target_layer: consumption_goal
+
+This fits. The consumption_goal here is the account/financial issue.
+
+For injustice:
+- congruence: 威胁
+- need_status: 已发生 (the wrong mail was sent)
+- coping: 中
+- time: 过去
+- attribution: other_agent
+- target_layer: fairness
+
+This fits.
+
+For suspend:
+- congruence: 促进与威胁并存
+- need_status:
+
+===== 2026-08-24 12:34:32 knot_s1_T0.3 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.15,
+      "确认欲": 0.15,
+      "超越欲": 0.40,
+      "归属欲": 0.0,
+      "控制欲": 0.20,
+      "安全感欲": 0.10,
+      "向往欲": 0.0
+    },
+    "note": "评论者以'我知道世界怎么运转'的姿态出现，核心是超越欲（智力/经验上的优越定位）；'people on Reddit don't understand'暴露对低质内容的摆脱欲（想从被烦到想脱离）；'Just let it go'/'have them return to sender'是控制欲（教人怎么管事）；'your mom likely doesn't owe anything'是确认欲（要被认可为正确）；安全感欲弱，只在'write the bill off''unenforceable'里点出对法律/系统兜底的确信。"
+  },
+  "need_layer": [
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "评论者看到OP面对妈妈收到账单、似乎在犹豫要不要付钱的被动/失控处境，要替对方把方向盘握回来：别付、让它回寄",
+      "weight": 0.40,
+      "derived_from": "由【控制欲 + 超越欲】经「OP要替过世妈妈承担一张未寄给她的账单」这一情境事件衍生"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "评论者要给OP/围观者补一块缺失的认知：账单没抬头、债务多会自行核销、即使签字也常不可执行",
+      "weight": 0.25,
+      "derived_from": "由【超越欲 + 摆脱欲】经「OP对账单/债务/法律流程的认知缺口」衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "评论者用'people on Reddit don't understand how the world works at all'明示：我比这里的多数人懂，需要被看见为'对的人'",
+      "weight": 0.20,
+      "derived_from": "由【确认欲 + 超越欲】经「被低质提问者围绕的发言场景」衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "评论者要帮OP从'该不该替妈妈付钱'的焦虑/负罪里走出来——Just let it go 直接是处方",
+      "weight": 0.10,
+      "derived_from": "由【摆脱欲】经「OP为账单纠结、可能产生不必要痛苦」衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "评论者要给出一个确定结论：妈大概率不欠钱、付钱没意义、寄回即可",
+      "weight": 0.05,
+      "derived_from": "由【安全感欲 + 控制欲】经「债务追讨常被写掉、即使追也会走正式送达流程」这一可预测流程推导"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "目标高度相关（OP的账单焦虑正是评论者要解决的对象）；内容对自己需求的方向是'促进'——能教、能骂、能给确定性解法；评论者当场给出了'不用付+回寄'的完整答案，需求处于'已满足'态；应对潜能高——'Attorney will cost more than this bill''More often than not they will just write the bill off'显示评论者对系统非常熟，自评能轻松处理。综合得'正'的情绪底色：欣慰+轻度对人的蔑视/愤怒。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.05,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.10,
+      "love爱": 0.0,
+      "relief宽慰": 0.20,
+      "approval认同": 0.15,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.50
+    },
+    "note": "主导情绪是 anger（蔑视/烦躁）——由'超越欲+确认欲'对低质提问的'威胁感'产生（'people on Reddit don't understand how the world works at all'是显性蔑视/恼火），属于需求'已满足但群体行为令人厌恶'的负向次情绪。其次 relief——给OP和自己都卸下负担（'Just let it go'）。approval 是自我认同（自己分析对了）。pride 轻量自得。admiration 几乎为零。这是从需求×goal_congruence 派生：主需求已满足→正情绪底色；但场上还有未满足的次级需求（被低质内容冒犯）→负向愤怒叠加。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.0,
+      "avoidance回避": 0.0,
+      "attend关注": 0.0,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.40,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.60
+    }
+  },
+  "chain_trace": "超越欲+控制欲 →(OP为妈妈账单焦虑、似乎准备付钱)→ 需求N02_掌控局面(教OP夺回主导)+N04_理解世界(补齐债务/送达流程知识) →(评价:高目标相关 + 内容对需求'促进' + 需求'已满足' + 高应对潜能→goal_congruence为正)→ 情绪以anger(蔑视)为主，叠加relief(宽慰)+pride(自得)+approval(自我认同) → 行动倾向dominate支配(下命令式口吻)+agonistic对抗(怼OP、怼reddit群体)。"
+  "evidence": {
+    "desire": "I swear people on reddit don't understand how the world works at all. / Just let it go. / tell the post office the person is deceased and have them return to sender",
+    "need": "Attorney will cost more than this bill. / More importantly, the bill isn't even addressed to your mom, so why the heck would she try to pay? / More often than not they will just write the bill off at some point.",
+    "emotion": "I swear people on reddit don't understand how the world works at all. / why the heck would she try to pay? / Just let it go.",
+    "action": "Just let it go. / tell the post office the person is deceased and have them return to sender. / Even if she signed documents, this would likely be unenforceable"
+  }
+}
+```
+
+===== 2026-08-24 12:36:56 knot_s1_T0.6 [empty] =====
+<EMPTY>
+
+===== 2026-08-24 12:38:59 knot_s1_T0.3 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.05,
+      "成为欲": 0.05,
+      "摆脱欲": 0.28,
+      "确认欲": 0.20,
+      "超越欲": 0.00,
+      "归属欲": 0.10,
+      "控制欲": 0.07,
+      "安全感欲": 0.25,
+      "向往欲": 0.00
+    },
+    "note": "摆脱欲最强:zero percent word recognition + severe hearing loss 是明确的痛苦状态,患者想要逃离;安全感欲极强:刚获批手术但对结果全然未知,面临手术风险与术后效果双重不确定性;确认欲明显:主动求问'comparable hearing loss'的同病者,意在印证自己的选择是对的;归属欲中等:刻意寻找'anyone with comparable hearing loss'的同类;控制欲与成为欲弱:想拿回对自己身体的掌控、想成为能正常听人说话的人;向往欲为0(无美学/氛围向画面)。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "刚获批CI手术,左耳0%言语识别,右耳也在恶化,想知道术后真实体验与风险",
+      "weight": 0.35,
+      "derived_from": "由 安全感欲 经 '手术已批准但结果未卜' 的情境事件衍生——降低未知风险、知道到底会怎样"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "对CI术后能恢复到什么程度、过程如何,认知存在巨大缺口",
+      "weight": 0.20,
+      "derived_from": "由 安全感欲 + 摆脱欲 经 '即将进入一个全新且不可逆的身体改造' 情境衍生——把CI这件事想明白"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "已经决定手术,需要同病者背书,确认这条路没走错",
+      "weight": 0.18,
+      "derived_from": "由 确认欲 经 '已做出不可逆决定,身边无同经验者可对话' 情境衍生——要听到'我做对了'"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "在听力正常人世界里日益边缘化,寻找'comparable hearing loss'的同病群体",
+      "weight": 0.15,
+      "derived_from": "由 归属欲 经 '日益难沟通、孤立感加深' 情境衍生——找到另一只耳也在掉的人"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "右耳虽中度但'increasingly difficult',左耳已0%,听人说话是持续痛点",
+      "weight": 0.07,
+      "derived_from": "由 摆脱欲 经 '日常沟通正在持续失效' 情境衍生——让这种听不见的难受停下来"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "身体在失控(听力下滑),通过手术夺回对生活的主导权",
+      "weight": 0.05,
+      "derived_from": "由 控制欲 经 '右耳也变差,局面在滑' 情境衍生——用手术把方向盘抢回来"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "goal_relevance 极高:这条内容直接关于他最核心的'能不能听见';congruence_direction 偏威胁:虽然手术批准是利好,但听力持续下滑+术后效果未知构成威胁信号,且帖子本身还在'求问未答'阶段,需求尚未被满足,故 need_status=未满足;coping_potential=中:他能采取行动(已批准手术,正在主动求信息),但手术结果、康复曲线并非他能完全控制,故介于高/低之间取中。整体→负情绪基调+中强度(焦虑悬置,未到panic)。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.00,
+      "joy喜悦": 0.00,
+      "gratitude感激": 0.05,
+      "desire渴望": 0.10,
+      "nostalgia怀旧": 0.00,
+      "pride自豪": 0.00,
+      "love爱": 0.00,
+      "relief宽慰": 0.08,
+      "approval认同": 0.12,
+      "curiosity好奇": 0.40,
+      "fear恐惧": 0.18,
+      "sadness悲伤": 0.07,
+      "anger愤怒": 0.00
+    },
+    "note": "由 N01+N04(威胁+未满足)→ 主导情绪 curiosity(求知驱动)与 fear(对未知的焦虑)叠加;N10(确认)→ approval(寻求认同)与少量 relief(已经走到手术批准这步);N11 → approval 加成;N06 → 轻度 sadness('increasingly difficult'流露的失落);尾部'Thank you'→ gratitude 但很弱;desire 来自对'术后能听见'的隐含期待。无 admiration/anger/pride 等强势情绪,因为情境是求助而非对抗或自我提升展示。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.50,
+      "avoidance回避": 0.10,
+      "attend关注": 0.35,
+      "reject拒斥": 0.05,
+      "agonistic对抗": 0.00,
+      "interrupt中断": 0.00,
+      "dominate支配": 0.00
+    },
+    "note": "approach 最强:发帖本身就是趋近行为(求同类信息、趋近手术、趋近解法);attend 次之:高度专注于'what to expect'这一具体信息;avoidance 弱:对手术风险的轻微回避倾向(还没到拒做);reject 极弱:对'继续忍受听不见现状'的隐性拒斥。"
+  },
+  "chain_trace": "摆脱欲 + 安全感欲 + 确认欲 + 归属欲 →(情境:左耳0%识别+右耳恶化+刚获批CI手术+身边无同病者可问)→ 需求 N01_确定性 + N04_理解世界 + N10_自我确认 + N11_归属群体 + N06_摆脱痛苦 + N02_掌控局面 →(评价:goal_relevance=0.95 / 威胁方向 / 未满足 / 负congruence / coping=中)→ 情绪 curiosity好奇 0.40 + fear恐惧 0.18 + approval认同 0.12 + desire渴望 0.10 + relief宽慰 0.08 + sadness悲伤 0.07 + gratitude感激 0.05 → 行动倾向 approach趋近 0.50 + attend关注 0.35 + avoidance回避 0.10 + reject拒斥 0.05 的一句话推导:此人因想要摆脱听不见的痛苦并降低手术未知风险,在获得手术批准的情境下,以高度目标相关但'信息未到位'的方式评价此事,故以好奇为主、恐惧与寻求认同为辅,最终驱使他趋近性地发帖求问并持续关注同病者的回复。"
+  "evidence": {
+    "desire": "My left ear, which has zero percent word recognition and severe hearing loss, is the one being implanted. (摆脱欲) / My right ear has moderate hearing loss, so I can still manage, though it's becoming increasingly difficult. (摆脱欲) / I've just been approved for cochlear implant surgery. (安全感欲+控制欲)",
+    "need": "If anyone with comparable hearing loss has a cochlear implant, could you share what to expect? (N01_确定性+N04_理解世界) / If anyone with comparable hearing loss... (N11_归属群体) / I've just been approved... share what to expect (N10_自我确认)",
+    "emotion": "could you share what to expect? (curiosity) / severe hearing loss ... zero percent word recognition ... becoming increasingly difficult (fear+sadness) / I've just been approved (relief) / Thank you. (gratitude微弱)",
+    "action": "If anyone with comparable hearing loss has a cochlear implant, could you share what to expect? (approach+attend) / I've just been approved for cochlear implant surgery. (approach, 已经走到批准这步)"
+  }
+}
+```
+
+===== 2026-08-24 12:40:29 knot_s1_T0.6 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.10,
+      "摆脱欲": 0.30,
+      "确认欲": 0.20,
+      "超越欲": 0.0,
+      "归属欲": 0.10,
+      "控制欲": 0.0,
+      "安全感欲": 0.30,
+      "向往欲": 0.0
+    },
+    "note": "三股潜变量同时被激活：(1)「摆脱欲」最重，因为右耳也在恶化('it's becoming increasingly difficult')，作者要逃离持续恶化的听损处境；(2)「安全感欲」与「摆脱欲」并列高权重，因为获批手术是一个高不确定性事件，'could you share what to expect'直指对未知风险的消除；(3)「确认欲」次之——已经做出手术决定，希望被同路人背书(确认这是对的选择)。「归属欲」通过'If anyone with comparable hearing loss has a cochlear implant'触发，想找同类。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "刚获批CI手术,完全不知道术后康复过程/听觉变化/风险到底多大",
+      "weight": 0.30,
+      "derived_from": "由『安全感欲』经情境事件『获批重大不可逆手术+左右耳双线恶化』衍生——要降低未知,把风险和结果讲清楚"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "对CI术后实际生活(声音感受/恢复时长/日常影响)完全没有第一手认知",
+      "weight": 0.20,
+      "derived_from": "由『安全感欲』经情境事件『对CI没有任何亲历知识』衍生——要搞清楚这个东西到底是什么体验"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "左耳0%言语识别+右耳中度听损且恶化中,日常交流越来越困难",
+      "weight": 0.20,
+      "derived_from": "由『摆脱欲』经情境事件『听损正在吃掉仅存的沟通能力』衍生——要把这个失能进程停下"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "已经做了'做CI'这个不可逆决定,需要一个外部声音告诉自己这是对的",
+      "weight": 0.15,
+      "derived_from": "由『确认欲』经情境事件『手术已批=决策已锁,无法再反悔比较』衍生——要被同处境者认同'
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "想找'comparable hearing loss'的CI植入者同侪",
+      "weight": 0.10,
+      "derived_from": "由『归属欲』经情境事件『自己是少数群体(单耳0%识别+已批CI)』衍生——要找到跟我一样的人"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "术后需要重新学习听声音/做康复训练,想知道怎么应对",
+      "weight": 0.05,
+      "derived_from": "由『成为欲』经情境事件『CI后听觉模式要重建』衍生——要习得术后适应方法"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "goal_relevance 极高(手术直接命中听损核心问题);congruence_direction=威胁 因为左耳0%识别+右耳恶化=目标持续受威胁,且CI手术本身是侵入性高风险事件;need_status=未满足 因为作者还在'asking'阶段,信息真空尚未被填补;goal_congruence=负 由'威胁+未满足'派生;coping_potential=中 因为作者已经采取了'被批准手术'这一主动步骤,但术后结果不可控。负+低中应对潜能 → 主情绪为fear,辅以curiosity(应对尝试)和desire(未消的目标牵引)"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.15,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.05,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.25,
+      "fear恐惧": 0.40,
+      "sadness悲伤": 0.10,
+      "anger愤怒": 0.0
+    },
+    "note": "情绪从(need×goal_congruence)严格派生:N01(确定性)+负+未满足→fear(对手术结果和术后生活的恐惧,'what to expect'暴露的正是这种未知焦虑);N04(理解世界)+威胁+应对潜能中→curiosity(信息搜寻冲动);N06(摆脱痛苦)+负→desire(对恢复听力的强烈渴望)+sadness(对正在失去的听力的哀伤,'it's becoming increasingly difficult');N10(自我确认)+未满足→curiosity的次级贡献(寻找认同本身就是求知式情感);relief 0.05 来自'已被批准'的小幅宽慰(部分不确定性被消除)"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.25,
+      "avoidance回避": 0.15,
+      "attend关注": 0.45,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.10,
+      "interrupt中断": 0.05,
+      "dominate支配": 0.0
+    },
+    "note": "attend 主导:发帖行为本身就是强烈的关注/信息搜集(attend),'could you share what to expect'是典型attend式话术;approach 次之:已批准手术=趋近行为(走向CI);avoidance 0.15:fear 派生的轻微回避(对手术本身的本能退缩);agonistic 0.10:对听损的抗争(已决定动手术=对抗失能);interrupt 0.05:被打断的日常(右耳恶化已让生活被中断)"
+  },
+  "chain_trace": "摆脱欲+安全感欲+确认欲 →(情境事件:左耳0%识别+右耳恶化+获批CI手术这一不可逆决定)→ 需求N01_确定性+N04_理解世界+N06_摆脱痛苦+N10_自我确认 →(评价:goal_relevance极高/congruence威胁/need_status未满足/goal_congruence负/coping_potential中)→ 情绪fear(主)+curiosity+desire+sadness+微量relief → 行动倾向attend(主,信息搜集)+approach(走向手术)+avoidance(对手术的本能退缩)+agonistic(对抗失能) 的完整推导链",
+  "evidence": {
+    "desire": "「If anyone with comparable hearing loss has a cochlear implant, could you share what to expect?」(归属欲+确认欲+安全感欲的直接外显);「it's becoming increasingly difficult」(摆脱欲——逃离恶化);「I've just been approved for cochlear implant surgery」(已经做决定=确认欲+控制残余地)",
+    "need": "「could you share what to expect」=N01_确定性+N04_理解世界(求预测/求理解);「comparable hearing loss」=N11_归属群体(找同类);「My left ear... zero percent word recognition」=N06_摆脱痛苦(正在经历的失能);隐含N10_自我确认——发帖求背书本身就在确认决定",
+    "emotion": "「could you share what to expect」暴露fear+curiosity(对未知的焦虑与求知);「it's becoming increasingly difficult」暴露sadness+desire(对正在失去的能力的悲伤与对恢复的渴望);「Thank you」末尾客气=试图建立联结(与fear对照的求安慰)",
+    "action": "「If anyone... could you share」=attend(主动关注+信息搜集);「I've just been approved for cochlear implant surgery」=approach(已走向手术);「My left ear... zero percent word recognition」+「right ear... increasingly difficult」=agonistic(对失能的抗争已落到行动);整段克制语气中隐含avoidance的微痕(用'Thank you'缓冲重大决定=对决策恐惧的稀释)"
+  }
+}
+```
+
+===== 2026-08-24 12:52:27 knot_s1_T0.0 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.05,
+      "成为欲": 0.00,
+      "摆脱欲": 0.15,
+      "确认欲": 0.20,
+      "超越欲": 0.00,
+      "归属欲": 0.25,
+      "控制欲": 0.10,
+      "安全感欲": 0.25,
+      "向往欲": 0.00
+    },
+    "note": "这是一个听力受损、刚换了新助听器(Rexton BTE + 耳模)的个体。底层最稳态的欲望不是'拥有'或'成为'，而是：(1)安全感欲——新设备/新例行的不确定性持续存在('I keep the manual on the desk'暴露了操作并未内化);(2)归属欲——机制子型=「同病相怜的弱连带peer support」,他不是想加入某个亚文化圈,而是想和同样戴助听器的人形成经验共享的同类网络('how others are managing their hearing aid routines');(3)确认欲——刚做了一次品牌/型号切换,需要外部背书来稳住'我选对了'的判断;(4)摆脱欲——想摆脱听力下降带来的管理负担与潜在社交尴尬;(5)控制欲——想把助听器例行变回自己掌控下的习惯,而不是被说明书牵着走。向往欲/超越欲/成为欲基本未被激活,这条内容没有任何'想变成某个更高自我'的色彩。"
+  },
+  "need_layer": [
+    {
+      "code": "N11_归属群体",
+      "context_slot": "刚换新助听器,想找到同样在管理助听器例行的同伴,确认'我不是一个人在折腾这个'",
+      "weight": 0.30,
+      "derived_from": "由<归属欲(同病相怜peer support子型)>经<换新设备后缺乏同类经验参照的情境事件>衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "新Rexton BTE + 耳模的佩戴/保养/适应流程还没完全吃透,manual还在桌上,需要把'到底该怎么做'的不确定降下来",
+      "weight": 0.25,
+      "derived_from": "由<安全感欲>经<刚切换助听器型号、耳模是新变量、说明书未被内化的情境>衍生"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "想习得一套可迁移的助听器日常管理方法(保养/换电池/适应策略),而不只是看一遍说明书",
+      "weight": 0.20,
+      "derived_from": "由<控制欲 + 摆脱欲>经<新设备带来的能力缺口情境>衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "刚做完'从旧机换到Rexton BTE'的消费决策,需要他人/同好印证'这个选择是对的'",
+      "weight": 0.15,
+      "derived_from": "由<确认欲>经<刚完成一次品牌型号切换的决策情境>衍生"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "想理解不同人怎么和助听器相处——别人的取舍逻辑是什么",
+      "weight": 0.10,
+      "derived_from": "由<安全感欲 + 归属欲>经<对他人经验进行认知性参照的情境>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.80,
+    "congruence_direction": "促进",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "目标相关度高(他本身就在用助听器,routine thread正好对位);方向是'促进'——这个讨论串对他是有用资源(有updates、有同类);但need_status=未满足,因为他自己都说了'write to ask how others are managing'——他仍在主动索取,需求在现场并未被解决。按规则'未满足→负',整体偏负向情感色彩,但coping_potential=中(他能持续回访、能开口问),所以负情绪是'可承受的焦虑/好奇'而非崩溃式恐惧,强度被压低。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.00,
+      "joy喜悦": 0.00,
+      "gratitude感激": 0.00,
+      "desire渴望": 0.05,
+      "nostalgia怀旧": 0.00,
+      "pride自豪": 0.00,
+      "love爱": 0.00,
+      "relief宽慰": 0.15,
+      "approval认同": 0.15,
+      "curiosity好奇": 0.40,
+      "fear恐惧": 0.20,
+      "sadness悲伤": 0.05,
+      "anger愤怒": 0.00
+    },
+    "note": "主情绪由(未满足+促进+coping中)推出:'未满足'给负向基调,'促进+coping中'又把负情绪压成温和的、可被好奇心包装的形态。所以最重的是curiosity好奇(0.40)——'ask how others are managing'是好奇的直接话语;其次是fear恐惧(0.20)——manual还在桌上、还要回访updates,说明对'我做对了吗'的轻度焦虑存在;relief宽慰(0.15)来自重复回访同一thread本身已是一种被'同社区接住'的安抚;approval认同(0.15)来自'我是这个thread的常客'这种'我属于这'的轻度归属确认;desire渴望(0.05)是想拿更多信息的低强度欲求;sadness悲伤(0.05)是听力损失这件事的底色,基本不在本帖表层激活。没有joy/pride/anger/love——这不是成就叙事也不是冲突叙事。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.35,
+      "avoidance回避": 0.05,
+      "attend关注": 0.45,
+      "reject拒斥": 0.00,
+      "agonistic对抗": 0.00,
+      "interrupt中断": 0.10,
+      "dominate支配": 0.05
+    },
+    "note": "最强的是attend关注(0.45):'I return to this thread for updates'就是持续性关注的字面证据。其次approach趋近(0.35):'write to ask'是主动的趋近行为,带着信息寻求+同类接触双重目的。interrupt中断(0.10)——他每次回访都是对当前自我管理流程的轻度'打断-重置',manual在桌上=他没有让流程内化成自动。avoidance回避(0.05)极低;dominate支配(0.05)极低,体现他对局面的掌控欲是温和的、不带攻击性的;没有reject/agonistic——这条内容没有对抗性。"
+  },
+  "chain_trace": "安全感欲 + 归属欲(同病相怜peer support子型) + 确认欲 + 控制欲 + 摆脱欲 → (刚切换到Rexton BTE耳模机、manual还在桌上、routine尚未内化的情境事件) → 需求 N11_归属群体(0.30) + N01_确定性(0.25) + N03_提升能力(0.20) + N10_自我确认(0.15) + N04_理解世界(0.10) → (评价:goal_relevance=0.80 / direction=促进 / need_status=未满足 / congruence=负 / coping=中) → 情绪 curiosity好奇(0.40)+ fear恐惧(0.20)+ relief宽慰(0.15)+ approval认同(0.15)+ desire渴望(0.05)+ sadness悲伤(0.05) → 行动倾向 attend关注(0.45)+ approach趋近(0.35)+ interrupt中断(0.10)+ avoidance回避(0.05)+ dominate支配(0.05)。完整一句话:一个被听力损失长期框定、刚做完型号切换的个体,在'新助听器routine未内化'的情境下,以'未满足但可应对'的轻度焦虑/好奇,反复回访同好thread并主动开口问别人怎么管——这是安全感与归属感驱动下的低强度持续性关注-趋近行为。"
+  "evidence": {
+    "desire": "归属欲: 'how others are managing their hearing aid routines';安全感欲: 'I keep the manual on the desk' (说明routine未内化、不确定仍在);确认欲: 'I switched to Rexton BTE hearing aids with ear molds' (暴露刚做的选择需要背书);控制欲: 'I keep the manual on the desk' (试图把说明书这个外部物收编到自己的掌控半径内);摆脱欲: 整条post的隐含背景——想摆脱听力损失带来的管理/社交负担",
+    "need": "N11: 'return to this thread' + 'ask how others are managing' = 找同类;N01: 'I keep the manual on the desk' = 确定性未达成;N03: 'how others are managing their hearing aid routines' = 想习得可迁移的例行;N10: 'I switched to Rexton BTE ... with ear molds' = 想被确认这次切换是对的;N04: 'how others are managing' = 想理解别人的取舍",
+    "emotion": "curiosity: 'write to ask how others are managing';fear(焦虑型): 'I keep the manual on the desk' + 'I return to this thread for updates' 表明问题没解决;relief: 'I return to this thread' 本身是重复安抚行为;approval: 'return to this thread' = 我是这个thread的一员;desire: 'for updates' = 想要更多; sad背景: 'hearing aids' 这个事实",
+    "action": "attend: 'I return to this thread for updates';approach: 'write to ask how others are managing their hearing aid routines';interrupt: 'I keep the manual on the desk'(流程未自动化,需要被说明书周期性中断重置);dominate的极弱痕迹: 'I switched to Rexton BTE ... and I keep the manual' 句式里反复以 'I' 开头,微弱地在话语层夺回主导权"
+  }
+}
+```

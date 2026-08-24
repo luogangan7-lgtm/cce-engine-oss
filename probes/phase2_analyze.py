@@ -19,7 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import cce_ksep as KS   # noqa: E402
 
-P = ROOT / "tests" / "data" / "phase2"
+import os  # noqa: E402
+P = ROOT / "tests" / "data" / os.environ.get("CCE_PHASE_DIR", "phase2")
 ARMS_B = ("B1", "B2")
 ARMS_A = ("A1", "A2", "A3")
 
@@ -33,8 +34,16 @@ def fp(rec):
 
 
 def load():
-    src = P / "panel_checkpoint.jsonl"
-    return [json.loads(l) for l in src.read_text(encoding="utf-8").splitlines() if l.strip()]
+    """★ 采集时未把 domain/family 落进 rep 记录, 但它们**可由 base_id 回连清单推导**
+    ⇒ 在分析侧 join 补齐, 而不是重跑 864 reps。信息没丢就不该重采。"""
+    rows = [json.loads(l) for l in (P / "panel_checkpoint.jsonl")
+            .read_text(encoding="utf-8").splitlines() if l.strip()]
+    man = json.loads((P / "panel_manifest.json").read_text(encoding="utf-8"))
+    meta = {a["base_id"]: {k: a[k] for k in ("domain", "family") if k in a}
+            for a in man["arms"]}
+    for r in rows:
+        r.update(meta.get(r["base_id"], {}))
+    return rows
 
 
 def contrasts(rows, only_primary):
@@ -138,6 +147,21 @@ def summarize(cs):
     for c in cs:
         byb[c["base_id"]][c["arm"]] = c["T"]
     full = [d for d in byb.values() if all(a in d for a in ARMS_A)]
+    # ★ Phase 2B 的核心问题: B1 的词面不变性失败是不是跨域都存在?
+    #   若跨域都失败 ⇒ instrument property; 若只在某域失败 ⇒ scope 可细分。
+    for facet in ("domain", "family"):
+        vals = sorted({c.get(facet) for c in cs if c.get(facet)})
+        if len(vals) > 1:
+            res[f"B1_by_{facet}"] = {
+                v: {"n": sum(1 for c in cs if c["arm"] == "B1" and c.get(facet) == v),
+                    "separated": sum(1 for c in cs if c["arm"] == "B1"
+                                     and c.get(facet) == v and c["separated"])}
+                for v in vals}
+            res[f"null_by_{facet}"] = {
+                v: {"n": sum(1 for c in cs if c["arm"] == "L0b" and c.get(facet) == v),
+                    "separated": sum(1 for c in cs if c["arm"] == "L0b"
+                                     and c.get(facet) == v and c["separated"])}
+                for v in vals}
     res["monotonicity"] = {
         "n_bases_with_all_A": len(full),
         "P_A1_lt_A2_lt_A3": round(sum(1 for d in full

@@ -34,7 +34,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import cce_knot_classify as K   # noqa: E402
 
-P = ROOT / "tests" / "data" / "phase2"
+# ★ 同一套采集逻辑复用到 Phase 2B: 只切数据目录, 规则一字不改(改了两批就不可比)
+P = ROOT / "tests" / "data" / os.environ.get("CCE_PHASE_DIR", "phase2")
 CKPT = P / "panel_checkpoint.jsonl"
 R = int(os.environ.get("P2_R", "4"))
 KK = int(os.environ.get("P2_K", "3"))
@@ -75,7 +76,8 @@ def _done():
 def main():
     man = json.loads((P / "panel_manifest.json").read_text(encoding="utf-8"))
     inst = K.instrument_id(TAXO, k=KK, knot_n=5, s1_pairing=f"round_robin_over_{KK}_s1_draws")
-    assert inst["instrument_hash"] == man["measurement_instrument"]["instrument_hash"], \
+    assert inst["instrument_hash"] == man["measurement_instrument"]["instrument_hash"] \
+        == "565470cf26c16d01", \
         f"★ 仪器不符: 现 {inst['instrument_hash']} vs 清单 {man['measurement_instrument']['instrument_hash']}"
     print(__doc__.split("## 前登记")[1].split("\n\n")[0])
     print(f"仪器 {inst['instrument_hash']}  资格协议 {inst['qualification_policy_hash']}")

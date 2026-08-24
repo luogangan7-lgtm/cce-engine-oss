@@ -1,0 +1,89 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.18,
+      "确认欲": 0.17,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.13,
+      "安全感欲": 0.52,
+      "向往欲": 0.0
+    },
+    "note": "核心驱动力是安全感欲——鼓膜穿孔是一种身体完整性与健康的不确定风险,患者急于消除对愈合时长、能否恢复听力、哪些动作会加重病情的未知;摆脱欲来自'想甩掉穿孔状态回到正常耳朵';确认欲来自'医生说在缩小'的初步信号需要被同病相怜者背书;控制欲来自想明确耳塞/耳机/日常行为边界"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "21岁患者鼓膜穿孔随访,医生说在缩小但需继续等待,患者面对愈合时长、能否用耳机、需避开什么的未知",
+      "weight": 0.45,
+      "derived_from": "由「安全感欲」经「医生给出'在缩小但需更长时间'的模糊结果、缺乏具体时间表」这一情境事件衍生——要拿到一个可量化的愈合预期与可不可以/不该做的明确清单"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "鼓膜穿孔愈合机制不透明,患者缺乏同类经验,想理解'继续等'是否合理、听力是否真的能完全恢复",
+      "weight": 0.30,
+      "derived_from": "由「安全感欲」+「确认欲」经「自己不是医生、医生信息颗粒度有限」的情境衍生——要理解这个病在别人身上到底怎么走完的"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "日常生活中要不要塞耳机、要不要避开某些动作,患者希望在'被动等待愈合'的处境里拿回对日常行为的主导权",
+      "weight": 0.15,
+      "derived_from": "由「控制欲」经「穿孔状态下大量日常动作(耳机/游泳/洗澡/飞行)变得不可做」的情境衍生——要重新握住'我能做/不能做什么'的边界"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "鼓膜穿孔本身带来不适感、听力下降、不能进水不能戴耳机的持续负状态",
+      "weight": 0.10,
+      "derived_from": "由「摆脱欲」经「穿孔持续存在、听力暂受影响、行为受限」的情境衍生——要这个不舒服的状态停下来"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "目标相关度极高(直接关系健康与听力);内容本身是求助帖,但底层情境对'恢复完整听力+安全日常'这一目标构成威胁(穿孔还没闭合、能不能用耳机未知、听力能不能100%恢复未知);发帖当下需求显然未被满足——所以是威胁×未满足→负向情绪;应对潜能为中:患者已经在按医嘱'保持耳朵干燥、听医生的话',但愈合速度本身不可控,只能通过求经验来降低不确定性,所以是中等可控,既不彻底无助(不会压垮成纯恐惧),也不充足(会留出明显焦虑)"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.06,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.10,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.33,
+      "fear恐惧": 0.42,
+      "sadness悲伤": 0.06,
+      "anger愤怒": 0.03
+    },
+    "note": "fear恐惧从「N01_确定性威胁×未满足」+「coping_potential中」推出——还没愈合、不知道能不能恢复听力、不确定耳机行不行,是典型的'知道有风险但不知道多大'的悬置恐惧;curiosity好奇从「N04_理解世界×未满足」+「主动发起提问」推出——他在主动向同类采信息;relief宽慰从医生'洞在缩小'这一微弱促进信号推出,作为恐惧的微弱对冲;desire渴望指向想'完全闭合'和'听力完全恢复'的趋近目标;少量sadness与anger是穿孔状态对正常生活侵蚀带来的次级情绪"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.22,
+      "avoidance回避": 0.20,
+      "attend关注": 0.43,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.15,
+      "dominate支配": 0.0
+    },
+    "note": "attend关注是主轴——他正在向同类征询五项具体经验;approach趋近体现为'向有类似经历的人靠近获取信息';avoidance回避体现为'避开会伤害耳朵的行为'(耳机/特定动作);interrupt中断体现为'暂停/中断正常日常'(暂时不戴耳机、耳朵保持干燥)"
+  },
+  "chain_trace": "安全感欲为主、摆脱欲与确认欲为辅 →(情境:21岁,鼓膜穿孔随访,医生说在缩小但需继续等,且日常能不能用耳机/听力能不能100%回来都不确定)→ 需求N01_确定性(想知道愈合时长与能做不能做的边界)+N04_理解世界(想理解别人身上这病怎么走完)+N02_掌控局面(想夺回日常行为主导权) →(评价:goal_relevance极高 / 方向=威胁 / need_status=未满足 / goal_congruence=负 / coping_potential=中)→ 情绪fear恐惧为主、curiosity好奇为辅(带一点relief宽慰) → 行动倾向attend关注为主、approach趋近(向同类求经验)与avoidance回避(避开可能加重穿孔的行为)并行、interrupt中断(暂停正常耳机/进水行为)"
+  "evidence": {
+    "desire": "安全感欲:'I have a tympanic membrane perforation… instructed me to give it more time to close on its own' / 'How long did your perforation take to completely close?';摆脱欲:整段都在谈'close / return completely';确认欲:'Do I continue waiting since the doctor sees it getting smaller?';控制欲:'Can I use earphones or AirPods while it heals, or do I avoid putting anything in that ear? What things do I stay away from while it heals?'",
+    "need": "N01_确定性:'How long… completely close?' 'Did your hearing return completely after it closed?';N04_理解世界:'I am requesting other people's experiences, specifically from anyone whose perforation took a while to close';N02_掌控局面:'Can I use earphones… or do I avoid… What things do I stay away from';N06_摆脱痛苦:整段暗含'让穿孔闭合、让听力回来'的去除负状态目标",
+    "emotion": "fear:'the hole is shrinking' 但 'give it more time' + 'Did your hearing return completely?' 暴露对结果的不确定;curiosity:'I am asking people who have had something similar to answer the following' + 五条结构化提问;relief:'the hole is shrinking' 的微弱正向信号;sadness/desire:'return completely' 既是对恢复的渴望也是对可能不恢复的低落",
+    "action": "attend:'I am asking people who have had something similar to answer the following';approach:'I am requesting other people's experiences';avoidance:'do I avoid putting anything in that ear?' 'What things do I stay away from';interrupt:'I am keeping the ear dry and following the doctor's instructions' (中断正常行为)"
+  }
+}
+```

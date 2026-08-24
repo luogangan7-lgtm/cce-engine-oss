@@ -1,0 +1,88 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.30,
+      "确认欲": 0.15,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.15,
+      "安全感欲": 0.40,
+      "向往欲": 0.0
+    },
+    "note": "核心欲望是「安全感欲」——面对鼓膜穿孔的医学不确定性，急需消除'会不会好/多久能好/听力能不能完全回来'的悬念；「摆脱欲」次之，想要摆脱穿孔状态与听不到的状态；「控制欲」表现为想知道哪些事能做哪些不能做以掌控愈合；「确认欲」表现为想从他人经验中确认'继续等医生说的对不对'。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "鼓膜穿孔随访期，医生说在缩小但未给出明确时间表",
+      "weight": 0.45,
+      "derived_from": "由「安全感欲」经情境事件'医生只说在缩小、要继续等'衍生——缺口在'到底还要等多久、结果会怎样'"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "愈合期内日常生活行为约束未知（能否戴耳机、避免什么）",
+      "weight": 0.20,
+      "derived_from": "由「控制欲」经情境'医生只笼统说给时间自己长，未给具体行为清单'衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "鼓膜有洞、听力受影响、可能有不适感",
+      "weight": 0.20,
+      "derived_from": "由「摆脱欲」衍生——想把穿孔这个负状态从身上去掉"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "想理解穿孔愈合的典型路径与个体差异",
+      "weight": 0.15,
+      "derived_from": "由「确认欲」衍生——想通过他人经验把'穿孔愈合'这件事的因果图景弄明白"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "穿孔本身直接威胁'听力正常'与'健康'两个目标，goal_relevance 极高；当前信息只够支持'在缩小'这一个事实点，愈合时长/能否戴耳机/听力是否完全恢复全为悬置未解，因此 direction=威胁 + status=未满足 → 负 valence；coping_potential 居中是因为用户已经在执行医嘱并主动求助社群，具备一定应对资源，但结果仍取决于生理恢复，故为中。这一负向评价同时叠加一层轻度促进（医生说在缩小），故情绪为'恐惧+好奇'的混合而非纯恐惧。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.05,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.15,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.40,
+      "fear恐惧": 0.30,
+      "sadness悲伤": 0.05,
+      "anger愤怒": 0.05
+    },
+    "note": "由'需求未满足+威胁+coping=中'导出负向基底情绪（fear 为主：担心听力恢复不全/穿孔不闭合），但因用户已主动进入信息搜寻（趋近应对），好奇被强力激活并压过恐惧成为主导——这符合'威胁但有应对路径'时的典型 appraisal→emotion 模式；relief 来自'在缩小'这一正向线索提供的局部已满足感；sadness/anger 各占极小份额，反映'戴不了耳机/生活受限'的低强度挫折。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.25,
+      "avoidance回避": 0.15,
+      "attend关注": 0.50,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.10,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "安全感欲+摆脱欲 →(情境：21岁、鼓膜穿孔随访、医生只说'在缩小、要继续等')→ N01_确定性(weight 0.45) + N06_摆脱痛苦 + N03_提升能力 + N04_理解世界 →(评价：goal_relevance 0.95、direction=威胁、status=未满足 → goal_congruence=负、coping_potential=中)→ fear恐惧(0.30) + curiosity好奇(0.40) + relief宽慰(0.15) → attend关注(0.50) + approach趋近(0.25) + avoidance回避(0.15) + interrupt中断(0.10)，完整对应'上网发帖、逐条提问、保持耳朵干燥、按医嘱等待'的可观测行为。"
+  "evidence": {
+    "desire": "原文 'the hole is shrinking and instructed me to give it more time to close on its own' + 'Did your hearing return completely after it closed?'（=想要消除不确定性/想要摆脱穿孔）",
+    "need": "原文 'How long did your perforation take to completely close?' / 'Can I use earphones or AirPods while it heals, or do I avoid putting anything in that ear?' / 'What things do I stay away from while it heals?' / 'Do I continue waiting since the doctor sees it getting smaller?'（=确定性 + 能力清单）",
+    "emotion": "原文 'I went back to the doctor yesterday for a follow-up examination. He reported that the hole is shrinking'（=relief 线索） + 'I am asking people who have had something similar to answer the following'（=fear 驱动的信息搜寻）",
+    "action": "原文 'I am keeping the ear dry and following the doctor's instructions.' + 'I am asking people who have had something similar to answer the following:' + 列出五条问题（=attend + approach + avoidance 的具体可观测行为）"
+  }
+}
+```

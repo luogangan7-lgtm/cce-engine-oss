@@ -1,0 +1,101 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.05,
+      "成为欲": 0.05,
+      "摆脱欲": 0.28,
+      "确认欲": 0.20,
+      "超越欲": 0.00,
+      "归属欲": 0.10,
+      "控制欲": 0.07,
+      "安全感欲": 0.25,
+      "向往欲": 0.00
+    },
+    "note": "摆脱欲最强:zero percent word recognition + severe hearing loss 是明确的痛苦状态,患者想要逃离;安全感欲极强:刚获批手术但对结果全然未知,面临手术风险与术后效果双重不确定性;确认欲明显:主动求问'comparable hearing loss'的同病者,意在印证自己的选择是对的;归属欲中等:刻意寻找'anyone with comparable hearing loss'的同类;控制欲与成为欲弱:想拿回对自己身体的掌控、想成为能正常听人说话的人;向往欲为0(无美学/氛围向画面)。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "刚获批CI手术,左耳0%言语识别,右耳也在恶化,想知道术后真实体验与风险",
+      "weight": 0.35,
+      "derived_from": "由 安全感欲 经 '手术已批准但结果未卜' 的情境事件衍生——降低未知风险、知道到底会怎样"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "对CI术后能恢复到什么程度、过程如何,认知存在巨大缺口",
+      "weight": 0.20,
+      "derived_from": "由 安全感欲 + 摆脱欲 经 '即将进入一个全新且不可逆的身体改造' 情境衍生——把CI这件事想明白"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "已经决定手术,需要同病者背书,确认这条路没走错",
+      "weight": 0.18,
+      "derived_from": "由 确认欲 经 '已做出不可逆决定,身边无同经验者可对话' 情境衍生——要听到'我做对了'"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "在听力正常人世界里日益边缘化,寻找'comparable hearing loss'的同病群体",
+      "weight": 0.15,
+      "derived_from": "由 归属欲 经 '日益难沟通、孤立感加深' 情境衍生——找到另一只耳也在掉的人"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "右耳虽中度但'increasingly difficult',左耳已0%,听人说话是持续痛点",
+      "weight": 0.07,
+      "derived_from": "由 摆脱欲 经 '日常沟通正在持续失效' 情境衍生——让这种听不见的难受停下来"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "身体在失控(听力下滑),通过手术夺回对生活的主导权",
+      "weight": 0.05,
+      "derived_from": "由 控制欲 经 '右耳也变差,局面在滑' 情境衍生——用手术把方向盘抢回来"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "goal_relevance 极高:这条内容直接关于他最核心的'能不能听见';congruence_direction 偏威胁:虽然手术批准是利好,但听力持续下滑+术后效果未知构成威胁信号,且帖子本身还在'求问未答'阶段,需求尚未被满足,故 need_status=未满足;coping_potential=中:他能采取行动(已批准手术,正在主动求信息),但手术结果、康复曲线并非他能完全控制,故介于高/低之间取中。整体→负情绪基调+中强度(焦虑悬置,未到panic)。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.00,
+      "joy喜悦": 0.00,
+      "gratitude感激": 0.05,
+      "desire渴望": 0.10,
+      "nostalgia怀旧": 0.00,
+      "pride自豪": 0.00,
+      "love爱": 0.00,
+      "relief宽慰": 0.08,
+      "approval认同": 0.12,
+      "curiosity好奇": 0.40,
+      "fear恐惧": 0.18,
+      "sadness悲伤": 0.07,
+      "anger愤怒": 0.00
+    },
+    "note": "由 N01+N04(威胁+未满足)→ 主导情绪 curiosity(求知驱动)与 fear(对未知的焦虑)叠加;N10(确认)→ approval(寻求认同)与少量 relief(已经走到手术批准这步);N11 → approval 加成;N06 → 轻度 sadness('increasingly difficult'流露的失落);尾部'Thank you'→ gratitude 但很弱;desire 来自对'术后能听见'的隐含期待。无 admiration/anger/pride 等强势情绪,因为情境是求助而非对抗或自我提升展示。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.50,
+      "avoidance回避": 0.10,
+      "attend关注": 0.35,
+      "reject拒斥": 0.05,
+      "agonistic对抗": 0.00,
+      "interrupt中断": 0.00,
+      "dominate支配": 0.00
+    },
+    "note": "approach 最强:发帖本身就是趋近行为(求同类信息、趋近手术、趋近解法);attend 次之:高度专注于'what to expect'这一具体信息;avoidance 弱:对手术风险的轻微回避倾向(还没到拒做);reject 极弱:对'继续忍受听不见现状'的隐性拒斥。"
+  },
+  "chain_trace": "摆脱欲 + 安全感欲 + 确认欲 + 归属欲 →(情境:左耳0%识别+右耳恶化+刚获批CI手术+身边无同病者可问)→ 需求 N01_确定性 + N04_理解世界 + N10_自我确认 + N11_归属群体 + N06_摆脱痛苦 + N02_掌控局面 →(评价:goal_relevance=0.95 / 威胁方向 / 未满足 / 负congruence / coping=中)→ 情绪 curiosity好奇 0.40 + fear恐惧 0.18 + approval认同 0.12 + desire渴望 0.10 + relief宽慰 0.08 + sadness悲伤 0.07 + gratitude感激 0.05 → 行动倾向 approach趋近 0.50 + attend关注 0.35 + avoidance回避 0.10 + reject拒斥 0.05 的一句话推导:此人因想要摆脱听不见的痛苦并降低手术未知风险,在获得手术批准的情境下,以高度目标相关但'信息未到位'的方式评价此事,故以好奇为主、恐惧与寻求认同为辅,最终驱使他趋近性地发帖求问并持续关注同病者的回复。"
+  "evidence": {
+    "desire": "My left ear, which has zero percent word recognition and severe hearing loss, is the one being implanted. (摆脱欲) / My right ear has moderate hearing loss, so I can still manage, though it's becoming increasingly difficult. (摆脱欲) / I've just been approved for cochlear implant surgery. (安全感欲+控制欲)",
+    "need": "If anyone with comparable hearing loss has a cochlear implant, could you share what to expect? (N01_确定性+N04_理解世界) / If anyone with comparable hearing loss... (N11_归属群体) / I've just been approved... share what to expect (N10_自我确认)",
+    "emotion": "could you share what to expect? (curiosity) / severe hearing loss ... zero percent word recognition ... becoming increasingly difficult (fear+sadness) / I've just been approved (relief) / Thank you. (gratitude微弱)",
+    "action": "If anyone with comparable hearing loss has a cochlear implant, could you share what to expect? (approach+attend) / I've just been approved for cochlear implant surgery. (approach, 已经走到批准这步)"
+  }
+}
+```
