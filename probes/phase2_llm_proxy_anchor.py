@@ -21,7 +21,7 @@ judge 只看到：随机顺序的两段原始文本 + 一个**不含本体词汇
 主面板判 B1(同义改写, 内容不变) **6/20 分开** ⇒ SURFACE_SENSITIVE。
 若盲评者也说 B1 两段「处境没变」而 CCE 却判分开 ⇒ 该结论被**独立佐证**。
 """
-import hashlib, json, random, sys, threading
+import hashlib, json, os, random, sys, threading
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -32,7 +32,12 @@ from exp_crossmodel_desire import call_model, MODELS   # noqa: E402
 
 P = ROOT / "tests" / "data" / "phase2"
 CKPT = P / "llm_proxy_checkpoint.jsonl"
-JUDGES = ("Qwen3.8", "GLM5.2")      # 两个家族; **都不是测量模型**
+# ★ 2026-08-24 追加 DeepSeek 作**第三个判官家族**。
+#   动机: 两判官对照实测判官之间差异极大(同一批刺激 2% vs 27% 违规率)。
+#   而 SURFACE_SENSITIVE 的关键佐证是「B1 那 7 对盲评 P(DIFFERENT)=0.000」——
+#   那 760 次只有千问+GLM 两个家族。**若 0.000 是两家共享先验的产物, 头条就站不住。**
+#   ⇒ 用第三个独立家族复核。★ 这是**事后稳健性检查**, 不重定前登记的 proxy。
+JUDGES = tuple(os.environ.get("CCE_JUDGES", "Qwen3.8,GLM5.2").split(","))
 SEED = 20260821
 WORKERS = 6
 _lock = threading.Lock()

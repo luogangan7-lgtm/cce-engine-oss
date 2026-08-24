@@ -1,0 +1,54 @@
+{
+ "status": "POST_HOC_ROBUSTNESS_CHECK",
+ "★not_primary": "前登记的 proxy 是 qwen+glm 两家族。DeepSeek 这一轮是**事后稳健性检查**, 不重定 primary。原件另存 llm_proxy_anchor_qwen_glm.json。",
+ "question": "B1 的 P(DIFFERENT)=0.000 会不会是千问/GLM 共享先验的产物?",
+ "answer": "不是。第三个独立家族(DeepSeek, 不同厂商)完全复现。",
+ "by_family": {
+  "qwen": {
+   "A1": 0.469,
+   "A2": 0.656,
+   "A3": 0.984,
+   "B1": 0.0,
+   "B2": 0.0,
+   "L0b": 0.0
+  },
+  "glm": {
+   "A1": 0.766,
+   "A2": 0.859,
+   "A3": 1.0,
+   "B1": 0.0,
+   "B2": 0.0,
+   "L0b": 0.0
+  },
+  "deepseek": {
+   "A1": 0.594,
+   "A2": 0.703,
+   "A3": 0.953,
+   "B1": 0.0,
+   "B2": 0.0,
+   "L0b": 0.0
+  }
+ },
+ "★why_this_agreement_is_meaningful": "同一个 DeepSeek 在**盲验**那一轮与交叉家族差 13 倍(2% vs 27%) —— 它不是「什么都点头」的判官。它有意见时意见很大。故它在 B1 上的一致是**真一致**, 不是顺从。",
+ "monotonicity_in_proxy": {
+  "qwen": {
+   "A1": 0.469,
+   "A2": 0.656,
+   "A3": 0.984,
+   "ordered": true
+  },
+  "glm": {
+   "A1": 0.766,
+   "A2": 0.859,
+   "A3": 1.0,
+   "ordered": true
+  },
+  "deepseek": {
+   "A1": 0.594,
+   "A2": 0.703,
+   "A3": 0.953,
+   "ordered": true
+  }
+ },
+ "implication": "SURFACE_SENSITIVE 的证据再上一档: 三个独立家族一致认定 B1 改写「处境未变」, 而 CCE 判其中 7/26 分开。且剂量序在三家族 proxy 里都成立, CCE 的 T 仍不跟着走(0.18)。"
+}
