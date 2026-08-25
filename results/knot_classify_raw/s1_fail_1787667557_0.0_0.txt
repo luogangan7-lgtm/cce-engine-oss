@@ -1,0 +1,101 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.15,
+      "成为欲": 0.05,
+      "摆脱欲": 0.25,
+      "确认欲": 0.20,
+      "超越欲": 0.00,
+      "归属欲": 0.15,
+      "控制欲": 0.05,
+      "安全感欲": 0.15,
+      "向往欲": 0.00
+    },
+    "note": "摆脱欲被'Life is pretty hard and unfair to us'激活;确认欲被'I went through all the same things'激活;归属欲被'us as we can't choose'的'我们'共同体语激活;拥有欲被对AI字幕眼镜这一具体可购物的推荐激活;安全感欲被'will make your life so much easier'的确定性收益激活"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "听力受损者在日常生活中承受沟通困难与不公平感",
+      "weight": 0.20,
+      "derived_from": "由摆脱欲经'听力障碍生活不公'情境衍生"
+    },
+    {
+      "code": "N12_情感联结",
+      "context_slot": "在论坛与同样经历听力问题的陌生网友建立共情连接",
+      "weight": 0.20,
+      "derived_from": "由确认欲+'us we'的群体语衍生"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "作为听力受损群体一员确认自己的成员资格",
+      "weight": 0.15,
+      "derived_from": "由归属欲+'we can't choose'衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "通过分享自己的成功经验确认自己过去的应对选择是对的",
+      "weight": 0.15,
+      "derived_from": "由确认欲+推荐产品(自我选择背书)衍生"
+    },
+    {
+      "code": "N07_占有资源",
+      "context_slot": "把已购入的AI字幕眼镜推荐给OP变成'你也该拥有的'",
+      "weight": 0.15,
+      "derived_from": "由拥有欲+具体产品推荐衍生"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "借助科技弥补听力这一身体能力缺口",
+      "weight": 0.15,
+      "derived_from": "由安全感欲+'technology helping a lot'衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.85,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "内容对'摆脱痛苦/获得归属/被联结'等需求是促进(自己已成功使用眼镜、且有同类同伴感);且自身已满足(已经购置并使用中);所以情绪为正;coping_potential高(有现成产品+成熟经验可分享),故情绪强度较高且偏向趋近型"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.10,
+      "joy喜悦": 0.05,
+      "gratitude感激": 0.20,
+      "desire渴望": 0.05,
+      "nostalgia怀旧": 0.15,
+      "pride自豪": 0.00,
+      "love爱": 0.10,
+      "approval认同": 0.20,
+      "curiosity好奇": 0.00,
+      "relief宽慰": 0.15,
+      "fear恐惧": 0.00,
+      "sadness悲伤": 0.00,
+      "anger愤怒": 0.00
+    },
+    "note": "由'促进+已满足+高coping'推出正向情绪: gratitude感激(对technology)、approval认同(对OP遭遇'我去过同样的事')、relief宽慰(终于有解决方案)、nostalgia怀旧(略带遗憾的'我年轻时它还没出现')、love爱(对共同体成员的关怀)、admiration钦佩(对技术进步);无负情绪因需求已满足"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.45,
+      "avoidance回避": 0.00,
+      "attend关注": 0.25,
+      "reject拒斥": 0.00,
+      "agonistic对抗": 0.10,
+      "interrupt中断":": 0.00,
+      "dominate支配": 0.20
+    },
+    "note": "因高coping+正情绪,主行为为approach趋近(主动推荐、主动连接);attend关注(把注意力引向技术解);dominate支配(祈使句'Get a pair of...'指使OP采取行动);agonistic对抗(隐含对'life is unfair'的不满)"
+  },
+  "chain_trace": "个体在听力损伤处境下被激活的摆脱欲(0.25)+确认欲(0.20)+归属欲(0.15)+安全感欲(0.15)+拥有欲(0.15) → 经由'听力障碍带来的沟通不公与孤独'这一情境事件 → 衍生出 N06_摆脱痛苦(0.20)+N12_情感联结(0.20)+N11_归属群体(0.15)+N10_自我确认(0.15)+N07_占有资源(0.15)+N03_提升能力(0.15) → 评价为'促进+已满足+正goal_congruence+高coping_potential' → 推导出 gratitude感激(0.20)+approval认同(0.20)+nostalgia怀旧(0.15)+relief宽慰(0.15)+love爱(0.10)+admiration钦佩(0.10) 的正情绪谱 → 行动倾向以 approach趋近(0.45,主动推荐与安慰) 为主导,辅以 attend关注(0.25,引向技术与产品)+dominate支配(0.20,'Get a pair of...'的祈使)+agonistic对抗(0.10,对不公命运的隐性抗争)",
+  "evidence": {
+    "desire": "Life is pretty hard and unfair to us as we can't choose; I went through all the same things what u have; will make your life so much easier",
+    "need": "Get a pair of ai captioned glasses that will make your life so much easier; The great thing right now is technology helping a lot; we can't choose",
+    "emotion": "I wish it came out when I was younger; The great thing right now is technology helping a lot; Life is pretty hard and unfair to us",
+    "action": "Get a pair of ai captioned glasses that will make your life so much easier; The serial number is printed on the back panel beneath the battery door"
+  }
+}
+```

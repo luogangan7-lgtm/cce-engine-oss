@@ -1,0 +1,101 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.05,
+      "成为欲": 0.05,
+      "摆脱欲": 0.20,
+      "确认欲": 0.15,
+      "超越欲": 0.05,
+      "归属欲": 0.20,
+      "控制欲": 0.05,
+      "安全感欲": 0.25,
+      "向往欲": 0.00
+    },
+    "note": "主体是一位在 Reddit 听力讨论区与他人互动的听损者。其回复激活了:(1)安全感欲——'find resources, accessibility options, support are the things we need to rely on'显示对稳定外部支持系统的渴求;(2)归属欲——在听损社区中与同处境者互认,加入共享经验群体;(3)摆脱欲——想从听损带来的日常负担中解脱;'glad to know your aids help you tremendously'暗含对摆脱困境的羡慕;(4)确认欲——'we need to accept and learn to live with it'是在为自己的接受立场寻求外部背书。拥有欲微弱,主要指向助听器作为工具,而非渴望拥有的对象。"
+  },
+  "need_layer": [
+    {
+      "code": "N13_情感慰藉",
+      "context_slot": "在 Reddit 听力讨论区收到另一成员关于'接受并与听损共存'的鼓励性回复",
+      "weight": 0.25,
+      "derived_from": "由 归属欲+安全感欲 经'听到社区成员描述助听器对其帮助巨大并提出接受哲学'的情境事件衍生"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "在听力损失支持讨论中确认自己属于这一群同处境者",
+      "weight": 0.20,
+      "derived_from": "由 归属欲 经'参与一个由听损者组成的讨论共同体'的情境事件衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "在听损生活的不确定处境中寻找清晰可依的资源与路径",
+      "weight": 0.20,
+      "derived_from": "由 安全感欲 经'需要明确知道该依靠哪些资源、辅助选项与支持'的情境事件衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "承受听损带来的日常沟通与生活负担",
+      "weight": 0.15,
+      "derived_from": "由 摆脱欲 经'听说他人助听器带来巨大帮助'的情境事件衍生(羡慕他人已部分摆脱)"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "对'我们必须接受并学会与听损共存'这一态度寻求认同",
+      "weight": 0.10,
+      "derived_from": "由 确认欲 经'在社区中表达自己的接受立场并寻求被认可'的情境事件衍生"
+    },
+    {
+      "code": "N07_占有资源",
+      "context_slot": "拥有并可指认自己那台助听器设备以备进一步协助",
+      "weight": 0.10,
+      "derived_from": "由 拥有欲(弱)经'正在使用一台有完整购买凭证的助听器'的情境事件衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.85,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "中",
+    "note": "对方回复直接回应了主体的情感与实际双重需求(goal_relevance 高),且态度支持、信息有用(congruence_direction 促进),主体当场感到被听见、被认可、获得行动指引(need_status 已满足),故 goal_congruence 派生为正。coping_potential 评中而非高:主体明确说'rely on'资源/支持,显示有可用资源但尚未自陈完全掌控——这也解释了为何第二段紧接给出设备序列号、收据、配件清单等事实细节,显示其正从情绪回应转向具体问题解决,属于稳态应对。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.10,
+      "joy喜悦": 0.05,
+      "gratitude感激": 0.30,
+      "desire渴望": 0.05,
+      "nostalgia怀旧": 0.00,
+      "pride自豪": 0.05,
+      "love爱": 0.00,
+      "relief宽慰": 0.20,
+      "approval认同": 0.20,
+      "curiosity好奇": 0.00,
+      "fear恐惧": 0.00,
+      "sadness悲伤": 0.05,
+      "anger愤怒": 0.00
+    },
+    "note": "情绪由 需求×goal_congruence 导出:促进+已满足→正情绪主导。'glad to know your aids help you tremendously'直陈 gratitude感激(为对方受益而高兴+被对方分享经验所触动);'we need to accept and learn to live with it'配合 'find resources…we need to rely on' 产生 relief宽慰(从'我该怎么办'的悬置中松下来);'yes you are right'清晰给出 approval认同;对原帖主的正面经验产生 admiration钦佩。微弱 sadness悲伤 残留(对自身听损的哀意),pride自豪 因能清晰陈述接受立场而轻微出现。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.45,
+      "avoidance回避": 0.05,
+      "attend关注": 0.40,
+      "reject拒斥": 0.00,
+      "agonistic对抗": 0.00,
+      "interrupt中断": 0.00,
+      "dominate支配": 0.10
+    },
+    "note": "approach 最高:主体以 'thanks for your reply ;)' 主动续接对话,给出大量细节以让对方继续协助;attend 接近并列:第二段逐项提供序列号位置、收据信息、保修卡寄达时间、盒内配件(充电座、两个备用耳塞、清刷、纸质快速指南)以让对方精准定位设备;dominate 表现在'we need to accept'对自身立场的果断陈述。回避与拒斥近零,因为主体已接受听损且在主动求助。"
+  },
+  "chain_trace": "安全感欲+归属欲 →(情境事件:在 Reddit 听力讨论中收到同社区成员关于'接受听损、依靠资源与社区支持'的鼓励性回复)→ 需求 N13_情感慰藉 + N11_归属群体 + N01_确定性 →(评价:goal_relevance 0.85、congruence_direction 促进、need_status 已满足、goal_congruence 正、coping_potential 中)→ 情绪 gratitude感激 + relief宽慰 + approval认同 → 行动倾向 approach趋近 + attend关注 的完整推导:这位听损者从对稳定支持系统与同类的渴求出发动机,在听到社区同伴分享助听器帮助巨大并提出接受哲学后,其情感慰藉、群体归属与确定性需求被同时满足,因而产生感激、释然与认同,并立刻以趋近(继续对话)和高度关注(详尽报备设备序列号、购买凭证、配件清单)的方式投入下一步具体协助的获取。"
+  "evidence": {
+    "desire": "find resources, accessibility options, support are the things we need to rely on",
+    "need": "glad to know your aids help you tremendously. and yes you are right. we need to accept and learn to live with it",
+    "emotion": "glad to know your aids help you tremendously",
+    "action": "thanks for your reply ;) The unit was purchased in the spring of the previous year. The serial number is printed on the back panel beneath the battery door."
+  }
+}
+```

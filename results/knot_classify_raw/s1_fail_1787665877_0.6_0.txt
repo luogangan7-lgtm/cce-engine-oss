@@ -1,0 +1,95 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.30,
+      "成为欲": 0.05,
+      "摆脱欲": 0.15,
+      "确认欲": 0.10,
+      "超越欲": 0.00,
+      "归属欲": 0.00,
+      "控制欲": 0.35,
+      "安全感欲": 0.05,
+      "向往欲": 0.00
+    },
+    "note": "说话人最核心的潜变量是'掌控欲'——通过'保险每3年报销+自付$3K deductible'的财务规划主动把决策权握在手里；'拥有欲'紧随其后，指向具体可占有的top model助听器；'摆脱欲'是听力障碍带来的背景性不适；'确认欲'体现在'because why not'这句自我背书式说理上。'
+  },
+  "need_layer": [
+    {
+      "code": "N07_占有资源",
+      "context_slot": "听力下降 + 保险每3年周期触发一次性大额采购窗口",
+      "weight": 0.30,
+      "derived_from": "由'拥有欲'经'听力退化需升级硬件'情境事件衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "保险报销周期与自付额机制下，要主动决定何时/买什么价位",
+      "weight": 0.30,
+      "derived_from": "由'控制欲'经'3年报销+deductible门槛'的情境倒逼决策衍生"
+    },
+    {
+      "code": "N05_优化效率",
+      "context_slot": "在必须买的助听器上想把3年额度一次性用满，最大化报销杠杆",
+      "weight": 0.20,
+      "derived_from": "由'控制欲+拥有欲'联合经'go big every 3 years'的最优采购时点衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "Costco约$2K vs 听力学家约$6K 的价位锚点需先搞清楚再下手",
+      "weight": 0.10,
+      "derived_from": "由'安全感欲'经'不同渠道价差信息不对称'衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "听力障碍本身造成的生活不便需通过硬件升级缓解",
+      "weight": 0.10,
+      "derived_from": "由'摆脱欲'经'听力下降的事实'衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.85,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "说话人评价：保险报销窗口清晰、价位区间明确、策略('go big every 3 years')已成型——内容对其N02/N07/N05三条需求是'促进+已满足'，故目标契合度为正、应对潜能高（有钱有保险有节奏），由此派生出宽慰/自豪等正情绪；强度受goal_relevance 0.85放大"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.05,
+      "joy喜悦": 0.05,
+      "gratitude感激": 0.00,
+      "desire渴望": 0.10,
+      "nostalgia怀旧": 0.00,
+      "pride自豪": 0.25,
+      "love爱": 0.00,
+      "relief宽慰": 0.30,
+      "approval认同": 0.15,
+      "curiosity好奇": 0.10,
+      "fear恐惧": 0.00,
+      "sadness悲伤": 0.00,
+      "anger愤怒": 0.00
+    },
+    "note": "正情绪簇：'relief宽慰'来自N02/N05已满足——保险+deductible机制帮他把不确定性消掉了；'pride自豪'来自控制欲被兑现——'go big every 3 years because why not'是自我肯定型表述；'approval认同'是内化的确认欲(确认自己'go big'的策略是合理的)；'desire渴望'对应'latest top models'的占有欲残留；'curiosity好奇'对应N01确定性仍带的信息探索；无负情绪因coping_potential高"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.45,
+      "avoidance回避": 0.00,
+      "attend关注": 0.20,
+      "reject拒斥": 0.00,
+      "agonistic对抗": 0.00,
+      "interrupt中断": 0.00,
+      "dominate支配": 0.35
+    },
+    "note": "行动倾向以'趋近+支配'为主轴：'go big every 3 years'既是趋近未来采购、也是对采购决策的主宰；'attend关注'体现在对Costco价/听力学家价两套选项的对比注视；无回避/对抗因coping_potential高、目标已正"
+  },
+  "chain_trace": "控制欲+拥有欲 → 情境'听力下降+保险3年报销+deductible门槛' → 需求N07_占有资源(买top model)+N02_掌控局面(自己定节奏)+N05_优化效率(一次用满额度) → 评价:促进+已满足→goal_congruence正、coping_potential高 → 情绪relief宽慰+pride自豪+approval认同 → 行动倾向approach趋近+dominate支配 的完整推导：宽慰与自豪让他下一次周期继续趋近，支配让他坚持自定规则",
+  "evidence": {
+    "desire": "'I just go big every 3 years because why not'（控制欲+拥有欲的自我背书）",
+    "need": "'You can get good ones at Costco for about $2k. The latest top models from an audiologist might cost $6k.'（N07占有资源）；'My insurance pays every 3 years and my annual deductible is $3K'（N02掌控局面+N05优化效率）",
+    "emotion": "'because why not'（pride/approval）；'The unit was purchased in the spring of the previous year.'（relief——已落地的安心感）",
+    "action": "'so I just go big every 3 years'（approach趋近+dominate支配）"
+  }
+}
+```
