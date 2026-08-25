@@ -1,0 +1,95 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.05,
+      "摆脱欲": 0.35,
+      "确认欲": 0.05,
+      "超越欲": 0.0,
+      "归属欲": 0.20,
+      "控制欲": 0.15,
+      "安全感欲": 0.20,
+      "向往欲": 0.0
+    },
+    "note": "摆脱欲激活最强——对'听不清朋友说话'的长期挫败感;安全感欲次之——首次进影院面临音量/听不清/耳塞与否的不确定风险;归属欲来自'if anyone HOH'——主动寻找同类经验;控制欲体现在'耳塞戴不戴'的决策焦虑;微弱成为欲是想成为'能正常看电影的人'。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "第一次去电影院,担心能不能听清95%对话,以及耳塞戴不戴",
+      "weight": 0.40,
+      "derived_from": "由安全感欲 + 控制欲 经'即将独自进影院/未知的听力体验'情境衍生——核心诉求是'把风险降到已知'"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "长期听不清朋友说话,感到挫败",
+      "weight": 0.20,
+      "derived_from": "由摆脱欲 经'朋友面对面坐也听不清'的持续挫败情境衍生"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "寻找有类似听力问题的HOH同伴分享经验",
+      "weight": 0.20,
+      "derived_from": "由归属欲 经'if anyone HOH could still hear at least 95% of the dialogue'的情境衍生——需要同类作经验背书"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "学习戴耳塞vs不戴耳塞的应对策略",
+      "weight": 0.10,
+      "derived_from": "由控制欲 经'earplugs? but then I might not hear well'的权衡情境衍生——想学会实操方法"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "自己的担心是合理的、自己不是唯一有这问题的人",
+      "weight": 0.10,
+      "derived_from": "由确认欲 经'i've always been skeptical...because i cant hear'的长期被边缘化情境衍生——想被理解'
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "目标高度相关(首次观影=核心事件);情境被评估为'威胁'——响度+听力障碍联合阻碍'看一场好电影'的需求;需求尚未满足,正发帖求答;应对潜能中等(知道可以戴耳塞/借字幕,但不知道权衡结果),所以不是绝望的恐惧而是'悬置的焦虑',情绪偏 fear + curiosity 的混合态而非纯负面。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.05,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.05,
+      "approval认同": 0.05,
+      "curiosity好奇": 0.30,
+      "fear恐惧": 0.30,
+      "sadness悲伤": 0.15,
+      "anger愤怒": 0.10
+    },
+    "note": "fear 来自'威胁+未满足+中应对潜能'——典型的焦虑恐惧;curiosity 来自 N01_确定性 缺口——信息缺失驱动求知;二者并列主导。sadness 来自长期挫败('cannot hear what my friends are saying...I feel frustrated');anger 来自相同挫败事件的次级情绪;微弱 desire 是想被安慰/被告知没事;relief+approval 各占小份,代表对'可能有人回帖告诉我没事'的预期奖赏。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.40,
+      "avoidance回避": 0.20,
+      "attend关注": 0.30,
+      "reject拒斥": 0.10,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    },
+    "note": "approach 主导——已经买了票决定去了(im going to the cinemas for the first time ever);attend 次之——主动发帖收集信息;avoidance 体现为'i've always been skeptical of going to the movies';reject 体现为对'可能看不好这场电影'这一结果的轻度拒斥(若答案不好可能会退出)。"
+  },
+  "chain_trace": "摆脱欲+安全感欲 →(即将第一次进影院看《奥德赛》、担心音量与听不清的情境事件)→ 需求 N01_确定性(能不能听到95%对话+耳塞戴不戴) + N11_归属群体(找HOH同伴) →(评价:目标高度相关,情境被评估为威胁,需求未满足,负向goal_congruence,应对潜能中)→ 情绪 fear恐惧+curiosity好奇 主导,伴 sadness悲伤 与 anger愤怒 → 行动倾向 approach趋近(已决定去) + attend关注(发帖求答) 为主, avoidance回避 与 reject拒斥 为次。",
+  "evidence": {
+    "desire": "摆脱欲:'I feel frustrated about this' / 'i cannot hear what my friends are saying during lunch time'; 安全感欲:'should i wear earplugs? but then i might not hear well'; 归属欲:'if anyone HOH could still hear at least 95% of the dialogue'; 控制欲:'should i wear earplugs? but then i might not hear well'",
+    "need": "N01_确定性:'i just wanted to know if anyone HOH could still hear at least 95% of the dialogue'; N06_摆脱痛苦:'I feel frustrated about this'; N11_归属群体:'if anyone HOH'; N03_提升能力:'should i wear earplugs? but then I might not hear well'",
+    "emotion": "fear/curiosity:'should i wear earplugs? but then I might not hear well'; sadness/anger:'I cannot hear what my friends are saying during lunch time, even if they are sitting right in front of me Honestly I feel frustrated about this'",
+    "action": "approach:'im going to the cinemas for the first time ever to watch a movie'; attend:'i just wanted to know if anyone HOH could still hear at least 95% of the dialogue'; avoidance:'i've always been skeptical of going to the movies'"
+  }
+}
+```
