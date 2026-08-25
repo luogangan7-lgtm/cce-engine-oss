@@ -1,0 +1,101 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.02,
+      "成为欲": 0.05,
+      "摆脱欲": 0.25,
+      "确认欲": 0.08,
+      "超越欲": 0.05,
+      "归属欲": 0.32,
+      "控制欲": 0.18,
+      "安全感欲": 0.05,
+      "向往欲": 0.00
+    },
+    "note": "写作者以「有经验的使用者/热心老用户」身份发言,最核心是归属欲(mechanism=经验型成员贡献:在 hearing aid 社区里作为有发言权的老手,被新用户需要);次核心是摆脱欲(把自己曾经历的「调试痛苦/不会用」帮别人绕过去)和控制欲(用知识夺回助听器使用的主导权,把不确定变可控);确认欲(「我的方法论是对的」)、成为欲(在社区中成为可信的知情者)、超越欲(用经验压过单纯看品牌的小白)为弱辅;此内容是经验/方法/情感三合一的实用贴,不是氛围型,因此向往欲=0。"
+  },
+  "need_layer": [
+    {
+      "code": "N11_归属群体",
+      "context_slot": "在 hearing aid/听力讨论 sub 里以老用户身份给新用户写建议,Buena Suerte 收尾",
+      "weight": 0.30,
+      "derived_from": "由归属欲(经验型成员贡献)经『看到新人在 sub 里求助/抱怨』衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "新用户刚戴上助听器被声音吓到/啸叫/听不清,写作者要帮人把这个不适先停掉",
+      "weight": 0.18,
+      "derived_from": "由摆脱欲经『自己经历过初期不适/调试反复』衍生"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "教新人识别啸叫=domes不对、检查蜡过滤器/胶圈、和专业人士怎么沟通",
+      "weight": 0.18,
+      "derived_from": "由控制欲(夺回主导权)经『把可迁移的排错技能交到新人手里』衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "『La magia…depende en la programación, mucho más que en la marca』,把主导权从品牌拉回到编程/调试",
+      "weight": 0.14,
+      "derived_from": "由控制欲经『新人被品牌/价格牵着走,要夺回选品与使用主导权』衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "给一个时间表(En un par de semanas te acostubraras)+可预期路径(再编程/换耳塞/退换),把未知压缩成已知",
+      "weight": 0.12,
+      "derived_from": "由安全感欲经『新用户对『会不会越戴越糟/到底要多久』的高度不确定』衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "反复重复 Paciencia,把『我的耐心路线图』作为值得被采纳的方法论输出",
+      "weight": 0.08,
+      "derived_from": "由确认欲经『我这套做法确实管用,现在给新人背书』衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.85,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "对写作者本人:目标是『在社区里输出可靠建议+帮新人避坑』,这条内容对每条子需求都是促进(给了具体可操作步骤),而且『写下并发出』这个行为本身就立刻兑现了归属/表达/控制三重需要——所以 need_status=已满足、congruence=正、coping=高,情绪端应当是温和正情绪群(自豪/认同/宽慰/感激/爱),不会产生 fear/sadness/anger。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.02,
+      "joy喜悦": 0.08,
+      "gratitude感激": 0.10,
+      "desire渴望": 0.02,
+      "nostalgia怀旧": 0.04,
+      "pride自豪": 0.28,
+      "love爱": 0.18,
+      "relief宽慰": 0.13,
+      "approval认同": 0.13,
+      "curiosity好奇": 0.02,
+      "fear恐惧": 0.00,
+      "sadness悲伤": 0.00,
+      "anger愤怒": 0.00
+    },
+    "note": "由『需求×goal_congruence=正、coping=高』派生:pride 自豪 最高(『我懂这些、能讲清楚』——『La magia de los audífonos depende en la programación』是明显的能力自豪);love 爱/关怀 次之(『Buena Suerte』+反复 Paciencia 的温度);relief 宽慰(看到新人焦虑,给出解药后自己也被安慰到);approval 认同(自己这条路被自己背书);gratitude 感激(对自己能帮上忙、对专业人员的转介);joy 微量(分享的轻快感);nostalgia 微量(『Al principio…te acostubraras』里透出自己当初也是这么过来的回忆底色);fear/sadness/anger 全部为 0,因为 appraisal 是促进+已满足,没有威胁敞口。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.40,
+      "avoidance回避": 0.00,
+      "attend关注": 0.35,
+      "reject拒斥": 0.05,
+      "agonistic对抗": 0.07,
+      "interrupt中断": 0.10,
+      "dominate支配": 0.03
+    },
+    "note": "approach 最高(主动伸手:habla con tu profesional、devuelvelos y compra otros,都是推进动作);attend 紧随(全文都在观察新人的具体痛点:啸叫/太响/听不清,逐条 attend);interrupt 次之(『Baja un poco el volumen』这种即时介入打断坏体验);agonistic 微量(隐含对『只追品牌不看编程』这种迷思的小对抗);dominate 微量(把『编程>品牌』这一框架定成社区共识);reject/avoidance=0,因为他完全没有叫人别用/退出,反而叫人坚持 + 必要时退换——是接近,不是拒斥。"
+  },
+  "chain_trace": "归属欲(经验型成员贡献)+摆脱欲(避免新人走自己的老路) →(情境:在 hearing aid sub 看到新人被初期不适/啸叫/选品困惑卡住)→ 需求 N11_归属群体(0.30)+N06_摆脱痛苦(0.18)+N03_提升能力(0.18)+N02_掌控局面(0.14)+N01_确定性(0.12) →(评价:goal_relevance 0.85,congruence_direction 促进,need_status 已满足,goal_congruence 正,coping_potential 高——因为内容当场把每条需求都给出了可操作答案)→ 情绪 pride自豪 0.28 + love爱 0.18 + approval认同 0.13 + relief宽慰 0.13 + gratitude感激 0.10 → 行动倾向 approach趋近 0.40 + attend关注 0.35 + interrupt中断 0.10 → 行为:写下一段 Paciencia 反复出现、含 7 条实操要点并以 Buena Suerte 收尾的西班牙语建议贴。",
+  "evidence": {
+    "desire": "归属欲+摆脱欲+控制欲 证据:『Paciencia: A veces hay que re-programarlos varias veces』『devuelvelos y compra otros』『La magia de los audífonos depende en la programación, mucho más que en la marca y el modelo』『habla con tu profesional』『Buena Suerte』",
+    "need": "N11_归属+N06_摆脱痛苦 证据:『En un par de semanas te acostubraras』『Si los audífonos te "silban": Baja un poco el volumen』;N03_提升能力 证据:『revisa que los filtros de cerúmen y las "gomitas" esten limpias』『contacta a tu especialista』;N01_确定性 证据:『Normalmente requieren ser reemplazadas mensualmente』『A veces hay que re-programarlos varias veces』;N02_掌控局面 证据:『La magia de los audífonos depende en la programación, mucho más que en la marca y el modelo』",
+    "emotion": "pride 自豪 证据:『La magia de los audífonos depende en la programación, mucho más que en la marca y el modelo』(明显的能力自豪陈述);love/关怀 证据:反复 『Paciencia』+『Buena Suerte』;relief/approval 证据:整篇结构是『问题→解法』的安抚式排版,『No te preocupes, esto se arregla』式的语气",
+    "action": "approach+attend 证据:逐条列具体可操作步骤并主动指引对话(『habla con tu profesional sobre ellos en tu próxima cita』『contacta a tu especialista』);interrupt 证据:『Baja un poco el volumen』(即时打断坏体验);agonistic 证据:对『只追品牌不看编程』的隐性反驳"
+  }
+}
+```

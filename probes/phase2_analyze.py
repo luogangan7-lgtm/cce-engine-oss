@@ -72,13 +72,25 @@ def contrasts(rows, only_primary):
                                  "n_dup": len(dup),
                                  "note": "同一读数向量重复出现 ⇒ 疑似缓存伪影或读数退化"})
                 continue
-            s = KS.separation(A, B, fa, fb, nameA="L0", nameB=arm)
+            try:
+                s = KS.separation(A, B, fa, fb, nameA="L0", nameB=arm)
+            except ValueError as e:
+                # ★ 这是 _check 的退化守卫在**正确工作**(如 intensity=0.0 越界)。
+                #   但一个退化臂不该拖垮整轮分析 —— 记成 finding, **不静默跳过**。
+                findings.append({"base_id": b, "arm": arm, "issue": "DEGENERATE_READOUT",
+                                 "detail": str(e)[:120],
+                                 "note": "读数退化被 cce_ksep._check 拒绝; 该对比不可算, "
+                                         "但必须计入缺失(见 Manski 界), 不得当作没发生"})
+                continue
             out.append({"base_id": b, "arm": arm, "T": s["T"], "p": s["p"],
                         "verdict": s["verdict"],
                         "separated": s["verdict"] == "SEPARATED",
                         "null_max": s["null_max"],
                         "length_stratum": X[0]["length_stratum"],
-                        "generator_family": X[0]["generator_family"]})
+                        "generator_family": X[0]["generator_family"],
+                        # ★ facet 必须**带进对比记录** —— load() 里 join 了 domain,
+                        #   但此处不带过来的话, 按域分组永远不触发(静默失效)。
+                        "domain": X[0].get("domain"), "family": X[0].get("family")})
     return out, findings
 
 

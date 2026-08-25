@@ -1,0 +1,95 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.05,
+      "成为欲": 0.15,
+      "摆脱欲": 0.10,
+      "确认欲": 0.35,
+      "超越欲": 0.05,
+      "归属欲": 0.25,
+      "控制欲": 0.05,
+      "安全感欲": 0.00,
+      "向往欲": 0.00
+    },
+    "note": "发帖者用「Hallo zusammen」+「arbeite seit diesem Monat in einer Hörakustik-Filiale」主动宣告新职业身份，主要被「确认欲（我要确认助听器师这个新身份是对的）+ 归属欲（我要加入听力行业的群体）」驱动；辅以「成为欲」想成为一个合格配机师，「摆脱欲」隐含离开旧职业/旧状态。」
+  },
+  "need_layer": [
+    {
+      "code": "N10_自我确认",
+      "context_slot": "本月刚转入Hörakustik-Filiale，想确认新职业身份/转型选择是对的",
+      "weight": 0.35,
+      "derived_from": "由「确认欲」经「本月入职助听器门店」情境事件衍生"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "向听力/助听器讨论社区报到，希望被同行/同类认作『我们中的一员』",
+      "weight": 0.25,
+      "derived_from": "由「归属欲」经「在听力讨论版发帖+Hallo zusammen问候」情境事件衍生"
+    },
+    {
+      "code": "N16_表达创造",
+      "context_slot": "把工作日常外化为文字（听力测试、记录测量值）",
+      "weight": 0.15,
+      "derived_from": "由「确认欲+归属欲」共同驱动——用输出内容来固定新身份并展示给群体"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "正在做配机/测听/记录这些可迁移技能，希望自己越来越能干",
+      "weight": 0.15,
+      "derived_from": "由「成为欲」经「本月开始做Hörtest并dokumentiere Messwerte」情境事件衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "从之前的工作/状态切换出来，新岗位意味着离开旧处境",
+      "weight": 0.10,
+      "derived_from": "由「摆脱欲」隐含——seit diesem Monat 暗含此前是另一种状态"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.75,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "发帖这件事本身就在做：宣告身份(满足N10)、向社区报到(满足N11)、记录工作(满足N16)，属于『内容现场促进了需求』→ 评价为正；发帖者已在新岗、能把测听做下来，应对潜能高，所以情绪不会滑向fear，而走向pride/approval这类正情绪。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.05,
+      "joy喜悦": 0.10,
+      "gratitude感激": 0.00,
+      "desire渴望": 0.10,
+      "nostalgia怀旧": 0.00,
+      "pride自豪": 0.40,
+      "love爱": 0.00,
+      "relief宽慰": 0.05,
+      "approval认同": 0.20,
+      "curiosity好奇": 0.10,
+      "fear恐惧": 0.00,
+      "sadness悲伤": 0.00,
+      "anger愤怒": 0.00
+    },
+    "note": "需求N10/N11被「促进+已满足+正+高应对」→ 推导出pride自豪(40%，对应新身份宣告) + approval认同(20%，对应社区报到期待回声) + desire渴望(10%，对应想继续做下去) + curiosity好奇(10%，对新工作内容本身) + joy+relief做底色；没有威胁/未满足维度，所以fear/sadness/anger全为0。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.40,
+      "avoidance回避": 0.05,
+      "attend关注": 0.30,
+      "reject拒斥": 0.00,
+      "agonistic对抗": 0.00,
+      "interrupt中断": 0.05,
+      "dominate支配": 0.20
+    },
+    "note": "正情绪+高应对潜能 → 主导行动倾向是approach(40%，向社区/新岗位靠拢)+ attend(30%，关注群体反馈/工作细节)；dominate支配(20%)表现为『我来宣告我的工作内容』这种轻度展示姿态；回避与对抗极低，说明没把发帖视为风险行为。"
+  },
+  "chain_trace": "确认欲(新职业身份) + 归属欲(加入听力行业社群) →(情境事件：seit diesem Monat 入职Hörakustik-Filiale、今日完成一例Hörtest并dokumentiere Messwerte)→ 需求N10自我确认(0.35) + N11归属群体(0.25) + N16表达创造(0.15) + N03提升能力(0.15) + N06摆脱痛苦(0.10) →(评价：goal_relevance 0.75 / direction 促进 / need_status 已满足 / congruence 正 / coping_potential 高)→ 情绪pride自豪 0.40 + approval认同 0.20 + desire渴望 0.10 + curiosity好奇 0.10 + joy喜悦 0.10 + relief宽慰 0.05 + admiration钦佩 0.05 → 行动倾向approach趋近 0.40 + attend关注 0.30 + dominate支配 0.20 + avoidance回避 0.05 + interrupt中断 0.05。完整链读通：一位本月新入职的助听器师在听力讨论版上完成『报到+首日工作记录』，是为了确认自己的新身份、并加入这个社群，因此带着自豪与寻求认同的正情绪，主动靠近并展示给同行看。",
+  "evidence": {
+    "desire": "「arbeite seit diesem Monat in einer Hörakustik-Filiale」",
+    "need": "「Hallo zusammen」+「arbeite seit diesem Monat in einer Hörakustik-Filiale und passe dort Hörgeräte für Kundinnen und Kunden an」",
+    "emotion": "「arbeite seit diesem Monat in einer Hörakustik-Filiale」（宣告新职业身份 → pride/approval）",
+    "action": "「Hallo zusammen, ich arbeite seit diesem Monat... Heute führe ich einen Hörtest... durch und dokumentiere die Messwerte.」（以问候+自我介绍+当日工作记录的方式向社区靠近并展示）"
+  }
+}
+```

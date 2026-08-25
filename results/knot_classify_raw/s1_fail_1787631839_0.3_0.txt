@@ -1,0 +1,95 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.05,
+      "成为欲": 0.0,
+      "摆脱欲": 0.10,
+      "确认欲": 0.30,
+      "超越欲": 0.0,
+      "归属欲": 0.30,
+      "控制欲": 0.15,
+      "安全感欲": 0.10,
+      "向往欲": 0.0
+    },
+    "note": "作者是在助听器讨论板写下经验贴的人：核心驱动是『确认欲』(把自己的调试经验/方法论讲出来、得到认同)和『归属欲』(以老用户身份回到社区、给新人兜底)；辅助是『控制欲』(对设备参数、保养流程的主导权)和『安全感欲』(替新用户提前消除『会不会踩坑』的不确定)；『摆脱欲』极弱——写作行为本身不是为了逃离痛苦。"
+  },
+  "need_layer": [
+    {
+      "code": "N11_归属群体",
+      "context_slot": "在助听器使用经验落差大的新手混居的讨论板中，以'调过机器、有踩坑经验'的老用户身份发言",
+      "weight": 0.25,
+      "derived_from": "由『归属欲』经『在 hearing aid 讨论板发帖分享经验』的情境事件衍生：写这段话就是在宣告'我是这群人里的一员'"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "把'编程比品牌更重要''滤网要月换''哨声是 dome 尺寸不对'这些经验总结成可被复用的判断",
+      "weight": 0.25,
+      "derived_from": "由『确认欲』经『把自己的方法论写成清单』衍生：每一条 bullet 都在替自己的经验背书、获得'我是懂的人'的确认"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "针对新用户对助听器'是否要调很多次''会不会突然变声''为什么会啸叫'的未知与潜在坏体验",
+      "weight": 0.20,
+      "derived_from": "由『安全感欲』经『新用户面对未知调机过程与突发异常』衍生：写'复查滤网''降音量+换 dome'就是预先给确定性"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "把分散的'调机-适应-保养-故障排查'打包成可迁移步骤",
+      "weight": 0.15,
+      "derived_from": "由『控制欲+确认欲』经『把私人经验抽象成可教方法』衍生：作者想让读者'变得更能干'来复用这套方法"
+    },
+    {
+      "code": "N13_情感慰藉",
+      "context_slot": "用'Buena Suerte'+'Paciencia'+反复安抚语气托住焦虑的新用户",
+      "weight": 0.15,
+      "derived_from": "由『归属欲+安全感欲』经『面对一个被助听器吓到的人』衍生：情感托底是被嵌入在技术建议里的次级目标"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.85,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "对写作者本人：发帖=当场满足了'被认同/被代表'与'替人兜底'的需求，所以是促进+已满足→正情绪，且高 coping(他觉得自己完全搞得定这话题)。对读者则需求被满足方向一致，因此 goal_congruence=正。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.05,
+      "joy喜悦": 0.05,
+      "gratitude感激": 0.05,
+      "desire渴望": 0.05,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.10,
+      "love爱": 0.0,
+      "relief宽慰": 0.20,
+      "approval认同": 0.30,
+      "curiosity好奇": 0.05,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.0
+    },
+    "note": "由 N11/N10/N01 的 goal_congruence=正 + coping=高 推出：以 approval 认同(对自己方法论的自我背书)和 relief 宽慰(替自己和读者把不确定都铺平)为主；pride 自豪来自'我能总结出这一套'；感激/joy 弱——这是一份克制、经验派口吻的帖子，不带强烈情绪宣泄。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.35,
+      "avoidance回避": 0.05,
+      "attend关注": 0.30,
+      "reject拒斥": 0.05,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.25
+    },
+    "note": "approach(主动来贴、主动教)+ attend(逐条列出要点、要求注意滤网和 dome)+ dominate(用'La magia de los audífonos depende en la programación'这种断言式句式给读者定方向)三者为主；少量 reject 是最后一句'如果调不好就退掉换别的'隐含的退路式拒绝。"
+  },
+  "chain_trace": "确认欲+归属欲 →(在助听器讨论板看到新用户求助的情境)→ N11_归属群体 + N10_自我确认 + N01_确定性 →(评价：congruence_direction=促进、need_status=已满足、goal_congruence=正、coping=高)→ approval认同 + relief宽慰 + pride自豪 → approach趋近 + attend关注 + dominate支配 的完整推导：从'想被这群人承认我懂'出发，落到'我主动上前、把注意力和话语主导权交给我的经验清单'。",
+  "evidence": {
+    "desire": "『La magia de los audífonos depende en la programación, mucho más que en la marca y el modelo』(归属+确认：把自己立为'懂编程的人')；『Anota las cosas que te dan problemas y habla con tu profesional sobre ellos en tu próxima cita』(归属：把自己放进 care loop 里)",
+    "need": "『Si los audífonos de repente te suenan mal, revisa que los filtros de cerúmen y las "gomitas" esten limpias. Normalmente requieren ser reemplazadas mensualmente.』(N01/N03 确定性+提升能力)；『Si los audífonos te "silban" : Baja un poco el volumen y contacta a tu especialista: Puede ser que las gomitas (domes) no sean las adecuadas para tí.』(N01 确定性)",
+    "emotion": "『Buena Suerte.』(relief 宽慰/情感慰藉)；反复出现的耐心口吻 'Paciencia… Una vez más, paciencia'(relief+approval 的混合)",
+    "action": "『Si vez que, después de varios ajustes, no te gustan, devuelvelos y compra otros.』(dominate 支配+approach 趋近：替读者做退路决策)"
+  }
+}
+```

@@ -1,0 +1,59 @@
+{
+ "block": "PHASE_2B_GENERALIZATION_PILOT",
+ "status_ceiling": "GENERALIZATION_PILOT",
+ "ran": {
+  "reps": 864,
+  "qualified": 769,
+  "instrument": "gen4 565470cf26c16d01(与 Phase 2 同一台)"
+ },
+ "coverage": {
+  "invariance_complete_cells": "13/17 = 76%",
+  "prereg_threshold": "2/3 = 67%",
+  "verdict": "达标 ⇒ 可判(此前 552 reps 时为 65%, 差一个格, 当时**未出结论**)"
+ },
+ "type1": {
+  "hearing": "0/15",
+  "personal_finance": "0/14",
+  "verdict": "两域均受控 ⇒ 前登记结局④(型I失控整轮不可读)不适用"
+ },
+ "★B1_by_domain": {
+  "personal_finance": {
+   "primary": "3/13 p=0.02451",
+   "sensitivity": "3/13 p=0.02451",
+   "manski": [
+    0.2,
+    0.333
+   ],
+   "verdict": "FAILED —— 两套一致"
+  },
+  "hearing": {
+   "primary": "2/11 p=0.10189",
+   "sensitivity": "4/13 p=0.00310",
+   "manski": [
+    0.133,
+    0.4
+   ],
+   "verdict": "**INDETERMINATE** —— 两套不一致, 按前登记该判决须记 INDETERMINATE",
+   "note": "n 小(11-13)导致功效不足; 分开**率** 18-31% 与 Phase 2 的 27% 同量级, 不是反向证据"
+  }
+ },
+ "pooled_phase2b": {
+  "B1": "5/24 分开",
+  "p_if_true_invariance": 0.00597
+ },
+ "★verdict": {
+  "outcome": "① 支持 —— 但需精确表述",
+  "established": "B1 词面不变性失败**在一个与听力无关的域(personal_finance)独立复现**, 两套分析集一致(3/13, p=0.0245), Manski 下界 0.200 远高于不变性期望 0.05",
+  "combined_with_phase2": "Phase 2(全 hearing, n=26) 已确立 hearing 域失败(7/26, p=0.00022); Phase 2B 在 personal_finance 独立复现 ⇒ **不是听力语料特性**",
+  "upgrade": "semantic_form_invariance=FAILED 的适用范围从「hearing consumer discussion」扩到「至少两个互不相关的 domain」⇒ 更像 **instrument property**",
+  "★not_claimed": [
+   "不宣称已覆盖全部 domain —— 只测了 2 个, across_domains 仍非 ESTABLISHED",
+   "hearing 子集在本轮 INDETERMINATE, **不得**拿 Phase 2 的结果去填这一格(不同轮次、不同盲验强度)",
+   "Phase 2 与 Phase 2B 的 blind_rule_check 违规率**不可互比**(判官不同)"
+  ]
+ },
+ "findings": {
+  "DEGENERATE_READOUT": 1,
+  "note": "cce_ksep._check 的退化守卫正确拒绝了一个 intensity=0.0 的读数; 已记为 finding 计入缺失"
+ }
+}

@@ -1,0 +1,95 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.00,
+      "成为欲": 0.00,
+      "摆脱欲": 0.15,
+      "确认欲": 0.05,
+      "超越欲": 0.00,
+      "归属欲": 0.05,
+      "控制欲": 0.30,
+      "安全感欲": 0.45,
+      "向往欲": 0.00
+    },
+    "note": "核心是安全感欲——'I need to sleep with my aid on or I can't hear my alarm clock'，可充电电池20小时撑不过整夜=早晨失联/误事的风险被直接挂出来；控制欲次之——'ride or die audiologist has retired'，长期信任的操盘手没了，自己被迫在'听新款vs守旧款'之间做决定；摆脱欲是底层：想摆脱听力继续下降、想摆脱'用新东西'带来的不确定性；确认欲与归属欲轻微——上Reddit求同类背书'
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "61岁otosclerosis患者，CROS佩戴10年，听力新近下降，面临是否换可充电助听器的二选一，无法预判20小时电池能否撑过睡眠时段",
+      "weight": 0.35,
+      "derived_from": "由安全感欲 经'20小时电池撑不过整夜会漏掉闹钟'的情境事件衍生——把'会不会听不见闹钟'这个风险量化为可判定的答案"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "长期合作的听力学家退休、新听力学家单方面建议换可充电、自己日常生活节律(睡戴+早起闹钟)被外部方案威胁",
+      "weight": 0.25,
+      "derived_from": "由控制欲 经'熟人退场+新医生推新方案+日常流程可能被打断'的情境衍生——需要把决定权与执行权重新握回自己手里"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "对可充电技术与size 13电池在过夜佩戴场景下的实际差异不熟悉，需要补足判断依据",
+      "weight": 0.15,
+      "derived_from": "由控制欲+摆脱欲 经'旧知识够用、新方案超出经验'的情境衍生——学会评估新方案的可行边界"
+    },
+    {
+      "code": "N07_占有资源",
+      "context_slot": "需要的不是抽象产品，而是'一套在自己睡眠+起床场景下确实能跑通的助听器/电池组合'",
+      "weight": 0.15,
+      "derived_from": "由安全感欲 经'必须有实体物保证早晨能被叫醒'衍生——资源指向功能闭环而非品牌"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "听力继续下降的焦虑 + 退休听力学家带来的关系断裂 + 决策疲劳",
+      "weight": 0.10,
+      "derived_from": "由摆脱欲 经'多重叠加的不适'衍生——想让这团烦心事停下来"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "目标相关度极高(直接关系早晨能否被叫醒+听力维持)；情境对'稳定睡眠+稳定叫醒+可掌控的方案'这一目标构成威胁(听力下降、新医生、电池时长存疑)；需求当前未满足(尚未获得确定性答案，也还没夺回主导权)；应对潜能为中——本人有10年CROS使用经验、对自身需求极清楚、且主动上社区求助，具备一定自我解题能力但需外脑补足。threat + unmet → 负情绪强度被放大，但又因为coping_potential不是低，所以负情绪不是绝望的fear而是带搜索/比较性质的fear+curiosity。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.00,
+      "joy喜悦": 0.00,
+      "gratitude感激": 0.00,
+      "desire渴望": 0.05,
+      "nostalgia怀旧": 0.00,
+      "pride自豪": 0.00,
+      "love爱": 0.00,
+      "relief宽慰": 0.00,
+      "approval认同": 0.10,
+      "curiosity好奇": 0.25,
+      "fear恐惧": 0.40,
+      "sadness悲伤": 0.15,
+      "anger愤怒": 0.05
+    },
+    "note": "fear(0.40)由 N01+威胁+未满足 推出：'20 hour rechargeable battery time concerns me'——风险已识别但没解法，是悬置型fear；curiosity(0.25)由 coping_potential=中 推出——本人具备应对能力基础，所以带信息搜寻的好奇而非冻结；sadness(0.15)由失去ride or die audiologist + 听力继续下降('recent hearing test shows decline')的双重丧失推出；approval认同(0.10)由归属欲+确认欲衍生——期待别人认可'坚持size 13'是合理选择；anger(0.05)对'被新医生推一个自己顾虑未充分被听'的轻微不满；desire微弱，仅指对'能跑通的方案'的功能性渴求而非物质占有欲。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.30,
+      "avoidance回避": 0.15,
+      "attend关注": 0.45,
+      "reject拒斥": 0.05,
+      "agonistic对抗": 0.00,
+      "interrupt中断": 0.05,
+      "dominate支配": 0.00
+    },
+    "note": "attend(0.45)主导：主动上Reddit听障讨论板发长帖=高强度信息采集；approach(0.30)由好奇心+中等应对潜能驱动——愿意吸收方案并向社区求助；avoidance(0.15)对'换可充电'这一具体建议的潜在回避；reject(0.05)对'20小时'这个具体规格的轻微拒斥；interrupt(0.05)把当前正常的设备使用流程打断、进入决策态。"
+  },
+  "chain_trace": "安全感欲(主)+控制欲(次) →(情境：听力新近下降+ride or die听力学家退休+新医生推可充电+但本人必须整夜佩戴听闹钟+20小时电池存疑)→ N01_确定性 + N02_掌控局面 →(评价：高goal_relevance=0.95、威胁、未满足、负、coping_potential=中)→ fear恐惧(0.40)+curiosity好奇(0.25)+sadness悲伤(0.15) → attend关注(0.45)+approach趋近(0.30) 的完整推导：风险被识别但没解法→悬置fear；本人有10年经验可调用→带搜寻性质的curiosity；信息搜寻行为落地为上Reddit发贴追问。",
+  "evidence": {
+    "desire": "I need to sleep with my aid on or I can't hear my alarm clock or phone alarm. The 20 hour rechargeable battery time concerns me… / My longtime ride or die audiologist has retired / My recent hearing test shows decline",
+    "need": "Should I try a rechargeable or stick with using size 13 batteries? / My new audiologist is suggesting I try rechargeable aids",
+    "emotion": "The 20 hour rechargeable battery time concerns me… / My recent hearing test shows decline / My longtime ride or die audiologist has retired",
+    "action": "Should I try a rechargeable or stick with using size 13 batteries? (发出明确求助与选项比较的提问，行为本身=attend+approach)"
+  }
+}
+```

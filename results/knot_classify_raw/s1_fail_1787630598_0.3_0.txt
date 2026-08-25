@@ -1,0 +1,95 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.05,
+      "成为欲": 0.0,
+      "摆脱欲": 0.15,
+      "确认欲": 0.15,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.25,
+      "安全感欲": 0.40,
+      "向往欲": 0.0
+    },
+    "note": "底层驱动以安全感欲为主——一个有过药物滥用史、被法院限制接触自己亲生子女、与自己的孩子之间存在过保护令的男人,现在要来单独接走他的孩子;叠加控制欲(谁来接孩子、什么时间属于我)与摆脱欲(想远离这种风险源和前配偶的不当干预);确认欲来自他对自己行为合法性的不确定——他需要被告知『你没有错,这是合法的威胁』。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "前配偶扬言提交修改育儿安排(实质是减少探视)的petition,同时让一个高风险人物来接孩子,他自己不知道这是否构成实质法律威胁",
+      "weight": 0.30,
+      "derived_from": "由安全感欲 经『前配偶提出修改schedule + 高风险人物替代接娃』情境事件衍生——必须先弄清风险是否真实、边界在哪"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "孩子处于高风险人物将被允许单独接走的处境,他需要重新握住『谁可以接近我的孩子』的决定权",
+      "weight": 0.30,
+      "derived_from": "由控制欲 经『被前配偶单方面安排不安全接娃人』情境事件衍生——夺回对交接场景的主导权"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "长期面对异地、间隔周末的探视安排,以及与一个会做出不理性决策的前配偶共育,持续性的焦虑与不安",
+      "weight": 0.15,
+      "derived_from": "由摆脱欲 经『明知孩子被置于风险中、自己却只能周末见到』情境事件衍生——需要让持续的不安感停下来"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "他做了一个违反前配偶期望的决定(带娃回家),现在怀疑自己是不是做错了",
+      "weight": 0.15,
+      "derived_from": "由确认欲 经『我拒绝后说了一句带边界的话,她可能据此发起petition』情境事件衍生——他需要有人确认『你没有错』
+    },
+    {
+      "code": "N12_情感联结",
+      "context_slot": "异地、间隔周末的物理限制,以及petition一旦通过将缩减探视时间,会进一步稀释与孩子的连接",
+      "weight": 0.10,
+      "derived_from": "由拥有欲(对亲子关系/探视时间) 经『petition可能进一步压缩本来就稀缺的相处时间』情境事件衍生——守住父子相处时长"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "这件事直接命中他作为父亲的核心目标(孩子的安全与可触达);内容本身只揭示威胁(修改petition、让她新配偶单独接走)而没有给他任何解法——他跑来问『Should I be concerned, and is this a legitimate threat?』恰恰证明需求未被满足;coping潜力中等偏低:他做了一个边界动作(直接开回家),但对自己是否『正确』、是否会反噬,没有把握。威胁×未满足×中低应对 = 强负向情绪(fear+anger主导)。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.10,
+      "love爱": 0.05,
+      "relief宽慰": 0.0,
+      "approval认同": 0.05,
+      "curiosity好奇": 0.10,
+      "fear恐惧": 0.40,
+      "sadness悲伤": 0.05,
+      "anger愤怒": 0.25
+    },
+    "note": "由N01+N02(安全感欲+控制欲)在 appraisal=威胁+未满足+coping中 条件下推导出fear恐惧为主(孩子可能被置于高风险人物身边、法律地位被改写);由前配偶的越界行为推导出anger愤怒(单方面修改schedule、让孩子被不安全的人接);curiosity好奇对应『我想要把这件事的法律机制搞清楚』;pride来自他在压力下守住了边界并按自己认为对的方式行动;love作为底层底色——他做这一切的最终指向是孩子;approval是他来发帖想得到的社群/法律背书。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.05,
+      "avoidance回避": 0.15,
+      "attend关注": 0.20,
+      "reject拒斥": 0.25,
+      "agonistic对抗": 0.20,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.15
+    },
+    "note": "reject拒斥是已发生动作——『I would simply drive back to my residence, treating it as a missed exchange』(当场拒绝接娃安排,中断交接);agonistic对抗是预备态——他准备用『Modification of circumstances petition』来反向博弈;attend关注对应他来发帖求法律解读;avoidance回避是回避高风险人物(让那男人单独接走);dominate支配对应他对交接规则的坚持(我决定什么场景可接受);approach趋近是寻找律师/法律资源的微弱倾向。"
+  },
+  "chain_trace": "安全感欲+控制欲 →(前配偶扬言提交修改schedule的petition,并指派一个有药物滥用史、被自己亲生子女限制接触、与自家孩子曾存在保护令的新配偶来单独接娃)→ 需求N01_确定性(『这是不是真正的法律威胁?』)+ N02_掌控局面(谁来接我的孩子由我决定) →(评价:goal_relevance极高 / direction=威胁 / need_status=未满足(他跑上来问证明没解决) / congruence=负 / coping=中)→ 情绪fear恐惧(主,孩子被置于风险、法律地位被动摇)+ anger愤怒(副,前配偶越界)+ curiosity好奇(求法律判定)+ pride自豪(守住边界) → 行动倾向reject拒斥(已执行:带娃回家、视作missed exchange)+ agonistic对抗(预备:用法律petition反击)+ attend关注(在r/求法律解读)+ avoidance回避(拒绝高风险人物单独接娃)+ dominate支配(坚持交接场景由我设定)。",
+  "evidence": {
+    "desire": "安全感欲:『This man has a recorded history of substance abuse, plus active restraining orders barring him from his own offspring, resulting in a loss of established visitation. There was even a protective order involving my child and him』+『I informed her that I feel uneasy allowing him to gather our boy solo』;控制欲:『When I objected, she basically stated she would review our parenting schedule and adjust the frequency of my time』;摆脱欲:『I would simply drive back to my residence, treating it as a missed exchange』;确认欲:『Should I be concerned, and is this a legitimate threat?』+『was I incorrect to say it?』",
+    "need": "N01:『Should I be concerned, and is this a legitimate threat?』;N02:『I would simply drive back to my residence, treating it as a missed exchange』(夺回交接主导权);N10:『was I incorrect to say it?』;N06:从『I feel uneasy』可读出持续不安需要被解除;N12:异地+间隔周末+petition将进一步压缩探视 = 守住与孩子的联结时长。",
+    "emotion": "fear:『I feel uneasy』『a legitimate threat』『protective order involving my child and him』;anger:『she basically stated she would review our parenting schedule and adjust the frequency of my time』『my child's mother attempted to have her new spouse collect our boy』+ 对方在保护令背景下仍坚持此安排;curiosity:『Should I be concerned, and is this a legitimate threat?』;pride:他顶住前配偶压力做出边界动作。",
+    "action": "reject/avoidance:『I would simply drive back to my residence, treating it as a missed exchange』;agonistic:他准备应对『modification of circumstances petition』,主动发法律求助贴;attend:整段就是在向社群求解读;dominate:对交接规则的坚持本身就是对前配偶支配权的反向宣告。"
+  }
+}
+```
