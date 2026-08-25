@@ -1,0 +1,103 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.30,
+      "确认欲": 0.15,
+      "超越欲": 0.0,
+      "归属欲": 0.05,
+      "控制欲": 0.20,
+      "安全感欲": 0.30,
+      "向往欲": 0.0
+    },
+    "note": "摆脱欲与安全感欲主导:写下这段内容的人正在承受耳气压伤的现实后果,并担忧类似事件再发生,'advertised as totally safe'与'no screening, no doctors on site'直接点燃安全焦虑;控制欲与确认欲次之:极度精确的型号/压力/时间/地址叙事是为了夺回对叙事与责任认定的掌控;'appreciate the context!'体现向讨论同伴寻求被理解的确认;归属欲少量:听证会场景暗含寻找同类受害者。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "听证会场景下需要把'是诊所责任还是自己疏忽'这件事钉死,把责任分布讲清楚",
+      "weight": 0.20,
+      "derived_from": "由安全感欲(消除'下次还会不会被害'的不确定)经'HBOT术后耳气压伤且未被筛查'事件衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "在'我报告了不适但陪护继续加压'这种被无视的被动处境下,要重新掌握叙事权",
+      "weight": 0.15,
+      "derived_from": "由控制欲(夺回主导权)经'attendant continued the pressurization despite discomfort'情境事件衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "术后耳气压伤+麻醉+流鼻涕未筛查的身体/认知风险,需让伤害后果停止或减轻",
+      "weight": 0.20,
+      "derived_from": "由摆脱欲(跳出当前身心不适)经'inner ear barotrauma'与'breast surgery the day before'叠加情境衍生"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "需要理解'为什么一次号称安全的商业HBOT会导致气压伤,机制是什么'",
+      "weight": 0.10,
+      "derived_from": "由安全感欲(搞清风险机制)经'3.0 ATA机器/2.4 ATA目标压/0.2 ATA速率/22°C'等技术参数反推"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "在向讨论同伴解释自己并不是小题大做,要确认'我受伤了不是我的错'",
+      "weight": 0.10,
+      "derived_from": "由确认欲(被认同)经'Don't worry I don't think you're being dismissive'语气衍生"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "在reddit听证讨论中寻找与自己有相同HBOT受害经历的同类",
+      "weight": 0.10,
+      "derived_from": "由归属欲(被代表)经'hearing discussion多base标定面板'场景衍生"
+    },
+    {
+      "code": "N13_情感慰藉",
+      "context_slot": "在身心受损、刚做完手术的脆弱处境下想被讨论同伴无条件接纳",
+      "weight": 0.05,
+      "derived_from": "由归属欲经术后焦虑+同伴回应场景衍生"
+    },
+    {
+      "code": "N16_表达创造",
+      "context_slot": "把零碎事件整合成一份可呈堂/可被听证采信的精确文档",
+      "weight": 0.10,
+      "derived_from": "由控制欲(把经历'工程化'地固化下来)经'把病例做成可复用证据'情境衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.90,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "内容整体是对一次'威胁'的还原:耳气压伤已发生、责任未明、对未来安全仍焦虑——这些都是未满足状态,即使'把它写出来'这个动作部分满足了表达/掌控需求,但'消除痛苦/确认诊所无责'等核心需求仍未被解决,coping_potential给中:有听证平台、有结构化证据,但监管/司法结果不可控,因此情绪落在 anger+fear 区间而非 relief/joy。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.05,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.05,
+      "fear恐惧": 0.25,
+      "sadness悲伤": 0.20,
+      "anger愤怒": 0.45
+    },
+    "note": "需求×goal_congruence(威胁+未满足)→ 主要负情绪。anger 主导:'advertised as totally safe'但'no screening'与'continued pressurization despite discomfort'直接指向被欺骗/被忽视的愤怒;fear 次之:对未筛查的麻醉+流鼻涕组合的恐惧、对下次受害的恐惧;sadness 来自'本来是为了术后愈合却换来耳气压伤'的失落;少量 desire+curiosity 来自'渴望问题被解决'与'对技术细节仍有探究'。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.05,
+      "avoidance回避": 0.10,
+      "attend关注": 0.20,
+      "reject拒斥": 0.10,
+      "agonistic对抗": 0.30,
+      "interrupt中断": 0.05,
+      "dominate支配": 0.20
+    },
+    "
