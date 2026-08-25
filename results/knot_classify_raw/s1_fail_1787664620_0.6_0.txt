@@ -1,0 +1,88 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.05,
+      "成为欲": 0.0,
+      "摆脱欲": 0.35,
+      "确认欲": 0.20,
+      "超越欲": 0.0,
+      "归属欲": 0.10,
+      "控制欲": 0.0,
+      "安全感欲": 0.30,
+      "向往欲": 0.0
+    },
+    "note": "核心欲望是「摆脱欲」——摆脱对右耳听力是否同步恢复的焦虑/不确定；「安全感欲」支撑——希望消除右耳恢复路径的不确定性；「确认欲」驱动——希望从他人经验中确认'同一模式会再次发生'；「归属欲」次要——通过在reddit hearing讨论板块发帖寻找同类（机制子型：同类经验比对/求共鸣）。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "右耳也做了tympanoplasty with cortical mastoidectomy，提问者担心/想确认它是否会像左耳一样2.5年内习得同样的听力技能",
+      "weight": 0.40,
+      "derived_from": "由【安全感欲】经【右耳术后恢复轨迹未知的医学情境】衍生——把'右耳会不会也恢复'这一不确定性降下来"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "想理解tympanoplasty+ cortical mastoidectomy 术后'skill gained'的机制是否会在双耳重复出现",
+      "weight": 0.25,
+      "derived_from": "由【确认欲】经【医学恢复现象是否可复制】衍生——把'为什么左耳能恢复/右耳是否会同样'这个疑惑解开"
+    },
+    {
+      "code": "N13_情感慰藉",
+      "context_slot": "在reddit hearing讨论区发帖，期待有相似双耳手术经历的人回应/安慰',
+      "weight": 0.20,
+      "derived_from": "由【归属欲】经【孤立面对术后焦虑的情境】衍生——被有同类手术经历的人接纳、不再是一个人担心"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "由'feeling I would get the same'中的feeling所暗含的担心/不适感",
+      "weight": 0.15,
+      "derived_from": "由【摆脱欲】衍生——让'右耳是否也会恢复'这件事带来的焦虑停下来"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "中性",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "goal_relevance极高（直接关乎本人的听力康复）；这段自我表达本身既不提供答案也揭示威胁，属中性方向；但因提问者尚未得到确认（need_status=未满足），congruence派生为负；coping_potential中等——本人能做的（如等/复诊/复健）有限，但并非完全不可控，故为'中'，主要驱动趋近(关注+求同类信息)而非强烈回避。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.15,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.05,
+      "curiosity好奇": 0.20,
+      "fear恐惧": 0.45,
+      "sadness悲伤": 0.15,
+      "anger愤怒": 0.0
+    },
+    "note": "由(N01/N04, goal_congruence=负, coping_potential=中) 派生：未满足+不可控 → fear恐惧占主导(担心右耳不恢复)；同时未满足+中等应对潜能 → 残余希望驱动curiosity好奇(想知道答案)+desire渴望(希望它真的会像左耳一样)；N13未满足+孤独感渗出 → sadness悲伤(对自己处境的低落)；approval认同微量——发帖中'would get the same'已经是一种对自身判断的轻度自我确认(把'会恢复'当成值得被赞许的期望)。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.30,
+      "avoidance回避": 0.10,
+      "attend关注": 0.40,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.10,
+      "dominate支配": 0.10
+    }
+  },
+  "chain_trace": "摆脱欲+安全感欲 →(右耳也做了tympanoplasty with cortical mastoidectomy、右耳能否像左耳一样恢复未知)→ 需求N01_确定性(知道右耳会不会也恢复) →(评价: goal_relevance=0.95, direction=中性, need_status=未满足 → congruence=负, coping=中)→ 情绪fear恐惧(主)+curiosity好奇(次) → 行动倾向attend关注(主)+approach趋近(去reddit求同类回答)",
+  "evidence": {
+    "desire": "摆脱欲: 'am feeling I would get the same in my right ear' 含对未知恢复轨迹的不安；安全感欲: 'I gained this skill after ... 2.5 years ago' 暗含对结果可预测性的渴求；归属欲: 选在 'reddit hearing discussion' 板块发问",
+    "need": "N01_确定性: 'I gained this skill after my tympanoplasty with cortical mastoidectomy 2.5 years ago and am feeling I would get the same in my right ear'；N04_理解世界: 'this skill' 的习得机制与可复制性",
+    "emotion": "fear恐惧: 'am feeling I would get the same in my right ear' 中'feeling'的犹疑与不确定感；curiosity好奇: 发帖本身即在寻求信息",
+    "action": "attend+approach: 在 'reddit hearing discussion' 发帖，'I gained this skill ... and am feeling I would get the same in my right ear' ——向社区征集同类经验"
+  }
+}
+```

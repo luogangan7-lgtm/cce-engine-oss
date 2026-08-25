@@ -1,0 +1,76 @@
+{
+ "block": "REPHRASE_VS_APPEND_CONTROLLED",
+ "ran": {
+  "reps": 192,
+  "qualified": 163,
+  "instrument": "gen4 565470cf26c16d01"
+ },
+ "results": {
+  "L0b_null": {
+   "n": 10,
+   "separated": 0,
+   "T_median": 0.0433
+  },
+  "R1_rephrase": {
+   "n": 10,
+   "separated": 4,
+   "T_median": 0.0789,
+   "edit_median": 614,
+   "binom_p": 0.00103
+  },
+  "N1b_append": {
+   "n": 6,
+   "separated": 4,
+   "T_median": 0.0819,
+   "edit_median": 810,
+   "binom_p": 9e-05
+  }
+ },
+ "type1": "干净(0/10) ⇒ 整轮可读",
+ "paired": {
+  "n": 6,
+  "R1_T_greater": 5,
+  "sign_test_one_sided_p": 0.1094,
+  "★caveat": "n=6 欠功效; 且这 6 条是 N1b **存活**的那些, 系统性偏短 ⇒ 选择偏倚"
+ },
+ "manski": {
+  "R1_rephrase": {
+   "N": 12,
+   "measured": 10,
+   "missing": 2,
+   "separated": 4,
+   "lower": 0.333,
+   "upper": 0.5
+  },
+  "N1b_append": {
+   "N": 12,
+   "measured": 6,
+   "missing": 6,
+   "separated": 4,
+   "lower": 0.333,
+   "upper": 0.833
+  },
+  "L0b": {
+   "N": 12,
+   "measured": 10,
+   "missing": 2,
+   "separated": 0,
+   "lower": 0.0,
+   "upper": 0.167
+  }
+ },
+ "★★RETRACTION": {
+  "what_I_claimed": "上一轮(EXPLICIT_CUE)我写: 「仪器对**重述已有内容**比对**追加中性新内容**更敏感」, 依据是 N2 追加不分开(1/5) 而 B1 改写分开(7/26)。",
+  "what_this_test_shows": "**不支持强版本。** 同批受控下 **N1b 追加也分开(4/6)**。差别在**扰动量**: N2 只追加 151 字符, N1b 追加 810 字符。",
+  "verdict": "前登记结局 ③ 最接近: **两臂都动读数, 方向差异不显著** ⇒ 「追加不动读数」这个强版本**撤回**; 它是**扰动量**的假象, 不是「改写 vs 追加」的差别。",
+  "what_survives": "配对方向仍偏向 R1(5/6), 但 p=0.109 且子集有选择偏倚 ⇒ **INDETERMINATE**, 不是结论。",
+  "★lesson": "我上一轮已经标了「定性观察不是结论」并说要做同批对照 —— 做了, 然后它没撑住。**标注为定性不等于可以留着当半个结论**; 做出来才知道。"
+ },
+ "★new_finding_qualification_vs_length": {
+  "claim": "不合格与**输入长度**强相关",
+  "evidence": "合格样本输入中位 **748** 字符 vs 不合格 **1450**(近 2 倍); N1b 不合格率最高(25%)正因其输入被追加得最长; N1b 缺的 6 个 base 系统性是更长的那些(缺 800-4236 vs 齐 478-5169)",
+  "implication": "① 解释了此前 A2/A3 的弃权剂量梯度(去词化改写也会变长); ② 任何**加长输入**的扰动臂都会自带更高缺失, 其存活样本偏短 ⇒ 跨臂比较必须用 Manski 界或显式建模缺失, 不能拿完整样本硬比。",
+  "★not_claimed": "未做长度的受控实验(本轮长度与臂混杂) ⇒ 这是**相关**不是因果; 要坐实需专门前登记。"
+ },
+ "★known_weakness": "本轮**无独立第三方盲验**(只剩 DeepSeek 一个非测量家族, 它既生成就不能自评), 刺激合规只有机器验收, 比 Phase 2B 弱一档。"
+}
