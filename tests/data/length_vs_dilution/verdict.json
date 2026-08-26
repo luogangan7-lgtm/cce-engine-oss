@@ -66,5 +66,59 @@
   "★most_striking": "各 cell 的 L0(未加填充)基线里 **B 与 D 都是 0%** —— **同一段 450 字符的个人文本单独跑完全没问题, 加上 1000 字填充后 96% 读不出。**⇒ 不是「个人内容太少」, 是**非个人内容的存在本身**在压制读出。",
   "how_to_separate": "需第三轮: 固定 base 文本不变, 只变 pad 绝对量(0/500/1000/2000), 把「个人内容绝对量」从等式里彻底消掉。"
  },
- "★power_caveat": "每格 6 base。长度主效应不显著**不得**读成「长度无影响」(前登记已写死)。"
+ "★power_caveat": "每格 6 base。长度主效应不显著**不得**读成「长度无影响」(前登记已写死)。",
+ "★★within_base_reanalysis_2026-08-26": {
+  "why": "owner 批评我老靠再跑一轮纠错。外审判定: 我数据里已有**比横截面回归更强**的证据没用上 —— **within-base intervention**(同一条文本自己跟自己比), 而我却在琢磨怎么把回归系数估准。",
+  "premise_verified": "24/24 的 PAD 臂确认为同一 base 的**严格前缀扩展**(逐条核过)",
+  "★result": {
+   "变差": 17,
+   "持平": 7,
+   "变好": 0,
+   "n": 24,
+   "sign_test_one_sided_p": 8e-06,
+   "by_cell_median_delta": {
+    "A_short_dense": "+0%",
+    "C_long_dense": "+25%",
+    "D_long_dilute": "+62%",
+    "B_short_dilute": "+100%"
+   }
+  },
+  "★why_stronger": "配对把 base 消掉了 ⇒ **不需要任何关于 base 长度的假设**, 也**不受聚类问题影响**(外审指出我按 192 reps 算 SE 但独立 cluster 只有 24 个 base)。**没有一条文本变好。**",
+  "supersedes": "横截面 logistic(β_base -1.034 / β_pad +1.214)降级为 **exploratory association** —— r=0.001 只说明无线性共线, 不说明 SE 正确/重复测量独立/函数形式正确。",
+  "design_support_checked": "n_unique(base_chars,pad_chars) = **24**(外审阈值 >=12, 通过) —— 但这是**运气**: 我按「最接近目标长度」挑真人文本, 各条实际字符数天然不同; 我当时**并没有把「支撑点数」当成要满足的条件**。"
+ },
+ "★★production_gate_FINAL": {
+  "★revoked": "彻底撤销我此前给的「>1500 字符则截断/降级」。第二轮已直接反驳长度单因素解释: 约 3000 字符的高占比条件反而**好于**约 1500 字符的低占比条件。",
+  "★also_forbidden_now": [
+   "total_chars > 1500",
+   "personal_share < 0.3",
+   "pad_chars > 1000",
+   "personal_chars < 500"
+  ],
+  "why_no_numeric_threshold": "现有证据不足以把这些数字升级成稳定的 production threshold。",
+  "★the_gate_is_structural_not_numeric": {
+   "step1": "所有输入**一律**先跑 CONTENT SEGMENTATION(全跑 ⇒ 连「何时触发」的阈值都不需要)",
+   "segments": [
+    "PERSONAL",
+    "NONPERSONAL",
+    "AMBIGUOUS"
+   ],
+   "nonpersonal_classes": [
+    "纯数据/表格",
+    "产品规格",
+    "条款",
+    "手册/说明",
+    "操作步骤",
+    "代码",
+    "目录",
+    "日志"
+   ],
+   "step2_routing": {
+    "全部 NONPERSONAL": "ABSTAIN_NO_INFERABLE_SUBJECT",
+    "存在 PERSONAL": "subject_text = PERSONAL + AMBIGUOUS - NONPERSONAL, 只把 subject_text 送 stage1"
+   },
+   "step3": "k_valid < 2 → WITHHOLD(既有硬规则不变)",
+   "★why_keep_AMBIGUOUS": "**误删真实个人表达比留下少量噪声更危险** ⇒ segmenter 只能删除它**明确能证明**是 nonpersonal 的 span。"
+  }
+ }
 }
