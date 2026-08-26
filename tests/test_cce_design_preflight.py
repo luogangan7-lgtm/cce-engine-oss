@@ -89,5 +89,17 @@ r4 = preflight({
 assert codes(r4) == {"FAIL_PSEUDOREPLICATION"}, \
     f"★ 各门必须彼此独立可归因, 实际触发 {codes(r4)}"
 
+# ── ⑥ 单变量设计不许把门本身搞崩(实测回归) ────────────────────────────────
+# 拿本门去审「结构闸过闸 vs 不过闸」这个单变量实验时, gate6 写死取 formula_terms[1]
+# 直接 IndexError。**会崩的闸比判错更糟**: 在 CI 里像工具坏了, 会被绕过去。
+r6 = preflight({
+    "variables": {"primitive": ["gated"], "derived": {}},
+    "estimands": [{"name": "gate_effect", "target": "gated", "nuisance": []}],
+    "analysis_formula": {"terms": ["gated"]},
+    "design": [{"gated": 0}, {"gated": 1}],
+    "n_raw_observations": 16, "n_experimental_units": 1, "claimed_inferential_n": 16})
+assert not r6["pass"] and "FAIL_PSEUDOREPLICATION" in codes(r6), \
+    "★ 单 base 多 draw 声称 n=16 属伪重复, 必须拦"
+
 print("test_cce_design_preflight: OK (第一轮秩亏+合成失败/2x2结构不可分辨/"
       f"干净设计放行 cond={r3['report']['condition_number']:.2f}/门可归因)")

@@ -44,6 +44,9 @@ def _load_env_utf8():
 _load_env_utf8()
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 from concurrent.futures import ThreadPoolExecutor
+
+from cce_structural_gate import (VERDICT_ABSTAIN as SG_ABSTAIN,
+                                 structural_gate)
 from exp_v4_full_validation import call_parse, extract_json_robust, DESIRES, NEED_KEYS, top_label, js_divergence
 from exp_v4_causal_chain import EMOTIONS, ACTIONS
 from exp_crossmodel_desire import call_model
@@ -99,6 +102,22 @@ def _op_summary(attempts):
 
 
 def stage1(text, context, k):
+    # ★ 结构闸: 在**任何 API 调用之前**做样品制备(摘掉可证为非作者原话的段落)。
+    #   它不碰 _stage1_case 模板 ⇒ s1_prompt_sha256 不变 ⇒ **不换仪器**(gen4 标定仍适用);
+    #   但制备不同的读数不可直接比较, 故 preparation_id 随读数一起落盘。
+    gate = structural_gate(text)
+    if gate["verdict"] == SG_ABSTAIN:
+        # 零调用弃权。计数必须与 LLM 弃权同形, 否则下游 k_valid<2 的 WITHHOLD 判断会漏。
+        return {"k_requested": k, "k_attempted": 0, "k_valid": 0,
+                "k_abstained": k, "k_ok": 0, "n_abstain": k,
+                "measurement_status": "abstain", "abstained": True,
+                "abstain_reason": gate["abstain_reason"],
+                "preparation_id": gate["preparation_id"],
+                "structural_gate": {kk: gate[kk] for kk in
+                                    ("gate_version", "verdict", "span_counts",
+                                     "chars_in", "chars_kept", "chars_dropped")},
+                "draws": [], "operational": _op_summary([])}
+    text = gate["subject_text"]
     case = _stage1_case(text, context)
     # 温度梯度按 k 自适应展开(修 2026-08-08: 原写死3档,--k>3 时静默降为3)
     _base = _S1_BASE_TEMPS
@@ -161,6 +180,7 @@ def stage1(text, context, k):
         return {"operational": _op_summary(attempts),
                 "k_requested": k, "k_attempted": len(pvs_all), "k_valid": 0,
                 "k_abstained": n_abstain, "k_ok": 0,
+                "preparation_id": gate["preparation_id"],
                 "measurement_status": "abstain",
                 "n_abstain": n_abstain, "abstained": True,
                 "abstain_reason": next((p.get("_reason") for p in pvs_all if p.get("_reason")),
@@ -223,6 +243,12 @@ def stage1(text, context, k):
         #   现在三个计数各归各: attempted / valid / abstained, k_ok 只等于 valid。
         # ★ 两本账分开: operational 只描述调用层, 不进 measurement 判决
         "operational": _op_summary(attempts),
+        # ★ 制备身份随读数走。换制备不换仪器, 但读数同样不可直接比 ——
+        #   assert_same_preparation 与 assert_same_instrument 同形拦截。
+        "preparation_id": gate["preparation_id"],
+        "structural_gate": {kk: gate[kk] for kk in
+                            ("gate_version", "verdict", "span_counts",
+                             "chars_in", "chars_kept", "chars_dropped")},
         "k_requested": k, "k_attempted": len(pvs_all), "k_valid": len(pvs),
         "k_abstained": n_abstain, "k_ok": len(pvs),
         "n_abstain": n_abstain, "abstained": False,

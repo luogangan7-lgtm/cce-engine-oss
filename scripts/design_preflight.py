@@ -150,10 +150,11 @@ def gate6_synthetic(design, formula_terms, fit_fn, fails, seedworlds=None):
 
     连已知答案都还原不出的分析, 不该用来分析真实数据。
     """
-    worlds = seedworlds or [
-        ("only_" + formula_terms[0], {formula_terms[0]: -2.0}),
-        ("only_" + formula_terms[1], {formula_terms[1]: +2.0}),
-    ]
+    # ★ 世界数按实际项数生成。原写死取 formula_terms[0..1], 单变量设计直接 IndexError ——
+    #   **一道会崩的闸比判错更糟**: 在 CI 里它看起来像工具坏了, 会被绕过去。
+    #   (这个洞是拿本文件去审我自己拟议的下一个实验时撞出来的。)
+    worlds = seedworlds or [("only_" + t, {t: -2.0 if i % 2 == 0 else +2.0})
+                            for i, t in enumerate(formula_terms)]
     for name, truth in worlds:
         zs = {t: [d[t] for d in design] for t in formula_terms}
         mu = {t: sum(v) / len(v) for t, v in zs.items()}
