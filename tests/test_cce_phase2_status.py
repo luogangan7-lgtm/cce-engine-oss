@@ -123,5 +123,22 @@ if "verifier_sensitivity_analysis" in S:
     assert "B1" in V["finding_2"]["evidence"] and "0/31" in V["finding_2"]["evidence"]
     assert "不可直接互比" in V["finding_1"]["implication"]
 
+# ── 9. 判官间信度: kappa<0.4 时 primary 划分不得当稳健性论据 ─────────────
+_ivr = P.parent / "phase2b" / "inter_verifier_reliability.json"
+if _ivr.exists():
+    IV = json.loads(_ivr.read_text(encoding="utf-8"))
+    k = IV["★★headline"]["cohens_kappa"]
+    assert k < 0.4, "若 kappa 已达标, 本节的警告与前向规则应相应改写"
+    # ★ 低 kappa 必须触发两件事: 受影响判决被标注 · 前向规则写死
+    assert "至少两个家族并报 kappa" in IV["★forward_rule"]
+    v2b = json.loads((P.parent / "phase2b" / "phase2b_verdict.json").read_text(encoding="utf-8"))
+    assert "★judge_dependence_caveat" in v2b, \
+        "★ kappa 低到这个程度, 依赖 primary 划分的判决必须带判官依赖标注"
+    cav = v2b["★judge_dependence_caveat"]
+    assert "判官依赖的" in cav["★impact_on_this_verdict"]
+    # ★★ 但 B 臂一致率高 ⇒ SURFACE_SENSITIVE 不受影响, 这一条也必须写明
+    assert "91%" in IV["★★what_survives"]["why"] or "91%" in str(IV["★★what_survives"])
+    assert "仍然成立" in cav["★what_still_holds"]
+
 print("test_cce_phase2_status: OK (定性不退回/解释禁止项/度量不换/分端点状态/"
       "无假设界下仍成立/扩展固定n且算术自核)")

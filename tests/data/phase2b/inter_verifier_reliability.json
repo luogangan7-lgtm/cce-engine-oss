@@ -1,0 +1,38 @@
+{
+ "study": "INTER_VERIFIER_RELIABILITY",
+ "ran_at": "2026-08-25",
+ "★question": "我在 Phase 2/2B/撤回轮里都用「盲验 FOLLOWS」定义 primary。**两个独立第三方判官在同一批刺激上到底有多一致?** 此前从未验过。",
+ "method": "同一批 Phase 2B 刺激(150 条), DeepSeek 与 GLM47 各判一次, 逐条比对",
+ "★★headline": {
+  "cohens_kappa": 0.034,
+  "raw_agreement": "67/103 = 65.0%",
+  "reading": "kappa≈0 ⇒ **一致度基本等于随机**。65% 的原始一致率是虚高的 —— 两个判官都倾向判 FOLLOWS 时, 光看一致率会骗人。",
+  "disagreement_direction": "36/36 **全部单向**(DS=VIOLATES, GLM=FOLLOWS)"
+ },
+ "★judge_strictness_is_family_level": {
+  "qwen<->glm_crossfamily": "3/158 = 1.9%",
+  "GLM47_direct": "1/150 = 0.7%",
+  "DeepSeek_on_phase2": "43/158 = 27.2%",
+  "DeepSeek_on_phase2b": "51/150 = 34.0%",
+  "reading": "GLM 家族判官一致宽松(~1-2%), DeepSeek 一致严格(~30%), **跨轮稳定** ⇒ 这是**家族级系统差异**, 不是随机噪声。哪个「对」无从判定 —— 没有真值。"
+ },
+ "★★what_this_breaks": {
+  "claim": "**primary(FOLLOWS) / sensitivity 的划分是判官依赖的, 不是刺激的性质**",
+  "affected": "所有依赖该划分的对比。尤其 **Phase 2B 的「hearing 判 INDETERMINATE」** —— 那个判决正是因为 primary 与 sensitivity 不一致而给的, 而这个「不一致」本身由 DeepSeek 的严格度制造。换 GLM 作判官, primary≈sensitivity, 该分歧会消失。⇒ 该判决**须标注为判官依赖**。",
+  "honest_statement": "我此前把 primary/sensitivity 一致当作稳健性证据。它没那么硬。"
+ },
+ "★★what_survives": {
+  "per_arm_agreement": {
+   "A1": "53%",
+   "A2": "58%",
+   "A3": "38%",
+   "B1": "**91%**",
+   "B2": "**88%**"
+  },
+  "why": "分歧**集中在 A 臂** —— 「处境变了轻度/中度/大幅」本来就是判断题, 判官标尺不同很正常。**B 臂(不变性: 内容是否相同)两个判官高度一致。**",
+  "★conclusion": "**SURFACE_SENSITIVE 的证据链依赖 B1 干净, 而 B1 有 91% 判官间一致度**(DS 2 违规 / GLM 0 违规) ⇒ **该结论不受本发现影响, 仍然成立。**",
+  "weakened": "依赖 A 臂 primary 划分的结论(ladder 相关)证据强度下调。"
+ },
+ "★judge_quality_caveat": "GLM47 有 **47/150 = 31% UNPARSED**(未按格式作答, 返回空内容) ——判官本身质量存疑。UNPARSED 在各臂大致均匀(14/7/8/10/8), 故可比子集未见明显偏倚, 但 31% 非响应率意味着 GLM 作为判官偏弱, 其宽松读数需打折看待。",
+ "★forward_rule": "今后凡用盲验划分 primary, **必须至少两个家族并报 kappa**; kappa < 0.4 时该划分**不得**作为稳健性论据, 只能作为敏感性分析的一支。"
+}

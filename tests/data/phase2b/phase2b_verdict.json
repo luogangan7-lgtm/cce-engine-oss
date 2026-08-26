@@ -55,5 +55,12 @@
  "findings": {
   "DEGENERATE_READOUT": 1,
   "note": "cce_ksep._check 的退化守卫正确拒绝了一个 intensity=0.0 的读数; 已记为 finding 计入缺失"
+ },
+ "★judge_dependence_caveat": {
+  "added_at": "2026-08-25",
+  "source": "tests/data/phase2b/inter_verifier_reliability.json",
+  "finding": "两个独立第三方判官(DeepSeek vs GLM47)在**同一批刺激**上 Cohen's kappa = **0.034**",
+  "★impact_on_this_verdict": "hearing 判 INDETERMINATE 的**唯一依据**是 primary 与 sensitivity 不一致, 而这个不一致由 DeepSeek 的严格度(34%)制造 —— 换 GLM(0.7%)作判官则 primary≈sensitivity, 该分歧会消失。⇒ **该判决是判官依赖的, 不是刺激的性质。**",
+  "★what_still_holds": "personal_finance 的 B1 FAILED **不受影响**: B 臂判官间一致率 91%(DS 2 违规 / GLM 0), 且其 primary 与 sensitivity 本就一致(3/13 vs 3/13)。跨域复现的结论**仍然成立**。"
  }
 }

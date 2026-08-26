@@ -85,6 +85,20 @@ MODELS = {
         "append_path": True,
         "max_tokens": 6000,
     },
+    # ★ 2026-08-25 智谱直连接入(阿里云那条 glm-5.2 通路随订阅到期失效)。
+    #   ★ glm-4.5-air / glm-4.6v 是**推理模型**: 思考 token 计入 completion,
+    #     max_tokens 给小了会得到「静默的空 content」(实测 max_tokens=10 时 content='' 但耗 20 token)。
+    #     与库里 M3 那条教训同款 —— 故 max_tokens 给足。
+    "GLM47": {
+        "model": "glm-4.7",
+        "base": os.environ.get("ZHIPU_API_BASE", "https://open.bigmodel.cn/api/paas/v4"),
+        "key_env": "ZHIPU_API_KEY", "append_path": True, "max_tokens": 8000,
+    },
+    "GLM45air": {
+        "model": "glm-4.5-air",
+        "base": os.environ.get("ZHIPU_API_BASE", "https://open.bigmodel.cn/api/paas/v4"),
+        "key_env": "ZHIPU_API_KEY", "append_path": True, "max_tokens": 8000,
+    },
     "Qwen3.7plus": {
         "model": "qwen3.7-plus",
         "base": os.environ.get("ALIYUN_API_BASE", ""),
