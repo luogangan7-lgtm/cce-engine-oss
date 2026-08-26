@@ -48,5 +48,33 @@
  "artifacts": {
   "preregistered_primary": "blind_verify_frozen.json (CROSS_FAMILY, 已恢复)",
   "posthoc_deepseek": "blind_verify_deepseek_posthoc.json"
+ },
+ "★★CORRECTION_2026-08-26": {
+  "what_I_got_wrong_1": "我写「GLM47 作为判官偏弱, 31% 不按格式作答」—— **归因错了**。那些 UNPARSED **全部是 HTTP 429 限流**(error 字段逐条可核), 不是不按格式作答。降并发到 2 + 429 退避重试后, Phase2 GLM 158/158、Phase2B 150/150, **零 UNPARSED**。★ 把基础设施问题读成判官能力 —— 这正是我在别处一路在防的那类错。",
+  "what_I_got_wrong_2": "我写「两个独立第三方判官一致度基本等于随机」。kappa≈0 是对的, 但**原因不是随机分歧, 是一个判官零方差**: GLM 在 Phase 2 上 **158/158 全判 FOLLOWS**。**一个永远说「合规」的判官不提供任何信息**, 它的 kappa 按构造就是 0。",
+  "★★the_precise_state": {
+   "violation_rates": {
+    "交叉家族": "3/158=1.9%",
+    "GLM_phase2b": "2/150=1.3%",
+    "GLM_phase2": "0/158=0.0%",
+    "DeepSeek": "27.2%-34.0%"
+   },
+   "reading": "**我实际上只有一个有分辨力的判官(DeepSeek), 且无法验证它。** 其余三个读数都近乎「永远合规」, 无法用来裁定 DeepSeek 是过严还是恰当。",
+   "why_this_is_worse_than_disagreement": "两个有分辨力的判官分歧, 至少说明问题难; 只有一个判官有分辨力, 意味着**所有 primary 划分实际上等于 DeepSeek 一家之言**。"
+  },
+  "★what_still_survives": {
+   "claim": "**B1 干净这一条, 恰恰由最严的判官给出**",
+   "evidence": "DeepSeek(整体违规率 27-34%, 唯一有分辨力的判官)在 B1 上: Phase2 **0/31 违规** · Phase2B **2/30 违规**",
+   "why_it_matters": "宽松判官说「干净」不提供信息; **严格判官说「干净」才提供信息**。⇒ SURFACE_SENSITIVE 的证据不依赖 GLM, 反而因 DeepSeek 的严格而更强。",
+   "per_arm_phase2_DS_vs_GLM": {
+    "B1": "100%",
+    "B2": "74%",
+    "A1": "81%",
+    "A2": "69%",
+    "A3": "41%"
+   }
+  },
+  "★what_is_weakened": "依赖 A 臂 primary 划分的结论: DeepSeek 在 A3 判 19/32 违规, 而**无任何独立判官可以复核**(其余判官零方差)。该臂的划分 = 一家之言, 证据强度下调。",
+  "★forward_rule_revised": "前一条规则「至少两个家族并报 kappa」**不够** —— 还须先检验**每个判官是否有分辨力**(违规率既不接近 0 也不接近 1)。零方差判官不计入一致性证据。"
  }
 }

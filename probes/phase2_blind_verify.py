@@ -15,7 +15,7 @@ owner 只订阅阿里云与 MiniMax ⇒ 手上只有两个家族, 而 MiniMax �
 验证者恰是**另一个生成器**。两者若共享同一语言先验, 这道盲验查不出来。
 ⇒ blind_rule_check 只作**规则合规**的二次确认, **不作「扰动强度」的裁定**。
 """
-import json, os, sys, threading
+import json, os, sys, threading, time
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -38,8 +38,17 @@ if THIRD_PARTY:
 
 # ★ 同一套盲验逻辑复用到 Phase 2B: 只切数据目录, 规则一字不改
 P = ROOT / "tests" / "data" / os.environ.get("CCE_PHASE_DIR", "phase2")
-CKPT = P / "blind_verify_checkpoint.jsonl"
-WORKERS = 6
+# ★ 输出文件名可加后缀。根因修复: 此前探针**总写同一个文件名**, 于是每换一个判官
+#   都要手动备份/恢复正式件 —— 我因此弄丢过 Phase 2 的 GLM 逐条判决(汇总还在, 逐条没了)。
+#   手动备份是会忘的; 让不同判官写不同文件才是结构上的解法。
+SUF = os.environ.get("CCE_BV_SUFFIX", "")
+CKPT = P / f"blind_verify_checkpoint{SUF}.jsonl"
+# ★ 2026-08-25: 智谱 GLM 在 6 并发下大量 429(Phase2 61/158, Phase2B 47/150)。
+#   ★ 那些 UNPARSED **不是判官不按格式作答, 是限流** —— 我最初归因错了。
+#   降并发 + 对 429 退避重试。判官的「非响应率」必须能与「判官能力」区分开,
+#   否则会把基础设施问题读成方法学结论。
+WORKERS = int(os.environ.get("CCE_BV_WORKERS", "6"))
+RETRY_429 = 4
 _lock = threading.Lock()
 
 TMPL = ("Below are two passages and a rule. Judge only whether PASSAGE B follows the rule "
@@ -80,9 +89,13 @@ def main():
     def run(v):
         gfam = v["stimulus_provenance"]["generator_family"]
         vkey = VERIFIER_OF[gfam]
-        txt, meta = call_model(vkey, TMPL.format(rule=ARM_RULES[v["arm"]],
-                                                 a=bases[v["base_id"]], b=v["text"]),
-                               temperature=0.0, timeout=120, max_retries=2)
+        prompt = TMPL.format(rule=ARM_RULES[v["arm"]], a=bases[v["base_id"]], b=v["text"])
+        txt, meta = "", {}
+        for _try in range(RETRY_429):
+            txt, meta = call_model(vkey, prompt, temperature=0.0, timeout=120, max_retries=2)
+            if txt.strip() or "429" not in str(meta.get("error") or ""):
+                break
+            time.sleep(2 ** _try * 3)   # 3/6/12s 退避 —— 429 是瞬态, 不是判官行为
         rec = {"base_id": v["base_id"], "arm": v["arm"], "generator_family": gfam,
                "verifier_family": vkey, "verifier_model": MODELS[vkey]["model"],
                "verdict": parse(txt), "reason": txt.strip()[:200],
@@ -99,7 +112,7 @@ def main():
         list(ex.map(run, todo))
 
     allrec = [json.loads(l) for l in CKPT.read_text(encoding="utf-8").splitlines() if l.strip()]
-    res = P / "blind_verify_frozen.json"
+    res = P / f"blind_verify_frozen{SUF}.json"
     res.write_text(json.dumps({
         "mode": ("INDEPENDENT_THIRD_PARTY" if THIRD_PARTY else "CROSS_FAMILY_NO_THIRD_PARTY"),
         "verifier_of": VERIFIER_OF,

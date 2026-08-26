@@ -140,5 +140,23 @@ if _ivr.exists():
     assert "91%" in IV["★★what_survives"]["why"] or "91%" in str(IV["★★what_survives"])
     assert "仍然成立" in cav["★what_still_holds"]
 
+# ── 10. 判官必须先被检验「有没有分辨力」, 零方差判官不计入一致性证据 ────────
+for _d in ("phase2", "phase2b"):
+    for _n in ("inter_verifier_three_way.json", "inter_verifier_reliability.json"):
+        _f = P.parent / _d / _n
+        if not _f.exists():
+            continue
+        IVx = json.loads(_f.read_text(encoding="utf-8"))
+        C = IVx.get("★★CORRECTION_2026-08-26")
+        assert C, f"{_f.name} 缺更正记录"
+        # ★ 两处归因错误必须留在件里, 不许悄悄改掉
+        assert "429" in C["what_I_got_wrong_1"], "★ 「UNPARSED 其实是限流」这条更正不得丢失"
+        assert "零方差" in C["what_I_got_wrong_2"], "★ 「kappa≈0 因一个判官零方差」这条不得丢失"
+        # ★★ 最要紧: 严格判官说「干净」才提供信息
+        assert "严格判官说" in C["★what_still_survives"]["why_it_matters"]
+        assert C["★what_still_survives"]["evidence"].count("0/31") == 1
+        # 前向规则必须已升级为「先验分辨力」
+        assert "分辨力" in C["★forward_rule_revised"]
+
 print("test_cce_phase2_status: OK (定性不退回/解释禁止项/度量不换/分端点状态/"
       "无假设界下仍成立/扩展固定n且算术自核)")
