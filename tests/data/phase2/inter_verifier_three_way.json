@@ -1,0 +1,52 @@
+{
+ "study": "INTER_VERIFIER_RELIABILITY_THREE_WAY",
+ "ran_at": "2026-08-25",
+ "scope": "Phase 2 的 158 条刺激, 三个判官各判一次",
+ "★pairwise_kappa": {
+  "DeepSeek_vs_GLM47": {
+   "kappa": 0.058,
+   "agreement": "75%",
+   "n": 97
+  },
+  "crossfamily_vs_GLM47": {
+   "kappa": -0.01,
+   "agreement": "98%",
+   "n": 97
+  },
+  "crossfamily_vs_DeepSeek": {
+   "kappa": 0.008,
+   "agreement": "72%",
+   "n": 158
+  }
+ },
+ "★★textbook_case": "**交叉家族 vs GLM47: 一致率 98% 但 kappa = -0.010。** 因为两个判官都几乎从不说 VIOLATES(3/158 与 1/97), 一致率高得**没有任何信息量**。⇒ 这就是为什么必须报 kappa 而不是一致率。",
+ "★confirms_a_documented_limitation": {
+  "what_I_wrote_in_code": "「验证者恰是另一个生成器; 两者若共享同一语言先验, 这道盲验查不出来。」",
+  "now_measured": "交叉家族与 GLM47 kappa=-0.010, 与 DeepSeek kappa=0.008 ⇒ **交叉家族方案实测几乎什么都没测到**。那条限度从**声明**变成**实测**。",
+  "implication": "Phase 2 的 1.9% 违规率是**低估**; 本条为其提供实测依据。"
+ },
+ "★★per_arm_reliability_is_the_key_pattern": {
+  "phase2_DS_vs_GLM": {
+   "B1": "100%",
+   "B2": "80%",
+   "A1": "86%",
+   "A2": "74%",
+   "A3": "37%"
+  },
+  "phase2b_DS_vs_GLM": {
+   "B1": "91%",
+   "B2": "88%",
+   "A1": "53%",
+   "A2": "58%",
+   "A3": "38%"
+  },
+  "★reading": "**盲验的可信度是臂类型依赖的**: 「内容是否相同」(B 臂/不变性)判官间高度一致(80-100%); 「处境变了几分」(A 臂/剂量)判官间崩溃(A3 两轮均 37-38%)。前者是事实题, 后者是判断题。",
+  "★consequence_for_headline": "**SURFACE_SENSITIVE 依赖 B1 干净。Phase 2 的 B1 判官间一致率 100% (两个判官各 0 违规), Phase 2B 为 91%** ⇒ 该结论在判官维度上是**最稳的一条**。",
+  "★consequence_for_ladder": "依赖 A 臂 primary 划分的结论(尤其 A3)证据强度**明确下调** —— A3 两轮一致率均不到 40%, 该臂的 primary/sensitivity 划分近乎任意。"
+ },
+ "★judge_quality": "GLM47 UNPARSED: Phase2 61/158=39% · Phase2B 47/150=31% ⇒ 作为判官偏弱; 但它与交叉家族的宽松**方向一致**, 故「交叉家族偏松」不依赖 GLM 单独一家。",
+ "artifacts": {
+  "preregistered_primary": "blind_verify_frozen.json (CROSS_FAMILY, 已恢复)",
+  "posthoc_deepseek": "blind_verify_deepseek_posthoc.json"
+ }
+}
