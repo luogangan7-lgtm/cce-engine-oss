@@ -1,0 +1,95 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.05,
+      "成为欲": 0.0,
+      "摆脱欲": 0.15,
+      "确认欲": 0.20,
+      "超越欲": 0.0,
+      "归属欲": 0.10,
+      "控制欲": 0.25,
+      "安全感欲": 0.25,
+      "向往欲": 0.0
+    },
+    "note": "发帖人是一名助听器长期用户，核心驱动是想要'把助听器维护这件事握在自己手里'（控制欲+安全感欲）——他们担心自己过去的做法踩了坑（摆脱欲：脱离维护失误带来的功能故障），同时希望从老用户那里印证自己的做法是否对路（确认欲：被认同/被代表），并隐含想进入'老手群体'（归属欲：找同类）。拥有欲微弱，只涉及对既有设备的维系而非购买。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "助听器日常保养有太多模糊地带(湿气/耳垢/充电/储存/零件更换),用户不知道哪些做法是对的、哪些是错的",
+      "weight": 0.35,
+      "derived_from": "由控制欲+安全感欲,经『自己曾经因不当操作出过问题但说不清根源』这一情境事件衍生"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "想习得那些用户手册里没写的、只有老用户才知道的小诀窍(清洁/充电/储存的隐性最佳实践)",
+      "weight": 0.30,
+      "derived_from": "由控制欲+摆脱欲,经『试错成本已经付出,现在想系统升级维护能力』情境衍生"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "想找到跟自己一样的助听器老用户,确认自己是这个圈子的一员",
+      "weight": 0.15,
+      "derived_from": "由归属欲,经『在生活中佩戴助听器是少数派,日常维护经验缺乏同侪参照』情境衍生"
+    },
+    {
+      "code": "N05_优化效率",
+      "context_slot": "希望用更省时省力的清洁/充电/储存习惯维持设备,降低日常维护负担",
+      "weight": 0.10,
+      "derived_from": "由控制欲+摆脱欲,经『日常维护已经消耗时间精力,想找到更优解』情境衍生"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "想弄明白湿气、耳垢、零件老化等环节到底如何影响助听器表现,把因果搞清楚",
+      "weight": 0.10,
+      "derived_from": "由确认欲+安全感欲,经『故障出现时说不清是哪个环节的锅』情境衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.85,
+    "congruence_direction": "中性",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "这条内容本身是『提问/求经验帖』,不是答案,所以对发帖人当前需求既未促进也未威胁(中性);但需求并未被当场满足(未满足),因此整体goal_congruence为负——但因为发帖人相信『来这里问老用户』是可行的应对路径,所以coping_potential中等。目标相关度高(自己就是当事人),故情绪强度被推高,主导情绪落在好奇+轻微焦虑的混合区。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.05,
+      "desire渴望": 0.15,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.10,
+      "curiosity好奇": 0.55,
+      "fear恐惧": 0.10,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.05
+    },
+    "note": "情绪由(需求×goal_congruence)导出:未满足+中性方向+高goal_relevance → 不会产生强正情绪,也不会产生强恐惧/悲伤;但因coping_potential中等(发帖人对得到答案有信心),主导情绪落在『好奇』(高)——原文直接写"I'm curious""I'd love to hear the little tips",这是discrete curiosity。次级是『渴望』(desire)想要更好的做法,以及微弱的『恐惧』(fear,担心继续做错)和『认同需求驱动下的approval预期』。感激是面向尚未到来的回复者的预取情绪。anger极弱,只来自过去维护翻车的挫败余味。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.45,
+      "avoidance回避": 0.0,
+      "attend关注": 0.50,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.05
+    },
+    "note": "Frijda层面,好奇+渴望+认同预期驱动的是『趋近』(approach:主动发问、加好友、上传经验)+『关注』(attend:扫读每条回复、对比自家做法);轻微的dominate来自『想掌握话语权、把维护做对』的隐性控制欲;无回避/拒斥,因为这不是威胁性内容。"
+  },
+  "chain_trace": "控制欲+安全感欲(想握稳助听器日常维护) →(情境事件:长期佩戴中曾因湿气/耳垢/充电习惯踩过坑,但说不清根因,用户手册又写得不全)→ 需求N01_确定性 + N03_提升能力(想知道正确做法、习得隐性诀窍)→(评价:goal_relevance高 / 方向中性 / need_status未满足 / goal_congruence负 / coping_potential中)→ 情绪以curiosity好奇为主,叠加desire渴望、轻微fear恐惧和approval认同预期 → 行动倾向以approach趋近(主动发帖求经验) + attend关注(密切扫读每条回复) 为主,带轻微dominate支配(想把维护主导权拿回来)。",
+  "evidence": {
+    "desire": "\"keeping hearing aids working well over time\" \"I used to do (or not do) that caused issues, but you later learned a better way\"",
+    "need": "\"Is there anything you used to do (or not do) that caused issues, but you later learned a better way?\" \"I’d love to hear the little tips that don’t always show up in the user manuals.\"",
+    "emotion": "\"I’m curious what everyone’s experience has been\" \"I’d love to hear the little tips\"",
+    "action": "\"I’m curious what everyone’s experience has been\" \"For those who have been wearing hearing aids for a while: ... I’d love to hear the little tips\""
+  }
+}
+```

@@ -1,0 +1,95 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.15,
+      "确认欲": 0.25,
+      "超越欲": 0.0,
+      "归属欲": 0.30,
+      "控制欲": 0.15,
+      "安全感欲": 0.10,
+      "向往欲": 0.05
+    },
+    "note": "作者发出这段内容时,核心不是想要'某件物',而是想找到'和我一样在家也摘助听器的人'——归属欲最强;其次是想确认自己'偶尔摘下来'这个做法是否被认可(确认欲);'sometimes I just want a break from processing every little sound'直白驱动摆脱欲(想从持续声音处理负担中脱身);'should I just get into the habit of wearing them all day'暗示想夺回对自己听力管理的主动权(控制欲);'miss something someone says from another room'暴露对漏听引发社交风险的隐忧(安全感欲);向往欲微弱,指向对'像正常人一样不需要思考就戴一整天'那种无感状态的向往"
+  },
+  "need_layer": [
+    {
+      "code": "N11_归属群体",
+      "context_slot": "在 reddit hearing 板块发起'大家在家戴不戴助听器'的同侪询问,寻找'在家也摘'的同类",
+      "weight": 0.30,
+      "derived_from": "由归属欲经'意识到自己在家不戴的习惯可能只是个人怪癖'这一情境事件衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "对自己'只在外出/需要对话时戴'的选择寻求外部背书或反驳,验证做法合理性",
+      "weight": 0.25,
+      "derived_from": "由确认欲经'发现自己在两种场景下行为不一致'的情境衍生——需要他人确认'我这样是正常的'"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "想学会/养成'从早到晚都戴'这种可迁移的自我管理习惯,以避免漏听代价",
+      "weight": 0.20,
+      "derived_from": "由控制欲+超越欲微弱分量经'反复出现漏听、TV开太大、被迫要求重复'这些负反馈情境衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "想从'每时每刻都在处理每个细小声音'的认知疲劳与不适中暂时脱身",
+      "weight": 0.15,
+      "derived_from": "由摆脱欲经'独处时仍在被动接收全部声音输入'这一情境直接衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "想知道'全天戴'与'按需戴'两种方案各自的长期后果(听力下降?习惯养成?),消除不确定性",
+      "weight": 0.10,
+      "derived_from": "由安全感欲经'自己摸索但不确定最优策略'的情境衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.85,
+    "congruence_direction": "中性",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "goal_relevance 高(直接影响日常社交+听力健康);congruence_direction 中性是因为内容本身就是求助/询问载体,既不解决问题也不加剧问题;need_status 未满足——既没拿到同侪答案,也没真正解决'摘/不摘'的内在冲突,所以 goal_congruence 偏负(焦虑悬置);coping_potential 中——作者具备自我觉察('I realized...')、有调整意愿('should just get into the habit'),行动门槛可控,但习惯改变不易,故为中。此评价组合直接驱动好奇+认同寻求类情绪,以及关注+趋近型行动倾向"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.05,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.10,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.10,
+      "approval认同": 0.20,
+      "curiosity好奇": 0.30,
+      "fear恐惧": 0.15,
+      "sadness悲伤": 0.05,
+      "anger愤怒": 0.0
+    },
+    "note": "情绪由'需求×goal_congruence 负 + coping 中'派生:未满足的 N11/N10 + 中性内容 → 强烈好奇(想听别人怎么做的)与认同寻求(approval:渴望自己做法被肯定);N06 摆脱痛苦已部分被'摘下助听器'这一行为局部满足 → 微弱 relief;N03/N01 应对潜能中 → 不是压倒性恐惧,只是温和的 fear(担心漏听带来社交代价与听力退化);微小 admiration 是对自己'意识到问题'这一点;desire 是对'养成全天佩戴习惯'这个结果的渴望;sadness 是对'我必须依赖助听器'这个事实的淡淡失落"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.25,
+      "avoidance回避": 0.10,
+      "attend关注": 0.30,
+      "reject拒斥": 0.10,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.15,
+      "dominate支配": 0.10
+    },
+    "note": "attend 最高——发问行为本身就是高强度注意投入(对自己习惯+他人经验的持续关注);approach 来自好奇+渴望+认同寻求(想去收答案、想养成习惯);interrupt 直接对应'摘下助听器 = 中断持续声音输入'这个 Frijda 意义上的中断行为;avoidance 是对认知过载的回避(摘下来的动作本身);reject 是对'被强制全天处理声音'这一外部/医嘱压力的隐含拒斥;dominate 是想夺回对'何时戴'的支配权"
+  },
+  "chain_trace": "归属欲+确认欲(我想找到'和我一样在家也摘助听器'的同类,也想确认我这做法没问题) →(情境:发现自己两种场景下行为不一致,且独处时被声音持续轰炸)→ 需求 N11_归属群体 + N10_自我确认 + N03_提升能力 + N06_摆脱痛苦 + N01_确定性 →(评价:目标高度相关,内容为中性载体,需求未满足,目标一致性为负,应对潜能中)→ 情绪 curiosity好奇 0.30 + approval认同 0.20 + fear恐惧 0.15 + relief宽慰 0.10 + desire渴望 0.10 → 行动倾向 attend关注 0.30 + approach趋近 0.25 + interrupt中断 0.15 + avoidance回避 0.10 + reject拒斥 0.10 + dominate支配 0.10(发问+注意投入+对答案的趋近,以及在身体层面摘下助听器这个中断/回避动作),整条链条可读通"
+  "evidence": {
+    "desire": "I'm curious how other people handle this. / Do you wear your hearing aids from the moment you wake up until you go to bed? / Or do you mostly use them when you know you'll actually need them? / Sometimes I just want a break from processing every little sound. / Then I start wondering if I should just get into the habit of wearing them all day. / I'll miss something someone says from another room, turn the TV up more than I probably should",
+    "need": "归属群体: I'm curious how other people handle this / 自我确认: Do you wear your hearing aids from the moment you wake up until you go to bed? / 提升能力: I should just get into the habit of wearing them all day / 摆脱痛苦: Sometimes I just want a break from processing every little sound / 确定性: I often take them out + I start wondering if I should just get into the habit",
+    "emotion": "好奇: I'm curious how other people handle this / 恐惧(漏听): I'll miss something someone says from another room, or realize I didn't hear something until someone repeats it / 宽慰(摘下后的放松): Sometimes I just want a break from processing every little sound / 渴望: I should just get into the habit of wearing them all day / 认同寻求: 整段邀请式发问的措辞",
+    "action": "关注+趋近: 整段是发问与自我披露,主动向社区伸手;中断+回避: take them out, take a break from processing;支配: should just get into the habit of wearing them all day"
+  }
+}
+```
