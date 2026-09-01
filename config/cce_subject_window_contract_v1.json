@@ -1,6 +1,6 @@
 {
   "schema_name": "cce_subject_window_chain",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "status": "active",
   "definition": "主体不是版本化画像或预先容器；主体是指定时间、数据集合、阶段和尺度上的动态占比聚合窗口。",
   "subject_ontology": {
@@ -20,7 +20,10 @@
     "heterogeneity": "至少报告全成员两两 Jensen-Shannon divergence 的 pair_count/mean/minimum/maximum。",
     "mode_mixture": "按共同刺激响应相似性形成、至少2人支持的描述性动态段；单点进入 unassigned，不伪造一人段。",
     "evolution": "相邻窗口可描述 create/continue/split/merge/disappear，但无实验时必须标 descriptive_not_causal。",
-    "forbidden": "aggregate_distribution 或 aggregate_layer_distributions 不能单独充当 Population Subject；合法边际汇总必须嵌在完整 mixture 内并声明不是个人。"
+    "forbidden": "aggregate_distribution 或 aggregate_layer_distributions 不能单独充当 Population Subject；合法边际汇总必须嵌在完整 mixture 内并声明不是个人。",
+    "field_structure": "必填。声明 mode_count/mode_weights/largest_mode_weight/shape；shape 只取 no_supported_mode|single_mode|multi_mode，且必须写明模态数由 js_threshold 与 min_mode_size 决定，不是场的固有属性。",
+    "mode_coverage": "必填。分母只能是 known_member_count；必须显式写出 not_denominator=target_population_size —— 没有抽样框时它不是「圈子里有多大比例属于某模态」。",
+    "mode_activation": "必填。逐模态给 supporting_member_count；恰好等于 min_mode_size 的模态必须进 minimally_supported_mode_ids，不得当作稳定结构陈述。"
   },
   "window_types": {
     "target": "计划窗口：发布前冻结 population definition、人群五问与 planned subject distribution；不能事后按结果改写。",
@@ -56,5 +59,22 @@
     "action_evidence": "action window 必须引用曝光后实际行为；历史经验、意向或内容 CTA 不算。",
     "conversion_join": "conversion window 必须有 publish_id 或等价 join key 串起发布与商业记录。",
     "no_fake_delta": "相邻两窗缺失、时间不对齐或不可比较时，delta 必须为 NOT_TESTABLE。"
-  }
+  },
+  "population_evolution": {
+    "kind": "cce.population_evolution.v2",
+    "window_transition": "必填。events 与 event_counts(continue/split/merge/create/disappear)，assertion=derived，inference_scope=descriptive_not_causal。",
+    "field_drift": "必填。给结构量差值；成员集合发生变化时必须 confounded=true —— 结构差里同时含「换了一批人」与「同一批人变了」，二者不可分，不得读作人群发生变化。"
+  },
+  "partition_projection": {
+    "kind": "cce.partition_projection.v1",
+    "rule": "没有抽样框一律 NOT_PROJECTABLE_NO_FRAME，不得把观测占比换个名字当投影结果（N 未知时占比无界）。",
+    "statuses": [
+      "PROJECTED",
+      "NOT_PROJECTABLE_NO_FRAME",
+      "NOT_PROJECTABLE_UNMAPPED_MEMBERS",
+      "NOT_PROJECTABLE_UNKNOWN_CELL_TOTAL"
+    ],
+    "method": "design_weight_by_cell = cell_total / observed_in_cell；单元内非随机抽样的选择偏倚不修正，必须写在 warning 里。"
+  },
+  "ontology": "canonical_v2: Population Field / Mode / Evidence Unit / Window / Partition / Context / Domain Projection"
 }

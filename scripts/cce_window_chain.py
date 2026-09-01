@@ -143,6 +143,25 @@ def _validate_population_subject(value: Any, members: list[str], errors: list[st
         errors.append(f"{path}.mode_partition status is invalid")
     if mode_partition.get("inference_scope") != "descriptive_not_causal" or mode_partition.get("min_mode_size", 0) < 2:
         errors.append(f"{path}.mode_partition must be descriptive and reject one-person modes")
+
+    # ── §44 P2: 三个新字段是**契约必填**, 不是可选装饰。
+    #   「实现了」和「下游可依赖」不是一回事 —— 不写进契约, 下一个 writer 照样可以不产。
+    fs = value.get("field_structure")
+    if not isinstance(fs, dict) or fs.get("shape") not in (
+            "no_supported_mode", "single_mode", "multi_mode"):
+        errors.append(f"{path}.field_structure requires a declared shape")
+    elif isinstance(mixture, list) and fs.get("mode_count") != len(mixture):
+        errors.append(f"{path}.field_structure.mode_count must equal the mode_mixture length")
+    mc = value.get("mode_coverage")
+    if not isinstance(mc, dict) or mc.get("denominator") != "known_member_count":
+        errors.append(f"{path}.mode_coverage must declare denominator=known_member_count")
+    elif mc.get("not_denominator") != "target_population_size":
+        errors.append(f"{path}.mode_coverage must explicitly disclaim target_population_size")
+    ma = value.get("mode_activation")
+    if not isinstance(ma, dict) or not isinstance(ma.get("modes"), list):
+        errors.append(f"{path}.mode_activation must list per-mode support")
+    elif isinstance(mixture, list) and len(ma["modes"]) != len(mixture):
+        errors.append(f"{path}.mode_activation must cover every mode exactly once")
     uncertainty = value.get("uncertainty") or {}
     if uncertainty.get("status") not in {"estimated", "not_estimated"}:
         errors.append(f"{path}.uncertainty status must be explicit")
