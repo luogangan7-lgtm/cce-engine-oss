@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# ⚠️ 名字骗人: 这**不是**实验脚本, 是生产内核。
+#    它持有本体常量与 LLM 调用管道, 被 6 个生产文件 + 5 个探针共用。
+#    删除 / 改名 / 归档会拆掉引擎 —— 依赖面由 tests/test_cce_module_boundary.py 逐文件钉死。
+#    (2026-09-01: 我在整链审计里正是按名字把它误判为"实验脚本占仓库过半"的清理对象。)
 """
 交叉共识真值锚实验 —— 4 前沿模型独立拆解欲望9类分布
 Cross-model desire-distribution consensus experiment.
