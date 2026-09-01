@@ -139,6 +139,101 @@ def assert_same_preparation(readouts, what="跨读数比较", *, comparison_purp
     return ps.pop() if len(ps) == 1 else sorted(ps)
 
 
+# ══════════════════════════════════════════════════════════════════════
+# source-aware preparation —— 在文本被拼成一段**之前**就按来源分流
+# ══════════════════════════════════════════════════════════════════════
+# 为什么优先于「再加一个 LLM 去语义判断哪些 span 不是个人表达」:
+#   · 它不需要推断, 有天然 provenance;
+#   · 不会把「分类器说这是规格」误当事实;
+#   · 误删真实个人表达的损害高于漏摘, 而分类器的误删发生在测量之前,
+#     下游无从知道自己吃到的是被错误裁切过的样本。
+# 语义分类器保持 SHADOW_ONLY: 只产 suggested_spans, 不得实际删除。
+#
+# ★ 兼容性: 不传 provenance 时行为与本闸原有路径**逐字节相同**, preparation_id 不变
+#   —— 所以已经算好的标定桥接不会因为多了这条路径而作废。传了 provenance 才是
+#   另一种制备, 另一个 preparation_id。
+
+SOURCE_TYPE_ROUTING = {
+    "user_authored": "PERSONAL",
+    "product_metadata": "NONPERSONAL",
+    "product_specification": "NONPERSONAL",
+    "system_log": "NONPERSONAL",
+    "code": "NONPERSONAL",
+    "manual": "NONPERSONAL",
+    "operation_steps": "NONPERSONAL",
+    "terms": "NONPERSONAL",
+    "attached_document": "NONPERSONAL",
+    "catalog": "NONPERSONAL",
+}
+SEMANTIC_CLASSIFIER_STATUS = "SHADOW_ONLY"
+
+
+class ProvenanceRequiredError(ValueError):
+    """上游知道来源却先拼成一段再让下游猜 —— 拒绝, 不静默降级。"""
+
+
+def source_aware_preparation(spans, *, require_provenance=True):
+    """按来源分流后再制备。
+
+    spans: [{"text": str, "source_type": str|None, "source_ref": str|None}, ...]
+
+    已知来源 -> 直接按 SOURCE_TYPE_ROUTING 定性(不推断);
+    来源未知 -> 交给确定性结构闸, 证不出是非作者原话就**保留**。
+    """
+    if not isinstance(spans, list) or not spans:
+        raise ProvenanceRequiredError("source_aware_preparation 需要一个非空的分段列表")
+    if require_provenance and len(spans) == 1 and not spans[0].get("source_type"):
+        raise ProvenanceRequiredError(
+            "只收到一段且没有 source_type —— 上游若知道来源就必须传。"
+            "禁止先拼成一段再让下游猜来源; 确实无来源信息时显式 "
+            "require_provenance=False, 退回纯结构闸(那是另一种制备)。")
+
+    resolved, kept, unknown_n = [], [], 0
+    for index, span in enumerate(spans):
+        text = span.get("text") or ""
+        stype = span.get("source_type")
+        if stype in SOURCE_TYPE_ROUTING:
+            kind, basis = SOURCE_TYPE_ROUTING[stype], "declared_provenance"
+        elif stype:
+            # 声明了一个不认识的来源 —— 不猜, 当作未知走结构闸
+            kind, basis, unknown_n = None, "unrecognized_source_type", unknown_n + 1
+        else:
+            kind, basis, unknown_n = None, "no_provenance", unknown_n + 1
+        if kind is None:
+            inner = structural_gate(text)
+            kind = "NONPERSONAL" if inner["subject_text"] is None or not inner["subject_text"].strip() \
+                else "AMBIGUOUS"
+            text = inner["subject_text"] if inner["subject_text"] else ""
+        resolved.append({"index": index, "source_type": stype, "source_ref": span.get("source_ref"),
+                         "kind": kind, "basis": basis, "chars": len(span.get("text") or "")})
+        if kind != "NONPERSONAL" and text.strip():
+            kept.append(text)
+
+    subject_text = "\n\n".join(kept)
+    has_words = bool(re.search(r"\w", subject_text))
+    return {
+        "gate_version": GATE_VERSION,
+        "verdict": VERDICT_MEASURE if has_words else VERDICT_ABSTAIN,
+        "subject_text": subject_text if has_words else None,
+        "abstain_reason": None if has_words else
+            "source-aware 制备: 全部分段均为可证的非个人来源, 无可推断主体",
+        "spans": resolved,
+        "span_counts": {k: sum(1 for r in resolved if r["kind"] == k) for k in SPAN_KINDS},
+        "provenance_declared": len(spans) - unknown_n,
+        "provenance_unknown": unknown_n,
+        "semantic_classifier": SEMANTIC_CLASSIFIER_STATUS,
+        "preparation_id": source_aware_preparation_id(),
+    }
+
+
+def source_aware_preparation_id():
+    """★ 与纯结构闸不同的制备 —— 必须是不同的 preparation_id。"""
+    payload = ("src_aware|" + GATE_VERSION + "|" +
+               ",".join(f"{k}={v}" for k, v in sorted(SOURCE_TYPE_ROUTING.items())) +
+               "|fallback=structural_gate|classifier=" + SEMANTIC_CLASSIFIER_STATUS)
+    return "prep_src_" + hashlib.sha256(payload.encode("utf-8")).hexdigest()[:12]
+
+
 if __name__ == "__main__":
     import json
     import sys
