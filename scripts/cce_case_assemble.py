@@ -3,7 +3,7 @@
 
 CCE is the measurement instrument. It receives events plus a time-bound
 Universal Context.  Transition mode may additionally receive an evidence-bound
-pre-state snapshot, but never a person/segment profile answer, platform delivery
+pre-state snapshot, but never a person/mode profile answer, platform delivery
 result or post-exposure outcome. The model-input projection strips the snapshot's
 subject join key: that key remains outside CCE for downstream aggregation only.
 """
@@ -20,9 +20,17 @@ from cce_contract import validate_case
 from cce_event_assemble import assemble
 
 
+# 旧名与新名必须**同时**永久禁止。
+# 只留新名, 历史模型和外部输入仍可用旧名把身份/分群字段重新注入; 删旧名不等于旧攻击面消失。
+# 旧名在这里是 DENYLIST_SENTINEL —— 代表「拒绝能力」, 不代表业务还依赖旧本体。
+# 参见 config/ontology_legacy_exceptions_v1.json。
 MODEL_FORBIDDEN_KEYS = {
     "subject_ref", "subject_refs", "subject_id", "profile_version", "subject_version",
-    "subject_card", "subject_cards", "segment_id", "population_id",
+    "subject_card", "subject_cards", "population_id",
+    # canonical v2 本体
+    "mode_id", "population_field_id", "evidence_unit_id",
+    # legacy denylist sentinels (v1 本体, 永不删除)
+    "segment_id", "individual_id",
 }
 
 
@@ -78,7 +86,7 @@ def build_model_input(case: dict[str, Any], request_ref: str | None = None) -> d
     Full cases retain ``subject_ref`` on state snapshots solely to join pre/post
     evidence after measurement. This projection emits state values without that
     identifier, so CCE conditions on an evidence-bound baseline state rather than
-    on a person, segment, profile, product audience, or population label.
+    on a person, mode, profile, product audience, or population label.
     """
     verdict = validate_case(case)
     if not verdict["ok"]:

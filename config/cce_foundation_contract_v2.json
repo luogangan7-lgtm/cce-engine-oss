@@ -6,7 +6,7 @@
   "purpose": "CCE 通用测量交换契约：区分刺激读出、已观察响应读出和有证据前态条件下的状态转移；CCE adapter 只消费匿名 model-input projection，主体身份与聚合窗口均留在下游。",
   "plane_boundary": {
     "measurement_plane": "Event + Universal Context + 可选匿名 baseline_state -> 动态占比/状态变化。",
-    "subject_plane": "用 measurement result、时间窗、成员/cell 与阶段证据构造 Individual/Segment/Population 聚合窗口。",
+    "subject_plane": "用 measurement result、时间窗、成员/cell 与阶段证据构造 Evidence Unit/Mode/Population Field 聚合窗口。",
     "join_rule": "完整 case 可保留 subject_ref 连接 pre/post 证据，但 build_model_input 必须删除该 join key；CCE 模型不得看到身份、主体卡、profile 或 population 标签。"
   },
   "measurement_modes": {

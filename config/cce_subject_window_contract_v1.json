@@ -18,7 +18,7 @@
     "population_mixture": "成员分布与权重共同合成 Population；marginal/median/quantile 是人群统计，不是个人画像。",
     "composition": "声明已知成员数量、coverage scope、sampling frame 与是否穷尽。",
     "heterogeneity": "至少报告全成员两两 Jensen-Shannon divergence 的 pair_count/mean/minimum/maximum。",
-    "segment_mixture": "按共同刺激响应相似性形成、至少2人支持的描述性动态段；单点进入 unassigned，不伪造一人段。",
+    "mode_mixture": "按共同刺激响应相似性形成、至少2人支持的描述性动态段；单点进入 unassigned，不伪造一人段。",
     "evolution": "相邻窗口可描述 create/continue/split/merge/disappear，但无实验时必须标 descriptive_not_causal。",
     "forbidden": "aggregate_distribution 或 aggregate_layer_distributions 不能单独充当 Population Subject；合法边际汇总必须嵌在完整 mixture 内并声明不是个人。"
   },
@@ -51,7 +51,7 @@
     "member_evidence": "reached window 的每个 member_ref 必须有独立互动证据。",
     "activation_evidence": "activated window 必须引用成员响应的有效 derived CCE measurement_result，并包含带权 mixture、成员分布、异质性、稳定段与 unassigned mass 的 population_subject；内容侧 s8 不能替代。",
     "no_average_person": "activated window 出现孤立 aggregate_distribution/aggregate_layer_distributions，或缺少 mixture/member weights/member distributions/composition/heterogeneity/uncertainty 时失败。",
-    "no_singleton_segment": "单成员不得输出成 segment；证据不足时必须保留为 unassigned component。",
+    "no_singleton_mode": "单成员不得输出成 mode；证据不足时必须保留为 unassigned component。",
     "epistemic_state": "评论文本是 observed evidence；response distribution 必须 derived；作者心理状态假设必须 inferred/derived。",
     "action_evidence": "action window 必须引用曝光后实际行为；历史经验、意向或内容 CTA 不算。",
     "conversion_join": "conversion window 必须有 publish_id 或等价 join key 串起发布与商业记录。",

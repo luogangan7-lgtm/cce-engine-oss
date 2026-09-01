@@ -52,8 +52,8 @@ def _distribution_is_valid(value: Any) -> bool:
 def _validate_population_subject(value: Any, members: list[str], errors: list[str], path: str,
                                  expected_time_window: dict[str, Any],
                                  expected_evidence_refs: list[str]) -> None:
-    if not isinstance(value, dict) or value.get("kind") != "cce.population_subject.v1":
-        errors.append(f"{path} requires cce.population_subject.v1")
+    if not isinstance(value, dict) or value.get("kind") != "cce.population_subject.v2":
+        errors.append(f"{path} requires cce.population_subject.v2")
         return
     if value.get("scale") != "population" or value.get("stage") != "activated":
         errors.append(f"{path} must be an activated population-scale subject")
@@ -111,38 +111,38 @@ def _validate_population_subject(value: Any, members: list[str], errors: list[st
     for key in ("mean", "minimum", "maximum"):
         if not isinstance(heterogeneity.get(key), (int, float)) or not 0 <= heterogeneity[key] <= 1:
             errors.append(f"{path}.heterogeneity.{key} must be in [0,1]")
-    mixture = value.get("segment_mixture")
+    mixture = value.get("mode_mixture")
     if not isinstance(mixture, list):
-        errors.append(f"{path}.segment_mixture must be a list")
+        errors.append(f"{path}.mode_mixture must be a list")
     else:
-        segment_members = [member for segment in mixture for member in (segment.get("member_refs") or [])]
-        if len(segment_members) != len(set(segment_members)) or not set(segment_members) <= set(members):
-            errors.append(f"{path}.segment_mixture members must be unique activated members")
-        weights = [segment.get("weight") for segment in mixture]
+        mode_members = [member for mode in mixture for member in (mode.get("member_refs") or [])]
+        if len(mode_members) != len(set(mode_members)) or not set(mode_members) <= set(members):
+            errors.append(f"{path}.mode_mixture members must be unique activated members")
+        weights = [mode.get("weight") for mode in mixture]
         if any(not isinstance(weight, (int, float)) or weight <= 0 for weight in weights):
-            errors.append(f"{path}.segment_mixture weights must be positive")
-        for index, segment in enumerate(mixture):
-            if not segment.get("segment_id") or not _distribution_is_valid(segment.get("centroid_distribution")):
-                errors.append(f"{path}.segment_mixture[{index}] requires id and valid auxiliary centroid")
-            if segment.get("segment_basis") != "shared_stimulus_response_similarity" or segment.get("assertion") != "derived":
-                errors.append(f"{path}.segment_mixture[{index}] must declare response basis and derived assertion")
-            cohesion = segment.get("within_segment_mean_js")
+            errors.append(f"{path}.mode_mixture weights must be positive")
+        for index, mode in enumerate(mixture):
+            if not mode.get("mode_id") or not _distribution_is_valid(mode.get("centroid_distribution")):
+                errors.append(f"{path}.mode_mixture[{index}] requires id and valid auxiliary centroid")
+            if mode.get("mode_basis") != "shared_stimulus_response_similarity" or mode.get("assertion") != "derived":
+                errors.append(f"{path}.mode_mixture[{index}] must declare response basis and derived assertion")
+            cohesion = mode.get("within_mode_mean_js")
             if not isinstance(cohesion, (int, float)) or not 0 <= cohesion <= 1:
-                errors.append(f"{path}.segment_mixture[{index}].within_segment_mean_js must be in [0,1]")
+                errors.append(f"{path}.mode_mixture[{index}].within_mode_mean_js must be in [0,1]")
     unassigned = value.get("unassigned_member_refs")
-    if not isinstance(unassigned, list) or set(unassigned) != set(members) - set(segment_members if isinstance(mixture, list) else []):
-        errors.append(f"{path}.unassigned_member_refs must be the exact non-segment remainder")
+    if not isinstance(unassigned, list) or set(unassigned) != set(members) - set(mode_members if isinstance(mixture, list) else []):
+        errors.append(f"{path}.unassigned_member_refs must be the exact non-mode remainder")
     unassigned_weight = value.get("unassigned_weight")
     if not isinstance(unassigned_weight, (int, float)) or not 0 <= unassigned_weight <= 1:
         errors.append(f"{path}.unassigned_weight must be in [0,1]")
-    elif isinstance(mixture, list) and not math.isclose(sum(segment.get("weight", 0) for segment in mixture) + unassigned_weight,
+    elif isinstance(mixture, list) and not math.isclose(sum(mode.get("weight", 0) for mode in mixture) + unassigned_weight,
                                                        1.0, abs_tol=1e-6):
-        errors.append(f"{path}.segment and unassigned weights must sum to 1")
-    segmentation = value.get("segmentation") or {}
-    if segmentation.get("status") not in {"descriptive_not_causal", "insufficient_support"}:
-        errors.append(f"{path}.segmentation status is invalid")
-    if segmentation.get("inference_scope") != "descriptive_not_causal" or segmentation.get("min_segment_size", 0) < 2:
-        errors.append(f"{path}.segmentation must be descriptive and reject one-person segments")
+        errors.append(f"{path}.mode and unassigned weights must sum to 1")
+    mode_partition = value.get("mode_partition") or {}
+    if mode_partition.get("status") not in {"descriptive_not_causal", "insufficient_support"}:
+        errors.append(f"{path}.mode_partition status is invalid")
+    if mode_partition.get("inference_scope") != "descriptive_not_causal" or mode_partition.get("min_mode_size", 0) < 2:
+        errors.append(f"{path}.mode_partition must be descriptive and reject one-person modes")
     uncertainty = value.get("uncertainty") or {}
     if uncertainty.get("status") not in {"estimated", "not_estimated"}:
         errors.append(f"{path}.uncertainty status must be explicit")

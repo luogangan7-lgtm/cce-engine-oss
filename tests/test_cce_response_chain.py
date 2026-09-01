@@ -58,8 +58,8 @@ with tempfile.TemporaryDirectory() as temp:
     assert set(population["member_distributions"]) == {row["actor_ref"] for row in source["responses"]}
     assert population["heterogeneity"]["pair_count"] == 28
     assert abs(sum(population["member_weights"].values()) - 1.0) < 1e-9
-    assert abs(sum(row["weight"] for row in population["segment_mixture"]) + population["unassigned_weight"] - 1.0) < 1e-9
-    assert population["segmentation"]["status"] in {"descriptive_not_causal", "insufficient_support"}
+    assert abs(sum(row["weight"] for row in population["mode_mixture"]) + population["unassigned_weight"] - 1.0) < 1e-9
+    assert population["mode_partition"]["status"] in {"descriptive_not_causal", "insufficient_support"}
     assert population["population_mixture"]["marginal_semantics"].endswith("never an individual persona")
     assert "aggregate_distribution" not in activated_window and "aggregate_layer_distributions" not in activated_window
     mean_person = copy.deepcopy(activated)

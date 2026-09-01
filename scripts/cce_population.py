@@ -3,8 +3,8 @@
 
 A population is represented as a weighted mixture of observed member distributions.
 The mixture marginal is a legitimate population summary, but it is explicitly not an
-individual profile. Descriptive segment candidates require more than one supporting member; isolated
-members remain unassigned instead of being mislabeled as one-person segments.
+individual profile. Descriptive mode candidates require more than one supporting member; isolated
+members remain unassigned instead of being mislabeled as one-person modes.
 """
 from __future__ import annotations
 
@@ -14,8 +14,8 @@ from itertools import combinations
 from typing import Any
 
 
-SEGMENT_JS_THRESHOLD = 0.08
-MIN_SEGMENT_SIZE = 2
+MODE_JS_THRESHOLD = 0.08
+MIN_MODE_SIZE = 2
 
 
 def _js(left: dict[str, float], right: dict[str, float]) -> float:
@@ -119,16 +119,16 @@ def _components(member_distributions: dict[str, dict[str, float]], threshold: fl
 
 
 def build_population_subject(measurements: list[dict[str, Any]], coverage_scope: str,
-                             threshold: float = SEGMENT_JS_THRESHOLD, *,
+                             threshold: float = MODE_JS_THRESHOLD, *,
                              weights: dict[str, float] | None = None,
-                             min_segment_size: int = MIN_SEGMENT_SIZE,
+                             min_mode_size: int = MIN_MODE_SIZE,
                              stage: str = "activated", exhaustive: bool = False,
                              time_window: dict[str, str] | None = None,
                              evidence_refs: list[str] | None = None) -> dict[str, Any]:
     if not measurements:
         raise ValueError("population synthesis requires at least one member measurement")
-    if min_segment_size < 2:
-        raise ValueError("a descriptive segment candidate requires at least two members")
+    if min_mode_size < 2:
+        raise ValueError("a descriptive mode candidate requires at least two members")
     members = {
         row["actor_ref"]: _validate_distribution(row["distribution"], f"measurement[{row['actor_ref']}]")
         for row in measurements
@@ -139,21 +139,21 @@ def build_population_subject(measurements: list[dict[str, Any]], coverage_scope:
     member_weights, weighting_method = _normalise_weights(member_refs, measurements, weights)
     pairwise = [_js(members[left], members[right]) for left, right in combinations(member_refs, 2)]
 
-    segments: list[dict[str, Any]] = []
+    modes: list[dict[str, Any]] = []
     unassigned: list[str] = []
     for group in _components(members, threshold):
-        if len(group) < min_segment_size:
+        if len(group) < min_mode_size:
             unassigned.extend(group)
             continue
         internal = [_js(members[left], members[right]) for left, right in combinations(group, 2)]
         digest = hashlib.sha256("\n".join(group).encode()).hexdigest()[:10]
-        segments.append({
-            "segment_id": f"dynamic-response:{digest}",
-            "segment_basis": "shared_stimulus_response_similarity",
+        modes.append({
+            "mode_id": f"dynamic-response:{digest}",
+            "mode_basis": "shared_stimulus_response_similarity",
             "member_refs": group,
             "weight": sum(member_weights[member] for member in group),
             "centroid_distribution": _weighted_centroid(group, members, member_weights),
-            "within_segment_mean_js": sum(internal) / len(internal),
+            "within_mode_mean_js": sum(internal) / len(internal),
             "assertion": "derived",
         })
 
@@ -169,15 +169,15 @@ def build_population_subject(measurements: list[dict[str, Any]], coverage_scope:
     population_id = "population:" + hashlib.sha256(identity_material.encode()).hexdigest()[:16]
     unassigned = sorted(unassigned)
     inference_level = "enumerated_population" if exhaustive else "descriptive_nonprobability_sample"
-    segmentation_status = "descriptive_not_causal" if segments else "insufficient_support"
+    mode_partition_status = "descriptive_not_causal" if modes else "insufficient_support"
     return {
-        "kind": "cce.population_subject.v1",
+        "kind": "cce.population_subject.v2",
         "population_id": population_id,
         "scale": "population",
         "stage": stage,
         "time_window": time_window or {"status": "not_supplied"},
         "evidence_refs": unique_evidence_refs,
-        "provenance": {"producer": "cce_population", "version": "1.0.0", "assertion": "derived"},
+        "provenance": {"producer": "cce_population", "version": "2.0.0", "assertion": "derived"},
         "definition": {
             "unit": "identified_subject",
             "coverage_scope": coverage_scope,
@@ -217,16 +217,16 @@ def build_population_subject(measurements: list[dict[str, Any]], coverage_scope:
             "minimum": min(pairwise) if pairwise else 0.0,
             "maximum": max(pairwise) if pairwise else 0.0,
         },
-        "segment_mixture": segments,
+        "mode_mixture": modes,
         "unassigned_member_refs": unassigned,
         "unassigned_weight": sum(member_weights[member] for member in unassigned),
-        "segmentation": {
+        "mode_partition": {
             "method": "response_similarity_connected_components",
             "js_threshold": threshold,
-            "min_segment_size": min_segment_size,
-            "status": segmentation_status,
+            "min_mode_size": min_mode_size,
+            "status": mode_partition_status,
             "inference_scope": "descriptive_not_causal",
-            "warning": "singletons are unassigned evidence components, not one-person segments",
+            "warning": "singletons are unassigned evidence components, not one-person modes",
         },
         "uncertainty": {
             "status": "not_estimated",
@@ -236,16 +236,16 @@ def build_population_subject(measurements: list[dict[str, Any]], coverage_scope:
 
 
 def build_population_analysis(measurements: list[dict[str, Any]], coverage_scope: str,
-                              threshold: float = SEGMENT_JS_THRESHOLD, **kwargs: Any) -> dict[str, Any]:
+                              threshold: float = MODE_JS_THRESHOLD, **kwargs: Any) -> dict[str, Any]:
     """Backward-compatible function name; the returned object is a Population Subject."""
     return build_population_subject(measurements, coverage_scope, threshold, **kwargs)
 
 
 def compare_population_projections(previous_window_ref: str, previous: dict[str, Any],
                                    current_window_ref: str, current: dict[str, Any]) -> dict[str, Any]:
-    """Describe stable-segment continuity without claiming causal population change."""
-    old = {row["segment_id"]: set(row["member_refs"]) for row in previous.get("segment_mixture", [])}
-    new = {row["segment_id"]: set(row["member_refs"]) for row in current.get("segment_mixture", [])}
+    """Describe stable-mode continuity without claiming causal population change."""
+    old = {row["mode_id"]: set(row["member_refs"]) for row in previous.get("mode_mixture", [])}
+    new = {row["mode_id"]: set(row["member_refs"]) for row in current.get("mode_mixture", [])}
     events: list[dict[str, Any]] = []
     for old_id, old_members in old.items():
         successors = [new_id for new_id, new_members in new.items() if old_members & new_members]

@@ -1,13 +1,13 @@
 {
   "schema_name": "cce_subject_system",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "status": "active",
-  "definition": "Subject 不是预先存在的画像容器，而是某时间窗口、数据集合和阶段上的动态占比聚合。Individual、Dynamic Segment、Population 是聚合尺度；target、delivered、reached、activated、action、conversion 是阶段轴。",
+  "definition": "Subject 不是预先存在的画像容器，而是某时间窗口、数据集合和阶段上的动态占比聚合。Individual、Dynamic Mode、Population 是聚合尺度；target、delivered、reached、activated、action、conversion 是阶段轴。",
   "measurement_boundary": "CCE 模型只接收 Event、Universal Context 与可选匿名 baseline_state；subject_ref、主体卡、身份、角色和 Population 标签均属于下游 join/解释，不进入模型特征。",
   "scale_axis": {
-    "individual": "以单一可识别成员为 population_set 的动态占比窗口；稳定 subject_ref 只负责证据连接，不等于主体答案。",
-    "dynamic_segment": "基于明确 basis 的软/硬成员集合；结构段与共同刺激响应段必须分开。",
-    "population": "有定义、有范围、有估计目标、有抽样框和权重的混合分布主体。"
+    "evidence_unit": "以单一可识别成员为 population_set 的动态占比窗口；稳定 subject_ref 只负责证据连接，不等于主体答案。",
+    "mode": "基于明确 basis 的软/硬成员集合；结构段与共同刺激响应段必须分开。",
+    "population_field": "有定义、有范围、有估计目标、有抽样框和权重的混合分布主体。"
   },
   "stage_axis": {
     "target": "发布前冻结的目标 Population Subject。",
@@ -37,64 +37,232 @@
     "state": "瞬时状态证据；保留 observed_at、context_ref、assertion、confidence、persistence、decay 和 evidence_refs；transition 只投影匿名状态值。"
   },
   "parameter_registry": [
-    {"id": "01_identity", "clock": "identity"},
-    {"id": "02_demographics", "clock": "slow"},
-    {"id": "03_geography", "clock": "slow"},
-    {"id": "04_socioeconomic", "clock": "slow"},
-    {"id": "05_life_stage", "clock": "slow"},
-    {"id": "06_physical_capability", "clock": "slow"},
-    {"id": "07_personality", "clock": "core"},
-    {"id": "08_values", "clock": "core"},
-    {"id": "09_beliefs", "clock": "slow"},
-    {"id": "10_attitudes", "clock": "semi_dynamic"},
-    {"id": "11_cognitive_profile", "clock": "slow"},
-    {"id": "12_needs", "clock": "semi_dynamic"},
-    {"id": "13_goals", "clock": "contextual"},
-    {"id": "14_motivations", "clock": "semi_dynamic"},
-    {"id": "15_pain_points", "clock": "semi_dynamic"},
-    {"id": "16_desires", "clock": "core"},
-    {"id": "17_fears_risks", "clock": "semi_dynamic"},
-    {"id": "18_emotional_state", "clock": "state"},
-    {"id": "19_cognitive_state", "clock": "state"},
-    {"id": "20_attention_state", "clock": "state"},
-    {"id": "21_intent", "clock": "state"},
-    {"id": "22_readiness", "clock": "state"},
-    {"id": "23_trust", "clock": "state"},
-    {"id": "24_uncertainty", "clock": "state"},
-    {"id": "25_preferences", "clock": "semi_dynamic"},
-    {"id": "26_sensitivities", "clock": "semi_dynamic"},
-    {"id": "27_decision_style", "clock": "slow"},
-    {"id": "28_purchase_behavior", "clock": "history"},
-    {"id": "29_consumption_behavior", "clock": "history"},
-    {"id": "30_engagement_behavior", "clock": "history"},
-    {"id": "31_content_preference", "clock": "semi_dynamic"},
-    {"id": "32_media_behavior", "clock": "history"},
-    {"id": "33_platform_behavior", "clock": "history"},
-    {"id": "34_device_environment", "clock": "contextual"},
-    {"id": "35_category_relationship", "clock": "semi_dynamic"},
-    {"id": "36_product_relationship", "clock": "semi_dynamic"},
-    {"id": "37_brand_relationship", "clock": "semi_dynamic"},
-    {"id": "38_competitor_relationship", "clock": "semi_dynamic"},
-    {"id": "39_social_relationship", "clock": "identity"},
-    {"id": "40_influence_network", "clock": "semi_dynamic"},
-    {"id": "41_authority_sensitivity", "clock": "semi_dynamic"},
-    {"id": "42_social_proof_sensitivity", "clock": "semi_dynamic"},
-    {"id": "43_exposure_history", "clock": "history"},
-    {"id": "44_response_history", "clock": "history"},
-    {"id": "45_action_history", "clock": "history"},
-    {"id": "46_outcome_history", "clock": "history"},
-    {"id": "47_activation_profile", "clock": "semi_dynamic"},
-    {"id": "48_trigger_profile", "clock": "semi_dynamic"},
-    {"id": "49_inhibition_profile", "clock": "semi_dynamic"},
-    {"id": "50_conversion_profile", "clock": "semi_dynamic"},
-    {"id": "51_baseline", "clock": "baseline"},
-    {"id": "52_state_transition", "clock": "event"},
-    {"id": "53_temporal_dynamics", "clock": "model"},
-    {"id": "54_segment_membership", "clock": "window"},
-    {"id": "55_evidence", "clock": "append_only"},
-    {"id": "56_confidence_provenance", "clock": "append_only"}
+    {
+      "id": "01_identity",
+      "clock": "identity"
+    },
+    {
+      "id": "02_demographics",
+      "clock": "slow"
+    },
+    {
+      "id": "03_geography",
+      "clock": "slow"
+    },
+    {
+      "id": "04_socioeconomic",
+      "clock": "slow"
+    },
+    {
+      "id": "05_life_stage",
+      "clock": "slow"
+    },
+    {
+      "id": "06_physical_capability",
+      "clock": "slow"
+    },
+    {
+      "id": "07_personality",
+      "clock": "core"
+    },
+    {
+      "id": "08_values",
+      "clock": "core"
+    },
+    {
+      "id": "09_beliefs",
+      "clock": "slow"
+    },
+    {
+      "id": "10_attitudes",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "11_cognitive_profile",
+      "clock": "slow"
+    },
+    {
+      "id": "12_needs",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "13_goals",
+      "clock": "contextual"
+    },
+    {
+      "id": "14_motivations",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "15_pain_points",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "16_desires",
+      "clock": "core"
+    },
+    {
+      "id": "17_fears_risks",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "18_emotional_state",
+      "clock": "state"
+    },
+    {
+      "id": "19_cognitive_state",
+      "clock": "state"
+    },
+    {
+      "id": "20_attention_state",
+      "clock": "state"
+    },
+    {
+      "id": "21_intent",
+      "clock": "state"
+    },
+    {
+      "id": "22_readiness",
+      "clock": "state"
+    },
+    {
+      "id": "23_trust",
+      "clock": "state"
+    },
+    {
+      "id": "24_uncertainty",
+      "clock": "state"
+    },
+    {
+      "id": "25_preferences",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "26_sensitivities",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "27_decision_style",
+      "clock": "slow"
+    },
+    {
+      "id": "28_purchase_behavior",
+      "clock": "history"
+    },
+    {
+      "id": "29_consumption_behavior",
+      "clock": "history"
+    },
+    {
+      "id": "30_engagement_behavior",
+      "clock": "history"
+    },
+    {
+      "id": "31_content_preference",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "32_media_behavior",
+      "clock": "history"
+    },
+    {
+      "id": "33_platform_behavior",
+      "clock": "history"
+    },
+    {
+      "id": "34_device_environment",
+      "clock": "contextual"
+    },
+    {
+      "id": "35_category_relationship",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "36_product_relationship",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "37_brand_relationship",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "38_competitor_relationship",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "39_social_relationship",
+      "clock": "identity"
+    },
+    {
+      "id": "40_influence_network",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "41_authority_sensitivity",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "42_social_proof_sensitivity",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "43_exposure_history",
+      "clock": "history"
+    },
+    {
+      "id": "44_response_history",
+      "clock": "history"
+    },
+    {
+      "id": "45_action_history",
+      "clock": "history"
+    },
+    {
+      "id": "46_outcome_history",
+      "clock": "history"
+    },
+    {
+      "id": "47_activation_profile",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "48_trigger_profile",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "49_inhibition_profile",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "50_conversion_profile",
+      "clock": "semi_dynamic"
+    },
+    {
+      "id": "51_baseline",
+      "clock": "baseline"
+    },
+    {
+      "id": "52_state_transition",
+      "clock": "event"
+    },
+    {
+      "id": "53_temporal_dynamics",
+      "clock": "model"
+    },
+    {
+      "id": "54_mode_membership",
+      "clock": "window"
+    },
+    {
+      "id": "55_evidence",
+      "clock": "append_only"
+    },
+    {
+      "id": "56_confidence_provenance",
+      "clock": "append_only"
+    }
   ],
-  "segment_bases": {
+  "mode_bases": {
     "structural_subject": "core、identity、need、behavior、sensitivity 等长期证据相似；可从主体卡描述性构建。",
     "shared_stimulus_response": "同一冻结 Event/Context 下的 response 或 delta 相似；必须有共同刺激矩阵。",
     "state": "同一时间窗口内的状态相似；不得解释为稳定人格。",
@@ -115,7 +283,7 @@
     "marginal_distribution",
     "composition",
     "heterogeneity",
-    "segment_structure",
+    "mode_structure",
     "unassigned_mass",
     "uncertainty",
     "evidence_refs",
@@ -129,13 +297,14 @@
   },
   "hard_gates": {
     "subject_is_aggregation_window": "主体必须声明 time_window、population_set、stage 和 measurement/evidence refs；subject_ref 或主体卡本身不得被当作分析主体。",
-    "no_subject_as_model_feature": "身份、角色、主体卡、稳定 core、segment/population label 不得进入 CCE model input；只允许匿名 evidence-bound baseline_state。",
+    "no_subject_as_model_feature": "身份、角色、主体卡、稳定 core、mode/population label 不得进入 CCE model input；只允许匿名 evidence-bound baseline_state。",
     "population_not_mean_person": "Population 必须是带权混合；边际均值/中位数/分位数可作为派生统计，但必须声明 never an individual persona。",
-    "no_singleton_segment": "单成员只能作为 mixture component 或 unassigned evidence，不能命名为稳定 segment。",
-    "segment_basis_required": "每个 Segment 必须声明 structural/shared_stimulus_response/state/action basis。",
+    "no_singleton_mode": "单成员只能作为 mixture component 或 unassigned evidence，不能命名为稳定 mode。",
+    "mode_basis_required": "每个 Mode 必须声明 structural/shared_stimulus_response/state/action basis。",
     "target_frame_required_for_generalization": "没有 target population definition、sampling frame/cell totals 和权重时，不得从互动者外推平台/社区总体。",
     "stage_evidence": "target/delivered/reached/activated/action/conversion 分别使用声明、交付、入站、测量、行为、商业 join 证据。",
     "uncertainty_required": "无法估计不确定性时也必须显式写 not_estimated 与原因。",
     "epistemic_boundary": "observed、inferred、derived 必须分离。"
-  }
+  },
+  "ontology": "canonical_v2: Population Field / Mode / Evidence Unit / Window / Partition / Context / Domain Projection"
 }

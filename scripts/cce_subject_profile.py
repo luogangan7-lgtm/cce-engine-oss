@@ -70,9 +70,9 @@ def build_from_cards(cards: dict[str, Any], source: Path) -> dict[str, Any]:
         "kind": "cce.subject_card_collection.v1",
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "cards": records,
-        "segment_capabilities": {
-            "structural_subject_segments": "descriptive_allowed_from_core_identity_need_behavior_evidence",
-            "shared_stimulus_response_segments": "requires_common_stimulus_response_matrix",
+        "mode_capabilities": {
+            "structural_subject_modes": "descriptive_allowed_from_core_identity_need_behavior_evidence",
+            "shared_stimulus_response_modes": "requires_common_stimulus_response_matrix",
             "population_weights": "requires_external_sampling_frame_or_calibration_totals",
         },
     }

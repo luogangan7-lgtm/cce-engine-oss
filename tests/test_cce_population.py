@@ -16,11 +16,11 @@ measurements = [
     {"actor_ref": "subject:b2", "distribution": {"approach": 0.01, "avoid": 0.99}},
 ]
 population = build_population_analysis(measurements, "fixture_complete", threshold=0.08)
-assert population["kind"] == "cce.population_subject.v1"
+assert population["kind"] == "cce.population_subject.v2"
 assert set(population["member_distributions"]) == {row["actor_ref"] for row in measurements}
-assert len(population["segment_mixture"]) == 2, population
+assert len(population["mode_mixture"]) == 2, population
 assert population["heterogeneity"]["maximum"] > 0.8, population
-assert all(len(segment["member_refs"]) == 2 for segment in population["segment_mixture"]), population
+assert all(len(mode["member_refs"]) == 2 for mode in population["mode_mixture"]), population
 assert not population["unassigned_member_refs"] and population["unassigned_weight"] == 0
 expected_marginal = {"approach": 0.4925, "avoid": 0.5075}
 assert all(math.isclose(population["population_mixture"]["marginal_distribution"][key], value,
@@ -34,9 +34,9 @@ isolated = build_population_analysis([
     {"actor_ref": f"subject:{index}", "distribution": {f"state:{index}": 1.0}}
     for index in range(8)
 ], "identified_inbound_only", threshold=0.08)
-assert isolated["segment_mixture"] == [], isolated
+assert isolated["mode_mixture"] == [], isolated
 assert len(isolated["unassigned_member_refs"]) == 8
-assert isolated["segmentation"]["status"] == "insufficient_support"
+assert isolated["mode_partition"]["status"] == "insufficient_support"
 assert isolated["composition"]["known_member_count"] == 8
 
 later = build_population_analysis([

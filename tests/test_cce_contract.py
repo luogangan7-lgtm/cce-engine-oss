@@ -121,13 +121,13 @@ assert all("profile_version" not in row and "subject_type" not in row for row in
 assert cards["kind"] == "cce.subject_card_collection.v1"
 assert all(row["subject_ref"].startswith("subject:reddit:") for row in cards["cards"])
 assert all("not an active subject window" in row["limits"] for row in cards["cards"])
-assert cards["segment_capabilities"]["structural_subject_segments"].startswith("descriptive_allowed")
+assert cards["mode_capabilities"]["structural_subject_modes"].startswith("descriptive_allowed")
 
 subject_contract = json.loads((ROOT / "config" / "cce_subject_system_contract_v1.json").read_text(encoding="utf-8"))
-assert set(subject_contract["scale_axis"]) == {"individual", "dynamic_segment", "population"}
+assert set(subject_contract["scale_axis"]) == {"evidence_unit", "mode", "population_field"}
 assert set(subject_contract["stage_axis"]) == {"target", "delivered", "reached", "activated", "action", "conversion"}
 assert len(subject_contract["parameter_registry"]) == 56
-assert subject_contract["hard_gates"]["no_singleton_segment"]
+assert subject_contract["hard_gates"]["no_singleton_mode"]
 window_contract = json.loads((ROOT / "config" / "cce_subject_window_contract_v1.json").read_text(encoding="utf-8"))
 assert set(window_contract["window_types"]) == set(subject_contract["stage_axis"])
 
