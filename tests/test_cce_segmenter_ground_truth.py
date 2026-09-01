@@ -46,6 +46,18 @@ dropped = [structural_gate(a["text"])["chars_dropped"] for a in PADS]
 assert set(dropped) == {0}, \
     f"★ 当前应对 2x2 填充一字未摘, 实得 chars_dropped={sorted(set(dropped))}"
 
+# ── ①b ★ 正向对照: 上面那两条断言「闸什么都没摘」, 一个**完全坏掉**的闸同样满足 ──
+# 2026-09-01 owner 追问「本地你看了吗」时做的变异测试暴露了这点: 把 _QUOTE 正则弄坏,
+# 本文件依然全绿。钉住缺口的断言**观察不到闸失效** —— 那正是本项目一路在抓的假检查。
+# 修法: 拿同一批 base 造一个闸**应该**能还原的样本, 闸坏了它必红。
+for _a in PADS[:3]:
+    _base = L0[_a["base_id"]]
+    _quoted = "\n".join("&gt; " + ln for ln in _a["text"][len(_base):].strip().splitlines() if ln.strip())
+    got = structural_gate(_base + "\n\n" + _quoted)["subject_text"] or ""
+    assert norm(got) == norm(_base), \
+        ("★ 正向对照失败: 同样的填充改成带 &gt; 引用标记后, 闸必须能还原出原 base。"
+         f"实得 {len(got)} 字 vs 应得 {len(_base)} 字 —— 结构闸的引用识别坏了。")
+
 # ── ② ★ 真正要紧的: 那些不合格**全部安全失败**, 没有一个是自信的坏读数 ─────
 pad_rows = [r for r in CKPT if r["arm"] == "PAD"]
 unqual = [r for r in pad_rows if not r.get("qualified")]
