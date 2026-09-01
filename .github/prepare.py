@@ -2,10 +2,6 @@
 """投料 + 契约校验(与 Windows runner 同一套规范)。校验不过直接失败, 不进链路。"""
 import os, sys
 
-# 门槛由实测定, 不拍脑袋: 9条/193词 虽满足旧门槛(80词/3条)却导致受众读数 3 倍摆动,
-# 即「合规不等于够稳」。先提到 1000词/30条, 待稳定性实测后再定终值。
-AUDIENCE_SPEC = {"min_words": 1000, "min_utterances": 30}
-
 # 两种投料源: 环境变量(单条) 或 items.json + 索引(批量)
 if os.environ.get("ITEMS_FILE"):
     import json as _j
@@ -34,8 +30,13 @@ else:
     submission_meta = {}
 
 errs = []
-if mode not in ("reply", "response", "outbound_post", "post"):
-    errs.append(f"mode 必须是 reply|response|outbound_post|post, 收到 {mode!r}")
+# 2026-09-01: 摘掉 "post"。旧九环节链(s0-s8)已于 2026-08-13 退役, 契约里从来没有
+# post 这一档 —— 但入口一直允许它, 于是「拿退役组件当现行标准」复发了三次
+# (08-13 旧 s0-s8 当尺子 / 08-14 s8 写进判注 / 08-14 帖15 九条 run 全跑旧链)。
+# 靠 manifest.chain 断言在下游判红只是兜底; 入口直接拒绝才让复发结构上不可能。
+if mode not in ("reply", "response", "outbound_post"):
+    errs.append(f"mode 必须是 reply|response|outbound_post, 收到 {mode!r} "
+                f"(post = 已退役的旧九环节链, 2026-09-01 从入口移除)")
 if not text.strip():
     errs.append("text 不能为空")
 if not context:
@@ -60,32 +61,6 @@ if cdecl:
 
 if mode in ("reply", "outbound_post") and not guard_profile:
     errs.append("出站模式必填 guard_profile")
-if mode == "post":
-    if not ref:
-        errs.append("post 模式必填 ref_tag")
-    # 2026-08-10: ref_tag(标识) 曾被当成 ref_post(上一篇正文)写进 run/ref.txt,
-    # 导致 s8 拿本篇跟一串 tag 做成对下注, 产出 9/10 'strong' 的假结果。
-    # 两者彻底分开, 并对 ref_post 做最小合法性校验。
-    if refpost and len(refpost.split()) < 20:
-        errs.append(f"ref_post 只有 {len(refpost.split())} 词, 不像一篇正文(疑似误传标识)。s8 需要上一篇完整正文")
-    if not audience:
-        # 2026-08-09: 旧默认语料仅 9 条/193 词, 实测同一份语料四次运行读出的受众主结
-        # pain_seek 在 0.20~0.60 之间摆动(3倍), s6 的参照系不稳到无法支撑二值门。
-        # 换为 104 条真人评论快照(8406词, 43倍)。
-        d = "corpus/reddit_hearingaids_audience_v2.txt"
-        if os.path.exists(d):
-            audience = open(d, encoding="utf-8").read().strip()
-            print(f"::notice::audience 未提供, 回退仓库默认语料 {d}")
-        else:
-            errs.append("post 模式必填 audience")
-    lines = [l for l in audience.splitlines() if len(l.strip()) > 10]
-    words = len(audience.split())
-    if words < AUDIENCE_SPEC["min_words"] or len(lines) < AUDIENCE_SPEC["min_utterances"]:
-        errs.append(
-            f"audience 不符合语料规范(疑似人群画像描述而非受众原话): "
-            f"实得 {words}词/{len(lines)}条, 要求 ≥{AUDIENCE_SPEC['min_words']}词/"
-            f"≥{AUDIENCE_SPEC['min_utterances']}条。s5受众逆推吃的是目标读者原话。")
-
 if errs:
     for e in errs:
         print(f"::error::{e}")
