@@ -1,0 +1,74 @@
+{
+ "schema": "cce.mechanism.v1",
+ "mechanisms": [
+  {
+   "id": "semantic_form_invariance_failed",
+   "claim": "仪器对同义改写不具备不变性: 内容与处境未变而读数变了 ⇒ SEPARATED 只能读作「CCE 表征不同」, 不得读作「被测构念不同」",
+   "status": "ESTABLISHED",
+   "preregistered": true,
+   "prereg_ref": "tests/data/phase2/stimuli_frozen.json",
+   "evidence_refs": [
+    "tests/data/phase2/panel_analysis.json",
+    "tests/data/phase2/phase2_status.json"
+   ],
+   "replications": [
+    "tests/data/phase2b/panel_analysis.json"
+   ],
+   "replication_note": "两个互不相关 domain(hearing / personal_finance)均复现 ⇒ instrument property 而非数据问题",
+   "falsifier": "若在新 domain 上 B1 分开比例落回零参照水平, 本条被推翻"
+  },
+  {
+   "id": "dilution_not_length",
+   "claim": "压制读出的是个人内容占比(稀释)而非绝对长度: 长度主效应 p=0.065 不显著且方向相反, 占比 p<1e-5 显著",
+   "status": "ESTABLISHED",
+   "preregistered": true,
+   "prereg_ref": "tests/data/length_vs_dilution/prereg.json",
+   "evidence_refs": [
+    "tests/data/length_vs_dilution/verdict.json",
+    "tests/data/length_vs_dilution/panel_checkpoint.jsonl"
+   ],
+   "replications": [
+    "tests/data/length_controlled/verdict.json"
+   ],
+   "replication_note": "within-base 配对重分析(同一文本自己跟自己比, n=24): 变差 17/持平 7/变好 0, 符号检验 p=8e-6",
+   "supersedes": "length_threshold_1500",
+   "falsifier": "若固定占比只变长度也能复现同等不合格率, 本条被推翻"
+  },
+  {
+   "id": "mixed_content_interference",
+   "claim": "非个人内容的存在本身压制读出: 450 字个人文本单独跑 0% 不合格, 加 1000 字非个人填充后 96% 读不出",
+   "status": "TESTED",
+   "prereg_ref": "tests/data/length_vs_dilution/prereg.json",
+   "evidence_refs": [
+    "tests/data/length_vs_dilution/verdict.json"
+   ],
+   "replications": [],
+   "note": "未升 ESTABLISHED: pad 绝对量 / 占比 / pad 语义类型三者尚未分离(外审判定), 机制未唯一识别",
+   "falsifier": "若在固定 pad 绝对量下改变 pad 语义类型不改变不合格率, 则「存在本身」这个表述过强"
+  },
+  {
+   "id": "length_threshold_1500",
+   "claim": "[已否决] 输入超过约 1500 字符即截断或降级",
+   "status": "REJECTED",
+   "evidence_refs": [
+    "tests/data/length_vs_dilution/verdict.json"
+   ],
+   "reject_reason": "该建议来自长度与占比混杂的那一轮。解耦后长度主效应不显著且方向相反; 且截断按位置砍不提高占比, 稀释是成分问题 ⇒ 截断会主动帮倒忙。同批禁用 total_chars>1500 / personal_share<0.3 / pad_chars>1000 / personal_chars<500 四个数字门槛",
+   "superseded_by": "dilution_not_length"
+  },
+  {
+   "id": "causal_ceiling_descriptive",
+   "claim": "当前采集剖面下因果结构性不可识别: reached 窗在构造上等于被观测到的响应者集合 ⇒ 激活率是常数不是测量。CAUSAL_CAPABILITY.max_grade = DESCRIPTIVE",
+   "status": "ESTABLISHED",
+   "evidence_refs": [
+    "scripts/cce_response_chain.py",
+    "tests/test_cce_causal_grade.py"
+   ],
+   "replications": [
+    "tests/test_cce_causal_grade.py"
+   ],
+   "replication_note": "结构性结论, 由测试逐条钉死(含禁止词表与解锁条件), 非单次实测",
+   "falsifier": "改 cce_response_chain.py 的 reached==seen 约束或改采集剖面后, 需重判"
+  }
+ ]
+}
