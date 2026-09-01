@@ -58,6 +58,21 @@ def profile(text):
             "em_dash": text.count("—") + text.count("–")}
 
 
+# ── 重标定常量(2026-09-01)。写成显式常量而不是藏在算术里 ────────────────
+LENGTH_FLOOR_WORDS = 50   # 低于此: 分布式指标不可评 ⇒ 弃权
+FP_PCTILE = 5             # first_person 阈值取真人分布的 p5 ⇒ 按构造误杀约 5%
+
+
+def _pctile(vals, p):
+    v = sorted(vals)
+    if not v:
+        return 0.0
+    i = (len(v) - 1) * p / 100.0
+    lo = int(i)
+    hi = min(lo + 1, len(v) - 1)
+    return v[lo] + (v[hi] - v[lo]) * (i - lo)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("draft")
@@ -88,13 +103,17 @@ def main():
           f"   ← 词表在真人语料上的误报数应为 0")
     print(f"{'破折号':23s} {base['em_dash']:10d} {d['em_dash']:10d}")
 
+    human_profiles = [dict(profile(t), n_words=len(t.split())) for t in human]
+    n_long = sum(1 for p in human_profiles if p["n_words"] >= LENGTH_FLOOR_WORDS)
     err, warn = [], []
     lo = base["contraction_rate"] * 0.6
     if d["contraction_rate"] is None:
         warn.append("本稿无缩写也无展开形, 判不了")
     elif d["contraction_rate"] < lo:
-        err.append(f"缩写占比 {d['contraction_rate']:.0%} < 真人基准的六成({lo:.0%})。"
-                   f"改用 can't / don't / it's / you'll / I'd。零缩写是最强的 AI 指纹。")
+        # 2026-09-01 由 ERROR 降为 WARN: 真人 ≥50 词样本仍有 10% 缩写率为 0,
+        # 零值占比高于目标误杀率时, 任何非零阈值都必然误杀那么多真人。
+        warn.append(f"缩写占比 {d['contraction_rate']:.0%} < 真人基准的六成({lo:.0%})。"
+                    f"改用 can't / don't / it's / you'll / I'd。零缩写是常见 AI 指纹。")
     if d["label_sentences"]:
         err.append(f"大纲标签当句子 {len(d['label_sentences'])} 处: {d['label_sentences']}。"
                    f"真人语料出现 {len(base['label_sentences'])} 次。要说边界就直接说那句话, 不许起小标题。")
@@ -120,12 +139,45 @@ def main():
     #   句数 5 · 短句(≤5词)占比 14% · 长短比 7.25 · 第一人称密度 6.25%
     # 实测我方 24 条稿: 句数 11.4 / 短句 5% / 第一人称 0.77% —— 第一人称差 8 倍, 是最大指纹。
     # 阈值取真人中位的一半, 宁松勿紧: 这是拟人下限不是风格指标。
-    if d["first_person"] < 3.0:
-        err.append(f"第一人称密度 {d['first_person']}% < 3%(真人 6.25%)。"
-                   f"AI 写「这个原因是X」, 人写「我见过的是X」。把客观陈述改成经验陈述。")
+    # ── [2026-09-01 重标定] 下限型阈值 → 分位数判据 + 长度门 ──────────────
+    # **旧闸没有判别力**: 真脚本实测拦下真人 72/104=69%、我方稿 34/48=70% ——
+    # 两者几乎相等, 判别力 ≈ -1%。它不是闸, 是近乎无差别的拦截器。
+    # 根因(2026-08-17 已记): 拿真人**中位数的一半**当下限, 是构造性缺陷 ——
+    # 中位数上方永远只有一半样本, 下限自然砍掉大批真人。
+    #
+    # 逐条真人评论量分布后发现: 「分位数判据」本身也救不了两条规则 ——
+    #   short_frac  零值占比 42%(全量) / 38%(≥25词) / 30%(≥50词)
+    #   contraction 零值占比 32%       / 22%        / 10%
+    # 零值占比超过目标误杀率时, **任何非零阈值都必然误杀那么多真人**。
+    # ⇒ 这两条结构上不能当 ERROR, 降为 WARN。「整段至少插一个短句」不是真人性质。
+    #
+    # 只有 first_person 在 ≥50 词时零值降到 4%, 才撑得起分位阈值。
+    # 阈值 = 真人语料中 ≥FLOOR 词样本的 first_person **p5** ——
+    # 按构造只打中约 5% 真人。ERROR 的含义是「这个场景里不常见」, 不是「一定是 AI」。
+    #
+    # ★ 长度门 = 弃权, 不是放行: 12 词的评论算不出「短句占比」也算不出人称密度,
+    #   对它给一个自信的判决与 CCE 仪器「没有空读数」那个缺陷同形。不可评 ⇒ 不判。
+    n_words = len(draft.split())
+    # ★ 入口自检必须在长度门**之前**: 2026-09-01 加长度门时我把这个洞打开了 ——
+    #   空稿的分布式规则全部弃权、类别型规则又都是 0 命中 ⇒ ERROR=0 ⇒ **放行**。
+    #   库里的铁律原文: 「读到空输入可能恒为绿, 这类写法应直接不合格并退出非 0」。
+    #   弃权(12 词真评论, 指标不可评) 与 无效输入(空稿) 是两件事, 不能混。
+    if not re.search(r"\w", draft):
+        err.append("稿件为空或不含任何词 —— 无效输入, 不是「指标不可评」。")
+    elif n_words >= LENGTH_FLOOR_WORDS:
+        fp_min = _pctile([p["first_person"] or 0 for p in human_profiles
+                          if p["n_words"] >= LENGTH_FLOOR_WORDS], FP_PCTILE)
+        if d["first_person"] < fp_min:
+            err.append(f"第一人称密度 {d['first_person']}% < {fp_min:.2f}%"
+                       f"(真人 ≥{LENGTH_FLOOR_WORDS}词样本的 p{FP_PCTILE}, n={n_long})。"
+                       f"AI 写「这个原因是X」, 人写「我见过的是X」。把客观陈述改成经验陈述。")
+    else:
+        warn.append(f"全文 {n_words} 词 < {LENGTH_FLOOR_WORDS} 词门槛: "
+                    f"分布式指标不可评, 本轮**弃权**(不是放行)。")
     if d["short_frac"] < 0.08:
-        err.append(f"短句(≤5词)占比 {d['short_frac']:.0%} < 8%(真人 14%)。"
-                   f"整段没有一个短促的断句 = 最容易辨认的机器节奏。至少插一个。")
+        warn.append(f"短句(≤5词)占比 {d['short_frac']:.0%} < 8%(真人中位 14%)。"
+                    f"[2026-09-01 由 ERROR 降为 WARN: 真人 ≥25词样本里 38% 短句占比为 0, "
+                    f"它不是真人性质, 当硬闸必然误杀三分之一。]")
     if d["n_sent"] > 10:
         warn.append(f"句数 {d['n_sent']} > 10(真人中位 5)。真人评论比你以为的短得多。")
     # 上限保护: 只设下限的闸可以靠写成电报体刷过, 那是另一种不自然。
