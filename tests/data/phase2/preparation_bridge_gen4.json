@@ -1,0 +1,335 @@
+{
+ "kind": "cce.preparation_bridge.v1",
+ "why": "gen4 的资格标定是在 raw 制备下做的。结构闸改的是**送进仪器的文本**, 属样品制备变更 —— 不换仪器, 但读数不能默认覆盖新制备。判据是逐字节的有效输入, 不是「制备代码路径变没变」。",
+ "identity": {
+  "instrument_hash": "eab1a35666b33996",
+  "qualification_policy_hash": "b41ef5217a77d311",
+  "raw": {
+   "preparation_id": "prep_raw_unfiltered",
+   "measurement_procedure_id": "mp_24a018c806426971"
+  },
+  "prepared": {
+   "preparation_id": "prep_86c7c7545d75",
+   "measurement_procedure_id": "mp_cdf545a9d3058bc2"
+  },
+  "note": "instrument_hash 与 qualification_policy_hash 两者**都相同** —— 这正是补 measurement_procedure_id 的原因: 没有它, 上层看到同尺同解读就照常对账。"
+ },
+ "base_level": {
+  "frame_bases": 39,
+  "exact_input_identity": 37,
+  "nontransferable": 2,
+  "rerun_bases": [
+   "3fb58419ad8f",
+   "421287e62d06"
+  ]
+ },
+ "rep_level": {
+  "frame_n": 312,
+  "reuse_reps": 296,
+  "reuse_U": 1,
+  "rerun_reps": 16,
+  "rerun_U_old": 8,
+  "old_U_total": 9,
+  "note": "旧 9 个 U 事件里 8 个落在 base 3fb58419ad8f —— 正是被新制备改动的两条之一。所以改动组与未改动组的事件率**极不相同**, 总体率绝不可直接搬。"
+ },
+ "new_frame_status": "PENDING_RERUN",
+ "partial_identification": {
+  "method": "Manski bounds: 未重跑的 16 rep 结果未知, 只能给区间",
+  "lower": {
+   "U": 1,
+   "n": 312,
+   "upper95": 0.01511,
+   "assumes": "16 个重跑全部 qualified"
+  },
+  "upper": {
+   "U": 17,
+   "n": 312,
+   "upper95": 0.08061,
+   "assumes": "16 个重跑全部 unqualified"
+  },
+  "U_max": 0.05,
+  "verdict": "★ 区间跨越判决线(0.01511 < 0.05 < 0.08061) —— **不重跑这 16 rep 就判不了 prep_struct_v1 下的资格闸**。禁止用旧的 0.04980 冒充新制备的上界。",
+  "cost_to_resolve": "16 rep = 16 次 s1 投料(2 base × 8 rep), 不是 312 次"
+ },
+ "old_frame_for_reference": {
+  "U": 9,
+  "n": 312,
+  "upper95": 0.0498,
+  "preparation": "prep_raw_unfiltered"
+ },
+ "rows": [
+  {
+   "item_id": "050f0f2403f7",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "6c736952f41dc6a245656b9e3973d3e2322422d4c256e2ae48b7a535083a834d",
+   "prepared_sha256": "6c736952f41dc6a245656b9e3973d3e2322422d4c256e2ae48b7a535083a834d"
+  },
+  {
+   "item_id": "093c73613279",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "00be1b6643dccdf05625c7da5c6c5225e896c8de04518112450a9d8ed5a053ff",
+   "prepared_sha256": "00be1b6643dccdf05625c7da5c6c5225e896c8de04518112450a9d8ed5a053ff"
+  },
+  {
+   "item_id": "0d0411f957e7",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "2a2b8d9e79460f4ecc729d3e623d170b0a43f54a6a136717e762c92794909da8",
+   "prepared_sha256": "2a2b8d9e79460f4ecc729d3e623d170b0a43f54a6a136717e762c92794909da8"
+  },
+  {
+   "item_id": "0d7b3e7a50b6",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "4511aef8bc3922bcbc6522837336f0d10bcf154e51176164adcef939ad0f8dcc",
+   "prepared_sha256": "4511aef8bc3922bcbc6522837336f0d10bcf154e51176164adcef939ad0f8dcc"
+  },
+  {
+   "item_id": "1aa601bf5633",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "8a0b3ccaa1b28ce258e341aa908882a97de588c54d39ea6ddd625bbb0fc8f7a2",
+   "prepared_sha256": "8a0b3ccaa1b28ce258e341aa908882a97de588c54d39ea6ddd625bbb0fc8f7a2"
+  },
+  {
+   "item_id": "2eca26909ed2",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "51a53487dfab19ac8999eb6b8fa6bbf1a4bc8ab71f01034eeb1e447139a61ef7",
+   "prepared_sha256": "51a53487dfab19ac8999eb6b8fa6bbf1a4bc8ab71f01034eeb1e447139a61ef7"
+  },
+  {
+   "item_id": "2ee52f67c987",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "95918a2f6d7e120348bdd9d01d27260c177f3e1e28ee34bb7ddb95167193d089",
+   "prepared_sha256": "95918a2f6d7e120348bdd9d01d27260c177f3e1e28ee34bb7ddb95167193d089"
+  },
+  {
+   "item_id": "3191a8fae98d",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "29fe5e451f83148d14abb5cec608ae200ec531a652a0669ae3d9c1fb8cf9eaae",
+   "prepared_sha256": "29fe5e451f83148d14abb5cec608ae200ec531a652a0669ae3d9c1fb8cf9eaae"
+  },
+  {
+   "item_id": "344d81fc035f",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "d1706093c2f21797942a7e449ab6e954dcb2e6ab08573090b089aeac54195bf9",
+   "prepared_sha256": "d1706093c2f21797942a7e449ab6e954dcb2e6ab08573090b089aeac54195bf9"
+  },
+  {
+   "item_id": "59a1a9c7d712",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "bcd0326fe9b61c7ea48f8f632ddf03a56b0da74f816e68ba814c3e6d53151a8e",
+   "prepared_sha256": "bcd0326fe9b61c7ea48f8f632ddf03a56b0da74f816e68ba814c3e6d53151a8e"
+  },
+  {
+   "item_id": "5bbf4543dd47",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "4f6e2403a68f5257654f6a483ea7ab721498f28a904d40285db06b33e6566b18",
+   "prepared_sha256": "4f6e2403a68f5257654f6a483ea7ab721498f28a904d40285db06b33e6566b18"
+  },
+  {
+   "item_id": "6377cfd2d151",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "4bdae14bc8bf7d42a6bb2a98eb447dc85143800dc9df1f68b6e34d77ea0a3800",
+   "prepared_sha256": "4bdae14bc8bf7d42a6bb2a98eb447dc85143800dc9df1f68b6e34d77ea0a3800"
+  },
+  {
+   "item_id": "69d98096ae94",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "b7ba0697df290a2a6ef0e9631eb891b7e7595d629d7afad5689e8fe3b226a658",
+   "prepared_sha256": "b7ba0697df290a2a6ef0e9631eb891b7e7595d629d7afad5689e8fe3b226a658"
+  },
+  {
+   "item_id": "6b16b77dbc5b",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "f78b6b6b87bae482da2c3750991c8c1a14d8c30a3adf8a80cc97d404b2438343",
+   "prepared_sha256": "f78b6b6b87bae482da2c3750991c8c1a14d8c30a3adf8a80cc97d404b2438343"
+  },
+  {
+   "item_id": "6def5ddbcf25",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "b7033c93a4432e6fdf55236f0d0ad4e7724e4c4c66e52add9ac6edff8e42daf8",
+   "prepared_sha256": "b7033c93a4432e6fdf55236f0d0ad4e7724e4c4c66e52add9ac6edff8e42daf8"
+  },
+  {
+   "item_id": "712fc175d4bf",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "39b55b18350d987ccb554520d40ef93c4ad4d463ccec1b5412c1e41eba4ceb77",
+   "prepared_sha256": "39b55b18350d987ccb554520d40ef93c4ad4d463ccec1b5412c1e41eba4ceb77"
+  },
+  {
+   "item_id": "739b240fd52a",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "c879b24c8c5d479f591aafde6437705b7f5b5813321bf3c249dccf24c99d1e0a",
+   "prepared_sha256": "c879b24c8c5d479f591aafde6437705b7f5b5813321bf3c249dccf24c99d1e0a"
+  },
+  {
+   "item_id": "7be3af6e0e26",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "3266823c39945e8f8d307803bc29065d46fe9f19b9d444d1c60a3339d7924cbc",
+   "prepared_sha256": "3266823c39945e8f8d307803bc29065d46fe9f19b9d444d1c60a3339d7924cbc"
+  },
+  {
+   "item_id": "80769cc0222a",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "b8bba2db0d017b7b2d95e06f1a1e109d69f2ef69dca05182e563ba127692086f",
+   "prepared_sha256": "b8bba2db0d017b7b2d95e06f1a1e109d69f2ef69dca05182e563ba127692086f"
+  },
+  {
+   "item_id": "8dc468c70ce3",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "d48df49d40a112d87b26b2e1db3c8a9ec04fa41f14a3a05d81432dc089f94c32",
+   "prepared_sha256": "d48df49d40a112d87b26b2e1db3c8a9ec04fa41f14a3a05d81432dc089f94c32"
+  },
+  {
+   "item_id": "8def53272fb6",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "fa62151a61a3206705520098b4d2983707ae9bc0dc2ad53f38cf5e7630b5fe77",
+   "prepared_sha256": "fa62151a61a3206705520098b4d2983707ae9bc0dc2ad53f38cf5e7630b5fe77"
+  },
+  {
+   "item_id": "919671d9d867",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "ecc1cbdf1d0122e65343be6509895213d3ec0cac051cd3aa702282cf84b3b4c2",
+   "prepared_sha256": "ecc1cbdf1d0122e65343be6509895213d3ec0cac051cd3aa702282cf84b3b4c2"
+  },
+  {
+   "item_id": "96c05a7f8073",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "34049e6845b36862fc3016002287affda51ba2a6db3accc5c891369858a5823f",
+   "prepared_sha256": "34049e6845b36862fc3016002287affda51ba2a6db3accc5c891369858a5823f"
+  },
+  {
+   "item_id": "9d21118dc35b",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "466ca7791f18d6891821bd9c52b53dae81e3b47a42bce0e1aa67d99d193ef39d",
+   "prepared_sha256": "466ca7791f18d6891821bd9c52b53dae81e3b47a42bce0e1aa67d99d193ef39d"
+  },
+  {
+   "item_id": "9f0d49fe019d",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "334984d2ab5812dc8f14dc0ec5f4b7c37bb0483d7c6394bd52993a34db02e52d",
+   "prepared_sha256": "334984d2ab5812dc8f14dc0ec5f4b7c37bb0483d7c6394bd52993a34db02e52d"
+  },
+  {
+   "item_id": "a05bd9ac0645",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "e04fb299a028203a91c889efbe658eb3f47fd4bc51bd6ddbe8ec26ca991b8142",
+   "prepared_sha256": "e04fb299a028203a91c889efbe658eb3f47fd4bc51bd6ddbe8ec26ca991b8142"
+  },
+  {
+   "item_id": "a4701962b3fc",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "06067e2a6f9609310bea90301c2e501ec61098e8cb111ece392496279b44748b",
+   "prepared_sha256": "06067e2a6f9609310bea90301c2e501ec61098e8cb111ece392496279b44748b"
+  },
+  {
+   "item_id": "aec1aed1b63e",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "e1b65b3721d3a5bbc3590e31d2344fa8efd5e1d4269616e75f29bd34f4073bc0",
+   "prepared_sha256": "e1b65b3721d3a5bbc3590e31d2344fa8efd5e1d4269616e75f29bd34f4073bc0"
+  },
+  {
+   "item_id": "aec90e410e4e",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "651ea3fa7f468409962f73c60123053695ebbf73caadbfde4b458e54ddbca6da",
+   "prepared_sha256": "651ea3fa7f468409962f73c60123053695ebbf73caadbfde4b458e54ddbca6da"
+  },
+  {
+   "item_id": "b1749ab04a03",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "04ce9a89cfa10139bb9cabf4e7d4fdb9247b5e6c1da8b68aa7463039d0366347",
+   "prepared_sha256": "04ce9a89cfa10139bb9cabf4e7d4fdb9247b5e6c1da8b68aa7463039d0366347"
+  },
+  {
+   "item_id": "b9cfe36db7e5",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "b9a60e406b4980769301e016c861788a302710d6031923335e10b4e07edc9b0c",
+   "prepared_sha256": "b9a60e406b4980769301e016c861788a302710d6031923335e10b4e07edc9b0c"
+  },
+  {
+   "item_id": "bebf4de06d03",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "6e9e713316dc02a7436f652499100aaac4ed33372de6dda6ba7811190f3d8a74",
+   "prepared_sha256": "6e9e713316dc02a7436f652499100aaac4ed33372de6dda6ba7811190f3d8a74"
+  },
+  {
+   "item_id": "d80ef7dd62c3",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "43ecd15401c1672df657aaa8e88498993e00c9147709f591e86554ffd504c8c1",
+   "prepared_sha256": "43ecd15401c1672df657aaa8e88498993e00c9147709f591e86554ffd504c8c1"
+  },
+  {
+   "item_id": "d9763af82730",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "a6701cf46910a6b49f488efc834508abfbc5ea4c762003217663033f8a86e359",
+   "prepared_sha256": "a6701cf46910a6b49f488efc834508abfbc5ea4c762003217663033f8a86e359"
+  },
+  {
+   "item_id": "e325d3b185aa",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "8ced2600762a214b6d944d7b7a6fb5f06b530ccccadbe9f902cb16dbbef32a2f",
+   "prepared_sha256": "8ced2600762a214b6d944d7b7a6fb5f06b530ccccadbe9f902cb16dbbef32a2f"
+  },
+  {
+   "item_id": "ec5e19fb3e5c",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "0163f0df89b89ed96c6df3ae37ce06881dde34cab1d7e6cefceafc2a969286bd",
+   "prepared_sha256": "0163f0df89b89ed96c6df3ae37ce06881dde34cab1d7e6cefceafc2a969286bd"
+  },
+  {
+   "item_id": "ecd5d7ca9072",
+   "status": "EXACT_INPUT_IDENTITY",
+   "reason": "过闸后与原文逐字节一致, 送进测量仪的有效样本未变",
+   "raw_sha256": "22994680d3838044d4c4100423f7c68a62166b6674efa9b1c88fdc95f9e80717",
+   "prepared_sha256": "22994680d3838044d4c4100423f7c68a62166b6674efa9b1c88fdc95f9e80717"
+  },
+  {
+   "item_id": "3fb58419ad8f",
+   "status": "NONTRANSFERABLE_PREPARATION_CHANGED",
+   "reason": "制备改变了有效输入, 旧 qualification/readout 不代表新制备结果",
+   "raw_sha256": "c7cf729fabff7eef5015ec141f1fff48c234905ddc657d1bdd55fd4a0230dde7",
+   "prepared_sha256": "62c930db848b49adde45333c3fd8cd0300b43b4f4b944766ec218fb7f35c0f4f"
+  },
+  {
+   "item_id": "421287e62d06",
+   "status": "NONTRANSFERABLE_PREPARATION_CHANGED",
+   "reason": "制备改变了有效输入, 旧 qualification/readout 不代表新制备结果",
+   "raw_sha256": "f3629a28f62b72252b21d5aebb7dcc16083ec498f35204e3c60150a6560cf372",
+   "prepared_sha256": "4ad030d1eb60098ce3a7bba623629941e5195c8baa6c1aa055205e5c3945c06f"
+  }
+ ]
+}

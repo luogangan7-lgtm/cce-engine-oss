@@ -466,7 +466,7 @@ def adopt_verdict(n_qualified, n_unqualified, n_parse_failed, per_base=None,
             "u_max": m["U_max"], "concentration_flag": []}
 
 
-def instrument_id(taxo, k=None, knot_n=None, s1_pairing=None):
+def instrument_id(taxo, k=None, knot_n=None, s1_pairing=None, preparation_id=None):
     """当前仪器的完整定义 + 哈希。任何跨读数比较之前必须先比它。"""
     from exp_crossmodel_desire import MODELS
     m = MODELS[MEASUREMENT_MODEL]
@@ -507,9 +507,19 @@ def instrument_id(taxo, k=None, knot_n=None, s1_pairing=None):
                                    ensure_ascii=False, sort_keys=True).encode()).hexdigest()[:16]
     qh = hashlib.sha256(json.dumps({k: spec[k] for k in _POLICY_FIELDS},
                                    ensure_ascii=False, sort_keys=True).encode()).hexdigest()[:16]
+    # ★ 2026-09-01: 补上第三个身份。完整测量程序 = 制备 + 仪器 + 资格协议;
+    #   此前 preparation 虽然存在, 却不进入任何联合身份 —— 于是「换了送进去的文本」
+    #   两个哈希都不变, 上层看到同尺同解读就照常对账。
+    from cce_preparation_bridge import (RAW_PREPARATION_ID,
+                                        measurement_procedure_id as _mp_id)
+    prep = preparation_id or RAW_PREPARATION_ID
     return {"instrument_hash": ih, "qualification_policy_hash": qh, "spec": spec,
+            "preparation_id": prep,
+            "measurement_procedure_id": _mp_id(ih, prep, qh),
             "hash_scope": {"instrument": list(_INSTRUMENT_FIELDS),
                            "qualification_policy": list(_POLICY_FIELDS),
+                           "measurement_procedure": ["instrument_hash", "preparation_id",
+                                                     "qualification_policy_hash"],
                            "criterion": "改它之后已采集的 raw draw 还能不能用"}}
 
 

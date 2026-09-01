@@ -123,18 +123,20 @@ def preparation_id():
 RAW_PREPARATION_ID = "prep_raw_unfiltered"   # 本闸接入之前的全部读数都属这一档
 
 
-def assert_same_preparation(readouts, what="跨读数比较"):
+def assert_same_preparation(readouts, what="跨读数比较", *, comparison_purpose=None):
     """★ 与 assert_same_instrument 同形: 制备不同的读数不可直接比较。
 
     同一把尺子量了不同的样品, 读数差可能全部来自「量的不是同一段文字」。
+
+    2026-09-01: 原先抛裸 RuntimeError —— 一个 try/except 就绕过去了, 而且绕过之后
+    照样能产出一份合法的 production artifact。改为委托 cce_preparation_bridge:
+    抛 **typed** PreparationMismatchError, 并且比较函数只是三层拦截的第一层
+    (另两层在结果 schema 和 workflow manifest 上, 捕获异常也拿不到合法产物)。
     """
+    from cce_preparation_bridge import comparability
     ps = {r.get("preparation_id", RAW_PREPARATION_ID) for r in readouts}
-    if len(ps) > 1:
-        raise RuntimeError(
-            f"{what}被拒绝: 涉及 {len(ps)} 种样品制备 {sorted(ps)}。"
-            "结构闸摘掉引用/代码/链接之后送进去的文本, 与未过闸的原文**不是同一个样品**; "
-            "读数差可能全部来自制备差异, 与仪器无关。")
-    return ps.pop()
+    comparability(readouts, comparison_purpose=comparison_purpose, what=what)
+    return ps.pop() if len(ps) == 1 else sorted(ps)
 
 
 if __name__ == "__main__":

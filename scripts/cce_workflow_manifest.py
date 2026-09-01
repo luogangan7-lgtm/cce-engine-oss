@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from cce_preparation_bridge import manifest_preparation_verdict
+
 # 2026-08-18: 契约里声明的段清单必须与引擎实跑的 manifest.chain 逐位相等。
 # 此前无任何断言, 后果实测: outbound_reply 契约声明 6 段、引擎跑 5 段,
 # reader_baseline 在 5 个真实 run 里 0 次出现, 而 complete=true 检测不到 ——
@@ -59,6 +61,8 @@ def build(normalized: dict[str, Any], artifacts: Path, require_alignment: bool =
             "engine_complete": manifest.get("complete") is True, "failed_at": manifest.get("failed_at"),
             "measurement_complete": measurement_complete,
             "reply_alignment_pass": alignment.get("PASS") if alignment is not None else None,
+            "preparation_id": manifest.get("preparation_id")
+                              or (manifest.get("stages") or {}).get("structural_gate", {}).get("preparation_id"),
             "artifact_dir": str(path.parent)}
         if profile == "subject_chain" and not measurement_complete:
             errors.append(f"s1 response measurement incomplete for {job_id}")
@@ -66,9 +70,18 @@ def build(normalized: dict[str, Any], artifacts: Path, require_alignment: bool =
             errors.append(f"engine chain incomplete for {job_id}: {manifest.get('failed_at')}")
     missing = sorted(set(expected) - set(found))
     if missing: errors.append("missing job artifacts: " + ", ".join(missing))
+    # ★ 第 3 层制备拦截。前两层(typed 异常 / 结果 schema)都在下游, 都能被 catch 掉;
+    #   这一层在产物本身上: 制备不一致且非 bridge_mode ⇒ 拿不到 complete=true。
+    prep_verdict = manifest_preparation_verdict(
+        [row.get("preparation_id") for row in found.values()],
+        bridge_mode=bool(normalized.get("bridge_mode")))
+    errors += prep_verdict["errors"]
     return {"kind": "cce.workflow_manifest.v1", "schema_version": normalized.get("schema_version"),
         "submission_id": normalized.get("submission_id"), "profile": normalized.get("profile"),
-        "complete": not errors and len(found) == len(expected), "items_expected": len(expected),
+        "complete": not errors and len(found) == len(expected)
+                    and prep_verdict["complete"], "items_expected": len(expected),
+        "production_verified": not errors and prep_verdict["production_verified"],
+        "preparation": prep_verdict,
         "items_completed": len(found), "jobs": [found[key] for key in sorted(found)], "errors": errors}
 
 
