@@ -33,15 +33,27 @@ def load(d: Path):
     return out
 
 
-def main() -> int:
-    rows = load(Path(sys.argv[1]))
+def judge(rows):
+    """四项判据的判定核心。抽出来是为了让 CI 能对它做反向测试 ——
+    埋在 main() 里的判据等于没有测试。
+
+    返回 (退出码, 报告 dict)。退出码 2 = 不可判(既不判过也不判负)。
+    """
     if len(rows) < CRIT["n_min"]:
-        print(f"⚠️ 不可判: n={len(rows)} < {CRIT['n_min']}")
-        return 2
+        return 2, {"reason": f"n={len(rows)} < {CRIT['n_min']}", "verdict": "UNJUDGEABLE"}
+    # ★ 2026-09-01: 原来只查 len(set(sha)) == 1。8 份 manifest **全都缺** text_sha256 时
+    #   集合是 {None}, 长度也是 1 —— 于是闸打印「输入指纹唯一 ✅」, 而它其实一个指纹都没看到。
+    #   实测: 两组截然不同的读数按同组喂进去, 照样打这行绿。
+    #   缺指纹 ≠ 指纹相同。没有指纹就是**不可判**, 不是可判且通过。
+    missing = sum(1 for r in rows if not r.get("sha"))
+    if missing:
+        return 2, {"reason": f"{missing}/{len(rows)} 份缺 text_sha256 —— "
+                             "无从证明这是同一项的重跑; 缺指纹不等于指纹相同",
+                   "verdict": "UNJUDGEABLE"}
     shas = {r["sha"] for r in rows}
     if len(shas) != 1:
-        print(f"❌ 输入指纹不唯一({len(shas)} 种) —— 这不是同项重跑, 测量作废")
-        return 2
+        return 2, {"reason": f"输入指纹不唯一({len(shas)} 种) —— 这不是同项重跑, 测量作废",
+                   "verdict": "UNJUDGEABLE"}
 
     n = len(rows)
     ser = [json.dumps(r["knots"], sort_keys=True) for r in rows]
@@ -71,14 +83,25 @@ def main() -> int:
         (f"top-1 一致 ≥ {CRIT['top1_agree_min']}/8", top1_scaled >= CRIT["top1_agree_min"],
          f"{top1_agree}/{n} (折算 {top1_scaled:.1f}/8)"),
     ]
-    print(f"K1 Reliability · n={n} · 输入指纹唯一 ✅\n")
-    for name, ok, val in checks:
-        print(f"  {'✅' if ok else '❌'} {name:<28} {val}")
-    print(f"\n  逐结极差: {dict(sorted(ranges.items(), key=lambda x: -x[1]))}")
-    print(f"  top-1 各次: {tops}")
     failed = [c[0] for c in checks if not c[1]]
-    print(f"\n  → {'K1 通过' if not failed else 'K1 未通过, 不达标项: ' + ', '.join(failed)}")
-    return 0 if not failed else 1
+    return (0 if not failed else 1), {
+        "verdict": "PASS" if not failed else "FAIL", "n": n, "checks": checks,
+        "failed": failed, "ranges": ranges, "tops": tops, "sha": shas.pop()}
+
+
+def main() -> int:
+    rows = load(Path(sys.argv[1]))
+    code, rep = judge(rows)
+    if code == 2:
+        print(f"⚠️ 不可判: {rep['reason']}")
+        return 2
+    print(f"K1 Reliability · n={rep['n']} · 输入指纹唯一 {rep['sha']} ✅\n")
+    for name, ok, val in rep["checks"]:
+        print(f"  {'✅' if ok else '❌'} {name:<28} {val}")
+    print(f"\n  逐结极差: {dict(sorted(rep['ranges'].items(), key=lambda x: -x[1]))}")
+    print(f"  top-1 各次: {rep['tops']}")
+    print(f"\n  → {'K1 通过' if not rep['failed'] else 'K1 未通过, 不达标项: ' + ', '.join(rep['failed'])}")
+    return code
 
 
 if __name__ == "__main__":
