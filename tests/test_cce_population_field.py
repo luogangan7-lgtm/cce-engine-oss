@@ -144,6 +144,20 @@ for kept in ("member_distributions", "member_weights", "population_mixture",
     assert kept in P, f"★ P2 重构丢了必须保留的 {kept}"
 assert "component_quantiles" in P["population_mixture"]
 
+# ── 10. §44.9 P2 指定的反向测试: 删掉 member distributions 必须红 ──────
+#    不是「聚合还能不能算出来」, 而是「会不会静默退化成均值」——
+#    退化成均值正是这套 Population 本体从一开始要防的事。
+for mutant, label in ((lambda p: p.pop("member_distributions"), "删掉"),
+                      (lambda p: p.__setitem__("member_distributions", {}), "清空")):
+    broken = copy.deepcopy(P)
+    mutant(broken)
+    errs = []
+    wc._validate_population_subject(broken, sorted(P["member_distributions"]), errs,
+                                    "population", broken.get("time_window"),
+                                    broken.get("evidence_refs", []))
+    assert errs, f"★ §44.9 P2 反向 gate 失败: {label} member_distributions 后聚合没有红 —— 静默退化成均值"
+
 print("test_cce_population_field: OK "
       "(六字段全部落地且契约必填 | 缺字段/错声明各自见红 | "
-      "换人必标 confounded | 无抽样框拒绝投影 | 保留项 7/7)")
+      "换人必标 confounded | 无抽样框拒绝投影 | 保留项 7/7 | "
+      "删member_distributions 见红)")

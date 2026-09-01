@@ -1,0 +1,21 @@
+{
+  "schema_name": "cce.core_manifest",
+  "version": "1.0.0",
+  "iron_rule": "20 · 新模态增加 Parser, 不应修改 CCE Core",
+  "criterion": "Core = 改了它已采集的原始 draw 就不能用的文件; 与 instrument_hash 同源判据",
+  "instrument_generation": 4,
+  "core_files": {
+    "config/knot_taxonomy.json": "39a423b5b196f5c9",
+    "scripts/cce_knot_classify.py": "699d505ced285f46",
+    "scripts/cce_ksep.py": "d6f423aa608c94d9",
+    "scripts/exp_crossmodel_desire.py": "0e0e9d64b48fbade"
+  },
+  "parser_plane": [
+    "scripts/cce_case_assemble.py",
+    "scripts/cce_event_assemble.py",
+    "scripts/cce_platform_adapter.py",
+    "scripts/cce_structural_gate.py"
+  ],
+  "parser_plane_note": "Parser/Ingest 层可自由增删改, 不影响本闸; 新增模态只许落在这一层。",
+  "how_to_change_core": "必须同时: ① 更新本文件里该文件的 hash ② 递增 instrument_generation ③ 在 cce_knot_classify.INSTRUMENT_LINEAGE 里加一代并写明「上一代的标定还能不能用」。三者缺一, 闸红。"
+}

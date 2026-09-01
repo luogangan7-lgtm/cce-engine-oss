@@ -1,0 +1,141 @@
+{
+ "input_sha": "84bedaddf79e08b4",
+ "run_at": "2026-08-09T07:11:10",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.2.0 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 3,
+  "k_ok": 3,
+  "layers": {
+   "desire_vec": [
+    0.043333333333333335,
+    0.006666666666666667,
+    0.3166666666666667,
+    0.05000000000000001,
+    0.0,
+    0.01,
+    0.22333333333333336,
+    0.35000000000000003,
+    0.0
+   ],
+   "need_vec": [
+    0.25,
+    0.13333333333333333,
+    0.08333333333333333,
+    0.2833333333333333,
+    0.0,
+    0.25,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.0,
+    0.0,
+    0.0,
+    0.13333333333333333,
+    0.0,
+    0.0,
+    0.0,
+    0.006666666666666667,
+    0.0,
+    0.25,
+    0.25,
+    0.02666666666666667,
+    0.3333333333333333
+   ],
+   "action_vec": [
+    0.4833333333333334,
+    0.016666666666666666,
+    0.35000000000000003,
+    0.016666666666666666,
+    0.03333333333333333,
+    0.03333333333333333,
+    0.06666666666666667
+   ]
+  },
+  "tops": {
+   "desire": "安全感欲",
+   "need": "N04_理解世界",
+   "emotion": "anger愤怒",
+   "action": "approach趋近"
+  },
+  "appraisal": {
+   "goal_relevance": 0.92,
+   "congruence_direction": "威胁",
+   "need_status": "未满足",
+   "goal_congruence": "负",
+   "coping_potential": "中",
+   "note": "目标相关度极高(助听器日常功能受阻);但内容(帖子本身)只揭示了威胁,没有提供任何答案,need_status=未满足;发帖到专门板块说明相信可解但暂时束手无策,coping_potential=中——既非完全无助(还在求助)也非十拿九稳(标题都不会写、零回复)。负向 congruence + 中等 coping 共同驱动负向但偏活化(frustration/curiosity)而非冻结(fear/panic)的情绪组合"
+  },
+  "chain_trace": "摆脱欲(0.35)+控制欲(0.30)+安全感欲(0.25)+确认欲(0.10) →(助听器与S25 FE蓝牙配对失败、专门板块零回复)→ N04_理解世界(0.30)+N02_掌控局面(0.25)+N01_确定性(0.20)+N03_提升能力(0.15)+N06_摆脱痛苦(0.10) →(评价:目标相关0.92,威胁,未满足,负向congruence,中应对潜能)→ anger(0.35)+curiosity(0.25)+fear(0.20)+desire(0.15)+sadness(0.05) → approach(0.50)+attend(0.30)+dominate(0.20) 的完整因果链,情绪与行动倾向均由'威胁+未满足'派生,符合 appraisal→emotion→action 逐层推导",
+  "within_js": {
+   "desire_vec": 0.1123,
+   "need_vec": 0.1842,
+   "emotion_vec": 0.065,
+   "action_vec": 0.1529
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "pain_seek",
+    "weight": 0.95,
+    "evidence_quote": "Hearing Aid to S25 FE bluetooth issues",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "中",
+     "time": "现在",
+     "attribution": "system",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "控制欲",
+    "need_code": "N06",
+    "freshness_days_hint": 1,
+    "name": "痛点·求解结",
+    "family": "推动",
+    "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+    "behavior_predicted": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+   },
+   {
+    "key": "suspend",
+    "weight": 0.05,
+    "evidence_quote": "S25 FE bluetooth issues",
+    "signature": {
+     "congruence": "促进与威胁并存",
+     "need_status": "未满足",
+     "coping": "不确定",
+     "time": "未来",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N01",
+    "freshness_days_hint": 1,
+    "name": "悬置·焦虑结",
+    "family": "阻挡",
+    "playbook": "给判据+零成本测试塌缩不确定性+如实说trade;不推购买。反杠杆=零风险承诺/样品/证言",
+    "behavior_predicted": "质询通道·中成本:连环规格质询/征证言/比价/收藏不买/明确不动"
+   }
+  ],
+  "levers_present": [],
+  "notes": "助听器(医疗级刚需配件)与新机蓝牙失配=功能性威胁+失去控制感,典型求助姿态,发帖到专门板块说明相信可解但暂束手无策;无验证/问责/展示痕迹。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}
