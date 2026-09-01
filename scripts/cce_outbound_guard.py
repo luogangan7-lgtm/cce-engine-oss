@@ -389,7 +389,14 @@ if __name__ == "__main__":
 
 # .env 自加载(Windows/n8n 无 shell source;显式 utf-8 防 GBK 解码失败)
 def _load_env_utf8():
-    p = os.path.join(ROOT, ".env")
+    # 2026-09-01 修: ROOT 从未定义 ⇒ `import cce_outbound_guard` 抛 NameError。
+    # 该函数定义在 `if __name__ == "__main__"` 块的 sys.exit() 之后, 命令行调用永不执行,
+    # 所以生产没暴雷(cce_full_run 以 subprocess 字符串路径调它); 但文件自身 docstring
+    # 写明用法是 `from cce_outbound_guard import scan_draft, is_clean` —— 那条路一直是坏的。
+    # 库里 2026-08-14 记的处置是「暂不补, 补的触发条件是: 把写稿交给子代理、或提高自动化
+    # 程度之前必须先补」。P7 生成物闸要 import 它 ⇒ 触发条件到了。
+    _root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    p = os.path.join(_root, ".env")
     if not os.path.exists(p):
         return
     with open(p, encoding="utf-8", errors="replace") as _f:
