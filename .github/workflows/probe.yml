@@ -8,6 +8,7 @@ on:
       probe: {description: "探针路径, 如 probes/discriminability.py", required: true, type: string}
       args:  {description: "位置参数(可空)", required: false, default: "", type: string}
       env:   {description: "额外环境变量, 形如 DISC_REPS=4 CCE_KNOT_N=5", required: false, default: "", type: string}
+      design: {description: "设计规格 JSON 路径。产生新读数的探针必填 —— 不过 design_preflight 就不许烧 API。纯重算/纯分析型探针可填 none", required: true, type: string}
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -19,6 +20,21 @@ jobs:
       - run: pip install -r requirements.txt
       - name: 探针必须存在（不存在就红，别让它静默跑空）
         run: test -f "${{ inputs.probe }}" || { echo "❌ 找不到 ${{ inputs.probe }}"; exit 1; }
+      - name: 投料前设计门（不过则禁止产生任何 API job）
+        # 2026-09-01 接线。此前 design_preflight.py 与它的守卫测试都在, 但**没有任何 workflow 调用它**
+        # —— 正是本仓库反复记的那类「新 gate 不接 CI = 形同虚设」。
+        # 外审判定: 前两轮长度实验的设计缺陷「理论上都应该在 0 次 API 调用阶段被 CI 拒绝」。
+        # 这一步就是那个拒绝, 且它在 MINIMAX_API_KEY 出现之前执行。
+        run: |
+          set -euo pipefail
+          if [ "${{ inputs.design }}" = "none" ]; then
+            echo "::warning::design=none —— 声明本探针不产生新读数(纯重算/分析)。"
+            echo "若它其实会调用模型, 这里就是一个被绕过的门。"
+            exit 0
+          fi
+          test -f "${{ inputs.design }}" || { echo "❌ 找不到设计规格 ${{ inputs.design }}"; exit 1; }
+          python3 scripts/design_preflight.py "${{ inputs.design }}"
+
       - name: 跑探针
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}

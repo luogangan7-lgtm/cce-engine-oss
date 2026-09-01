@@ -1,0 +1,83 @@
+{
+ "variables": {
+  "primitive": [
+   "base_chars",
+   "pad_chars"
+  ],
+  "derived": {
+   "total_chars": [
+    "base_chars",
+    "pad_chars"
+   ],
+   "share": [
+    "base_chars",
+    "pad_chars"
+   ]
+  }
+ },
+ "estimands": [
+  {
+   "name": "total_effect",
+   "target": "total_chars",
+   "nuisance": [
+    "share"
+   ]
+  },
+  {
+   "name": "share_effect",
+   "target": "share",
+   "nuisance": [
+    "total_chars"
+   ]
+  },
+  {
+   "name": "base_effect",
+   "target": "base_chars",
+   "nuisance": [
+    "pad_chars"
+   ]
+  },
+  {
+   "name": "pad_effect",
+   "target": "pad_chars",
+   "nuisance": [
+    "base_chars"
+   ]
+  }
+ ],
+ "analysis_formula": {
+  "terms": [
+   "base_chars",
+   "pad_chars"
+  ]
+ },
+ "design": [
+  {
+   "base_chars": 1004,
+   "pad_chars": 452,
+   "total_chars": 1456,
+   "share": 0.69
+  },
+  {
+   "base_chars": 459,
+   "pad_chars": 997,
+   "total_chars": 1456,
+   "share": 0.32
+  },
+  {
+   "base_chars": 1841,
+   "pad_chars": 1130,
+   "total_chars": 2971,
+   "share": 0.62
+  },
+  {
+   "base_chars": 928,
+   "pad_chars": 2047,
+   "total_chars": 2975,
+   "share": 0.31
+  }
+ ],
+ "n_raw_observations": 192,
+ "n_experimental_units": 24,
+ "claimed_inferential_n": 192
+}
