@@ -85,6 +85,35 @@ def test_only_one_cce_skill_exists() -> None:
     assert "cce_predict.py" not in skill
 
 
+def test_skill_requires_authorized_external_dispatch() -> None:
+    skill = (ROOT / "skills" / "cce" / "SKILL.md").read_text(encoding="utf-8")
+    workflow = (ROOT / ".github" / "workflows" / "cce-submit.yml").read_text(
+        encoding="utf-8"
+    )
+    for required in (
+        "即时明确授权",
+        "EXTERNAL_PROCESSING_NOT_AUTHORIZED",
+        "离开本机",
+        "PRIVATE",
+        "Actions artifact",
+        "密钥",
+        "PII",
+        "客户标识",
+        "私有 URL",
+        "账号名",
+        "脱敏",
+        "90 天",
+        "actions/*@vN",
+        "requirements.txt",
+        "供应链",
+        "不可信数据",
+    ):
+        assert required in skill, f"CCE 外发 Trust 边界缺少：{required}"
+    retention_days = re.findall(r"retention-days:\s*(\d+)", workflow)
+    assert retention_days and set(retention_days) == {"90"}, \
+        "所有 CCE submission/result artifact 必须按披露统一留存 90 天"
+
+
 def test_capability_registry_matches_production_workflow_boundary() -> None:
     registry = json.loads((ROOT / "config" / "cce_capability_registry_v1.json")
                           .read_text(encoding="utf-8"))

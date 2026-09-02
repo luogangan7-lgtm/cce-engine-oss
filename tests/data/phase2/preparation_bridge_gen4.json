@@ -2,17 +2,18 @@
  "kind": "cce.preparation_bridge.v1",
  "why": "gen4 的资格标定是在 raw 制备下做的。结构闸改的是**送进仪器的文本**, 属样品制备变更 —— 不换仪器, 但读数不能默认覆盖新制备。判据是逐字节的有效输入, 不是「制备代码路径变没变」。",
  "identity": {
-  "instrument_hash": "eab1a35666b33996",
+  "instrument_hash": "565470cf26c16d01",
   "qualification_policy_hash": "b41ef5217a77d311",
   "raw": {
    "preparation_id": "prep_raw_unfiltered",
-   "measurement_procedure_id": "mp_24a018c806426971"
+   "measurement_procedure_id": "mp_bf70e868a53efb09"
   },
   "prepared": {
    "preparation_id": "prep_86c7c7545d75",
-   "measurement_procedure_id": "mp_cdf545a9d3058bc2"
+   "measurement_procedure_id": "mp_74db60aeb9dc7dde"
   },
-  "note": "instrument_hash 与 qualification_policy_hash 两者**都相同** —— 这正是补 measurement_procedure_id 的原因: 没有它, 上层看到同尺同解读就照常对账。"
+  "note": "instrument_hash 与 qualification_policy_hash 两者**都相同** —— 这正是补 measurement_procedure_id 的原因: 没有它, 上层看到同尺同解读就照常对账。",
+  "corrected_2026_09_01": "首版此处记的是 knot_n=9 / s1_pairing='paired' 口径算出的 eab1a35666b33996 —— 那不是 gen4 面板的仪器。已改为面板口径 knot_n=5 / round_robin_over_3_s1_draws = 565470cf26c16d01。"
  },
  "base_level": {
   "frame_bases": 39,
@@ -32,7 +33,7 @@
   "old_U_total": 9,
   "note": "旧 9 个 U 事件里 8 个落在 base 3fb58419ad8f —— 正是被新制备改动的两条之一。所以改动组与未改动组的事件率**极不相同**, 总体率绝不可直接搬。"
  },
- "new_frame_status": "PENDING_RERUN",
+ "new_frame_status": "RESOLVED",
  "partial_identification": {
   "method": "Manski bounds: 未重跑的 16 rep 结果未知, 只能给区间",
   "lower": {
@@ -49,7 +50,8 @@
   },
   "U_max": 0.05,
   "verdict": "★ 区间跨越判决线(0.01511 < 0.05 < 0.08061) —— **不重跑这 16 rep 就判不了 prep_struct_v1 下的资格闸**。禁止用旧的 0.04980 冒充新制备的上界。",
-  "cost_to_resolve": "16 rep = 16 次 s1 投料(2 base × 8 rep), 不是 312 次"
+  "cost_to_resolve": "16 rep = 16 次 s1 投料(2 base × 8 rep), 不是 312 次",
+  "superseded_by": "resolved (2026-09-01, 16 rep 实测)"
  },
  "old_frame_for_reference": {
   "U": 9,
@@ -331,5 +333,38 @@
    "raw_sha256": "f3629a28f62b72252b21d5aebb7dcc16083ec498f35204e3c60150a6560cf372",
    "prepared_sha256": "4ad030d1eb60098ce3a7bba623629941e5195c8baa6c1aa055205e5c3945c06f"
   }
- ]
+ ],
+ "resolved": {
+  "measured_at": "2026-09-01",
+  "prereg": "tests/data/phase2/preparation_rerun_prereg.json",
+  "raw_rows": "tests/data/phase2/preparation_rerun_checkpoint.jsonl",
+  "calls": 48,
+  "reps": 16,
+  "infra_failed": 0,
+  "per_base_unqualified": {
+   "3fb58419ad8f": {
+    "raw": 8,
+    "prepared": 6,
+    "of": 8
+   },
+   "421287e62d06": {
+    "raw": 0,
+    "prepared": 0,
+    "of": 8
+   }
+  },
+  "merge": {
+   "reused_reps": 296,
+   "reused_U": 1,
+   "rerun_reps": 16,
+   "rerun_U": 6
+  },
+  "U_new": 7,
+  "n": 312,
+  "upper95": 0.04173,
+  "U_max": 0.05,
+  "verdict": "ADOPT",
+  "prior_bounds_check": "跑前 Manski 区间 [0.01511, 0.08061] 跨越 U_max=0.05; 实测定点在 0.04173, 落在区间内 ✅",
+  "scope_limit": "★ 不得读作「结构闸改善了整体资格率」。改动只发生在 2/39 个 base 上, 全部改善来自 3fb58419ad8f(链接堆帖子)从 8/8 unqualified 降到 6/8 —— 摘掉 65% 字符后有 2 次变为可测。另一条 421287e62d06 原本就 0/8, 制备后仍 0/8。n=16 的组内变化不支持任何一般性机制陈述。"
+ }
 }

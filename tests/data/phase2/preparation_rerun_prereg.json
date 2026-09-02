@@ -1,0 +1,90 @@
+{
+ "block": "PREPARATION_BRIDGE_RERUN",
+ "prereg_written_at": "2026-09-01",
+ "why": "gen4 资格标定在 raw 制备下做的。结构闸改的是送进仪器的文本 ⇒ 样品制备变更。39 个 base 里 37 个过闸后逐字节不变(EXACT_INPUT_IDENTITY, 历史 draw 直接复用), 2 个被改动 ⇒ 对应的 16 rep 不可迁移, 必须重跑。",
+ "instrument": {
+  "instrument_hash": "565470cf26c16d01",
+  "must_equal": "565470cf26c16d01",
+  "qualification_policy_hash": "b41ef5217a77d311",
+  "preparation_id": "prep_86c7c7545d75",
+  "measurement_procedure_id": "mp_74db60aeb9dc7dde",
+  "note": "仪器与资格协议一个字节不动; 唯一变的是制备。"
+ },
+ "design": {
+  "bases": [
+   "3fb58419ad8f",
+   "421287e62d06"
+  ],
+  "arms": [
+   "L0",
+   "L0b"
+  ],
+  "R": 4,
+  "K": 3,
+  "n_reps": 16,
+  "calls": 48,
+  "context": "reddit hearing discussion: 多 base 标定面板",
+  "context_note": "与主面板/扩展块逐字相同 —— 否则 context 成为混杂因子",
+  "protocol": "stage1-only。资格由 stage1 决定(abstained 或 k_valid<2 ⇒ unqualified), stage2 不改变 qualified —— 与扩展块 probes/qualification_extension.py 同口径。",
+  "only_change": "text = structural_gate(raw)['subject_text'], 其余全同"
+ },
+ "prepared_inputs": {
+  "3fb58419ad8f": {
+   "raw_chars": 852,
+   "prepared_chars": 288,
+   "dropped_chars": 556,
+   "verdict": "MEASURE",
+   "raw_sha256": "c7cf729fabff7eef",
+   "prepared_sha256": "62c930db848b49ad",
+   "span_counts": {
+    "PERSONAL": 0,
+    "NONPERSONAL": 4,
+    "AMBIGUOUS": 6
+   }
+  },
+  "421287e62d06": {
+   "raw_chars": 1391,
+   "prepared_chars": 1262,
+   "dropped_chars": 127,
+   "verdict": "MEASURE",
+   "raw_sha256": "f3629a28f62b7225",
+   "prepared_sha256": "4ad030d1eb60098c",
+   "span_counts": {
+    "PERSONAL": 4,
+    "NONPERSONAL": 1,
+    "AMBIGUOUS": 4
+   }
+  }
+ },
+ "merge_rule": {
+  "reused": {
+   "reps": 296,
+   "U": 1,
+   "status": "EXACT_INPUT_IDENTITY, 逐字节未变, 直接复用历史 draw"
+  },
+  "rerun": {
+   "reps": 16,
+   "U_old": 8
+  },
+  "new_U": "U_new = 1 + (16 个重跑里 unqualified 的个数)",
+  "n": 312
+ },
+ "decision_rule": {
+  "statistic": "精确 Clopper-Pearson 单侧 95% 上界",
+  "U_max": 0.05,
+  "pass": "upper95 <= 0.05 ⇒ prep_struct_v1 下资格闸 ADOPT",
+  "fail": "upper95 > 0.05 ⇒ 不通过, 按 §escalation 表决定是否加样",
+  "prior_bounds": {
+   "lower_if_all_qualified": 0.01511,
+   "upper_if_all_unqualified": 0.08061
+  },
+  "note": "区间跨越 0.05 ⇒ 本轮之前判不了。这正是要跑它的理由。"
+ },
+ "discipline": {
+  "fixed_n": "16, 跑完才看",
+  "look_once": "禁止边跑边看上界、一过 0.05 就停 —— 那样报出来的 95% 不是 95%",
+  "no_early_stop": true,
+  "no_base_replacement": "不许因为结果不好换 base",
+  "infra_not_unqualified": "HTTP 200 空 content / 2062 归 INFRA_FAILED, 不计入 U, 需重试该 rep"
+ }
+}

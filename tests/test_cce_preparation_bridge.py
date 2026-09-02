@@ -122,16 +122,44 @@ assert rl["reuse_reps"] == 296 and rl["rerun_reps"] == 16
 assert rl["reuse_U"] == 1 and rl["rerun_U_old"] == 8, \
     "★ 旧 9 个 U 里 8 个落在被改动的 base 上 —— 两组事件率极不相同, 总体率不可搬"
 
-# ── 7. 反向: 不许拿旧上界冒充新制备的上界 ──────────────────────────────
+# ── 7. 重跑已完成: 实测值必须落在跑前的 Manski 区间内 ──────────────────
 pi = art["partial_identification"]
-assert art["new_frame_status"] == "PENDING_RERUN"
+assert art["new_frame_status"] == "RESOLVED"
 assert pi["lower"]["upper95"] < pi["U_max"] < pi["upper"]["upper95"], \
-    "反向失败: 区间没跨越判决线, 那就不该标 PENDING"
+    "跑前区间必须跨越判决线, 否则当初就不该标 PENDING"
 assert art["old_frame_for_reference"]["upper95"] == 0.04980
-assert "upper95" not in art.get("new_frame", {}), \
-    "★ 反向失败: 在重跑之前就给出了新制备下的点估计上界 —— 那是拿旧数冒充新数"
+
+rs = art["resolved"]
+rows = [json.loads(l) for l in
+        open(os.path.join(ROOT, "tests", "data", "phase2",
+                          "preparation_rerun_checkpoint.jsonl"), encoding="utf-8") if l.strip()]
+assert len(rows) == 16 and not any(r.get("infra_suspected") for r in rows), \
+    "16 rep 必须全部成功, INFRA 失败的 rep 不得计入 U"
+assert sum(1 for r in rows if not r["qualified"]) == rs["merge"]["rerun_U"] == 6
+assert rs["U_new"] == rs["merge"]["reused_U"] + rs["merge"]["rerun_U"] == 7
+assert rs["merge"]["reused_reps"] + rs["merge"]["rerun_reps"] == rs["n"] == 312
+
+# ★ 实测上界必须落在跑前区间内 —— 落在区间外说明合并口径或区间算错了
+assert pi["lower"]["upper95"] <= rs["upper95"] <= pi["upper"]["upper95"], \
+    f"★ 实测 {rs['upper95']} 落在跑前区间 [{pi['lower']['upper95']}, {pi['upper']['upper95']}] 之外"
+assert rs["upper95"] == 0.04173 and rs["verdict"] == "ADOPT"
+assert rs["upper95"] <= rs["U_max"], "verdict=ADOPT 必须由 upper95 <= U_max 支撑"
+
+# 每条 rerun 行必须带 measurement_procedure_id, 且与前登记一致
+prereg = json.load(open(os.path.join(ROOT, "tests", "data", "phase2",
+                                     "preparation_rerun_prereg.json"), encoding="utf-8"))
+assert prereg["instrument"]["instrument_hash"] == "565470cf26c16d01"
+for r in rows:
+    assert r["measurement_procedure_id"] == prereg["instrument"]["measurement_procedure_id"]
+    assert r["preparation_id"] == prereg["instrument"]["preparation_id"]
+
+# ★ 不许把 n=16 的组内变化读成一般性机制
+assert "不得读作" in rs["scope_limit"] and "2/39" in rs["scope_limit"]
+assert rs["per_base_unqualified"]["421287e62d06"]["prepared"] == 0 and \
+       rs["per_base_unqualified"]["421287e62d06"]["raw"] == 0, \
+    "两条改动 base 里只有一条真的变了 —— 这一点必须钉住, 否则会被读成「制备普遍改善资格率」"
 
 print(f"test_cce_preparation_bridge: OK "
-      f"(三层拦截各自见红 | 39 base 中 2 条需重跑 -> 16/312 rep | "
-      f"新 U 区间 [{pi['lower']['upper95']}, {pi['upper']['upper95']}] 跨越 U_max={pi['U_max']}, "
-      f"判为 PENDING_RERUN)")
+      f"(三层拦截各自见红 | 39 base 中 2 条改动 -> 296 复用 + 16 重跑 | "
+      f"实测 U={rs['U_new']}/312 upper95={rs['upper95']} <= U_max={rs['U_max']} ⇒ {rs['verdict']}, "
+      f"且落在跑前区间 [{pi['lower']['upper95']}, {pi['upper']['upper95']}] 内)")
