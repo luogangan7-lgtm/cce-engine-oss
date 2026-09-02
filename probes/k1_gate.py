@@ -175,8 +175,9 @@ def judge(rows):
         "failed": failed, "agreement": agreement, "knot_status": status,
         "tolerance_delta": delta, "agreement_min": amin,
         "tops": tops, "sha": shas.pop(),
-        # 出现率单独报, **不设阈值** —— 阈值必须前登记。
-        # 它不进 verdict: 出现率不稳定已由「完全相同的读数对」那一项承担。
+        # ★ 2026-09-02 更正过时注释: 出现率**是**独立判据(第 ② 项), 有阈值 7/8。
+        #   旧注释写「不设阈值, 由完全相同读数对承担」—— 那条判据已删, 且当时那个理由
+        #   本来就被构造反例证伪过(出现率 4/4 翻转时它给 12/28 也过)。
         "occurrence": occurrence,
         "occurrence_flipping_knots": flips,
         "occurrence_threshold": "UNCALIBRATED —— 未前登记, 不进 verdict",

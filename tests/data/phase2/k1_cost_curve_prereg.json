@@ -1,0 +1,44 @@
+{
+ "block": "K1_AGREEMENT_COST_CURVE",
+ "prereg_written_at": "2026-09-02",
+ "question": "要让所有稳定出现的结都达到 A_j(0.10) >= 0.95, stage2 需要多少个 draw?",
+ "★target_frozen_before_measurement": {
+  "criterion": {
+   "delta": 0.1,
+   "agreement_min": 0.95
+  },
+  "frozen_in_commit": "f2b52ba",
+  "frozen_at": "2026-09-02, **在算这条曲线之前**",
+  "provenance": "delta=0.10 沿用既有工程容差; 0.95 取自 ISO 5725/ASTM 的 repeatability limit 语义。二者都不是从任何一批 CCE 数据拟合。",
+  "why_this_matters": "外部裁决明确要求: 目标必须先冻结再测, 否则找到的 draw count 是事后拟合。git 提交时间可证冻结早于测量。"
+ },
+ "data": {
+  "source": "tests/data/phase2/k1_rootcause_checkpoint.jsonl 的 LIVE 臂",
+  "reps": 10,
+  "draws_per_rep": 12,
+  "★prefix_validity": "s2 抽样按 i%3 轮转 3 份 s1 prompt(已逐条核对 draw_id 与 prompt_idx)。因此取前 k 个 draw **严格复现**一次 k-draw 运行的 prompt 分配, 不是近似。⇒ n=2..12 的整条曲线可 **0 次新增调用**算出。",
+  "instrument": "gen4 诊断分支 0cf97f605ced04fc(n=12); 生产是 565470cf26c16d01(n=5)"
+ },
+ "protocol": {
+  "for_each_n": "取每个 rep 的前 n 个 draw -> 重算 rep 级 intensity = median(非零) -> 算 A_j(0.10)",
+  "eligible_knots": "只算**稳定出现**的结: m_j >= ceil(7/8 * 10) = 9。出现率不稳或稳定缺席的结不参与 —— 它们的问题不是 draw 数能解决的。",
+  "★eligibility_is_n_dependent": "注意: 一个结在 n 小时可能点火不足而不合格, n 大时才合格。所以每个 n 都要**重新判定合格集**, 不能用 n=12 的合格集去算 n=3。",
+  "statistic": "A_j(0.10) = #{a<b: |x_a - x_b| <= 0.10} / C(m_j, 2)",
+  "headline": "min_j A_j(0.10) 随 n 的变化; n* = 第一个使 min_j A_j >= 0.95 的 n",
+  "fragility": "留一 rep: 逐个去掉一个 rep 重算, 报 min/max。C(m,2) 个对**不独立**(共享 rep), 不套二项 CI; 留一是尊重这种依赖的非参数脆弱性检查。"
+ },
+ "★branches": {
+  "B1_reached": "曲线在 n<=12 内达到 0.95 -> 报 n*, **0 次新增调用**即可收工",
+  "B2_climbing": "单调上升但 n=12 仍未达标 -> 外推给目标 n, 需投料验证(要 owner 点头)",
+  "B3_flat": "曲线平坦(不随 n 改善) -> 与已确立的「常火结是零均值抽样噪声」**矛盾**, 必须重查那条结论, 不得直接宣布「加 draw 无用」",
+  "B4_noisy": "非单调 / 留一脆弱性大 -> A_j 本身的估计误差太大(10 rep 只给 C(m,2)<=45 个对), 结论是**需要更多 rep 而不是更多 draw**",
+  "B5_declining": "曲线下降(更多 draw 反而更差) -> 与理论矛盾, 必须解释机制才能下任何结论, 不得当成「加 draw 有害」直接采纳",
+  "★lesson": "库里的教训: 上一次前登记写了 >1.5 与 ~=1 两支, 实际落点 0.36, 两支都没覆盖。所以这次把「平坦」「非单调」「下降」都写进来。"
+ },
+ "scope": {
+  "n_texts": 1,
+  "text": "050f0f2403f7",
+  "limit": "experimental unit = 1 个文本。得到的 n* 是**这条文本上的**, 不外推。要当生产采样数必须在多条文本上复现。"
+ },
+ "repo_head_at_prereg": "f2b52ba"
+}
