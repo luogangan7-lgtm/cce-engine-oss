@@ -1,7 +1,7 @@
 {
  "block": "K1_RELIABILITY_GEN4",
  "measured_at": "2026-09-01",
- "criterion_revised_at": "2026-09-02",
+ "criterion_frozen_at": "2026-09-02",
  "prereg": "tests/data/phase2/k1_reliability_prereg.json",
  "raw_rows": "tests/data/phase2/k1_reliability_checkpoint.jsonl",
  "instrument_hash": "565470cf26c16d01",
@@ -9,64 +9,57 @@
  "sha": "6c736952f41dc6a245656b9e3973d3e2322422d4c256e2ae48b7a535083a834d",
  "verdict": "FAIL",
  "failed": [
-  "完全相同读数对 ≥ 6/28",
-  "单结强度极差 ≤ 0.1",
-  "出现率一致 ≥ 7/8"
+  "出现率一致 >= 7/8",
+  "逐对容差一致 A(0.1) >= 0.95"
  ],
  "checks": [
   {
-   "name": "n ≥ 8",
+   "name": "n >= 8 (由 early-return 保证, 展示项)",
    "pass": true,
    "value": "8"
   },
   {
-   "name": "完全相同读数对 ≥ 6/28",
-   "pass": false,
-   "value": "0/28 (折算 0.0/28)"
-  },
-  {
-   "name": "单结强度极差 ≤ 0.1",
-   "pass": false,
-   "value": "0.39  最大项 display  (仅点火 rep; 7/9 个结可测)"
-  },
-  {
-   "name": "top-1 一致 ≥ 7/8",
-   "pass": true,
-   "value": "8/8 (折算 8.0/8)"
-  },
-  {
-   "name": "出现率一致 ≥ 7/8",
+   "name": "出现率一致 >= 7/8",
    "pass": false,
    "value": "5/8 (折算 5.0/8)  最差项 inertia"
+  },
+  {
+   "name": "逐对容差一致 A(0.1) >= 0.95",
+   "pass": false,
+   "value": "32.1%  最差项 display  (6/9 个结可评估)"
+  },
+  {
+   "name": "top-1 一致 >= 7/8",
+   "pass": true,
+   "value": "8/8 (折算 8.0/8)"
   }
  ],
- "ranges": {
-  "inertia": 0.1,
-  "belong": 0.2,
-  "display": 0.39,
-  "injustice": 0.33,
-  "suspend": 0.35,
-  "pain_seek": 0.06,
-  "audit": 0.2
+ "agreement": {
+  "audit": 0.6071,
+  "belong": 0.6429,
+  "display": 0.3214,
+  "injustice": 0.5357,
+  "pain_seek": 1.0,
+  "suspend": 0.5357
  },
- "tops": [
-  "pain_seek",
-  "pain_seek",
-  "pain_seek",
-  "pain_seek",
-  "pain_seek",
-  "pain_seek",
-  "pain_seek",
-  "pain_seek"
- ],
- "range_scope": "fired_reps_only",
+ "knot_status": {
+  "audit": "EVALUATED",
+  "belong": "EVALUATED",
+  "display": "EVALUATED",
+  "inertia": "NOT_EVALUATED_PRESENCE_UNSTABLE",
+  "injustice": "EVALUATED",
+  "itch": "NOT_APPLICABLE_STABLY_ABSENT",
+  "pain_seek": "EVALUATED",
+  "reward": "NOT_APPLICABLE_STABLY_ABSENT",
+  "suspend": "EVALUATED"
+ },
  "occurrence": {
-  "inertia": {
-   "fired_reps": 3,
+  "audit": {
+   "fired_reps": 8,
    "n_reps": 8,
-   "flip": true,
-   "agree": 5,
-   "agree_scaled": 5.0
+   "flip": false,
+   "agree": 8,
+   "agree_scaled": 8.0
   },
   "belong": {
    "fired_reps": 8,
@@ -82,21 +75,14 @@
    "agree": 8,
    "agree_scaled": 8.0
   },
+  "inertia": {
+   "fired_reps": 3,
+   "n_reps": 8,
+   "flip": true,
+   "agree": 5,
+   "agree_scaled": 5.0
+  },
   "injustice": {
-   "fired_reps": 8,
-   "n_reps": 8,
-   "flip": false,
-   "agree": 8,
-   "agree_scaled": 8.0
-  },
-  "suspend": {
-   "fired_reps": 8,
-   "n_reps": 8,
-   "flip": false,
-   "agree": 8,
-   "agree_scaled": 8.0
-  },
-  "pain_seek": {
    "fired_reps": 8,
    "n_reps": 8,
    "flip": false,
@@ -110,6 +96,13 @@
    "agree": 7,
    "agree_scaled": 7.0
   },
+  "pain_seek": {
+   "fired_reps": 8,
+   "n_reps": 8,
+   "flip": false,
+   "agree": 8,
+   "agree_scaled": 8.0
+  },
   "reward": {
    "fired_reps": 1,
    "n_reps": 8,
@@ -117,7 +110,7 @@
    "agree": 7,
    "agree_scaled": 7.0
   },
-  "audit": {
+  "suspend": {
    "fired_reps": 8,
    "n_reps": 8,
    "flip": false,
@@ -125,38 +118,38 @@
    "agree_scaled": 8.0
   }
  },
- "occurrence_flipping_knots": [
-  "inertia",
+ "stably_absent_knots": [
   "itch",
   "reward"
  ],
- "intensity_unmeasured_knots": [
-  "itch",
-  "reward"
+ "presence_unstable_knots": [
+  "inertia"
  ],
+ "tolerance_delta": 0.1,
+ "agreement_min": 0.95,
+ "reads": "post_gate_final_rep_output",
  "selection_rule": "在 L0 四次历史重跑全部 qualified、且属 analysis_sets.primary 的 base 中, 取 base_id 字典序第一",
  "scope_limit": "★ 本次 K1 只对「稳定合格的真人文本」成立。它**不**说明仪器在边缘文本(资格摇摆、混合内容)上的读数稳定性 —— 那是另一个问题, 需另设计。",
- "★criterion_change": {
-  "what": "① 单结极差改为**只在该结点火的 rep 上**算, 缺席不再编码成 intensity=0.0; ② 新增第五项「出现率一致 >= 7/8」把拆出去的出现率接回来。",
-  "why": "原判据非单射: 同时被「出现率翻转」和「强度漂移」触发, 会误判病灶。处方来自 2026-08-18 已确立的 P1a 根因(support 闸二值化), **早于本轮数据**, 不是拟合。",
-  "verdict_unchanged": true,
-  "before": {
-   "max_range": 0.4,
-   "blamed_knot": "reward",
-   "fired_reps": "1/8"
-  },
-  "after": {
-   "max_range": 0.39,
-   "blamed_knot": "display",
-   "fired_reps": "8/8"
-  },
-  "★point": "数字几乎没变(0.40 -> 0.39), **病灶完全变了**: 从一个 8 个 rep 里只出现 1 次的结, 变成一个每个 rep 都出现的结。这才是修它的理由 —— 不是为了改判决。",
-  "★first_attempt_was_wrong": "第一版只做了 ①, 理由是「出现率由『完全相同的读数对』兜住」。**构造验证证伪了这个理由**: 一个「出现率 4/4 翻转、强度恒定、top-1 不变」的仪器四项全过, 那一项给 12/28 也过。只拆不补 = 把闸改弱。所以补了 ②。",
-  "new_criterion_threshold": "7/8, **不是新拍的数** —— 复用 §23 自己的 top-1 一致率, 同形同数: 「同一个结的出现与否在 rep 间一致」与「同一份稿子的首结在 rep 间一致」是同一种要求。选定顺序: 先按对称性定 7/8 -> 再验证它抓得住构造反例 -> 最后才看真实数据。",
-  "criteria_count": {
-   "before": 4,
-   "after": 5
-  }
+ "★criterion_history": {
+  "v1_4项": "n>=8 · 完全相同读数对>=6/28 · 单结极差<=0.10 · top-1>=7/8",
+  "v2_5项_2026_09_02_am": "单结极差改为只在点火 rep 上算(缺席不再编码成 0.0), 并补第五项出现率一致>=7/8。判决未变。",
+  "v3_4项_2026_09_02_pm": "外部裁决(ISO 5725 / ASTM C670 支撑): 删「完全相同读数对」与「单结极差」, 换成逐对容差一致率。判决未变。",
+  "why_delete_exact_match": "它测的是九维向量的 exact collision probability, 高度依赖保留几位小数/网格粒度/有没有 rounding。把三位小数改成一位小数就可能从永久红变绿, 而被测属性一个字没变。量级: 实测单坐标 exact-match 率 27.38%(69/252), 要达 6/28 需单维 84.27%, 差 3.1 倍。★ 0/28 **不构成仪器失败证据**。",
+  "why_delete_range": "极差是极值序统计量, R_{m+1} >= R_m 是数学恒等性质。实测抽子集 rep 数 3→8 对应最大极差 0.288→0.390 单调上升 ⇒ 判据在惩罚「多测量」。ASTM C670: 用 max−min 作验收量时 critical multiplier 必须随 test-result 数改变(2→2.8 · 3→3.3 · 4→3.6 · … · 8→4.3), 固定 cutoff 跨 rep 数使用不是正确构造。",
+  "why_these_thresholds_are_not_fitted": "δ=0.10 沿用既有工程容差; 0.95 取自 ISO 5725/ASTM 的 repeatability limit 语义(两个重复结果之差以约 95% 概率落在界内)。不用 r≈2.8·s_r 的正态近似 —— 「5 个 draw 的中位数」不能假定正态。二者都不是从本批数据拟合。",
+  "verdict_unchanged_across_all_three": true
  },
- "★unmeasured_not_stable": "itch / reward 点火 <2 rep ⇒ 它们的强度信度**未被测量**, 不是「很稳」。禁止说「九结体系整体通过」。"
+ "★display_fails_deterministically": "R=0.39 > 2δ=0.20 ⇒ 最小值 a 与最大值 b 不可能同时与任一第三点在 δ 内, 6 个其余 rep 各贡献至少一个坏对, 加 (a,b) 自身 ⇒ 至少 7 个坏对 ⇒ A <= 21/28 = 75% < 95%。实测 A=32.1%(19 个坏对)。**不依赖正态假设, 也不依赖极差作为验收量** ⇒ display 是真实仪器问题, 不是判据伪影。",
+ "★classification": {
+  "判据形态问题": [
+   "完全相同读数对 0/28"
+  ],
+  "仪器真的不行": [
+   "出现率不稳 inertia 3/8 点火",
+   "常火结容差一致率 5/6 不达标(仅 pain_seek 100%)"
+  ],
+  "note": "不是「一真一假一不确定」, 而是**两个真实质量问题 + 两条坏 gate**。"
+ },
+ "★unmeasured_not_stable": "itch / reward 稳定缺席 ⇒ 强度信度**未被测量**, 不是「很稳」。inertia 出现率不稳 ⇒ 强度**未评估**, 绝不填 0.0。禁止说「九结体系整体通过」。",
+ "★n_check_is_display_only": "checks 里的「n >= 8」结构上永远为 True —— n 不足在 judge 开头就 return 2(不可判)了。突变测试证实把它改成恒真没有任何测试变红。已在名字里标为「展示项」, 不假装它是判据。真正的拦截是 early-return。"
 }

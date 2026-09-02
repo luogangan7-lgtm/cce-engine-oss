@@ -117,6 +117,12 @@ worst = max(rg([v for r, v in zip(LIVE, [med_nz([d["knot_vector"][k] for d in r]
 assert worst > 0.10, \
     f"★ 剔除出现率成分后最大纯强度极差仍须 > 0.10(否则 K1 的 FAIL 就是判据假阳性), 实测 {worst}"
 assert "两点外推" in nf["n_extrapolation"] and "不得当作承诺" in nf["n_extrapolation"]
+# ★ n>=75 的口径已作废 —— 它是从被删掉的 R<=0.10 推出来的
+assert "那个口径已作废" in nf["★n75_relabelled_2026_09_02"]
+assert "量级级成本诊断" in nf["★n75_relabelled_2026_09_02"]
+assert "已于 2026-09-02 冻结" in nf["new_cost_curve_protocol"], \
+    "★ 新成本曲线的目标必须先冻结再测, 否则找到的 draw count 是事后拟合"
+assert "诊断的**事实**全部仍然成立" in V["★superseded_criterion_note"]
 
 # ── 8. 与已确立结论对齐, 不是另起一个根因 ──────────────────────────────
 assert "support 闸二值化" in V["root_cause"] and "同一个根因" in V["root_cause"], \

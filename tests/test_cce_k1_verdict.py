@@ -42,55 +42,57 @@ assert V["n"] == SPEC["design"]["n"] == 8
 # ── 3. 四项判据逐条钉住(不是只钉一个总判决) ────────────────────────────
 by = {c["name"]: c for c in V["checks"]}
 got = {n: c["pass"] for n, c in by.items()}
-assert list(got.values()) == [True, False, False, True, False], \
-    f"★ 五项的通过情况变了: {got} —— 变了就说明重算口径漂了"
-assert len(V["checks"]) == 5, "2026-09-02 起 K1 是五项判据"
-# 2026-09-02 判据修正后: 极差**只在该结点火的 rep 上**算, 缺席不再编码成 0.0。
-# reward 8 个 rep 里只点火 1 次 ⇒ 它的强度信度未被测量, 不再有 range。
-assert "reward" not in V["ranges"] and "reward" in V["intensity_unmeasured_knots"]
-assert V["range_scope"] == "fired_reps_only"
-assert max(V["ranges"].values()) == 0.39 and \
-    max(V["ranges"], key=V["ranges"].get) == "display", \
-    "★ 病灶应从 reward(1/8 点火, 伪影) 变成 display(8/8 点火, 真实强度不稳)"
-assert len(set(V["tops"])) == 1 and V["tops"][0] == "pain_seek", "top-1 应当 8/8 一致"
-assert CRIT["range_max"] == 0.10 and max(V["ranges"].values()) > CRIT["range_max"]
+assert by[[n for n in by if n.startswith("n >= 8")][0]]["name"].endswith("展示项)"), \
+    "★ n 这一项结构上永远为真, 名字里必须标明它是展示项不是闸"
+assert list(got.values()) == [True, False, False, True], \
+    f"★ 四项的通过情况变了: {got} —— 变了就说明重算口径漂了"
+assert len(V["checks"]) == 4, "2026-09-02 冻结为四项"
+# ── 3b. ★ 判据两次修正的沿革必须留档 ──────────────────────────────────
+ch = V["★criterion_history"]
+assert ch["verdict_unchanged_across_all_three"] is True and V["verdict"] == "FAIL", \
+    "★ 三版判据判决都是 FAIL —— 改判据不得改判决, 改了就说明在拟合结果"
+assert "exact collision probability" in ch["why_delete_exact_match"]
+assert "27.38%" in ch["why_delete_exact_match"] and "84.27%" in ch["why_delete_exact_match"]
+assert "不构成仪器失败证据" in ch["why_delete_exact_match"], \
+    "★ 0/28 必须明确写成「不构成仪器失败证据」"
+assert "数学恒等性质" in ch["why_delete_range"] and "ASTM C670" in ch["why_delete_range"]
+assert "惩罚「多测量」" in ch["why_delete_range"]
+assert "不是从本批数据拟合" in ch["why_these_thresholds_are_not_fitted"]
+assert "ISO 5725" in ch["why_these_thresholds_are_not_fitted"]
 
-# ── 3b. ★ 判据修正: 非单射的判据会误判病灶 ────────────────────────────
-cc = V["★criterion_change"]
-assert cc["verdict_unchanged"] is True and V["verdict"] == "FAIL", \
-    "★ 修判据不得改判决 —— 改了就说明是在拟合结果"
-assert cc["before"]["blamed_knot"] == "reward" and cc["before"]["fired_reps"] == "1/8"
-assert cc["after"]["blamed_knot"] == "display" and cc["after"]["fired_reps"] == "8/8"
-assert abs(cc["before"]["max_range"] - cc["after"]["max_range"]) < 0.02, \
-    "★ 数字几乎没变 —— 修它的理由是病灶变了, 不是数字变了"
-assert "早于本轮数据" in cc["why"] and "不是拟合" in cc["why"], \
-    "★ 必须写明处方早于数据; 否则就是看过数再改判据"
-assert sorted(V["occurrence_flipping_knots"]) == ["inertia", "itch", "reward"]
-assert cc["criteria_count"] == {"before": 4, "after": 5}
-assert "证伪了这个理由" in cc["★first_attempt_was_wrong"], \
-    "★ 第一版修法错了这件事必须留在产物里"
-assert "不是新拍的数" in cc["new_criterion_threshold"] and \
-    "先按对称性定 7/8" in cc["new_criterion_threshold"], \
-    "★ 新阈值的来源与选定顺序必须写明"
+# ── 3c. display 的确定性 FAIL —— 不依赖正态假设也不依赖极差 ────────────
+det = V["★display_fails_deterministically"]
+assert "2δ=0.20" in det and "75%" in det and "32.1%" in det
+assert V["agreement"]["display"] < 0.75, "★ display 必须确定性不达标"
 
-# 出现率现在是**独立的一项判据**, 且在这批数据上确实红
-occ_check = [c for c in V["checks"] if "出现率" in c["name"]][0]
-assert not occ_check["pass"] and "inertia" in occ_check["value"], \
-    "★ inertia 3/8 点火 ⇒ 一致率 5/8 < 7/8, 必须红"
+# ── 3d. 分类: 两个真实质量问题 + 两条坏 gate ───────────────────────────
+cls = V["★classification"]
+assert cls["判据形态问题"] == ["完全相同读数对 0/28"]
+assert len(cls["仪器真的不行"]) == 2, "★ 出现率 + 容差一致率, 两个都是真问题"
+assert "两个真实质量问题" in cls["note"]
+
+# ── 3e. 出现率不稳 / 稳定缺席 都不得填 0.0 ─────────────────────────────
+assert V["presence_unstable_knots"] == ["inertia"]
+assert sorted(V["stably_absent_knots"]) == ["itch", "reward"]
+for k in V["presence_unstable_knots"] + V["stably_absent_knots"]:
+    assert k not in V["agreement"], f"★ {k} 不该有容差一致率"
+assert V["knot_status"]["inertia"] == "NOT_EVALUATED_PRESENCE_UNSTABLE"
+assert V["knot_status"]["itch"] == "NOT_APPLICABLE_STABLY_ABSENT"
+assert V["reads"] == "post_gate_final_rep_output", \
+    "★ 必须读闸后最终输出 —— 这正是 D_var 被否决的那条"
+assert V["tolerance_delta"] == 0.10 and V["agreement_min"] == 0.95
 assert V["occurrence"]["inertia"]["agree"] == 5
 
 # ── 3c. 点火 <2 rep ≠ 稳定 ─────────────────────────────────────────────
-assert sorted(V["intensity_unmeasured_knots"]) == ["itch", "reward"]
 assert "未被测量" in V["★unmeasured_not_stable"] and "不是「很稳」" in V["★unmeasured_not_stable"]
-for k in V["intensity_unmeasured_knots"]:
-    assert k not in V["ranges"], f"★ {k} 强度信度未被测量, 不该有极差值"
+assert "绝不填 0.0" in V["★unmeasured_not_stable"]
 
 # ── 4. ★ 分层结论: top-1 稳, 强度不稳 —— 两者不许混为一谈 ──────────────
 #    铁律 24: 九结 absolute intensity 与 relative composition 必须分离。
 top1_check = [c for c in V["checks"] if "top-1" in c["name"]][0]
-range_check = [c for c in V["checks"] if "极差" in c["name"]][0]
-assert top1_check["pass"] and not range_check["pass"], \
-    "★ 本轮的判定形态就是「首结稳、强度不稳」; 变成同进同退说明重算错了"
+agr_check = [c for c in V["checks"] if "容差一致" in c["name"]][0]
+assert top1_check["pass"] and not agr_check["pass"], \
+    "★ 本轮的判定形态就是「首结稳、数值不稳」; 变成同进同退说明重算错了"
 
 # ── 5. 下游: 强度层读数被拦, 首结层放行 ────────────────────────────────
 assert check_knot_readout_claims("首结是 [[knot:pain_seek]]。") == [], \
@@ -135,7 +137,7 @@ assert "top-1" in mech["note"] and "分层" in mech["note"], \
 
 print(f"test_cce_k1_verdict: OK "
       f"(n=8 同指纹 · 判定 {V['verdict']} 可从原始行重算 · "
-      f"五项 通过/不通过 = {sum(got.values())}/5 · "
-      f"首结 8/8 稳但单结极差 {max(V['ranges'].values())} 超线 | "
+      f"四项 通过/不通过 = {sum(got.values())}/4 · "
+      f"首结 8/8 稳但最差 A={min(V['agreement'].values()):.0%} < 95% | "
       "强度层引用被拦、首结层放行、缺判定不默认放行 —— 各自见红 | "
       "已登记为机制 knot_intensity_not_reproducible)")

@@ -7,11 +7,48 @@ CI 里跑的是它的离线孪生 tests/test_cce_knot_stability.py(聚合语义 
 
 用法:
   python3 probes/k1_gate.py <artifacts_dir>     # 目录下含多个 cce-item-*/manifest.json
-判据(§23 K1):
-  n ≥ 8 · 完全相同的读数对 ≥ 6/8 · 单结强度极差 ≤ 0.10 · top-1 结一致率 ≥ 7/8
-  + 出现率一致率 ≥ 7/8 (2026-09-02 补, 见下)
+判据(2026-09-02 冻结的四项, 见下方「判据沿革」):
+  ① n >= 8
+  ② 出现率一致率 >= 7/8                      —— 每个结「都出现」或「都不出现」
+  ③ 稳定出现的结: 逐对容差一致率 A(0.10) >= 0.95  —— 出现之后的数值可复现性
+  ④ top-1 结一致率 >= 7/8                    —— 排名身份可复现性
+四项各抓一种可观测症状, 互不重叠。
 
-★ 2026-09-02 修正「单结极差」的口径 —— 原实现把**缺席**编码成 intensity=0.0
+## 判据沿革（两次修正，都留档）
+
+### 删除「完全相同的读数对 >= 6/28」—— 判据形态错误，不是仪器 FAIL
+它测的不是 repeatability，而是**九维向量的 exact collision probability**
+`P(V1=V2) = Σ_v P(V=v)^2`。这个量高度依赖：保留几位小数 · intensity 网格多细 ·
+中位数会不会产生 0.325/0.335 这类新值 · 九维联合基数 · 有没有 rounding。
+**把三位小数改成一位小数，它就可能从永久红变绿，而被测属性一个字没变。**
+这就是形态错误的定义。
+
+量级证据（实测 n=8，28 对）：相同坐标共 2x4+13x3+9x2+4x1 = 69 个，
+单坐标 exact-match 率 69/252 = 27.38%；而要达到 6/28 = 21.43% 的全向量匹配率，
+单维需约 (6/28)^(1/9) = **84.27%** —— 差 3.1 倍，不是调参能到的。
+ISO 5725 对连续测量的 repeatability 定义是**结果的离散程度**，
+且明确允许一个 test result 由一组 observations 算出（与「多 draw → 中位数」相容），
+标准从不把逐字节完全相等当作 repeatability 的定义。
+
+### 删除「单结强度极差 <= 0.10」—— 极差的严格度是观测数的函数
+极差是极值序统计量，`R_{m+1} >= R_m` 是**数学恒等性质**：加一个观测，极差只增不减。
+实测同一批数据抽子集（draw 数不变），rep 数 3→8 对应最大极差 0.288→0.390 单调上升
+⇒ 同一台仪器，跑的 rep 越多越容易不达标，**判据在惩罚「多测量」**。
+ASTM C670 对此有明确处理：若用 max−min 作验收量，其 critical multiplier **必须随
+test-result 数改变**（2 个结果 2.8 → 3 个 3.3 → 4 个 3.6 → … → 8 个 4.3）。
+固定一个 range cutoff 跨不同 rep 数使用，本来就不是正确的统计构造。
+
+替换为 **逐对容差一致率**：A_j(δ) = #{a<b : |x_aj − x_bj| <= δ} / C(m_j, 2)。
+δ=0.10 沿用既有容差；阈值 0.95 取自 ISO 5725/ASTM 的 repeatability limit 语义
+（两个重复结果之差以约 95% 概率落在界内），**不用 r≈2.8·s_r 的正态近似** ——
+因为「5 个 draw 的中位数」不能假定正态。二者都不是从本批数据拟合来的。
+
+### ★ 只读闸后最终输出
+A_j 必须读 rep 级最终 intensity，不是 draw_ledger、不是闸前数据。
+这正是 D_var 被否决的那条（闸前算、闸后判）：若闸后确实逐字节相同，
+output repeatability 就该 PASS；闸前内部波动属于另一个 robustness gate，不得冒充它。
+
+### 2026-09-02 早些时候的修正「单结极差」的口径 —— 原实现把**缺席**编码成 intensity=0.0
   再与真实强度值一起算极差。后果: 一个结在 rep 之间「出现/不出现」翻转,
   会被记成一次巨大的**强度**变动, 而它其实是**出现率**问题。
   实测(K1 那批 8 rep): 报出来的最大极差 0.40 来自 reward —— 它 8 个 rep 里只出现 1 次。
@@ -28,10 +65,16 @@ CI 里跑的是它的离线孪生 tests/test_cce_knot_stability.py(聚合语义 
 """
 import json
 import sys
+import math
 from itertools import combinations
 from pathlib import Path
 
-CRIT = {"n_min": 8, "identical_pairs_min": 6, "range_max": 0.10, "top1_agree_min": 7,
+CRIT = {"n_min": 8,
+        # ★ 2026-09-02 删除 identical_pairs_min 与 range_max, 理由见「判据沿革」。
+        "tolerance_delta": 0.10,   # 沿用既有工程容差, 不是新拍
+        "agreement_min": 0.95,     # ISO 5725 repeatability limit 的语义: 两次重复结果之差
+                                   # 以约 95% 概率落在容差内。不是从本批数据拟合。
+        "top1_agree_min": 7,
         # ★ 2026-09-02 新增第五项。不是新拍的数 —— 与 top1_agree_min 同形同数(7/8):
         #   「同一个结在 rep 之间的**出现与否**必须一致」与
         #   「同一份稿子在 rep 之间的**首结**必须一致」是同一种要求。
@@ -78,71 +121,71 @@ def judge(rows):
                    "verdict": "UNJUDGEABLE"}
 
     n = len(rows)
-    ser = [json.dumps(r["knots"], sort_keys=True) for r in rows]
-    pairs = list(combinations(range(n), 2))
-    identical = sum(1 for i, j in pairs if ser[i] == ser[j])
-    # 归一到 /8 的口径(§23 表格按 8 次表述), 用比例换算避免 n≠8 时口径漂移
-    ident_scaled = identical / len(pairs) * (CRIT["n_min"] * (CRIT["n_min"] - 1) / 2)
-
     keys = {k for r in rows for k, _ in (r["knots"] or [])}
-    # ★ 只在该结**实际点火**的 rep 上算强度极差。缺席 != 强度为 0。
-    #   点火 rep < 2 的结算不出极差 —— 那是「该结的强度信度**未被测量**」,
-    #   不是「它很稳」。这两者混同正是此前把 0.40 记在 reward 头上的原因。
-    ranges, occurrence, unmeasured = {}, {}, []
-    for k in keys:
+    delta, amin = CRIT["tolerance_delta"], CRIT["agreement_min"]
+    # 「稳定出现」= 出现率一致率达标且落在「出现」那一侧
+    m_present = math.ceil(CRIT["occurrence_agree_min"] / 8 * n)
+
+    occurrence, agreement, status = {}, {}, {}
+    for k in sorted(keys):
         fired = [dict(r["knots"])[k] for r in rows if k in dict(r["knots"])]
-        occurrence[k] = {"fired_reps": len(fired), "n_reps": n,
-                         "flip": 0 < len(fired) < n}
-        if len(fired) >= 2:
-            ranges[k] = round(max(fired) - min(fired), 4)
+        m = len(fired)
+        agree = max(m, n - m)
+        occurrence[k] = {"fired_reps": m, "n_reps": n, "flip": 0 < m < n,
+                         "agree": agree, "agree_scaled": round(agree / n * CRIT["n_min"], 4)}
+        if m >= m_present:
+            pairs = list(combinations(fired, 2))
+            ok = sum(1 for a, b in pairs if abs(a - b) <= delta)
+            agreement[k] = round(ok / len(pairs), 4)
+            status[k] = "EVALUATED"
+        elif m <= n - m_present:
+            status[k] = "NOT_APPLICABLE_STABLY_ABSENT"
         else:
-            unmeasured.append(k)
-    max_range = max(ranges.values()) if ranges else 0.0
+            # ★ 出现率不稳时**不评估**强度, 更绝不填 0.0 —— 那正是上一版的病灶
+            status[k] = "NOT_EVALUATED_PRESENCE_UNSTABLE"
+
+    worst_occ_key = min(occurrence, key=lambda k: occurrence[k]["agree_scaled"]) if occurrence else None
+    worst_occ = occurrence[worst_occ_key]["agree_scaled"] if worst_occ_key else 8.0
+    worst_agr_key = min(agreement, key=agreement.get) if agreement else None
+    worst_agr = agreement[worst_agr_key] if worst_agr_key else 1.0
 
     tops = [r["top1"] for r in rows]
     top1_agree = max(tops.count(t) for t in set(tops))
     top1_scaled = top1_agree / n * CRIT["n_min"]
 
     checks = [
-        ("n ≥ 8", n >= CRIT["n_min"], f"{n}"),
-        (f"完全相同读数对 ≥ {CRIT['identical_pairs_min']}/28",
-         identical >= CRIT["identical_pairs_min"] / 28 * len(pairs),
-         f"{identical}/{len(pairs)} (折算 {ident_scaled:.1f}/28)"),
-        (f"单结强度极差 ≤ {CRIT['range_max']}", max_range <= CRIT["range_max"],
-         f"{max_range}  最大项 {max(ranges, key=ranges.get) if ranges else '-'}"
-         f"  (仅点火 rep; {len(ranges)}/{len(keys)} 个结可测)"),
-        (f"top-1 一致 ≥ {CRIT['top1_agree_min']}/8", top1_scaled >= CRIT["top1_agree_min"],
+        # ★ 这一项**结构上永远为 True** —— n < n_min 在上面就 early-return 2(不可判)了,
+        #   走到这里 n 必然达标。它是**展示项不是闸**, 真正的拦截在 judge 开头。
+        #   突变测试证实: 把它改成恒真, 没有任何测试变红。如实标注, 不假装它是判据。
+        ("n >= 8 (由 early-return 保证, 展示项)", n >= CRIT["n_min"], f"{n}"),
+        (f"出现率一致 >= {CRIT['occurrence_agree_min']}/8", worst_occ >= CRIT["occurrence_agree_min"],
+         f"{occurrence[worst_occ_key]['agree']}/{n} (折算 {worst_occ:.1f}/8)  最差项 {worst_occ_key}"
+         if worst_occ_key else "无结"),
+        (f"逐对容差一致 A({delta}) >= {amin}", worst_agr >= amin,
+         (f"{worst_agr:.1%}  最差项 {worst_agr_key}  ({len(agreement)}/{len(keys)} 个结可评估)"
+          if worst_agr_key else f"无稳定出现的结可评估 ({len(keys)} 个结全部出现率不稳或稳定缺席)")),
+        (f"top-1 一致 >= {CRIT['top1_agree_min']}/8", top1_scaled >= CRIT["top1_agree_min"],
          f"{top1_agree}/{n} (折算 {top1_scaled:.1f}/8)"),
     ]
-    failed = [c[0] for c in checks if not c[1]]
-    # 出现率一致率: 该结在 n 个 rep 里「都出现」或「都不出现」的多数占比。
-    # 恒出现 / 恒不出现 都是稳定; 一半一半最不稳定。
-    for k, o in occurrence.items():
-        agree = max(o["fired_reps"], n - o["fired_reps"])
-        o["agree"] = agree
-        o["agree_scaled"] = round(agree / n * CRIT["n_min"], 4)
-    worst_occ = min(occurrence.values(), key=lambda o: o["agree_scaled"]) if occurrence else None
-    worst_occ_key = (min(occurrence, key=lambda k: occurrence[k]["agree_scaled"])
-                     if occurrence else None)
-    checks.append(
-        (f"出现率一致 ≥ {CRIT['occurrence_agree_min']}/8",
-         (worst_occ["agree_scaled"] >= CRIT["occurrence_agree_min"]) if worst_occ else True,
-         (f"{worst_occ['agree']}/{n} (折算 {worst_occ['agree_scaled']:.1f}/8)  最差项 {worst_occ_key}"
-          if worst_occ else "无结")))
     failed = [c[0] for c in checks if not c[1]]
 
     flips = sorted(k for k, o in occurrence.items() if o["flip"])
     return (0 if not failed else 1), {
         "verdict": "PASS" if not failed else "FAIL", "n": n, "checks": checks,
-        "failed": failed, "ranges": ranges, "tops": tops, "sha": shas.pop(),
+        "failed": failed, "agreement": agreement, "knot_status": status,
+        "tolerance_delta": delta, "agreement_min": amin,
+        "tops": tops, "sha": shas.pop(),
         # 出现率单独报, **不设阈值** —— 阈值必须前登记。
         # 它不进 verdict: 出现率不稳定已由「完全相同的读数对」那一项承担。
         "occurrence": occurrence,
         "occurrence_flipping_knots": flips,
         "occurrence_threshold": "UNCALIBRATED —— 未前登记, 不进 verdict",
         # 点火 <2 rep 的结: 强度信度**未被测量**, 不是「很稳」
-        "intensity_unmeasured_knots": sorted(unmeasured),
-        "range_scope": "fired_reps_only"}
+        "stably_absent_knots": sorted(k for k, v in status.items()
+                                      if v == "NOT_APPLICABLE_STABLY_ABSENT"),
+        "presence_unstable_knots": sorted(k for k, v in status.items()
+                                          if v == "NOT_EVALUATED_PRESENCE_UNSTABLE"),
+        "reads": "post_gate_final_rep_output"}
 
 
 def main() -> int:
@@ -154,10 +197,13 @@ def main() -> int:
     print(f"K1 Reliability · n={rep['n']} · 输入指纹唯一 {rep['sha']} ✅\n")
     for name, ok, val in rep["checks"]:
         print(f"  {'✅' if ok else '❌'} {name:<28} {val}")
-    print(f"\n  逐结强度极差(仅点火 rep): {dict(sorted(rep['ranges'].items(), key=lambda x: -x[1]))}")
-    if rep["intensity_unmeasured_knots"]:
-        print(f"  ⚠️ 强度信度未被测量(点火 <2 rep): {rep['intensity_unmeasured_knots']}"
-              f" —— 不得说「九结体系整体通过」")
+    print(f"\n  逐结容差一致率 A({rep['tolerance_delta']}): "
+          f"{ {k: f'{v:.0%}' for k, v in sorted(rep['agreement'].items(), key=lambda x: x[1])} }")
+    if rep["stably_absent_knots"]:
+        print(f"  稳定缺席(强度不适用): {rep['stably_absent_knots']}"
+              f" —— 它们的信度**未被测量**, 不得说「九结体系整体通过」")
+    if rep["presence_unstable_knots"]:
+        print(f"  出现率不稳(强度未评估, 绝不填 0.0): {rep['presence_unstable_knots']}")
     if rep["occurrence_flipping_knots"]:
         flip = {k: "%d/%d" % (rep["occurrence"][k]["fired_reps"], rep["n"])
                 for k in rep["occurrence_flipping_knots"]}
