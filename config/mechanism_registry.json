@@ -69,6 +69,24 @@
    ],
    "replication_note": "结构性结论, 由测试逐条钉死(含禁止词表与解锁条件), 非单次实测",
    "falsifier": "改 cce_response_chain.py 的 reached==seen 约束或改采集剖面后, 需重判"
+  },
+  {
+   "id": "knot_intensity_not_reproducible",
+   "claim": "同稿重跑时九结**绝对强度**不可复现(单结极差远超 0.10), 而**首结身份**稳定 ⇒ intensity 层读数不得用于跨稿比较; top-1/构成层可用。这是仪器属性, 不是被测对象的性质。",
+   "status": "ESTABLISHED",
+   "preregistered": true,
+   "prereg_ref": "tests/data/phase2/k1_reliability_prereg.json",
+   "evidence_refs": [
+    "tests/data/phase2/k1_reliability_verdict.json",
+    "tests/data/phase2/k1_reliability_checkpoint.jsonl"
+   ],
+   "replications": [
+    "tests/data/phase2/panel_raw.json"
+   ],
+   "replication_note": "两次独立测量同一属性: §23 历史基线(不同文本/较早协议) 极差 0.37 · 完全相同读数对 0/6; 2026-09-01 gen4 n=8 同指纹 极差 0.40 · 0/28。两次都远超 0.10 阈值 ⇒ 属仪器属性而非某一文本的偶然。",
+   "note": "★ 分层: top-1 一致 8/8(本轮) / 7/8(基线) —— 首结身份是稳的。铁律 24 要求 absolute intensity 与 relative composition 分离, 本条就是那条界线的实测位置。",
+   "falsifier": "在同一仪器上重做 n>=8 同稿重跑, 若单结极差 <= 0.10 且完全相同读数对 >= 6/28, 本条被推翻。换仪器(gen5+)的结果不推翻本条, 只说明新仪器另有性质。",
+   "downstream_enforcement": "scripts/cce_strategy_gate.py::check_knot_readout_claims"
   }
  ]
 }

@@ -83,8 +83,22 @@ assert "不能在「没有读数」的文本上测读数稳定性" in SPEC["sele
 assert "只对「稳定合格的真人文本」成立" in V["scope_limit"], \
     "★ 必须写明本次 K1 不覆盖边缘文本 —— 否则会被读成仪器整体过关/不过关"
 
+# ── 8. 这条仪器属性必须进机制注册表, 不许只躺在实验产物里 ─────────────
+#    P6 存在的意义就是让「结论可查」而不是「结论躺在散文里」。
+REG = json.load(open(os.path.join(ROOT, "config", "mechanism_registry.json"), encoding="utf-8"))
+mech = {m["id"]: m for m in REG["mechanisms"]}.get("knot_intensity_not_reproducible")
+assert mech, "★ K1 的结论没有进机制注册表 —— 那它就只是一份没人查得到的实验产物"
+assert mech["status"] == "ESTABLISHED" and mech["replications"], \
+    "两次独立测量(历史基线 + 本轮)支撑 ESTABLISHED"
+for ref in mech["evidence_refs"] + mech["replications"] + [mech["prereg_ref"]]:
+    assert os.path.exists(os.path.join(ROOT, ref)), f"机制证据 {ref} 不存在"
+assert mech["downstream_enforcement"] == "scripts/cce_strategy_gate.py::check_knot_readout_claims"
+assert "top-1" in mech["note"] and "分层" in mech["note"], \
+    "★ 机制必须写明分层结论, 否则会被读成「九结读数整体不可用」"
+
 print(f"test_cce_k1_verdict: OK "
       f"(n=8 同指纹 · 判定 {V['verdict']} 可从原始行重算 · "
       f"四项 通过/不通过 = {sum(got.values())}/4 · "
       f"首结 8/8 稳但单结极差 {max(V['ranges'].values())} 超线 | "
-      "强度层引用被拦、首结层放行、缺判定不默认放行 —— 各自见红)")
+      "强度层引用被拦、首结层放行、缺判定不默认放行 —— 各自见红 | "
+      "已登记为机制 knot_intensity_not_reproducible)")
