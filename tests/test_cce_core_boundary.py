@@ -25,6 +25,97 @@ assert MAN["instrument_generation"] == 4
 # Core 与 Parser 不许有交集(否则把 Core 文件塞进 Parser 就能蒙混过关)
 assert not (set(MAN["core_files"]) & set(MAN["parser_plane"]))
 
+# ── ★ 新增: 现算仪器哈希必须与清单相符(抓 env 改仪器) ──────────────────
+#    只钉文件 sha 有个抓不到的洞: MEASUREMENT_MODEL 是**环境变量**,
+#    换它就换仪器却一个文件都不动 ⇒ 旧闸全绿。
+exp = MAN["instrument_expected"]
+assert exp["instrument_hash"] == "565470cf26c16d01"
+_saved_model = os.environ.get("CCE_MEASUREMENT_MODEL")
+import importlib  # noqa: E402
+import json as _j  # noqa: E402
+sys.path.insert(0, os.path.join(ROOT, "scripts"))
+import cce_knot_classify as _kc  # noqa: E402
+_taxo = _j.load(open(os.path.join(ROOT, "config", "knot_taxonomy.json"), encoding="utf-8"))
+_live = _kc.instrument_id(_taxo, k=3, knot_n=5, s1_pairing="round_robin_over_3_s1_draws")
+assert _live["instrument_hash"] == exp["instrument_hash"], "现算仪器哈希必须与清单相符"
+assert _live["qualification_policy_hash"] == exp["qualification_policy_hash"]
+
+# 反向: 清单里的期望值被改坏 -> 闸必须红
+with tempfile.TemporaryDirectory() as td:
+    alt = os.path.join(td, "man.json")
+    m = json.loads(json.dumps(MAN))
+    m["instrument_expected"]["instrument_hash"] = "deadbeefdeadbeef"
+    json.dump(m, open(alt, "w"), ensure_ascii=False)
+    ok_i, err_i, _ = cb.check(alt)
+    assert not ok_i and any("仪器变了" in e for e in err_i), \
+        "★ 反向失败: 现算仪器哈希与清单不符却放行 —— 换 env 换模型就抓不到了"
+# 反向: 清单缺 instrument_expected -> 红
+with tempfile.TemporaryDirectory() as td:
+    alt = os.path.join(td, "man.json")
+    m = json.loads(json.dumps(MAN)); m.pop("instrument_expected")
+    json.dump(m, open(alt, "w"), ensure_ascii=False)
+    assert not cb.check(alt)[0], "★ 缺 instrument_expected 必须红"
+
+# ── ★ 新增: 纯重构走 refactor_log, 且必须带行为证据 ────────────────────
+log = MAN["refactor_log"]
+assert log and all(e.get("reason") and e.get("behavior_evidence") for e in log)
+for e in log:
+    for t in e["behavior_evidence"]:
+        assert os.path.exists(os.path.join(ROOT, t)), f"行为证据 {t} 不存在"
+    assert "不足以" in e["★evidence_is_required_because"], \
+        "★ 必须写明「仪器哈希没变不足以证明行为没变」, 否则下次就会拿哈希当证据"
+
+# 反向: refactor_log 条目缺行为证据 -> 红(用一个真实漂移来触发)
+core_file = "scripts/cce_knot_classify.py"
+abs_core = os.path.join(ROOT, core_file)
+backup = abs_core + ".coreguard_bak2"
+shutil.copy2(abs_core, backup)
+try:
+    with open(abs_core, "a", encoding="utf-8") as fh:
+        fh.write("\n# refactor log reverse test\n")
+    live_sha = cb.sha256_of(core_file)
+    for bad_entry, want in (
+        ({"file": core_file, "to_sha": live_sha, "reason": "x", "behavior_evidence": []},
+         "没写 behavior_evidence"),
+        ({"file": core_file, "to_sha": live_sha, "reason": "x",
+          "behavior_evidence": ["tests/does_not_exist.py"]}, "不存在"),
+        ({"file": core_file, "to_sha": live_sha, "reason": "",
+          "behavior_evidence": ["tests/test_cce_knot_stability.py"]}, "没写 reason"),
+    ):
+        with tempfile.TemporaryDirectory() as td:
+            alt = os.path.join(td, "man.json")
+            m = json.loads(json.dumps(MAN))
+            bad_entry["from_sha"] = MAN["core_files"][core_file]
+            m["refactor_log"] = [bad_entry]
+            json.dump(m, open(alt, "w"), ensure_ascii=False)
+            ok_r, err_r, _ = cb.check(alt)
+            assert not ok_r and any(want in e for e in err_r), \
+                f"★ 反向失败: refactor_log 条目 {want} 却放行"
+    # ★ 反向: 只对上 to_sha 但 from_sha 不符 -> 不得豁免(否则 pin 可以被改成垃圾)
+    with tempfile.TemporaryDirectory() as td:
+        alt = os.path.join(td, "man.json")
+        m = json.loads(json.dumps(MAN))
+        m["core_files"][core_file] = "0" * 16
+        m["refactor_log"] = [{"file": core_file, "from_sha": MAN["core_files"][core_file],
+                              "to_sha": live_sha, "reason": "r",
+                              "behavior_evidence": ["tests/test_cce_knot_stability.py"]}]
+        json.dump(m, open(alt, "w"), ensure_ascii=False)
+        assert not cb.check(alt)[0], \
+            "★ 反向失败: from_sha 与当前 pin 不符时仍被豁免 —— pin 可被改成任意值"
+
+    # 正向: 补齐的条目应当放行
+    with tempfile.TemporaryDirectory() as td:
+        alt = os.path.join(td, "man.json")
+        m = json.loads(json.dumps(MAN))
+        m["refactor_log"] = [{"file": core_file, "from_sha": MAN["core_files"][core_file],
+                              "to_sha": live_sha, "reason": "refactor",
+                              "behavior_evidence": ["tests/test_cce_knot_stability.py"]}]
+        json.dump(m, open(alt, "w"), ensure_ascii=False)
+        assert cb.check(alt)[0], "★ 条目补齐(有理由+存在的行为证据)应当放行"
+finally:
+    shutil.move(backup, abs_core)
+assert cb.check()[0], "还原后闸应恢复绿"
+
 # ── 反向 1: 故意在 Core 里改一行 -> 必须红 ─────────────────────────────
 core_file = "scripts/cce_knot_classify.py"
 abs_core = os.path.join(ROOT, core_file)
@@ -36,6 +127,8 @@ try:
     ok2, errors2, _ = cb.check()
     assert not ok2, "★ 反向失败: 在 CCE Core 里改了一行, 闸却是绿的 —— 静默换仪器"
     assert any("静默换仪器" in e for e in errors2)
+    assert any("无 refactor_log 记录" in e for e in errors2), \
+        "★ 报错必须指出「没有 refactor_log」这条路也没走"
     assert any(core_file in e for e in errors2), "报错必须指出是哪个文件漂了"
 finally:
     shutil.move(backup, abs_core)

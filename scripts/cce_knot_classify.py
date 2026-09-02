@@ -732,6 +732,29 @@ def _stage2_draw(prompt, taxo, tag):
     return None
 
 
+def derived_layers(stability, keys, taxo):
+    """从 stability 算 §22 的第 3/4 层。**抽成纯函数是为了让探针与生产共用一份实现** ——
+    本项目栽过「两份实现悄悄漂移」的坑, 派生量的可靠性又必须能被独立测量。
+
+    ★ 注意: mass / composition / weight 全部建在 intensity 上, 因此它们的可靠性
+      不可能好于 intensity。但比值**未必**同样差(比值可能更稳), 所以是否一起扣发
+      必须**实测**, 不得凭「它是派生量」直接断言。
+    返回 (families, inten)。
+    """
+    fam_of = {m["key"]: m["family"] for m in taxo["knots"]}
+    inten = {k: stability[k]["intensity"] for k in keys if _has_support(stability[k])}
+    families = {}
+    for fam in {"推动", "阻挡"}:
+        mem = {k: v for k, v in inten.items() if fam_of.get(k) == fam}
+        tot = sum(mem.values())
+        families[fam] = {
+            "mass": round(max(mem.values()), 4) if mem else 0.0,
+            "composition": {k: round(v / tot, 4)
+                            for k, v in sorted(mem.items(), key=lambda x: -x[1])} if tot else {},
+            "members_active": len(mem)}
+    return families, inten
+
+
 def _stage2_aggregate(prompt, taxo, n=None):
     """prompt 可以是**一个字符串**, 也可以是**一列字符串**(每份对应一个 s1 draw)。
 
@@ -836,16 +859,7 @@ def _stage2_aggregate(prompt, taxo, n=None):
     #        若 mass 取和则会 >1 而失去「强度」量纲; 取最大值使 mass 与 intensity 同量纲,
     #        可直接用于 §22.4 的 high/low drive × high/low brake 四象限。
     #        composition 与 mass 正交: 前者是形状, 后者是水平。
-    fam_of = {m["key"]: m["family"] for m in taxo["knots"]}
-    inten = {k: stability[k]["intensity"] for k in keys if _has_support(stability[k])}
-    families = {}
-    for fam in {"推动", "阻挡"}:
-        mem = {k: v for k, v in inten.items() if fam_of.get(k) == fam}
-        tot = sum(mem.values())
-        families[fam] = {
-            "mass": round(max(mem.values()), 4) if mem else 0.0,
-            "composition": {k: round(v / tot, 4) for k, v in sorted(mem.items(), key=lambda x: -x[1])} if tot else {},
-            "members_active": len(mem)}
+    families, inten = derived_layers(stability, keys, taxo)
     dm, bm = families["推动"]["mass"], families["阻挡"]["mass"]
     # weight 仍**只在过闸结上**归一, 未过闸者恒 0.0 ——
     # 下游 5 个消费者读的是 {key: weight}, 这样它们逐值不变(已验: hooks_for 取 top2 不受

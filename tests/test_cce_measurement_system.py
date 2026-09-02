@@ -98,9 +98,39 @@ assert set(q["usable_keys"]) & set(q["withheld"]) == set(), "usable 与 withheld
 assert q["instrument_hash"] == "hhhh000000000000", q
 
 # 6b. ★ 反向: 全部通过时 withheld 必须为空 —— 否则闸永远显示有东西被扣, 等于永久红
-q2 = run_q({"desire": "控制欲", "need": "N04"}, None, "让位;被当同侪", None)
-assert q2["withheld_count"] == 0, q2
-assert "s2.playbook_primary" in q2["usable_keys"], q2
+#
+# 2026-09-02: s2.distribution 改为由 K1 判定路由(见 scripts/cce_k1_status.py)。
+# 当前真实 K1 判定的强度层不达标, 所以 intensity 及其派生量**恒被扣发** ——
+# 那不是闸坏了, 是判定就是这样。但本条的意图(不许永久红)仍然成立, 所以改为:
+# **在 K1 全过的前提下** withheld 必须为空。意图原样保住。
+import tempfile as _tf  # noqa: E402
+_K1 = os.path.join(ROOT, "tests", "data", "phase2", "k1_reliability_verdict.json")
+_v = json.loads(open(_K1, encoding="utf-8").read())
+for _c in _v["checks"]:
+    _c["pass"] = True
+_v["verdict"], _v["failed"] = "PASS", []
+with _tf.TemporaryDirectory() as _td:
+    _passing = os.path.join(_td, "k1_pass.json")
+    json.dump(_v, open(_passing, "w"), ensure_ascii=False)
+    import cce_k1_status as _ks  # noqa: E402
+    _orig = _ks.K1_VERDICT
+    _ks.K1_VERDICT = _passing   # 路径在调用时解析, 所以这里改得动
+    try:
+        q2 = run_q({"desire": "控制欲", "need": "N04"}, None, "让位;被当同侪", None)
+        assert q2["withheld_count"] == 0, q2
+        assert "s2.playbook_primary" in q2["usable_keys"], q2
+        assert "s2.distribution.intensity" in q2["usable_keys"], \
+            "★ K1 全过时 intensity 必须回到 usable —— 否则这个路由是恒拦, 没有信息量"
+    finally:
+        _ks.K1_VERDICT = _orig
+
+# 6b-2. ★ 用**真实**的 K1 判定跑: intensity 必须被扣, 且理由指向 K1
+q2r = run_q({"desire": "控制欲", "need": "N04"}, None, "让位;被当同侪", None)
+assert "s2.distribution.intensity" in q2r["withheld"], \
+    "★ 真实 K1 判定的强度层不达标, intensity 必须被扣发"
+assert "K1" in q2r["withheld"]["s2.distribution.intensity"]
+assert "s2.distribution.top1" in q2r["usable_keys"], \
+    "★ top-1 层达标, 不得被强度层拖累 —— 分层必须真的分开"
 
 # 6c. ★ 反向: 全部被扣时 usable 里不得残留 —— 否则闸永远显示有东西可用, 等于永久绿
 q3 = run_q({"desire": None, "need": None}, {"desire": "超噪声底", "need": "超噪声底"}, None, "top1 不稳")

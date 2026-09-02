@@ -319,11 +319,37 @@ def qualified(ctx):
         usable["s2.playbook_primary"] = s2m["playbook_primary"]
     else:
         withheld["s2.playbook_primary"] = s2m.get("playbook_withheld_reason") or "未产出"
-    # 分布类读数始终可用, 但必须带 n 与不确定性一起引用 —— 单个点估从来不是 usable。
+    # ★ 2026-09-02: 原来这里写「分布类读数**始终可用**, 但必须带 n 与不确定性一起引用」,
+    #   把 intensity 无条件放进 usable。那是一句**散文 caveat** —— 而本项目已确立
+    #   散文式 caveat 在这个项目已被证伪(13 条 Notion 读数都标了「不可单独使用」,
+    #   照样被当读数引用)。且它与出站闸自相矛盾: 出站闸按 K1 判定硬拦
+    #   [[knot_intensity:]], 这里却宣布同一份读数可引用。
+    #   改为由 K1 判定驱动的**路由**, 单一真相源见 scripts/cce_k1_status.py。
     if s2m.get("knots"):
-        usable["s2.distribution"] = {"knots": s2m["knots"], "intensity": s2m.get("intensity"),
-                                     "n": s2m.get("n"), "top1_mode_share": s2m.get("top1_mode_share"),
-                                     "max_range": s2m.get("max_range")}
+        from cce_k1_status import layer_status
+        st = layer_status()
+        base = {"n": s2m.get("n"), "top1_mode_share": s2m.get("top1_mode_share"),
+                "top1_mode": s2m.get("top1_mode"), "max_range": s2m.get("max_range")}
+        if st["top1"]["usable"]:
+            usable["s2.distribution.top1"] = base
+        else:
+            withheld["s2.distribution.top1"] = st["top1"]["reason"]
+        if st["intensity"]["usable"]:
+            usable["s2.distribution.intensity"] = {
+                "knots": s2m["knots"], "intensity": s2m.get("intensity"), **base}
+        else:
+            # intensity 与**建在 intensity 上的一切**一起扣发:
+            #   knots[].weight = intensity/Σ · families.mass = max(intensity)
+            #   families.composition = intensity/Σ · drive_brake = 两个 mass 的象限
+            # ⚠️ 实测(1 个文本, exploratory)显示 weight 反而比 intensity 稳、mass 更差,
+            #   但那是**未单独判定**的探索性结果 —— 缺判定不等于判定通过, 一律扣发。
+            withheld["s2.distribution.intensity"] = st["intensity"]["reason"]
+            withheld["s2.distribution.knot_weight"] = (
+                "建在 intensity 上(weight = intensity/Σ), 未单独判定 ⇒ 随 intensity 一起扣发")
+            withheld["s2.families"] = (
+                "mass = max(intensity), composition = intensity/Σ, 未单独判定 ⇒ 扣发")
+            withheld["s2.drive_brake"] = (
+                "由两个 mass 的象限决定, 未单独判定 ⇒ 扣发")
     inst = (ctx.get("cce") or {}).get("stage2", {}).get("instrument") or {}
     return {"instrument_hash": inst.get("instrument_hash"),
             "instrument_spec": inst.get("spec"),

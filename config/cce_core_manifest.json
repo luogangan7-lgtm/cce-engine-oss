@@ -6,7 +6,7 @@
   "instrument_generation": 4,
   "core_files": {
     "config/knot_taxonomy.json": "39a423b5b196f5c9",
-    "scripts/cce_knot_classify.py": "699d505ced285f46",
+    "scripts/cce_knot_classify.py": "cc7c1f8c8dcd67b5",
     "scripts/cce_ksep.py": "d6f423aa608c94d9",
     "scripts/exp_crossmodel_desire.py": "0e0e9d64b48fbade"
   },
@@ -17,5 +17,26 @@
     "scripts/cce_structural_gate.py"
   ],
   "parser_plane_note": "Parser/Ingest 层可自由增删改, 不影响本闸; 新增模态只许落在这一层。",
-  "how_to_change_core": "必须同时: ① 更新本文件里该文件的 hash ② 递增 instrument_generation ③ 在 cce_knot_classify.INSTRUMENT_LINEAGE 里加一代并写明「上一代的标定还能不能用」。三者缺一, 闸红。"
+  "how_to_change_core": "必须同时: ① 更新本文件里该文件的 hash ② 递增 instrument_generation ③ 在 cce_knot_classify.INSTRUMENT_LINEAGE 里加一代并写明「上一代的标定还能不能用」。三者缺一, 闸红。 【2026-09-02 新增第四条路】纯重构(行为不变)可不换代, 但必须: ① 更新 pin ② 在 refactor_log 追加一条, 写明 from/to sha、理由、**行为证据(具体测试文件)** ③ instrument_expected 现算仍相符。三者缺一, 闸红。",
+  "instrument_expected": {
+    "instrument_hash": "565470cf26c16d01",
+    "qualification_policy_hash": "b41ef5217a77d311",
+    "probe": "instrument_id(taxo, k=3, knot_n=5, s1_pairing='round_robin_over_3_s1_draws')",
+    "★why": "★ 只钉文件 sha 有一个抓不到的洞: **MEASUREMENT_MODEL 是环境变量**, 换它就换仪器, 却一个文件都不动 ⇒ 旧闸全绿。所以闸必须**现算**仪器哈希与这里比对, 而不是只比文件字节。"
+  },
+  "refactor_log": [
+    {
+      "date": "2026-09-02",
+      "file": "scripts/cce_knot_classify.py",
+      "from_sha": "699d505ced285f46",
+      "to_sha": "cc7c1f8c8dcd67b5",
+      "reason": "把 §22 第 3/4 层(families/mass/composition)的计算从 _stage2_aggregate 里抽成 纯函数 derived_layers() —— 为了让探针与生产**共用一份实现**。本项目栽过「两份实现悄悄漂移」的坑, 而派生量的可靠性必须能被独立测量。",
+      "instrument_hash_unchanged": true,
+      "behavior_evidence": [
+        "tests/test_cce_knot_stability.py",
+        "tests/test_cce_contract.py"
+      ],
+      "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 反例: 改 _has_support 的代码逻辑而不动 SUPPORT_RULE 常量, 读数会变而两个哈希都不变。所以必须另给行为证据。"
+    }
+  ]
 }

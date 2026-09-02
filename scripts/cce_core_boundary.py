@@ -49,13 +49,45 @@ def check(manifest_path: str = MANIFEST) -> tuple[bool, list[str], dict]:
         errors.append(f"Core 文件不存在: {rel} —— 把文件移出 Core 不是绕过闸的办法")
     live = {rel: sha256_of(rel) for rel in pinned if rel not in missing}
     drifted = {rel: (pinned[rel], live[rel]) for rel in live if pinned[rel] != live[rel]}
-    if drifted:
-        errors.append(
-            f"CCE Core 有 {len(drifted)} 个文件与钉住的 hash 不同, "
-            f"而 instrument_generation 仍是 {man['instrument_generation']} —— "
-            "这是**静默换仪器**。有意换代请同时更新 pin 与 instrument_generation。")
-        for rel, (was, now) in sorted(drifted.items()):
-            errors.append(f"    {rel}: pinned {was} != live {now}")
+
+    # ★ 2026-09-02: 只钉文件 sha 抓不到「换环境变量换仪器」——
+    #   MEASUREMENT_MODEL 是 env, 换它就换仪器却一个文件都不动。现算比对。
+    exp = man.get("instrument_expected")
+    if not exp:
+        errors.append("清单缺 instrument_expected —— 只比文件字节抓不到 env 改仪器")
+    else:
+        try:
+            sys.path.insert(0, os.path.join(ROOT, "scripts"))
+            import json as _j
+            import cce_knot_classify as _kc
+            _t = _j.load(open(os.path.join(ROOT, "config", "knot_taxonomy.json"), encoding="utf-8"))
+            _i = _kc.instrument_id(_t, k=3, knot_n=5,
+                                   s1_pairing="round_robin_over_3_s1_draws")
+            for key in ("instrument_hash", "qualification_policy_hash"):
+                if _i[key] != exp[key]:
+                    errors.append(f"现算 {key} = {_i[key]} != 清单钉的 {exp[key]} —— "
+                                  "仪器变了(可能是 env 换了模型/端点), 必须换代")
+        except Exception as exc:
+            errors.append(f"无法现算仪器哈希: {type(exc).__name__}: {exc}")
+    # 纯重构(行为不变)走 refactor_log: 必须写明 from/to sha 与**行为证据**。
+    # ★ 键必须是 (文件, from_sha, to_sha) 的**完整转移**, 不能只匹配 to_sha ——
+    #   只匹配 to_sha 时, 把 pin 改成任意垃圾值也会被这条路豁免(既有反向测试抓到的)。
+    log = {(e["file"], e.get("from_sha"), e["to_sha"]): e for e in man.get("refactor_log", [])}
+    for rel, (was, now) in sorted(drifted.items()):
+        e = log.get((rel, was, now))
+        if e is None:
+            errors.append(
+                f"{rel}: pinned {was} != live {now}, 而 instrument_generation 仍是 "
+                f"{man['instrument_generation']} 且无 refactor_log 记录 —— **静默换仪器**")
+            continue
+        if not e.get("behavior_evidence"):
+            errors.append(f"{rel}: refactor_log 条目没写 behavior_evidence —— "
+                          "「仪器哈希没变」不足以证明行为没变")
+        for t in e.get("behavior_evidence", []):
+            if not os.path.exists(os.path.join(ROOT, t)):
+                errors.append(f"{rel}: refactor_log 引的行为证据 {t} 不存在")
+        if not e.get("reason"):
+            errors.append(f"{rel}: refactor_log 条目没写 reason")
     # Parser 层允许自由增删, 但不许把 Core 文件也塞进 Parser 清单蒙混
     overlap = sorted(set(pinned) & set(man.get("parser_plane", [])))
     if overlap:
