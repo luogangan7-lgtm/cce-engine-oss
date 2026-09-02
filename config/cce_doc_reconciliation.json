@@ -1,0 +1,200 @@
+{
+  "schema_name": "cce.doc_reconciliation",
+  "version": "1.0.0",
+  "reconciled_at": "2026-09-02",
+  "doc": "/Users/luolimo/Downloads/CCE_full_architecture_workflow_parameters_v1.md (5202 行, 49 章)",
+  "★purpose": "把架构文档的可核声明与代码逐条对上。本项目反复栽在「结论写进记录 != 结论进了执行队列」—— 一份不可执行的对照表自己就会腐烂, 所以做成可跑的: 每条 GATE 声明都必须指向真实存在的文件 + 证据串 + 会跑过的测试。",
+  "★three_way": {
+    "GATE": "有可执行检查; 违反它会让某个测试/闸变红",
+    "FIELD_ONLY": "概念有 schema 槽位或字段, 但**没有任何东西会因为误用它而失败**",
+    "PROSE_ONLY": "只有文档里的一句话",
+    "why_it_matters": "本项目已确立: 散文式 caveat 在这个项目已被证伪(13 条 Notion 读数都标了「不可单独使用」, 照样被当读数引用)。所以 FIELD_ONLY 与 PROSE_ONLY 都**不构成保护**, 只是记录。"
+  },
+  "iron_laws": {
+    "1": {
+      "law": "Raw ≠ Observation",
+      "kind": "FIELD_ONLY",
+      "note": "preparation_bridge 区分 raw_sha256/prepared_sha256, 但那是 raw vs prepared, 不是 raw vs observation; 无闸"
+    },
+    "2": {
+      "law": "Observation ≠ Event",
+      "kind": "FIELD_ONLY",
+      "note": "foundation_adapter/event_assemble 分开两个 schema, 但没有断言禁止把 observation 当 event"
+    },
+    "3": {
+      "law": "Event ≠ State",
+      "kind": "FIELD_ONLY",
+      "note": "MODEL_FORBIDDEN_KEYS 挡的是身份键不是 state 本身; 无直接闸"
+    },
+    "4": {
+      "law": "State ≠ Behavior",
+      "kind": "PROSE_ONLY"
+    },
+    "5": {
+      "law": "Behavior ≠ Outcome",
+      "kind": "PROSE_ONLY"
+    },
+    "6": {
+      "law": "Population Field ≠ Persona",
+      "kind": "GATE",
+      "file": "scripts/cce_window_chain.py",
+      "evidence": "must declare that its marginal is not a person",
+      "test": "tests/test_cce_population.py"
+    },
+    "7": {
+      "law": "Mode ≠ 固定人群",
+      "kind": "GATE",
+      "file": "scripts/cce_window_chain.py",
+      "evidence": "must be descriptive and reject one-person modes",
+      "test": "tests/test_cce_population_field.py"
+    },
+    "8": {
+      "law": "Individual ≠ Broadcast Target",
+      "kind": "PROSE_ONLY"
+    },
+    "9": {
+      "law": "Activation ≠ Distribution",
+      "kind": "FIELD_ONLY",
+      "note": "stage 轴有 delivered/activated 两档, 但无闸禁止混用"
+    },
+    "10": {
+      "law": "Target ≠ Reached",
+      "kind": "GATE",
+      "file": "tests/test_cce_causal_grade.py",
+      "evidence": "reached_members == seen_actors",
+      "test": "tests/test_cce_causal_grade.py"
+    },
+    "11": {
+      "law": "Responded ≠ Acted",
+      "kind": "PROSE_ONLY"
+    },
+    "12": {
+      "law": "Prediction ≠ Fact",
+      "kind": "GATE",
+      "file": "scripts/cce_window_chain.py",
+      "evidence": "must declare response basis and derived assertion",
+      "test": "tests/test_cce_population_field.py"
+    },
+    "13": {
+      "law": "Correlation ≠ Mechanism",
+      "kind": "GATE",
+      "file": "tests/test_cce_causal_grade.py",
+      "evidence": "DESCRIPTIVE",
+      "test": "tests/test_cce_causal_grade.py"
+    },
+    "14": {
+      "law": "Mechanism 必须有 Evidence",
+      "kind": "GATE",
+      "file": "scripts/cce_mechanism.py",
+      "evidence": "evidence_refs",
+      "test": "tests/test_cce_mechanism_registry.py"
+    },
+    "15": {
+      "law": "Inference 必须有 Confidence",
+      "kind": "GATE",
+      "file": "tests/test_cce_confidence_basis.py",
+      "evidence": "confidence",
+      "test": "tests/test_cce_confidence_basis.py"
+    },
+    "16": {
+      "law": "所有结果必须有 Version",
+      "kind": "GATE",
+      "file": "scripts/cce_knot_classify.py",
+      "evidence": "没有仪器标识的读数不参与任何比较",
+      "test": "tests/test_cce_measurement_system.py"
+    },
+    "17": {
+      "law": "所有高层结论必须可追溯到 Evidence",
+      "kind": "GATE",
+      "file": "tests/test_cce_scope_claim.py",
+      "evidence": "数据结构",
+      "test": "tests/test_cce_scope_claim.py"
+    },
+    "18": {
+      "law": "Population 不能用均值虚构平均人",
+      "kind": "GATE",
+      "file": "scripts/cce_window_chain.py",
+      "evidence": "must declare that its marginal is not a person",
+      "test": "tests/test_cce_population.py"
+    },
+    "19": {
+      "law": "不可比窗口的 Delta = NOT_TESTABLE",
+      "kind": "GATE",
+      "file": "scripts/cce_preparation_bridge.py",
+      "evidence": "PreparationMismatchError",
+      "test": "tests/test_cce_preparation_bridge.py"
+    },
+    "20": {
+      "law": "新模态增加 Parser, 不应修改 CCE Core",
+      "kind": "GATE",
+      "file": "scripts/cce_core_boundary.py",
+      "evidence": "静默换仪器",
+      "test": "tests/test_cce_core_boundary.py"
+    },
+    "21": {
+      "law": "研究工作流不得产出 production complete=true",
+      "kind": "FIELD_ONLY",
+      "note": "workflow_registry 有 class:research 字段, 但**没有任何测试**钉住 research 类不得 complete=true"
+    },
+    "22": {
+      "law": "Legacy 组件不得成为新生产依赖",
+      "kind": "GATE",
+      "file": "scripts/check_ontology_migration.py",
+      "evidence": "unclassified",
+      "test": "tests/test_ontology_migration.py"
+    },
+    "23": {
+      "law": "九结当前是 candidate ontology",
+      "kind": "FIELD_ONLY",
+      "note": "cce_knot_classify 产出「G-K1/2/3 验收未跑, 引用须带未验」这句 caveat, 但**没有测试钉住它** —— 删掉不会红"
+    },
+    "24": {
+      "law": "九结 absolute intensity 与 relative composition 必须分离",
+      "kind": "GATE",
+      "file": "scripts/cce_k1_status.py",
+      "evidence": "intensity",
+      "test": "tests/test_cce_usable_routing.py"
+    },
+    "25": {
+      "law": "群体内容优化以 Population Coverage/Structure 为中心",
+      "kind": "PROSE_ONLY"
+    }
+  },
+  "iron_law_summary": {
+    "total": 25,
+    "GATE": 14,
+    "FIELD_ONLY": 6,
+    "PROSE_ONLY": 5
+  },
+  "section_divergences": [
+    {
+      "section": "§39 基础 Contract 列表",
+      "claim": "/contracts/ 下 19 个 *.schema.json",
+      "actual": "无 contracts/ 目录; 契约在 config/cce_*_contract_v*.json (5 个) + 注册表 4 个",
+      "verdict": "文档过时",
+      "note": "§39 原文是「建议仓库最终统一」, 仓库走了另一种布局。不是欠账, 是文档没跟上。"
+    },
+    {
+      "section": "§42 四条独立 Ledger",
+      "claim": "必须分开: Content / Population / Distribution / Outcome",
+      "actual": "ledger/ 只有 README + build.py + contradictions.json + experiments.json —— 是**实验台账**, 不是那四条",
+      "verdict": "代码欠账",
+      "note": "★ §42 用的是「**必须**分开」, 是规范不是建议。四条 Ledger 一条都不存在。"
+    },
+    {
+      "section": "§36 Capability Registry",
+      "claim": "每项能力至少 8 个字段",
+      "actual": "实际每项只有 id/status/profile/entrypoint(+可选 constraints)",
+      "verdict": "代码欠账",
+      "note": "异名等价: capability_id≈id, workflow≈entrypoint。真缺 4 个: input_contract / output_contract / evidence_required / fallback_policy。"
+    },
+    {
+      "section": "§37 Workflow Registry",
+      "claim": "每条工作流 9 个字段",
+      "actual": "实际每条只有 class/accepts, workflow_id 是 dict 键",
+      "verdict": "位置不同+代码欠账",
+      "note": "异名等价: accepted_schema≈accepts。stages 与 completion_gate 确实存在, 但在 cce_submission_contract_v1.json 的 profiles 里(位置不同, 非缺失)。真缺 4 个: profile / capabilities / artifact_contract / production_complete_allowed。"
+    }
+  ],
+  "★not_covered": "本次只核了 §36 §37 §39 §42 §43。§45 矩阵与 §1–§35 的本体定义未逐条核 —— **不得把本次结果当成全文核对完毕**。这正是我上次栽的坑(只读 §19.5 尾部, 把它当全集)。"
+}
