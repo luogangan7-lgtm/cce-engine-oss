@@ -83,12 +83,17 @@ assert not ok8 and any("未覆盖" in x for x in e8), \
 d = {x["section"]: x for x in SPEC["section_divergences"]}
 assert not os.path.exists(os.path.join(ROOT, "contracts")), \
     "§39 判「文档过时」的前提是没有 contracts/ 目录"
-led = set(os.listdir(os.path.join(ROOT, "ledger")))
-assert not any(k in " ".join(led).lower()
-               for k in ("content_ledger", "population_ledger", "distribution_ledger")), \
-    "§42 判「代码欠账」的前提是那四条 Ledger 确实不存在"
+assert os.path.exists(os.path.join(ROOT, "config", "cce_ledgers_v1.json")), \
+    "§42 判「符合」的前提是四条账已声明"
 assert "必须" in d["§42 四条独立 Ledger"]["note"], \
     "★ §42 用的是「必须分开」, 是规范不是建议 —— 这一点必须写明"
+# 2026-09-02: §42 已补上准入闸, 判定改为「符合」—— 但「符合」必须有闸支撑
+assert d["§42 四条独立 Ledger"]["verdict"] == "符合"
+g = d["§42 四条独立 Ledger"]["gate"]
+assert os.path.exists(os.path.join(ROOT, g["file"])) and os.path.exists(os.path.join(ROOT, g["test"]))
+ok9, e9, _ = alt(lambda s: s["section_divergences"][1].pop("gate"))
+assert not ok9 and any("必须给出真实存在的 gate" in x for x in e9), \
+    "★ 判「符合」却不给闸必须红 —— 否则「符合」就是自称"
 
 print(f"test_cce_doc_reconcile: OK "
       f"(§43 25 条: GATE {live['GATE']} / FIELD_ONLY {live['FIELD_ONLY']} / "

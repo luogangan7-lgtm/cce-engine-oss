@@ -177,9 +177,13 @@
     {
       "section": "§42 四条独立 Ledger",
       "claim": "必须分开: Content / Population / Distribution / Outcome",
-      "actual": "ledger/ 只有 README + build.py + contradictions.json + experiments.json —— 是**实验台账**, 不是那四条",
-      "verdict": "代码欠账",
-      "note": "★ §42 用的是「**必须**分开」, 是规范不是建议。四条 Ledger 一条都不存在。"
+      "actual": "config/cce_ledgers_v1.json 声明四条账 + scripts/cce_ledger.py 准入闸; content=POPULATED, 另三条 DECLARED_EMPTY(各自写明无数据源)",
+      "verdict": "符合",
+      "note": "★ 2026-09-02 补。§42 用「**必须**分开」, 它要防的是**合并**不是「四张空表」。实测只有 content 有数据; 给不存在的数据建三张表是脚手架。所以建的是**准入闸**: 四对禁止合并各自可执行, 跨账只能走显式 Attribution。两条硬约束来自库内既有铁律 —— distribution 只收人工后台读数(不做自动化抓取), outcome 只收自有资产链结果(平台互动指标属不同真值域)。",
+      "gate": {
+        "file": "scripts/cce_ledger.py",
+        "test": "tests/test_cce_ledgers.py"
+      }
     },
     {
       "section": "§36 Capability Registry",

@@ -61,6 +61,12 @@ def check(spec_path: str = SPEC, run_tests: bool = True):
                 errors.append(f"GATE 声明引用的测试红了: {t}")
 
     for d in spec["section_divergences"]:
+        # 判「符合」的必须给出让它成立的那道闸, 否则「符合」就是自称
+        if d["verdict"] == "符合":
+            g = d.get("gate") or {}
+            for key in ("file", "test"):
+                if not g.get(key) or not os.path.exists(os.path.join(ROOT, g[key])):
+                    errors.append(f"{d['section']}: 判「符合」必须给出真实存在的 gate.{key}")
         if d["verdict"] not in VERDICTS:
             errors.append(f"{d['section']}: 未知判定 {d['verdict']}")
         if not d.get("note"):

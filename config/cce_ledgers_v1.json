@@ -1,0 +1,92 @@
+{
+  "schema_name": "cce.ledgers",
+  "version": "1.0.0",
+  "source": "§42 四条独立 Ledger（原文用「必须分开」，是规范不是建议）",
+  "★what_this_protects": "§42 要防的不是「四张表没建好」，是**把它们合并**。铁律 9: Activation != Distribution —— 内容能激活谁, 不等于平台会送给谁。库里铁律: 平台互动指标(触达/点赞/评论)属于不同真值域, **无法替代商业真值**。所以本模块的重点是**准入闸**, 不是四张空表。",
+  "separation_rule": "四条分开记账; 跨账连接只能经**显式 Attribution**, 禁止隐式合并。",
+  "ledgers": {
+    "content": {
+      "question": "内容里发生了什么",
+      "admits": [
+        "cce 读数与 manifest",
+        "机制注册表条目",
+        "冻结刺激与实验产物"
+      ],
+      "forbids": [
+        "平台投放数据",
+        "商业结果"
+      ],
+      "status": "POPULATED",
+      "sources": [
+        "archive/<run_id>/",
+        "config/mechanism_registry.json",
+        "tests/data/phase2/"
+      ]
+    },
+    "population": {
+      "question": "当前 Population Field 是什么结构",
+      "admits": [
+        "cce.population_subject.v2 产物",
+        "window transition / field drift"
+      ],
+      "forbids": [
+        "平台投放数据",
+        "商业结果",
+        "把边际均值当个人画像"
+      ],
+      "status": "DECLARED_EMPTY",
+      "why": "population 由 cce_population 在运行时产出, **磁盘上 0 个持久化产物**。在有真实多成员面板落盘之前, 建一张空表是给不存在的数据搭脚手架。"
+    },
+    "distribution": {
+      "question": "平台实际送给了谁",
+      "admits": [
+        "人工后台读到的投放/曝光计数(带截图或后台出处)"
+      ],
+      "forbids": [
+        "自动化抓取的平台数据",
+        "把曝光总数直接当 identified reached subjects",
+        "把 CCE 激活读数当投放数据"
+      ],
+      "status": "DECLARED_EMPTY",
+      "why": "无数据源。",
+      "★admission_rule": "★ 库内铁律: **平台侧指标查阅走人工后台, 不做自动化抓取**; 第三方平台 API 是平台可随时关闭的水管, 不能作为地基。因此本账只收**人工录入**且带后台出处的记录, provenance.method 必须是 manual_backend_read。",
+      "★also": "平台曝光总数不得直接用于创建 identified reached subjects(缺抽样框)。"
+    },
+    "outcome": {
+      "question": "实际发生了什么行为与商业结果",
+      "admits": [
+        "自有资产链上的行为与成交"
+      ],
+      "forbids": [
+        "平台互动指标(赞/评/转)冒充商业结果",
+        "LLM 模拟的行为"
+      ],
+      "status": "DECLARED_EMPTY",
+      "why": "无数据源。",
+      "★truth_chain": "★ 唯一可靠真值链: 自有站内容 → UTM 标记 → 落地页 → 独立分析 → 自有潜客库 → 成交。平台互动指标属于**不同真值域**, 不得入本账。"
+    }
+  },
+  "forbidden_merges": [
+    {
+      "from": "content",
+      "to": "distribution",
+      "why": "铁律 9 Activation != Distribution —— 内容能激活谁不等于平台会送给谁"
+    },
+    {
+      "from": "distribution",
+      "to": "outcome",
+      "why": "平台互动指标属于不同真值域, 无法替代商业真值"
+    },
+    {
+      "from": "content",
+      "to": "outcome",
+      "why": "读数是对内容的测量, 不是行为发生的证据"
+    },
+    {
+      "from": "population",
+      "to": "distribution",
+      "why": "平台曝光总数不能直接创建 identified reached subjects(缺抽样框)"
+    }
+  ],
+  "★declared_empty_is_not_a_gap": "三条标 DECLARED_EMPTY 的账**不是欠账**, 是诚实: 没有数据源就不该有表。但它们的**准入规则现在就生效** —— 等数据真来的那天, 合并已经被闸挡住了。"
+}
