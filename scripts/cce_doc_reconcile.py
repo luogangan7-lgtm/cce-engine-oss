@@ -72,8 +72,42 @@ def check(spec_path: str = SPEC, run_tests: bool = True):
         if not d.get("note"):
             errors.append(f"{d['section']}: 判定必须带 note 说明为什么")
 
-    if "不得把本次结果当成全文核对完毕" not in spec.get("★not_covered", ""):
+    if "不得把本次结果当成全文" not in spec.get("★not_covered", ""):
         errors.append("必须写明本次未覆盖哪些章节 —— 上次就是把一节当成了全集")
+
+    # ── §45 矩阵 ──────────────────────────────────────────────────────
+    m45 = spec.get("section_45_matrix")
+    if not m45:
+        errors.append("缺 §45 矩阵核对")
+    else:
+        n = sum(v["declared"] for k, v in m45.items() if isinstance(v, dict) and "declared" in v)
+        if n != 37:
+            errors.append(f"§45 是 37 项, 核对表只覆盖 {n} 项")
+        for k, v in m45.items():
+            if not isinstance(v, dict) or "verdict" not in v:
+                continue
+            if v["verdict"] == "文档过时" and not v.get("actual"):
+                errors.append(f"§45 {k} 判「文档过时」必须给出 actual 分布")
+            if v["verdict"] == "文档属实" and v.get("verified") != v.get("declared"):
+                errors.append(f"§45 {k} 判「属实」但 verified != declared")
+        if "命中 != 实现" not in m45.get("★method", ""):
+            errors.append("§45 必须写明核对方法(命中 != 实现), 否则下次还会拿 grep 命中当证据")
+
+    # ── §1–§35 ────────────────────────────────────────────────────────
+    s135 = spec.get("sections_1_35")
+    if not s135:
+        errors.append("缺 §1–§35 核对")
+    else:
+        if not s135.get("not_machine_checkable", {}).get("why"):
+            errors.append("§1–§35 里不可机器核的部分必须写明为什么, 不能只列节号")
+        if "不得" not in s135.get("not_machine_checkable", {}).get("★do_not_claim", ""):
+            errors.append("必须写明: 没核 != 有问题, 也 != 全核完了")
+        for sec, blk in s135.get("checked", {}).items():
+            if not blk.get("why_checkable"):
+                errors.append(f"{sec} 必须写明它为什么可核(是存在性声明而非定义)")
+            for f in blk.get("findings", []):
+                if not f.get("evidence") and not f.get("note"):
+                    errors.append(f"{sec} 的判定「{f['claim'][:20]}」既无 evidence 也无 note")
 
     s = spec["iron_law_summary"]
     live = {k: sum(1 for v in laws.values() if v["kind"] == k) for k in KINDS}

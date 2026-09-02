@@ -101,8 +101,58 @@ ok9, e9, _ = alt(lambda s: s["section_divergences"][1].pop("gate"))
 assert not ok9 and any("必须给出真实存在的 gate" in x for x in e9), \
     "★ 判「符合」却不给闸必须红 —— 否则「符合」就是自称"
 
+# ── §45 矩阵 37 项 ─────────────────────────────────────────────────────
+m45 = SPEC["section_45_matrix"]
+assert sum(v["declared"] for v in m45.values() if isinstance(v, dict) and "declared" in v) == 37
+assert m45["① 已具备或接近具备"]["verdict"] == "文档属实" and m45["① 已具备或接近具备"]["verified"] == 11
+assert m45["② 部分具备"]["verdict"] == "文档属实"
+assert m45["③ 当前缺失或未生产化"]["verdict"] == "文档过时"
+a3 = m45["③ 当前缺失或未生产化"]["actual"]
+assert a3["仍缺"] + a3["部分"] + a3["已实现"] == 13
+assert len(m45["③ 当前缺失或未生产化"]["still_missing"]) == a3["仍缺"] == 7
+assert len(m45["③ 当前缺失或未生产化"]["now_implemented"]) == a3["已实现"] == 5
+a4 = m45["④ 研究未定"]["actual"]
+assert a4["仍未定"] + a4["已定"] == 7 and len(m45["④ 研究未定"]["settled"]) == 2
+# ★ 核对方法必须留在产物里 —— 我在这一节里连踩三次「命中 != 实现」
+assert "命中 != 实现" in m45["★method"] and "__pycache__" in m45["★method"], \
+    "★ 三次踩坑的过程必须留痕, 否则下次还会拿 grep 命中当证据"
+
+# 反向: 判「文档过时」却不给 actual -> 红
+okA, eA, _ = alt(lambda s: s["section_45_matrix"]["③ 当前缺失或未生产化"].pop("actual"))
+assert not okA and any("必须给出 actual" in x for x in eA)
+# 反向: 判「属实」但数对不上 -> 红
+okB, eB, _ = alt(lambda s: s["section_45_matrix"]["① 已具备或接近具备"].update({"verified": 3}))
+assert not okB and any("verified != declared" in x for x in eB)
+# 反向: 抹掉核对方法 -> 红
+okC, eC, _ = alt(lambda s: s["section_45_matrix"].update({"★method": "查了一下"}))
+assert not okC and any("命中 != 实现" in x for x in eC)
+
+# ── §1–§35 ────────────────────────────────────────────────────────────
+s135 = SPEC["sections_1_35"]
+f2 = {f["claim"][:20]: f for f in s135["checked"]["§2 当前生产基线"]["findings"]}
+assert len(f2) == 6
+bad = [f for f in s135["checked"]["§2 当前生产基线"]["findings"] if "不成立" in f["verdict"]]
+assert len(bad) == 1 and "cce.yml" in bad[0]["evidence"], \
+    "★ §2.1「兼容工作流不承担新生产功能」当前不成立, 必须如实记"
+assert "第二次独立浮现" in bad[0]["★note"], \
+    "★ 同一处分歧被两个章节独立查出 —— 这一点值得留痕"
+assert s135["checked"]["§27 Evidence / Provenance Plane"]["verdict"] == "异名分散"
+assert "generated_by" in s135["checked"]["§27 Evidence / Provenance Plane"]["detail"]
+assert "不得" in s135["not_machine_checkable"]["★do_not_claim"]
+
+# 反向: 不可机器核的部分不写理由 -> 红
+okD, eD, _ = alt(lambda s: s["sections_1_35"]["not_machine_checkable"].pop("why"))
+assert not okD and any("必须写明为什么" in x for x in eD)
+# 反向: 判定既无 evidence 也无 note -> 红
+def _strip(s):
+    f = s["sections_1_35"]["checked"]["§2 当前生产基线"]["findings"][0]
+    f.pop("evidence", None); f.pop("note", None)
+okE, eE, _ = alt(_strip)
+assert not okE and any("既无 evidence 也无 note" in x for x in eE)
+
 print(f"test_cce_doc_reconcile: OK "
       f"(§43 25 条: GATE {live['GATE']} / FIELD_ONLY {live['FIELD_ONLY']} / "
       f"PROSE_ONLY {live['PROSE_ONLY']} ⇒ **{unguarded} 条无闸**(铁律 21 已升 GATE) | "
       f"{live['GATE']} 条 GATE 的证据串全部实存 | 8 条反向各自见红 | "
-      f"§39 文档过时 · §36/§37/§42 已补闸)")
+      f"§39 文档过时 · §36/§37/§42 已补闸 | "
+      f"§45 37 项(①②属实·③④过时) · §1–§35 只核存在性声明节(§2 有 1 条当前不成立))")

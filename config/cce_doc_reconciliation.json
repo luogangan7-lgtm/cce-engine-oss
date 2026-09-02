@@ -211,5 +211,127 @@
       }
     }
   ],
-  "★not_covered": "本次只核了 §36 §37 §39 §42 §43。§45 矩阵与 §1–§35 的本体定义未逐条核 —— **不得把本次结果当成全文核对完毕**。这正是我上次栽的坑(只读 §19.5 尾部, 把它当全集)。"
+  "★not_covered": "§36 §37 §39 §42 §43 §45 已核; §1–§35 只核了做存在性声明的 §2 与 §27, 其余是本体定义(不可机器核, 其派生约束已在 §43 铁律里核过)。**不得把本次结果当成全文逐条核对完毕。**",
+  "section_45_matrix": {
+    "★method": "每一项都先定义「什么才算证据」再查。**三次踩同一个坑**才做对: 第一轮匹配到 __pycache__/*.pyc; 第二轮 'production media ingest' 命中的是**能力注册表里声明它 missing 的那一行**; 第三轮 diariz/prosody/mix 命中的是cce_video_parse.py 里 status='missing_no_capability' 的**缺失声明**。⇒ 命中 != 实现。可靠办法只有一个: **看代码本身**。",
+    "① 已具备或接近具备": {
+      "declared": 11,
+      "verified": 11,
+      "verdict": "文档属实",
+      "note": "11 项逐条给出实现文件与关键符号, 全部有据"
+    },
+    "② 部分具备": {
+      "declared": 6,
+      "verified": 6,
+      "verdict": "文档属实",
+      "note": "6 项都有实现且「部分」这个定性准确 —— video parse 自己就把 diarization/prosody/mix_metrics 标成 missing_no_capability, 是诚实的能力台账"
+    },
+    "③ 当前缺失或未生产化": {
+      "declared": 13,
+      "verdict": "文档过时",
+      "actual": {
+        "仍缺": 7,
+        "部分": 1,
+        "已实现": 5
+      },
+      "still_missing": [
+        "production media ingest",
+        "standalone image ingest",
+        "standalone audio ingest",
+        "audio source separation",
+        "speaker diarization",
+        "prosody",
+        "mix metrics"
+      ],
+      "partial": {
+        "full cross-modal event semantics": "cce_event_assemble 有 cross_modal_synchronization, 但代码自己标 confidence_basis='definitional'(两区间重叠由时间戳算出, 构造上必然为真, 不是同步强度的度量) ⇒ 达不到「**full** semantics」"
+      },
+      "now_implemented": {
+        "population repeated-window learning": "scripts/cce_population.py window_transition/field_drift (P2)",
+        "persistent archive pipeline": "scripts/cce_archive.py rebuild() (P5)",
+        "mechanism registry": "config/mechanism_registry.json + cce_mechanism.register (P6)",
+        "experiment workflow": "cce_mechanism 的 prereg/replication/REJECTED 流 (P6)",
+        "strategy generation loop": "scripts/cce_strategy_gate.py (P7)"
+      },
+      "note": "7 项仍缺全部集中在 P3 多模态 —— 与 §44 P3 标 GATE_ONLY_CONTENT_NOT_BUILT 一致"
+    },
+    "④ 研究未定": {
+      "declared": 7,
+      "verdict": "文档过时",
+      "actual": {
+        "仍未定": 5,
+        "已定": 2
+      },
+      "settled": {
+        "9-simplex 是否合理": "**已定: 不合理, 且已改**。cce_knot_classify.py:851 「此前只有单层 9-simplex: 权重和恒为 1 ⇒ compositional data ⇒ 一个分量升必然压低其他」, 已改为 §22 四层",
+        "causal attribution": "**已定: 当前剖面下做不了**。机制 causal_ceiling_descriptive = ESTABLISHED: reached 窗构造上等于被观测响应者集合 ⇒ 激活率是常数不是测量; max_grade=DESCRIPTIVE"
+      },
+      "still_open": [
+        "九结真实潜在结构",
+        "drive/brake 分组是否成立(families 已实现但有效性未测)",
+        "transition post-state estimator",
+        "cross-region measurement validity",
+        "cross-platform mechanism transfer"
+      ]
+    },
+    "summary": "37 项: ①② 17 项文档属实; ③④ 20 项里 7 项状态已变(5 已实现 + 2 已定), 文档过时"
+  },
+  "sections_1_35": {
+    "★method": "§1–§35 共 562 个结构性条目, 但**大多是本体定义不是存在性声明** —— 定义不可机器核。所以分开处理: 只核**做存在性声明**的节, 其余显式标为不可机器核并说明为什么。这不是偷懒, 是不把定义当断言。",
+    "checked": {
+      "§2 当前生产基线": {
+        "why_checkable": "它直接声称「生产现在是什么」, 过时就是主动误导",
+        "findings": [
+          {
+            "claim": "生产入口唯一 = .github/workflows/cce-submit.yml",
+            "verdict": "属实",
+            "evidence": "workflow_registry.production_entrypoint 逐字一致"
+          },
+          {
+            "claim": "提交协议 = cce.submission.v1",
+            "verdict": "属实",
+            "note": "指的是 workflow registry 的 accepts 字段, 不是契约文件自身的 kind(kind=cce.submission_contract.v1) —— 两者都对, 是不同的东西"
+          },
+          {
+            "claim": "三个生产 profile: outbound_post / outbound_reply / subject_chain",
+            "verdict": "属实",
+            "evidence": "submission contract 的 profiles 逐字一致"
+          },
+          {
+            "claim": "★ 兼容工作流或历史工作流不应继续承担新生产功能",
+            "verdict": "**当前不成立**",
+            "evidence": "cce.yml:72,147 调用 cce_full_run.py ⇒ 兼容层仍能产 complete",
+            "★note": "这是同一处分歧的**第二次独立浮现** —— 第一次是 §37 的 production_complete_allowed。两个章节汇到同一个洞, 说明它是真的。已登记 workflow_registry.known_divergences 为 DECLARED_PENDING_OWNER。"
+          },
+          {
+            "claim": "§2.2 subject_chain 五段结构",
+            "verdict": "异名等价",
+            "evidence": "契约 stages = [source_validation, parallel_s0_s1_measurement, exact_fingerprint_join, activated_aggregation, end_to_end_audit]; 与文档五段逐段对应, 只是自然语言 vs 标识符"
+          },
+          {
+            "claim": "§2.4 数据进入链路的五个文件",
+            "verdict": "属实",
+            "evidence": "五个文件全部存在"
+          }
+        ]
+      },
+      "§27 Evidence / Provenance Plane": {
+        "why_checkable": "它列了 8 个 provenance 核心字段, 产物里有没有是可查的",
+        "verdict": "异名分散",
+        "detail": "8 个概念里 **7 个在仓内有对应物**, 但**没有一个统一的 provenance 块**, 名字也不同: source_ref→raw_sha256/evidence_refs · parser_version→preparation_id · schema_version→kind · cce_version→instrument_hash/measurement_procedure_id · timestamp→started/finished/measured_at · confidence→within_js。唯一没有对应物的是 **generated_by**。",
+        "not_a_gap_because": "provenance 的**功能**在(可追溯性由 instrument_hash / evidence_refs / sha256 承担, 且有闸)。缺的是**统一的字段名与块结构** —— 那是互操作性问题, 不是可追溯性问题。"
+      }
+    },
+    "not_machine_checkable": {
+      "sections": [
+        "§1",
+        "§3–§16",
+        "§17–§26(除 §27)",
+        "§28–§35"
+      ],
+      "why": "这些是**本体定义**(Population Field 是什么 / §5 讲的两种分群概念之别 / Stage 轴怎么分 / 九结的地位 …)。定义没有「实现了没有」这个问法; 能核的是**由它派生的约束**, 而那些约束已经在 §43 铁律里逐条核过了(15 GATE / 10 无闸)。",
+      "★do_not_claim": "**不得**因为这些节没核就说它们「有问题」, 也不得说「全核完了」。",
+      "★wording_note": "★ 本条初稿写了旧本体名, 被 check_ontology_migration 当场抓到(config/ 是契约面, key 与 value 都扫)。改写而不是登记豁免 —— 能不写就不写, 豁免表不该为「我图省事」而增长。"
+    }
+  }
 }
