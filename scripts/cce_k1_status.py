@@ -20,6 +20,14 @@ K1 的判定本身是分层的: top-1 一致 8/8 达标, 逐对容差一致 A(0.
 
 ## 缺判定 != 判定通过
 找不到判定文件时一律扣发。这条规则与出站闸一致。
+
+## ★ 标定不可跨仪器搬 —— 缺仪器标识 != 仪器相同
+K1 判定是在**某一台**仪器上做的(产物里记着 instrument_hash)。
+gen2→gen3 已确立: prompt 变了 ⇒ 标定不可搬, 必须重标定。
+所以路由必须比对本次运行的仪器与判定所属仪器:
+  · 不同  -> 两层都扣发(这台仪器没有 K1 判定, 不是「判定通过」)
+  · 缺失  -> 同样扣发。**缺指纹 != 指纹相同** —— 与 K1 闸自己那条教训同源
+            (8 份 manifest 全缺 text_sha256 时 {None} 长度也是 1, 曾打印「指纹唯一 ✅」)。
 """
 from __future__ import annotations
 
@@ -51,14 +59,32 @@ def _criterion(v, needle):
     return None
 
 
-def layer_status(path=None):
-    """返回 {层: {"usable": bool, "reason": str}}。path 省略时按调用时的 K1_VERDICT 解析。"""
+def layer_status(path=None, instrument_hash=None):
+    """返回 {层: {"usable": bool, "reason": str}}。
+
+    instrument_hash: **本次运行**的仪器。必须传 —— 缺它一律扣发。
+    """
     path = path or K1_VERDICT
     v = _load(path)
     if v is None:
         miss = {"usable": False,
                 "reason": "缺 K1 判定 —— **缺判定不等于判定通过**, 一律扣发"}
         return {"intensity": dict(miss), "top1": dict(miss)}
+
+    # ★ 标定不可跨仪器搬
+    verdict_inst = v.get("instrument_hash")
+    if not instrument_hash:
+        miss = {"usable": False,
+                "reason": ("本次运行未提供 instrument_hash —— **缺仪器标识不等于仪器相同**, "
+                           f"无从判断 K1 判定(在 {verdict_inst} 上做的)是否适用, 一律扣发")}
+        return {"intensity": dict(miss), "top1": dict(miss)}
+    if instrument_hash != verdict_inst:
+        miss = {"usable": False,
+                "reason": (f"K1 判定是在仪器 {verdict_inst} 上做的, 本次是 {instrument_hash} —— "
+                           "**标定不可跨仪器搬**(gen2→gen3 已确立), 这台仪器没有 K1 判定, "
+                           "不是「判定通过」")}
+        return {"intensity": dict(miss), "top1": dict(miss)}
+
     out = {}
     for layer, needle in (("intensity", INTENSITY_CRITERION), ("top1", TOP1_CRITERION)):
         c = _criterion(v, needle)
@@ -75,19 +101,21 @@ def layer_status(path=None):
     return out
 
 
-def intensity_usable(path=None):
-    s = layer_status(path)["intensity"]
+def intensity_usable(path=None, instrument_hash=None):
+    s = layer_status(path, instrument_hash)["intensity"]
     return s["usable"], s["reason"]
 
 
-def top1_usable(path=None):
-    s = layer_status(path)["top1"]
+def top1_usable(path=None, instrument_hash=None):
+    s = layer_status(path, instrument_hash)["top1"]
     return s["usable"], s["reason"]
 
 
 if __name__ == "__main__":
     import sys
-    st = layer_status()
+    _v = _load() or {}
+    st = layer_status(instrument_hash=_v.get("instrument_hash"))
+    print(f"(按判定自带的仪器 {_v.get('instrument_hash')} 演示; 生产必须传本次运行的仪器)")
     for k, v in st.items():
         print(f"{'✓' if v['usable'] else '✗'} {k:<10} {v['reason']}")
     sys.exit(0)

@@ -24,12 +24,12 @@ K1V = json.load(open(os.path.join(ROOT, "tests", "data", "phase2",
                                   "k1_reliability_verdict.json"), encoding="utf-8"))
 
 
-def run(manifest_s2):
+def run(manifest_s2, inst="565470cf26c16d01"):
     fr.MANIFEST.clear()
     fr.MANIFEST.update({"s1_readout": {"tops": {"desire": "a", "need": "b",
                                                 "emotion": "c", "action": "d"}},
                         "s2_knots": manifest_s2})
-    fr.qualified({"cce": {"stage2": {"instrument": {"instrument_hash": "h", "spec": {}}}}})
+    fr.qualified({"cce": {"stage2": {"instrument": {"instrument_hash": inst, "spec": {}}}}})
     return fr.MANIFEST["qualified_readout"]
 
 
@@ -56,7 +56,7 @@ assert os.path.abspath(sg.K1_VERDICT) == os.path.abspath(ks.K1_VERDICT), \
 # ── 3. 缺判定 != 判定通过 ──────────────────────────────────────────────
 with tempfile.TemporaryDirectory() as td:
     absent = os.path.join(td, "nope.json")
-    st = ks.layer_status(absent)
+    st = ks.layer_status(absent, instrument_hash=K1V["instrument_hash"])
     assert not st["intensity"]["usable"] and not st["top1"]["usable"]
     assert "缺判定不等于判定通过" in st["intensity"]["reason"]
 
@@ -69,7 +69,7 @@ with tempfile.TemporaryDirectory() as td:
         c["pass"] = True
     v["verdict"], v["failed"] = "PASS", []
     json.dump(v, open(passing, "w"), ensure_ascii=False)
-    st = ks.layer_status(passing)
+    st = ks.layer_status(passing, instrument_hash=K1V["instrument_hash"])
     assert st["intensity"]["usable"] and st["top1"]["usable"], \
         "★ K1 全过时必须放行 —— 否则这个闸恒拦, 没有信息量"
 
@@ -80,7 +80,7 @@ with tempfile.TemporaryDirectory() as td:
     for c in v["checks"]:
         c["name"] = c["name"].replace("逐对容差一致", "某个新名字")
     json.dump(v, open(renamed, "w"), ensure_ascii=False)
-    st = ks.layer_status(renamed)
+    st = ks.layer_status(renamed, instrument_hash=K1V["instrument_hash"])
     assert not st["intensity"]["usable"] and "判据变了" in st["intensity"]["reason"], \
         "★ 判据改名后路由必须扣发并说明, 不得因为找不到那一项就静默放行"
 
@@ -91,7 +91,7 @@ with tempfile.TemporaryDirectory() as td:
     for c in v["checks"]:
         c["pass"] = ("top-1" not in c["name"])
     json.dump(v, open(t1bad, "w"), ensure_ascii=False)
-    st = ks.layer_status(t1bad)
+    st = ks.layer_status(t1bad, instrument_hash=K1V["instrument_hash"])
     assert st["intensity"]["usable"] and not st["top1"]["usable"], \
         "★ 两层必须独立 —— 一层不达标不该拖累另一层"
 
@@ -99,7 +99,33 @@ with tempfile.TemporaryDirectory() as td:
 src = open(os.path.join(ROOT, "scripts", "cce_full_run.py"), encoding="utf-8").read()
 assert "分布类读数始终可用" not in src, \
     "★ 「始终可用」那句散文 caveat 必须删掉 —— 它正是被证伪的那种做法"
-assert "layer_status()" in src, "usable 路由必须真的调用 K1 判定"
+assert "layer_status(instrument_hash=" in src, \
+    "★ usable 路由必须真的调用 K1 判定, **且把本次运行的仪器传进去**"
+
+# ── 7b. ★ 标定不可跨仪器搬 —— 缺仪器标识 != 仪器相同 ───────────────────
+#    K1 判定是在**某一台**仪器上做的。gen2→gen3 已确立: prompt 变了标定不可搬。
+#    路由若不比对仪器, 就会拿 gen4 的判定去管一个 gen5 的 run。
+GEN4 = K1V["instrument_hash"]
+assert GEN4 == "565470cf26c16d01"
+assert ks.layer_status(instrument_hash=GEN4)["top1"]["usable"], "同仪器时 top1 应放行"
+
+st_other = ks.layer_status(instrument_hash="eb487df50f5aec31")   # gen5
+assert not st_other["top1"]["usable"] and not st_other["intensity"]["usable"], \
+    "★ 反向失败: 拿 gen4 的 K1 判定去管 gen5 的 run 却放行了 —— 标定不可跨仪器搬"
+assert "不可跨仪器搬" in st_other["top1"]["reason"]
+
+st_missing = ks.layer_status(instrument_hash=None)
+assert not st_missing["top1"]["usable"] and not st_missing["intensity"]["usable"], \
+    "★ 反向失败: 没给仪器标识就放行 —— **缺仪器标识不等于仪器相同**"
+assert "缺仪器标识不等于仪器相同" in st_missing["top1"]["reason"]
+
+# 端到端: qualified 段必须把**本次运行**的仪器传进路由, 不是省略
+o4 = run(dict(S2), inst=GEN4)
+o5 = run(dict(S2), inst="eb487df50f5aec31")
+assert "s2.distribution.top1" in o4["usable_keys"]
+assert "s2.distribution.top1" not in o5["usable_keys"], \
+    "★ 反向失败: qualified 段没把本次运行的仪器传给路由"
+assert len(o5["withheld"]) > len(o4["withheld"])
 
 # ── 8. 派生量的实测必须落成仓内产物, 且标明 exploratory ────────────────
 #    文档与提交信息引用了它的数字, 数字必须能回查到源头。
@@ -127,4 +153,5 @@ print(f"test_cce_usable_routing: OK "
       f"(intensity 及其派生量 4 项全部扣发 · top1 层保留 | "
       f"出站闸与 usable 路由同一真相源 | 缺判定不放行 · 伪造 PASS 会放行(非恒拦) | "
       f"判据改名必红 · 两层可独立开关 | 散文 caveat 已删 | "
-      f"派生量实测已落盘(weight 比 intensity 稳 · mass 更差 · quadrant 退化))")
+      f"派生量实测已落盘(weight 比 intensity 稳 · mass 更差 · quadrant 退化) | "
+      f"跨仪器/缺仪器标识 各自扣发)")

@@ -79,13 +79,20 @@ except RuntimeError as e:
     assert "不带 instrument_hash" in str(e), e
 
 # ── 6. Qualified Readout：usable / withheld 必须互斥且覆盖 ──────────────────
+# 本文件的 usable/withheld 断言与 K1 路由有关, 而路由要比对仪器 ——
+# 用真实 K1 判定所属的那台仪器, 否则会被「跨仪器一律扣发」盖住, 测不到本来要测的东西。
+_RUN_INST = json.loads(open(os.path.join(str(ROOT), "tests", "data", "phase2",
+                                         "k1_reliability_verdict.json"),
+                            encoding="utf-8").read())["instrument_hash"]
+
+
 def run_q(tops, tops_withheld, playbook, reason, knots=None):
     C.MANIFEST.clear()
     C.MANIFEST["s1_readout"] = {"tops": tops, "tops_withheld": tops_withheld}
     C.MANIFEST["s2_knots"] = {"playbook_primary": playbook, "playbook_withheld_reason": reason,
                               "knots": knots or [["display", 0.6]], "n": 5,
                               "top1_mode_share": 0.8, "max_range": 0.1}
-    C.qualified({"cce": {"stage2": {"instrument": {"instrument_hash": "hhhh000000000000",
+    C.qualified({"cce": {"stage2": {"instrument": {"instrument_hash": _RUN_INST,
                                                    "spec": {"model": "M3"}}}}})
     return C.MANIFEST["qualified_readout"]
 
@@ -95,7 +102,7 @@ assert "s1.tops.need" in q["withheld"], q
 assert "s2.playbook_primary" in q["withheld"], q
 assert q["withheld"]["s2.playbook_primary"] == "top1 不稳", q
 assert set(q["usable_keys"]) & set(q["withheld"]) == set(), "usable 与 withheld 必须互斥"
-assert q["instrument_hash"] == "hhhh000000000000", q
+assert q["instrument_hash"] == _RUN_INST, q
 
 # 6b. ★ 反向: 全部通过时 withheld 必须为空 —— 否则闸永远显示有东西被扣, 等于永久红
 #

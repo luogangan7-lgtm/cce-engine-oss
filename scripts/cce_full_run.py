@@ -327,7 +327,10 @@ def qualified(ctx):
     #   改为由 K1 判定驱动的**路由**, 单一真相源见 scripts/cce_k1_status.py。
     if s2m.get("knots"):
         from cce_k1_status import layer_status
-        st = layer_status()
+        # ★ 必须把**本次运行**的仪器传进去: K1 判定是在某一台仪器上做的,
+        #   标定不可跨仪器搬(gen2→gen3 已确立)。缺它一律扣发。
+        _inst = (ctx.get("cce") or {}).get("stage2", {}).get("instrument") or {}
+        st = layer_status(instrument_hash=_inst.get("instrument_hash"))
         base = {"n": s2m.get("n"), "top1_mode_share": s2m.get("top1_mode_share"),
                 "top1_mode": s2m.get("top1_mode"), "max_range": s2m.get("max_range")}
         if st["top1"]["usable"]:
