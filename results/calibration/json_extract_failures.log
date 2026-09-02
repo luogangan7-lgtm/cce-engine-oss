@@ -38216,3 +38216,187 @@ Revised emotion:
   }
 }
 ```
+
+===== 2026-09-02 11:32:38 knot_s1_T0.0 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.02,
+      "成为欲": 0.03,
+      "摆脱欲": 0.32,
+      "确认欲": 0.10,
+      "超越欲": 0.01,
+      "归属欲": 0.12,
+      "控制欲": 0.18,
+      "安全感欲": 0.20,
+      "向往欲": 0.02
+    },
+    "note": "核心是摆脱欲(想逃出耳聋+药物副作用的双重折磨)与控制欲(身体失控、节食节不住),安全感欲(不确定听力能否恢复、副作用是否伤身)次之,归属欲(找同病相怜的人)与确认欲(验证自己的用药/应对方式是否正确)居中;向往欲与成为欲主要指向「回到baseline的自己」,权重很轻。"
+  },
+  "need_layer": [
+    {"code": "N06_摆脱痛苦", "context_slot": "右耳突发性耳聋+长期服用泼尼松带来的水钠潴留、暴食与腹胀", "weight": 0.26, "derived_from": "由「摆脱欲」经『8月3日晨起完全失聪+服药后身体变形』情境衍生"},
+    {"code": "N02_掌控局面", "context_slot": "药物剂量、饮食、情绪、睡眠全部被打乱,试图用研究夺回主导权", "weight": 0.20, "derived_from": "由「控制欲」经『吃了glp-1也压不住的食欲与腹胀』情境衍生"},
+    {"code": "N01_确定性", "context_slot": "听力是否会恢复、副作用何时消失、剂量方案是否正确", "weight": 0.16, "derived_from": "由「安全感欲」经『第一个ENT给的剂量/疗程不够,自己也吃不准答案』情境衍生"},
+    {"code": "N04_理解世界", "context_slot": "反复研究该怎么吃、怎么调整情绪与睡眠节律", "weight": 0.10, "derived_from": "由「控制欲+确认欲」经『keep researching the best ways to eat and manage』情境衍生"},
+    {"code": "N13_情感慰藉", "context_slot": "自己正经历痛苦时仍向同处境的人递出共情", "weight": 0.10, "derived_from": "由「归属欲+摆脱欲」经『My heart is with you』情境衍生(慰藉是双向的)"},
+    {"code": "N11_归属群体", "context_slot": "希望对方去搜「Prednisone weight gain」,加入同病经验池", "weight": 0.07, "derived_from": "由「归属欲」经『others experiences and how they cope』情境衍生"},
+    {"code": "N10_自我确认", "context_slot": "自己的方案、自己的痛是不是被代表、是否合理", "weight": 0.06, "derived_from": "由「确认欲」经『第一个ENT没开够剂量』的隐含自我辩护衍生"},
+    {"code": "N08_提升形象", "context_slot": "腹胀、增重15磅让外形失控", "weight": 0.05, "derived_from": "由「摆脱欲(对身体变化的)」经『feel my gut balloon out』情境衍生"}
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "情境直接威胁健康、外形、掌控感三大目标;但没有当场提供解决方案(只是经验分享+建议去搜),需求悬置未满足;coping被研判为中——听力恢复自身难以决定,但饮食/作息/信息搜集这类子目标感觉还能做,因此情绪是『带一线行动力的负向』而非纯绝望。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.01,
+      "joy喜悦": 0.00,
+      "gratitude感激": 0.04,
+      "desire渴望": 0.13,
+      "nostalgia怀旧": 0.03,
+      "pride自豪": 0.00,
+      "love爱": 0.02,
+      "relief宽慰": 0.04,
+      "approval认同": 0.06,
+      "curiosity好奇": 0.05,
+      "fear恐惧": 0.30,
+      "sadness悲伤": 0.22,
+      "anger愤怒": 0.10
+    },
+    "note": "威胁+未满足=负向主调:fear(怕听力永久丧失/副作用伤身)权重最高;sadness(为身体失控、baseline回不去)次之;anger(对第一个ENT剂量/疗程不足的归因)对应对抗倾向;desire指向回归baseline;relief+approval+curiosity来自「搜他人经验/有同类」的次级正向;nostalgia是淡淡的「以前的自己」。
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.20,
+      "avoidance回避": 0.08,
+      "attend关注": 0.35,
+      "reject拒斥": 0.05,
+      "agonistic对抗": 0.12,
+      "interrupt中断": 0.02,
+      "dominate支配": 0.18
+    },
+    "note": "attend最强——持续监测体重/食欲/睡眠/用药,反复研究;dominate体现『我要研究出最优饮食/作息方案』;approach是主动搜信息+伸手帮同处境的人;agonistic指向与副作用、与原ENT、与失控身体的抗争;avoidance主要是对食物/镜子的弱回避;reject弱——拒斥旧方案、旧医生意见。"
+  },
+  "chain_trace": "摆脱欲+安全感欲+控制欲 →(情境:8月3日突发右耳全聋+第二轮泼尼松副作用暴发+首诊ENT剂量疗程不足)→ N06_摆脱痛苦(听力+身体)+N01_确定性(会不会好)+N02_掌控局面(饮食/情绪/睡眠) →(评价:goal_relevance极高 / 威胁 / 未满足 / 负 / coping中)→ 以fear为主、辅以sadness、anger与desire的情绪组合 → 行动倾向以attend(持续监测研究)为锚,叠加dominate(夺回饮食/作息主导权)、approach(搜他人经验+伸手帮同处境者)与agonistic(对抗副作用与原方案)的复合输出。",
+  "evidence": {
+    "desire": "woke up totally deaf in my right ear; I've now gained 15lbs; feel my gut balloon out; hoping I return to my baseline; keep researching the best ways to eat and manage my mood/sleep cycle",
+    "need": "I just keep researching the best ways to eat and manage my mood/sleep cycle hoping I return to my baseline; The first ENT I saw didn't prescribe a high enough dose or long enough schedule; My heart is with you; Keep looking into others experiences and how they cope",
+    "emotion": "It's been seriously tough on me to feel my gut balloon out; hoping I return to my baseline within a couple of months; My heart is with you",
+    "action": "I just keep researching the best ways to eat and manage my mood/sleep cycle; Keep looking into others experiences and how they cope; You can just do a general search for Prednisone weight gain"
+  }
+}
+```
+
+===== 2026-09-02 16:29:58 knot_s1_T0.0 =====
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.30,
+      "确认欲": 0.10,
+      "超越欲": 0.0,
+      "归属欲": 0.10,
+      "控制欲": 0.20,
+      "安全感欲": 0.25,
+      "向往欲": 0.05
+    },
+    "note": "核心是摆脱突然失聪和Prednisone副作用（摆脱欲0.30），叠加对'会不会永久失聪/何时回到baseline'的深层不确定（安全感欲0.25），主动研究饮食/换ENT调剂量体现控制欲0.20。'My heart is with you'及'Keep looking into others experiences'激活归属欲0.10+确认欲0.10。向往欲0.05指向'baseline'——那个失聪/没发胖前的自己所处的状态画面。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "右耳突然完全失聪+Prednisone致15磅水钠潴留增重+腹部胀气+糖渴求+情绪睡眠紊乱",
+      "weight": 0.25,
+      "derived_from": "由<摆脱欲>经<突发性感音神经性聋+类固醇副作用>衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "能否在几个月内回到baseline（听力/体重/情绪/睡眠）？第一位ENT给药不足带来的治疗不确定性",
+      "weight": 0.20,
+      "derived_from": "由<安全感欲>经<'hoping I return to my baseline'的对未来不可知>衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "自行换ENT/主动搜索最佳饮食与情绪睡眠管理方法/自行研究他人经验",
+      "weight": 0.15,
+      "derived_from": "由<控制欲>经<'I just keep researching'的主动接管>衍生"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "在Reddit社群中学习Prednisone副作用应对、glp-1期间控食欲、mood/sleep管理",
+      "weight": 0.15,
+      "derived_from": "由<控制欲+摆脱欲>经<对方法论的渴求>衍生"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "作为听力讨论社群一员，与同病相怜者交换经验",
+      "weight": 0.10,
+      "derived_from": "由<归属欲>经<在hearing discussion板块发言+'Keep looking into others experiences'>衍生"
+    },
+    {
+      "code": "N13_情感慰藉",
+      "context_slot": "给同样处境的陌生人送去'My heart is with you'，双向寻求被接纳",
+      "weight": 0.10,
+      "derived_from": "由<归属欲+确认欲>经<对病友的共情+自我也需要被接住>衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "确认自己加大剂量+换医生+研究副作用管理是对的",
+      "weight": 0.05,
+      "derived_from": "由<确认欲>经<对第一位ENT决策的隐性质疑+自我方案的正名>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "情境与目标极度相关（自己就是当事人）。内容是'威胁'方向——失聪未恢复、副作用正发作；但'未满足'是因为还在治疗中、baseline遥遥无期。威胁+未满足→负向congruence。coping_potential判为'中'而非'低'：因为患者有glp-1+正在taper+主动研究+社群支持，能力在累积但尚未见效；也不是'高'，因为失聪是否可逆本身存在医学不确定性。负向congruence+中度coping 决定情绪将以恐惧/渴望/悲伤为主轴，并夹带好奇与微弱宽慰。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.03,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.02,
+      "desire渴望": 0.25,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.05,
+      "relief宽慰": 0.05,
+      "approval认同": 0.08,
+      "curiosity好奇": 0.10,
+      "fear恐惧": 0.25,
+      "sadness悲伤": 0.15,
+      "anger愤怒": 0.02
+    },
+    "note": "由'威胁+未满足+负congruence'派生fear(0.25)：对永久失聪/不可逆体型的恐惧；由'未满足但coping中'派生desire(0.25)：'hoping I return to my baseline'是渴望原型；由'难以承受现状'派生sadness(0.15)：'seriously tough on me to feel my gut balloon out'；curiosity(0.10)来自持续研究；approval(0.08)+love(0.05)来自对同类的共情与'heart with you'；relief(0.05)微弱——终于换到更高剂量方案；anger(0.02)对首诊ENT的隐性怨气；admiration(0.03)对自己的坚持。joy/pride/nostalgia 不在场。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.30,
+      "avoidance回避": 0.05,
+      "attend关注": 0.25,
+      "reject拒斥": 0.02,
+      "agonistic对抗": 0.20,
+      "interrupt中断": 0.03,
+      "dominate支配": 0.15
+    },
+    "note": "approach(0.30)：'I just keep researching'+换ENT+继续taper+来社群发帖+主动安慰他人——多重趋近行为。attend(0.25)：密切监测体重、食欲、情绪、睡眠曲线。agonistic(0.20)：与失聪/类固醇副作用搏斗，换医生就是对抗的体现。dominate(0.15)：接管自己的治疗方案（自行研究+自行换医）。avoidance(0.05)轻微：可能回避照镜子/回避某些社交场景。reject(0.02)+interrupt(0.03)微弱：与原ENT的关系略有中断/拒斥倾向。"
+  },
+  "chain_trace": "摆脱欲(0.30)+安全感欲(0.25)+控制欲(0.20) →(Aug 3右耳突然完全失聪 + Prednisone副作用致15磅增重与腹部胀气 这一情境事件)→ 需求: N06_摆脱痛苦(0.25) + N01_确定性(0.20) + N02_掌控局面(0.15) + N03_提升能力(0.15) + N11_归属群体(0.10) + N13_情感慰藉(0.10) + N10_自我确认(0.05) →(评价: goal_relevance=0.95, direction=威胁, need_status=未满足, congruence=负, coping=中)→ 情绪: fear恐惧(0.25)+desire渴望(0.25)+sadness悲伤(0.15)+curiosity好奇(0.10)+approval认同(0.08)+relief宽慰(0.05)+love爱(0.05)+admiration钦佩(0.03) → 行动倾向: approach趋近(0.30)+attend关注(0.25)+agonistic对抗(0.20)+dominate支配(0.15) 的完整推导。负congruence+中度coping使情绪在'恐惧-渴望-悲伤'轴上摆荡，但因coping并非为零，行动倾向以approach+dominate为主而非回避——这就是他为什么还在持续研究、换医、给陌生人写鼓励。"
+  "evidence": {
+    "desire": "摆脱欲/安全感欲: 'woke up totally deaf in my right ear'；控制欲: 'I just keep researching the best ways to eat and manage my mood/sleep cycle'；归属欲+确认欲: 'My heart is with you. Keep looking into others experiences and how they cope and it will provide some needed insight'；向往欲: 'hoping I return to my baseline within a couple of months'",
+    "need": "N06_摆脱痛苦: 'It's been seriously tough on me to feel my gut balloon out' / 'gained 15lbs' / 'woke up totally deaf'；N01_确定性: 'hoping I return to my baseline within a couple of months'；N02_掌控局面: 'The first ENT I saw didn't prescribe a high enough dose... I've now [a higher one]'+'I just keep researching'；N03_提升能力: 'researching the best ways to eat and manage my mood/sleep cycle' / 'You can just do a general search for Prednisone weight gain'；N11_归属群体+N13_情感慰藉: 'My heart is with you. Keep looking into others experiences'",
+    "emotion": "fear: 'woke up totally deaf in my right ear'(对不可逆的恐惧) + 'hoping I return to my baseline'(对未来不确定)；sadness: 'It's been seriously tough on me to feel my gut balloon out'；desire: 'hoping I return to my baseline within a couple of months'；curiosity: 'I just keep researching'；approval+love: 'My heart is with you'",
+    "action": "approach趋近: 'I just keep researching the best ways to eat' / 'I am taking a higher amount'；agonistic对抗+dominate支配: 'The first ENT I saw didn't prescribe a high enough dose... [now higher]'(换医即对抗)；attend关注: 持续监测体重/情绪/睡眠；归属+慰藉输出: 'My heart is with you. Keep looking into others experiences and how they cope'"
+  }
+}
+```
