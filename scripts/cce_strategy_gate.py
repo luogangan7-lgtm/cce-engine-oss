@@ -31,6 +31,15 @@ from cce_mechanism import _load as _load_registry  # noqa: E402
 # 生成物用这个形态引用一条机制: [[mech:<id>]]
 CITE = re.compile(r"\[\[mech:([a-z0-9_]+)\]\]")
 
+# 引用一条九结读数。两种粒度**必须分开**(铁律 24: absolute intensity 与
+# relative composition 必须分离), 因为它们的可靠性不是一回事:
+#   [[knot:<key>]]                 —— 首结/构成层面的陈述
+#   [[knot_intensity:<key>=<v>]]   —— 绝对强度值
+#   [[knot_delta:<key>]]           —— 跨稿强度比较(「A 稿 display 高于 B 稿」)
+KNOT_TOP = re.compile(r"\[\[knot:([a-z0-9_]+)\]\]")
+KNOT_INTENSITY = re.compile(r"\[\[knot_(intensity|delta):([a-z0-9_]+)")
+K1_VERDICT = os.path.join(ROOT, "tests", "data", "phase2", "k1_reliability_verdict.json")
+
 
 def check_citations(text):
     """★ 本段真正新增的判据: 生成物不得引用未达标层的读数。"""
@@ -52,6 +61,37 @@ def check_citations(text):
     return issues
 
 
+def check_knot_readout_claims(text, verdict_path=K1_VERDICT):
+    """★ §44.9 P7 反向测试点名的那一条: 引用了 K1 未达标读数的生成物必须被拦。
+
+    这条判据此前无法执行 —— K1 只有判据没有判定, 「达标没达标」查不到。
+    2026-09-01 首次真实判定后可查了。
+
+    ★ 判定是**分层**的, 不是一刀切:
+      top-1 一致 8/8  ⇒ 首结层面的陈述可用   -> [[knot:<key>]]      放行
+      单结极差 0.40 ✗ ⇒ 绝对强度与跨稿比较不成立 -> [[knot_intensity/delta:]] 拦下
+    §23 原话:「在 K1 达标之前, 任何『A 稿 display 高于 B 稿』的说法都不成立。」
+    """
+    issues = []
+    hits = KNOT_INTENSITY.findall(text)
+    if not hits:
+        return issues
+    if not os.path.exists(verdict_path):
+        return [f"生成物引用了 {len(hits)} 处九结强度读数, 但 K1 从未判定过 —— "
+                "没有可靠性判定就不得引用强度层读数。"]
+    v = json.load(open(verdict_path, encoding="utf-8"))
+    if v.get("verdict") == "PASS":
+        return issues
+    for kind, key in hits:
+        issues.append(
+            f"引用了 K1 未达标层的读数 `knot_{kind}:{key}` —— "
+            f"K1 判定 {v.get('verdict')} (不达标项: {', '.join(v.get('failed', []))}); "
+            f"§23: 在 K1 达标之前, 任何「A 稿某结高于 B 稿」的说法都不成立。"
+            f" 首结层面(top-1 {[c['value'] for c in v['checks'] if 'top-1' in c['name']][0]})"
+            f"可用 [[knot:<key>]] 表述。")
+    return issues
+
+
 def _run(cmd, cwd=None):
     r = subprocess.run(cmd, capture_output=True, text=True, cwd=cwd)
     return r.returncode, (r.stdout + r.stderr)
@@ -63,6 +103,10 @@ def gate(path, profile="hearing_aid", market="intl"):
 
     issues = check_citations(text)
     report["citations"] = "PASS" if not issues else "FAIL"
+
+    knot_issues = check_knot_readout_claims(text)
+    report["knot_readout_claims"] = "PASS" if not knot_issues else "FAIL"
+    issues += knot_issues
 
     # 三闸之一: 合规(疗效/凭证幻觉/广告法)
     from cce_outbound_guard import scan_draft

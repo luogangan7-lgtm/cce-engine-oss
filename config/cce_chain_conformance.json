@@ -222,10 +222,28 @@
     },
     {
       "phase": "P4 九结 Research",
-      "status": "GATE_READY_NEEDS_API_BUDGET",
+      "status": "MEASURED_NOT_PASSING",
       "gate_44_9": "K1 四项全过: n≥8 · 相同读数对 ≥6/8 · 单结极差 ≤0.10 · top-1 ≥7/8; 反向: 两份不同内容按同组提交, 闸必须报差异为真",
-      "gate_command": "python3 tests/test_cce_k1_gate.py",
-      "why": "判据与反向测试已可执行(0 调用); 真实判定需同稿重跑 n≥8 ≈128 次模型调用, 等 owner 放行"
+      "gate_command": "python3 tests/test_cce_k1_gate.py && python3 tests/test_cce_k1_verdict.py",
+      "why": "K1 已首次真实判定(64 次调用, n=8 同指纹), 结果是 **FAIL** —— 四项里「完全相同读数对」与「单结极差」两项不达标。gate 命令验的是判定机制本身可用且判决可从原始行重算; **不是**说 K1 过了。九结强度层读数因此仍不可引用, 已由生成物闸硬拦。",
+      "measured_verdict": {
+        "measured_at": "2026-09-01",
+        "n": 8,
+        "instrument": "565470cf26c16d01",
+        "artifact": "tests/data/phase2/k1_reliability_verdict.json",
+        "verdict": "FAIL",
+        "passed": [
+          "n >= 8",
+          "top-1 一致 8/8"
+        ],
+        "failed": [
+          "完全相同读数对 0/28 (需 >= 6/28)",
+          "单结极差 0.40 (需 <= 0.10)"
+        ],
+        "vs_baseline": "§23 历史基线 完全相同读数对 0/6 · 极差 0.37 · top-1 7/8 ⇒ 本轮 0/28 · 0.40 · 8/8: 两项仍不达标, top-1 改善",
+        "layered": "★ 结论是分层的: 首结(top-1)稳, 绝对强度不稳。铁律 24 要求这两者分离, 本轮实测正是这个形态。",
+        "downstream": "cce_strategy_gate.check_knot_readout_claims 已据此上线: [[knot_intensity:*]] / [[knot_delta:*]] 一律拦下, [[knot:*]] 首结层放行。§44.9 P7 反向测试点名的那一条终于可执行。"
+      }
     },
     {
       "phase": "P5 Archive Plane",
@@ -252,8 +270,8 @@
     "DONE_WITH_LEGACY_CONTAINMENT": "本体已切换; 遗留旧名全部分类隔离, 冻结件不动",
     "DONE_WITH_RECORDED_LOSS": "该做的已做; 已发生的不可逆损失如实登记, 不假装能追回",
     "GATE_ONLY_CONTENT_NOT_BUILT": "★ 只交付了验收 gate, 内容未建 —— 不是 DONE",
-    "GATE_READY_NEEDS_API_BUDGET": "★ 判据与反向测试可执行, 真实判定需投料 —— 不是 DONE",
     "NOT_STARTED": "未开始",
-    "BLOCKED": "被外部依赖阻塞"
+    "BLOCKED": "被外部依赖阻塞",
+    "MEASURED_NOT_PASSING": "★ 验收 gate 已真实判定, 结果是**不通过**。gate 命令验的是「判定机制可用且判决可复算」, 不是「这个 Phase 过了」—— 两者混为一谈就是假绿。"
   }
 }

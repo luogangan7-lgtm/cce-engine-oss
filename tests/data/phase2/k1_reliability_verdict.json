@@ -1,0 +1,59 @@
+{
+ "block": "K1_RELIABILITY_GEN4",
+ "measured_at": "2026-09-01",
+ "prereg": "tests/data/phase2/k1_reliability_prereg.json",
+ "raw_rows": "tests/data/phase2/k1_reliability_checkpoint.jsonl",
+ "instrument_hash": "565470cf26c16d01",
+ "n": 8,
+ "sha": "6c736952f41dc6a245656b9e3973d3e2322422d4c256e2ae48b7a535083a834d",
+ "verdict": "FAIL",
+ "failed": [
+  "完全相同读数对 ≥ 6/28",
+  "单结极差 ≤ 0.1"
+ ],
+ "checks": [
+  {
+   "name": "n ≥ 8",
+   "pass": true,
+   "value": "8"
+  },
+  {
+   "name": "完全相同读数对 ≥ 6/28",
+   "pass": false,
+   "value": "0/28 (折算 0.0/28)"
+  },
+  {
+   "name": "单结极差 ≤ 0.1",
+   "pass": false,
+   "value": "0.4  最大项 reward"
+  },
+  {
+   "name": "top-1 一致 ≥ 7/8",
+   "pass": true,
+   "value": "8/8 (折算 8.0/8)"
+  }
+ ],
+ "ranges": {
+  "belong": 0.2,
+  "suspend": 0.35,
+  "pain_seek": 0.06,
+  "itch": 0.28,
+  "display": 0.39,
+  "audit": 0.2,
+  "inertia": 0.3,
+  "injustice": 0.33,
+  "reward": 0.4
+ },
+ "tops": [
+  "pain_seek",
+  "pain_seek",
+  "pain_seek",
+  "pain_seek",
+  "pain_seek",
+  "pain_seek",
+  "pain_seek",
+  "pain_seek"
+ ],
+ "selection_rule": "在 L0 四次历史重跑全部 qualified、且属 analysis_sets.primary 的 base 中, 取 base_id 字典序第一",
+ "scope_limit": "★ 本次 K1 只对「稳定合格的真人文本」成立。它**不**说明仪器在边缘文本(资格摇摆、混合内容)上的读数稳定性 —— 那是另一个问题, 需另设计。"
+}

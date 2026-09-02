@@ -109,9 +109,13 @@ def main() -> int:
         # ★ gate 过 ≠ 这个 Phase 做完了。P3 只交付了 gate、P4 只交付了判据 ——
         #   用同一个 ✓ 显示会把「闸绿」读成「内容做完了」, 那正是本项目栽过的那类假绿。
         done = ph["status"].startswith("DONE")
-        mark = ("✓" if done else "◐") if v == "PASS" else \
+        measured_fail = (ph.get("measured_verdict") or {}).get("verdict") == "FAIL"
+        mark = ("✓" if done else "✗" if measured_fail else "◐") if v == "PASS" else \
                {"FAIL": "✗", "NOT_STARTED": "·", "BLOCKED": "⊘", "NO_GATE": "✗"}[v]
         print(f"  {mark} {ph['phase']:<28} {ph['status']:<30} gate={v}")
+        mv = ph.get("measured_verdict")
+        if mv:
+            print(f"        └─ 实测判定 {mv['verdict']}: 过 {mv['passed']} / 不过 {mv['failed']}")
         if not done and ph.get("why"):
             print(f"        └─ {ph['why']}")
     if errors:

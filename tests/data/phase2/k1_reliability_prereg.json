@@ -1,0 +1,96 @@
+{
+ "block": "K1_RELIABILITY_GEN4",
+ "prereg_written_at": "2026-09-01",
+ "why": "§23 给 K1 定了四项判据, 三周来只有判据没有真实判定。§44.9 P4 的验收 gate 就是这四项全过。",
+ "selection_rule": {
+  "rule": "在 L0 四次历史重跑全部 qualified、且属 analysis_sets.primary 的 base 中, 取 base_id 字典序第一",
+  "eligible_n": 30,
+  "eligible": [
+   "050f0f2403f7",
+   "093c73613279",
+   "0d0411f957e7",
+   "1aa601bf5633",
+   "2eca26909ed2",
+   "2ee52f67c987",
+   "3191a8fae98d",
+   "344d81fc035f",
+   "59a1a9c7d712",
+   "5bbf4543dd47",
+   "6b16b77dbc5b",
+   "6def5ddbcf25",
+   "712fc175d4bf",
+   "739b240fd52a",
+   "7be3af6e0e26",
+   "80769cc0222a",
+   "8dc468c70ce3",
+   "919671d9d867",
+   "96c05a7f8073",
+   "9f0d49fe019d",
+   "a05bd9ac0645",
+   "a4701962b3fc",
+   "aec1aed1b63e",
+   "aec90e410e4e",
+   "b1749ab04a03",
+   "bebf4de06d03",
+   "d80ef7dd62c3",
+   "e325d3b185aa",
+   "ec5e19fb3e5c",
+   "ecd5d7ca9072"
+  ],
+  "chosen": "050f0f2403f7",
+  "why_this_rule": "① 不能在「没有读数」的文本上测读数稳定性 —— 资格是可评的前提, 不是结果挑选; ② 字典序第一是**与稳定性无关**的确定性规则, 排除按结果挑 base; ③ 选择在跑之前冻结。",
+  "scope_limit": "★ 本次 K1 只对「稳定合格的真人文本」成立。它**不**说明仪器在边缘文本(资格摇摆、混合内容)上的读数稳定性 —— 那是另一个问题, 需另设计。"
+ },
+ "instrument": {
+  "instrument_hash": "565470cf26c16d01",
+  "must_equal": "565470cf26c16d01",
+  "note": "gen4。换模型=换仪器=gen5, 读数不可与本批合并。"
+ },
+ "design": {
+  "n": 8,
+  "K": 3,
+  "stage2_n": 5,
+  "calls": 64,
+  "text_sha256": "6c736952f41dc6a245656b9e3973d3e2322422d4c256e2ae48b7a535083a834d",
+  "text_sha16": "6c736952f41dc6a2",
+  "base_id": "050f0f2403f7",
+  "context": "reddit hearing discussion: 多 base 标定面板",
+  "context_note": "与主面板逐字相同",
+  "protocol": "每 rep = stage1(k=3) + stage2(n=5); 与主面板 _rep 同口径",
+  "preparation": "prep_raw_unfiltered —— 本次不叠结构闸, 与历史 K1 口径一致"
+ },
+ "decision_rule": {
+  "source": "§23 K1 的可判形式",
+  "criteria": [
+   {
+    "name": "同稿重跑次数",
+    "threshold": "n >= 8",
+    "baseline": "8 ✅"
+   },
+   {
+    "name": "完全相同的读数对占比",
+    "threshold": ">= 6/28",
+    "baseline": "0/6 ❌"
+   },
+   {
+    "name": "单结权重极差",
+    "threshold": "<= 0.10",
+    "baseline": "0.37 ❌"
+   },
+   {
+    "name": "top-1 结一致率",
+    "threshold": ">= 7/8",
+    "baseline": "7/8 ✅"
+   }
+  ],
+  "verdict": "**四项全过**才算 K1 通过。三项过一项不过 = 未通过。",
+  "judged_by": "probes/k1_gate.judge(rows) —— 反向测试见 tests/test_cce_k1_gate.py"
+ },
+ "discipline": {
+  "fixed_n": "8, 跑完才看",
+  "look_once": true,
+  "no_early_stop": true,
+  "no_text_replacement": "不许因为结果不好换文本",
+  "infra_not_a_reading": "HTTP 200 空 content / 2062 归 INFRA_FAILED, 该 rep 重试, 不进 n"
+ }
+}

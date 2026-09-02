@@ -29,6 +29,17 @@ assert stats["phases_done"] == 6, \
     f"内容已建的应当是 6/8 (P3 只有 gate, P4 只有判据), 实测 {stats['phases_done']}"
 undone = [p for p in SPEC["phases"] if not p["status"].startswith("DONE")]
 assert {p["phase"] for p in undone} == {"P3 Multimodal", "P4 九结 Research"}
+
+# ★ P4 已真实判定且结果是 FAIL —— 不许因为它的 gate 命令退出 0 就显示成 ✓
+p4 = [p for p in SPEC["phases"] if p["phase"] == "P4 九结 Research"][0]
+assert p4["status"] == "MEASURED_NOT_PASSING"
+mv = p4["measured_verdict"]
+assert mv["verdict"] == "FAIL" and len(mv["failed"]) == 2 and len(mv["passed"]) == 2
+assert os.path.exists(os.path.join(ROOT, mv["artifact"]))
+real = json.load(open(os.path.join(ROOT, mv["artifact"]), encoding="utf-8"))
+assert real["verdict"] == mv["verdict"], "★ 对照表里的判决与实际产物不一致"
+assert "不是" in p4["why"] and "K1 过了" in p4["why"], \
+    "★ 必须写明「gate 命令退 0 ≠ K1 过了」—— 这正是最容易被读错的地方"
 for p in undone:
     assert p.get("why"), f"{p['phase']} 不是 DONE 却没写「还差什么」"
 assert SPEC["phases"][3].get("not_built"), "P3 必须逐条列出未建的内容"

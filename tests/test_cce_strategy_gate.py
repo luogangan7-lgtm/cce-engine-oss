@@ -66,7 +66,10 @@ rep, _ = gate(T / "cites_established.txt")
 assert rep["check_boundary"] != "PASS", \
     ("★ check_boundary 是全库扫描型、由发布流程单独跑，本闸不得替它判 PASS。"
      "缺席时必须如实标 UNAVAILABLE/AVAILABLE_NOT_RUN，而不是默认放行。")
-assert set(rep) == {"citations", "outbound_guard", "style_check", "check_boundary"}, \
+# 2026-09-01: 加入 knot_readout_claims —— K1 首次真实判定(FAIL)后, §44.9 P7 那条
+# 「不得引用未达标层的读数」终于可执行: 强度层引用被拦, 首结层放行(见 test_cce_k1_verdict)。
+assert set(rep) == {"citations", "knot_readout_claims",
+                    "outbound_guard", "style_check", "check_boundary"}, \
     f"★ 报告分项与 §44.9 的三闸+引用不一致：{sorted(rep)}"
 
 # ── ⑦ 引用检查是纯函数，可脱离文件直接测 ───────────────────────────────────
