@@ -34,7 +34,10 @@ assert {p["phase"] for p in undone} == {"P3 Multimodal", "P4 九结 Research"}
 p4 = [p for p in SPEC["phases"] if p["phase"] == "P4 九结 Research"][0]
 assert p4["status"] == "MEASURED_NOT_PASSING"
 mv = p4["measured_verdict"]
-assert mv["verdict"] == "FAIL" and len(mv["failed"]) == 2 and len(mv["passed"]) == 2
+# 2026-09-02 判据修正后是五项: 2 项过 / 3 项不过
+assert mv["verdict"] == "FAIL" and mv["criteria_count"] == 5
+assert len(mv["passed"]) + len(mv["failed"]) == 5 and len(mv["failed"]) == 3
+assert "判决不变" in mv["criterion_fix"], "★ 修判据不得改判决, 这一点必须写明"
 assert os.path.exists(os.path.join(ROOT, mv["artifact"]))
 real = json.load(open(os.path.join(ROOT, mv["artifact"]), encoding="utf-8"))
 assert real["verdict"] == mv["verdict"], "★ 对照表里的判决与实际产物不一致"

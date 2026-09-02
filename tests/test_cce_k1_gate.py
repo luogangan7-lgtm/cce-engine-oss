@@ -29,6 +29,8 @@ STABLE = [["reward", 0.90], ["audit", 0.10]]
 code, rep = judge(rows([STABLE] * 8))
 assert code == 0 and rep["verdict"] == "PASS", rep
 assert rep["failed"] == []
+assert len(rep["checks"]) == 5, "2026-09-02 起是五项判据"
+assert all(o["agree"] == 8 for o in rep["occurrence"].values())
 
 # ── 反向 1(§23 指定): 两份内容不同按同组提交 -> 不许判「稳定」 ─────────
 DIFFERENT = [["inertia", 0.85], ["belonging", 0.15]]
@@ -77,9 +79,68 @@ three_ok = [[["reward", 0.90], ["audit", 0.10]]] * 7 + [[["reward", 0.70], ["aud
 code, rep = judge(rows(three_ok))
 assert code == 1, f"★ 反向失败: 三项过一项不过却判通过: {rep}"
 
+# ── 反向 5(2026-09-02 新增): 缺席不得被编码成 intensity=0.0 ────────────
+#    这是原实现的真 bug: 一个结在 rep 之间「出现/不出现」翻转, 被记成一次巨大的
+#    **强度**变动。判据因此非单射 —— 同时被出现率翻转和强度漂移触发, 会误判病灶。
+STRONG = [["reward", 0.90], ["audit", 0.10]]
+ABSENT = [["audit", 0.10]]                      # reward 整个不出现
+flip = rows([STRONG, ABSENT] * 4)
+code, rep = judge(flip)
+assert rep["range_scope"] == "fired_reps_only"
+# reward 点火 4 次且**每次都是 0.90** ⇒ 它的强度完全没有变动。
+# 旧口径把 4 个缺席记成 0.0, 会报极差 0.90 —— 把「出现率翻转」说成「强度极不稳」。
+_fired = [v for r in flip for k, v in r["knots"] if k == "reward"]
+assert len(_fired) == 4 and max(_fired) == min(_fired) == 0.90
+assert rep["ranges"]["reward"] == 0.0, \
+    f"★ 反向失败: reward 每次点火都是 0.90, 强度极差必须是 0; 实测 {rep['ranges'].get('reward')} " \
+    "—— 说明缺席仍被当成 0.0 算进了强度极差"
+assert "reward" not in rep["intensity_unmeasured_knots"], "点火 4 次, 应可测"
+assert {k: rep["occurrence"]["reward"][k] for k in ("fired_reps", "n_reps", "flip", "agree")} \
+    == {"fired_reps": 4, "n_reps": 8, "flip": True, "agree": 4}
+assert "reward" in rep["occurrence_flipping_knots"]
+# ★ 但出现率不稳定没被放过 —— 它由「完全相同读数对」承担
+# ★ 这里原本写的是「由『完全相同读数对』兜住」, **构造验证证伪了它**: 那一项给 12/28 也过。
+#   只拆不补就是把闸改弱, 所以补了第五项。下面钉住的是修好之后的行为。
+assert any("出现率一致" in f for f in rep["failed"]), \
+    "★ 反向失败: 出现率 4/4 翻转却没有任何一项抓住 —— 拆掉重复计数之后必须把它接回来"
+assert rep["occurrence"]["reward"]["agree"] == 4
+
+# 反向 6: 点火 <2 rep 的结不得当成「很稳」──────────────────────────────
+rare = rows([STRONG] + [ABSENT] * 7)
+_, rep2 = judge(rare)
+assert "reward" in rep2["intensity_unmeasured_knots"] and "reward" not in rep2["ranges"], \
+    "★ 反向失败: 只点火 1 次的结算不出极差, 必须标「未被测量」而不是默认通过"
+assert rep2["occurrence"]["reward"]["fired_reps"] == 1
+
+# 反向 7: 每个 rep 都点火时, 新旧口径必须给出**同一个**极差 ────────────
+#    否则修正就不只是「拆掉出现率」, 而是顺手改了别的东西。
+same = rows([[["reward", 0.90], ["audit", 0.10]],
+             [["reward", 0.50], ["audit", 0.10]]] * 4)
+_, rep3 = judge(same)
+assert rep3["ranges"]["reward"] == 0.40 and not rep3["occurrence"]["reward"]["flip"], \
+    "★ 反向失败: 常火结的极差在修正前后应完全一致"
+
 # ── 判据阈值与 §23 逐字一致 ───────────────────────────────────────────
-assert CRIT == {"n_min": 8, "identical_pairs_min": 6, "range_max": 0.10, "top1_agree_min": 7}
+assert CRIT == {"n_min": 8, "identical_pairs_min": 6, "range_max": 0.10,
+                "top1_agree_min": 7, "occurrence_agree_min": 7}
+# ★ 第五项的阈值必须与 top-1 那项**同数** —— 它是按对称性复用的, 不是新拍的
+assert CRIT["occurrence_agree_min"] == CRIT["top1_agree_min"]
+
+# 反向 8: 出现率一致率恰好卡在 7/8 必须过, 6/8 必须红 ──────────────────
+ok7 = rows([[["audit", 0.9], ["reward", 0.5]]] * 7 + [[["audit", 0.9]]])
+assert judge(ok7)[1]["occurrence"]["reward"]["agree"] == 7
+assert not any("出现率" in f for f in judge(ok7)[1]["failed"]), "7/8 应当过"
+bad6 = rows([[["audit", 0.9], ["reward", 0.5]]] * 6 + [[["audit", 0.9]]] * 2)
+assert judge(bad6)[1]["occurrence"]["reward"]["agree"] == 6
+assert any("出现率" in f for f in judge(bad6)[1]["failed"]), "6/8 应当红"
+
+# 反向 9: 恒不出现的结算「一致」, 不算「不稳定」 ────────────────────────
+never = rows([[["audit", 0.9]]] * 8)
+r9 = judge(never)[1]
+assert "reward" not in r9["occurrence"], "从未出现的结压根不进 occurrence"
+assert not any("出现率" in f for f in r9["failed"])
 
 print("test_cce_k1_gate: OK "
       "(§23 指定的反向测试已补 | 不同内容按同组 -> 拒判 | 缺指纹 != 指纹相同 | "
-      "四项逐条可观察到失败 | 三过一不过仍判 FAIL)")
+      "四项逐条可观察到失败 | 三过一不过仍判 FAIL | "
+      "缺席不再编码成 0.0, 且出现率仍被「相同读数对」抓住)")

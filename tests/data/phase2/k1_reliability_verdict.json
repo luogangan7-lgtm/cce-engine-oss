@@ -1,6 +1,7 @@
 {
  "block": "K1_RELIABILITY_GEN4",
  "measured_at": "2026-09-01",
+ "criterion_revised_at": "2026-09-02",
  "prereg": "tests/data/phase2/k1_reliability_prereg.json",
  "raw_rows": "tests/data/phase2/k1_reliability_checkpoint.jsonl",
  "instrument_hash": "565470cf26c16d01",
@@ -9,7 +10,8 @@
  "verdict": "FAIL",
  "failed": [
   "完全相同读数对 ≥ 6/28",
-  "单结极差 ≤ 0.1"
+  "单结强度极差 ≤ 0.1",
+  "出现率一致 ≥ 7/8"
  ],
  "checks": [
   {
@@ -23,26 +25,29 @@
    "value": "0/28 (折算 0.0/28)"
   },
   {
-   "name": "单结极差 ≤ 0.1",
+   "name": "单结强度极差 ≤ 0.1",
    "pass": false,
-   "value": "0.4  最大项 reward"
+   "value": "0.39  最大项 display  (仅点火 rep; 7/9 个结可测)"
   },
   {
    "name": "top-1 一致 ≥ 7/8",
    "pass": true,
    "value": "8/8 (折算 8.0/8)"
+  },
+  {
+   "name": "出现率一致 ≥ 7/8",
+   "pass": false,
+   "value": "5/8 (折算 5.0/8)  最差项 inertia"
   }
  ],
  "ranges": {
+  "inertia": 0.1,
   "belong": 0.2,
+  "display": 0.39,
+  "injustice": 0.33,
   "suspend": 0.35,
   "pain_seek": 0.06,
-  "itch": 0.28,
-  "display": 0.39,
-  "audit": 0.2,
-  "inertia": 0.3,
-  "injustice": 0.33,
-  "reward": 0.4
+  "audit": 0.2
  },
  "tops": [
   "pain_seek",
@@ -54,6 +59,104 @@
   "pain_seek",
   "pain_seek"
  ],
+ "range_scope": "fired_reps_only",
+ "occurrence": {
+  "inertia": {
+   "fired_reps": 3,
+   "n_reps": 8,
+   "flip": true,
+   "agree": 5,
+   "agree_scaled": 5.0
+  },
+  "belong": {
+   "fired_reps": 8,
+   "n_reps": 8,
+   "flip": false,
+   "agree": 8,
+   "agree_scaled": 8.0
+  },
+  "display": {
+   "fired_reps": 8,
+   "n_reps": 8,
+   "flip": false,
+   "agree": 8,
+   "agree_scaled": 8.0
+  },
+  "injustice": {
+   "fired_reps": 8,
+   "n_reps": 8,
+   "flip": false,
+   "agree": 8,
+   "agree_scaled": 8.0
+  },
+  "suspend": {
+   "fired_reps": 8,
+   "n_reps": 8,
+   "flip": false,
+   "agree": 8,
+   "agree_scaled": 8.0
+  },
+  "pain_seek": {
+   "fired_reps": 8,
+   "n_reps": 8,
+   "flip": false,
+   "agree": 8,
+   "agree_scaled": 8.0
+  },
+  "itch": {
+   "fired_reps": 1,
+   "n_reps": 8,
+   "flip": true,
+   "agree": 7,
+   "agree_scaled": 7.0
+  },
+  "reward": {
+   "fired_reps": 1,
+   "n_reps": 8,
+   "flip": true,
+   "agree": 7,
+   "agree_scaled": 7.0
+  },
+  "audit": {
+   "fired_reps": 8,
+   "n_reps": 8,
+   "flip": false,
+   "agree": 8,
+   "agree_scaled": 8.0
+  }
+ },
+ "occurrence_flipping_knots": [
+  "inertia",
+  "itch",
+  "reward"
+ ],
+ "intensity_unmeasured_knots": [
+  "itch",
+  "reward"
+ ],
  "selection_rule": "在 L0 四次历史重跑全部 qualified、且属 analysis_sets.primary 的 base 中, 取 base_id 字典序第一",
- "scope_limit": "★ 本次 K1 只对「稳定合格的真人文本」成立。它**不**说明仪器在边缘文本(资格摇摆、混合内容)上的读数稳定性 —— 那是另一个问题, 需另设计。"
+ "scope_limit": "★ 本次 K1 只对「稳定合格的真人文本」成立。它**不**说明仪器在边缘文本(资格摇摆、混合内容)上的读数稳定性 —— 那是另一个问题, 需另设计。",
+ "★criterion_change": {
+  "what": "① 单结极差改为**只在该结点火的 rep 上**算, 缺席不再编码成 intensity=0.0; ② 新增第五项「出现率一致 >= 7/8」把拆出去的出现率接回来。",
+  "why": "原判据非单射: 同时被「出现率翻转」和「强度漂移」触发, 会误判病灶。处方来自 2026-08-18 已确立的 P1a 根因(support 闸二值化), **早于本轮数据**, 不是拟合。",
+  "verdict_unchanged": true,
+  "before": {
+   "max_range": 0.4,
+   "blamed_knot": "reward",
+   "fired_reps": "1/8"
+  },
+  "after": {
+   "max_range": 0.39,
+   "blamed_knot": "display",
+   "fired_reps": "8/8"
+  },
+  "★point": "数字几乎没变(0.40 -> 0.39), **病灶完全变了**: 从一个 8 个 rep 里只出现 1 次的结, 变成一个每个 rep 都出现的结。这才是修它的理由 —— 不是为了改判决。",
+  "★first_attempt_was_wrong": "第一版只做了 ①, 理由是「出现率由『完全相同的读数对』兜住」。**构造验证证伪了这个理由**: 一个「出现率 4/4 翻转、强度恒定、top-1 不变」的仪器四项全过, 那一项给 12/28 也过。只拆不补 = 把闸改弱。所以补了 ②。",
+  "new_criterion_threshold": "7/8, **不是新拍的数** —— 复用 §23 自己的 top-1 一致率, 同形同数: 「同一个结的出现与否在 rep 间一致」与「同一份稿子的首结在 rep 间一致」是同一种要求。选定顺序: 先按对称性定 7/8 -> 再验证它抓得住构造反例 -> 最后才看真实数据。",
+  "criteria_count": {
+   "before": 4,
+   "after": 5
+  }
+ },
+ "★unmeasured_not_stable": "itch / reward 点火 <2 rep ⇒ 它们的强度信度**未被测量**, 不是「很稳」。禁止说「九结体系整体通过」。"
 }
