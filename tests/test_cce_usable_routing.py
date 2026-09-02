@@ -101,7 +101,30 @@ assert "分布类读数始终可用" not in src, \
     "★ 「始终可用」那句散文 caveat 必须删掉 —— 它正是被证伪的那种做法"
 assert "layer_status()" in src, "usable 路由必须真的调用 K1 判定"
 
+# ── 8. 派生量的实测必须落成仓内产物, 且标明 exploratory ────────────────
+#    文档与提交信息引用了它的数字, 数字必须能回查到源头。
+DL = json.load(open(os.path.join(ROOT, "tests", "data", "phase2",
+                                 "derived_layer_reliability.json"), encoding="utf-8"))
+assert DL["new_calls"] == 0 and DL["n_draw"] == 5 and DL["n_rep"] == 10
+q = DL["per_quantity"]
+w = [v for k, v in q.items() if k.startswith("weight.")]
+i = [v for k, v in q.items() if k.startswith("intensity.")]
+mm = [v for k, v in q.items() if k.startswith("mass.")]
+assert min(w) > min(i), \
+    f"★ 核心发现: weight 比 intensity 更稳(归一化抵消共模噪声), 实测 {min(w)} vs {min(i)}"
+assert max(mm) <= min(i), \
+    f"★ mass 取 max 应当更抖, 实测 mass 上界 {max(mm)} vs intensity 下界 {min(i)}"
+assert sum(1 for v in w if v >= DL["agreement_min"]) == 3 and len(w) == 4
+assert DL["quadrant"]["degenerate"] is True and len(DL["quadrant"]["values"]) == 1, \
+    "★ quadrant 的 1.000 是零方差退化, 必须标出来 —— 否则会被当成「它很可靠」"
+assert "不是信度证据" in DL["quadrant"]["★note"]
+assert "exploratory" in DL["★status"] and "1 个文本" in DL["★status"]
+assert "不按这里的数放行" in DL["★status"], \
+    "★ 必须写明生产路由不采信这批 exploratory 数, 否则下一个人会拿它去放行 weight"
+assert "推翻了" in DL["★finding"]
+
 print(f"test_cce_usable_routing: OK "
       f"(intensity 及其派生量 4 项全部扣发 · top1 层保留 | "
       f"出站闸与 usable 路由同一真相源 | 缺判定不放行 · 伪造 PASS 会放行(非恒拦) | "
-      f"判据改名必红 · 两层可独立开关 | 散文 caveat 已删)")
+      f"判据改名必红 · 两层可独立开关 | 散文 caveat 已删 | "
+      f"派生量实测已落盘(weight 比 intensity 稳 · mass 更差 · quadrant 退化))")

@@ -1,0 +1,36 @@
+{
+ "block": "DERIVED_LAYER_RELIABILITY",
+ "measured_at": "2026-09-02",
+ "new_calls": 0,
+ "n_draw": 5,
+ "n_rep": 10,
+ "delta": 0.1,
+ "agreement_min": 0.95,
+ "source": "tests/data/phase2/k1_rootcause_checkpoint.jsonl (LIVE 臂, 前 5 draw)",
+ "per_quantity": {
+  "intensity.belong": 0.8667,
+  "intensity.injustice": 0.8222,
+  "intensity.pain_seek": 0.7333,
+  "intensity.suspend": 1.0,
+  "weight.belong": 0.9111,
+  "weight.injustice": 0.9556,
+  "weight.pain_seek": 1.0,
+  "weight.suspend": 1.0,
+  "mass.推动": 0.7333,
+  "composition.推动.belong": 0.7556,
+  "composition.推动.injustice": 0.9556,
+  "composition.推动.pain_seek": 0.8444,
+  "mass.阻挡": 0.6222,
+  "composition.阻挡.suspend": 0.5714
+ },
+ "quadrant": {
+  "agreement": 1.0,
+  "values": [
+   "high_drive/low_brake"
+  ],
+  "degenerate": true,
+  "★note": "10 个 rep 全是同一个值 ⇒ **零方差, 不是信度证据**。一个从不变化的分类标签说明不了它的分辨力 —— 与此前踩过的退化估计量同一个坑。"
+ },
+ "★finding": "**推翻了「派生量一律继承 intensity 的不可靠」这个直觉**: weight 反而比 intensity 更稳(归一化抵消共模噪声), mass 更差(取 max 更抖)。",
+ "★status": "**exploratory** —— experimental unit = 1 个文本, 零复现。不构成任何量的正式判定。生产路由按「未单独判定 ⇒ 扣发」处理, **不按这里的数放行**。"
+}
