@@ -20,9 +20,11 @@
       "accepts": "legacy scalar inputs/cce-run/cce-batch",
       "capabilities": [],
       "production_complete_allowed": false,
-      "★emits_complete_today": true,
+      "★emits_complete_today": false,
       "artifact_contract": null,
-      "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用"
+      "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用",
+      "retired_at": "2026-09-02",
+      "retired_note": "owner 裁定摘除其 cce_full_run 调用(第二条通往 complete 的路)。工作流本身保留: 旧调用方会拿到一句明确的退役提示并 exit 1, 而不是「workflow not found」。两个 mode 本来就在 prepare.py 前置被拒, 影响面为零。"
     },
     ".github/workflows/reply.yml": {
       "class": "compatibility",
@@ -145,20 +147,7 @@
   "rule": "New production integrations must use cce-submit.yml. Compatibility workflows remain only for old callers; research workflows cannot issue production complete=true claims.",
   "★production_complete_rule": "★ 铁律 21「研究工作流不得产出 production complete=true」此前只是本文件 rule 字段里的**一句散文**, 零强制。现改为可执行: production_complete_allowed 逐条声明, 且闸会**实查 yml 是否真的调用了 cce_full_run / cce_workflow_manifest** —— 声明与实际能力不符即红。所以给一个 research 工作流加上 cce_full_run 会当场被抓。",
   "★skipped_field": "§37 还列了 profile, 但一条工作流服务多个 profile(cce-submit.yml 同时跑 outbound_post/outbound_reply/subject_chain), 挂单个 profile 字段是错的。profile 留在 capability 与 submission contract 里。",
-  "known_divergences": [
-    {
-      "workflow": ".github/workflows/cce.yml",
-      "class": "compatibility",
-      "declared": "production_complete_allowed = false",
-      "actual": "yml 调用 cce_full_run ⇒ **今天仍能产出 complete=true**",
-      "why_not_a_iron_law_21_violation": "铁律 21 点名的是**研究**工作流; cce.yml 是 compatibility 类",
-      "why_still_recorded": "铁律 22「Legacy 组件不得成为新生产依赖」+ 库内已确立「生产测量只运行 cce-submit.yml」「旧 cce.yml reply 派单已废弃」⇒ 这是第二条通往 complete 的路, 不该有。",
-      "status": "DECLARED_PENDING_OWNER",
-      "options": [
-        "把 cce.yml 里产 complete 的路径摘掉(它已是兼容层)",
-        "或显式把它升为允许(等于承认有两个生产入口, 与已确立口径冲突)"
-      ]
-    }
-  ],
-  "★divergence_rule": "research 类产出 complete = **硬红**(铁律 21 字面)。非 production 非 research 的类若能产出 complete, 必须登记在 known_divergences 里并写明理由; **未登记即红** —— 防的是「悄悄再开一条生产路」。"
+  "known_divergences": [],
+  "★divergence_rule": "research 类产出 complete = **硬红**(铁律 21 字面)。非 production 非 research 的类若能产出 complete, 必须登记在 known_divergences 里并写明理由; **未登记即红** —— 防的是「悄悄再开一条生产路」。",
+  "★divergence_resolved_2026_09_02": "唯一一条 known_divergence(cce.yml 仍能产 complete)已由 owner 裁定摘除并落地。闸自带「过期豁免必须清掉」的反向测试 —— 所以这条**必须**从表里删, 留着会红。"
 }

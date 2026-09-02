@@ -44,16 +44,27 @@ for p, v in WF["workflows"].items():
     if v["class"] == "research":
         assert v["production_complete_allowed"] is False
         assert not rg.can_emit_complete(p), f"★ {p} 是 research 却真能产 complete —— 铁律 21"
-assert sum(1 for p in WF["workflows"] if rg.can_emit_complete(p)) == 2, \
-    "实查: 只有 cce-submit.yml 与 cce.yml 能产 complete"
+# 2026-09-02 摘除 cce.yml 之后: 只剩唯一生产入口能产 complete
+assert sum(1 for p in WF["workflows"] if rg.can_emit_complete(p)) == 1, \
+    "★ 实查: 摘除后只有 cce-submit.yml 能产 complete"
 
-# ── 3. 那处真分歧必须被登记而不是被藏起来 ──────────────────────────────
-div = {d["workflow"]: d for d in WF["known_divergences"]}
-assert ".github/workflows/cce.yml" in div
-d = div[".github/workflows/cce.yml"]
-assert d["status"] == "DECLARED_PENDING_OWNER" and d["options"]
-assert "铁律 22" in d["why_still_recorded"], "★ 必须说清为什么它虽不违反铁律 21 仍要记"
-assert rg.can_emit_complete(".github/workflows/cce.yml"), "登记的前提是它确实能产"
+# ── 3. ★ 那处分歧已由 owner 裁定摘除, 登记表必须随之清空 ────────────────
+assert WF["known_divergences"] == [], \
+    "★ 分歧已解决, 条目必须删 —— 闸自带「过期豁免必须清掉」的检查, 留着会红"
+assert not rg.can_emit_complete(".github/workflows/cce.yml"), \
+    "★ cce.yml 的 cce_full_run 调用已摘除, 不得再能产 complete"
+cy = WF["workflows"][".github/workflows/cce.yml"]
+assert cy["★emits_complete_today"] is False and cy.get("retired_at") == "2026-09-02"
+assert "影响面为零" in cy["retired_note"], "★ 摘除的影响面必须写明"
+assert sum(1 for p in WF["workflows"] if rg.can_emit_complete(p)) == 1, \
+    "★ 摘除后只剩唯一生产入口能产 complete"
+
+# ★ 闸必须剔掉注释再匹配: 只在注释里提到 cce_full_run 不算「能产」
+#   (摘除当天实测出的 bug —— 我自己写的退役注释让闸误判成仍能产)
+import tempfile as _tf  # noqa: E402
+src = open(os.path.join(ROOT, ".github/workflows/cce.yml"), encoding="utf-8").read()
+assert "cce_full_run" in src, "退役注释里确实提到了它 —— 这正是要剔注释的理由"
+assert "python scripts/cce_full_run" not in src, "真调用必须已摘除"
 
 # ── 反向 ───────────────────────────────────────────────────────────────
 def alt(mut_cap=None, mut_wf=None):
@@ -73,8 +84,14 @@ ok1, e1, _ = alt(mut_wf=lambda w: w["workflows"][".github/workflows/chain.yml"].
     {"★emits_complete_today": True}))
 assert not ok1 and any("与实查" in x for x in e1), "★ 登记值与实查不符必须红"
 
-# ★ 把那处分歧藏起来(删 known_divergence) -> 红
-ok2, e2, _ = alt(mut_wf=lambda w: w.update({"known_divergences": []}))
+# ★ 「能产 complete 却既不被允许、也不登记」-> 红
+#   2026-09-02 摘除 cce.yml 之后, 真实数据里已经没有这种情形了(这正是摘除的目的),
+#   所以构造一个: 把唯一生产入口降级成 compatibility 且不许产, 又不登记分歧。
+def _hide(w):
+    w["workflows"][".github/workflows/cce-submit.yml"].update(
+        {"class": "compatibility", "production_complete_allowed": False})
+    w["known_divergences"] = []
+ok2, e2, _ = alt(mut_wf=_hide)
 assert not ok2 and any("不许悄悄再开一条生产路" in x for x in e2), \
     "★ 能产 complete 却不登记必须红"
 
@@ -118,5 +135,5 @@ assert not ok10 and any("过期豁免" in x for x in e10), \
 
 print(f"test_cce_registry_gate: OK "
       f"(能力 {s['capabilities']} · 工作流 {s['workflows']} · 真能产 complete {s['can_emit_complete']} "
-      f"· 已登记分歧 {s['known_divergences']} | §36 四字段 + §37 四字段落地, 跳过的两个各写明理由 | "
+      f"· 已登记分歧 {s['known_divergences']}(已清空) | §36 四字段 + §37 四字段落地, 跳过的两个各写明理由 | "
       f"★ 铁律 21 由散文升为闸: research 类实查不得能产 complete | 10 条反向各自见红)")

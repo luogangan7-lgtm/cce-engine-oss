@@ -204,7 +204,7 @@
       "claim": "每条工作流 9 个字段",
       "actual": "已补 capabilities / artifact_contract / production_complete_allowed; profile 跳过并写明理由(一条工作流服务多个 profile)。stages 与 completion_gate 仍在 submission contract 里(位置不同, 非缺失)",
       "verdict": "符合",
-      "note": "★ production_complete_allowed 正是**铁律 21 缺的那道闸** —— 闸会实查 yml 是否真调用 cce_full_run/cce_workflow_manifest, 声明与实际能力不符即红。顺带查出一处真分歧: cce.yml(compatibility) 今天仍能产 complete, 已登记为 DECLARED_PENDING_OWNER。",
+      "note": "★ production_complete_allowed 正是**铁律 21 缺的那道闸** —— 闸会实查 yml 是否真调用 cce_full_run/cce_workflow_manifest, 声明与实际能力不符即红。顺带查出一处真分歧: cce.yml(compatibility) 今天仍能产 complete, 该分歧已于 2026-09-02 由 owner 裁定摘除并落地, known_divergences 已清空。",
       "gate": {
         "file": "scripts/cce_registry_gate.py",
         "test": "tests/test_cce_registry_gate.py"
@@ -299,9 +299,9 @@
           },
           {
             "claim": "★ 兼容工作流或历史工作流不应继续承担新生产功能",
-            "verdict": "**当前不成立**",
-            "evidence": "cce.yml:72,147 调用 cce_full_run.py ⇒ 兼容层仍能产 complete",
-            "★note": "这是同一处分歧的**第二次独立浮现** —— 第一次是 §37 的 production_complete_allowed。两个章节汇到同一个洞, 说明它是真的。已登记 workflow_registry.known_divergences 为 DECLARED_PENDING_OWNER。"
+            "verdict": "属实(2026-09-02 起)",
+            "evidence": "cce.yml 的两处 cce_full_run 调用已摘除; 实查 can_emit_complete=False",
+            "★note": "此前**当前不成立** —— 同一处分歧被 §37 与 §2.1 两个章节独立查出。owner 裁定摘除, 已落地。摘除时闸自己也暴露了一个 bug: 它把注释里的 cce_full_run 也算成「能产」, 已修为剔注释后再匹配。"
           },
           {
             "claim": "§2.2 subject_chain 五段结构",

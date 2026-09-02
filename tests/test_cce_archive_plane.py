@@ -114,7 +114,9 @@ finally:
 assert A.check()[0]
 
 # ── 已发生的损失必须如实登记, 不许留一份「看起来完整」的索引 ───────────
-assert stats["irrecoverable"] == 32, stats
+# 2026-09-02: cce.yml 退役注释引用了两个历史失败 run(31691417474/31691414219)
+# 作为「本步不可达」的实证 ⇒ 归档索引随之 +2。闸当场抓到它们未入册, 已补登记。
+assert stats["irrecoverable"] == 34, stats
 assert "已经发生过了" in INDEX["finding"]
 
 print(f"test_cce_archive_plane: OK "

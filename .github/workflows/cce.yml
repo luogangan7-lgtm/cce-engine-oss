@@ -64,19 +64,26 @@ jobs:
           CONTEXT_DECL: ${{ github.event.client_payload.context_decl || inputs.context_decl }}
           REF_POST: ${{ github.event.client_payload.ref_post || inputs.ref_post }}
         run: python .github/prepare.py
-      - name: 跑完整CCE链
-        env:
-          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
-          CCE_ALIGN_THETA: ${{ vars.CCE_ALIGN_THETA || '0.35' }}
+      # ★ 2026-09-02 摘除: 本工作流不再调用 cce_full_run.py。
+      #
+      # 为什么摘: 它是**第二条通往 manifest.complete=true 的路**。
+      #   · §2.1 明写「兼容工作流或历史工作流不应继续承担新生产功能」
+      #   · 铁律 22「Legacy 组件不得成为新生产依赖」
+      #   · workflow registry 已登记 production_entrypoint = cce-submit.yml (唯一)
+      # 文档核对时这处分歧被 §37 与 §2.1 **两个章节独立查出**, owner 裁定摘除。
+      #
+      # 影响面 = 零: 本工作流的两个 mode 早已在 prepare.py 前置就被拒 ——
+      #   prepare.py:37 只收 reply|response|outbound_post ⇒ 本文件的 post 被拒
+      #   prepare.py:62 出站模式必填 guard_profile ⇒ 本文件无该输入, reply 被拒
+      #   (2026-08-13 实测连挂两次: runs 31691417474 / 31691414219)
+      # 所以被摘的这一步**本来就不可达**。保留工作流本身是为了让旧调用方
+      # 拿到一句明确的话, 而不是「workflow not found」。
+      - name: 已退役 —— 请改用 cce-submit.yml
         run: |
-          python scripts/cce_full_run.py \
-            --mode "$(cat run/mode)" \
-            --text-file run/input.txt \
-            --context "$(cat run/context)" \
-            --outdir run/out \
-            $(test -f run/audience.txt && echo "--audience-file run/audience.txt") \
-            $(test -f run/ref.txt && echo "--ref-post run/ref.txt") \
-            $(test -f run/context_decl.json && echo "--context-decl run/context_decl.json")
+          echo "::error::cce.yml 已退役, 不再执行 CCE 测量。"
+          echo "所有出站与响应测量走 .github/workflows/cce-submit.yml 投 cce.submission.v1 envelope。"
+          echo "本地先验: python3 scripts/cce_submission.py <envelope>.json --outdir /tmp/pkg"
+          exit 1
       - name: 执行清单摘要
         if: always()
         run: python .github/summarize.py >> $GITHUB_STEP_SUMMARY
@@ -139,19 +146,11 @@ jobs:
           ITEMS_FILE: batch/items.json
           ITEM_INDEX: ${{ matrix.i }}
         run: python .github/prepare.py
-      - name: 跑完整CCE链
-        env:
-          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
-          CCE_ALIGN_THETA: ${{ vars.CCE_ALIGN_THETA || '0.35' }}
+      # ★ 2026-09-02 摘除, 理由同上(第二条通往 complete 的路)。影响面为零: 本步不可达。
+      - name: 已退役 —— 请改用 cce-submit.yml
         run: |
-          python scripts/cce_full_run.py \
-            --mode "$(cat run/mode)" \
-            --text-file run/input.txt \
-            --context "$(cat run/context)" \
-            --outdir run/out \
-            $(test -f run/audience.txt && echo "--audience-file run/audience.txt") \
-            $(test -f run/ref.txt && echo "--ref-post run/ref.txt") \
-            $(test -f run/context_decl.json && echo "--context-decl run/context_decl.json")
+          echo "::error::cce.yml 已退役, 不再执行 CCE 测量。请改用 cce-submit.yml。"
+          exit 1
       - name: 执行清单摘要
         if: always()
         run: python .github/summarize.py >> $GITHUB_STEP_SUMMARY

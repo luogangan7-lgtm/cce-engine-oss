@@ -131,11 +131,22 @@ assert not okC and any("命中 != 实现" in x for x in eC)
 s135 = SPEC["sections_1_35"]
 f2 = {f["claim"][:20]: f for f in s135["checked"]["§2 当前生产基线"]["findings"]}
 assert len(f2) == 6
-bad = [f for f in s135["checked"]["§2 当前生产基线"]["findings"] if "不成立" in f["verdict"]]
-assert len(bad) == 1 and "cce.yml" in bad[0]["evidence"], \
-    "★ §2.1「兼容工作流不承担新生产功能」当前不成立, 必须如实记"
-assert "第二次独立浮现" in bad[0]["★note"], \
-    "★ 同一处分歧被两个章节独立查出 —— 这一点值得留痕"
+# 2026-09-02: §2.1 那条此前「当前不成立」, owner 裁定摘除 cce.yml 的 cce_full_run 调用后已成立。
+compat = [f for f in s135["checked"]["§2 当前生产基线"]["findings"] if "兼容工作流" in f["claim"]][0]
+assert compat["verdict"] == "属实(2026-09-02 起)", \
+    "★ 摘除已落地, 判定必须跟着改 —— 但要带日期, 不能假装它一直成立"
+assert "两个章节独立查出" in compat["★note"], \
+    "★ 同一处分歧被 §37 与 §2.1 两个章节独立查出 —— 这一点值得留痕"
+assert "闸自己也暴露了一个 bug" in compat["★note"], \
+    "★ 摘除时闸把注释里的 cce_full_run 也算成「能产」, 这个自伤必须留痕"
+# 实查: 摘除是真的落地了, 不只是改了个判定
+import sys as _s
+_s.path.insert(0, os.path.join(ROOT, "scripts"))
+from cce_registry_gate import can_emit_complete as _emit  # noqa: E402
+assert not _emit(".github/workflows/cce.yml"), "★ 判「属实」的前提是 cce.yml 真的不能产 complete 了"
+assert sum(1 for p in json.load(open(os.path.join(ROOT, "config", "cce_workflow_registry_v1.json"),
+                                     encoding="utf-8"))["workflows"] if _emit(p)) == 1, \
+    "★ 摘除后只剩唯一生产入口"
 assert s135["checked"]["§27 Evidence / Provenance Plane"]["verdict"] == "异名分散"
 assert "generated_by" in s135["checked"]["§27 Evidence / Provenance Plane"]["detail"]
 assert "不得" in s135["not_machine_checkable"]["★do_not_claim"]
@@ -155,4 +166,4 @@ print(f"test_cce_doc_reconcile: OK "
       f"PROSE_ONLY {live['PROSE_ONLY']} ⇒ **{unguarded} 条无闸**(铁律 21 已升 GATE) | "
       f"{live['GATE']} 条 GATE 的证据串全部实存 | 8 条反向各自见红 | "
       f"§39 文档过时 · §36/§37/§42 已补闸 | "
-      f"§45 37 项(①②属实·③④过时) · §1–§35 只核存在性声明节(§2 有 1 条当前不成立))")
+      f"§45 37 项(①②属实·③④过时) · §1–§35 只核存在性声明节(§2 那条已由 owner 裁定摘除并落地))")

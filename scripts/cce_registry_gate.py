@@ -32,8 +32,18 @@ EMITS = re.compile(r"cce_full_run|cce_workflow_manifest")
 
 
 def can_emit_complete(rel: str) -> bool:
+    """★ 必须**剔掉注释再匹配**。
+
+    2026-09-02 实测: 摘掉 cce.yml 的两处真调用后, 闸仍报它能产 complete ——
+    命中的是我自己写的那句注释「本工作流不再调用 cce_full_run.py」。
+    「命中 != 实现」这条教训在本仓已出现多次, 这次出现在闸自己身上。
+    """
     p = os.path.join(ROOT, rel)
-    return os.path.exists(p) and bool(EMITS.search(open(p, encoding="utf-8").read()))
+    if not os.path.exists(p):
+        return False
+    body = "\n".join(l for l in open(p, encoding="utf-8").read().splitlines()
+                      if not l.lstrip().startswith("#"))
+    return bool(EMITS.search(body))
 
 
 def check(cap_path: str = CAP, wf_path: str = WF):
