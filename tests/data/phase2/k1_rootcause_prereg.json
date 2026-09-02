@@ -1,0 +1,87 @@
+{
+ "block": "K1_ROOT_CAUSE_VARIANCE_STRUCTURE",
+ "prereg_written_at": "2026-09-01",
+ "question": "K1 的单结极差 0.40 从哪来 —— stage2 抽样噪声, 还是评分尺度本身没有锚点?",
+ "★_what_this_is_not": {
+  "not_a_gate": "本分析全部跑在**闸前** draw_ledger 上, 且它是**诊断不是判据**。不得把这里算出的任何量升级成 gate —— 那正是 D_var 被否决的原因(闸前算、闸后判, 可构造闸后逐字节相同却 PASS 的仪器)。要升级成判据必须另走一次前登记。",
+  "not_redoing_rejected": "2026-08-18 已判定「加大 n」是 **P1a(布尔结集翻转)** 的错处方(support 闸二值化才是根因; n 5->20 只把不稳定带 0.51 压到 0.28)。本轮测的是 **P1b(intensity 极差)**, 是不同的量。C1 是在重新检验它对 intensity 是否也是错处方, 不是重做已否决方案。"
+ },
+ "hypotheses": {
+  "H1_sampling_noise": {
+   "claim": "每 draw 的 intensity 是围绕一个稳定潜值的零均值噪声",
+   "prediction": "rep 间极差随 n 按 ~1/sqrt(n) 缩小; n 5->12 应缩到约 0.65 倍"
+  },
+  "H2_estimator_defect": {
+   "claim": "intensity = median(**非零**抽样值) —— 分母 occur 是随机的。occur 小的结, 有效 n 不是 12 而是 occur, 极端时 occur=1 等于完全没平均。",
+   "prediction": "rep 间极差与 occur 中位数强负相关; 换估计量在**同一批 draw** 上离线重算即显著下降"
+  },
+  "H3_s1_propagation": {
+   "claim": "rep 间差异来自每个 rep 自己的 stage1 抽样, 经 round-robin 进入 s2 prompt",
+   "prediction": "冻结 s1 的臂, rep 间极差显著低于 LIVE 臂",
+   "prior": "§19.5.7 的 pairing_calibration 实测「本次改动没有改善任何可测的东西」, 两臂 rep 间变动都是 0.33 ⇒ 先验上 H3 不被看好, 但那是另一个口径, 本轮直接测"
+  },
+  "H4_no_anchor": {
+   "claim": "每次调用的强度值在一个宽带内近乎任意, 没有可收敛的潜值",
+   "prediction": "H1/H2/H3 的预测**全部**落空 —— 这是剩余解释, 不是被直接证实的假设"
+  }
+ },
+ "design": {
+  "text": {
+   "base_id": "050f0f2403f7",
+   "sha256": "6c736952f41dc6a245656b9e3973d3e2322422d4c256e2ae48b7a535083a834d",
+   "why": "与 K1 同一条文本, 结论可与 K1 直接对话"
+  },
+  "experimental_unit": {
+   "n_texts": 1,
+   "★scope": "experimental unit = **1 个文本**。结论是关于「这台仪器在这条文本上的噪声结构」, **不外推**到其他文本。诊断噪声结构本来就该固定被测对象, 但这个限制必须写在结论里。"
+  },
+  "arms": [
+   {
+    "arm": "LIVE",
+    "R": 10,
+    "s1": "每 rep 自己跑 stage1(k=3)",
+    "s2_n": 12,
+    "calls": 150
+   },
+   {
+    "arm": "FROZEN_S1",
+    "R": 10,
+    "s1": "复用一份跑前冻结的 s1 输出",
+    "s2_n": 12,
+    "calls": 120
+   }
+  ],
+  "total_calls": 270,
+  "context": "reddit hearing discussion: 多 base 标定面板",
+  "capture": "每 rep 完整 draw_ledger (12 draw x 9 结, 缺席显式记 0) + 每 draw 的 prompt index",
+  "instrument": {
+   "s1_s2_prompt": "模板一字不改",
+   "production_n5": "565470cf26c16d01",
+   "diagnostic_n12": "0cf97f605ced04fc",
+   "★": "把 s2 抽样数 5 提到 12 **就是换仪器**(s2_n 在 sampling_policy 内)。本批读数标 gen4-diag-n12, **不得与生产读数合并**。但 n=5 前缀严格复现生产的 round-robin 分配 ⇒ 前缀可与生产口径对话。"
+  }
+ },
+ "zero_extra_cost_analyses": [
+  "n=5 前缀 vs n=12 全量 (前缀严格复现 n=5 的 prompt 轮转分配)",
+  "估计量对比: median(nz) / mean(nz) / mean(含0) / median(含0)",
+  "occur 与 rep 间极差的关系",
+  "方差分解: sigma2_within(draw 间) vs sigma2_between(rep 间)"
+ ],
+ "decision_rule": {
+  "primary_knot": "reward —— K1 里极差最大的那个 (0.40)",
+  "statistic": "R_between = 10 个 rep 的聚合 intensity 的极差",
+  "C1_n_effect": "R_between(n=12) / R_between(n=5) <= 0.75  => H1 有支持",
+  "C2_estimator_effect": "最优替代估计量的 R_between <= 0.65 x median(nz) 的 R_between => H2 有支持",
+  "C3_s1_effect": "R_between(FROZEN) <= 0.65 x R_between(LIVE), 均在 n=12/median(nz) 下 => H3 有支持",
+  "C4_residual": "C1/C2/C3 **全不成立** => H4 是剩余解释(不是被证实, 是其他三个被证伪)",
+  "thresholds_are_engineering": "0.75 与 0.65 是工程判断, 跑前写死, 不是文献常数",
+  "multiple_hypotheses_can_hold": "C1/C2/C3 可以同时成立 —— 噪声可以有多个来源, 不强行选一个"
+ },
+ "discipline": {
+  "fixed_R": "每臂 10, 跑完才看",
+  "look_once": true,
+  "no_text_replacement": "不许换文本",
+  "no_early_stop": true,
+  "infra_not_a_draw": "HTTP 200 空 content / 2062 归 INFRA, 该 draw 不进分母"
+ }
+}

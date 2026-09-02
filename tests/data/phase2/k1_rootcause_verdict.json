@@ -1,0 +1,171 @@
+{
+ "block": "K1_ROOT_CAUSE_VARIANCE_STRUCTURE",
+ "measured_at": "2026-09-01",
+ "prereg": "tests/data/phase2/k1_rootcause_prereg.json",
+ "raw_rows": "tests/data/phase2/k1_rootcause_checkpoint.jsonl",
+ "calls": 270,
+ "reps": {
+  "LIVE": 10,
+  "FROZEN_S1": 10
+ },
+ "s2_n": 12,
+ "instrument_diagnostic": "0cf97f605ced04fc",
+ "instrument_production": "565470cf26c16d01",
+ "★answer": "问题问的是「抽样噪声 vs 尺度无锚点」。**两个都不是** —— K1 的 0.40 极差压根不是强度现象, 是**稀有结的点火/不点火**被 median(非零) 编码成 0.0 之后, 与真实强度值混在同一个极差里。",
+ "decisive_split": {
+  "always_firing": {
+   "knots": [
+    "audit",
+    "belong",
+    "display",
+    "injustice",
+    "pain_seek",
+    "suspend"
+   ],
+   "n": 6,
+   "cv_median": 0.3145
+  },
+  "rarely_firing": {
+   "knots": [
+    "inertia",
+    "itch",
+    "reward"
+   ],
+   "n": 3,
+   "cv_median": 6.269,
+   "reps_fired": {
+    "inertia": 3,
+    "itch": 1,
+    "reward": 2
+   }
+  },
+  "gap": "变异系数相差 19.9 倍 —— 不稳定完全集中在稀有结",
+  "k1_max_range_source": "K1 报的 0.40 来自 reward(10 个 rep 里只点火 2 次)。剔除出现率成分后 reward 的纯强度极差是 0.17。"
+ },
+ "hypotheses": {
+  "H1_sampling_noise": {
+   "global": {
+    "ratio": 2.1,
+    "verdict": "REJECTED",
+    "why": "n 5->12 极差反而**变大** 2.1 倍 —— 更多 draw = 稀有结更多机会点火"
+   },
+   "restricted_to_always_firing": {
+    "ratio_median": 0.592,
+    "pure_noise_expectation": 0.645,
+    "verdict": "SUPPORTED",
+    "why": "只看每 rep 都点火的 6 个结, n 效应比值中位数 0.592, 纯零均值抽样噪声的理论预期 0.645 —— **几乎正中**。⇒ 纯强度变异就是抽样噪声, 加大 n 按 sqrt(n) 有效。"
+   }
+  },
+  "H2_estimator_defect": {
+   "verdict": "REJECTED_AFTER_CORRECTION",
+   "why": "前登记的 C2 判决线**有两个洞**: ① 可被恒定估计量满足(median_all 把序列压成常数, 极差按构造为 0); ② 极差不是尺度无关量(mean_all 把值整体缩小 6 倍, 极差当然小)。按「极差/均值」归一化后 mean_all 比值 0.867 > 0.65 ⇒ 优势消失。换估计量解决不了问题。",
+   "★self_correction": "这两个洞是我前登记时没堵住的, 事后发现并如实降级, 不是原口径的结论"
+  },
+  "H3_s1_propagation": {
+   "ratio_all": 1.071,
+   "ratio_always_firing_median": 1.476,
+   "verdict": "REJECTED",
+   "why": "冻结 s1 后极差**普遍更大**(6 个常火结里 5 个变差, 中位比值 1.48)。与 §19.5.7 pairing_calibration 的先验一致: s1 配对不是可测差异的来源。"
+  },
+  "H4_no_anchor": {
+   "verdict": "REJECTED_FOR_ALWAYS_FIRING_KNOTS",
+   "why": "若尺度无锚点, 加大 n 不该起作用。实测在常火结上起作用且幅度正中 sqrt(n) 预期 ⇒ 存在可收敛的潜值, 尺度不是没有锚点。本结论**不覆盖稀有结** —— 那里的问题是点火与否, 不是强度尺度。"
+  }
+ },
+ "root_cause": "**稀有结的点火/不点火二值不稳定**, 经 `median(非零)` 把「缺席」编码成 intensity=0.0 后, 与真实强度值一起进极差。这与 2026-08-18 已确立的 P1a 根因「support 闸二值化」**是同一个根因** —— 两个统计量穿着不同的衣服。",
+ "fix": {
+  "correct": "停止把「缺席」编码成 intensity=0.0。K1 的单结极差判据应当**只在该结点火的 rep 上**算, 出现率单独报 occur/n —— 这正是 2026-08-18 给 P1a 的处方, 对 P1b 同样适用。",
+  "wrong": "换估计量(H2 被证伪); 改 s1 配对(H3 被证伪)",
+  "partially_right": "加大 n 对**常火结的纯强度**有效(按 sqrt(n)), 对稀有结的极差**反而更差**。所以「加大 n」既不是通解也不是错处方, 它的适用面必须按点火率划分。"
+ },
+ "★does_not_flip_k1": {
+  "verdict": "K1 仍然 FAIL",
+  "why": "即使剔除全部出现率成分, 只在点火的 rep 上算, 最大纯强度极差仍是 0.25(audit) > 0.10。所以 K1 的 FAIL 不是判据编码造成的假阳性 —— 但 0.40 这个**数字**是, 真实的纯强度极差是 0.25。",
+  "n_extrapolation": "按 sqrt(n) 外推, 要把 0.25 压到 0.10 需要 n >= 75 (约当前生产 n=5 的 15 倍成本)。⚠️ 这是**两点外推**(n=5->12), 不是标定, 不得当作承诺。"
+ },
+ "per_knot": {
+  "audit": {
+   "reps_fired": 10,
+   "R_n5": 0.5,
+   "R_n12": 0.25,
+   "R_fired_only": 0.25,
+   "cv": 0.804,
+   "n_ratio": 0.5,
+   "R_frozen": 0.4
+  },
+  "belong": {
+   "reps_fired": 10,
+   "R_n5": 0.1,
+   "R_n12": 0.085,
+   "R_fired_only": 0.085,
+   "cv": 0.167,
+   "n_ratio": 0.85,
+   "R_frozen": 0.115
+  },
+  "display": {
+   "reps_fired": 10,
+   "R_n5": 0.35,
+   "R_n12": 0.1,
+   "R_fired_only": 0.1,
+   "cv": 0.294,
+   "n_ratio": 0.286,
+   "R_frozen": 0.3
+  },
+  "inertia": {
+   "reps_fired": 3,
+   "R_n5": 0.38,
+   "R_n12": 0.38,
+   "R_fired_only": 0.23,
+   "cv": 4.578,
+   "n_ratio": 1.0,
+   "R_frozen": 0.35
+  },
+  "injustice": {
+   "reps_fired": 10,
+   "R_n5": 0.2,
+   "R_n12": 0.13,
+   "R_fired_only": 0.13,
+   "cv": 0.379,
+   "n_ratio": 0.65,
+   "R_frozen": 0.15
+  },
+  "itch": {
+   "reps_fired": 1,
+   "R_n5": 0.0,
+   "R_n12": 0.1,
+   "R_fired_only": 0.0,
+   "cv": 10.0,
+   "n_ratio": null,
+   "R_frozen": 0.2
+  },
+  "pain_seek": {
+   "reps_fired": 10,
+   "R_n5": 0.3,
+   "R_n12": 0.16,
+   "R_fired_only": 0.16,
+   "cv": 0.196,
+   "n_ratio": 0.533,
+   "R_frozen": 0.085
+  },
+  "reward": {
+   "reps_fired": 2,
+   "R_n5": 0.2,
+   "R_n12": 0.42,
+   "R_fired_only": 0.17,
+   "cv": 6.269,
+   "n_ratio": 2.1,
+   "R_frozen": 0.45
+  },
+  "suspend": {
+   "reps_fired": 10,
+   "R_n5": 0.09,
+   "R_n12": 0.13,
+   "R_fired_only": 0.13,
+   "cv": 0.335,
+   "n_ratio": 1.444,
+   "R_frozen": 0.23
+  }
+ },
+ "★not_a_gate": "本分析全部跑在**闸前** draw_ledger 上, 且它是**诊断不是判据**。不得把这里算出的任何量升级成 gate —— 那正是 D_var 被否决的原因(闸前算、闸后判, 可构造闸后逐字节相同却 PASS 的仪器)。要升级成判据必须另走一次前登记。",
+ "★scope": "experimental unit = **1 个文本**。结论是关于「这台仪器在这条文本上的噪声结构」, **不外推**到其他文本。诊断噪声结构本来就该固定被测对象, 但这个限制必须写在结论里。"
+}

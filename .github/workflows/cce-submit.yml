@@ -54,7 +54,7 @@ jobs:
           set -euo pipefail
           n=$(ls tests/test_*.py | wc -l)
           echo "发现 $n 个测试文件"
-          test "$n" -ge 51 || { echo "❌ 只发现 $n 个(少于登记数), 路径或文件出了问题"; exit 1; }
+          test "$n" -ge 52 || { echo "❌ 只发现 $n 个(少于登记数), 路径或文件出了问题"; exit 1; }
           for t in tests/test_*.py; do echo "--- $t"; PYTHONDONTWRITEBYTECODE=1 python3 "$t"; done
 
       # P1 本体迁移闸。原验收标准「旧名在生产路径 grep 命中==0」写错了且不可达 ——

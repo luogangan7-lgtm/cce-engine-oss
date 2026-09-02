@@ -87,6 +87,21 @@
    "note": "★ 分层: top-1 一致 8/8(本轮) / 7/8(基线) —— 首结身份是稳的。铁律 24 要求 absolute intensity 与 relative composition 分离, 本条就是那条界线的实测位置。",
    "falsifier": "在同一仪器上重做 n>=8 同稿重跑, 若单结极差 <= 0.10 且完全相同读数对 >= 6/28, 本条被推翻。换仪器(gen5+)的结果不推翻本条, 只说明新仪器另有性质。",
    "downstream_enforcement": "scripts/cce_strategy_gate.py::check_knot_readout_claims"
+  },
+  {
+   "id": "k1_range_is_occurrence_not_intensity",
+   "claim": "K1 的单结极差被**稀有结的点火/不点火**主导, 不是强度尺度问题: median(非零) 把「缺席」编码成 intensity=0.0, 再与真实强度值一起进极差。剔除出现率成分后, 常火结的纯强度变异**就是零均值抽样噪声**(n 效应比值 0.592 vs 理论 sqrt(5/12)=0.645)。",
+   "status": "TESTED",
+   "preregistered": true,
+   "prereg_ref": "tests/data/phase2/k1_rootcause_prereg.json",
+   "evidence_refs": [
+    "tests/data/phase2/k1_rootcause_verdict.json",
+    "tests/data/phase2/k1_rootcause_checkpoint.jsonl"
+   ],
+   "replications": [],
+   "note": "★ 为什么是 TESTED 而不是 ESTABLISHED: experimental unit = **1 个文本**, 零复现。结论是关于「这台仪器在这条文本上的噪声结构」。换一条文本、换一台仪器都必须重测。★ 与 2026-08-18 已确立的 P1a 根因「support 闸二值化」是**同一个根因**, 不是新发现 —— 两个统计量(布尔结集翻转 / 单结极差)穿着不同的衣服。★ 它**不推翻** K1 的 FAIL: 剔除出现率后最大纯强度极差 0.25(audit) 仍 > 0.10。",
+   "falsifier": "在同一仪器上换 >=3 条文本重做本设计, 若不稳定不再集中在稀有结(常火结与稀有结的变异系数不再相差一个数量级), 本条被推翻。或: 在常火结上把 n 从 12 再提到 48, 若极差不按 sqrt(n) 继续下降, 「纯强度是零均值抽样噪声」这一半被推翻。",
+   "downstream_enforcement": "暂无 —— ★ 本条是**诊断**, 不得升级为判据。D_var 正是因「闸前算、闸后判」被否决; 要当判据必须另走前登记。"
   }
  ]
 }
