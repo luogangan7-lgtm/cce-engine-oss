@@ -1,23 +1,164 @@
 {
   "kind": "cce.workflow_registry.v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "production_entrypoint": ".github/workflows/cce-submit.yml",
   "workflows": {
-    ".github/workflows/cce-submit.yml": {"class": "production", "accepts": "cce.submission.v1"},
-    ".github/workflows/cce.yml": {"class": "compatibility", "accepts": "legacy scalar inputs/cce-run/cce-batch"},
-    ".github/workflows/reply.yml": {"class": "compatibility", "accepts": "legacy reader/draft scalar inputs"},
-    ".github/workflows/replybatch.yml": {"class": "compatibility", "accepts": "legacy repository item file"},
-    ".github/workflows/accuracy.yml": {"class": "quality_gate", "accepts": "code/config changes or manual note"},
-    ".github/workflows/chain.yml": {"class": "research", "accepts": "order-calibration experiment"},
-    ".github/workflows/ctxsens.yml": {"class": "research", "accepts": "context sensitivity experiment"},
-    ".github/workflows/distill.yml": {"class": "research", "accepts": "subject distillation experiment"},
-    ".github/workflows/extval.yml": {"class": "research", "accepts": "external validity experiment"},
-    ".github/workflows/oos.yml": {"class": "research", "accepts": "out-of-sample experiment"},
-    ".github/workflows/splithalf.yml": {"class": "research", "accepts": "split-half reliability experiment"},
-    ".github/workflows/subjects.yml": {"class": "research", "accepts": "legacy subject simulation experiment"},
-    ".github/workflows/three.yml": {"class": "research", "accepts": "three-task experiment"},
-    ".github/workflows/twoarm.yml": {"class": "research", "accepts": "two-arm experiment"},
-    ".github/workflows/twoarm2.yml": {"class": "research", "accepts": "stable two-arm experiment"}
+    ".github/workflows/cce-submit.yml": {
+      "class": "production",
+      "accepts": "cce.submission.v1",
+      "capabilities": [
+        "outbound_post_measurement",
+        "outbound_reply_measurement",
+        "subject_population_chain"
+      ],
+      "production_complete_allowed": true,
+      "★emits_complete_today": true,
+      "artifact_contract": "config/cce_submission_contract_v1.json#output_contract"
+    },
+    ".github/workflows/cce.yml": {
+      "class": "compatibility",
+      "accepts": "legacy scalar inputs/cce-run/cce-batch",
+      "capabilities": [],
+      "production_complete_allowed": false,
+      "★emits_complete_today": true,
+      "artifact_contract": null,
+      "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用"
+    },
+    ".github/workflows/reply.yml": {
+      "class": "compatibility",
+      "accepts": "legacy reader/draft scalar inputs",
+      "capabilities": [],
+      "production_complete_allowed": false,
+      "★emits_complete_today": false,
+      "artifact_contract": null,
+      "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用"
+    },
+    ".github/workflows/replybatch.yml": {
+      "class": "compatibility",
+      "accepts": "legacy repository item file",
+      "capabilities": [],
+      "production_complete_allowed": false,
+      "★emits_complete_today": false,
+      "artifact_contract": null,
+      "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用"
+    },
+    ".github/workflows/accuracy.yml": {
+      "class": "quality_gate",
+      "accepts": "code/config changes or manual note",
+      "capabilities": [],
+      "production_complete_allowed": false,
+      "★emits_complete_today": false,
+      "artifact_contract": null,
+      "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用"
+    },
+    ".github/workflows/chain.yml": {
+      "class": "research",
+      "accepts": "order-calibration experiment",
+      "capabilities": [],
+      "production_complete_allowed": false,
+      "★emits_complete_today": false,
+      "artifact_contract": null,
+      "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用"
+    },
+    ".github/workflows/ctxsens.yml": {
+      "class": "research",
+      "accepts": "context sensitivity experiment",
+      "capabilities": [],
+      "production_complete_allowed": false,
+      "★emits_complete_today": false,
+      "artifact_contract": null,
+      "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用"
+    },
+    ".github/workflows/distill.yml": {
+      "class": "research",
+      "accepts": "subject distillation experiment",
+      "capabilities": [],
+      "production_complete_allowed": false,
+      "★emits_complete_today": false,
+      "artifact_contract": null,
+      "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用"
+    },
+    ".github/workflows/extval.yml": {
+      "class": "research",
+      "accepts": "external validity experiment",
+      "capabilities": [],
+      "production_complete_allowed": false,
+      "★emits_complete_today": false,
+      "artifact_contract": null,
+      "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用"
+    },
+    ".github/workflows/oos.yml": {
+      "class": "research",
+      "accepts": "out-of-sample experiment",
+      "capabilities": [],
+      "production_complete_allowed": false,
+      "★emits_complete_today": false,
+      "artifact_contract": null,
+      "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用"
+    },
+    ".github/workflows/splithalf.yml": {
+      "class": "research",
+      "accepts": "split-half reliability experiment",
+      "capabilities": [],
+      "production_complete_allowed": false,
+      "★emits_complete_today": false,
+      "artifact_contract": null,
+      "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用"
+    },
+    ".github/workflows/subjects.yml": {
+      "class": "research",
+      "accepts": "legacy subject simulation experiment",
+      "capabilities": [],
+      "production_complete_allowed": false,
+      "★emits_complete_today": false,
+      "artifact_contract": null,
+      "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用"
+    },
+    ".github/workflows/three.yml": {
+      "class": "research",
+      "accepts": "three-task experiment",
+      "capabilities": [],
+      "production_complete_allowed": false,
+      "★emits_complete_today": false,
+      "artifact_contract": null,
+      "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用"
+    },
+    ".github/workflows/twoarm.yml": {
+      "class": "research",
+      "accepts": "two-arm experiment",
+      "capabilities": [],
+      "production_complete_allowed": false,
+      "★emits_complete_today": false,
+      "artifact_contract": null,
+      "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用"
+    },
+    ".github/workflows/twoarm2.yml": {
+      "class": "research",
+      "accepts": "stable two-arm experiment",
+      "capabilities": [],
+      "production_complete_allowed": false,
+      "★emits_complete_today": false,
+      "artifact_contract": null,
+      "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用"
+    }
   },
-  "rule": "New production integrations must use cce-submit.yml. Compatibility workflows remain only for old callers; research workflows cannot issue production complete=true claims."
+  "rule": "New production integrations must use cce-submit.yml. Compatibility workflows remain only for old callers; research workflows cannot issue production complete=true claims.",
+  "★production_complete_rule": "★ 铁律 21「研究工作流不得产出 production complete=true」此前只是本文件 rule 字段里的**一句散文**, 零强制。现改为可执行: production_complete_allowed 逐条声明, 且闸会**实查 yml 是否真的调用了 cce_full_run / cce_workflow_manifest** —— 声明与实际能力不符即红。所以给一个 research 工作流加上 cce_full_run 会当场被抓。",
+  "★skipped_field": "§37 还列了 profile, 但一条工作流服务多个 profile(cce-submit.yml 同时跑 outbound_post/outbound_reply/subject_chain), 挂单个 profile 字段是错的。profile 留在 capability 与 submission contract 里。",
+  "known_divergences": [
+    {
+      "workflow": ".github/workflows/cce.yml",
+      "class": "compatibility",
+      "declared": "production_complete_allowed = false",
+      "actual": "yml 调用 cce_full_run ⇒ **今天仍能产出 complete=true**",
+      "why_not_a_iron_law_21_violation": "铁律 21 点名的是**研究**工作流; cce.yml 是 compatibility 类",
+      "why_still_recorded": "铁律 22「Legacy 组件不得成为新生产依赖」+ 库内已确立「生产测量只运行 cce-submit.yml」「旧 cce.yml reply 派单已废弃」⇒ 这是第二条通往 complete 的路, 不该有。",
+      "status": "DECLARED_PENDING_OWNER",
+      "options": [
+        "把 cce.yml 里产 complete 的路径摘掉(它已是兼容层)",
+        "或显式把它升为允许(等于承认有两个生产入口, 与已确立口径冲突)"
+      ]
+    }
+  ],
+  "★divergence_rule": "research 类产出 complete = **硬红**(铁律 21 字面)。非 production 非 research 的类若能产出 complete, 必须登记在 known_divergences 里并写明理由; **未登记即红** —— 防的是「悄悄再开一条生产路」。"
 }

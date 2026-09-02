@@ -133,8 +133,11 @@
     },
     "21": {
       "law": "研究工作流不得产出 production complete=true",
-      "kind": "FIELD_ONLY",
-      "note": "workflow_registry 有 class:research 字段, 但**没有任何测试**钉住 research 类不得 complete=true"
+      "kind": "GATE",
+      "file": "scripts/cce_registry_gate.py",
+      "evidence": "铁律 21 硬红",
+      "test": "tests/test_cce_registry_gate.py",
+      "upgraded_from": "FIELD_ONLY (2026-09-02: 此前只有 workflow_registry.rule 里一句散文, 零强制)"
     },
     "22": {
       "law": "Legacy 组件不得成为新生产依赖",
@@ -162,8 +165,8 @@
   },
   "iron_law_summary": {
     "total": 25,
-    "GATE": 14,
-    "FIELD_ONLY": 6,
+    "GATE": 15,
+    "FIELD_ONLY": 5,
     "PROSE_ONLY": 5
   },
   "section_divergences": [
@@ -188,16 +191,24 @@
     {
       "section": "§36 Capability Registry",
       "claim": "每项能力至少 8 个字段",
-      "actual": "实际每项只有 id/status/profile/entrypoint(+可选 constraints)",
-      "verdict": "代码欠账",
-      "note": "异名等价: capability_id≈id, workflow≈entrypoint。真缺 4 个: input_contract / output_contract / evidence_required / fallback_policy。"
+      "actual": "已补 input_contract / output_contract / evidence_required / fallback_policy; version 保持顶层(逐能力再挂会有两个真值源, 已写明理由)",
+      "verdict": "符合",
+      "note": "四个字段各防一件今天就存在的事: 契约脱钩 / **无证据声称能力可用** / **静默兜底**(取值强制三分: 扣发·显式跳过·不在生产链)。§36 还列了 version, 跳过并写明理由 —— 逐能力挂会出现两个真值源。",
+      "gate": {
+        "file": "scripts/cce_registry_gate.py",
+        "test": "tests/test_cce_registry_gate.py"
+      }
     },
     {
       "section": "§37 Workflow Registry",
       "claim": "每条工作流 9 个字段",
-      "actual": "实际每条只有 class/accepts, workflow_id 是 dict 键",
-      "verdict": "位置不同+代码欠账",
-      "note": "异名等价: accepted_schema≈accepts。stages 与 completion_gate 确实存在, 但在 cce_submission_contract_v1.json 的 profiles 里(位置不同, 非缺失)。真缺 4 个: profile / capabilities / artifact_contract / production_complete_allowed。"
+      "actual": "已补 capabilities / artifact_contract / production_complete_allowed; profile 跳过并写明理由(一条工作流服务多个 profile)。stages 与 completion_gate 仍在 submission contract 里(位置不同, 非缺失)",
+      "verdict": "符合",
+      "note": "★ production_complete_allowed 正是**铁律 21 缺的那道闸** —— 闸会实查 yml 是否真调用 cce_full_run/cce_workflow_manifest, 声明与实际能力不符即红。顺带查出一处真分歧: cce.yml(compatibility) 今天仍能产 complete, 已登记为 DECLARED_PENDING_OWNER。",
+      "gate": {
+        "file": "scripts/cce_registry_gate.py",
+        "test": "tests/test_cce_registry_gate.py"
+      }
     }
   ],
   "★not_covered": "本次只核了 §36 §37 §39 §42 §43。§45 矩阵与 §1–§35 的本体定义未逐条核 —— **不得把本次结果当成全文核对完毕**。这正是我上次栽的坑(只读 §19.5 尾部, 把它当全集)。"

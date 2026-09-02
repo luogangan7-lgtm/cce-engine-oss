@@ -20,11 +20,15 @@ SPEC = json.load(open(dr.SPEC, encoding="utf-8"))
 ok, errors, live = dr.check(run_tests=False)
 assert ok, f"基线必须绿: {errors}"
 assert sum(live.values()) == 25, "§43 是 25 条铁律"
-assert live["GATE"] == 14 and live["FIELD_ONLY"] == 6 and live["PROSE_ONLY"] == 5
+assert live["GATE"] == 15 and live["FIELD_ONLY"] == 5 and live["PROSE_ONLY"] == 5
 
 # ★ 核心数字: 11/25 条铁律没有任何东西会因违反它而变红
 unguarded = live["FIELD_ONLY"] + live["PROSE_ONLY"]
-assert unguarded == 11, f"无闸的铁律应为 11 条, 实测 {unguarded}"
+assert unguarded == 10, f"无闸的铁律应为 10 条, 实测 {unguarded}"
+# 2026-09-02: 铁律 21 由 FIELD_ONLY 升为 GATE(§37 的 production_complete_allowed)
+assert SPEC["iron_laws"]["21"]["kind"] == "GATE"
+assert "FIELD_ONLY" in SPEC["iron_laws"]["21"]["upgraded_from"], \
+    "★ 升级必须留痕: 它此前是什么档、为什么不算闸"
 
 # ── GATE 声明必须真的可验证(不是自称) ──────────────────────────────────
 for n, v in SPEC["iron_laws"].items():
@@ -59,7 +63,9 @@ assert not ok3 and any("「有闸」这句话是假的" in x for x in e3), \
     "★ 证据串对不上必须红 —— 否则可以随便声称有闸"
 
 # 4. FIELD_ONLY 不写「什么都不会失败」的说明 -> 红
-ok4, e4, _ = alt(lambda s: s["iron_laws"]["21"].pop("note"))
+# 铁律 21 已升 GATE(不再有 note), 改指向仍是 FIELD_ONLY 的 23
+assert SPEC["iron_laws"]["23"]["kind"] == "FIELD_ONLY"
+ok4, e4, _ = alt(lambda s: s["iron_laws"]["23"].pop("note"))
 assert not ok4 and any("必须写明" in x for x in e4)
 
 # 5. summary 与实际不符 -> 红(防止改了分类忘了改汇总)
@@ -97,6 +103,6 @@ assert not ok9 and any("必须给出真实存在的 gate" in x for x in e9), \
 
 print(f"test_cce_doc_reconcile: OK "
       f"(§43 25 条: GATE {live['GATE']} / FIELD_ONLY {live['FIELD_ONLY']} / "
-      f"PROSE_ONLY {live['PROSE_ONLY']} ⇒ **{unguarded} 条无闸** | "
-      f"14 条 GATE 的证据串全部实存 | 8 条反向各自见红 | "
-      f"§39 文档过时 · §42 代码欠账 各自有实据)")
+      f"PROSE_ONLY {live['PROSE_ONLY']} ⇒ **{unguarded} 条无闸**(铁律 21 已升 GATE) | "
+      f"{live['GATE']} 条 GATE 的证据串全部实存 | 8 条反向各自见红 | "
+      f"§39 文档过时 · §36/§37/§42 已补闸)")

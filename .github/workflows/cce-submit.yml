@@ -54,7 +54,7 @@ jobs:
           set -euo pipefail
           n=$(ls tests/test_*.py | wc -l)
           echo "发现 $n 个测试文件"
-          test "$n" -ge 56 || { echo "❌ 只发现 $n 个(少于登记数), 路径或文件出了问题"; exit 1; }
+          test "$n" -ge 57 || { echo "❌ 只发现 $n 个(少于登记数), 路径或文件出了问题"; exit 1; }
           for t in tests/test_*.py; do echo "--- $t"; PYTHONDONTWRITEBYTECODE=1 python3 "$t"; done
 
       # P1 本体迁移闸。原验收标准「旧名在生产路径 grep 命中==0」写错了且不可达 ——
@@ -73,6 +73,10 @@ jobs:
 
       # 文档 ↔ 代码 核对: §43 铁律逐条判「有闸/只有字段/只有散文」, 且 GATE 声明必须可验证
       # §42 四条独立 Ledger 的准入闸: 四对禁止合并各自可执行
+      # §36/§37 注册表一致性(权威链头两环) + 铁律 21 由散文升为闸
+      - name: Registry consistency gate
+        run: PYTHONDONTWRITEBYTECODE=1 python3 scripts/cce_registry_gate.py
+
       - name: Ledger separation gate
         run: PYTHONDONTWRITEBYTECODE=1 python3 scripts/cce_ledger.py
 
