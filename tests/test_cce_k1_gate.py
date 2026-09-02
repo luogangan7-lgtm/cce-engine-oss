@@ -120,6 +120,26 @@ _, rep3 = judge(same)
 assert rep3["ranges"]["reward"] == 0.40 and not rep3["occurrence"]["reward"]["flip"], \
     "★ 反向失败: 常火结的极差在修正前后应完全一致"
 
+# ── 反向 10: 新加的判据不得有「极差」那种毛病(严格度随 rep 数漂移) ─────
+#    极差是 max-min, 对 rep 数**单调不减** —— 同一台仪器跑的 rep 越多越容易不达标,
+#    判据在惩罚「多测量」。出现率一致率是**比例**量, 必须不随 rep 数单调漂移。
+import itertools as _it  # noqa: E402
+import statistics as _st  # noqa: E402
+_base = [[["audit", 0.9], ["reward", 0.5]]] * 5 + [[["audit", 0.9]]] * 3
+def _worst_occ(sub):
+    m = 8.0
+    for k in {kk for r in sub for kk, _ in r["knots"]}:
+        f = sum(1 for r in sub if k in dict(r["knots"]))
+        if f:
+            m = min(m, max(f, len(sub) - f) / len(sub) * 8)
+    return m
+_trend = [_st.fmean(_worst_occ(list(c)) for c in _it.combinations(rows(_base), R))
+          for R in (4, 6, 8)]
+assert not (_trend[0] > _trend[1] > _trend[2]), \
+    f"★ 出现率一致率随 rep 数单调变严 {_trend} —— 那就和极差一样在惩罚多测量"
+assert max(_trend) - min(_trend) < 1.5, \
+    f"★ 出现率一致率随 rep 数漂移过大 {_trend} —— 比例量不该这样"
+
 # ── 判据阈值与 §23 逐字一致 ───────────────────────────────────────────
 assert CRIT == {"n_min": 8, "identical_pairs_min": 6, "range_max": 0.10,
                 "top1_agree_min": 7, "occurrence_agree_min": 7}
@@ -143,4 +163,4 @@ assert not any("出现率" in f for f in r9["failed"])
 print("test_cce_k1_gate: OK "
       "(§23 指定的反向测试已补 | 不同内容按同组 -> 拒判 | 缺指纹 != 指纹相同 | "
       "四项逐条可观察到失败 | 三过一不过仍判 FAIL | "
-      "缺席不再编码成 0.0, 且出现率仍被「相同读数对」抓住)")
+      "缺席不再编码成 0.0 | 出现率补成独立第五项 | 新判据不随 rep 数漂移)")

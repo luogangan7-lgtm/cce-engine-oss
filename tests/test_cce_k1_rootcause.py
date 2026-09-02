@@ -140,9 +140,32 @@ assert "不得升级为判据" in mech["downstream_enforcement"] and "D_var" in 
 for ref in mech["evidence_refs"] + [mech["prereg_ref"]]:
     assert os.path.exists(os.path.join(ROOT, ref)), f"证据 {ref} 不存在"
 
+# ── 11. ★ 出现率判据的跨批交叉检验 ────────────────────────────────────
+#    2026-09-02 给 K1 补的第五项(出现率一致 >= 7/8)只在 K1 那一批上验过。
+#    这里拿本轮两个独立臂再验: 若阈值是为某一批调的, 换批就会指向不同的结。
+sys.path.insert(0, os.path.join(ROOT, "probes"))
+from k1_gate import CRIT  # noqa: E402
+
+def occ_agree(reps, k):
+    fired = sum(1 for r in reps if any(d["knot_vector"][k] > 0 for d in r))
+    return max(fired, len(reps) - fired) / len(reps) * 8, fired
+
+for label, reps in (("LIVE", LIVE), ("FROZEN_S1", FROZ)):
+    bad = sorted(k for k in KN
+                 if occ_agree(reps, k)[1] > 0
+                 and occ_agree(reps, k)[0] < CRIT["occurrence_agree_min"])
+    assert set(bad) <= set(rare), \
+        f"★ {label} 上出现率判据指向了常火结 {set(bad) - set(rare)} —— 判据在乱抓"
+    assert "inertia" in bad, f"★ {label} 上 inertia 应当不达标"
+# K1 那批(n=5 draw, 8 rep)最差也是 inertia —— 三批独立数据同一结论
+K1V = json.load(open(os.path.join(P, "k1_reliability_verdict.json"), encoding="utf-8"))
+assert min(K1V["occurrence"], key=lambda k: K1V["occurrence"][k]["agree"]) == "inertia", \
+    "★ 三批独立数据必须指向同一组结, 否则阈值就是为某一批调的"
+
 print(f"test_cce_k1_rootcause: OK "
       f"(20 rep x 12 draw 可重算 | 常火 {len(always)} 结 CV {cv_a:.2f} vs 稀有 {len(rare)} 结 "
       f"CV {cv_r:.2f} = {cv_r/cv_a:.0f} 倍 | H1 全局拒绝但限常火结成立 "
       f"({med_ratio:.3f} vs 理论 0.645) | H2/H3 拒绝 · H4 仅在常火结被排除 | "
       f"纯强度极差 {worst} 仍 > 0.10 ⇒ 不推翻 K1 的 FAIL | "
-      "已登记为 TESTED 机制, 不得当判据)")
+      "已登记为 TESTED 机制, 不得当判据 | "
+      "出现率判据经三批独立数据交叉检验, 均指向 inertia)")
