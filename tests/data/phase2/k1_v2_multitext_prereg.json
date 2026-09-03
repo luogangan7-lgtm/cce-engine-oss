@@ -1,0 +1,98 @@
+{
+ "block": "K1_RELIABILITY_V2_MULTITEXT_GEN4",
+ "prereg_written_at": "2026-09-03",
+ "★frozen_before_measurement": "本文件在采集任何新读数**之前**提交(见 git)。判据、选文、决策规则一次写死。",
+ "why_not_just_more_reps": "K1 v1 在**单文本**上判 FAIL(A(0.10)=32.1%, 需≥95%)。成本曲线实测: jackknife SE 0.085 ≈ 抖动 0.200, n=12 只到 0.733, 距 0.95 有 2.6 SE; 推到 n*≈29 要 429 次调用, **而且仍然只是一个文本, 不泛化**。所以 v2 不加 rep, 改为**先扩文本**。",
+ "question": [
+  "Q1 强度层的不可复现是**文本特有**还是**仪器属性**? (单文本判不出来)",
+  "Q2 `weight` 能否顶替 `intensity` 作可用读数层? 上轮派生层实测 weight 0.9111–1.0 稳于 intensity 0.7333–1.0, 但那是**同一文本**上的观察, 未经预注册判定。"
+ ],
+ "selection_rule": {
+  "rule": "沿用 v1 的资格池(L0 四次历史重跑全 qualified 且属 analysis_sets.primary), 按 base_id 字典序取前 5",
+  "eligible_n": 30,
+  "chosen": [
+   "050f0f2403f7",
+   "093c73613279",
+   "0d0411f957e7",
+   "1aa601bf5633",
+   "2eca26909ed2"
+  ],
+  "why_this_rule": "① 与 v1 同一规则, 只是把「取第 1 个」扩成「取前 5 个」—— 字典序与稳定性无关, 排除按结果挑文本; ② 含 v1 已测的 050f0f2403f7, 它的 8 rep 直接复用, 不重复烧钱; ③ 选择在跑之前冻结。",
+  "scope_limit": "★ 仍只覆盖「稳定合格的真人文本」。对边缘文本(资格摇摆/混合内容)不成立。5 个文本也**不足以**支撑「对任意文本成立」——它只能区分「单一文本的偶然」与「跨文本一致的现象」。"
+ },
+ "instrument": {
+  "instrument_hash": "565470cf26c16d01",
+  "must_equal": "565470cf26c16d01",
+  "note": "gen4, 与 v1 同仪器 —— 否则 v1 的 8 rep 不可并入(缺仪器标识 != 仪器相同)。"
+ },
+ "design": {
+  "texts": [
+   {
+    "base_id": "050f0f2403f7",
+    "text_sha256": "6c736952f41dc6a245656b9e3973d3e2322422d4c256e2ae48b7a535083a834d",
+    "text_sha16": "6c736952f41dc6a2",
+    "chars": 811,
+    "already_measured": true
+   },
+   {
+    "base_id": "093c73613279",
+    "text_sha256": "00be1b6643dccdf05625c7da5c6c5225e896c8de04518112450a9d8ed5a053ff",
+    "text_sha16": "00be1b6643dccdf0",
+    "chars": 1422,
+    "already_measured": false
+   },
+   {
+    "base_id": "0d0411f957e7",
+    "text_sha256": "2a2b8d9e79460f4ecc729d3e623d170b0a43f54a6a136717e762c92794909da8",
+    "text_sha16": "2a2b8d9e79460f4e",
+    "chars": 741,
+    "already_measured": false
+   },
+   {
+    "base_id": "1aa601bf5633",
+    "text_sha256": "8a0b3ccaa1b28ce258e341aa908882a97de588c54d39ea6ddd625bbb0fc8f7a2",
+    "text_sha16": "8a0b3ccaa1b28ce2",
+    "chars": 222,
+    "already_measured": false
+   },
+   {
+    "base_id": "2eca26909ed2",
+    "text_sha256": "51a53487dfab19ac8999eb6b8fa6bbf1a4bc8ab71f01034eeb1e447139a61ef7",
+    "text_sha16": "51a53487dfab19ac",
+    "chars": 388,
+    "already_measured": false
+   }
+  ],
+  "n_per_text": 8,
+  "K": 3,
+  "stage2_n": 5,
+  "calls_per_rep": 8,
+  "new_texts": 4,
+  "new_calls": 256,
+  "reuse": "050f0f2403f7 的 8 rep 复用 v1 原始行(tests/data/phase2/k1_reliability_verdict.json:raw_rows)",
+  "protocol": "每 rep = stage1(k=3) + stage2(n=5); 与 v1 逐字相同",
+  "★infra": "INFRA_FAILED(HTTP 200 空 content / 2062) 不算一次读数, 该 rep 重试, 不进 n"
+ },
+ "criterion": {
+  "per_text": "沿用 probes/k1_gate.judge() 的五项判据, 一字不改(δ=0.10, A≥0.95, top1≥7/8, 出现率≥7/8, n≥8)",
+  "layers_judged": [
+   "intensity",
+   "weight"
+  ],
+  "★why_two_layers": "同一批读数同时按两层判, 不额外花钱; 层的选择必须由预注册决定, 不能看完结果再挑。"
+ },
+ "★degeneracy_guard": {
+  "rule": "一个层要被判「可用」, 除五项判据外还必须过**非退化检验**: 跨 5 个文本的该层读数, 至少要能把文本两两分开 —— 定义: 对每个结, 计算跨文本读数的极差 R_between 与文本内 8 rep 的极差中位数 R_within; 要求存在 ≥3 个结满足 R_between > 2 × R_within。",
+  "why": "★ 本项目已栽过两次: ① 预注册的 C2 条件数判据可被**常数估计器**满足(极差按构造为 0); ② 上轮 quadrant 一致率 1.000 但**零方差**, 是退化不是稳定。高一致率 + 零区分度 = 这个层什么都没测。缺这条闸, weight 很可能靠「几乎不动」取胜。"
+ },
+ "decision_rule": {
+  "★frozen": "以下映射在测量前写死, 不许事后改。",
+  "INSTRUMENT_WIDE_FAIL": "intensity 在 ≥4/5 文本上不过 ⇒ 强度层不可复现是**仪器属性**, 不是这篇文本的偶然",
+  "TEXT_SPECIFIC": "intensity 过 ≥2/5 且不过 ≥2/5 ⇒ 是文本属性, 「仪器不稳」的说法不成立, 须改问「哪类文本不稳」",
+  "LAYER_SWITCH_SUPPORTED": "weight 过 ≥4/5 文本 **且**过非退化检验 **且** intensity 过 ≤1/5 ⇒ 支持把可用读数层从 intensity 换成 weight",
+  "LAYER_SWITCH_REJECTED": "weight 过 ≥4/5 但**未过**非退化检验 ⇒ 拒绝换层, 并登记「weight 的高一致率是退化的」",
+  "INCONCLUSIVE": "以上都不满足",
+  "★what_this_cannot_do": "本设计**不能**让 K1 通过。它回答的是「失败是什么性质」与「换层有没有依据」, 不是「再试一次能不能过」。"
+ },
+ "★falsifier": "若 intensity 在 ≥4/5 文本上**通过**, 则 v1 的 FAIL 判定就是选文运气问题, 本预注册的前提(先扩文本)被推翻。"
+}
