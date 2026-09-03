@@ -230,6 +230,7 @@ def validate_submission(value: dict[str, Any]) -> dict[str, Any]:
             if profile == "outbound_post":
                 _exact_text(item, path, errors)
                 normalized_items.append({"mode": "outbound_post", "text": item.get("text"),
+                    "media_declaration": _media_declaration(item.get("text") or ""),
                     "context": context_summary,
                     "context_decl": json.dumps(context.get("declaration", {}), ensure_ascii=False),
                     "guard_profile": item.get("guard_profile"), "ref_tag": job_id,
@@ -241,6 +242,7 @@ def validate_submission(value: dict[str, Any]) -> dict[str, Any]:
                 if isinstance(reader, dict) and not _instant(reader.get("observed_at")):
                     errors.append(f"{path}.reader.observed_at must be ISO-8601")
                 normalized_items.append({"mode": "reply", "text": (draft or {}).get("text", ""),
+                    "media_declaration": _media_declaration((draft or {}).get("text", "")),
                     "reader_text": (reader or {}).get("text", ""), "context": context_summary,
                     "context_decl": json.dumps(context.get("declaration", {}), ensure_ascii=False), "ref_tag": job_id,
                     "guard_profile": item.get("guard_profile"),
@@ -276,6 +278,23 @@ def validate_submission(value: dict[str, Any]) -> dict[str, Any]:
                 "subject_chain": resolved_chain if profile == "subject_chain" else None,
                 "response_source": resolved_source if profile == "subject_chain" else None,
                 "subject_dispatch": subject_dispatch}}
+
+
+# ── 媒体声明: 由产出方按检测器**自动填** ──────────────────────────────
+# ★ 2026-09-03 事故: 我给 prepare.py 加了 media_declaration 必填, 却没同步这里
+#   ⇒ 每一次出站都会在入口红。加必填字段必须同时改产出方, 否则就是把生产打断。
+# 为什么自动填不等于橡皮图章: 声明由**同一个检测器**现算, 检出媒体时一律标
+#   not_measured_no_capability(那是实情 —— 生产链没有媒体测量能力),
+#   于是 manifest 的 modalities_present != modalities_measured,
+#   complete=true 就不可能被读成「整件作品都测了」。
+def _media_declaration(text: str) -> dict:
+    from cce_media_declaration import detect
+    found = detect(text or "")
+    return {"media_present": bool(found),
+            "items": [{"ref": m["ref"], "state": "not_measured_no_capability",
+                       "why": "生产链无媒体测量能力(见 capability registry video_multimodal_parse_v5)"}
+                      for m in found],
+            "★auto": "由 cce_submission 按 cce_media_declaration.detect 现算, 非人工填写"}
 
 
 def write_package(value: dict[str, Any], outdir: Path) -> dict[str, Any]:
