@@ -36,7 +36,7 @@ errs = []
 # post 这一档 —— 但入口一直允许它, 于是「拿退役组件当现行标准」复发了三次
 # (08-13 旧 s0-s8 当尺子 / 08-14 s8 写进判注 / 08-14 帖15 九条 run 全跑旧链)。
 # 靠 manifest.chain 断言在下游判红只是兜底; 入口直接拒绝才让复发结构上不可能。
-if mode not in ("reply", "response", "outbound_post"):
+if mode not in ("reply", "response", "outbound_post", "media_ingest"):
     errs.append(f"mode 必须是 reply|response|outbound_post, 收到 {mode!r} "
                 f"(post = 已退役的旧九环节链, 2026-09-01 从入口移除)")
 if not text.strip():
@@ -61,6 +61,9 @@ if cdecl:
     except Exception as e:
         errs.append(f"context_decl 不是合法 JSON: {e}")
 
+# ★ media_ingest 不是出站: 它的 text 是**解析产物 JSON**, 不是要发出去的内容,
+#   所以既不需要 guard_profile(没有稿子要过合规闸), 也不需要 media_declaration
+#   (它**本身就是**媒体那条路, 要求它声明自己有没有媒体是循环)。
 if mode in ("reply", "outbound_post") and not guard_profile:
     errs.append("出站模式必填 guard_profile")
 

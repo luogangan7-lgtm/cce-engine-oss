@@ -54,7 +54,7 @@ jobs:
           set -euo pipefail
           n=$(ls tests/test_*.py | wc -l)
           echo "发现 $n 个测试文件"
-          test "$n" -ge 72 || { echo "❌ 只发现 $n 个(少于登记数), 路径或文件出了问题"; exit 1; }
+          test "$n" -ge 73 || { echo "❌ 只发现 $n 个(少于登记数), 路径或文件出了问题"; exit 1; }
           for t in tests/test_*.py; do echo "--- $t"; PYTHONDONTWRITEBYTECODE=1 python3 "$t"; done
 
       # P1 本体迁移闸。原验收标准「旧名在生产路径 grep 命中==0」写错了且不可达 ——
@@ -128,9 +128,12 @@ jobs:
           path: submission-package/
           retention-days: 90
 
-  outbound:
+  # 2026-09-03 由 outbound 改名: 本 job 是**按 profile 通用**的测量执行器,
+  # 而 media_ingest **不是出站**(它的 text 是解析产物, 没有稿子要发)。
+  # 叫 outbound 会让人把「跑过这个 job」读成「发出去了」。
+  measure:
     needs: prep
-    if: needs.prep.outputs.profile == 'outbound_post' || needs.prep.outputs.profile == 'outbound_reply'
+    if: needs.prep.outputs.profile == 'outbound_post' || needs.prep.outputs.profile == 'outbound_reply' || needs.prep.outputs.profile == 'media_ingest'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
@@ -245,8 +248,8 @@ jobs:
           path: run/out/
           retention-days: 90
 
-  outbound-aggregate:
-    needs: [prep, outbound]
+  measure-aggregate:
+    needs: [prep, measure]
     if: always() && needs.prep.result == 'success' && (needs.prep.outputs.profile == 'outbound_post' || needs.prep.outputs.profile == 'outbound_reply')
     runs-on: ubuntu-latest
     steps:

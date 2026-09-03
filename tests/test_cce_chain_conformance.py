@@ -25,10 +25,20 @@ assert stats["phases_total"] == 8, "§44 是八阶段 P0–P7"
 assert stats["phases_pass"] == 8
 
 # ★ 关键: gate 全过 ≠ 八个 Phase 都做完了
-assert stats["phases_done"] == 6, \
-    f"内容已建的应当是 6/8 (P3 只有 gate, P4 只有判据), 实测 {stats['phases_done']}"
+# 2026-09-03: P3 进生产(profile media_ingest, 全链回放 complete=true) ⇒ 6/8 → 7/8。
+# 仍未完成的只剩 P4 —— 它是**已测不达标**, 不是没做。
+assert stats["phases_done"] == 7, \
+    f"内容已建的应当是 7/8 (只剩 P4, 它是已测不达标), 实测 {stats['phases_done']}"
 undone = [p for p in SPEC["phases"] if not p["status"].startswith("DONE")]
-assert {p["phase"] for p in undone} == {"P3 Multimodal", "P4 九结 Research"}
+assert {p["phase"] for p in undone} == {"P4 九结 Research"}
+
+# ★ P3 虽以 DONE 开头, 但它是**带具名扣发**的 DONE —— 「进生产」!= 「全部读数可用」
+_p3 = [p for p in SPEC["phases"] if p["phase"].startswith("P3")][0]
+assert _p3["status"] == "DONE_WITH_SCOPED_WITHHOLDING", _p3["status"]
+assert "抽出来了 != 抽得准" in _p3["why"], \
+    "★ 抽取质量未测这件事必须留在 P3 的说明里, 不能因为进了生产就抹掉"
+assert "不得声称图片全链可用" in _p3["why"], \
+    "★ 图片链仍 missing —— 视频档进生产不得顺带把图片说成可用"
 
 # ★ P4 已真实判定且结果是 FAIL —— 不许因为它的 gate 命令退出 0 就显示成 ✓
 #   2026-09-03: v2 多文本判定后 owner 授权自裁, 状态转为**决定**而非通过。
@@ -95,7 +105,12 @@ ok5, errs5, st5 = with_spec(lambda s: s["phases"][0].__setitem__("gate_command",
 assert not ok5 and st5["phases"]["P0 地基"] == "FAIL", "★ 反向失败: gate 红了整表却绿"
 
 # ── 反向 5: 不是 DONE 却不写「还差什么」-> 红 ──────────────────────────
-ok6, errs6, _ = with_spec(lambda s: s["phases"][3].pop("why"))
+# ★ 动态找第一个非 DONE 的, 不写死下标 —— 原来写死 phases[3](P3),
+#   P3 一进生产这条反向就失效了(它变成 DONE, 摘 why 不再触发规则)。
+#   **反向用例指着一个会变的下标, 它就会随被测对象一起失效。**
+_undone_i = next(i for i, ph in enumerate(SPEC["phases"])
+                 if not ph["status"].startswith("DONE"))
+ok6, errs6, _ = with_spec(lambda s: s["phases"][_undone_i].pop("why"))
 assert not ok6 and any("没写 why" in e for e in errs6), \
     "★ 反向失败: 半成品状态可以不交代还差什么"
 

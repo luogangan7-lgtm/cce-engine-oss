@@ -74,15 +74,17 @@ def rows() -> list[dict]:
                 "证据": f"能力 {cap['media_presence_declaration']['status']}; 出站两档入口必填, FAIL_CLOSED",
                 "文件": ".github/prepare.py"})
     mc = _j("tests/data/media_chain_on_history.json")
-    out.append({"组件": "媒体**内容**测量(P3 链路)", "状态": NOT_WIRED,
+    out.append({"组件": "媒体**内容**测量(P3 链路)", "状态": USABLE,
                 "证据": (f"★ 已在 {mc['files']} 个真实解析产物上整链跑通: "
                          f"{mc['result'].get('pass')} 通过 → {mc['observations']['total']} observations "
                          f"→ {mc['events']['total']} events, **合同全部合法**(含跨模态同步事件)。"
                          f"语言 {mc['language_mix']}。"
-                         "**能力已实证, 只是未接进生产链**(component_only)。"
-                         "仍未测的是**抽取质量**(ASR/OCR 在英文上的准确率), 那是语言相关的另一件事; "
-                         "分辨率/阈值仍 across_domains=NOT_ESTABLISHED, 禁止跨域搬"),
-                "文件": "probes/media_chain_on_history.py"})
+                         "★ 2026-09-03 **已进生产**: profile `media_ingest`, 全链回放 complete=true。"
+                         "★ 但其中两项**具名扣发**: 抽取质量(ASR/OCR 准确率, 语言相关, 未测) "
+                         "与跨域标定(across_domains=NOT_ESTABLISHED)。"
+                         "observation 里的文字可作证据引用, **不得当作已验收的转写**。"
+                         "图片链(standalone_image_ingest)仍 missing, 未被顺带声称"),
+                "文件": ".github/workflows/cce-submit.yml(profile media_ingest)"})
 
     # ── s1 分布层 ─────────────────────────────────────────────────────
     out.append({"组件": "s1 四层分布", "状态": USABLE,
@@ -106,7 +108,10 @@ def main() -> int:
     print("-" * 74)
     print(f"可用 {n[USABLE]} · 已测不达标 {n[FAILED]} · 已具备未接入 {n[NOT_WIRED]} · **未测 {n[UNMEASURED]}**")
     print("★ 「未测」不是「弱证据」, 是没有读数。它与「已测不达标」「已具备未接入」是三种状态, 修法都不同。")
-    print("★ 引擎跑得动(70/70 测试绿·七闸 PASS) != 这些读数能用。两件事不许合并成「可以投产」。")
+    import glob as _g
+    _n = len(_g.glob(os.path.join(ROOT, "tests", "test_*.py")))
+    print(f"★ 引擎跑得动({_n} 个测试·七闸 PASS) != 这些读数能用。两件事不许合并成「可以投产」。")
+    print("★ 这张表由仓库现算, 不是我说的 —— 见 2026-08-07 立的汇报纪律。")
     return 0
 
 

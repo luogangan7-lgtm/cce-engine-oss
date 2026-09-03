@@ -295,6 +295,67 @@ def s4(ctx):
 # 是让人误以为它们还是现行标准(实际复发三次)。cce_align_v2 保留 —— reply_loop
 # 仍在用它做诊断性对齐分(workflow:154), 那条口径是「不作放行/拦截依据」。
 
+# ── P3 Multimodal 生产链(2026-09-03) ──────────────────────────────────
+# 输入不是原始视频, 是**解析产物**(cce_video_parse 的 JSON)。理由:
+#   解析要 ffmpeg/OCR/ASR + 真实媒体文件, 不该塞进 CI; 而测量链要的是精确输入哈希 +
+#   可回放。产物走既有 --text-file 管道 ⇒ text_sha256 天然就是「精确输入哈希」。
+# ★ 只做**视频解析产物**这一档。2026-08-15 已否决「静态图片与视频帧各建一套视觉合同」,
+#   且 standalone_image_ingest 仍 missing —— 不得声称图片全链可用。
+# 链止于 Foundation 层(observations + events)。测量是 P0–P2 的事, 走既有 profile,
+# 在这里重跑一遍就是重复测量。
+@stage("media_validate")
+def media_validate(ctx):
+    """校验它确实是解析产物, 不是随便一个 JSON。★ 形状不合就红, 不猜。"""
+    raw = open(ctx["text_file"], encoding="utf-8").read()
+    try:
+        parsed = json.loads(raw)
+    except Exception as e:
+        raise ValueError(f"media_ingest 的输入必须是解析产物 JSON: {e}")
+    if not isinstance(parsed, dict):
+        raise ValueError(f"解析产物顶层应为对象, 实际 {type(parsed).__name__}")
+    dur = float(parsed.get("duration") or 0.0)
+    if dur <= 0:
+        raise ValueError("解析产物缺正的 duration —— 不是有效产物")
+    ctx["parsed"] = parsed
+    present = [k for k in ("audio", "ocr", "frames", "visual") if parsed.get(k)]
+    return {"duration_sec": round(dur, 1), "channels_present": present,
+            "artifact_sha256": hashlib.sha256(raw.encode()).hexdigest()[:16],
+            "★scope": "只校验形状与完整性; **抽取质量(ASR/OCR 准确率)未测**, 见 registry"}
+
+
+@stage("foundation_adapt")
+def foundation_adapt(ctx):
+    """解析产物 → Foundation observations。"""
+    from pathlib import Path as _P
+    import cce_foundation_adapter as _FA
+    case = _FA.adapt(ctx["parsed"], _P(ctx["text_file"]))
+    ctx["case"] = case
+    obs = case.get("observations") or []
+    with open(os.path.join(ctx["outdir"], "observations.json"), "w", encoding="utf-8") as fh:
+        json.dump(case, fh, ensure_ascii=False, indent=1)
+    from collections import Counter as _C
+    return {"observations": len(obs), "kinds": dict(_C(o.get("kind") for o in obs)),
+            "content_id": case.get("content_id")}
+
+
+@stage("event_assemble")
+def event_assemble(ctx):
+    """observations → events, 且必须过 Foundation 合同。"""
+    import cce_event_assemble as _EA
+    from cce_contract import validate_case as _vc
+    ev = _EA.assemble(ctx["case"])
+    v = _vc(ev)
+    if not v["ok"]:
+        raise ValueError("组装结果不合合同: " + "; ".join(v["errors"][:3]))
+    ctx["events_case"] = ev
+    with open(os.path.join(ctx["outdir"], "events.json"), "w", encoding="utf-8") as fh:
+        json.dump(ev, fh, ensure_ascii=False, indent=1)
+    from collections import Counter as _C
+    types = dict(_C(e.get("event_type") for e in ev.get("events") or []))
+    return {"events": len(ev.get("events") or []), "event_types": types,
+            "contract_ok": True, "counts": v.get("counts")}
+
+
 @stage("qualified_readout")
 def qualified(ctx):
     """Measurement System 的出口闸(2026-08-18 新增)。
@@ -312,6 +373,20 @@ def qualified(ctx):
     """
     s1m, s2m = MANIFEST.get("s1_readout", {}), MANIFEST.get("s2_knots", {})
     usable, withheld = {}, {}
+    # ── P3: 媒体链的读数也必须在这里表态, 不能绕过出口闸 ────────────────
+    fa, ea = MANIFEST.get("foundation_adapt", {}), MANIFEST.get("event_assemble", {})
+    if fa.get("status") == "OK":
+        usable["p3.observations"] = {"n": fa.get("observations"), "kinds": fa.get("kinds")}
+    if ea.get("status") == "OK":
+        usable["p3.events"] = {"n": ea.get("events"), "types": ea.get("event_types")}
+    if fa.get("status") == "OK" or ea.get("status") == "OK":
+        # ★ 抽出来了 != 抽得准。质量未测这件事必须占一个具名的扣发位,
+        #   否则下游会把 observation 里的文字当已验收的读数用。
+        withheld["p3.extraction_quality"] = (
+            "ASR/OCR 抽取**准确率未测**(语言相关, 英文上从未评过) —— "
+            "observation 里的文字可作证据引用, 但不得当作已验收的转写")
+        withheld["p3.cross_domain_calibration"] = (
+            "分辨率/阈值 across_domains=NOT_ESTABLISHED —— 禁止跨域搬")
     for name, val in (s1m.get("tops") or {}).items():
         (usable if val is not None else withheld)[f"s1.tops.{name}"] = (
             val if val is not None else (s1m.get("tops_withheld") or {}).get(name, "超噪声底"))
@@ -375,6 +450,8 @@ CHAINS = {
     "reply": [reader_baseline, s0, s1, s2, s3, s4, qualified],
     "response": [s0, s1, s2, s3],
     "outbound_post": [s0, s1, s2, s3, s4, qualified],
+    # 2026-09-03 P3 进生产: 输入是解析产物, 链止于 Foundation 层(测量走既有 profile)。
+    "media_ingest": [media_validate, foundation_adapt, event_assemble, qualified],
     # 2026-09-01: 删 "post"(旧九环节 s0-s8)。2026-08-13 退役, 契约从无此档,
     # 而它一直可从 .github/prepare.py 选中 —— 「拿退役组件当现行标准」复发三次的根因。
 }

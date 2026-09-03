@@ -100,6 +100,39 @@
     "subject_chain + response_source, inline or repository path with sha256"
    ],
    "success_gate": "all response s1 measurements valid; business VERIFIED remains evidence-dependent"
+  },
+  "media_ingest": {
+   "purpose": "多模态解析产物入本体 —— 产出 Foundation observations 与 events(P3)",
+   "stages": [
+    "media_validate",
+    "foundation_adapt",
+    "event_assemble",
+    "qualified_readout"
+   ],
+   "required_per_item": [
+    "job_id",
+    "content_id",
+    "text",
+    "text_sha256",
+    "platform",
+    "platform_adapter.id",
+    "platform_adapter.version",
+    "surface.kind",
+    "surface.id",
+    "surface.observed_at",
+    "domain",
+    "language",
+    "context.summary",
+    "context.declaration",
+    "context.dimensions",
+    "context.provenance"
+   ],
+   "success_gate": "manifest.complete=true and exact input fingerprint",
+   "★input_is_parse_artifact": "本档的 `text` 是 **cce_video_parse 的解析产物 JSON**, 不是待发内容。理由: 解析需要 ffmpeg/OCR/ASR 与真实媒体文件, 不该塞进 CI; 而测量链要的是精确输入哈希与可回放 —— 产物走既有管道, text_sha256 天然就是那个哈希。",
+   "★no_guard_no_media_declaration": "不要 guard_profile(没有稿子要过合规闸), 也不要 media_declaration(它**本身就是**媒体那条路, 要求它声明自己有没有媒体是循环)。",
+   "★stops_at_foundation": "链止于 Foundation 层。测量是 P0–P2 的事, 走既有 profile —— 在这里重跑一遍就是重复测量。",
+   "★scope_video_only": "只收**视频解析产物**。2026-08-15 已否决「静态图片与视频帧各建一套视觉合同」, 且 standalone_image_ingest 仍 missing ⇒ **不得声称图片全链可用**。",
+   "★extraction_quality_unmeasured": "抽取质量(ASR/OCR 准确率)**未测**, 由 qualified_readout 具名扣发 —— observation 里的文字可作证据引用, 不得当作已验收的转写。"
   }
  },
  "fingerprint_policy": {

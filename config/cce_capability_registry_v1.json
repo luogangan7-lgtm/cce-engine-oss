@@ -57,21 +57,20 @@
   },
   {
    "id": "video_multimodal_parse_v5",
-   "status": "component_only",
+   "status": "production_github",
    "implementation": "scripts/cce_video_parse.py",
    "implemented": [
     "frame sampling",
     "dual-model visual analysis",
     "OCR authoritative channel",
     "original-mix audio extraction and SenseVoice processing",
-    "six completeness gates"
+    "six completeness gates",
+    "★ 2026-09-03 P3 进生产: profile `media_ingest` —— media_validate → foundation_adapt → event_assemble → qualified_readout。输入是**解析产物 JSON**(走既有 --text-file 管道, text_sha256 即精确输入哈希)。全链回放实测 complete=true, 产出 observations.json + events.json"
    ],
    "missing": [
-    "production GitHub media-ingest workflow",
-    "audio source separation",
-    "speaker diarization",
-    "prosody metrics",
-    "mix metrics"
+    "音频源分离 / 说话人分离 / 韵律 / 混音指标(cce_video_parse 自陈 missing_no_capability)",
+    "抽取质量(ASR/OCR 准确率)评测 —— 语言相关, 英文上从未评过",
+    "standalone_image_ingest 仍 missing ⇒ **不得声称图片全链可用**"
    ],
    "missing_state": "missing_no_capability",
    "input_contract": null,
@@ -79,8 +78,10 @@
    "evidence_required": [
     "★ 晋升 production_github 需要: GitHub media-ingest profile + 精确输入哈希 + 产物 manifest + 全链回放 + capability registry 同步 gate 全部通过"
    ],
-   "fallback_policy": "NOT_IN_PRODUCTION_PATH",
-   "★historical_evidence": "★ 2026-09-03 更正两次: ① 先说「媒体内容未测」—— 不准确, 组件已在 276 个真实视频上跑过; ② 又说「域不同不能当能力证据」—— **方法论错误**。owner 2026-08-12 裁定 CCE 是「随便投入一篇文章/一段聊天分析动态占比」的通用工具, 并当场用与助听器无关的中文聊天实证; 同时否决过我三版「每个域配一套容器」的方案。我拿「域」当准入容器, 是同一个错换了件衣服。★ 实测: 275/276 个历史解析产物**整链跑通**(foundation_adapter → event_assemble → contract), 产出 17726 observations → 24116 events, 合同全部合法, 含跨模态同步事件。全量语言 zh216/en32/ko16/ja2 —— 我抽样 80 个曾误报 en=2, **抽样结论不许当全量结论**。⇒ 能力**已实证**, 状态是「已具备·未接入」(component_only), 不是「未测」。仍未测的是**抽取质量**(ASR/OCR 在英文上的准确率, 语言相关); 分辨率/阈值仍 across_domains=NOT_ESTABLISHED, 禁止跨域搬。见 probes/media_chain_on_history.py"
+   "fallback_policy": "WITHHOLD",
+   "★historical_evidence": "★ 2026-09-03 更正两次: ① 先说「媒体内容未测」—— 不准确, 组件已在 276 个真实视频上跑过; ② 又说「域不同不能当能力证据」—— **方法论错误**。owner 2026-08-12 裁定 CCE 是「随便投入一篇文章/一段聊天分析动态占比」的通用工具, 并当场用与助听器无关的中文聊天实证; 同时否决过我三版「每个域配一套容器」的方案。我拿「域」当准入容器, 是同一个错换了件衣服。★ 实测: 275/276 个历史解析产物**整链跑通**(foundation_adapter → event_assemble → contract), 产出 17726 observations → 24116 events, 合同全部合法, 含跨模态同步事件。全量语言 zh216/en32/ko16/ja2 —— 我抽样 80 个曾误报 en=2, **抽样结论不许当全量结论**。⇒ 能力**已实证**, 状态是「已具备·未接入」(component_only), 不是「未测」。仍未测的是**抽取质量**(ASR/OCR 在英文上的准确率, 语言相关); 分辨率/阈值仍 across_domains=NOT_ESTABLISHED, 禁止跨域搬。见 probes/media_chain_on_history.py",
+   "entrypoint": ".github/workflows/cce-submit.yml",
+   "★why_withhold": "抽取质量未测 ⇒ qualified_readout 具名扣发 p3.extraction_quality 与 p3.cross_domain_calibration。observation 里的文字可作证据引用, 不得当作已验收的转写。"
   },
   {
    "id": "foundation_observation_adapter",

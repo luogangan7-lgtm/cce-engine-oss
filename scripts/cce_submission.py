@@ -227,7 +227,16 @@ def validate_submission(value: dict[str, Any]) -> dict[str, Any]:
                     "domain": item.get("domain"), "speaker_role": item.get("speaker_role"),
                     "guard_profile": item.get("guard_profile"), "language": item.get("language"),
                     "context_snapshot": context_snapshot}
-            if profile == "outbound_post":
+            if profile == "media_ingest":
+                # ★ 本档的 text 是**解析产物 JSON**, 不是待发内容 ⇒ 不填 guard_profile,
+                #   也不填 media_declaration(它本身就是媒体那条路, 自我声明是循环)。
+                _exact_text(item, path, errors)
+                normalized_items.append({"mode": "media_ingest", "text": item.get("text"),
+                    "context": context_summary,
+                    "context_decl": json.dumps(context.get("declaration", {}), ensure_ascii=False),
+                    "ref_tag": job_id,
+                    "_meta": {**meta, "text_sha256": item.get("text_sha256")}})
+            elif profile == "outbound_post":
                 _exact_text(item, path, errors)
                 normalized_items.append({"mode": "outbound_post", "text": item.get("text"),
                     "media_declaration": _media_declaration(item.get("text") or ""),

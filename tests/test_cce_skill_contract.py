@@ -119,14 +119,22 @@ def test_capability_registry_matches_production_workflow_boundary() -> None:
                           .read_text(encoding="utf-8"))
     assert registry["kind"] == "cce.capability_registry.v1"
     caps = {item["id"]: item for item in registry["capabilities"]}
+    # 2026-09-03: video_multimodal_parse_v5 由 component_only 晋升 production_github
+    # (profile `media_ingest`, 全链回放 complete=true)。
     for capability in ("outbound_post_measurement", "outbound_reply_measurement",
-                       "subject_population_chain"):
+                       "subject_population_chain", "video_multimodal_parse_v5"):
         assert caps[capability]["status"] == "production_github"
         assert caps[capability]["entrypoint"] == ".github/workflows/cce-submit.yml"
     video = caps["video_multimodal_parse_v5"]
-    assert video["status"] == "component_only"
     assert video["implementation"] == "scripts/cce_video_parse.py"
-    assert "production GitHub media-ingest workflow" in video["missing"]
+    # ★ 晋升不等于全部具备: 仍缺的必须逐条留着, 且**图片全链不得声称可用**
+    _miss = " ".join(video["missing"])
+    assert "说话人分离" in _miss and "韵律" in _miss, "★ 仍缺的能力不许在晋升时被抹掉"
+    assert "抽取质量" in _miss, "★ ASR/OCR 准确率未测这件事必须留在 missing 里"
+    assert "standalone_image_ingest" in _miss, \
+        "★ 图片链仍 missing —— 2026-08-15 已否决「因视觉描述已走 outbound_post 就声称图片全链可用」"
+    assert video["fallback_policy"] == "WITHHOLD", \
+        "★ 抽取质量未测 ⇒ 必须扣发, 不是静默放行"
     assert video["missing_state"] == "missing_no_capability"
     assert caps["standalone_image_ingest"]["status"] == "missing"
     assert caps["standalone_audio_ingest"]["status"] == "missing"
