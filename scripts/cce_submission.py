@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 from datetime import datetime
 from pathlib import Path
@@ -18,7 +19,15 @@ from cce_contract import validate_context_snapshot
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_VERSION = "1.1.0"
-PROFILES = {"outbound_post", "outbound_reply", "subject_chain"}
+# ★ 2026-09-03: 原来这里是写死的三个 profile。加 media_ingest 时我改了契约、CHAINS、
+#   prepare.py 白名单三处, **漏了这一处** —— 于是 envelope 在**打包**就被拒,
+#   prep 失败, 根本走不到 measure。我却已经声称「P3 进生产」。
+#   ⇒ 改为**从契约现读**: 契约是 profile 的唯一真相源, 再写一张就必然漂移。
+#   (同一形状本轮已犯两次: media_declaration 也是只改入口没改产出方。)
+_CONTRACT = json.load(open(os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "config", "cce_submission_contract_v1.json"), encoding="utf-8"))
+PROFILES = set(_CONTRACT["profiles"])
 SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$")
 SHA256 = re.compile(r"^sha256:[0-9a-f]{64}$")
 MAX_ITEMS = 8
@@ -180,7 +189,10 @@ def validate_submission(value: dict[str, Any]) -> dict[str, Any]:
     profile = value.get("profile")
     normalized_items: list[dict[str, Any]] = []
 
-    if profile in {"outbound_post", "outbound_reply"}:
+    # ★ 2026-09-03: 原来这里写死两个 profile, 于是我加的 media_ingest 分支**是死代码**,
+    #   打包静默产出 0 个 item —— 矩阵为空, measure 跑 0 个 job, 而打包本身「成功」。
+    #   静默空过是本项目明令禁止的。⇒ 罩子改为「凡是逐 item 的 profile」。
+    if profile in {"outbound_post", "outbound_reply", "media_ingest"}:
         items = value.get("items")
         if not isinstance(items, list) or not 1 <= len(items) <= MAX_ITEMS:
             errors.append(f"items must contain 1-{MAX_ITEMS} entries")
@@ -188,8 +200,11 @@ def validate_submission(value: dict[str, Any]) -> dict[str, Any]:
         seen: set[str] = set()
         for index, item in enumerate(items):
             path = f"items[{index}]"
-            _required(item, ("job_id", "content_id", "platform", "platform_adapter", "surface",
-                             "domain", "language", "speaker_role", "guard_profile", "context"), path, errors)
+            # ★ 必填字段从**契约现读**(取顶层名), 不再在这里写第二张表 ——
+            #   两张表必然漂移, 本轮已因此栽过两次。
+            _req = tuple(dict.fromkeys(
+                k.split(".", 1)[0] for k in _CONTRACT["profiles"][profile]["required_per_item"]))
+            _required(item, _req, path, errors)
             if not isinstance(item, dict): continue
             job_id = item.get("job_id")
             if not isinstance(job_id, str) or not SAFE_ID.fullmatch(job_id): errors.append(f"{path}.job_id is invalid")
@@ -200,11 +215,16 @@ def validate_submission(value: dict[str, Any]) -> dict[str, Any]:
             platform_verdict = validate_platform_context(
                 item.get("platform"), item.get("platform_adapter"), item.get("surface"), path)
             errors.extend(platform_verdict["errors"])
-            guard = guard_profiles.get(item.get("guard_profile"))
-            if not isinstance(guard, dict):
-                errors.append(f"{path}.guard_profile is not registered")
-            elif item.get("domain") not in (guard.get("allowed_domains") or []):
-                errors.append(f"{path}.guard_profile does not cover domain {item.get('domain')!r}")
+            # ★ 只有**出站**才有稿子要过合规闸。media_ingest 的 text 是解析产物,
+            #   没有稿子, 要求它挂 guard_profile 是无意义的(契约的 required_per_item 里也没有它)。
+            guard = None
+            if "guard_profile" in _req:
+                guard = guard_profiles.get(item.get("guard_profile"))
+                if not isinstance(guard, dict):
+                    errors.append(f"{path}.guard_profile is not registered")
+                elif item.get("domain") not in (guard.get("allowed_domains") or []):
+                    errors.append(
+                        f"{path}.guard_profile does not cover domain {item.get('domain')!r}")
             context = item.get("context") if isinstance(item.get("context"), dict) else {}
             platform_context = platform_verdict.get("canonical") or {}
             surface_id = ((platform_context.get("space") or {}).get("id")
@@ -280,6 +300,10 @@ def validate_submission(value: dict[str, Any]) -> dict[str, Any]:
             if not errors:
                 subject_dispatch = build_dispatch(source, chain)
 
+    # ★ 逐 item 的 profile 却规范化出 0 个 = **静默空过**:
+    #   矩阵为空 → 下游跑 0 个 job → 打包却「成功」。2026-09-03 实际发生过。
+    if profile in {"outbound_post", "outbound_reply", "media_ingest"} and not normalized_items:
+        errors.append(f"profile={profile} 规范化出 0 个 item —— 打包不得静默产出空矩阵")
     return {"ok": not errors, "errors": errors, "warnings": warnings,
             "normalized": {"kind": "cce.normalized_submission.v1", "schema_version": SCHEMA_VERSION,
                 "submission_id": value.get("submission_id"), "profile": profile,
