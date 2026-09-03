@@ -40,9 +40,25 @@ def rows() -> list[dict]:
     out = []
 
     # ── 读数层 ────────────────────────────────────────────────────────
-    ok, why = knot_readout_usable("top1", instrument_hash=inst)
-    out.append({"组件": "结层 top-1", "状态": USABLE if ok else FAILED,
-                "证据": why, "文件": "scripts/cce_k1_status.py"})
+    # ★ 2026-09-03 生产实跑更正: 「结层 top-1 可用」**只对 k=3 的 profile 成立**。
+    #   instrument_id 含 k ⇒ outbound_post(k=5) 是**另一台仪器** 0e9ca1d4e7a2f180,
+    #   K1 的标定在它上面不成立, 闸如实扣发(「这台仪器没有 K1 判定, 不是判定通过」)。
+    #   我此前给的是一句笼统的「top-1 可用」—— 那是把 K1 仪器上的结论说成了全生产的结论。
+    import cce_knot_classify as _K
+    _taxo = json.load(open(os.path.join(ROOT, "config/knot_taxonomy.json"), encoding="utf-8"))
+    _hash_of = lambda k: _K.instrument_id(
+        _taxo, k=k, knot_n=5, s1_pairing=f"round_robin_over_{k}_s1_draws")["instrument_hash"]
+    for _prof, _k in (("reply / response", 3), ("outbound_post", 5)):
+        _ih = _hash_of(_k)
+        _ok, _why = knot_readout_usable("top1", instrument_hash=_ih)
+        # ★ 三态纪律: 这台仪器上**从没跑过 K1** ⇒ 是「未测」, 不是「已测不达标」。
+        #   我第一版标成 FAILED —— 那是把 not-started 说成 judged-and-failed, 方向反了。
+        _state = USABLE if _ok else (
+            UNMEASURED if "没有 K1 判定" in _why or "不可跨仪器搬" in _why else FAILED)
+        out.append({"组件": f"结层 top-1 @ {_prof} (k={_k})",
+                    "状态": _state,
+                    "证据": f"仪器 {_ih} · {_why}",
+                    "文件": "scripts/cce_k1_status.py"})
 
     a = panel["agreement"]
     out.append({"组件": "结层 intensity", "状态": FAILED,
