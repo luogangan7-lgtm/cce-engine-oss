@@ -5872,3 +5872,35 @@ FAIL
 并把 `git grep` 预检写进推送前清单。
 
 **结果**：边界闸 **PASS**（识别层 590 身份零命中）· 67/67 测试绿 · 七闸 PASS。
+
+---
+
+### §19.5.52 §39 更正 · 四档 profile 全部 CI 验证
+
+#### §39 基础 Contract 列表 —— 文档没跟上，现更正
+
+§39 写「`/contracts/` 下 19 个 `*.schema.json`」，原文是**建议**仓库最终统一到那个布局。
+仓库走了另一种：契约在 `config/cce_*_contract_v*.json`（5 个）+ 四张注册表。
+
+**不是欠账，是文档没跟上。** 现行真相源以代码与注册表为准，见 `docs/README.md` 的权威顺序。
+此项在 `config/cce_doc_reconciliation.json` 里由「文档过时」改为「文档过时·已在文中更正」。
+
+#### 四档 profile 全部在当前代码上 CI 验证
+
+| profile | run | 结果 |
+|---|---|---|
+| `media_ingest` | `33743931309` | complete=true |
+| `outbound_post` | `33745544418` | complete=true（结层**零可用读数**，k=5 非 K1 仪器） |
+| `outbound_reply` | `33746399209` | complete=true（**top-1 可用**，k=3 = K1 仪器） |
+| `subject_chain` | `33748217410` | 8 路 + 聚合全 success，审计 `overall_status=NOT_VERIFIED` |
+
+★ `subject_chain` 用的是**仓内现成的真实夹具**（`examples/cce_submission_subject_chain_v1.json`，
+两个 sha256 实算相符），**没有硬造** —— 造一个夹具跑通只能证明我造得出夹具。
+
+★ 审计判 `NOT_VERIFIED` 是**正确结果**：无商业／归因证据时就该保持未验证。
+**链路跑通 ≠ 业务已验证**，两件事不许合并。
+
+#### 仍未完成的，见 `scripts/cce_open_items.py`
+
+它从各真相源现算，分三类（OPEN_WORK / BLOCKED_EXTERNAL / DECIDED_NOT_DOING）——
+**把 BLOCKED 混进 OPEN 会让人以为「再努力一下就能做」**。

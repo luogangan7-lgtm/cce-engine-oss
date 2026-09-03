@@ -1,0 +1,723 @@
+{
+ "input_sha": "4280a5ad2ba56bd8",
+ "run_at": "2026-09-03T11:13:41",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "operational": {
+   "attempts": [
+    {
+     "temperature": 0.3,
+     "attempt": 1,
+     "status": "SUCCESS",
+     "error_class": null
+    },
+    {
+     "temperature": 0.0,
+     "attempt": 1,
+     "status": "SUCCESS",
+     "error_class": null
+    },
+    {
+     "temperature": 0.6,
+     "attempt": 1,
+     "status": "SUCCESS",
+     "error_class": null
+    }
+   ],
+   "n_attempts": 3,
+   "n_draws": 3,
+   "first_attempt_success": 3,
+   "first_attempt_success_rate": 1.0,
+   "n_infra_failed": 0,
+   "n_parse_failed": 0,
+   "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+   "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+  },
+  "preparation_id": "prep_86c7c7545d75",
+  "structural_gate": {
+   "gate_version": "1.0.0",
+   "verdict": "MEASURE",
+   "span_counts": {
+    "PERSONAL": 1,
+    "NONPERSONAL": 0,
+    "AMBIGUOUS": 0
+   },
+   "chars_in": 71,
+   "chars_kept": 71,
+   "chars_dropped": 0
+  },
+  "k_requested": 3,
+  "k_attempted": 3,
+  "k_valid": 3,
+  "k_abstained": 0,
+  "k_ok": 3,
+  "n_abstain": 0,
+  "abstained": false,
+  "measurement_status": "qualified",
+  "layers": {
+   "desire_vec": [
+    0.0,
+    0.0,
+    0.08333333333333336,
+    0.46666666666666673,
+    0.0,
+    0.31666666666666665,
+    0.0,
+    0.10000000000000002,
+    0.03333333333333333
+   ],
+   "need_vec": [
+    0.0,
+    0.0,
+    0.016666666666666666,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.4833333333333334,
+    0.31666666666666665,
+    0.03333333333333333,
+    0.15000000000000002,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.06666666666666667,
+    0.06666666666666667,
+    0.31666666666666665,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.18333333333333335,
+    0.3499999999999999,
+    0.0,
+    0.0,
+    0.0,
+    0.016666666666666666
+   ],
+   "action_vec": [
+    0.5499999999999999,
+    0.03333333333333333,
+    0.34583333333333327,
+    0.0,
+    0.016666666666666663,
+    0.0,
+    0.05416666666666666
+   ]
+  },
+  "tops": {
+   "desire": "确认欲",
+   "need": "N10_自我确认",
+   "emotion": "approval认同",
+   "action": "approach趋近"
+  },
+  "draws": [
+   {
+    "from_temperature": 0.0,
+    "abstained": false,
+    "desire_vec": [
+     0.0,
+     0.0,
+     0.05,
+     0.45,
+     0.0,
+     0.3,
+     0.0,
+     0.1,
+     0.1
+    ],
+    "need_vec": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.4,
+     0.3,
+     0.1,
+     0.2,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emotion_vec": [
+     0.1,
+     0.05,
+     0.3,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.2,
+     0.3,
+     0.0,
+     0.0,
+     0.0,
+     0.05
+    ],
+    "action_vec": [
+     0.5499999999999999,
+     0.0,
+     0.29999999999999993,
+     0.0,
+     0.04999999999999999,
+     0.0,
+     0.09999999999999998
+    ],
+    "tops": {
+     "desire": "确认欲",
+     "need": "N10_自我确认",
+     "emotion": "gratitude感激",
+     "action": "approach趋近"
+    },
+    "appraisal": {
+     "goal_relevance": 0.85,
+     "congruence_direction": "促进",
+     "need_status": "已满足",
+     "goal_congruence": "正",
+     "coping_potential": "高",
+     "note": "OP的帖子恰好替评论者完成了三件事：1）让'自己那种经历'在公共场域被指认（高相关）；2）方向上是'我也是'而非'你错了'（促进）；3）当场给到'mirrors my own experience'这种镜像确认（已满足）。三者合成正情绪。coping_potential 高是因为观众只需要在评论里打一行字就完成了所有心理兑付，无需进一步行动——确认/归属/慰藉在一次回看中全部消化，因此不会出现未满足焦虑悬置的fear通路。"
+    }
+   },
+   {
+    "from_temperature": 0.3,
+    "abstained": false,
+    "desire_vec": [
+     0.0,
+     0.0,
+     0.1,
+     0.45,
+     0.0,
+     0.35,
+     0.0,
+     0.1,
+     0.0
+    ],
+    "need_vec": [
+     0.0,
+     0.0,
+     0.05,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.5,
+     0.35,
+     0.0,
+     0.1,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emotion_vec": [
+     0.1,
+     0.1,
+     0.3,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.15,
+     0.35,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "action_vec": [
+     0.5,
+     0.0,
+     0.43749999999999994,
+     0.0,
+     0.0,
+     0.0,
+     0.0625
+    ],
+    "tops": {
+     "desire": "确认欲",
+     "need": "N10_自我确认",
+     "emotion": "approval认同",
+     "action": "approach趋近"
+    },
+    "appraisal": {
+     "goal_relevance": 0.9,
+     "congruence_direction": "促进",
+     "need_status": "已满足",
+     "goal_congruence": "正",
+     "coping_potential": "高",
+     "note": "OP帖子是一面镜子：goal_relevance极高（直接照见自身经验），内容对N10/N11是显著促进（有人把话说出来了），需求当场被满足（不用再独自承担），coping_potential高（成本为零的轻量共鸣），三者叠加→正情绪且强度中高。"
+    }
+   },
+   {
+    "from_temperature": 0.6,
+    "abstained": false,
+    "desire_vec": [
+     0.0,
+     0.0,
+     0.10000000000000002,
+     0.5000000000000001,
+     0.0,
+     0.30000000000000004,
+     0.0,
+     0.10000000000000002,
+     0.0
+    ],
+    "need_vec": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.55,
+     0.3,
+     0.0,
+     0.15,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emotion_vec": [
+     0.0,
+     0.05,
+     0.35,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.2,
+     0.4,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "action_vec": [
+     0.6,
+     0.1,
+     0.3,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "tops": {
+     "desire": "确认欲",
+     "need": "N10_自我确认",
+     "emotion": "approval认同",
+     "action": "approach趋近"
+    },
+    "appraisal": {
+     "goal_relevance": 0.85,
+     "congruence_direction": "促进",
+     "need_status": "已满足",
+     "goal_congruence": "正",
+     "coping_potential": "高",
+     "note": "帖子与评论者的核心需求（被确认/找到同类）直接相关；OP的发帖行为'促进'了评论者趋近'被代表、被认同'的目标；评论者当场写下'mirrors'即完成了需求满足（已满足）；评论者应对成本极低——只需一句回帖就能完成闭环（高应对潜能）。三维度联合 → 强正情绪。"
+    }
+   }
+  ],
+  "appraisal": {
+   "goal_relevance": 0.85,
+   "congruence_direction": "促进",
+   "need_status": "已满足",
+   "goal_congruence": "正",
+   "coping_potential": "高",
+   "note": "OP的帖子恰好替评论者完成了三件事：1）让'自己那种经历'在公共场域被指认（高相关）；2）方向上是'我也是'而非'你错了'（促进）；3）当场给到'mirrors my own experience'这种镜像确认（已满足）。三者合成正情绪。coping_potential 高是因为观众只需要在评论里打一行字就完成了所有心理兑付，无需进一步行动——确认/归属/慰藉在一次回看中全部消化，因此不会出现未满足焦虑悬置的fear通路。"
+  },
+  "chain_trace": "确认欲+归属欲（'我的听障经历'长期处于私域、想被镜像和被代表）→(情境：r/HearingAids出现替群体发声的OP公开帖)→ 需求 N10_自我确认 + N11_归属群体 + N13_情感慰藉 + N12_情感联结 →(评价：高相关、促进、已满足、coping_potential高)→ 情绪 approval认同+gratitude感激+relief宽慰 → 行动倾向 approach趋近(写下一句Thanks) + attend关注(留在社区继续回看)。",
+  "single_draw": {
+   "appraisal": {
+    "goal_relevance": 0.85,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "OP的帖子恰好替评论者完成了三件事：1）让'自己那种经历'在公共场域被指认（高相关）；2）方向上是'我也是'而非'你错了'（促进）；3）当场给到'mirrors my own experience'这种镜像确认（已满足）。三者合成正情绪。coping_potential 高是因为观众只需要在评论里打一行字就完成了所有心理兑付，无需进一步行动——确认/归属/慰藉在一次回看中全部消化，因此不会出现未满足焦虑悬置的fear通路。"
+   },
+   "chain_trace": "确认欲+归属欲（'我的听障经历'长期处于私域、想被镜像和被代表）→(情境：r/HearingAids出现替群体发声的OP公开帖)→ 需求 N10_自我确认 + N11_归属群体 + N13_情感慰藉 + N12_情感联结 →(评价：高相关、促进、已满足、coping_potential高)→ 情绪 approval认同+gratitude感激+relief宽慰 → 行动倾向 approach趋近(写下一句Thanks) + attend关注(留在社区继续回看)。",
+   "from_temperature": 0.0,
+   "caveat": "单次抽样(温度阶梯第一档), 不是 K 次聚合; 与 layers/tops 不同口径, 不得并列引用"
+  },
+  "_provenance": {
+   "aggregated": [
+    "layers",
+    "tops",
+    "within_js"
+   ],
+   "single_draw": [
+    "appraisal",
+    "chain_trace"
+   ],
+   "n": 3
+  },
+  "within_js": {
+   "desire_vec": 0.039,
+   "need_vec": 0.0616,
+   "emotion_vec": 0.0593,
+   "action_vec": 0.086
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "belong",
+    "intensity": 0.78,
+    "support": 1.0,
+    "occur": 5,
+    "n": 5,
+    "support_ci95": [
+     0.5655,
+     1.0
+    ],
+    "support_majority": true,
+    "weight": 0.5455,
+    "name": "归属·确认结",
+    "family": "推动",
+    "playbook": "先『你不是一个人』把人接住,再给至多一格新知;不派任务",
+    "behavior_predicted": "确认通道·中成本:自我暴露式发帖+『only me?』;线下伴随伪装替代行为",
+    "evidence_quote": "Definitely mirrors my own experience.",
+    "signature": {
+     "congruence": "威胁(孤立)",
+     "need_status": "未满足",
+     "coping": "低",
+     "time": "过去-现在",
+     "attribution": "none",
+     "target_layer": "identity"
+    },
+    "desire_code": "归属欲",
+    "need_code": "N11",
+    "freshness_days_hint": 3
+   },
+   {
+    "key": "reward",
+    "intensity": 0.65,
+    "support": 1.0,
+    "occur": 5,
+    "n": 5,
+    "support_ci95": [
+     0.5655,
+     1.0
+    ],
+    "support_majority": true,
+    "weight": 0.4545,
+    "name": "爽点·回报结",
+    "family": "推动",
+    "playbook": "短收;自我缩小;不再投喂信息(需求已闭,长文=把关掉的门重开)",
+    "behavior_predicted": "致谢通道·低中成本:收藏声明/致谢/自来水布道。驱动留存分享(留存维ρ≈0.26-0.5)",
+    "evidence_quote": "Thanks OP for spreading the word.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足(即时)",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N06",
+    "freshness_days_hint": 2
+   },
+   {
+    "key": "display",
+    "intensity": 0.3,
+    "support": 0.2,
+    "occur": 1,
+    "n": 5,
+    "support_ci95": [
+     0.0362,
+     0.6245
+    ],
+    "support_majority": false,
+    "weight": 0.0,
+    "name": "确证·展示结",
+    "family": "推动",
+    "playbook": "让位;被当同侪;接着他的贡献往前走,绝不纠正姿态压他",
+    "behavior_predicted": "展示通道·低→高成本:纠错亮牌/举反例晒型号/结构化长评/承诺回访。评论区最高质量UGC主力",
+    "evidence_quote": "Definitely mirrors my own experience.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "identity"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N10",
+    "freshness_days_hint": 5
+   }
+  ],
+  "measurement_status": "qualified",
+  "n_abstain": 0,
+  "draw_ledger": [
+   {
+    "draw_id": 0,
+    "knot_vector": {
+     "pain_seek": 0.0,
+     "injustice": 0.0,
+     "belong": 0.82,
+     "reward": 0.65,
+     "display": 0.0,
+     "itch": 0.0,
+     "suspend": 0.0,
+     "inertia": 0.0,
+     "audit": 0.0
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "belong"
+   },
+   {
+    "draw_id": 1,
+    "knot_vector": {
+     "pain_seek": 0.0,
+     "injustice": 0.0,
+     "belong": 0.3,
+     "reward": 0.65,
+     "display": 0.0,
+     "itch": 0.0,
+     "suspend": 0.0,
+     "inertia": 0.0,
+     "audit": 0.0
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "reward"
+   },
+   {
+    "draw_id": 2,
+    "knot_vector": {
+     "pain_seek": 0.0,
+     "injustice": 0.0,
+     "belong": 0.82,
+     "reward": 0.58,
+     "display": 0.0,
+     "itch": 0.0,
+     "suspend": 0.0,
+     "inertia": 0.0,
+     "audit": 0.0
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "belong"
+   },
+   {
+    "draw_id": 3,
+    "knot_vector": {
+     "pain_seek": 0.0,
+     "injustice": 0.0,
+     "belong": 0.78,
+     "reward": 0.8,
+     "display": 0.3,
+     "itch": 0.0,
+     "suspend": 0.0,
+     "inertia": 0.0,
+     "audit": 0.0
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "reward"
+   },
+   {
+    "draw_id": 4,
+    "knot_vector": {
+     "pain_seek": 0.0,
+     "injustice": 0.0,
+     "belong": 0.35,
+     "reward": 0.65,
+     "display": 0.0,
+     "itch": 0.0,
+     "suspend": 0.0,
+     "inertia": 0.0,
+     "audit": 0.0
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "reward"
+   }
+  ],
+  "intensity": {
+   "belong": 0.78,
+   "reward": 0.65
+  },
+  "families": {
+   "推动": {
+    "mass": 0.78,
+    "composition": {
+     "belong": 0.5455,
+     "reward": 0.4545
+    },
+    "members_active": 2
+   },
+   "阻挡": {
+    "mass": 0.0,
+    "composition": {},
+    "members_active": 0
+   }
+  },
+  "drive_brake": {
+   "drive_mass": 0.78,
+   "brake_mass": 0.0,
+   "quadrant": "high_drive/low_brake",
+   "note": "象限切点 0.5 是量纲中点, 不是校准阈值; 仅作分类标签, 不得作判据"
+  },
+  "levers_present": [
+   "从众",
+   "从众(弱,镜像确认效应)"
+  ],
+  "notes": "典型「only me? → me too」归属确认 + 即时致谢的双结叠加;belong为驱动主结,reward为兑付式收束,无杠杆、无阻挡结。",
+  "sampling": {
+   "n_requested": 5,
+   "n_ok": 5,
+   "top1_mode": "reward",
+   "top1_mode_share": 0.6,
+   "top1_unanimous": false,
+   "top1_stable": false,
+   "top1_draws": [
+    "belong",
+    "reward",
+    "belong",
+    "reward",
+    "reward"
+   ],
+   "caveat_unanimous": "top1_unanimous 在 n=1 时恒真, 且 P≈p^n 随 n 单调下降 —— 跨不同 n 比较必须用 top1_mode_share, 不能用 unanimous",
+   "max_range": 0.52,
+   "per_knot": {
+    "belong": {
+     "occur": 5,
+     "n": 5,
+     "support": 1.0,
+     "intensity": 0.78,
+     "median": 0.78,
+     "min": 0.3,
+     "max": 0.82,
+     "range": 0.52
+    },
+    "display": {
+     "occur": 1,
+     "n": 5,
+     "support": 0.2,
+     "intensity": 0.3,
+     "median": 0.3,
+     "min": 0.3,
+     "max": 0.3,
+     "range": 0.0
+    },
+    "reward": {
+     "occur": 5,
+     "n": 5,
+     "support": 1.0,
+     "intensity": 0.65,
+     "median": 0.65,
+     "min": 0.58,
+     "max": 0.8,
+     "range": 0.22
+    }
+   }
+  },
+  "caveat": "单次抽样不是测量: 本结果为 n 次抽样的逐结中位数; top1_stable=false 时首结身份本身不可复现, 不得作断言依据",
+  "instrument": {
+   "instrument_hash": "565470cf26c16d01",
+   "qualification_policy_hash": "b41ef5217a77d311",
+   "spec": {
+    "ontology_version": "1.3.1",
+    "s1_prompt_sha256": "eadcdcdac46a5180",
+    "s2_prompt_sha256": "b8d0f60d66d10f12",
+    "model": "MiniMax-M3",
+    "endpoint": "https://api.minimaxi.com/v1/text/chatcompletion_v2",
+    "sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "aggregation_policy": {
+     "support_rule": "occur * 2 > n",
+     "intensity_stat": "median_of_nonzero",
+     "composition": "within_family_then_global_weight",
+     "abstention": "empty_knots_is_abstain_v1"
+    },
+    "qualification_policy": {
+     "k_valid_min": 2,
+     "insufficient_replicates": "WITHHOLD",
+     "abstain_semantics": "empty_knots_is_abstain_v1",
+     "statuses": [
+      "qualified",
+      "abstain",
+      "insufficient_replicates"
+     ],
+     "margin": {
+      "F_max": 0.0,
+      "U_max": 0.05,
+      "bound": "exact_one_sided_95_upper",
+      "provenance": "ENGINEERING_BUDGET",
+      "concentration_flag": {
+       "per_base_unqualified_min": 2,
+       "per_base_reps": 4,
+       "effect": "ADOPT_WITH_RESTRICTIONS"
+      },
+      "why_concentration": "总体 4% 但全集中在一种表达形式, 会被均值洗掉 ⇒ 必须另报 U_by_base"
+     }
+    }
+   },
+   "preparation_id": "prep_raw_unfiltered",
+   "measurement_procedure_id": "mp_bf70e868a53efb09",
+   "hash_scope": {
+    "instrument": [
+     "ontology_version",
+     "s1_prompt_sha256",
+     "s2_prompt_sha256",
+     "model",
+     "endpoint",
+     "sampling_policy"
+    ],
+    "qualification_policy": [
+     "aggregation_policy",
+     "qualification_policy"
+    ],
+    "measurement_procedure": [
+     "instrument_hash",
+     "preparation_id",
+     "qualification_policy_hash"
+    ],
+    "criterion": "改它之后已采集的 raw draw 还能不能用"
+   }
+  },
+  "s1_pairing": "round_robin_over_3_s1_draws"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}

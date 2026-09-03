@@ -1,0 +1,104 @@
+{
+  "kind": "cce.subject_window_chain_audit.v1",
+  "overall_status": "NOT_VERIFIED",
+  "validation": {
+    "ok": true,
+    "errors": [],
+    "warnings": [
+      "behavior_records[contextual_behavior:p37zcq7] is contextual evidence, not action-window evidence",
+      "behavior_records[contextual_behavior:p39e1i3] is contextual evidence, not action-window evidence",
+      "behavior_records[contextual_behavior:p3b4gvm] is contextual evidence, not action-window evidence"
+    ],
+    "counts": {
+      "evidence": 8,
+      "subjects": 8,
+      "windows": 2,
+      "distribution": 5,
+      "response_measurements": 8,
+      "behavior": 3,
+      "commercial": 0,
+      "attribution_results": 0
+    }
+  },
+  "gates": {
+    "content_measurement": {
+      "status": "PARTIAL",
+      "reason": "legacy content readout exists but is not a validated response measurement",
+      "evidence_refs": [
+        "github_run:31585862349:s8"
+      ]
+    },
+    "distribution_observed": {
+      "status": "PARTIAL",
+      "reason": "platform delivery partially observed; final window missing",
+      "evidence_refs": [
+        "metric:T0",
+        "metric:T+1h",
+        "metric:T+2.2h",
+        "metric:T+2.6h",
+        "metric:T+2.7h"
+      ]
+    },
+    "target_window": {
+      "status": "NOT_MET",
+      "reason": "no target population rule/window",
+      "evidence_refs": []
+    },
+    "delivered_window": {
+      "status": "NOT_MET",
+      "reason": "no delivered population projection window",
+      "evidence_refs": []
+    },
+    "reached_window": {
+      "status": "PASS",
+      "reason": "identified inbound interactors form an observed reached window",
+      "evidence_refs": [
+        "window:reddit:1vma3l2:reached:observed-through-2026-08-12T23:15Z"
+      ]
+    },
+    "activated_window": {
+      "status": "PASS",
+      "reason": "member response measurements aggregated",
+      "evidence_refs": [
+        "window:reddit:1vma3l2:activated:observed-through-2026-08-12T23:15Z"
+      ]
+    },
+    "action_window": {
+      "status": "NOT_MET",
+      "reason": "no attributable post-exposure action window",
+      "evidence_refs": []
+    },
+    "conversion_window": {
+      "status": "NOT_MET",
+      "reason": "no publish-to-commercial joined outcome",
+      "evidence_refs": []
+    }
+  },
+  "attribution_deltas": {
+    "target_to_delivered": {
+      "status": "NOT_TESTABLE",
+      "reason": "requires target_window, delivered_window, frozen comparable attribution protocol/result",
+      "evidence_refs": []
+    },
+    "delivered_to_reached": {
+      "status": "NOT_TESTABLE",
+      "reason": "requires delivered_window, frozen comparable attribution protocol/result",
+      "evidence_refs": []
+    },
+    "reached_to_activated": {
+      "status": "NOT_TESTABLE",
+      "reason": "requires frozen comparable attribution protocol/result",
+      "evidence_refs": []
+    },
+    "activated_to_action": {
+      "status": "NOT_TESTABLE",
+      "reason": "requires action_window, frozen comparable attribution protocol/result",
+      "evidence_refs": []
+    },
+    "action_to_conversion": {
+      "status": "NOT_TESTABLE",
+      "reason": "requires action_window, conversion_window, frozen comparable attribution protocol/result",
+      "evidence_refs": []
+    }
+  }
+}

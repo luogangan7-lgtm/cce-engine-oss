@@ -30,7 +30,7 @@ for f in glob.glob(os.path.join(ROOT, "archive", "*", "*normalized.json")):
 CONTRACT = json.load(open(os.path.join(ROOT, "config/cce_submission_contract_v1.json"),
                           encoding="utf-8"))
 # 今天(当前代码)验过的三档
-for p in ("media_ingest", "outbound_post", "outbound_reply"):
+for p in ("media_ingest", "outbound_post", "outbound_reply", "subject_chain"):
     rs = by_profile.get(p) or []
     assert rs, f"★ profile {p} 归档里没有成功 run —— 它**没有**被 CI 验证过"
     # ★ 不用「run_id 数值阈值」做比较 —— 那种常量长得就是 run_id 形状,
@@ -40,9 +40,13 @@ for p in ("media_ingest", "outbound_post", "outbound_reply"):
     assert _m["recovered_at"] == TODAY, \
         f"★ profile {p} 最近的 run 是 {_m['recovered_at']} 落的 —— 当前代码未验证"
 
-# ★ subject_chain 仍未验证, 必须如实标着, 不许悄悄当验过
-assert not by_profile.get("subject_chain"), \
-    "★ subject_chain 有归档了 —— 那就把本断言改成正向, 别让它继续说「未验」"
+# ★ 2026-09-03: subject_chain 也已验证(run 33748217410, 用仓内现成真实夹具, 未硬造)。
+#   原来这里断言它**没有**归档并写着「哪天真验了就把断言改成正向」—— 今天改成了正向。
+_sc = json.load(open(os.path.join(ROOT, "archive", max(by_profile["subject_chain"]),
+                                  "manifest.json"), encoding="utf-8"))
+assert "没有硬造" in _sc["★scope"], "★ 必须写明夹具是现成真实数据, 不是造出来跑通的"
+assert "NOT_VERIFIED" in _sc["★scope"], \
+    "★ 审计判 NOT_VERIFIED 这件事要留着 —— **链路跑通 != 业务已验证**"
 
 # ── ★ 由真实产物钉住「可用读数按 profile 不同」 ───────────────────────
 def usable_of(rid):
@@ -64,7 +68,7 @@ for u in (u_post, u_reply):
     assert not any("intensity" in k or "weight" in k for k in u), u
 
 print("test_cce_profile_ci_verified: OK "
-      f"(已 CI 验证: media_ingest · outbound_post · outbound_reply; "
-      f"**subject_chain 仍未验证** | "
+      f"(四档全部 CI 验证: media_ingest · outbound_post · outbound_reply · "
+      f"subject_chain(审计仍 NOT_VERIFIED) | "
       f"实证「可用读数按 profile 不同」: post({ih_post[:8]}) 结层零可用 vs "
       f"reply({ih_reply[:8]}) top-1 可用 | 两档均不放行强度层)")

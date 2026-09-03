@@ -1,0 +1,877 @@
+{
+ "input_sha": "4eefdf57d0eaf6c5",
+ "run_at": "2026-09-03T11:13:57",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "operational": {
+   "attempts": [
+    {
+     "temperature": 0.3,
+     "attempt": 1,
+     "status": "SUCCESS",
+     "error_class": null
+    },
+    {
+     "temperature": 0.6,
+     "attempt": 1,
+     "status": "SUCCESS",
+     "error_class": null
+    },
+    {
+     "temperature": 0.0,
+     "attempt": 1,
+     "status": "SUCCESS",
+     "error_class": null
+    }
+   ],
+   "n_attempts": 3,
+   "n_draws": 3,
+   "first_attempt_success": 3,
+   "first_attempt_success_rate": 1.0,
+   "n_infra_failed": 0,
+   "n_parse_failed": 0,
+   "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+   "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+  },
+  "preparation_id": "prep_86c7c7545d75",
+  "structural_gate": {
+   "gate_version": "1.0.0",
+   "verdict": "MEASURE",
+   "span_counts": {
+    "PERSONAL": 1,
+    "NONPERSONAL": 0,
+    "AMBIGUOUS": 0
+   },
+   "chars_in": 358,
+   "chars_kept": 358,
+   "chars_dropped": 0
+  },
+  "k_requested": 3,
+  "k_attempted": 3,
+  "k_valid": 3,
+  "k_abstained": 0,
+  "k_ok": 3,
+  "n_abstain": 0,
+  "abstained": false,
+  "measurement_status": "qualified",
+  "layers": {
+   "desire_vec": [
+    0.03333333333333333,
+    0.0,
+    0.3333333333333333,
+    0.15,
+    0.0,
+    0.03333333333333333,
+    0.25,
+    0.20000000000000004,
+    0.0
+   ],
+   "need_vec": [
+    0.18333333333333335,
+    0.2833333333333333,
+    0.016666666666666666,
+    0.16666666666666666,
+    0.06666666666666667,
+    0.2833333333333334,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.016666666666666666,
+    0.0,
+    0.0,
+    0.016666666666666666,
+    0.0,
+    0.0,
+    0.0,
+    0.13333333333333333,
+    0.21666666666666667,
+    0.05000000000000001,
+    0.08333333333333333,
+    0.06666666666666667,
+    0.4166666666666667
+   ],
+   "action_vec": [
+    0.10000000000000002,
+    0.16666666666666666,
+    0.26666666666666666,
+    0.09999999999999999,
+    0.25,
+    0.06666666666666667,
+    0.049999999999999996
+   ]
+  },
+  "tops": {
+   "desire": "摆脱欲",
+   "need": "N06_摆脱痛苦",
+   "emotion": "anger愤怒",
+   "action": "attend关注"
+  },
+  "draws": [
+   {
+    "from_temperature": 0.0,
+    "abstained": false,
+    "desire_vec": [
+     0.05,
+     0.0,
+     0.35,
+     0.15,
+     0.0,
+     0.0,
+     0.25,
+     0.2,
+     0.0
+    ],
+    "need_vec": [
+     0.2,
+     0.35,
+     0.05,
+     0.15,
+     0.0,
+     0.25,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emotion_vec": [
+     0.0,
+     0.0,
+     0.0,
+     0.05,
+     0.0,
+     0.0,
+     0.0,
+     0.15,
+     0.2,
+     0.05,
+     0.1,
+     0.1,
+     0.35
+    ],
+    "action_vec": [
+     0.1,
+     0.25,
+     0.25,
+     0.15,
+     0.2,
+     0.05,
+     0.0
+    ],
+    "tops": {
+     "desire": "摆脱欲",
+     "need": "N02_掌控局面",
+     "emotion": "anger愤怒",
+     "action": "avoidance回避"
+    },
+    "appraisal": {
+     "goal_relevance": 0.9,
+     "congruence_direction": "威胁",
+     "need_status": "未满足",
+     "goal_congruence": "负",
+     "coping_potential": "低",
+     "note": "原帖解释让'为什么发生'(N04)被部分满足,但核心需求——可控路由(N02)+消除劫持(N06)+稳态行为(N01)——依然没被解决,只给出一个'必须把iPhone随身带'的脆弱权宜;威胁来自'助听器抢流'对日常听音体验的持续干扰;应对潜能在用户语言中明显偏低(只能这样,没有别的办法),因此情绪走向负向:恼怒+无力+轻微释然(因为理解了原理)"
+    }
+   },
+   {
+    "from_temperature": 0.3,
+    "abstained": false,
+    "desire_vec": [
+     0.05,
+     0.0,
+     0.35,
+     0.15,
+     0.0,
+     0.0,
+     0.25,
+     0.2,
+     0.0
+    ],
+    "need_vec": [
+     0.15,
+     0.25,
+     0.0,
+     0.2,
+     0.1,
+     0.3,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emotion_vec": [
+     0.05,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.1,
+     0.2,
+     0.1,
+     0.15,
+     0.0,
+     0.4
+    ],
+    "action_vec": [
+     0.0,
+     0.25,
+     0.25,
+     0.15,
+     0.35,
+     0.0,
+     0.0
+    ],
+    "tops": {
+     "desire": "摆脱欲",
+     "need": "N06_摆脱痛苦",
+     "emotion": "anger愤怒",
+     "action": "agonistic对抗"
+    },
+    "appraisal": {
+     "goal_relevance": 0.9,
+     "congruence_direction": "威胁",
+     "need_status": "未满足",
+     "goal_congruence": "负",
+     "coping_potential": "中",
+     "note": "内容相关度极高(直接戳中已购助听器的日常痛点); 方向为威胁(反复劫持揭示设备的不友好行为); 需求未实质满足(只解释了机制，没解决问题，仍需带iPhone workaround); 应对潜能为中(有workaround但代价高且不优雅); 因此整体 appraisal=威胁+未满足+负情绪，强度因高度相关而被放大"
+    }
+   },
+   {
+    "from_temperature": 0.6,
+    "abstained": false,
+    "desire_vec": [
+     0.0,
+     0.0,
+     0.3,
+     0.15,
+     0.0,
+     0.1,
+     0.25,
+     0.2,
+     0.0
+    ],
+    "need_vec": [
+     0.2,
+     0.25,
+     0.0,
+     0.15,
+     0.1,
+     0.3,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emotion_vec": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.15,
+     0.25,
+     0.0,
+     0.0,
+     0.1,
+     0.5
+    ],
+    "action_vec": [
+     0.2,
+     0.0,
+     0.3,
+     0.0,
+     0.2,
+     0.15,
+     0.15
+    ],
+    "tops": {
+     "desire": "摆脱欲",
+     "need": "N06_摆脱痛苦",
+     "emotion": "anger愤怒",
+     "action": "attend关注"
+    },
+    "appraisal": {
+     "goal_relevance": 0.9,
+     "congruence_direction": "威胁",
+     "need_status": "未满足",
+     "goal_congruence": "负",
+     "coping_potential": "中",
+     "note": "内容直击用户当下的核心痛点（goal_relevance 高）；现象本身揭示了一个正在发生、还在持续、且没有真正被解决的威胁（congruence=威胁，need_status=未满足），因此 goal_congruence 走负向分支；但用户有一个『把 iPhone 带身上』的笨拙 workaround，所以 coping_potential 给到中——不是完全无能为力，但也远谈不上游刃有余。这种『知道原因但问题没解决』的中间态，正好解释了为什么情绪是『恼怒+轻度认同+一点宽慰』的混合，而非纯愤怒或纯释然。"
+    }
+   }
+  ],
+  "appraisal": {
+   "goal_relevance": 0.9,
+   "congruence_direction": "威胁",
+   "need_status": "未满足",
+   "goal_congruence": "负",
+   "coping_potential": "低",
+   "note": "原帖解释让'为什么发生'(N04)被部分满足,但核心需求——可控路由(N02)+消除劫持(N06)+稳态行为(N01)——依然没被解决,只给出一个'必须把iPhone随身带'的脆弱权宜;威胁来自'助听器抢流'对日常听音体验的持续干扰;应对潜能在用户语言中明显偏低(只能这样,没有别的办法),因此情绪走向负向:恼怒+无力+轻微释然(因为理解了原理)"
+  },
+  "chain_trace": "摆脱欲+控制欲+安全感欲 →(蓝牙音频被HA自动劫持、已购买仍长期受挫的情境)→ 需求N02_掌控局面(权重0.35)+N06_摆脱痛苦(0.25)+N01_确定性(0.20)+N04_理解世界(0.15) →(评价:goal_relevance=0.9,congruence=威胁,need_status=未满足,goal_congruence=负,coping_potential=低)→ 情绪以anger(0.35)为主,叠加approval(0.20)对对方解释的认可以及relief(0.15)/fear(0.10)/sadness(0.10) → 行动倾向以avoidance(0.25)规避和attend(0.25)持续关注为主,辅以agonistic(0.20)宣泄与reject(0.15)拒斥劫持行为",
+  "single_draw": {
+   "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "低",
+    "note": "原帖解释让'为什么发生'(N04)被部分满足,但核心需求——可控路由(N02)+消除劫持(N06)+稳态行为(N01)——依然没被解决,只给出一个'必须把iPhone随身带'的脆弱权宜;威胁来自'助听器抢流'对日常听音体验的持续干扰;应对潜能在用户语言中明显偏低(只能这样,没有别的办法),因此情绪走向负向:恼怒+无力+轻微释然(因为理解了原理)"
+   },
+   "chain_trace": "摆脱欲+控制欲+安全感欲 →(蓝牙音频被HA自动劫持、已购买仍长期受挫的情境)→ 需求N02_掌控局面(权重0.35)+N06_摆脱痛苦(0.25)+N01_确定性(0.20)+N04_理解世界(0.15) →(评价:goal_relevance=0.9,congruence=威胁,need_status=未满足,goal_congruence=负,coping_potential=低)→ 情绪以anger(0.35)为主,叠加approval(0.20)对对方解释的认可以及relief(0.15)/fear(0.10)/sadness(0.10) → 行动倾向以avoidance(0.25)规避和attend(0.25)持续关注为主,辅以agonistic(0.20)宣泄与reject(0.15)拒斥劫持行为",
+   "from_temperature": 0.0,
+   "caveat": "单次抽样(温度阶梯第一档), 不是 K 次聚合; 与 layers/tops 不同口径, 不得并列引用"
+  },
+  "_provenance": {
+   "aggregated": [
+    "layers",
+    "tops",
+    "within_js"
+   ],
+   "single_draw": [
+    "appraisal",
+    "chain_trace"
+   ],
+   "n": 3
+  },
+  "within_js": {
+   "desire_vec": 0.0509,
+   "need_vec": 0.0586,
+   "emotion_vec": 0.1453,
+   "action_vec": 0.2881
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "pain_seek",
+    "intensity": 0.65,
+    "support": 1.0,
+    "occur": 5,
+    "n": 5,
+    "support_ci95": [
+     0.5655,
+     1.0
+    ],
+    "support_majority": true,
+    "weight": 0.5652,
+    "name": "痛点·求解结",
+    "family": "推动",
+    "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+    "behavior_predicted": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)",
+    "evidence_quote": "What's frustrating is that when I am streaming to a Bluetooth speaker and I enter the room, the music suddenly cuts from the speaker and heads to my HAs!",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "中",
+     "time": "现在",
+     "attribution": "system/none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "摆脱欲",
+    "need_code": "N02",
+    "freshness_days_hint": 7
+   },
+   {
+    "key": "inertia",
+    "intensity": 0.5,
+    "support": 0.6,
+    "occur": 3,
+    "n": 5,
+    "support_ci95": [
+     0.2307,
+     0.8824
+    ],
+    "support_majority": true,
+    "weight": 0.4348,
+    "name": "惯性·缺席结",
+    "family": "阻挡",
+    "playbook": "只有精确命中其机制才值得触碰;给『一步且可逆』的最小改变;绝不布道",
+    "behavior_predicted": "缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,开口即高质量个案",
+    "evidence_quote": "I have to keep my iPhone on me as it's the only way that this doesn't happen. Your explanation about the body makes sense; it's probably acting as a great big shield.",
+    "signature": {
+     "congruence": "无激活或coping感知为零",
+     "need_status": "现状部分满足为默认",
+     "coping": "极低/习得性认命",
+     "time": "无限期现在",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "控制欲(被压抑)",
+    "need_code": "N02(被搁置)",
+    "freshness_days_hint": 7
+   },
+   {
+    "key": "suspend",
+    "intensity": 0.35,
+    "support": 0.2,
+    "occur": 1,
+    "n": 5,
+    "support_ci95": [
+     0.0362,
+     0.6245
+    ],
+    "support_majority": false,
+    "weight": 0.0,
+    "name": "悬置·焦虑结",
+    "family": "阻挡",
+    "playbook": "给判据+零成本测试塌缩不确定性+如实说trade;不推购买。反杠杆=零风险承诺/样品/证言",
+    "behavior_predicted": "质询通道·中成本:连环规格质询/征证言/比价/收藏不买/明确不动",
+    "evidence_quote": "I have to keep my iPhone on me as it's the only way that this doesn't happen.",
+    "signature": {
+     "congruence": "促进与威胁并存",
+     "need_status": "未满足",
+     "coping": "不确定",
+     "time": "未来(决策悬置)",
+     "attribution": "system",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N01",
+    "freshness_days_hint": 70
+   },
+   {
+    "key": "display",
+    "intensity": 0.3,
+    "support": 0.2,
+    "occur": 1,
+    "n": 5,
+    "support_ci95": [
+     0.0362,
+     0.6245
+    ],
+    "support_majority": false,
+    "weight": 0.0,
+    "name": "确证·展示结",
+    "family": "推动",
+    "playbook": "让位;被当同侪;接着他的贡献往前走,绝不纠正姿态压他",
+    "behavior_predicted": "展示通道·低→高成本:纠错亮牌/举反例晒型号/结构化长评/承诺回访。评论区最高质量UGC主力",
+    "evidence_quote": "No other Bluetooth devices do this. Your explanation about the body makes sense; it's probably acting as a great big shield.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "identity"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N10",
+    "freshness_days_hint": 25
+   },
+   {
+    "key": "reward",
+    "intensity": 0.3,
+    "support": 0.2,
+    "occur": 1,
+    "n": 5,
+    "support_ci95": [
+     0.0362,
+     0.6245
+    ],
+    "support_majority": false,
+    "weight": 0.0,
+    "name": "爽点·回报结",
+    "family": "推动",
+    "playbook": "短收;自我缩小;不再投喂信息(需求已闭,长文=把关掉的门重开)",
+    "behavior_predicted": "致谢通道·低中成本:收藏声明/致谢/自来水布道。驱动留存分享(留存维ρ≈0.26-0.5)",
+    "evidence_quote": "Your explanation about the body makes sense; it's probably acting as a great big shield.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足(即时理解)",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N01",
+    "freshness_days_hint": 30
+   },
+   {
+    "key": "injustice",
+    "intensity": 0.25,
+    "support": 0.2,
+    "occur": 1,
+    "n": 5,
+    "support_ci95": [
+     0.0362,
+     0.6245
+    ],
+    "support_majority": false,
+    "weight": 0.0,
+    "name": "不平·问责结",
+    "family": "推动",
+    "playbook": "承认合理性;把问责导向能落地的路径(症状不方案/建案号);绝不替责任方辩护",
+    "behavior_predicted": "施压通道·高成本公开:公开信/差评/拉同盟;不求助,施压",
+    "evidence_quote": "No other Bluetooth devices do this.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "已发生",
+     "coping": "中",
+     "time": "过去",
+     "attribution": "other_agent",
+     "target_layer": "fairness"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N02",
+    "freshness_days_hint": 25
+   },
+   {
+    "key": "belong",
+    "intensity": 0.15,
+    "support": 0.2,
+    "occur": 1,
+    "n": 5,
+    "support_ci95": [
+     0.0362,
+     0.6245
+    ],
+    "support_majority": false,
+    "weight": 0.0,
+    "name": "归属·确认结",
+    "family": "推动",
+    "playbook": "先『你不是一个人』把人接住,再给至多一格新知;不派任务",
+    "behavior_predicted": "确认通道·中成本:自我暴露式发帖+『only me?』;线下伴随伪装替代行为",
+    "evidence_quote": "No other Bluetooth devices do this",
+    "signature": {
+     "congruence": "威胁(孤立)",
+     "need_status": "未满足",
+     "coping": "低",
+     "time": "过去-现在",
+     "attribution": "none",
+     "target_layer": "identity"
+    },
+    "desire_code": "归属欲",
+    "need_code": "N11",
+    "freshness_days_hint": 25
+   }
+  ],
+  "measurement_status": "qualified",
+  "n_abstain": 0,
+  "draw_ledger": [
+   {
+    "draw_id": 0,
+    "knot_vector": {
+     "pain_seek": 0.32,
+     "injustice": 0.0,
+     "belong": 0.0,
+     "reward": 0.0,
+     "display": 0.0,
+     "itch": 0.0,
+     "suspend": 0.0,
+     "inertia": 0.82,
+     "audit": 0.0
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "inertia"
+   },
+   {
+    "draw_id": 1,
+    "knot_vector": {
+     "pain_seek": 0.55,
+     "injustice": 0.25,
+     "belong": 0.0,
+     "reward": 0.0,
+     "display": 0.0,
+     "itch": 0.0,
+     "suspend": 0.0,
+     "inertia": 0.4,
+     "audit": 0.0
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "pain_seek"
+   },
+   {
+    "draw_id": 2,
+    "knot_vector": {
+     "pain_seek": 0.8,
+     "injustice": 0.0,
+     "belong": 0.0,
+     "reward": 0.3,
+     "display": 0.0,
+     "itch": 0.0,
+     "suspend": 0.0,
+     "inertia": 0.0,
+     "audit": 0.0
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "pain_seek"
+   },
+   {
+    "draw_id": 3,
+    "knot_vector": {
+     "pain_seek": 0.8,
+     "injustice": 0.0,
+     "belong": 0.0,
+     "reward": 0.0,
+     "display": 0.0,
+     "itch": 0.0,
+     "suspend": 0.35,
+     "inertia": 0.5,
+     "audit": 0.0
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "pain_seek"
+   },
+   {
+    "draw_id": 4,
+    "knot_vector": {
+     "pain_seek": 0.65,
+     "injustice": 0.0,
+     "belong": 0.15,
+     "reward": 0.0,
+     "display": 0.3,
+     "itch": 0.0,
+     "suspend": 0.0,
+     "inertia": 0.0,
+     "audit": 0.0
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "pain_seek"
+   }
+  ],
+  "intensity": {
+   "pain_seek": 0.65,
+   "inertia": 0.5
+  },
+  "families": {
+   "推动": {
+    "mass": 0.65,
+    "composition": {
+     "pain_seek": 1.0
+    },
+    "members_active": 1
+   },
+   "阻挡": {
+    "mass": 0.5,
+    "composition": {
+     "inertia": 1.0
+    },
+    "members_active": 1
+   }
+  },
+  "drive_brake": {
+   "drive_mass": 0.65,
+   "brake_mass": 0.5,
+   "quadrant": "high_drive/high_brake",
+   "note": "象限切点 0.5 是量纲中点, 不是校准阈值; 仅作分类标签, 不得作判据"
+  },
+  "levers_present": [],
+  "notes": "表层是痛点复述+方案确认,但用户的真实行为落点是『认命闭环』:接受『身体=屏蔽体』解释并以『必须随身带iPhone』作为长期权宜,不再追问替代方案,典型 inertia 收口,pain_seek 仅为残留情绪痕迹,不再指向求助通道。",
+  "sampling": {
+   "n_requested": 5,
+   "n_ok": 5,
+   "top1_mode": "pain_seek",
+   "top1_mode_share": 0.8,
+   "top1_unanimous": false,
+   "top1_stable": false,
+   "top1_draws": [
+    "inertia",
+    "pain_seek",
+    "pain_seek",
+    "pain_seek",
+    "pain_seek"
+   ],
+   "caveat_unanimous": "top1_unanimous 在 n=1 时恒真, 且 P≈p^n 随 n 单调下降 —— 跨不同 n 比较必须用 top1_mode_share, 不能用 unanimous",
+   "max_range": 0.48,
+   "per_knot": {
+    "pain_seek": {
+     "occur": 5,
+     "n": 5,
+     "support": 1.0,
+     "intensity": 0.65,
+     "median": 0.65,
+     "min": 0.32,
+     "max": 0.8,
+     "range": 0.48
+    },
+    "display": {
+     "occur": 1,
+     "n": 5,
+     "support": 0.2,
+     "intensity": 0.3,
+     "median": 0.3,
+     "min": 0.3,
+     "max": 0.3,
+     "range": 0.0
+    },
+    "reward": {
+     "occur": 1,
+     "n": 5,
+     "support": 0.2,
+     "intensity": 0.3,
+     "median": 0.3,
+     "min": 0.3,
+     "max": 0.3,
+     "range": 0.0
+    },
+    "belong": {
+     "occur": 1,
+     "n": 5,
+     "support": 0.2,
+     "intensity": 0.15,
+     "median": 0.15,
+     "min": 0.15,
+     "max": 0.15,
+     "range": 0.0
+    },
+    "injustice": {
+     "occur": 1,
+     "n": 5,
+     "support": 0.2,
+     "intensity": 0.25,
+     "median": 0.25,
+     "min": 0.25,
+     "max": 0.25,
+     "range": 0.0
+    },
+    "inertia": {
+     "occur": 3,
+     "n": 5,
+     "support": 0.6,
+     "intensity": 0.5,
+     "median": 0.5,
+     "min": 0.4,
+     "max": 0.82,
+     "range": 0.42
+    },
+    "suspend": {
+     "occur": 1,
+     "n": 5,
+     "support": 0.2,
+     "intensity": 0.35,
+     "median": 0.35,
+     "min": 0.35,
+     "max": 0.35,
+     "range": 0.0
+    }
+   }
+  },
+  "caveat": "单次抽样不是测量: 本结果为 n 次抽样的逐结中位数; top1_stable=false 时首结身份本身不可复现, 不得作断言依据",
+  "instrument": {
+   "instrument_hash": "565470cf26c16d01",
+   "qualification_policy_hash": "b41ef5217a77d311",
+   "spec": {
+    "ontology_version": "1.3.1",
+    "s1_prompt_sha256": "eadcdcdac46a5180",
+    "s2_prompt_sha256": "b8d0f60d66d10f12",
+    "model": "MiniMax-M3",
+    "endpoint": "https://api.minimaxi.com/v1/text/chatcompletion_v2",
+    "sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "aggregation_policy": {
+     "support_rule": "occur * 2 > n",
+     "intensity_stat": "median_of_nonzero",
+     "composition": "within_family_then_global_weight",
+     "abstention": "empty_knots_is_abstain_v1"
+    },
+    "qualification_policy": {
+     "k_valid_min": 2,
+     "insufficient_replicates": "WITHHOLD",
+     "abstain_semantics": "empty_knots_is_abstain_v1",
+     "statuses": [
+      "qualified",
+      "abstain",
+      "insufficient_replicates"
+     ],
+     "margin": {
+      "F_max": 0.0,
+      "U_max": 0.05,
+      "bound": "exact_one_sided_95_upper",
+      "provenance": "ENGINEERING_BUDGET",
+      "concentration_flag": {
+       "per_base_unqualified_min": 2,
+       "per_base_reps": 4,
+       "effect": "ADOPT_WITH_RESTRICTIONS"
+      },
+      "why_concentration": "总体 4% 但全集中在一种表达形式, 会被均值洗掉 ⇒ 必须另报 U_by_base"
+     }
+    }
+   },
+   "preparation_id": "prep_raw_unfiltered",
+   "measurement_procedure_id": "mp_bf70e868a53efb09",
+   "hash_scope": {
+    "instrument": [
+     "ontology_version",
+     "s1_prompt_sha256",
+     "s2_prompt_sha256",
+     "model",
+     "endpoint",
+     "sampling_policy"
+    ],
+    "qualification_policy": [
+     "aggregation_policy",
+     "qualification_policy"
+    ],
+    "measurement_procedure": [
+     "instrument_hash",
+     "preparation_id",
+     "qualification_policy_hash"
+    ],
+    "criterion": "改它之后已采集的 raw draw 还能不能用"
+   }
+  },
+  "s1_pairing": "round_robin_over_3_s1_draws"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}
