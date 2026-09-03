@@ -184,11 +184,20 @@ ok7c, e7c, _ = _alt(lambda i: i["runs"][_dead].pop("checked_at"))
 assert not ok7c and any("没写 checked_at" in x for x in e7c), \
     "★ 可用性会随时间变, 无日期的判定不可复核"
 
-# 远端表必须是**现读 git**, 不是写死 —— 写死一个仓正是那个错的来源
-assert set(A.push_remotes()) >= {"luogangan7-lgtm/cce-engine",
-                                 "luogangan7-lgtm/cce-engine-oss"}, A.push_remotes()
+# ★ 2026-09-03 CI 实跑更正: 原断言是 `set(A.push_remotes()) >= {两个仓}` ——
+#   那是把**我这台机器的 git 配置**当成了全局不变量。CI 的 checkout 只有一个 remote,
+#   于是 ①测试在 CI 上必红 ②闸本身在 CI 上自动变松(「全部 push 远端」缩水成「那一个」)。
+#   **检查的强度不该取决于它在哪台机器上跑。** 改为断言**索引里的声明**。
+assert set(INDEX["required_remotes"]) == {"luogangan7-lgtm/cce-engine",
+                                          "luogangan7-lgtm/cce-engine-oss"}, INDEX.get("required_remotes")
+assert "不该取决于它在哪台机器上跑" in INDEX["★why_required_remotes_declared"]
+# 本机若多出未声明的 remote, 闸必须红(否则会有一个从没查过的仓)
+ok7d, e7d, _ = _alt(lambda i: i.__setitem__("required_remotes", ["luogangan7-lgtm/cce-engine"]))
+if set(A.push_remotes()) - {"luogangan7-lgtm/cce-engine"}:
+    assert not ok7d and any("未声明的 push 远端" in x for x in e7d), \
+        "★ 本机多出的 remote 没被要求补进声明"
 
 print(f"test_cce_archive_plane: OK "
       f"(可重建 {len(ARCHIVED)} run · 不可恢复 {stats['irrecoverable']} 已如实登记, "
-      f"两仓复查 {A.push_remotes()} | "
+      f"两仓复查 {INDEX['required_remotes']}(声明值, 非本机现读) | "
       "删件/改件/未归档/引 run_id 作证据/新 run 不入册/不可恢复缺出处或漏查仓 —— 各自见红)")

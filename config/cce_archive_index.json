@@ -629,5 +629,10 @@
   "39999999999": "tests/test_cce_archive_plane.py —— 「从没归档过的 run 也能重建吗」的反向探针",
   "39876543210": "tests/test_cce_archive_plane.py —— 「新 run_id 不入册闸会不会红」的反向探针"
  },
- "negative_test_note": "反向测试必须写出这些 id 才能证明闸会红。只允许出现在 tests/test_cce_archive_plane.py 里, 由 check() 验证出处。"
+ "negative_test_note": "反向测试必须写出这些 id 才能证明闸会红。只允许出现在 tests/test_cce_archive_plane.py 里, 由 check() 验证出处。",
+ "required_remotes": [
+  "luogangan7-lgtm/cce-engine",
+  "luogangan7-lgtm/cce-engine-oss"
+ ],
+ "★why_required_remotes_declared": "★ 2026-09-03 CI 实跑暴露: 原来这张表是**现读 git remote** 得来的。我这台机器有两个 remote, CI 的 checkout 只有一个(origin→oss) ⇒ ①测试在 CI 上必红 ②更糟的是**闸本身在 CI 上自动变松** —— 「IRRECOVERABLE 必须覆盖全部 push 远端」里的『全部』变成了『那一个』。**检查的强度不该取决于它在哪台机器上跑。** 故改为由本文件声明; 实读 git 降级为交叉核对(只在本机真有 remote 时比对, 发现多出来的要报)。"
 }

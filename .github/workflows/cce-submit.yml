@@ -41,6 +41,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          # ★ 必须取全历史: tests/test_cce_k1_cost_curve.py 要验「判据冻结在某个 commit」,
+          #   而 checkout@v4 默认 depth=1 ⇒ 那个 commit 在 CI 上不存在。
+          #   ★ 不许把这条断言在 CI 上改成「取不到就跳过」——
+          #     CI 才是权威, 让检查恰好在权威处消失, 就是本项目记过的
+          #     「环境降级下断言静默变成恒真」(无 key 时 dissolve_hit 返回 0, 断言退化成 0==0)。
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"

@@ -189,7 +189,17 @@ def check() -> tuple[bool, list[str], dict]:
 
     # ④ ★「不可恢复」是断言, 不是观察 —— 必须说清在哪些远端查过
     #    这条闸就是为 2026-09-03 那次更正而设: 只查一个仓得出的「不可恢复」不是结论。
-    remotes = set(push_remotes())
+    # ★ 由索引**声明**, 不由现读 git 决定 —— 否则闸的强度取决于它在哪台机器上跑
+    #   (2026-09-03 CI 实跑暴露: CI 只有一个 remote, 「全部 push 远端」缩水成「那一个」)。
+    remotes = set(index.get("required_remotes") or [])
+    if not remotes:
+        errors.append("索引缺 required_remotes —— 「查过全部远端」这句话没有对照物")
+    live = set(push_remotes())
+    extra = live - remotes
+    if extra:
+        # 本机多出来的 remote 必须补进声明, 否则会有一个从没查过的仓
+        errors.append(f"本机存在未声明的 push 远端 {sorted(extra)} —— "
+                      "补进 config/cce_archive_index.json 的 required_remotes, 否则等于没查它")
     for rid, row in sorted(indexed.items()):
         if row["status"] != IRRECOVERABLE:
             continue
