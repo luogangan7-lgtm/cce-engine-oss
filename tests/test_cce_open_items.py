@@ -50,6 +50,19 @@ for r in blocked:
 decided = [r for r in rs if r["类"] == DECIDED]
 assert decided, "★ 已裁定不做的要留着防重开"
 
+# ── ★ origin 分叉: 必须标为「不合并」而不是「待 reconcile」 ────────────
+#    2026-09-03 查明: origin 独有文件全是已退役的 Hy-MT2(mt_*),
+#    本地 b33befd 删除并归档。**合并 = 复活退役代码** —— 本项目栽过三次的老病。
+_div = [r for r in rs if "origin" in r["项"]]
+assert _div and _div[0]["类"] == DECIDED, \
+    "★ origin 分叉不是待修的意外, 它就是那次退役本身 —— 不许标成 OPEN_WORK"
+assert "复活" in _div[0]["项"] and "Hy-MT2" in _div[0]["项"]
+import subprocess as _sp
+_r = _sp.run(["git", "log", "--oneline", "-1", "--diff-filter=D", "--",
+              "scripts/mt_extract.py"], cwd=ROOT, capture_output=True, text=True)
+assert "retire" in _r.stdout.lower(), \
+    f"★ 本地退役提交找不到了 —— 结论要重查, 实际输出: {_r.stdout[:80]}"
+
 print(f"test_cce_open_items: OK (共 {len(rs)} 项 · "
       f"OPEN {sum(1 for r in rs if r['类']==OPEN)} / "
       f"BLOCKED {len(blocked)} / DECIDED {len(decided)} | "

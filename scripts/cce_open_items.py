@@ -82,8 +82,15 @@ def items() -> list[dict]:
                 "证据": "所需样本超单帖历史最高浏览; §44.10 的 24500 不可复算(全文未定义 R)"})
     out.append({"类": BLOCKED, "项": "媒体抽取质量(ASR/OCR 英文准确率)未测",
                 "证据": "语言相关; 需英文域的带标注素材"})
-    out.append({"类": OPEN, "项": "与私仓 origin 的 143/4 分叉未 reconcile",
-                "证据": "已裁定不推(私仓带 PII 且非生产入口), 但分叉本身仍在"})
+    # ★ 2026-09-03 查完改判: 这不是「待修的分叉」, 它**就是那次退役本身**。
+    #   origin 独有的文件全是 mt_*(Hy-MT2 MT 实验), 本地提交 b33befd
+    #   "retire Hy-MT2 MT experiment" 删掉了它们, 归档在
+    #   /Volumes/data/archive/hymt2-retired-20260817/。
+    #   **合并 = 复活退役代码** —— 正是本项目栽过三次的「拿退役组件当现行标准」。
+    out.append({"类": DECIDED,
+                "项": "与私仓 origin 的分叉**不合并** —— 合并会复活已退役的 Hy-MT2",
+                "证据": ("origin 独有文件全是 mt_*; 本地 b33befd 已退役并归档于 "
+                         "archive/hymt2-retired-20260817。私仓另带 PII 且非生产入口, 亦不推。")})
 
     # ★ 去重: 同一件事可能既被注册表列为 missing, 又被显式标为 BLOCKED。
     #   显式的分类优先 —— 否则「卡在外部资源」会被误报成「我能做只是没做」。
