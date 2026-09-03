@@ -1,0 +1,28 @@
+{
+ "kind": "cce.identity_allowlists.v1",
+ "★source": "/Volumes/data/cce-identified-vault/check_boundary.py",
+ "★why_vendored": "★ 2026-09-03 CI 实跑暴露: 我原来让测试**运行时从边界闸读**这两张表, 而保险库是**故意只在本地**的(它持有识别层), CI 上根本没有那个路径 ⇒ 测试在 CI 必红。修法不是「CI 上跳过扫描」—— 那是静默降级, 保护恰好在权威处消失。改为把表**落进仓当数据**: 扫描(真正的保护)到处都跑; 与保险库的**漂移检查**在有保险库的机器上跑。两件事分开。",
+ "pseudonym_prefixes": [
+  "user_",
+  "self_op",
+  "redacted_",
+  "creator_"
+ ],
+ "allow": [
+  "AutoModerator",
+  "None",
+  "[deleted]",
+  "adamgrant",
+  "auto-sticky",
+  "luogangan",
+  "null",
+  "satyanadella",
+  "simonsinek"
+ ],
+ "mention_allow": [
+  "Kira-kk",
+  "example",
+  "xxx"
+ ],
+ "synced_at": "2026-09-03"
+}

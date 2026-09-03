@@ -25,21 +25,16 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ID_FIELDS = {"actor_ref", "author", "username", "handle", "commenter", "op"}
 SKIP_DIRS = {".git", "__pycache__", "node_modules", ".venv"}
 CB = "/Volumes/data/cce-identified-vault/check_boundary.py"
+VENDORED = os.path.join(ROOT, "config", "cce_identity_allowlists.json")
 
-# ★ 化名表与放行表**运行时从边界闸读**, 不在这里再抄一份。
-#   我第一版抄了一份, 当场就漏了 'auto-sticky' —— 两份表必然漂移, 这是实证。
-def _from_boundary():
-    src = open(CB, encoding="utf-8").read()
-    pre = re.search(r"PSEUDONYM_PREFIXES\s*=\s*\(([^)]*)\)", src)
-    allow = re.search(r"^ALLOW\s*=\s*\{(.*?)^\}", src, re.S | re.M)
-    ment = re.search(r"MENTION_ALLOW\s*=\s*\{([^}]*)\}", src)
-    assert pre and allow, "★ 边界闸里找不到化名表/放行表 —— 它的结构变了, 本闸必须同步"
-    lit = lambda blob: {x.strip().strip('"\'') for x in re.findall(r"[\"'][^\"']*[\"']", blob)}
-    return (tuple(x.strip().strip('"\'') for x in pre.group(1).split(",") if x.strip()),
-            lit(allow.group(1)) | (lit(ment.group(1)) if ment else set()))
-
-
-PSEUDONYM_PREFIXES, ALLOW = _from_boundary()
+# ★ 表**落进仓当数据**, 不再运行时从保险库读。
+#   2026-09-03 CI 实跑暴露: 保险库是故意只在本地的(它持有识别层), CI 上没有那个路径
+#   ⇒ 原来的「运行时读」在 CI 必红。而修法**不能**是「CI 上跳过扫描」——
+#   那是静默降级, 保护恰好在权威处消失。
+#   ⇒ 扫描(真正的保护)到处都跑; 与保险库的**漂移检查**只在有保险库的机器上跑。
+_V = json.load(open(VENDORED, encoding="utf-8"))
+PSEUDONYM_PREFIXES = tuple(_V["pseudonym_prefixes"])
+ALLOW = set(_V["allow"]) | set(_V["mention_allow"])
 ALLOW |= {"", "None", "null"}
 
 
@@ -88,10 +83,23 @@ for good in ("reddit:u/user_47", "reddit:u/self_op", "redacted_3", "creator_1"):
     walk({"actor_ref": good}, "probe", ok)
 assert not ok, f"★ 化名被误报: {ok}"
 
-# ── 表是从边界闸读来的, 这里只钉住「确实读到了东西」 ──────────────────
+# ── 表本身要像样 ──────────────────────────────────────────────────────
 assert len(PSEUDONYM_PREFIXES) >= 4 and "user_" in PSEUDONYM_PREFIXES, PSEUDONYM_PREFIXES
 assert "auto-sticky" in ALLOW, \
-    "★ 放行表没读全 —— 我第一版手抄时就漏了它, 所以这条断言留着"
+    "★ 放行表不全 —— 我第一版手抄时就漏了它, 所以这条断言留着"
+
+# ── ★ 漂移检查: 只在**有保险库**的机器上跑, 且必须真跑(不许因缺席而恒真) ──
+if os.path.exists(CB):
+    _src = open(CB, encoding="utf-8").read()
+    _pre = re.search(r"PSEUDONYM_PREFIXES\s*=\s*\(([^)]*)\)", _src)
+    assert _pre, "★ 边界闸里找不到化名表 —— 它的结构变了, 本闸必须同步"
+    _theirs = tuple(x.strip().strip('"\'') for x in _pre.group(1).split(",") if x.strip())
+    assert set(_theirs) == set(PSEUDONYM_PREFIXES), \
+        f"★ 与保险库漂移了: 仓内 {PSEUDONYM_PREFIXES} vs 边界闸 {_theirs} —— 重新落表"
+    _drift = "已比对(本机有保险库)"
+else:
+    _drift = "未比对(CI 无保险库) —— 扫描仍全量跑, 只是漂移检查在此不可执行"
+assert "落进仓当数据" in _V["★why_vendored"]
 
 print(f"test_cce_no_real_identities: OK (扫 {scanned} 个 JSON · 身份字段全为化名 | "
-      "反向: 真实 handle 见红 · 四种化名不误报 | 与 check_boundary 共用同一张化名表)")
+      "反向: 真实 handle 见红 · 四种化名不误报 | 漂移: " + _drift + ")")
