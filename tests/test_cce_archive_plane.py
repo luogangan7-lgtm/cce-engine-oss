@@ -128,6 +128,29 @@ assert _r["status"] == "RESTRICTED_OFFTREE" and _r.get("location"), _r
 assert "不就地改" in _r["★why_not_pseudonymize"] or "字节保真" in _r["★why_not_pseudonymize"]
 assert not os.path.isdir(os.path.join(ROOT, "archive", "31993570335")), \
     "★ 含真实身份的归档又回到树里了"
+
+# ── 仓外归档: 只登「文件名 + sha256」, 内容与真名一律不越界 ─────────────
+#    ★ 为什么登: 保险库副本损坏或丢失时, 仓里要能证明它本该是什么。
+#    ★ 为什么只登哈希: 识别层的设计原则是「风险不在存, 在**流出**」——
+#      推到任何远端(私库也算)都是流出, 私有与否只改变谁能看见。
+import re as _re
+_off = {r: v for r, v in INDEX["runs"].items() if v["status"] == "RESTRICTED_OFFTREE"}
+assert _off, "★ 至少应有一条仓外归档(否则本段检查恒绿)"
+for _rid, _row in _off.items():
+    _lst = _row.get("offtree_listing")
+    assert _lst and _row.get("offtree_file_count") == len(_lst), \
+        f"★ {_rid} 缺 offtree_listing 或件数对不上"
+    for _n, _h in _lst.items():
+        assert _re.fullmatch(r"[0-9a-f]{16}", _h), f"★ {_rid}/{_n} 哈希形态不对"
+        # 文件名本身要进公开仓, 必须是**已知的产物命名形状**。
+        # ★ 用白名单不用黑名单: 黑名单式的「不许含 XXX」**必须把 XXX 写进仓里**,
+        #   我在本轮已因此四次把真名抄进记录。白名单不需要点名任何人。
+        assert _re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,200}", _n), \
+            f"★ {_rid} 的归档文件名不是已知产物形状: 只允许字母数字与 _ . - "
+        assert _n.startswith(("cce-", "probe-out", "workflow-")) or _n == "manifest.json", \
+            f"★ {_rid} 出现非产物命名的文件 —— 只允许 cce-* / probe-out* / workflow-* / manifest.json"
+    assert "现场重算" in _row["★why_listing_here"], \
+        "★ 必须写明哈希是现场重算的 —— 照抄 _listing 只能证明它自洽, 证明不了它没漂"
 assert "查错了仓" in INDEX["finding"], "更正必须写在 finding 里, 不能悄悄改数字"
 
 # ── 反向 7: ★「不可恢复」缺出处 / 漏查一个 push 远端 -> 必须红 ──────────
