@@ -13,6 +13,7 @@ P6 的机制登记表把它变成可查的：`status != ESTABLISHED` 就不许�
 引用一条**已被自己否决**的结论对外发声，是最坏的一种 —— 那不是「证据不够」，
 是「我们自己已经知道它是错的」。所以它的报错要带 reject_reason 与取代者。
 """
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -46,10 +47,24 @@ assert "已被否决" in out and "取代" in out, \
 # ── ③ 引用未登记的机制 ─────────────────────────────────────────────────────
 assert run("cites_unknown")[0] != 0, "★ 引用登记表里不存在的机制被放行"
 
-# ── ④ 正向对照：引用已确立的机制且其余合规，必须放行 ────────────────────────
+# ── ④ 正向对照：引用已确立的机制且其余合规 ──────────────────────────────────
+# ★ 2026-09-03 CI 实跑暴露的结构性事实：**三闸之一 check_boundary 故意只在本地**
+#   (它持有识别层, 绝不能进 CI)。于是在 CI 上「可发布」这个判决**结构上无法验证** ——
+#   闸会如实判 UNAVAILABLE → 三闸缺一 → 不得判为可发布。这是闸对的行为, 不是 bug。
+#   ⇒ 本条按环境分档断言, 各自断言**该环境下正确的那个结果**;
+#     绝不因为在 CI 上过不了就把它改成「取不到就跳过」——
+#     那是本项目记过的「环境降级下断言静默变成恒真」。
+_CB = os.path.exists("/Volumes/data/cce-identified-vault/check_boundary.py")
 rc, out = run("cites_established")
-assert rc == 0, \
-    (f"★ 合规生成物被误拦 —— 永远红与永远绿是同一种失效。输出：\n{out}")
+if _CB:
+    assert rc == 0, \
+        (f"★ 合规生成物被误拦 —— 永远红与永远绿是同一种失效。输出：\n{out}")
+    _PATH = "本地(三闸齐全): 已验证**可发布**这条路"
+else:
+    assert rc != 0 and "check_boundary 不可用" in out, \
+        ("★ 缺 check_boundary 时必须拒判可发布 —— 缺席不得默认放行。"
+         f"输出：\n{out}")
+    _PATH = "CI(无识别层保险库): 只验证了**拒判**这条路; 「可发布」判决在此结构上不可验证"
 
 # ── ⑤ 另两闸必须各自独立生效（不能只有引用闸在干活）────────────────────────
 rc, out = run("violates_compliance")
@@ -78,3 +93,4 @@ assert check_citations("see [[mech:length_threshold_1500]]"), "★ 已否决机�
 
 print("test_cce_strategy_gate: OK (未达标/已否决/未登记 三种引用全拦 · 合规样本放行 · "
       "合规闸与文风闸各自独立生效 · check_boundary 缺席不冒充 PASS)")
+print(f"  ★ 本次覆盖: {_PATH}")
