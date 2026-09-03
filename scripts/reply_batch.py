@@ -71,7 +71,10 @@ def phase_b(it, outdir):
               for L, lab in LAYERS.items()}
     misses = [r["dim"] for L in layers.values() for r in L["逐维"] if not r["触达"]]
     need_ok = (layers["need_vec"]["触达率"] or 0) >= 0.5
-    knot_ok = ka["alignment_score"] >= float(os.environ.get("CCE_ALIGN_THETA", "0.35"))
+    # ★ 与 reply_loop 同源: 读数层不可用 -> 不可判, 不发 True/False。
+    #   守卫已下沉到 cce_align_v2.score(根因修在共用函数, 不在各调用方), 这里只是照它扣发。
+    knot_ok = (ka["alignment_score"] >= float(os.environ.get("CCE_ALIGN_THETA", "0.35"))
+               if ka.get("★usable") else None)
     return {"tag": it["tag"], "url": it["url"], "words": len(draft.split()),
             "对方九结": ak, "我方九结": bk,
             "对齐分": ka["alignment_score"], "共鸣": ka.get("resonance"), "拆除": ka.get("dissolution"),

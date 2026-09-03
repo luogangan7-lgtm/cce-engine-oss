@@ -132,13 +132,29 @@ def score(aud_knots, post_knots, text, theta=None, detect=True, mode="post"):
                            "response": round(hit, 3), "contrib": round(w * hit, 4),
                            "evidence": ev})
     total = resonance + dissolution
+    # ── 铁律: 读数层不可用时, 由它合成的分数也不可用 ────────────────────
+    # ★ 根因修在这里而不是各调用方: 2026-09-03 我先只改了 reply_loop, 漏掉 reply_batch ——
+    #   同一份不可靠读数在一条路上被扣住、另一条路上照发判决, 爆炸半径不一致本身就是缺陷
+    #   (这正是 2026-08-18 那条注释里写过的教训, 我又犯了一次)。
+    # 实测(probes/align_theta_sensitivity.py, 零调用): 同一输入下分数极差中位 0.135,
+    #   θ=0.35 的判决 18.4% 被 weight 抖动翻转, 且那还是下界。
+    try:
+        from cce_k1_status import knot_readout_usable
+        _ok, _why = knot_readout_usable(
+            "weight", instrument_hash=os.environ.get("CCE_INSTRUMENT_HASH", "565470cf26c16d01"))
+    except Exception as _e:          # 闸不可用 = 不可用, 不是通过
+        _ok, _why = False, f"读数层可用性无法确定({type(_e).__name__}) —— 不降级放行"
     out = {"alignment_score": round(total, 4),
+           "★usable": _ok,
+           "★why_not_usable": None if _ok else (
+               _why + " ⇒ 本分数只作诊断留痕, 不得作为放行/拦截依据。"),
            "resonance": round(resonance, 4),
            "dissolution": round(dissolution, 4),
            "detail": detail}
     if theta is not None:
         out["theta"] = theta
-        out["pass"] = total >= theta
+        # ★ 不可用时 pass 必须是 None(不可判), 不是 True/False —— 给任一布尔都是把噪声当结论
+        out["pass"] = (total >= theta) if _ok else None
     return out
 
 

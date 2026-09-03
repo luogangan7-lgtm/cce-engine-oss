@@ -61,8 +61,16 @@ def layer_reach(a_vec, b_vec, labels):
                      "触达": bool(pb >= pa * REACH),
                      "缺口": round(max(0.0, pa * REACH - pb), 3)})
     hit = sum(1 for r in rows if r["触达"])
-    return {"显著维": len(rows), "触达数": hit,
-            "触达率": round(hit / len(rows), 3) if rows else None, "逐维": rows}
+    rate = round(hit / len(rows), 3) if rows else None
+    # ★ 饱和标记(2026-09-03): 触达率顶到 0 或 1 时, 它对「离 0.5 判决线多远」这个问题
+    #   没有信息量。归档实测(run 32114744002, 同一文本对 8 rep): 触达率恒为 1.000,
+    #   而显著维个数在 2–4 之间跳 —— 稳定来自天花板, 不是来自测量精度。
+    #   本项目已两次栽在「高一致率 + 零方差 = 退化」上(C2 常数估计器 / quadrant 1.000)。
+    return {"显著维": len(rows), "触达数": hit, "触达率": rate,
+            "饱和": rate in (0.0, 1.0) if rate is not None else None,
+            "★饱和说明": ("触达率顶到端点 ⇒ 它没有告诉你离 0.5 判决线多远, "
+                          "**不得**据此说「该层已充分触达」" if rate in (0.0, 1.0) else None),
+            "逐维": rows}
 
 
 def main():
@@ -123,6 +131,9 @@ def main():
               for L, lab in LAYERS.items()}
 
     misses = [r["dim"] for L in layers.values() for r in L["逐维"] if not r["触达"]]
+    # ★ need_ok 是第三层叠加阈值(pa<SALIENT 筛维 -> pb>=pa*REACH 二值化 -> 率>=0.5 再二值化)。
+    #   2026-09-03 实测: 现有唯一可测数据里它恒为 1.000(饱和), 因此它在判决线附近的行为
+    #   **未被测量** —— 既不能说它稳, 也不能说它坏。缺口已登记, 不许当作「已验收」。
     need_ok = (layers["need_vec"]["触达率"] or 0) >= 0.5
     # 2026-08-18: 补 top1_stable 守卫。此前不确定性只在 cce_full_run.py 的 s2 段生效
     # (top1 不稳时扣发 playbook_primary), 而这里照旧拿被抖动过的 weight 算出 PASS/FAIL ——
