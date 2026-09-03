@@ -1,0 +1,94 @@
+{
+ "block": "PLAYBOOK_HIT_RELIABILITY_GEN4",
+ "prereg_written_at": "2026-09-03",
+ "★frozen_before_measurement": "本文件在采集任何读数**之前**提交(见 git)。",
+ "why": "`top-1 playbook_hit` 是 K1 裁定之后**唯一还在产出的对齐读数**, 而它自己的复现性**从未测过** —— 它是 dissolve_hit 的 3 次 LLM 表决取中位数。投产逐项清单里它是「未测」, 不是「弱证据」。历史归档从未落过 reply_alignment 产物, 补不上。",
+ "selection_rule": {
+  "rule": "沿用 K1 的资格池, 按 base_id 字典序取**第 6–13 个**",
+  "why_offset": "★ K1-v2 用的是前 5 个。本实验取其后 8 个, 避免「同一批输入既调参又验收」—— 这是本项目已明写的纪律。",
+  "chosen": [
+   "2ee52f67c987",
+   "3191a8fae98d",
+   "344d81fc035f",
+   "59a1a9c7d712",
+   "5bbf4543dd47",
+   "6b16b77dbc5b",
+   "6def5ddbcf25",
+   "712fc175d4bf"
+  ]
+ },
+ "instrument": {
+  "instrument_hash": "565470cf26c16d01",
+  "must_equal": "565470cf26c16d01"
+ },
+ "design": {
+  "texts": [
+   {
+    "base_id": "2ee52f67c987",
+    "text_sha16": "95918a2f6d7e1203",
+    "chars": 528
+   },
+   {
+    "base_id": "3191a8fae98d",
+    "text_sha16": "29fe5e451f83148d",
+    "chars": 929
+   },
+   {
+    "base_id": "344d81fc035f",
+    "text_sha16": "d1706093c2f21797",
+    "chars": 464
+   },
+   {
+    "base_id": "59a1a9c7d712",
+    "text_sha16": "bcd0326fe9b61c7e",
+    "chars": 1952
+   },
+   {
+    "base_id": "5bbf4543dd47",
+    "text_sha16": "4f6e2403a68f5257",
+    "chars": 354
+   },
+   {
+    "base_id": "6b16b77dbc5b",
+    "text_sha16": "f78b6b6b87bae482",
+    "chars": 559
+   },
+   {
+    "base_id": "6def5ddbcf25",
+    "text_sha16": "b7033c93a4432e6f",
+    "chars": 742
+   },
+   {
+    "base_id": "712fc175d4bf",
+    "text_sha16": "39b55b18350d987c",
+    "chars": 1224
+   }
+  ],
+  "n_per_text": 8,
+  "votes_per_hit": 3,
+  "calls_per_rep": 3,
+  "total_calls": 192,
+  "protocol": "每 rep: 取该文本自己的 top-1 结(由已冻结的面板读数确定, 不重测), 对同一文本调 dissolve_hit(knot, text) 一次(内含 3 次表决取中位数)。★ 只测 playbook_hit 这一个标量的复现性, 不重测 top-1。",
+  "★infra": "检测失败(返回 0.0/'检测失败')**不算一次读数**, 该 rep 重试, 不进 n"
+ },
+ "criterion": {
+  "form": "逐对容差一致率: 对每对 rep, |Δhit| <= δ 记 1; 要求比例 >= agreement_min",
+  "delta": 0.1,
+  "agreement_min": 0.95,
+  "n_min": 8,
+  "why_same_as_k1": "与 K1 的 δ、判决线逐字相同 —— 换判据就无法与结层结论并列比较"
+ },
+ "★degeneracy_guard": {
+  "rule": "除一致率外必须过非退化检验: 8 个文本的 hit **中位数**至少要有 3 个不同取值, 且极差 >= 0.20。",
+  "why": "★★ 本项目 2026-08-18 出过一次实事故: 本地无 key 时 dissolve_hit 重试到超时后返回 (0.0, '检测失败'), 于是断言退化成 0==0, **一个跑了 124 秒却什么都没测的测试**。恒为 0 的 hit 会给出完美一致率。缺这条闸, 这次实验会重演那次空过。"
+ },
+ "decision_rule": {
+  "★frozen": "测量前写死。",
+  "USABLE": "一致率 >= 0.95 的文本 >= 7/8 **且**过非退化 ⇒ playbook_hit 可作对齐出口",
+  "DEGENERATE": "一致率高但**未过**非退化 ⇒ 判退化, 不得采纳, 并登记「它什么都没测」",
+  "UNRELIABLE": "一致率达标文本 <= 4/8 ⇒ 与结层强度同命, 现行对齐出口须一并扣发",
+  "INCONCLUSIVE": "以上都不满足"
+ },
+ "★falsifier": "若 8/8 文本一致率均 >= 0.95 且非退化, 则「LLM 标量读数不可复现」这个已成型的判断需重估。",
+ "★what_this_cannot_do": "它**不**回答 playbook_hit 判得对不对(那是效度, 需外部锚点), 只回答它稳不稳。"
+}
