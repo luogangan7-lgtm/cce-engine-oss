@@ -31,7 +31,14 @@ assert s["capabilities"] == 9 and s["workflows"] == 15
 for c in CAP["capabilities"]:
     assert c.get("evidence_required"), f"{c['id']} 没写 evidence_required"
     assert c["fallback_policy"] in CAP["fallback_policy_values"]
-assert set(CAP["fallback_policy_values"]) == {"WITHHOLD", "SKIP_EXPLICIT", "NOT_IN_PRODUCTION_PATH"}
+# 2026-09-03 扩域 +FAIL_CLOSED: 入口闸的语义是**不往下走**, 既有三值都预设「继续走」
+assert set(CAP["fallback_policy_values"]) == {
+    "WITHHOLD", "SKIP_EXPLICIT", "NOT_IN_PRODUCTION_PATH", "FAIL_CLOSED"}
+# ★ 每个取值都必须写明它与别的取值差在哪 —— 否则下一个人会随手挑一个近似的
+for _v, _d in CAP["fallback_policy_values"].items():
+    assert len(_d) > 10, f"取值 {_v} 缺语义说明"
+assert "不往下走" in CAP["fallback_policy_values"]["FAIL_CLOSED"], \
+    "★ 扩域必须写明为什么不能复用既有值, 否则扩域就是绕过"
 assert "静默兜底" in CAP["★why_these_fields"] and "无证据声称能力" in CAP["★why_these_fields"]
 # 跳过的字段必须写明为什么跳过, 不能默默不做
 assert "两个真值源" in CAP["★skipped_field"], "★ §36 的 version 字段为何不逐能力挂, 必须写明"

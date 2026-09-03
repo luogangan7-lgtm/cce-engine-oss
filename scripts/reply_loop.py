@@ -18,6 +18,10 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 from exp_crossmodel_desire import DESIRES
 from exp_v4_causal_chain import EMOTIONS, ACTIONS
 from cce_align_v2 import score as knot_align
+from cce_k1_status import knot_readout_usable
+
+# 本链路的仪器。缺它 knot_readout_usable 一律扣发(缺仪器标识 != 仪器相同)。
+INSTRUMENT_HASH = os.environ.get("CCE_INSTRUMENT_HASH", "565470cf26c16d01")
 
 NEEDS = json.load(open(os.path.join(ROOT, "config/need_taxonomy.json"), encoding="utf-8"))["controlled_keys"]
 LAYERS = {"desire_vec": DESIRES, "need_vec": NEEDS, "emotion_vec": EMOTIONS, "action_vec": ACTIONS}
@@ -84,7 +88,36 @@ def main():
 
     a_knots = {x["key"]: x["weight"] for x in a["stage2"]["knots"]}
     b_knots = {x["key"]: x["weight"] for x in b["stage2"]["knots"]}
+
+    # ── 2026-09-03: 全结加权对齐分改为**只诊断不判决** ──────────────────
+    # 实测(零调用, 5 文本 × 8 rep, 固定 hit 向量隔离出 weight 的贡献):
+    #   同一输入下分数极差 中位 0.135 / p90 0.288 / max 0.488
+    #   ★ θ=0.35 的判决有 **18.4%** 纯粹被 weight 抖动翻转 —— 且这是**下界**
+    #     (dissolve_hit 自己是每结 3 次 LLM 抽样, 还要再加)。
+    # 与 2026-08-10 独立实测(同稿重跑 3/8 翻转, |Δ|均值 0.213)相符。
+    # 「聚合会提升信度」在这里**不成立**: Spearman-Brown 要求分量独立, 而 9 个权重
+    # 来自同一次抽样且被全占比约束到和为 1, 结构上不独立。
+    _w_ok, _w_why = knot_readout_usable("weight", instrument_hash=INSTRUMENT_HASH)
     ka = knot_align(a_knots, b_knots, draft, mode="reply")
+    ka["★usable"] = _w_ok
+    if not _w_ok:
+        ka["★why_not_usable"] = _w_why + (
+            " ⇒ 本分数只作诊断留痕, **不得**作为放行/拦截依据, 也不得被引用为对齐程度。")
+
+    # ── 只用可用层(top-1)的对齐: 读者主结的 playbook 有没有被执行 ────────
+    # top-1 是结层唯一过了预注册判定的读数形式(v1 8/8 · v2 5 文本全 1.000)。
+    # 附带: 从 9 结 × 3 票 = 27 次调用降到 3 次。
+    _top1 = max(a_knots, key=a_knots.get) if a_knots else None
+    top1_align = None
+    if _top1:
+        _t = knot_align({_top1: 1.0}, {}, draft, mode="reply")
+        top1_align = {"reader_top1": _top1, "playbook_hit": _t["alignment_score"],
+                      "detail": _t["detail"],
+                      "★scope": ("只用 top-1 —— 结层唯一过了预注册判定的读数形式。"
+                                 "它回答「有没有执行对方主结的 playbook」, "
+                                 "**不**回答「整体对齐多少」(那需要可靠的全结权重, 现在没有)。"),
+                      "★still_noisy": ("playbook_hit 自身是 3 次 LLM 表决取中位数, "
+                                       "其复现性**未经预注册判定** —— 不得当作已验收的量。")}
 
     layers = {L: layer_reach(a["stage1"]["layers"][L], b["stage1"]["layers"][L], lab)
               for L, lab in LAYERS.items()}
@@ -97,6 +130,11 @@ def main():
     _unstable = [x.get("stage2", {}).get("sampling", {}).get("top1_stable") is False
                  for x in (a, b) if isinstance(x, dict)]
     knot_ok = ka["alignment_score"] >= float(os.environ.get("CCE_ALIGN_THETA", "0.35"))
+    # ★ 这道旧守卫守的是 top1_stable —— 但 top-1 恰恰是**稳的**那一层(实测 1.000),
+    #   而真正的输入 weight 才是 0/5。**守错了对象**, 于是它几乎从不触发。
+    #   现在先按读数层可用性扣发: weight 不可用 ⇒ 一律不可判。
+    if not _w_ok:
+        knot_ok = None
     if any(_unstable):
         # 不判 FAIL —— 判「不可判」。首结不稳时这个分数本身没有可解释性,
         # 强行给 PASS 或 FAIL 都是把噪声当结论。
@@ -104,6 +142,7 @@ def main():
     verdict = {
         "对方九结": a_knots, "我方九结": b_knots,
         "九结对齐": ka,
+        "top1对齐": top1_align,
         "四层触达": layers,
         "未触达维度": misses,
         "判据": "need层触达率>=0.5 且 九结对齐分>=theta",

@@ -16,6 +16,7 @@ if os.environ.get("ITEMS_FILE"):
     refpost = (_it.get("ref_post") or "").strip()
     reader_text = _it.get("reader_text") or ""
     guard_profile = (_it.get("guard_profile") or "").strip()
+    media_decl = _it.get("media_declaration")
     submission_meta = _it.get("_meta") or {}
 else:
     mode = (os.environ.get("MODE") or "").strip()
@@ -27,6 +28,7 @@ else:
     refpost = (os.environ.get("REF_POST") or "").strip()
     reader_text = os.environ.get("READER_TEXT") or ""
     guard_profile = (os.environ.get("GUARD_PROFILE") or "").strip()
+    media_decl = os.environ.get("MEDIA_DECLARATION")
     submission_meta = {}
 
 errs = []
@@ -61,6 +63,27 @@ if cdecl:
 
 if mode in ("reply", "outbound_post") and not guard_profile:
     errs.append("出站模式必填 guard_profile")
+
+# ── 媒体声明: 出站必填 ────────────────────────────────────────────────
+# 2026-09-03 实测: 本文件此前**零媒体感知**, 只收 text。带图的帖子里那张图从不进系统,
+# 而 manifest 照样 complete=true —— 那句「完整测量」覆盖的其实只是作品的一部分。
+# 这是「静默缺席」不是「能力不足」: 媒体内容测不了可以接受, 存在被吞掉不行。
+# 形状同 guard_profile —— **入口拒绝才让复发结构上不可能**(旧 post 档就是这么根治的)。
+if mode in ("reply", "outbound_post"):
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scripts"))
+    try:
+        from cce_media_declaration import check as _media_check
+        import json as _mj
+        _d = None
+        if media_decl:
+            _d = media_decl if isinstance(media_decl, dict) else _mj.loads(media_decl)
+        _ok, _me = _media_check(text, _d, envelope=_it if os.environ.get("ITEMS_FILE") else None)
+        if not _ok:
+            errs.extend(f"media_declaration: {m}" for m in _me)
+    except ImportError as _e:
+        errs.append(f"媒体声明闸不可用({_e}) —— **不降级放行**: 闸缺席就是缺席, 不是通过")
+    except ValueError as _e:
+        errs.append(f"media_declaration 不是合法 JSON: {_e}")
 if errs:
     for e in errs:
         print(f"::error::{e}")

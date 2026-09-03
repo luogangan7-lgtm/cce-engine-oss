@@ -208,7 +208,7 @@
    "phase": "P3 Multimodal",
    "status": "PARTIAL_PRESENCE_DECLARED_CONTENT_NOT_MEASURED",
    "gate_44_9": "新增 Parser 后 CCE Core 文件 diff = 0 (铁律 20 可执行形式); 反向: 改 Core 一行 CI 必须拦",
-   "gate_command": "python3 scripts/cce_core_boundary.py && python3 tests/test_cce_core_boundary.py && python3 tests/test_cce_media_declaration.py",
+   "gate_command": "python3 scripts/cce_core_boundary.py && python3 tests/test_cce_core_boundary.py && python3 tests/test_cce_media_declaration.py && python3 tests/test_cce_prepare_media_gate.py",
    "not_built": [
     "production media ingest",
     "standalone image/audio ingest",
@@ -218,7 +218,7 @@
     "mix metrics",
     "full cross-modal event semantics"
    ],
-   "why": "★ 2026-09-03: 实测 .github/prepare.py **零媒体感知** —— 只收 text, 带图的帖子里那张图从不进系统, manifest 却照样 complete=true。这是「静默缺席」, 不是「能力不足」。已建 scripts/cce_media_declaration.py: 检出可定位媒体引用并强制显式声明, 并把 modalities_present 与 modalities_measured 分开 —— complete=true 从此只能读成「声明过的模态都测了」。**媒体内容本身仍未测**(OCR/语音/分离/diarization/prosody 需模型与真素材, cce_video_parse 已如实标 missing_no_capability), 且尚未接入生产入口 —— 接入需 owner 定存量出站的补登策略。不冒充 DONE。 ★ 2026-09-03 存量补登已定并执行: 归档里有原文的 10 个 run 逐条实跑检测器 —— 31 个 item 各扫 2 段文本, **检出媒体 0 个**(先核了 texts_scanned!=0, 零命中不是零扫描), 见 config/cce_media_backfill.json。无原文的一律 UNKNOWN_NOT_ASSESSED, **不补造声明**。"
+   "why": "★ 2026-09-03: 实测 .github/prepare.py **零媒体感知** —— 只收 text, 带图的帖子里那张图从不进系统, manifest 却照样 complete=true。这是「静默缺席」, 不是「能力不足」。已建 scripts/cce_media_declaration.py: 检出可定位媒体引用并强制显式声明, 并把 modalities_present 与 modalities_measured 分开 —— complete=true 从此只能读成「声明过的模态都测了」。**媒体内容本身仍未测**(OCR/语音/分离/diarization/prosody 需模型与真素材, cce_video_parse 已如实标 missing_no_capability), 且尚未接入生产入口 —— 接入需 owner 定存量出站的补登策略。不冒充 DONE。 ★ 2026-09-03 存量补登已定并执行: 归档里有原文的 10 个 run 逐条实跑检测器 —— 31 个 item 各扫 2 段文本, **检出媒体 0 个**(先核了 texts_scanned!=0, 零命中不是零扫描), 见 config/cce_media_backfill.json。无原文的一律 UNKNOWN_NOT_ASSESSED, **不补造声明**。 ★ 2026-09-03 已接入生产入口: .github/prepare.py 出站两档必填 media_declaration(形状同 guard_profile), 缺/不符/漏项/非法 JSON 各自 rc=1; 闸不可用也判红, 不降级放行。能力状态 component_only -> production_github。"
   },
   {
    "phase": "P4 九结 Research",
