@@ -198,8 +198,30 @@ def _conf_f(v):
     except (TypeError, ValueError):
         return None
 
+def _norm_box(b):
+    """把 RapidOCR 的四点框统一成 [x, y, w, h] 像素整数; 认不出就返回 None。
+
+    ★ 2026-09-03 修一个 2026-08-15 就登记的 P0: 原来这里**把 box 丢了**,
+      于是「结论不能回指图像区域」—— 视觉证据只剩一串文字, 没法说它在画面哪儿。
+      区域语义按 v4 扩展标准映射 W3C Media Fragments 的 xywh(pixel)。
+    """
+    try:
+        pts = [(float(x), float(y)) for x, y in b]
+    except Exception:
+        return None
+    if len(pts) < 2:
+        return None
+    xs = [p[0] for p in pts]
+    ys = [p[1] for p in pts]
+    x0, y0, x1, y1 = min(xs), min(ys), max(xs), max(ys)
+    if x1 <= x0 or y1 <= y0:
+        return None
+    return [int(round(x0)), int(round(y0)), int(round(x1 - x0)), int(round(y1 - y0))]
+
+
 def _ocr_rows(res):
-    """统一不同 RapidOCR 版本的返回结构 → [(text, conf|None), ...]。
+    """统一不同 RapidOCR 版本的返回结构 → [(text, conf|None, box|None), ...]。
+    ★ box 是 [x,y,w,h] 像素(W3C Media Fragments xywh); 取不到记 None, **不静默丢**。
     1.x: list[[box, text, score]](score 常为 str) · 变体: list[[box, (text, score)]] ·
     2.x: RapidOCROutput 对象(.txts/.scores)。结构不认识就返回空, 由调用方记为 parse 失败。"""
     if res is None:
@@ -207,11 +229,14 @@ def _ocr_rows(res):
     txts = getattr(res, 'txts', None)
     if txts is not None:
         scores = getattr(res, 'scores', None) or [None] * len(txts)
-        return [(str(t), _conf_f(s)) for t, s in zip(txts, scores)]
+        boxes = getattr(res, 'boxes', None) or [None] * len(txts)
+        return [(str(t), _conf_f(sc), _norm_box(b) if b is not None else None)
+                for t, sc, b in zip(txts, scores, boxes)]
     rows = []
     for r in res:
         if not isinstance(r, (list, tuple)):
             continue
+        box = _norm_box(r[0]) if len(r) >= 2 and isinstance(r[0], (list, tuple)) else None
         if len(r) >= 3:
             t, c = r[1], r[2]
         elif len(r) == 2 and isinstance(r[1], (list, tuple)) and len(r[1]) >= 2:
@@ -222,12 +247,14 @@ def _ocr_rows(res):
             continue
         if isinstance(t, (list, tuple)):
             t = ' '.join(str(x) for x in t if x)
-        rows.append((str(t), _conf_f(c)))
+        rows.append((str(t), _conf_f(c), box))
     return rows
 
 def ocr_frames(frames):
     """本地 RapidOCR = 画面文字层【权威通道】(VLM 顺带看不可靠)。
-    返回 (texts, confs, meta): texts {ts:[文字]} · confs {ts:[置信度]} · meta=通道存活账本。
+    返回 (texts, confs, regions, meta): texts {ts:[文字]} · confs {ts:[置信度]}
+    · regions {ts:[[x,y,w,h]|None]} (★ 2026-09-03 新增, 修「结论回指不到图像区域」的 P0)
+    · meta=通道存活账本。
 
     2026-07-28 事故复盘(必须留在这里): 原实现写 `r[2] > 0.5`, 而本机 RapidOCR 的置信度是
     **str**, 比较抛 TypeError, 又被裸 `except Exception: out[ts]=[]` 无声吞掉 → 90/90 产物
@@ -237,13 +264,13 @@ def ocr_frames(frames):
       ③ 通道存活(channel_ok/channel_status)显式落盘, 让"跑通但内容确实没字"(empty_verified)
          与"跑挂了"(parse_failed)在产物里可区分 —— 这正是 schema 要堵的洞。"""
     global _OCR
-    texts, confs = {}, {}
+    texts, confs, regions = {}, {}, {}
     meta = {'engine': 'rapidocr_onnxruntime', 'conf_min': OCR_CONF_MIN,
             'frames_attempted': len(frames), 'frames_failed': 0, 'frames_with_text': 0,
             'conf_unparsed': 0, 'errors': [], 'init_error': None,
             'channel_ok': None, 'channel_status': 'no_frames'}
     if not frames:
-        return texts, confs, meta          # 无帧可跑 ≠ 通道坏
+        return texts, confs, regions, meta   # 无帧可跑 != 通道坏
     if _OCR is None:
         try:
             from rapidocr_onnxruntime import RapidOCR
@@ -254,7 +281,7 @@ def ocr_frames(frames):
             print(f"  ⚠️ OCR 引擎初始化失败 → 画面文字权威通道 DEAD: {meta['init_error']}")
             for ts, _ in frames:
                 texts[f"{ts:.1f}"], confs[f"{ts:.1f}"] = [], []
-            return texts, confs, meta
+            return texts, confs, regions, meta
     expected = _OCR_ERRORS + _ocr_engine_errors()
     for ts, fp in frames:
         k = f"{ts:.1f}"
@@ -268,8 +295,8 @@ def ocr_frames(frames):
             print(f"  ⚠️ OCR 帧 {k} 失败: {type(e).__name__}: {e}")
             texts[k], confs[k] = [], []
             continue
-        kt, kc = [], []
-        for t, c in rows:
+        kt, kc, kb = [], [], []
+        for t, c, box in rows:
             t = (t or '').strip()
             if not t:
                 continue
@@ -278,7 +305,12 @@ def ocr_frames(frames):
             elif c <= OCR_CONF_MIN:
                 continue
             kt.append(t); kc.append(c)
+            # ★ box 取不到记 None 并记账 —— 与置信度同样纪律: 缺席可见, 不静默丢
+            if box is None:
+                meta['box_unparsed'] = meta.get('box_unparsed', 0) + 1
+            kb.append(box)
         texts[k], confs[k] = kt, kc
+        regions[k] = kb
         if kt:
             meta['frames_with_text'] += 1
     if meta['frames_failed'] == 0:
@@ -287,7 +319,7 @@ def ocr_frames(frames):
         meta.update(channel_ok=False, channel_status='dead')
     else:
         meta.update(channel_ok=False, channel_status='partial')
-    return texts, confs, meta
+    return texts, confs, regions, meta
 
 def text_channel_report(ocr, ocr_meta, visual):
     """画面文字层【分通道】判定 —— main() 与 backfill 共用同一份逻辑, 防漂移。
@@ -380,7 +412,7 @@ def main():
           + (f" | 转写{len(audio.get('transcript',''))}字 | 情绪{audio.get('emotion_tags')} | 事件{audio.get('event_tags')}" if audio.get('present') else ""))
     # 画面文字层: OCR ∪ VLM 并集(case3实证RapidOCR中文默认模型对英文/艺术字/片头字幕系统性漏检,
     # VLM反而读对——故不让任一单方当权威, 并集补漏, 分歧标注)
-    ocr, ocr_conf, ocr_meta = ocr_frames(frames)
+    ocr, ocr_conf, ocr_regions, ocr_meta = ocr_frames(frames)
     ocr_hit = ocr_meta['frames_with_text']
     print(f"  画面文字层(OCR权威通道): {ocr_hit}/{len(frames)}帧有文字 | 通道={ocr_meta['channel_status']}"
           f" 失败帧={ocr_meta['frames_failed']}")
@@ -439,7 +471,10 @@ def main():
         'G4_divergence_candidates': len(div) if visual else None,
         'elapsed_s': round(time.time() - t0, 1)}
     out = {'parser_version': '5.0.0', 'video': a.video, 'name': name, 'duration': dur,
-           'audio': audio, 'ocr': ocr, 'ocr_conf': ocr_conf, 'ocr_meta': ocr_meta,
+           'audio': audio, 'ocr': ocr, 'ocr_conf': ocr_conf,
+           # ★ 2026-09-03 新增: 区域作为**新字段**加, 不动 ocr 的形状 ——
+           #   276 份历史产物与 foundation_adapter 都按老形状读, 破了就是把历史废掉。
+           'ocr_regions': ocr_regions, 'ocr_meta': ocr_meta,
            'frames': [{'ts': t, 'path': p} for t, p in frames],
            'visual': visual,
            # 剪辑节奏: 由已算出的场景切点零成本派生(此前 sc_ts 用完即丢)

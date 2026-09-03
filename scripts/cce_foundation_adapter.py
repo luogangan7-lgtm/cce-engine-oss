@@ -85,12 +85,29 @@ def adapt(parsed: dict[str, Any], source_path: Path, content_id: str | None = No
                 f"obs:visual:{name}:{ts}:{model}", "visual_frame_description", cid,
                 {**parser_provenance, "model": model}, time=timepoint(ts, duration), value=fields,
             ))
+    # ★ 2026-09-03 修 2026-08-15 登记的 P0 的后半段:
+    #   box 从解析器保住了, 但**没进 observation** ⇒ 下游仍回指不到图像区域。
+    #   区域按 W3C Media Fragments 的 xywh(pixel) 挂在观察上, 与文字逐条对齐。
+    #   ★ 老产物没有 ocr_regions ⇒ regions 记 None 并显式标注「该产物早于区域保留」,
+    #     **不补零、不静默省略** —— 缺席要看得见。
+    _regions = parsed.get("ocr_regions") or {}
+    _has_regions = bool(_regions)
     for ts, texts in (parsed.get("ocr") or {}).items():
         if texts:
+            _rs = _regions.get(ts)
+            extra = {}
+            if _has_regions and isinstance(_rs, list) and len(_rs) == len(texts):
+                extra["regions"] = [({"unit": "pixel", "xywh": r} if r else None) for r in _rs]
+                extra["region_unresolved"] = sum(1 for r in _rs if not r)
+            else:
+                extra["regions"] = None
+                extra["★regions_absent_why"] = (
+                    "本解析产物早于 2026-09-03 的区域保留(或逐条数量对不上) —— "
+                    "记 None 而非补零; 结论**不得**声称能回指图像区域")
             observations.append(observation(
                 f"obs:ocr:{name}:{ts}", "on_screen_text", cid,
                 {**parser_provenance, "engine": (parsed.get("ocr_meta") or {}).get("engine")},
-                time=timepoint(ts, duration), value=texts,
+                time=timepoint(ts, duration), value=texts, **extra,
             ))
     audio = parsed.get("audio") or {}
     if audio.get("transcript"):

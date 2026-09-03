@@ -112,13 +112,31 @@
   },
   {
    "id": "standalone_image_ingest",
-   "status": "missing",
+   "status": "component_only",
    "input_contract": null,
    "output_contract": null,
    "evidence_required": [
-    "★ 没有实现。要声称具备, 先有实现再谈证据 —— 不得因为「架构里写了」就标 component_only"
+    "tests/test_cce_image_ingest.py",
+    "★ 2026-08-15 否决过「静态图片与视频帧各建一套视觉合同」与「因视觉描述已走 outbound_post 就声称图片全链可用」—— 本实现共用合同, 且状态仍为 component_only"
    ],
-   "fallback_policy": "NOT_IN_PRODUCTION_PATH"
+   "fallback_policy": "NOT_IN_PRODUCTION_PATH",
+   "implementation": "scripts/cce_image_ingest.py",
+   "implemented": [
+    "静态图片 → cce.visual_observation.v1(与视频帧**共用**同一合同, 未另建一套)",
+    "OCR 文字 + **区域**(W3C Media Fragments xywh, pixel) + 置信度",
+    "产出与 cce_video_parse **同形状**的解析产物, 由**同一条 media_ingest 链**消费 —— 不新增 profile/链",
+    "JSON Schema 2020-12 校验; jsonschema 不可用即判失败, 不降级放行",
+    "empty(跑了但没字)与 failed(通道坏)分开; 置信度/区域取不到各自记账"
+   ],
+   "missing": [
+    "场景/对象/动作识别(需 VLM, 另算)",
+    "C2PA/IPTC 实际读取 —— 现一律记 absent(**不得据此推断媒体为假**)",
+    "抽取质量(OCR 准确率)评测 —— 语言相关, 未测",
+    "★ 晋升 production_github 需要: 图片档的 CI 全链回放 + 真实素材"
+   ],
+   "missing_state": "missing_no_capability",
+   "entrypoint": null,
+   "★p0_fixed": "2026-08-15 登记的 P0「OCR 原始 box 在 _ocr_rows 中被丢弃, 结论不能回指图像区域」已修: 解析器保留 box, foundation_adapter 把区域挂到 observation; 老产物无区域时记 None 并标注, **不补零**。"
   },
   {
    "id": "standalone_audio_ingest",

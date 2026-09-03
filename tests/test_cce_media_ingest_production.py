@@ -104,8 +104,12 @@ if os.path.isdir(SRC):
 # ── ⑤ 晋升不等于全部具备: 图片链仍不得声称可用 ────────────────────────
 v = CAPS["video_multimodal_parse_v5"]
 assert v["status"] == "production_github" and v["fallback_policy"] == "WITHHOLD"
-assert CAPS["standalone_image_ingest"]["status"] == "missing", \
-    "★ 图片链仍 missing —— 视频档进生产不得顺带把图片也说成可用"
+# 2026-09-03: 图片链已有组件实现(cce_image_ingest), 但**仍不在生产路径**。
+# ★ 断言改为钉住「不在生产路径」这个真正要守的性质, 不是「没有实现」。
+_img = CAPS["standalone_image_ingest"]
+assert _img["status"] != "production_github" and \
+       _img["fallback_policy"] == "NOT_IN_PRODUCTION_PATH", \
+    "★ 视频档进生产不得顺带把图片也说成生产可用"
 assert "★scope_video_only" in prof and "standalone_image_ingest" in prof["★scope_video_only"]
 
 print("test_cce_media_ingest_production: OK "

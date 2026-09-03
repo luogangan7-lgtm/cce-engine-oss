@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cce.local/schema/visual_observation/v1",
+  "title": "cce.visual_observation.v1",
+  "description": "静态图片与视频帧**共用**的视觉观察合同。2026-08-15 明确否决『静态图片与视频帧各建一套视觉合同』——会重复字段并产生漂移;视频帧应是 MediaAsset + temporal selector 的 VisualObservation。图片只是 selector 退化(t=0/单帧)的同一种东西。区域语义映射 W3C Media Fragments 的 xywh(pixel);来源链映射 W3C PROV;C2PA 缺失只记 absent,**不得据此推断媒体为假**。",
+  "type": "object",
+  "required": ["kind", "asset", "selector", "observations", "provenance", "completeness"],
+  "additionalProperties": false,
+  "properties": {
+    "kind": {"const": "cce.visual_observation.v1"},
+    "asset": {
+      "type": "object",
+      "required": ["media_type", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "media_type": {"enum": ["image", "video_frame"],
+                       "description": "★ 同一合同的两种 selector 形态, 不是两套合同"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "width": {"type": ["integer", "null"], "minimum": 1},
+        "height": {"type": ["integer", "null"], "minimum": 1},
+        "orientation": {"type": ["integer", "null"], "minimum": 1, "maximum": 8,
+                        "description": "EXIF orientation; 取不到记 null 而非默认 1"}
+      }
+    },
+    "selector": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {"enum": ["whole", "temporal"],
+                 "description": "whole=静态图片(退化); temporal=视频帧, 带 t"},
+        "t": {"type": ["number", "null"], "minimum": 0,
+              "description": "秒。W3C Media Fragments 的 t; 静态图片为 null"}
+      }
+    },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["channel", "assertion", "value"],
+        "additionalProperties": false,
+        "properties": {
+          "channel": {"enum": ["ocr_text", "scene", "object", "action", "layout"]},
+          "assertion": {"enum": ["observed", "inferred", "derived"],
+                        "description": "★ 与 Foundation 合同同一套断言词, 不另造"},
+          "value": {"type": "string", "minLength": 1},
+          "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1,
+                         "description": "取不到记 null 并在 completeness 记账, **不静默丢**"},
+          "region": {
+            "type": ["object", "null"],
+            "required": ["unit", "xywh"],
+            "additionalProperties": false,
+            "description": "W3C Media Fragments xywh。★ 2026-08-15 登记的 P0 就是这里曾被丢掉, 导致结论不能回指图像区域。",
+            "properties": {
+              "unit": {"enum": ["pixel", "percent"]},
+              "xywh": {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4}
+            }
+          },
+          "language": {"type": ["string", "null"]},
+          "model": {"type": ["string", "null"],
+                    "description": "产出该观察的模型/引擎标识; 与 provenance.activity 配套"}
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["activity", "generated_at"],
+      "additionalProperties": false,
+      "description": "W3C PROV: asset(entity) → parser run(activity) → observation(entity)",
+      "properties": {
+        "activity": {"type": "string", "minLength": 1},
+        "agent": {"type": ["string", "null"]},
+        "generated_at": {"type": "string"},
+        "source_path": {"type": ["string", "null"]}
+      }
+    },
+    "rights": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "IPTC / C2PA 状态。★ 缺 C2PA manifest 只记 absent, **不得据此推断媒体为假**。",
+      "properties": {
+        "c2pa": {"enum": ["present", "absent", "not_available"]},
+        "iptc": {"enum": ["present", "absent", "not_available"]}
+      }
+    },
+    "completeness": {
+      "type": "object",
+      "required": ["status"],
+      "additionalProperties": false,
+      "properties": {
+        "status": {"enum": ["ok", "empty", "failed"],
+                   "description": "empty(跑了但没读出)与 failed(没跑成)必须分开 —— 合并就看不出是内容没有还是通道坏了"},
+        "conf_unparsed": {"type": "integer", "minimum": 0},
+        "box_unparsed": {"type": "integer", "minimum": 0},
+        "error": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

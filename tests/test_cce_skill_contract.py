@@ -136,7 +136,14 @@ def test_capability_registry_matches_production_workflow_boundary() -> None:
     assert video["fallback_policy"] == "WITHHOLD", \
         "★ 抽取质量未测 ⇒ 必须扣发, 不是静默放行"
     assert video["missing_state"] == "missing_no_capability"
-    assert caps["standalone_image_ingest"]["status"] == "missing"
+    # 2026-09-03: standalone_image_ingest 由 missing → component_only(有实现了)。
+    # ★ 断言改为**更准确的性质**而不是放宽: 本意是「不得声称图片全链可用」,
+    #   所以要钉的是**不在生产路径**, 不是「没有实现」。
+    _img = caps["standalone_image_ingest"]
+    assert _img["status"] != "production_github", \
+        "★ 2026-08-15 已否决「因视觉描述已走 outbound_post 就声称图片全链可用」"
+    assert _img["fallback_policy"] == "NOT_IN_PRODUCTION_PATH"
+    assert any("CI 全链回放" in m for m in _img["missing"]), "★ 晋升条件必须写明"
     assert caps["standalone_audio_ingest"]["status"] == "missing"
 
 
