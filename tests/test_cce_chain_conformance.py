@@ -31,8 +31,18 @@ undone = [p for p in SPEC["phases"] if not p["status"].startswith("DONE")]
 assert {p["phase"] for p in undone} == {"P3 Multimodal", "P4 九结 Research"}
 
 # ★ P4 已真实判定且结果是 FAIL —— 不许因为它的 gate 命令退出 0 就显示成 ✓
+#   2026-09-03: v2 多文本判定后 owner 授权自裁, 状态转为**决定**而非通过。
+#   ★ 「决定了」不等于「过了」—— 状态名里必须留住这个区别。
 p4 = [p for p in SPEC["phases"] if p["phase"] == "P4 九结 Research"][0]
-assert p4["status"] == "MEASURED_NOT_PASSING"
+assert p4["status"] == "DECIDED_KNOT_READOUT_TOP1_ONLY", p4["status"]
+assert not p4["status"].startswith("DONE"), "★ K1 从未通过, 状态不许以 DONE 开头"
+_legend = SPEC["status_legend"] if "status_legend" in SPEC else next(
+    v for v in SPEC.values() if isinstance(v, dict) and "DONE_WITH_RECORDED_LOSS" in v)
+assert "不是通过" in _legend[p4["status"]], "★ 状态词典必须写明这是决定不是通过"
+# 裁定的实质: 结层白名单只剩 top1
+sys.path.insert(0, os.path.join(ROOT, "scripts"))
+from cce_k1_status import KNOT_READOUT_ALLOWLIST  # noqa: E402
+assert KNOT_READOUT_ALLOWLIST == {"top1"}, KNOT_READOUT_ALLOWLIST
 mv = p4["measured_verdict"]
 # 2026-09-02 判据修正后是五项: 2 项过 / 3 项不过
 assert mv["verdict"] == "FAIL" and mv["criteria_count"] == 4

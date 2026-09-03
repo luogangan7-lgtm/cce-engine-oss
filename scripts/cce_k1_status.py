@@ -103,6 +103,36 @@ def layer_status(path=None, instrument_hash=None):
     return out
 
 
+# 结层可用读数形式的**白名单**。默认拒发 —— 加进来必须有预注册判定, 不是探索性观察。
+# 2026-09-03 探索性实测(probes/k1_readout_forms.py, 零调用, 5 文本 × 28 对):
+#     cardinal 0.712 / band3 0.726 / rank_rho 0.856 / top2_set 0.814 / **top1 1.000**
+# ★ 粗档几乎救不回来(0.712 -> 0.726) —— 这是最显然的一条逃生路, 已实测堵死。
+#   连 top-2 集合都只有 0.814(最差文本 0.536)。可复现的信号**恰好只有 top-1**。
+KNOT_READOUT_ALLOWLIST = {"top1"}
+KNOT_READOUT_EXCLUDED = {
+    "intensity": "K1 预注册判定 0/5 文本(v1 同文本上复现)",
+    "weight": "K1-v2 预注册判定 0/5 文本",
+    "band3": "探索性 0.726(最差 0.661) —— 粗档不是逃生路, 别再花钱试",
+    "rank_rho": "探索性 0.856(最差 0.732) —— 比基数好但离 0.95 仍远",
+    "top2_set": "探索性 0.814(最差 0.536) —— 一出 top-1 就崩",
+}
+
+
+def knot_readout_usable(form: str, instrument_hash=None):
+    """结层的**任何**读数形式都走这里。白名单之外一律拒发。
+
+    ★ 默认拒发的方向性: 关门不需要预注册(安全方向), 开门需要 ——
+      要把某个 form 加进白名单, 必须有在**新一批文本**上的预注册判定,
+      不能拿 probes/k1_readout_forms.py 那份探索性数据当依据(它是看完 v2 结果之后才做的)。
+    """
+    if form in KNOT_READOUT_ALLOWLIST:
+        if form == "top1":
+            return top1_usable(instrument_hash=instrument_hash)
+        return True, f"{form} 在白名单内"
+    why = KNOT_READOUT_EXCLUDED.get(form, "不在白名单内 —— 缺预注册判定不等于可用")
+    return False, f"结层读数形式 {form!r} 不可用: {why}"
+
+
 def weight_usable(path=None, instrument_hash=None):
     """weight 层是否可用 —— 由 v2 多文本判定决定, 不由单文本观察决定。
 
