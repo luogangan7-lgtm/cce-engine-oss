@@ -1,0 +1,35 @@
+=== P2 前置基线 (前登记) ===
+  · ★问题一: 无人称文本(数字表/法律样板)的层分布 JS(·‖均匀)。若与真人文本相当或更高 → stage1 **没有**空读数这一档 ⇒ P2 指标必须差分化
+  · ★问题一: 若无人称文本明显更接近均匀 → stage1 有零点, 绝对读数可用(但仍需报不确定度)
+  · ★问题二: across_run_js 与 within_js 的比值。>1.5 → confidence 系统性高估可靠性, **必须在 Observation 层显式标注跨次信度未测**
+  · ★问题二: 比值 ≈1 → confidence 是可用代理, 维持现状
+  · ★ 本探针只跑 stage1。九结结论不得据此外推, 反之亦然。
+  · ★ 禁止事后改文本、改 R、改判决线。
+
+文本: HUMAN_base=293字  filler_numeric=888字  filler_legal=1160字  filler_procedural=953字  filler_neutral_20260818=1270字
+  HUMAN_base 完成 4 rep
+  filler_numeric 完成 4 rep
+  filler_legal 完成 4 rep
+  filler_procedural 完成 4 rep
+  filler_neutral_20260818 完成 4 rep
+
+=== 问题一: 各层距均匀分布的 JS (越大=越自信地断言) ===
+  HUMAN_base                 desire=0.2369  need=0.4710  emotion=0.3722  action=0.2498
+  filler_numeric             desire=0.2201  need=0.4593  emotion=0.3495  action=0.2964
+  filler_legal               desire=0.3423  need=0.5363  emotion=0.3699  action=0.1242
+  filler_procedural          desire=0.2292  need=0.4276  emotion=0.3539  action=0.2512
+  filler_neutral_20260818    desire=0.1632  need=0.5059  emotion=0.3252  action=0.2884
+
+  真人文本均值=0.3325   无人称文本均值=0.3277   比值=0.99
+
+=== ★ 问题二: within_js(confidence 的来源) vs across_run_js ===
+  HUMAN_base                 desire w=0.0664 a=0.0232 ×0.35  need w=0.1144 a=0.0261 ×0.23  emotion w=0.0611 a=0.0177 ×0.29  action w=0.0702 a=0.0387 ×0.55
+  filler_numeric             desire w=0.1327 a=0.0255 ×0.19  need w=0.2048 a=0.0462 ×0.23  emotion w=0.1 a=0.0331 ×0.33  action w=0.0703 a=0.0254 ×0.36
+  filler_legal               desire w=0.0898 a=0.0322 ×0.36  need w=0.1233 a=0.0461 ×0.37  emotion w=0.2313 a=0.2028 ×0.88  action w=0.2577 a=0.0794 ×0.31
+  filler_procedural          desire w=0.0988 a=0.0801 ×0.81  need w=0.2707 a=0.1227 ×0.45  emotion w=0.0954 a=0.0229 ×0.24  action w=0.0778 a=0.0401 ×0.52
+  filler_neutral_20260818    desire w=0.2022 a=0.0849 ×0.42  need w=0.194 a=0.072 ×0.37  emotion w=0.0951 a=0.0339 ×0.36  action w=0.0569 a=0.0262 ×0.46
+
+  ★ across/within 比值中位数 = 0.36  (n=20 个 文本×层 格)
+  判决: confidence 是可用代理, 维持现状
+
+写出 /tmp/p2_stage1_baseline.json

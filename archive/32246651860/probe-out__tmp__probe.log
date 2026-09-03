@@ -1,0 +1,26 @@
+=== Designed Perturbation Ladder · Phase 1 (前登记) ===
+  · ① 零参照 L0 vs L0b **分开** → TYPE1_VIOLATION, 整轮作废(型 I 都不受控时其余不可读)
+  · ② B 轴(B1 或 B2)**分开** → SURFACE_SENSITIVE: 姿态未变而读数变了 ⇒ 仪器在读表层形式, 「好比较器」这个定性要下调, 且 B 轴优先于 A 轴报告
+  · ③ 型 I 与 B 轴都干净, 但 A3 **不分开** → SEMANTIC_BLIND: 去词化的姿态改变读不出 ⇒ 此前『它在读内容』很可能是在读词汇。这是**真证伪**, 不是功效不足(A3 是中度改变)
+  · ④ 型 I 与 B 轴干净, A3 分开 → LADDER_USABLE, 可进 Phase 2(多 base text 建 power surface)。★ 此时**不得**顺带宣称 T(A1)<T(A3) 的单调性 —— 那是 Phase 2 要检验的, 不是本轮结论
+  · ★ 以上四支对 (型I, B轴, A3) 的取值穷尽且互斥。
+  · ★ 只叫 Designed Perturbation Ladder。**禁止**叫 Known Effect-Size Ladder ——扰动等级是**设计变量**, 它与 T 的单调关系是待检验对象, 不是前提。
+  · ★ 禁止事后改文本、改 R、改判决线。变体文本已冻结在 tests/data/ladder/。
+
+仪器 565470cf26c16d01  资格协议 fc74c9ce372c8e59
+臂: L0(293字)  L0b(293字)  A1(279字)  A3(291字)  B1(307字)  B2(299字)   R=4 ⇒ 192 次调用
+  L0: qualified=4/4  首次成功率=[1.0, 1.0, 1.0, 1.0]
+  L0b: qualified=4/4  首次成功率=[1.0, 1.0, 1.0, 1.0]
+  A1: qualified=4/4  首次成功率=[1.0, 1.0, 0.0, 1.0]
+  A3: qualified=4/4  首次成功率=[1.0, 1.0, 1.0, 1.0]
+  B1: qualified=4/4  首次成功率=[1.0, 1.0, 1.0, 1.0]
+  B2: qualified=4/4  首次成功率=[1.0, 1.0, 1.0, 1.0]
+  L0 vs L0b : T=0.02944  p=0.11429  not separated
+  L0 vs A1  : T=0.19278  p=0.02857  SEPARATED
+  L0 vs A3  : T=0.28931  p=0.02857  SEPARATED
+  L0 vs B1  : T=0.00972  p=0.57143  not separated
+  L0 vs B2  : T=0.01236  p=0.48571  not separated
+
+=== 判决 ===
+  LADDER_USABLE: 可进 Phase 2(多 base text 建 power surface)
+写出 /tmp/perturbation_ladder.json

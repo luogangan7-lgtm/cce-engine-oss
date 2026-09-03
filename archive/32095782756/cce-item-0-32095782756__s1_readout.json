@@ -1,0 +1,184 @@
+{
+ "input_sha": "79b796ea90dcc202",
+ "run_at": "2026-08-18T03:34:12",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 3,
+  "k_ok": 3,
+  "layers": {
+   "desire_vec": [
+    0.016666666666666666,
+    0.0,
+    0.13333333333333333,
+    0.11666666666666665,
+    0.03333333333333333,
+    0.016666666666666666,
+    0.3833333333333333,
+    0.3,
+    0.0
+   ],
+   "need_vec": [
+    0.26666666666666666,
+    0.25,
+    0.11666666666666665,
+    0.26666666666666666,
+    0.049999999999999996,
+    0.016666666666666666,
+    0.0,
+    0.0,
+    0.0,
+    0.03333333333333333,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.05000000000000001,
+    0.0,
+    0.0,
+    0.016666666666666666,
+    0.0,
+    0.03333333333333333,
+    0.0,
+    0.13333333333333333,
+    0.06666666666666667,
+    0.25,
+    0.26666666666666666,
+    0.06666666666666667,
+    0.11666666666666665
+   ],
+   "action_vec": [
+    0.31666666666666665,
+    0.016666666666666666,
+    0.2833333333333334,
+    0.0,
+    0.06666666666666667,
+    0.08333333333333333,
+    0.2333333333333333
+   ]
+  },
+  "tops": {
+   "desire": "控制欲",
+   "need": "N01_确定性",
+   "emotion": "fear恐惧",
+   "action": "approach趋近"
+  },
+  "appraisal": {
+   "goal_relevance": 0.9,
+   "congruence_direction": "威胁",
+   "need_status": "未满足",
+   "goal_congruence": "负",
+   "coping_potential": "中",
+   "note": "那条外部报告(Android 17 beta导致LE Audio频繁断连、且与身体位置无关)直接威胁作者'哪只耳朵先掉由口袋位置决定'的核心结论,goal_relevance极高;被威胁的需求集中在确定性+理解世界+掌控局面(威胁方向),且新信息揭示了漏变量但尚未给出确定答案(need_status未满足),因此目标一致性为负;应对潜能为中——可以改未来模板救新数据,但历史报告无法回填('Not a single one of the previous reports can be retroactively updated'),这部分损失不可逆,所以不是高。正是这个'威胁+未满足'的组合催生了fear和anger,同时'中'的应对潜能(已构思出6字段)又给到少量relief和curiosity,让情绪分布呈'负主导+正收尾'。"
+  },
+  "chain_trace": "控制欲+安全感欲 →(情境事件:外部报告指出Android 17 beta与口袋位置无关,'哪只耳朵先掉'的旧结论被推翻)→ 需求N02_掌控局面(夺回数据主导权)+N04_理解世界(拆开口袋位置vs软件缺陷两种机制)+N01_确定性(降低历史报告是否可用的不确定性) →(评价:congruence_direction=威胁,need_status=未满足,goal_congruence=负,coping_potential=中)→ 情绪fear恐惧('That last half-sentence is the killer')+anger愤怒(对漏问的自责)+curiosity好奇(还缺什么变量)+relief宽慰(6字段模板已成) → 行动倾向approach趋近(提出6字段新模板)+dominate支配(把规则写在帖子里而不是自己表格里,确保社区跟从)+attend关注(请大家按新字段回报)+interrupt中断(打断旧的4字段数据收集流程)",
+  "within_js": {
+   "desire_vec": 0.0556,
+   "need_vec": 0.1148,
+   "emotion_vec": 0.1442,
+   "action_vec": 0.0489
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "audit",
+    "weight": 0.5,
+    "evidence_quote": "That last half-sentence is the killer. / If this report is correct, then the core statement I've been noting down over the past two weeks is flawed. / the column for system version has remained empty from start to finish. Not a single one of the previous reports can be retroactively updated.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "other_agent",
+     "target_layer": "epistemic_trust"
+    },
+    "desire_code": "确认欲,安全感欲",
+    "need_code": "N10,N01",
+    "freshness_days_hint": 7,
+    "name": "验真·审计结",
+    "family": "阻挡",
+    "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+    "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前"
+   },
+   {
+    "key": "pain_seek",
+    "weight": 0.25,
+    "evidence_quote": "I can't separate these two issues right now. / These six fields are all I can think of right now. I don't know if that's enough. Let me know if I've missed anything.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "中",
+     "time": "现在",
+     "attribution": "system",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "控制欲,摆脱欲",
+    "need_code": "N02,N06",
+    "freshness_days_hint": 7,
+    "name": "痛点·求解结",
+    "family": "推动",
+    "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+    "behavior_predicted": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+   },
+   {
+    "key": "display",
+    "weight": 0.15,
+    "evidence_quote": "So starting with this post, please include a few extra details when reporting back. I'll also start recording things this way myself: [6-field structured protocol]",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "identity"
+    },
+    "desire_code": "确认欲,超越欲",
+    "need_code": "N10,N09",
+    "freshness_days_hint": 7,
+    "name": "确证·展示结",
+    "family": "推动",
+    "playbook": "让位;被当同侪;接着他的贡献往前走,绝不纠正姿态压他",
+    "behavior_predicted": "展示通道·低→高成本:纠错亮牌/举反例晒型号/结构化长评/承诺回访。评论区最高质量UGC主力"
+   },
+   {
+    "key": "reward",
+    "weight": 0.1,
+    "evidence_quote": "Last time, in that forum thread, I mentioned, 'Please include the date from now on.' Within two hours, I received two reports. Both people included their OS version or firmware status on their own.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足(即时)",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N01,N03",
+    "freshness_days_hint": 7,
+    "name": "爽点·回报结",
+    "family": "推动",
+    "playbook": "短收;自我缩小;不再投喂信息(需求已闭,长文=把关掉的门重开)",
+    "behavior_predicted": "致谢通道·低中成本:收藏声明/致谢/自来水布道。驱动留存分享(留存维ρ≈0.26-0.5)"
+   }
+  ],
+  "levers_present": [
+   "从众: 'If I write it out here, everyone will follow it.' — 以社群一致行为预期撬动报告者跟随",
+   "好奇缺口: 'That last half-sentence is the killer.' — 悬念句式推迟完整解释"
+  ],
+  "notes": "主结为 audit: 作者的核心结论被一份外部报告威胁,触发对自己数据采集协议的自我审计与纠错;pain_seek 为次要驱动(无法分离RF几何与软件缺陷两变量,公开征询是否遗漏字段);display 与 reward 辅助。归属结不显著——社群行为描述为工具性而非身份性。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}

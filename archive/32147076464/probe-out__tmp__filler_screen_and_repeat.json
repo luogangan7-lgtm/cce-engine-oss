@@ -1,0 +1,109 @@
+{
+ "verdict_lines": [
+  "★腿A 筛选: 候选在 R=2 内点火任何结即淘汰。全部淘汰 → 记录「本仓找不到无结垫料」, 该结论本身有价值(说明九结对任意文本都会响应, 即缺少「空读数」这一档)",
+  "★腿B 主判 BASE vs REPEAT(内容逐字相同, 仅长度变):",
+  "   EQUIVALENT   → 强证据: 长度本身不驱动读数 ⇒ 跨长度九结比较可用, T2 更丰富可归因于内容",
+  "   SEPARATED    → 歧义: 分不清长度 vs「重复很怪」。**不可直接判定长度驱动**, 需第三次设计",
+  "   UNDERPOWERED → 判不出来, **不是阴性**",
+  "★ 若有胜出垫料, additionally 跑 BASE vs PAD_best 作交叉验证; 两条腿结论不一致时以腿B为准(它不含未验证假设)",
+  "★ 禁止事后改候选、改 R、改判决线。"
+ ],
+ "min_effect": 0.06278,
+ "lens": {
+  "BASE": 293,
+  "REPEAT": 1473,
+  "filler_numeric": 888,
+  "filler_legal": 1160,
+  "filler_procedural": 953
+ },
+ "screen": {
+  "filler_numeric": {
+   "fired": [
+    "audit",
+    "belong",
+    "display",
+    "pain_seek",
+    "reward",
+    "suspend"
+   ],
+   "clean": false
+  },
+  "filler_legal": {
+   "fired": [
+    "audit",
+    "inertia",
+    "injustice",
+    "pain_seek",
+    "reward",
+    "suspend"
+   ],
+   "clean": false
+  },
+  "filler_procedural": {
+   "fired": [
+    "display",
+    "reward"
+   ],
+   "clean": false
+  }
+ },
+ "repro_BASE": {
+  "verdict": "UNSTABLE_MEMBERSHIP",
+  "R": 4,
+  "set_agreement": 0.16666666666666666,
+  "flipping": {
+   "injustice": 3,
+   "suspend": 3,
+   "inertia": 1
+  },
+  "stable_ranges": {
+   "pain_seek": 0.0
+  },
+  "worst_range": 0.0,
+  "intensity_tol": 0.05
+ },
+ "repro_REPEAT": {
+  "verdict": "UNSTABLE_MEMBERSHIP",
+  "R": 4,
+  "set_agreement": 0.16666666666666666,
+  "flipping": {
+   "injustice": 3,
+   "suspend": 3,
+   "inertia": 1
+  },
+  "stable_ranges": {
+   "pain_seek": 0.040000000000000036
+  },
+  "worst_range": 0.040000000000000036,
+  "intensity_tol": 0.05
+ },
+ "verdict3_BASE_REPEAT": {
+  "verdict": "EQUIVALENT",
+  "T": 0.02055555555555556,
+  "p": 0.4857142857142857,
+  "equiv_upper": 0.04514,
+  "null_max": 0.02028,
+  "min_effect": 0.06278,
+  "separation": {
+   "verdict": "NOT_SEPARATED",
+   "T": 0.02055555555555556,
+   "p": 0.4857142857142857,
+   "p_floor": 0.02857142857142857,
+   "n_splits": 35,
+   "min_effect": 0.06278,
+   "alpha": 0.05,
+   "null_max": 0.02028,
+   "null_median": 0.01222
+  },
+  "equivalence": {
+   "verdict": "EQUIVALENT",
+   "T": 0.02055555555555556,
+   "upper": 0.04514,
+   "n_boot": 65536,
+   "min_effect": 0.06278,
+   "alpha": 0.05,
+   "note": "EQUIVALENT = T 的自助上界低于 min_effect, 可主张「差异小于当前分辨率」; NOT_EQUIVALENT ≠ 不同, 只是**还不能主张相同**"
+  },
+  "note": "UNDERPOWERED 不是「没有差异」—— 它是「这个 R 下判不出来」。禁止把它读成阴性结论。"
+ }
+}

@@ -1,0 +1,22 @@
+=== 第二对等长对照 (前登记: Jaccard 中位数 = 典型对) ===
+  · p<=0.05 且 T>=min_effect(0.06278) → **典型**文本对也分得开 ⇒ min_effect 可由锚升为阈值, 取两次的较小者作保守阈值
+  · p<=0.05 但 T<min_effect → 分得开但效应比最有利那对小 ⇒ min_effect **必须下调**到本次水平, 否则阈值会漏掉真实的典型差异
+  · p>0.05 → 典型文本对**分不开**。★ 结论不是『仪器坏』, 而是『仪器的分辨力只够区分词面差异最大的一对』—— 下游任何基于典型文本对九结差异的断言全部不可用
+  · ★ 本次与 Stage1 的差别只在选择规则(最低 vs 中位), 文本池、截断法、R、判据全同 —— 这是设计, 不是事后挑样本
+  · ★ 禁止事后改规则。
+
+选文本: {"i1": 1, "i2": 8, "jaccard": 0.101266, "jaccard_median_of_45": 0.101266, "n_pairs": 45, "len1": 288, "len2": 286, "stage1_jaccard": 0.075, "excluded": [0, 10]}
+  A: '[帖] Oticon TV Adapter 3.0: Ground loop noise when USB powered by PC. How to fix '
+  B: '[帖] Do your hearing aids have a portable charging case?\n[楼主正文] I bought some fai'
+
+仪器指纹全程一致: 57ec6cf478d3875e
+
+A: UNSTABLE_MEMBERSHIP  结集一致率=0.500  翻转={'suspend': 3, 'audit': 3}
+
+B: UNSTABLE_MEMBERSHIP  结集一致率=0.167  翻转={'belong': 1, 'itch': 1, 'suspend': 3, 'audit': 3}
+
+★ 分离: SEPARATED  T=0.22389  p=0.0286  (Stage1 最有利对 T=0.07389)
+
+=== 判决 ===
+  典型对也分得开 ⇒ min_effect 可升为阈值, 保守取 min(0.06278, 0.22389)
+写出 /tmp/second_pair_typical.json

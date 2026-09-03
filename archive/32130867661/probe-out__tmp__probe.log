@@ -1,0 +1,42 @@
+
+选中 3 份真实语料 (长度升序 首/中/末, 规则写死不按内容挑):
+  T0   293字  [帖] Over-the-ear hearing aids? [楼主正文] I was hit by a car fou…
+  T1  1581字  [帖] Do hearing aids exist that block out certain sounds? [楼主…
+  T2  4058字  [帖] What actually differs between an OTC aid and a prescript…
+  T0 rep1/4  61s  top1=pain_seek  结=['pain_seek']
+  T0 rep2/4  60s  top1=pain_seek  结=['pain_seek', 'suspend']
+  T0 rep3/4  55s  top1=pain_seek  结=['pain_seek']
+  T0 rep4/4  52s  top1=pain_seek  结=['pain_seek']
+  T1 rep1/4  77s  top1=pain_seek  结=['pain_seek']
+  T1 rep2/4  120s  top1=pain_seek  结=['pain_seek', 'suspend']
+  T1 rep3/4  97s  top1=pain_seek  结=['pain_seek', 'suspend']
+  T1 rep4/4  87s  top1=pain_seek  结=['pain_seek', 'suspend']
+  T2 rep1/4  132s  top1=reward  结=['audit', 'belong', 'display', 'injustice', 'pain_seek', 'reward']
+  T2 rep2/4  77s  top1=reward  结=['audit', 'belong', 'display', 'injustice', 'pain_seek', 'reward']
+  T2 rep3/4  89s  top1=reward  结=['audit', 'belong', 'display', 'injustice', 'reward']
+  T2 rep4/4  84s  top1=reward  结=['audit', 'belong', 'display', 'injustice', 'reward']
+
+核心结(每个格子都出现): []
+  ⚠️ 核心结为空 —— 这本身就是发现: 连出现哪些结都不稳定
+
+==========================================================================
+  文本间变动 (信号)      0.0
+  重跑间变动 (噪声)      0.0    逐文本: T0=0.0 T1=0.0 T2=0.0
+  ★ 可分辨性 D = 信号/噪声 = inf
+
+  逐结 文本间差: {}
+  各文本 top1: {"T0": ["pain_seek", "pain_seek", "pain_seek", "pain_seek"], "T1": ["pain_seek", "pain_seek", "pain_seek", "pain_seek"], "T2": ["reward", "reward", "reward", "reward"]}
+  各文本触发的结集: {"T0": ["pain_seek", "suspend"], "T1": ["pain_seek", "suspend"], "T2": ["audit", "belong", "display", "injustice", "pain_seek", "reward"]}
+  (结集若因文本而异, 那也是分辨力, 但没算进 D —— D 是**下界**)
+
+  ★长度混杂: 0/0 个核心结的均值随长度单调 []
+
+  仪器: ['57ec6cf478d3875e']   ← 必须只有 1 把, 否则跨文本比较无效
+
+【判决线(跑前写死)】
+  1. D <= 1  → 仪器分辨不出真实语料里不同的文本, 差距还没自己重跑的抖动大。下游全是噪声, P2 之前必须停, 并跑极端对照区分「仪器盲」与「语料同质」
+  2. 1 < D < 2 → 能分辨但信噪比薄。单条读数不可单独使用, 必须配 n 次重复才能出结论
+  3. D >= 2  → 分辨力可用, P1 的 Reliability 项通过, 可进 P2
+  4. ★混杂: 逐结均值若随文本长度单调 → D 主要由长度驱动, 是弱分辨, 上面三条降一档读
+
+  原始逐 rep 逐结明细 → /tmp/discriminability.json

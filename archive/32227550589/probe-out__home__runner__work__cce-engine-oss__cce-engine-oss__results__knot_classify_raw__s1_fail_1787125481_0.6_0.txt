@@ -1,0 +1,89 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.45,
+      "确认欲": 0.10,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.20,
+      "安全感欲": 0.25,
+      "向往欲": 0.0
+    },
+    "note": "摆脱欲最高:耳朵痒+糟糕的就诊体验,需要脱离生理与情感不适。安全感欲次高:'Is it in enough? Is it meant to go further?'反映出对设备是否正确佩戴、能否正常工作的不确定性焦虑。控制欲:想搞懂设备、掌握正确佩戴方法。确认欲:发帖求群友验证自己的判断,确认是该换小号耳塞还是正常的。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "新助听器佩戴后耳朵持续发痒,加上NHS验配师草草应付让自己感到被忽视,身心双重不适",
+      "weight": 0.35,
+      "derived_from": "由『摆脱欲』经『佩戴设备耳朵瘙痒+被验配师敷衍对待』的情境事件衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "新拿到的助听器,不确定现在的佩戴深度是否正确,耳塞是否合适",
+      "weight": 0.30,
+      "derived_from": "由『安全感欲』经『自己看不懂/没人教佩戴是否到位』的情境事件衍生"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "想搞明白是否需要更小号耳塞,如何让设备稳定留在耳道",
+      "weight": 0.20,
+      "derived_from": "由『控制欲』经『自己摸索佩戴却一直掉出』的情境事件衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "验配过程被草草打发,自己处于被动,没人给详细指导",
+      "weight": 0.15,
+      "derived_from": "由『控制欲/摆脱欲』经『NHS fitting was terrible she just rushed through the whole appointment like I was inconveniencing her』的情境事件衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "目标相关度极高(自己刚戴的设备直接关系到生活)。内容揭示了多重威胁:设备佩戴不对(一直掉出来)、耳朵痒、验配师态度差,且此刻尚无解法,NHS体验糟糕让用户更感觉失去掌控。应对潜能为中——自己可以上网求助、买配件、再次预约,但短期内没法立刻消除不适和不确定性,所以情绪是负面的焦虑+愤怒+无助。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.05,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.05,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.25,
+      "fear恐惧": 0.15,
+      "sadness悲伤": 0.10,
+      "anger愤怒": 0.40
+    },
+    "note": "由『威胁+未满足+负向goal_congruence』推出:愤怒最强('she just rushed through the whole appointment like I was inconveniencing her 🤨'——直接的不满与被怠慢感);好奇心次之(三个问句'Is it in enough? Is it meant to go further? Do I need smaller domes?'是认知缺口驱动的探索性情绪);恐惧中等(佩戴不对是否影响听力、是否需要更专业的处理);悲伤(草草被应付的无力感);渴望+宽慰极低(发帖本身寻求解脱的微光,以及对自己能换到合适耳塞的微弱期待)。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.45,
+      "avoidance回避": 0.05,
+      "attend关注": 0.30,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.15,
+      "interrupt中断": 0.05,
+      "dominate支配": 0.0
+    },
+    "note": "趋近最强——主动发帖、询问、准备尝试更小耳塞/定制耳模;关注次之——身体信号(痒)、设备状态(是否卡到位)高度警觉;对抗中等——对NHS验配师敷衍态度的不满(但无力改变,所以更多停留在情绪层面);回避与中断低(没有停止使用,反而求助以解决问题)。"
+  },
+  "chain_trace": "摆脱欲+安全感欲+控制欲 →(新助听器佩戴不正确耳朵瘙痒+NHS验配被草率对待的情境事件)→ N06摆脱痛苦 + N01确定性 + N03提升能力 + N02掌控局面 →(评价:威胁+未满足→负向goal_congruence,应对潜能中)→ 愤怒(主导)+好奇+恐惧+悲伤 → 趋近(发帖求方案/换小号耳塞)+关注(身体与设备信号)+对抗(对验配师态度)的完整因果链。",
+  "evidence": {
+    "desire": "摆脱欲:'my ears are so itchyyyyyyyyy!!!';安全感欲:'Is it in enough? Is it meant to go further?';控制欲:'Do I need smaller domes?';确认欲:在sub发帖求群友验证',
+    "need": "N06:'my ears are so itchyyyyyyyyy!!!';N01:'Is it in enough? Is it meant to go further?';N03:'Do I need smaller domes?';N02:'My NHS fitting was terrible she just rushed through the whole appointment like I was inconveniencing her'",
+    "emotion": "愤怒:'she just rushed through the whole appointment like I was inconveniencing her 🤨';好奇:'Is it in enough? Is it meant to go further? Do I need smaller domes?';恐惧与悲伤由佩戴不正确+被敷衍的情境派生",
+    "action": "趋近:发帖到r/HearingAids询问+准备尝试smaller domes/retention locks;关注:盯着耳塞是否卡进耳道;对抗(轻):'like I was inconveniencing her 🤨'情绪外泄"
+  }
+}
+```

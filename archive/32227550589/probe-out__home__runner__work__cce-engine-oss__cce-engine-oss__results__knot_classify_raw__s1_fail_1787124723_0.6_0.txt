@@ -1,0 +1,106 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.05,
+      "成为欲": 0.05,
+      "摆脱欲": 0.15,
+      "确认欲": 0.20,
+      "超越欲": 0.15,
+      "归属欲": 0.20,
+      "控制欲": 0.10,
+      "安全感欲": 0.10,
+      "向往欲": 0.00
+    },
+    "note": "答者动机以'圈内专家身份被认可'为内核：归属欲(助人者/技术派成员资格，机制子型=技术专家身份认同)+确认欲(自己的诊断与判断被采信)+超越欲(展示对通路/麦克风机理的深入理解)+摆脱欲(替提问者把通话被听不清的痛苦拆出来)+控制欲(主导解释权、给出可复现测试)+安全感欲(在HA这种小众但高卷入话题里靠'我是那个知道的人'获得稳态)。成为欲/拥有欲/向往欲几乎不被激活——这段输出指向'把问题解掉',而不是'想变成谁/想拥有什么具体物'。"
+  },
+  "need_layer": [
+    {
+      "code": "N03_提升能力",
+      "context_slot": "在自己精通的HA通话机理上替人拆解方案、并给出免购物的可操作测试步骤",
+      "weight": 0.20,
+      "derived_from": "由 归属欲(技术专家身份)+超越欲(展示更深的机理认知) 经 'r/HearingAids 出现一个自己能完全答上来的具体问题' 这一情境事件衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "用'你的问题是麦克风位置'这种果断诊断，确认自己作为圈内人能给出正确判断",
+      "weight": 0.20,
+      "derived_from": "由 确认欲 经 '老Phonak用户公开求问MFi是否更优' 这一情境事件衍生"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "在 r/HearingAids 这个亚群体里提供高质量答案以维持'我是其中懂行的那一撮'成员资格",
+      "weight": 0.15,
+      "derived_from": "由 归属欲(助人者/技术派子型) 经 '社区帖子请求技术判断' 这一情境事件衍生"
+    },
+    {
+      "code": "N12_情感联结",
+      "context_slot": "对一个有相同佩戴体验的陌生人投入时间、给出可立刻验证的步骤，建立温度联结",
+      "weight": 0.15,
+      "derived_from": "由 摆脱欲(助人摆脱通话听不清的痛苦)+归属欲 经 '有人和我用同样的助听器并踩过同一个坑' 这一情境事件衍生"
+    },
+    {
+      "code": "N16_表达创造",
+      "context_slot": "把内在的机理图式(助听器麦克风位置 vs 手机麦克风)外化为一段结构化解释",
+      "weight": 0.10,
+      "derived_from": "由 拥有欲(对知识的占有)+超越欲 经 '问题恰好落在自己擅长解释的因果链上' 这一情境事件衍生"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "把'为什么打电话别人听不清'这个说不通的体验，解释成麦克风位置机制",
+      "weight": 0.10,
+      "derived_from": "由 确认欲(把现象想明白)+安全感欲 经 '提问者自己说不通、需要一个说得通的解释' 这一情境事件衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "替提问者把'MFi到底会不会更好'的不确定，变成一个今天就能跑的测试",
+      "weight": 0.10,
+      "derived_from": "由 安全感欲(替他人消除不确定)+控制欲 经 '提问者在选不选择MFi之间悬置' 这一情境事件衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.85,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "答者把提问判定为'完全在我射程之内'，且输出过程本身即时兑现了表达/确认/归属三股需求（促进+已满足），并对提问者后续能否复制测试有充分把握（高应对潜能），因此整体走正情绪通路：核心情绪是 pride+approval，而非 relief（relief需要'自己曾悬置的不确定被解除'，此处答者本来就不悬置）。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.10,
+      "joy喜悦": 0.10,
+      "gratitude感激": 0.05,
+      "desire渴望": 0.10,
+      "nostalgia怀旧": 0.05,
+      "pride自豪": 0.25,
+      "love爱": 0.00,
+      "relief宽慰": 0.05,
+      "approval认同": 0.20,
+      "curiosity好奇": 0.10,
+      "fear恐惧": 0.00,
+      "sadness悲伤": 0.00,
+      "anger愤怒": 0.00
+    },
+    "note": "情绪由'需求×正 goal_congruence×高 coping'派生：pride 自豪(0.25)从 N03/N10 已满足中导出；approval 认同(0.20)从 N10/N01 已被自己采信中导出；curiosity 好奇(0.10)从 N16 表达创造的认知快感中导出；desire 渴望(0.10)从助人动机 N12 仍想看对方真正受益中导出；admiration 钦佩(0.10)对MFi方案的工程巧思；joy 喜悦(0.10)+relief 宽慰(0.05)从'问题被我一句话定位为麦克风位置'的快感中导出；nostalgia 怀旧(0.05)来自对Phonak多年佩戴经验的旧日体感；gratitude 感激(0.05)对社区提问机会的轻量正反馈。fear/sadness/anger 为 0，因为没有威胁信号。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.40,
+      "avoidance回避": 0.00,
+      "attend关注": 0.30,
+      "reject拒斥": 0.05,
+      "agonistic对抗": 0.05,
+      "interrupt中断": 0.00,
+      "dominate支配": 0.20
+    }
+  },
+  "chain_trace": "归属欲(技术专家身份认同, 机制子型=圈内助人者)+确认欲+超越欲 →(情境: r/HearingAids 上老Phonak用户就MFi通话质量公开求问)→ 需求 N03_提升能力+N10_自我确认+N11_归属群体+N12_情感联结+N16_表达创造+N04_理解世界+N01_确定性 →(评价: goal_relevance 高 / 促进+已满足 / 正 / coping 高)→ 情绪 pride自豪+approval认同 为主，辅以 curiosity好奇+desire渴望+joy喜悦+admiration钦佩+relief宽慰+nostalgia怀旧+gratitude感激 → 行动倾向 approach趋近(向提问者)+attend关注(细拆麦克风位置机制)+dominate支配(给出可立刻跑的测试步骤，主导解释权)，微弱的 reject拒斥 与 agonistic 对抗留作对后续'对方回应'类不一致答案的预防姿态。"
+  "evidence": {
+    "desire": "归属欲/超越欲/摆脱欲: 'You can test this today without buying anything' 与 'Your biggest problem is a microphone location problem, and that's exactly the thing MFi changes'——同时驱动想帮对方跳出痛苦、想展示自己比提问者更懂机理; 确认欲: 'that's exactly the thing MFi changes' 用'正好就是'这种强判断锚定自己的专家身份",
+    "need": "N03 提升能力: 'The aid microphones are the call mic, and they sit behind your ears picking up the whole room'——把一个内部知识图式外化为可被对方学会的拆解; N10 自我确认 + N01 确定性: 'If people suddenly understand you, you've confirmed it's the mic location, and MFi would give you that outgoing quality'——给提问者也给自己一个可证伪的确认动作",
+    "emotion": "pride/approval: 'Callers hear a normal phone call' 与 'That's why callers only understand you in silence'——对自己一句话定位机理的满足; curiosity: 'incoming audio still streams to your ears, but your voice goes through the iPhone's own mic instead'——拆解MFi双向通路时流露的认知兴趣; desire: 'The trade is that the phone has to stay near your mouth on calls. No more leaving it across the room.'——希望对方真正接受这一方案",
+    "action": "approach + dominate + attend: 'Mid call, open the audio picker on the iPhone and switch from your aids to the handset, then talk into the phone.'——具体到可执行动作，引导对方按自己的步骤走; reject/agonistic 预备: 'The trade is that...' 把不利面也由自己口径框定，为后续不一致声音预留驳斥位"
+  }
+}
+```

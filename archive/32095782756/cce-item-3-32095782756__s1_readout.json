@@ -1,0 +1,184 @@
+{
+ "input_sha": "79b796ea90dcc202",
+ "run_at": "2026-08-18T03:33:30",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 3,
+  "k_ok": 3,
+  "layers": {
+   "desire_vec": [
+    0.0,
+    0.016666666666666666,
+    0.13333333333333333,
+    0.12333333333333334,
+    0.09333333333333334,
+    0.03333333333333333,
+    0.3499999999999999,
+    0.25,
+    0.0
+   ],
+   "need_vec": [
+    0.26666666666666666,
+    0.26666666666666666,
+    0.11666666666666668,
+    0.26666666666666666,
+    0.06666666666666667,
+    0.016666666666666666,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.03333333333333333,
+    0.0,
+    0.0,
+    0.03333333333333333,
+    0.0,
+    0.06666666666666667,
+    0.0,
+    0.13333333333333333,
+    0.08333333333333333,
+    0.2333333333333333,
+    0.20000000000000004,
+    0.11666666666666665,
+    0.09999999999999999
+   ],
+   "action_vec": [
+    0.3666666666666667,
+    0.03333333333333333,
+    0.2833333333333334,
+    0.06666666666666667,
+    0.05000000000000001,
+    0.03333333333333334,
+    0.16666666666666666
+   ]
+  },
+  "tops": {
+   "desire": "控制欲",
+   "need": "N01_确定性",
+   "emotion": "curiosity好奇",
+   "action": "approach趋近"
+  },
+  "appraisal": {
+   "goal_relevance": 1.0,
+   "congruence_direction": "威胁",
+   "need_status": "未满足",
+   "goal_congruence": "负",
+   "coping_potential": "中",
+   "note": "新报告揭示过去两周自己记录的所有数据存在结构性盲区(没采系统版本),且不可回补——这意味着自己「想掌控局面/消除不确定性/理解世界」三个核心目标被同时削弱,故 goal_congruence 判负;但因为已经识别出六列新字段并能把方法立刻落地,应对潜能不至于落到低,故评中——这一'中'是后面出现 relief 和 curiosity 的关键支撑,否则情绪会完全塌成 fear/sadness"
+  },
+  "chain_trace": "控制欲(主导)+ 安全感欲 →(长期困扰+新报告证伪旧框架的受挫事件)→ 需求 N02_掌控局面 + N04_理解世界 + N01_确定性 →(评价:威胁/未满足/goal_congruence 负/coping 中)→ 情绪 curiosity好奇(主导,机制未拆清)+ relief宽慰(路径已成形)+ fear恐惧(旧数据不可回补)+ anger愤怒(自指)+ pride自豪(公开认错并重构) → 行动倾向 approach趋近(公开新协议)+ attend关注(六字段逐条记录)+ dominate支配(把方法写进帖子而非自己的表,确保社区执行)+ reject拒斥(否定自己此前的核心论断)",
+  "within_js": {
+   "desire_vec": 0.0731,
+   "need_vec": 0.0848,
+   "emotion_vec": 0.125,
+   "action_vec": 0.1166
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "audit",
+    "weight": 0.5,
+    "evidence_quote": "That last half-sentence is the killer. ... But the column for system version has remained empty from start to finish. Not a single one of the previous reports can be retroactively updated. Version numbers aren't something you can recall after the fact.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "self",
+     "target_layer": "epistemic_trust"
+    },
+    "desire_code": "控制欲, 确认欲",
+    "need_code": "N01, N10",
+    "freshness_days_hint": 1,
+    "name": "验真·审计结",
+    "family": "阻挡",
+    "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+    "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前"
+   },
+   {
+    "key": "pain_seek",
+    "weight": 0.3,
+    "evidence_quote": "I've been organizing them into a table according to the protocol: one row for ASHA, one for MFi, one for LE Audio ... This table might not be measuring what I thought it was. ... So starting with this post, please include a few extra details when reporting back.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "中/高",
+     "time": "现在",
+     "attribution": "system",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "控制欲, 摆脱欲, 安全感欲",
+    "need_code": "N01, N02, N06",
+    "freshness_days_hint": 3,
+    "name": "痛点·求解结",
+    "family": "推动",
+    "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+    "behavior_predicted": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+   },
+   {
+    "key": "suspend",
+    "weight": 0.1,
+    "evidence_quote": "I'm not saying that the location of the pocket isn't important ... It's just that this probably only happens when the signal has no margin left. I can't separate these two issues right now. That's just how it is.",
+    "signature": {
+     "congruence": "促进与威胁并存",
+     "need_status": "未满足",
+     "coping": "不确定",
+     "time": "未来(决策悬置)",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲, 摆脱欲",
+    "need_code": "N01, N06",
+    "freshness_days_hint": 2,
+    "name": "悬置·焦虑结",
+    "family": "阻挡",
+    "playbook": "给判据+零成本测试塌缩不确定性+如实说trade;不推购买。反杠杆=零风险承诺/样品/证言",
+    "behavior_predicted": "质询通道·中成本:连环规格质询/征证言/比价/收藏不买/明确不动"
+   },
+   {
+    "key": "display",
+    "weight": 0.1,
+    "evidence_quote": "Why am I writing this in the post itself instead of just going back to edit my own spreadsheet? ... If I write it out here, everyone will follow it. If I just put it in my own spreadsheet, no one will see it.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "identity"
+    },
+    "desire_code": "确认欲, 超越欲",
+    "need_code": "N10, N09",
+    "freshness_days_hint": 2,
+    "name": "确证·展示结",
+    "family": "推动",
+    "playbook": "让位;被当同侪;接着他的贡献往前走,绝不纠正姿态压他",
+    "behavior_predicted": "展示通道·低→高成本:纠错亮牌/举反例晒型号/结构化长评/承诺回访。评论区最高质量UGC主力"
+   }
+  ],
+  "levers_present": [
+   "从众(发帖者主动利用/观察到从众效应:「If I write it out here, everyone will follow it」「两人主动报上 OS 版本」)",
+   "好奇缺口(开篇「This table might not be measuring what I thought it is」是弱好奇缺口,但服务于审计冲击,非内容钩子)"
+  ],
+  "notes": "核心是一次自我审计冲击——发现两周数据的结构性盲区且不可回补,触发 audit 主导结(epistemic_trust 闸门);pain_seek 是底层求解动机,suspend 体现在「无法分离两因」的悬置,display 体现在公开透明化方法论的展示欲。注意:此 audit 是自指型(归责 self),与标准 other_agent 模式不同,需保留 att槽的 self 值。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}

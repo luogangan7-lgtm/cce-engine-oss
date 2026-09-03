@@ -1,0 +1,1074 @@
+{
+ "instrument": "565470cf26c16d01",
+ "R_requested": 4,
+ "K": 3,
+ "verdict_lines": [
+  "① 零参照 L0 vs L0b **分开** → TYPE1_VIOLATION, 整轮作废(型 I 都不受控时其余不可读)",
+  "② B 轴(B1 或 B2)**分开** → SURFACE_SENSITIVE: 姿态未变而读数变了 ⇒ 仪器在读表层形式, 「好比较器」这个定性要下调, 且 B 轴优先于 A 轴报告",
+  "③ 型 I 与 B 轴都干净, 但 A3 **不分开** → SEMANTIC_BLIND: 去词化的姿态改变读不出 ⇒ 此前『它在读内容』很可能是在读词汇。这是**真证伪**, 不是功效不足(A3 是中度改变)",
+  "④ 型 I 与 B 轴干净, A3 分开 → LADDER_USABLE, 可进 Phase 2(多 base text 建 power surface)。★ 此时**不得**顺带宣称 T(A1)<T(A3) 的单调性 —— 那是 Phase 2 要检验的, 不是本轮结论",
+  "★ 以上四支对 (型I, B轴, A3) 的取值穷尽且互斥。",
+  "★ 只叫 Designed Perturbation Ladder。**禁止**叫 Known Effect-Size Ladder ——扰动等级是**设计变量**, 它与 T 的单调关系是待检验对象, 不是前提。",
+  "★ 禁止事后改文本、改 R、改判决线。变体文本已冻结在 tests/data/ladder/。"
+ ],
+ "raw": {
+  "L0": [
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "pain_seek": 0.92,
+     "suspend": 0.12,
+     "injustice": 0.08
+    }
+   },
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "pain_seek": 0.92,
+     "inertia": 0.18,
+     "injustice": 0.095
+    }
+   },
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "pain_seek": 0.92,
+     "suspend": 0.15,
+     "injustice": 0.05,
+     "inertia": 0.05
+    }
+   },
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "pain_seek": 0.92,
+     "suspend": 0.185
+    }
+   }
+  ],
+  "L0b": [
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "pain_seek": 0.92,
+     "suspend": 0.12,
+     "injustice": 0.1,
+     "audit": 0.08
+    }
+   },
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "pain_seek": 0.88,
+     "suspend": 0.435,
+     "injustice": 0.15
+    }
+   },
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "pain_seek": 0.92,
+     "suspend": 0.325
+    }
+   },
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "pain_seek": 0.92,
+     "suspend": 0.18,
+     "injustice": 0.08
+    }
+   }
+  ],
+  "A1": [
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "audit": 0.82,
+     "pain_seek": 0.72,
+     "injustice": 0.275,
+     "suspend": 0.25
+    }
+   },
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "audit": 0.82,
+     "pain_seek": 0.5,
+     "suspend": 0.415,
+     "injustice": 0.35
+    }
+   },
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "INFRA_FAILED",
+       "error_class": "HTTPError: 529 Server Error: Unknown Status Code for url: https://api.minimaxi.com/v1/text/chatcompletion_v2 | {\"type\":\"error\",\"error\":{\"type\":\"overloaded_error\",\"message\":\"当前服务集群负载较高，请稍后重试，感谢您的耐心等待。 (2064)\",\"http_code\":\"529\"},\"request_id\":\"06d4c586338481488be716fb6f3894f4\"}\n"
+      },
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "INFRA_FAILED",
+       "error_class": "HTTPError: 529 Server Error: Unknown Status Code for url: https://api.minimaxi.com/v1/text/chatcompletion_v2 | {\"type\":\"error\",\"error\":{\"type\":\"overloaded_error\",\"message\":\"当前服务集群负载较高，请稍后重试，感谢您的耐心等待。 (2064)\",\"http_code\":\"529\"},\"request_id\":\"06d4c58605f19c04a98c8805cb194b44\"}\n"
+      },
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "INFRA_FAILED",
+       "error_class": "HTTPError: 529 Server Error: Unknown Status Code for url: https://api.minimaxi.com/v1/text/chatcompletion_v2 | {\"type\":\"error\",\"error\":{\"type\":\"overloaded_error\",\"message\":\"当前服务集群负载较高，请稍后重试，感谢您的耐心等待。 (2064)\",\"http_code\":\"529\"},\"request_id\":\"06d4c58610a11ebdf861df5f3d39c646\"}\n"
+      },
+      {
+       "temperature": 0.6,
+       "attempt": 2,
+       "status": "INFRA_FAILED",
+       "error_class": "HTTPError: 529 Server Error: Unknown Status Code for url: https://api.minimaxi.com/v1/text/chatcompletion_v2 | {\"type\":\"error\",\"error\":{\"type\":\"overloaded_error\",\"message\":\"当前服务集群负载较高，请稍后重试，感谢您的耐心等待。 (2064)\",\"http_code\":\"529\"},\"request_id\":\"06d4c597507d17db267228a02b059797\"}\n"
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 2,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.0,
+       "attempt": 2,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.6,
+       "attempt": 3,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 7,
+     "n_draws": 3,
+     "first_attempt_success": 0,
+     "first_attempt_success_rate": 0.0,
+     "n_infra_failed": 4,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "audit": 0.88,
+     "pain_seek": 0.68,
+     "suspend": 0.5,
+     "injustice": 0.22
+    }
+   },
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "audit": 0.85,
+     "pain_seek": 0.65,
+     "suspend": 0.48,
+     "injustice": 0.4
+    }
+   }
+  ],
+  "A3": [
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "reward": 0.85,
+     "display": 0.6,
+     "pain_seek": 0.12
+    }
+   },
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "reward": 0.85,
+     "display": 0.38,
+     "belong": 0.25,
+     "pain_seek": 0.1
+    }
+   },
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "reward": 0.82,
+     "display": 0.65,
+     "belong": 0.275,
+     "pain_seek": 0.1
+    }
+   },
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "reward": 0.82,
+     "display": 0.55,
+     "belong": 0.18,
+     "pain_seek": 0.08
+    }
+   }
+  ],
+  "B1": [
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "pain_seek": 0.92,
+     "inertia": 0.18
+    }
+   },
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "pain_seek": 0.92,
+     "suspend": 0.25
+    }
+   },
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "pain_seek": 0.92,
+     "suspend": 0.15
+    }
+   },
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "pain_seek": 0.93,
+     "suspend": 0.12
+    }
+   }
+  ],
+  "B2": [
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "pain_seek": 0.92,
+     "suspend": 0.18,
+     "injustice": 0.1
+    }
+   },
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "pain_seek": 0.92,
+     "suspend": 0.12,
+     "injustice": 0.08
+    }
+   },
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "pain_seek": 0.92,
+     "suspend": 0.24,
+     "injustice": 0.075
+    }
+   },
+   {
+    "qualified": true,
+    "failed": false,
+    "k_valid": 3,
+    "abstained": false,
+    "op": {
+     "attempts": [
+      {
+       "temperature": 0.3,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.0,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      },
+      {
+       "temperature": 0.6,
+       "attempt": 1,
+       "status": "SUCCESS",
+       "error_class": null
+      }
+     ],
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "knots": {
+     "pain_seek": 0.92,
+     "injustice": 0.1
+    }
+   }
+  ]
+ },
+ "R_qualified": {
+  "L0": 4,
+  "L0b": 4,
+  "A1": 4,
+  "A3": 4,
+  "B1": 4,
+  "B2": 4
+ },
+ "comparisons": {
+  "L0b": {
+   "T": 0.02944,
+   "p": 0.11429,
+   "separated": false
+  },
+  "A1": {
+   "T": 0.19278,
+   "p": 0.02857,
+   "separated": true
+  },
+  "A3": {
+   "T": 0.28931,
+   "p": 0.02857,
+   "separated": true
+  },
+  "B1": {
+   "T": 0.00972,
+   "p": 0.57143,
+   "separated": false
+  },
+  "B2": {
+   "T": 0.01236,
+   "p": 0.48571,
+   "separated": false
+  }
+ },
+ "verdict": "LADDER_USABLE: 可进 Phase 2(多 base text 建 power surface)"
+}

@@ -1,0 +1,121 @@
+{
+ "instrument": "ea70b373d5bef630",
+ "R": 2,
+ "verdict_lines": [
+  "★通过: 四份中性垫料**至少三份**出现弃权(任一 rep), 且真人文本**零弃权** ⇒ 弃权出口真的被用上, gen3 有了「空读数」这一档",
+  "★惰性: 四份中性垫料**全部零弃权** ⇒ 给权限不足以让模型弃权。本次换代**没换来东西**, 当日标定白作废。此时应回滚 s1 prompt 或改用外部 Eligibility Gate",
+  "★过度触发: 真人文本出现弃权 ⇒ 比改动前更坏(把真实语料判成没有主体), 必须回滚",
+  "★部分: 中性垫料一到两份弃权 ⇒ 出口可用但不可靠, 记录为「弱采用」, 不足以支撑生产使用",
+  "★ R=2 是筛选不是测量: 不得据此报「弃权率」。",
+  "★ 禁止事后改文本、改 R、改判决线。"
+ ],
+ "s1_prompt_sha256": "eadcdcdac46a5180",
+ "by_text": {
+  "HUMAN_base(应当不弃权)": {
+   "reps": [
+    {
+     "abstained": false,
+     "n_abstain": 0,
+     "k_ok": 3,
+     "reason": "",
+     "tops": {
+      "desire": "摆脱欲",
+      "need": "N06_摆脱痛苦",
+      "emotion": "desire渴望",
+      "action": "approach趋近"
+     }
+    },
+    {
+     "abstained": false,
+     "n_abstain": 0,
+     "k_ok": 3,
+     "reason": "",
+     "tops": {
+      "desire": "摆脱欲",
+      "need": "N06_摆脱痛苦",
+      "emotion": "desire渴望",
+      "action": "approach趋近"
+     }
+    }
+   ],
+   "any_abstention": false
+  },
+  "filler_numeric(应当弃权)": {
+   "reps": [
+    {
+     "abstained": true,
+     "n_abstain": 3,
+     "k_ok": 3,
+     "reason": "内容为听力设备(hearing aid)校准/验收用的纯数据表(参考值、标称值、实测值、偏差),属于设备质检报告/校准记录,不是任何个人的自我表达、观点陈述或情绪性话语。整段文本为数值列与偏差列,无主体、无第一人称、无情感词、无意图,无法识别出'写下这段内容的某一个人'作为心理因果链的反推对象,故拒绝为一段表格构造一个假想人。",
+     "tops": {}
+    },
+    {
+     "abstained": true,
+     "n_abstain": 3,
+     "k_ok": 3,
+     "reason": "内容为纯技术数据表（助听器校准/验收参考值记录表），含索引、公称值、测量值、偏差的数值罗列，无任何主观表述、情感表达、立场流露或个体可识别痕迹。属于仪器/质量控制日志类文档，不存在可反推心理因果链的'表达主体'。",
+     "tops": {}
+    }
+   ],
+   "any_abstention": true
+  },
+  "filler_legal(应当弃权)": {
+   "reps": [
+    {
+     "abstained": true,
+     "n_abstain": 3,
+     "k_ok": 3,
+     "reason": "该内容为典型的法律免责声明/条款样板（Sections 7–12），包含 'as-is basis without warranty'、'shall not be liable'、'entire agreement'、'no waiver' 等标准化法律用语，属于非个人表达的格式化模板文本，无法从中反推任何个体写作者或目标受众的欲望/需求/情绪/行动倾向，因此不构造虚构的因果链分布。",
+     "tops": {}
+    },
+    {
+     "abstained": true,
+     "n_abstain": 3,
+     "k_ok": 3,
+     "reason": "该文本为标准法律免责声明样板（Section 7–12 条款），包含 'as-is basis without warranty'、'shall not be liable'、'unenforceable provision shall be reformed'、'entire agreement'、'no waiver'、'headings are for convenience' 等典型 Li",
+     "tops": {}
+    }
+   ],
+   "any_abstention": true
+  },
+  "filler_procedural(应当弃权)": {
+   "reps": [
+    {
+     "abstained": true,
+     "n_abstain": 3,
+     "k_ok": 3,
+     "reason": "该内容是一份纯操作步骤清单（17 步装配/校准/记录流程），属于说明书/操作规程类文本，不是任何个体的自我表达、情绪宣泄或观点陈述。文本中无主语、无情感词、无第一人称、无价值判断、无叙事弧线，纯粹是祈使句式的流程指引（'Place…' 'Open…' 'Remove…' 'Insert…' 'Record…' 'File…' 'Return…'）。没有可被反推心理因果链的'人'——既无作者表达痕迹",
+     "tops": {}
+    },
+    {
+     "abstained": true,
+     "n_abstain": 3,
+     "k_ok": 3,
+     "reason": "该文本是17步操作流程/设备维护说明（操作步骤类），属于纯功能性指令文档，无任何个人表达、情感流露或主观立场。不存在可被反推心理因果链的'写下这段内容的这一个人'作为情绪主体——撰写者处于制度化技术写作角色，其心理状态不在文本可观测范围内。按照硬约束，不为其构造伪人格。",
+     "tops": {}
+    }
+   ],
+   "any_abstention": true
+  },
+  "filler_neutral_20260818(应当弃权)": {
+   "reps": [
+    {
+     "abstained": true,
+     "n_abstain": 3,
+     "k_ok": 3,
+     "reason": "该内容为关于音叉物理结构、材质、校准与制造工艺的纯说明性文本（类百科/教科书条目），无个人视角、情感表达、自我叙事或群体互动痕迹。既不属于某个体的自我表达，也不可作为受众心理样本进行反推。属于'纯说明/条款样板'类，按硬约束不构造任何人。",
+     "tops": {}
+    },
+    {
+     "abstained": true,
+     "n_abstain": 3,
+     "k_ok": 3,
+     "reason": "正文是一段纯说明性、技术性的百科式描述（音叉的物理结构、振动原理、校准温度、损伤判定等），无第一人称视角、无情感表达、无观点态度、无具体作者自我披露，符合\"说明书/条款样板/操作步骤\"类非个人表达文本。按规则不为其构造一个虚构主体，四层分布留空。",
+     "tops": {}
+    }
+   ],
+   "any_abstention": true
+  }
+ },
+ "verdict": "通过: 4/4 份中性垫料弃权, 真人零弃权 ⇒ gen3 有了空读数这一档"
+}

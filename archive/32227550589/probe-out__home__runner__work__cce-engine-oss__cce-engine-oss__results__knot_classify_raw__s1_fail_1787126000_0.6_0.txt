@@ -1,0 +1,94 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.10,
+      "成为欲": 0.0,
+      "摆脱欲": 0.0,
+      "确认欲": 0.20,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.30,
+      "安全感欲": 0.40,
+      "向往欲": 0.0
+    },
+    "note": "楼主主线是『害怕选错/被技术淘汰 + 想把决策权握在自己手里 + 想要别人给个背书』。证据: 'I'm a bit nervous about making this choice' 直接命中安全感欲; 'Is it likely most hearing aids will go to rechargeable in the future? Is it worth it?' 既是对未来不确定性的恐惧,也是希望被确认;主动试两副想比出最优,体现控制欲;已经拥有助听器但想要更适配的那一副,故拥有欲作底色。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "轻度-中度听损用户面对充电 vs 电池助听器的代际切换，担心选错会被未来市场淘汰",
+      "weight": 0.35,
+      "derived_from": "由安全感欲 → 经『厂家未来方向不明+价格更高的新方案』的情境事件衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "一周内同时试两副，需要在有限体验期内把决策权握在手里",
+      "weight": 0.25,
+      "derived_from": "由控制欲 → 经『nervous about making this choice + 必须二选一』衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "长期用 Unitron 电池款，现在想验证换充电款是否真的更值",
+      "weight": 0.20,
+      "derived_from": "由确认欲 → 经『发帖问"is it worth it"等待社区背书』衍生"
+    },
+    {
+      "code": "N05_优化效率",
+      "context_slot": "充电款贵但省换电池麻烦，长期成本与日常流程权衡",
+      "weight": 0.10,
+      "derived_from": "由控制欲 + 拥有欲 → 经『costs more vs 不用买电池』衍生"
+    },
+    {
+      "code": "N07_占有资源",
+      "context_slot": "要把对的助听器买到手",
+      "weight": 0.10,
+      "derived_from": "由拥有欲 → 经『试用 Gen3 资格实验』衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "促进",
+    "need_status": "未满足",
+    "goal_congruence": "正",
+    "coping_potential": "中",
+    "note": "goal_relevance 极高——直接关系楼主每天要戴的助听器;replies 整体在提供信息(促进);但没有人给楼主打包票'充电款就是未来',楼主仍在 trial 期,需求未被完全闭环,所以 need_status 仍是未满足,coping 中等(他只能靠一周试用来决)。促进+未完全满足=轻微正情绪+残余焦虑,正好解释好奇/恐惧混合态。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.05,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.15,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.20,
+      "approval认同": 0.10,
+      "curiosity好奇": 0.30,
+      "fear恐惧": 0.20,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.0
+    },
+    "note": "需求×评价推导:促进+未完全满足→好奇(信息还在来)+恐惧(还没闭环)+渴望(想要好结果)+宽慰(replies 提供了'last all day easily'等正向数据);回复中互相印证的体验触发认同;少数给出数字(如 30hr)引发轻微钦佩。负面情绪(悲伤/愤怒)未被激活,因为没人贬低楼主的选择。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.30,
+      "avoidance回避": 0.20,
+      "attend关注": 0.45,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.05
+    }
+  },
+  "chain_trace": "安全感欲 → (厂家未来方向不明+充电款更贵的一周试用情境) → N01_确定性 + N02_掌控局面 → (评价:goal_relevance 极高,促进但 need_status 未满足,coping 中) → 好奇+恐惧+渴望+宽慰混合 → 关注(replies 逐条比较)+趋近(认真试充电款)+回避(对新技术仍犹豫) 的混合行动倾向。"
+  "evidence": {
+    "desire": "I'm a bit nervous about making this choice; Is it likely most hearing aids will go to rechargeable in the future? Is it worth it?; I've always used batteries; trying a pair of hearing aids this week",
+    "need": "Is it worth it? → N01_确定性; 'nervous about making this choice' → N02_掌控局面; 'costs more ... no faffing about changing batteries' → N05_优化效率; 'I have mild to moderate hearing loss and don't rely on them all day' → N10_自我确认",
+    "emotion": "nervous → 恐惧; 'trying this week ... Is it likely ... Is it worth it' → 好奇; 'They really do last all day easily' (来自 reply, 楼主读到) → 宽慰+认同",
+    "action": "I'm trying a pair of hearing aids this week → 趋近+关注; 'I'm a bit nervous about making this choice' → 回避; 'I've always used batteries' → 关注(比较新旧)"
+  }
+}
+```

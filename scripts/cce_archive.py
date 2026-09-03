@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 """Archive Plane (§44 P5): 长期结构化归档, 不让短期 artifact 承担长期学习。
 
-## 实测出来的起点(2026-09-01)
-仓库里有 32 个被引用的 GitHub run_id(台账 / 仪器谱系 / 文档), 其中:
-    本地有 artifact 的:  0 / 32
-    远端还留着 artifact: 0     (gh api actions/artifacts -> total_count = 0)
-⇒ 这 32 个 run **已经不可重建**, 而且**追不回来** ——
-   §44 P5 担心的事情不是将来会发生, 是已经发生过了。
+## ★ 2026-09-03 更正: 上面这个「起点」是错的, 错在**查错了仓**
+原记录写「远端 gh api actions/artifacts total_count = 0 ⇒ 32 个 run 全部不可重建」。
+实测该查询是对**私仓 luogangan7-lgtm/cce-engine** 做的, 而 2026-08-17 起
+生产入口已迁到**公开仓 luogangan7-lgtm/cce-engine-oss** —— run 在那边, 私仓自然 404。
+换仓复查: 索引内 37 条里 **15 条仍有 artifact 且 expired=false**, 另有文档引用的 8 条同样活着。
 
+## 根因不是「查错了」, 是「这个查询根本没有代码」
+原来的可用性判断是**人工跑一次 gh api, 把结论写死进 docstring 与索引**。
+没有可重跑的检查 ⇒ 查错了仓没有任何东西会发现, 而且它从写下的那一刻起就是错的。
+⇒ 现在 IRRECOVERABLE 是一条**要被审的断言**: 必须带 checked_against(查过哪些远端)
+   与 checked_at, 且 checked_against 必须覆盖**全部 push 远端**。缺一, 闸红。
+
+## 起点(更正后)
 所以本模块**不假装**能重建它们。它做三件能做的事:
   1. 把损失如实登记(status=IRRECOVERABLE), 而不是留一份看起来完整的索引;
   2. 保证**今后**每个 run 在完成时就落到本地归档;
@@ -129,6 +135,22 @@ def evidence_refs_in_registries() -> list[tuple[str, str]]:
     return rows
 
 
+def push_remotes() -> list[str]:
+    """本仓所有 push 远端的 owner/repo。★ 现读 git, 不写死 ——
+    写死一个仓正是 2026-09-03 更正的那个错的来源。"""
+    import subprocess
+    out = subprocess.run(["git", "remote", "-v"], cwd=ROOT,
+                         capture_output=True, text=True).stdout
+    repos = set()
+    for line in out.splitlines():
+        if "(push)" not in line:
+            continue
+        m = re.search(r"[:/]([\w.-]+/[\w.-]+?)(?:\.git)?\s+\(push\)", line)
+        if m:
+            repos.add(m.group(1))
+    return sorted(repos)
+
+
 def check() -> tuple[bool, list[str], dict]:
     index = json.load(open(INDEX, encoding="utf-8"))
     errors: list[str] = []
@@ -165,11 +187,29 @@ def check() -> tuple[bool, list[str], dict]:
         except ArchiveRebuildError as exc:
             errors.append(f"索引声称 {rid} 本地已归档, 但重建失败: {exc}")
 
+    # ④ ★「不可恢复」是断言, 不是观察 —— 必须说清在哪些远端查过
+    #    这条闸就是为 2026-09-03 那次更正而设: 只查一个仓得出的「不可恢复」不是结论。
+    remotes = set(push_remotes())
+    for rid, row in sorted(indexed.items()):
+        if row["status"] != IRRECOVERABLE:
+            continue
+        checked = set(row.get("checked_against") or [])
+        if not checked:
+            errors.append(f"{rid} 标 IRRECOVERABLE 却没写 checked_against —— "
+                          "「查不到」必须说清在哪儿查的, 否则查错仓也没人知道")
+        elif remotes - checked:
+            errors.append(f"{rid} 标 IRRECOVERABLE 但漏查了 push 远端 "
+                          f"{sorted(remotes - checked)} —— 只查一个仓不足以断言不可恢复")
+        if not row.get("checked_at"):
+            errors.append(f"{rid} 标 IRRECOVERABLE 却没写 checked_at —— "
+                          "可用性会随时间变, 无日期的判定不可复核")
+
     stats = {"referenced": len(set(live) - set(index.get("negative_test_run_ids", {}))),
              "indexed": len(indexed),
              "locally_archived": sum(1 for r in indexed.values() if r["status"] == LOCALLY_ARCHIVED),
              "irrecoverable": sum(1 for r in indexed.values() if r["status"] == IRRECOVERABLE),
-             "evidence_refs": len(evidence_refs_in_registries())}
+             "evidence_refs": len(evidence_refs_in_registries()),
+             "push_remotes": push_remotes()}
     return (not errors), errors, stats
 
 

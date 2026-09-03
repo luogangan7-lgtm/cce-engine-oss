@@ -1,0 +1,25 @@
+=== gen4 live R=8 采样标定 (前登记) ===
+  · ① 零参照(T0 vs T0b)在任一 R 上拒绝率 > alpha+0.05 → TYPE1_VIOLATION, 整轮标定作废(型 I 都不受控时, 任何 power 数字都不可读)
+  · ② 型 I 受控, 且存在最小 R* 使 power(R*)>=0.80 **且** power(R*) 明显高于同 R 的零参照 → RECOMMEND_R = R*
+  · ③ 型 I 受控, power 随 R 单调上升但 R=8 仍 <0.80 → INSUFFICIENT_AT_R8(需 R>8 或效应太小)
+  · ④ 型 I 受控, 但 power 在所有 R 上都**没有明显高于零参照** → PAIR_MAY_BE_NULL: 这对文本可能本来就没有差异, **不能用它标定 power**, 需另找已知有效应的一对
+  · ★ 以上四支对 (型I是否受控, R* 是否存在, power 是否高于零参照) 穷尽且互斥。
+  · ★ 子集分析用**不放回真子集**, 不是 bootstrap —— 但仍条件于这 8 个真实 rep。
+  · ★ 禁止事后改文本、改 R、改判决线。
+
+仪器 565470cf26c16d01  资格协议 fc74c9ce372c8e59
+三臂: T0(293字) / T0b(T0 独立重跑, 零参照) / T1(1581字)  R=8 K=3 ⇒ 192 次调用
+  T0: R_qualified/R_requested = 8/8  k_valid=[3, 3, 3, 3, 3, 3, 3, 3]
+Traceback (most recent call last):
+  File "/home/runner/work/cce-engine-oss/cce-engine-oss/probes/live_r8_calibration.py", line 119, in <module>
+    raw[name] = [_rep(t) for _ in range(R)]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/cce-engine-oss/cce-engine-oss/probes/live_r8_calibration.py", line 119, in <listcomp>
+    raw[name] = [_rep(t) for _ in range(R)]
+                 ^^^^^^^
+  File "/home/runner/work/cce-engine-oss/cce-engine-oss/probes/live_r8_calibration.py", line 58, in _rep
+    s1 = K.stage1(text, CTX, KK)
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/cce-engine-oss/cce-engine-oss/scripts/cce_knot_classify.py", line 103, in stage1
+    raise RuntimeError("stage1 全部失败(raw 已存 results/knot_classify_raw/)")
+RuntimeError: stage1 全部失败(raw 已存 results/knot_classify_raw/)

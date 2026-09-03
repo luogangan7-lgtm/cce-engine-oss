@@ -1,0 +1,141 @@
+{
+ "input_sha": "0a20cbda72888761",
+ "run_at": "2026-08-18T03:33:26",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 3,
+  "k_ok": 3,
+  "layers": {
+   "desire_vec": [
+    0.0,
+    0.05000000000000001,
+    0.15666666666666668,
+    0.19333333333333336,
+    0.016666666666666666,
+    0.016666666666666666,
+    0.30666666666666664,
+    0.25,
+    0.01
+   ],
+   "need_vec": [
+    0.21666666666666667,
+    0.15,
+    0.13333333333333333,
+    0.3666666666666667,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.13333333333333333,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.24901960784313726,
+    0.04300653594771242,
+    0.026470588235294117,
+    0.0,
+    0.0,
+    0.06633986928104575,
+    0.0,
+    0.2380392156862745,
+    0.24169934640522875,
+    0.09588235294117647,
+    0.0,
+    0.0,
+    0.039542483660130724
+   ],
+   "action_vec": [
+    0.3666666666666667,
+    0.023333333333333334,
+    0.26666666666666666,
+    0.11666666666666665,
+    0.02666666666666667,
+    0.0,
+    0.19999999999999998
+   ]
+  },
+  "tops": {
+   "desire": "控制欲",
+   "need": "N04_理解世界",
+   "emotion": "admiration钦佩",
+   "action": "approach趋近"
+  },
+  "appraisal": {
+   "goal_relevance": 1.0,
+   "congruence_direction": "促进",
+   "need_status": "已满足",
+   "goal_congruence": "正",
+   "coping_potential": "高",
+   "note": "goal_relevance=1.0：内容直接撞在他的核心目标上——把变量分清楚。congruence=促进：对方20分钟做完了他说'我数据做不了'的事，是助力不是威胁。need_status=已满足：'it's the first time anyone's split those two for me' 就是当场认知缺口被填上，且他当场能用（'I'm not counting it'、'Not the walls, I think'）。所以是促进+已满足→正情绪。coping_potential=高：他具备读数、判读、控制变量清单的能力，所以情绪往钦佩/宽慰/认同走，而不是焦虑。"
+  },
+  "chain_trace": "控制欲+安全感欲 →(长期困扰+20分钟反常的测试结果)→ 需求N04_理解世界/N01_确定性/N02_掌控局面 →(评价：goal_relevance=1.0、congruence=促进、need_status=已满足、goal_congruence=正、coping=高)→ 情绪admiration+relief+approval(主)、curiosity/pride(副)→ 行动倾向approach+attend(主)、dominate+reject(次)",
+  "within_js": {
+   "desire_vec": 0.1085,
+   "need_vec": 0.1078,
+   "emotion_vec": 0.0745,
+   "action_vec": 0.095
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "display",
+    "weight": 0.65,
+    "evidence_quote": "it's the first time anyone's split those two for me. ... I'm not counting it. ... Not the walls, I think. ... I'd rather leave that one unanswered than have you fake a scenario you'd never actually be in.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "identity"
+    },
+    "desire_code": "超越欲",
+    "need_code": "N10",
+    "freshness_days_hint": 1,
+    "name": "确证·展示结",
+    "family": "推动",
+    "playbook": "让位;被当同侪;接着他的贡献往前走,绝不纠正姿态压他",
+    "behavior_predicted": "展示通道·低→高成本:纠错亮牌/举反例晒型号/结构化长评/承诺回访。评论区最高质量UGC主力"
+   },
+   {
+    "key": "reward",
+    "weight": 0.35,
+    "evidence_quote": "You just did the thing I said your data couldn't do. In twenty minutes.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足(即时)",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N01",
+    "freshness_days_hint": 1,
+    "name": "爽点·回报结",
+    "family": "推动",
+    "playbook": "短收;自我缩小;不再投喂信息(需求已闭,长文=把关掉的门重开)",
+    "behavior_predicted": "致谢通道·低中成本:收藏声明/致谢/自来水布道。驱动留存分享(留存维ρ≈0.26-0.5)"
+   }
+  ],
+  "levers_present": [],
+  "notes": "高密度结构化长评+自我纠错+拒伪场景——典型display(确证·展示结)主驱,叠少量reward(对'做到了我之前说做不了的事'的即时回报);audit已解除,不再阻挡内容采纳。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}

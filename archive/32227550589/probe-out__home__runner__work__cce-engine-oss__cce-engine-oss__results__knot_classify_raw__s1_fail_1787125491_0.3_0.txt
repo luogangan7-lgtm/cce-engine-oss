@@ -1,0 +1,95 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.05,
+      "成为欲": 0.02,
+      "摆脱欲": 0.40,
+      "确认欲": 0.13,
+      "超越欲": 0.00,
+      "归属欲": 0.08,
+      "控制欲": 0.17,
+      "安全感欲": 0.15,
+      "向往欲": 0.00
+    },
+    "note": "楼主最核心的潜变量是摆脱欲：耳朵刺痒、设备反复掉出、糟糕的NHS配机体验，三重不适同时压在身体与情绪上。控制欲次之——配机师草草了事、自己对装置的物理状态（深度、是否到位）完全失语，触发夺回主导权的本能。安全感欲来自设备可靠性悬而未决（'keeps popping out'暗示会掉、会丢）。确认欲与归属欲共现：发帖本身就是在求同类背书，'Is it in enough?'是求确认。拥有欲微弱，仅指向'想要一个能用的助听器'这一具体物。成为欲/超越欲/向往欲未被激活——内容不在'理想自我投射'轴上。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "助听器反复脱出 + 耳道持续刺痒，配机过程被冷遇带来的双重身心不适",
+      "weight": 0.30,
+      "derived_from": "由「摆脱欲」经「佩戴异物造成耳道痒+反复脱出+配机师态度冷淡」三重情境事件衍生"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "楼主不知如何判断佩戴深度、不知是否需要更小dome、不了解retention locks/custom molds等解决方案",
+      "weight": 0.25,
+      "derived_from": "由「控制欲」经「配机师未做正确示范+自己缺乏佩戴知识」衍生——要学会判断'in enough'、选择正确dome的方法"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "'Is it in enough?' 暴露的核心问句——佩戴位置/深度是否正确、是否需要换dome、是否需要mold，所有判断标准都缺失",
+      "weight": 0.25,
+      "derived_from": "由「安全感欲」经「设备物理位置不确定+配机师没给出明确标准」衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "NHS配机师'rushed through the whole appointment like I was inconveniencing her'，楼主在专业关系中完全被动",
+      "weight": 0.10,
+      "derived_from": "由「控制欲」经「配机师赶时间、不解释、不示范、让楼主觉得在添麻烦」衍生"
+    },
+    {
+      "code": "N13_情感慰藉",
+      "context_slot": "受挫于冷淡的医疗体验，需要被看见'我被怠慢了'这件事",
+      "weight": 0.10,
+      "derived_from": "由「确认欲+归属欲」经「专业服务方态度冷漠」衍生——发帖本身带倾诉性，希望被接纳"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "目标高度相关（设备是日常必需品）；当前情境对所有需求方向都是威胁（dome脱出/耳道痒/服务失格）；需求未当场解决（未在帖内被满足）；goal_congruence=负。coping_potential给'中'而非'低'，因为楼主已主动发帖到同好社区，回帖里出现大量可操作方案（smaller domes / retention locks / custom molds / canal locks / longer wire），存在明确应对路径，焦虑因此被部分悬置而非完全压垮——这是后面curiosity能被保留的根因。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.00,
+      "joy喜悦": 0.00,
+      "gratitude感激": 0.00,
+      "desire渴望": 0.05,
+      "nostalgia怀旧": 0.00,
+      "pride自豪": 0.00,
+      "love爱": 0.00,
+      "relief宽慰": 0.00,
+      "approval认同": 0.10,
+      "curiosity好奇": 0.20,
+      "fear恐惧": 0.15,
+      "sadness悲伤": 0.10,
+      "anger愤怒": 0.40
+    },
+    "note": "从需求×goal_congruence=负的威胁-未满足组合导出。anger权重最高：直接由N02_掌控局面受挫+'like I was inconveniencing her'冒犯感推动。curiosity权重次高：由coping_potential=中+回帖给出多条具体方案→趋近动机的信息缺口未解决，催生'我要搞清楚到底该怎么做'的好奇。fear由N01_确定性缺失+设备可能脱落丢失的安全感缺口推动，但因coping未完全崩盘而保持中低强度。sadness由N13_情感慰藉未获+被冷遇的无力感推动。approval由'寻找同类背书'需求催生，权重较低因为尚未被回。desire极弱，只对'更小dome/retention lock'这一可购买物有一丝指向。relief/joy/gratitude均为0——问题尚未解决。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.25,
+      "avoidance回避": 0.00,
+      "attend关注": 0.40,
+      "reject拒斥": 0.15,
+      "agonistic对抗": 0.20,
+      "interrupt中断": 0.00,
+      "dominate支配": 0.00
+    },
+    "note": "attend权重最高：帖子里两个连续问句（'Is it in enough?' / 'Do I need smaller domes?'）+细节观察（'keeps popping out'）都是注意聚焦行为。approach对应'到同好社区求助'这一主动求资源动作。agonistic对应'吐槽NHS配机师'这一对外输出敌意的对抗。reject指向对当前dome尺寸/当前配机结果的拒斥。avoidance=0，因为楼主没在回避问题反而是直面；dominate=0因为本帖不涉及支配他人；interrupt=0因为无中断动作。"
+  },
+  "chain_trace": "摆脱欲+控制欲+安全感欲 →(助听器反复脱出+耳道刺痒+NHS配机师草率冷淡这一三重情境)→ 需求N06_摆脱痛苦+N03_提升能力+N01_确定性+N02_掌控局面+N13_情感慰藉 →(评价：目标高度相关 / 方向=威胁 / 需求未满足 / 正负=负 / 应对潜能=中——回帖给出多套方案使焦虑未完全压垮)→ 情绪anger+curiosity+fear+sadness+approval → 行动倾向attend(密集问询与观察)+approach(发帖求方案)+agonistic(吐槽配机师)+reject(拒斥当前dome/配机结果)。"
+  "evidence": {
+    "desire": "摆脱欲:'Also my ears are so itchyyyyyyyyy!!!' + 'it keeps popping out';控制欲:'My NHS fitting was terrible she just rushed through the whole appointment like I was inconveniencing her';安全感欲:'Is it in enough?' + 'keeps popping out';确认欲:'Is it in enough?' / 'Do I need smaller domes?';归属欲:主动到r/HearingAids发帖本身就含找同类意味",
+    "need": "N06_摆脱痛苦:'Also my ears are so itchyyyyyyyyy!!!';N03_提升能力:'Do I need smaller domes?' + 不知'go further'什么意思;N01_确定性:'Is it in enough? I feel like it keeps popping out?';N02_掌控局面:'she just rushed through the whole appointment like I was inconveniencing her';N13_情感慰藉:对冷淡服务的隐含倾诉",
+    "emotion": "anger:'My NHS fitting was terrible' + 'like I was inconveniencing her 🤨';curiosity:'Is it in enough?' / 'Is it meant to go further?' / 'Do I need smaller domes?';fear:'keeps popping out'的失控感;sadness:被冷淡对待的无力;approval:发帖求'我说的对吗'的回响",
+    "action": "attend:两个问句+具体观察'keeps popping out';approach:主动到subreddit求助;agonistic:吐槽NHS配机师'was terrible' 'rushed through' 'like I was inconveniencing her';reject:'keeps popping out'隐含对当前dome尺寸/配机结果的拒斥"
+  }
+}
+```

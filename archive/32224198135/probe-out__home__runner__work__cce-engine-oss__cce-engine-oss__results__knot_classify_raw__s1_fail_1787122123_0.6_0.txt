@@ -1,0 +1,71 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.20,
+      "成为欲": 0.05,
+      "摆脱欲": 0.20,
+      "确认欲": 0.10,
+      "归属欲": 0.10,
+      "控制欲": 0.30,
+      "安全感欲": 0.05,
+      "超越欲": 0.00,
+      "向往欲": 0.00
+    },
+    "note": "主体控制欲最强——新助听器即将到手却丢掉tap-to-pause这一自主控制手段；拥有欲对应即将获得的新助听器；摆脱欲对应要甩掉每次必须找手机的烦人感；归属欲以'Other brands are already doing this'的同类对照形式被激活；确认欲则是借帖子向Oticon/同类求认同'
+  },
+  "need_layer": [
+    {"code": "N02_掌控局面", "context_slot": "新助听器到手前，发现将无法再用耳侧双击掌控流媒体暂停/接听，被迫掏出手机", "weight": 0.30, "derived_from": "控制欲经'新设备功能缩水'情境事件→需要在佩戴状态下保持对音频流的支配权"},
+    {"code": "N05_优化效率", "context_slot": "日常频繁需要从蓝牙流媒体跳回对话，过去靠tap秒切，现在必须摸手机", "weight": 0.30, "derived_from": "控制欲+摆脱欲经'高频切换场景'→需要把'暂停/恢复'这个动作的成本压到零"},
+    {"code": "N06_摆脱痛苦", "context_slot": "想到每次都要掏出手机的烦扰('Super annoying')，预期长期累积的摩擦感", "weight": 0.20, "derived_from": "摆脱欲经'新功能不可用'→需要把这种预期的不适感消掉"},
+    {"code": "N07_占有资源", "context_slot": "保险覆盖的Oticon Intent 1 miniRITE即将入手", "weight": 0.10, "derived_from": "拥有欲经'保险报销+即将取机'情境→需要把它拿到手"},
+    {"code": "N10_自我确认", "context_slot": "面向Oticon开发方/品牌代表发问，希望自己的诉求被认作是真实问题", "weight": 0.05, "derived_from": "确认欲经'发帖呼吁'→需要被厂商/社区确认'这个功能确实应该加'"},
+    {"code": "N04_理解世界", "context_slot": "Oticon既然能做接听电话的tap控制，为什么不开放流媒体暂停——想知道产品逻辑", "weight": 0.05, "derived_from": "确认欲经'已有tap接听却无tap暂停'的认知缺口→需要把这个矛盾想明白"}
+  ],
+  "appraisal": {
+    "goal_relevance": 0.90,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "目标高度相关(每天高频使用)；新设备功能缺失=对掌控/效率需求的直接威胁；当下没人能解决、未满足；发帖呼吁+期待固件更新使应对潜能居中——既非无能为力(可以施压)，也非已搞定。负向+中度应对潜能→激活负情绪为主，但desire/joy/excitement因'即将得到新机'而被部分缓冲"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.00,
+      "joy喜悦": 0.08,
+      "gratitude感激": 0.00,
+      "desire渴望": 0.18,
+      "nostalgia怀旧": 0.05,
+      "pride自豪": 0.00,
+      "love爱": 0.00,
+      "relief宽慰": 0.02,
+      "approval认同": 0.07,
+      "curiosity好奇": 0.05,
+      "fear恐惧": 0.05,
+      "sadness悲伤": 0.25,
+      "anger愤怒": 0.25
+    },
+    "note": "由'需求N02/N05/N06 × 威胁+未满足'派生sadness+anger为主轴(原文自陈'really sad'+'Super annoying')；'即将获得新助听器'+保险覆盖派生出desire+少量joy+微量relief；'Other brands doing this'对照与呼吁厂商形成approval；fear极少量来自对长期体验被削弱的隐忧；nostalgia源于对Phonak旧tap习惯的留恋"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.15,
+      "avoidance回避": 0.05,
+      "attend关注": 0.25,
+      "reject拒斥": 0.10,
+      "agonistic对抗": 0.30,
+      "interrupt中断": 0.10,
+      "dominate支配": 0.05
+    },
+    "note": "agonistic最强——公开喊话Oticon代表/开发者'put this feature into the development pipeline'；attend对应详尽描述缺失功能以维持关注；reject指向对'无tap暂停'这一设计的拒斥；approach仍保留因为'going with this selection'；interrupt对应试图打断厂商既有的功能优先级"
+  },
+  "chain_trace": "控制欲+拥有欲 →(新Oticon Intent 1 miniRITE即将到手但缺少耳侧双击暂停流媒体功能，必须掏手机)→ 需求N02_掌控局面 + N05_优化效率 + N06_摆脱痛苦(以及N07占有资源作底)→ 评价：goal_relevance=0.9 / 威胁 / 未满足 / 负 / coping中 → 情绪sadness悲伤 + anger愤怒为主，desire渴望+少量joy喜悦与approval认同为辅 → 行动倾向agonistic对抗(向厂商喊话)+attend关注(详尽描述)+reject拒斥(拒绝接受现状)为主，approach趋近(仍购入)为辅",
+  "evidence": {
+    "desire": "拥有欲: 'I'm about to get a pair of these Oticons'; 控制欲: 'I use the tap controls on my Phonak all the time to pause the streaming to jump into a conversation'; 摆脱欲: 'I am really sad about a missing feature... Super annoying'; 归属欲: 'Other brands are already doing this!'; 确认欲: 'If there are any Oticon reps or developers here'",
+    "need": "N02掌控局面: 'Now I will have to have my phone handy to pause the streams'; N05优化效率: 'use the tap controls... to jump into a conversation' 的秒切场景; N06摆脱痛苦: 'Super annoying'; N07占有资源: 'I am about to get a pair of these Oticons... insurance will cover them'; N10自我确认: 'y'all should really consider putting this feature into the development pipeline'; N04理解世界: 'The Oticon have tap controls to answer phone calls... wouldn't it??'",
+    "emotion": "sadness: 'I am really sad about a missing feature'; anger: 'Super annoying'; desire: 'I am excited for Oticons'; nostalgia: 整段对Phonak旧tap体验的回忆; approval: 'Other brands are already doing this'",
+    "action": "agonistic对抗: 'y'all should really consider putting this feature into the development pipeline'; attend关注: 整段逐条描述缺失功能细节; reject拒斥: 对'无tap暂停'设计的明确否定; approach趋近: 'I am going with this selection'"
+  }
+}
+```

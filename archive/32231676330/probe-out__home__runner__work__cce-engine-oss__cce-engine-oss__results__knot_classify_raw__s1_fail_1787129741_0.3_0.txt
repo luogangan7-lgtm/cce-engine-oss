@@ -1,0 +1,95 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.25,
+      "确认欲": 0.15,
+      "超越欲": 0.05,
+      "归属欲": 0.05,
+      "控制欲": 0.30,
+      "安全感欲": 0.20,
+      "向往欲": 0.0
+    },
+    "note": "主激活三类：①控制欲——逐项排查设置、主动复现/验证、把混乱配置掰回预期；②摆脱欲——想逃离『别人听不清我』的故障通话状态；③安全感欲——通讯是基本生存需求，反复用『Can you hear me now?』确认对方能否听见。确认欲来自想被Google Accessibility team正式回应，归属欲+超越欲是附带动机（在r/HearingAids发技术发现，『above my pay grade』的自嘲式自豪）。"
+  },
+  "need_layer": [
+    {
+      "code": "N04_理解世界",
+      "context_slot": "LE Audio + 默认麦克风 + Speaker 选择的组合为何把对方音量压低，自己能否讲清根因",
+      "weight": 0.30,
+      "derived_from": "控制欲+好奇心：经「发现并定位Bug」情境事件，衍生出『把异常现象解释通』的结果导向"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "通话中对方听不见，配置在多个子菜单中分散，无法一键控制",
+      "weight": 0.25,
+      "derived_from": "控制欲：经「默认设置被强制覆盖、mic gain被静默改变」情境事件，衍生出『把方向盘拿回来、按自己意图配置通话』"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "不指望Google几天内有回应，需要自己确认根因并锁定可靠解法",
+      "weight": 0.20,
+      "derived_from": "安全感欲：经「Google响应慢、生态不可控」情境，衍生出『先于官方答复把问题讲清楚』
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "要掌握Echo Test回放、LE Audio/BT Classic切换、FlooGoo dongle调试这套新工具链",
+      "weight": 0.15,
+      "derived_from": "控制欲+超越欲：经「需要可迁移方法处理未来同类问题」，衍生出『学会可重复使用的诊断流程』"
+    },
+    {
+      "code": "N05_优化效率",
+      "context_slot": "通话中临时切Speaker来回试探，体验不直觉",
+      "weight": 0.10,
+      "derived_from": "摆脱欲+控制欲：经『要跑多个sub-menu才能配置好』情境，衍生出『少花时间到达同样效果』"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.90,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "内容同时承载两类信号：① 揭示了真实威胁（LE Audio强制覆盖『Default mic for calls』，对靠助听器打电话的人是核心功能故障）——威胁+未满足→负向；② 自我找到workaround（关LE Audio、用FlooGoo dongle）→ coping_potential 中等（自助解法存在，但Google官方未修）。该评价组合使情绪偏向：愤怒（功能被破坏+被忽视）+ 好奇/宽慰/自豪（自助排查成功）"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.05,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.15,
+      "love爱": 0.0,
+      "relief宽慰": 0.15,
+      "approval认同": 0.10,
+      "curiosity好奇": 0.25,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.30
+    },
+    "note": "由「威胁×未满足」推负情绪：① 愤怒（『they kinda suck at actually using the phone』『they should either be better explained or should work intuitively』直接外溢不满）；② 由「已通过自助满足部分需求」推正情绪：宽慰（『my voice was loud and clear』）、好奇（持续测试推导『what I think is happening』）、自豪（『This is all above my pay grade, but...』的隐性自我肯定）、认同（在r/HearingAids发技术贴，期望被社区采纳为解决方案）；③ 渴望指向期待Google修好。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.25,
+      "avoidance回避": 0.0,
+      "attend关注": 0.20,
+      "reject拒斥": 0.10,
+      "agonistic对抗": 0.30,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.15
+    },
+    "note": "① 对抗——『I'll be contacting the android Accessibility team shortly』是显性对抗性行动倾向；② 趋近——主动跑测试、自购dongle持续逼近问题；③ 关注——逐条细抠settings sub-menu；④ 支配——『It can be changed while the call is in progress』体现对通话过程的实时主导；⑤ 拒斥——『When I disabled it, which forces the phone to use bluetooth classic』对LE Audio当前行为的直接拒斥。"
+  },
+  "chain_trace": "控制欲+摆脱欲+安全感欲 →(LE Audio在Pixel 10 Pro上静默覆盖『Default mic for calls』强制走助听器mic，对方听不见)→ 需求N04_理解世界+N02_掌控局面+N01_确定性 →(评价：goal_relevance 0.9 / 方向=威胁 / 状态=未满足 / 正负=负 / coping=中)→ 情绪愤怒为主+好奇+自豪+宽慰+认同+微弱渴望 → 行动倾向对抗(联系Google Accessibility team)+趋近(继续测试)+关注+支配+拒斥 的完整一句话推导",
+  "evidence": {
+    "desire": "摆脱欲:『people on phone calls can't hear me clearly』/『they kinda suck at actually using the phone』; 控制欲:『I've worked on all kinds of settings』『I used a phone number that's an echo test phone number』; 安全感欲:『Can you hear me now?』『my voice was loud and clear』; 确认欲:『I'll be contacting the android Accessibility team shortly』; 归属欲+超越欲: 在r/HearingAids发完整技术贴 +『This is all above my pay grade, but...』",
+    "need": "N04理解世界:『Here's what I *think* is happening...』『It can be changed while the call is in progress』; N02掌控:『a user shouldn't have to go to several different settings submenues to get it configured』; N01确定性:『Further test because I don't expect to hear anything from the Accessibility Team for a couple days』; N03提升能力:『There's a little setup on the device itself using their program, but it was easy』; N05优化效率:『should work intuitively』",
+    "emotion": "愤怒:『they kinda suck at actually using the phone』『If Google's going to tout their accessibility features, they should either be better explained or should work intuitively』; 好奇:『Ok, so I've been working on an issue』『Further test』; 自豪:『This is all above my pay grade, but...』; 宽慰:『When I disabled it... my voice was loud and clear』; 认同+渴望: 发贴帮助他人 +『I'll be contacting the android Accessibility team shortly』",
+    "action": "对抗:『I'll be contacting the android Accessibility team shortly』; 趋近:『I have one. It works. There's a little setup on the device itself using their program, but it was easy』; 关注+支配:『If it's on hearing aids, the mic volume is so low』『It can be changed while the call is in progress (Can you hear me now?)』; 拒斥:『When I disabled it, which forces the phone to use bluetooth classic, my voice was loud and clear』"
+  }
+}
+```

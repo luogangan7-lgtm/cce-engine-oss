@@ -1,0 +1,30 @@
+=== Stage2 长度零假设臂 (前登记) ===
+  · ★主判 BASE vs PAD: p>0.05 或 T<min_effect(0.06278) → 垫料**没有**推动读数 ⇒ 长度本身不是驱动源, T2 结更丰富可继续归因于内容
+  · ★主判 BASE vs PAD: p<=0.05 且 T>=min_effect → **垫料推动了读数** ⇒ 『T2 结更丰富因为内容更丰富』作废, 所有跨长度的九结比较全部不可用
+  · ★辅判 FILL 单独: 若 FILL 自己就点火出结, 则 PAD 的位移**不能**归因于长度, 只能归因于『垫料带进了内容』—— 这正是三臂而非两臂的理由
+  · ★辅判 FILL: 若 FILL 近乎不点火而 PAD 仍位移 ⇒ 位移由**长度本身**驱动, 这是最坏情况
+  · ★ NOT_SEPARATED 不等于『相同』。要主张 BASE 与 PAD 相同必须过等价检验; 本臂只能报『低于当前分辨率(min_effect=0.06278)』
+  · ★ 禁止事后改文本、改垫料、改 R、改判决线。
+
+臂长度: BASE=293字  PAD=1564字  FILL=1270字   (对照 T1=1581字)
+  BASE 完成 4 rep
+  PAD 完成 4 rep
+  FILL 完成 4 rep
+
+仪器指纹全程一致: 57ec6cf478d3875e
+
+BASE: UNSTABLE_MEMBERSHIP  结集一致率=0.167  翻转={'suspend': 2, 'inertia': 1}  结=['inertia', 'injustice', 'pain_seek', 'suspend']
+
+PAD: UNSTABLE_MEMBERSHIP  结集一致率=0.000  翻转={'injustice': 3, 'reward': 1, 'display': 3, 'suspend': 1, 'audit': 1}  结=['audit', 'display', 'injustice', 'pain_seek', 'reward', 'suspend']
+
+FILL: UNSTABLE_INTENSITY  结集一致率=1.000  翻转={}  结=['display', 'reward']
+
+★ BASE vs PAD: NOT_SEPARATED  T=0.10792  p=0.0857
+
+★ BASE vs FILL: SEPARATED  T=0.20778  p=0.0286
+
+★ PAD vs FILL: SEPARATED  T=0.17403  p=0.0286
+
+=== 主判 ===
+  垫料**没有**推动读数(低于当前分辨率) ⇒ 长度本身不是驱动源
+写出 /tmp/length_null_arm.json

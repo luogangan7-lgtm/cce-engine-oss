@@ -1,0 +1,789 @@
+{
+  "kind": "cce.submission.v1",
+  "schema_version": "1.1.0",
+  "submission_id": "daerdo:knot-stability-v2:v1",
+  "profile": "outbound_reply",
+  "submitted_at": "2026-08-18T04:00:00Z",
+  "producer": {
+    "system": "claude-code",
+    "trace_id": "knot-stability-v2"
+  },
+  "items": [
+    {
+      "job_id": "stab2-A-1",
+      "content_id": "stab2_A_1",
+      "platform": "reddit",
+      "platform_adapter": {
+        "id": "reddit",
+        "version": "1.0.0"
+      },
+      "surface": {
+        "kind": "community",
+        "id": "r/HearingAids",
+        "observed_at": "2026-08-18T04:00:00Z"
+      },
+      "domain": "hearing_aid",
+      "language": "en",
+      "speaker_role": "op",
+      "guard_profile": "hearing_aid",
+      "context": {
+        "summary": "s2_knots 同项重跑稳定性基线。本项与同组其余各项除 job_id/content_id 外全部字段逐字相同，包括 context.summary 本身（上一版误在此处写入序号，导致分类器实际收到不同 context，测量作废）。目的：量出零输入变化下的读数抖动，作为重构验收 gate K1 的基线。不产出任何对外内容。",
+        "declaration": {
+          "进程位置": "在找方案",
+          "触发事件": "受挫/出故障",
+          "关系位置": "接触过几次",
+          "身体状态": "长期困扰",
+          "资源状态": "未提及",
+          "社会在场": "半匿名",
+          "信息环境": "主动订阅",
+          "场景类型": "未知",
+          "情绪余温": "中性"
+        },
+        "dimensions": {
+          "device": {
+            "value": "重跑稳定性测试，无真实设备",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "environment": {
+            "value": "同项重跑对照：除 job_id/content_id 外全部字段逐字相同",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "task": {
+            "value": "量 s2_knots 在零输入变化下的读数抖动",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "current_goal": {
+            "value": "为 K1 建立基线，不产出对外内容",
+            "assertion": "derived",
+            "evidence_refs": []
+          },
+          "social": {
+            "value": "内部测量",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "relationship": {
+            "value": "不适用",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "time": {
+            "value": "同批提交",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "location": {
+            "value": "未测",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "session": {
+            "value": "单批",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "life": {
+            "value": "不适用",
+            "assertion": "unknown",
+            "evidence_refs": []
+          }
+        },
+        "provenance": "同项重跑基线测量；同组各项除 job_id/content_id 外逐字相同。"
+      },
+      "reader": {
+        "actor_ref": "reddit:u/self_op",
+        "evidence_ref": "stability-probe",
+        "observed_at": "2026-08-18T04:00:00Z",
+        "source": "reddit_comment",
+        "text": "stability probe: identical input repeated",
+        "text_sha256": "sha256:f429f09bba02cf7c44ae60aacd4532cb90c41173d1672fefec7164397d417380"
+      },
+      "draft": {
+        "text": "I've received quite a few reports over the past two weeks. I've been organizing them into a table according to the protocol: one row for ASHA, one for MFi, one for LE Audio, and later I added a column for indoor vs. outdoor. Now I have to say something. This table might not be measuring what I thought it was.\n\nIt all started with a report on another hearing aid forum. Same Pixel phone, same pair of Oticon hearing aids. No hardware changes. Just a system update. On Android 16, both the left and right ears were very stable, with almost no disconnections. After installing the Android 17 beta, LE Audio started dropping frequently. The disconnections also occurred at a very specific moment: right when a call connected. This is most noticeable during 4G/5G calls. For internet-based calls like WhatsApp, the dropout rate is lower. It happens significantly less often when connected to Wi-Fi.\n\nLater, the poster added that things improved considerably after the release of QPR2 Beta 3 for Android 17, and now the main issue is that the left ear drops out more often than the right. He said that whether the connection drops out or not is no longer related to where he carries his phone on his body.\n\nThat last half-sentence is the killer.\n\nIf this report is correct, then the core statement I've been noting down over the past two weeks is flawed. That statement is: \"Which pocket you put the phone in determines which ear drops first.\" Part of it points to a software defect, not RF geometry. What's even more troublesome is that I can't tell how many cases this applies to. Because from the first post until now, I haven't once asked anyone about their system version or build number. I've accounted for the hardware. I've accounted for the protocol. I've accounted for body position. Later, I discovered that indoor versus outdoor settings were also variables, so I filled in that column as well. But the column for system version has remained empty from start to finish. Not a single one of the previous reports can be retroactively updated. Version numbers aren't something you can recall after the fact.\n\nI'm not saying that the location of the pocket isn't important. I do acknowledge the issue of the body blocking the signal. There's a report about a case where a person left their phone inside a room and walked a little over 30 meters away. When he turned his head, the signal to his left ear dropped. His skull was blocking the path between the phone and his left ear, meaning his body was in the way. It's just that this probably only happens when the signal has no margin left. I can't separate these two issues right now. That's just how it is.\n\nSo starting with this post, please include a few extra details when reporting back. I'll also start recording things this way myself:\n\n- The protocol name read at the moment of disconnection. Not which ones your device supports, but which one was connected at that exact moment\n- Indoors or outdoors\n- Whether the connection dropped in the ear closest to the phone or the other side\n- Whether you were streaming at the time. Playing music, on a call, or just leaving it idle\n- The exact location of your phone\n- OS version and build number. For Android, please also note if it's a beta version\n\nOne more thing. Why am I writing this in the post itself instead of just going back to edit my own spreadsheet? Last time, in that forum thread, I mentioned, \"Please include the date from now on.\" Within two hours, I received two reports. Both people included their OS version or firmware status on their own. I didn't have to ask either of them separately. If I write it out here, everyone will follow it. If I just put it in my own spreadsheet, no one will see it.\n\nThese six fields are all I can think of right now. I don't know if that's enough. Let me know if I've missed anything.",
+        "text_sha256": "sha256:79b796ea90dcc202ae7bd42cb8bb8924ad71652fecd9a7b71dd5140179682017"
+      }
+    },
+    {
+      "job_id": "stab2-A-2",
+      "content_id": "stab2_A_2",
+      "platform": "reddit",
+      "platform_adapter": {
+        "id": "reddit",
+        "version": "1.0.0"
+      },
+      "surface": {
+        "kind": "community",
+        "id": "r/HearingAids",
+        "observed_at": "2026-08-18T04:00:00Z"
+      },
+      "domain": "hearing_aid",
+      "language": "en",
+      "speaker_role": "op",
+      "guard_profile": "hearing_aid",
+      "context": {
+        "summary": "s2_knots 同项重跑稳定性基线。本项与同组其余各项除 job_id/content_id 外全部字段逐字相同，包括 context.summary 本身（上一版误在此处写入序号，导致分类器实际收到不同 context，测量作废）。目的：量出零输入变化下的读数抖动，作为重构验收 gate K1 的基线。不产出任何对外内容。",
+        "declaration": {
+          "进程位置": "在找方案",
+          "触发事件": "受挫/出故障",
+          "关系位置": "接触过几次",
+          "身体状态": "长期困扰",
+          "资源状态": "未提及",
+          "社会在场": "半匿名",
+          "信息环境": "主动订阅",
+          "场景类型": "未知",
+          "情绪余温": "中性"
+        },
+        "dimensions": {
+          "device": {
+            "value": "重跑稳定性测试，无真实设备",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "environment": {
+            "value": "同项重跑对照：除 job_id/content_id 外全部字段逐字相同",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "task": {
+            "value": "量 s2_knots 在零输入变化下的读数抖动",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "current_goal": {
+            "value": "为 K1 建立基线，不产出对外内容",
+            "assertion": "derived",
+            "evidence_refs": []
+          },
+          "social": {
+            "value": "内部测量",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "relationship": {
+            "value": "不适用",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "time": {
+            "value": "同批提交",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "location": {
+            "value": "未测",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "session": {
+            "value": "单批",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "life": {
+            "value": "不适用",
+            "assertion": "unknown",
+            "evidence_refs": []
+          }
+        },
+        "provenance": "同项重跑基线测量；同组各项除 job_id/content_id 外逐字相同。"
+      },
+      "reader": {
+        "actor_ref": "reddit:u/self_op",
+        "evidence_ref": "stability-probe",
+        "observed_at": "2026-08-18T04:00:00Z",
+        "source": "reddit_comment",
+        "text": "stability probe: identical input repeated",
+        "text_sha256": "sha256:f429f09bba02cf7c44ae60aacd4532cb90c41173d1672fefec7164397d417380"
+      },
+      "draft": {
+        "text": "I've received quite a few reports over the past two weeks. I've been organizing them into a table according to the protocol: one row for ASHA, one for MFi, one for LE Audio, and later I added a column for indoor vs. outdoor. Now I have to say something. This table might not be measuring what I thought it was.\n\nIt all started with a report on another hearing aid forum. Same Pixel phone, same pair of Oticon hearing aids. No hardware changes. Just a system update. On Android 16, both the left and right ears were very stable, with almost no disconnections. After installing the Android 17 beta, LE Audio started dropping frequently. The disconnections also occurred at a very specific moment: right when a call connected. This is most noticeable during 4G/5G calls. For internet-based calls like WhatsApp, the dropout rate is lower. It happens significantly less often when connected to Wi-Fi.\n\nLater, the poster added that things improved considerably after the release of QPR2 Beta 3 for Android 17, and now the main issue is that the left ear drops out more often than the right. He said that whether the connection drops out or not is no longer related to where he carries his phone on his body.\n\nThat last half-sentence is the killer.\n\nIf this report is correct, then the core statement I've been noting down over the past two weeks is flawed. That statement is: \"Which pocket you put the phone in determines which ear drops first.\" Part of it points to a software defect, not RF geometry. What's even more troublesome is that I can't tell how many cases this applies to. Because from the first post until now, I haven't once asked anyone about their system version or build number. I've accounted for the hardware. I've accounted for the protocol. I've accounted for body position. Later, I discovered that indoor versus outdoor settings were also variables, so I filled in that column as well. But the column for system version has remained empty from start to finish. Not a single one of the previous reports can be retroactively updated. Version numbers aren't something you can recall after the fact.\n\nI'm not saying that the location of the pocket isn't important. I do acknowledge the issue of the body blocking the signal. There's a report about a case where a person left their phone inside a room and walked a little over 30 meters away. When he turned his head, the signal to his left ear dropped. His skull was blocking the path between the phone and his left ear, meaning his body was in the way. It's just that this probably only happens when the signal has no margin left. I can't separate these two issues right now. That's just how it is.\n\nSo starting with this post, please include a few extra details when reporting back. I'll also start recording things this way myself:\n\n- The protocol name read at the moment of disconnection. Not which ones your device supports, but which one was connected at that exact moment\n- Indoors or outdoors\n- Whether the connection dropped in the ear closest to the phone or the other side\n- Whether you were streaming at the time. Playing music, on a call, or just leaving it idle\n- The exact location of your phone\n- OS version and build number. For Android, please also note if it's a beta version\n\nOne more thing. Why am I writing this in the post itself instead of just going back to edit my own spreadsheet? Last time, in that forum thread, I mentioned, \"Please include the date from now on.\" Within two hours, I received two reports. Both people included their OS version or firmware status on their own. I didn't have to ask either of them separately. If I write it out here, everyone will follow it. If I just put it in my own spreadsheet, no one will see it.\n\nThese six fields are all I can think of right now. I don't know if that's enough. Let me know if I've missed anything.",
+        "text_sha256": "sha256:79b796ea90dcc202ae7bd42cb8bb8924ad71652fecd9a7b71dd5140179682017"
+      }
+    },
+    {
+      "job_id": "stab2-A-3",
+      "content_id": "stab2_A_3",
+      "platform": "reddit",
+      "platform_adapter": {
+        "id": "reddit",
+        "version": "1.0.0"
+      },
+      "surface": {
+        "kind": "community",
+        "id": "r/HearingAids",
+        "observed_at": "2026-08-18T04:00:00Z"
+      },
+      "domain": "hearing_aid",
+      "language": "en",
+      "speaker_role": "op",
+      "guard_profile": "hearing_aid",
+      "context": {
+        "summary": "s2_knots 同项重跑稳定性基线。本项与同组其余各项除 job_id/content_id 外全部字段逐字相同，包括 context.summary 本身（上一版误在此处写入序号，导致分类器实际收到不同 context，测量作废）。目的：量出零输入变化下的读数抖动，作为重构验收 gate K1 的基线。不产出任何对外内容。",
+        "declaration": {
+          "进程位置": "在找方案",
+          "触发事件": "受挫/出故障",
+          "关系位置": "接触过几次",
+          "身体状态": "长期困扰",
+          "资源状态": "未提及",
+          "社会在场": "半匿名",
+          "信息环境": "主动订阅",
+          "场景类型": "未知",
+          "情绪余温": "中性"
+        },
+        "dimensions": {
+          "device": {
+            "value": "重跑稳定性测试，无真实设备",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "environment": {
+            "value": "同项重跑对照：除 job_id/content_id 外全部字段逐字相同",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "task": {
+            "value": "量 s2_knots 在零输入变化下的读数抖动",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "current_goal": {
+            "value": "为 K1 建立基线，不产出对外内容",
+            "assertion": "derived",
+            "evidence_refs": []
+          },
+          "social": {
+            "value": "内部测量",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "relationship": {
+            "value": "不适用",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "time": {
+            "value": "同批提交",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "location": {
+            "value": "未测",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "session": {
+            "value": "单批",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "life": {
+            "value": "不适用",
+            "assertion": "unknown",
+            "evidence_refs": []
+          }
+        },
+        "provenance": "同项重跑基线测量；同组各项除 job_id/content_id 外逐字相同。"
+      },
+      "reader": {
+        "actor_ref": "reddit:u/self_op",
+        "evidence_ref": "stability-probe",
+        "observed_at": "2026-08-18T04:00:00Z",
+        "source": "reddit_comment",
+        "text": "stability probe: identical input repeated",
+        "text_sha256": "sha256:f429f09bba02cf7c44ae60aacd4532cb90c41173d1672fefec7164397d417380"
+      },
+      "draft": {
+        "text": "I've received quite a few reports over the past two weeks. I've been organizing them into a table according to the protocol: one row for ASHA, one for MFi, one for LE Audio, and later I added a column for indoor vs. outdoor. Now I have to say something. This table might not be measuring what I thought it was.\n\nIt all started with a report on another hearing aid forum. Same Pixel phone, same pair of Oticon hearing aids. No hardware changes. Just a system update. On Android 16, both the left and right ears were very stable, with almost no disconnections. After installing the Android 17 beta, LE Audio started dropping frequently. The disconnections also occurred at a very specific moment: right when a call connected. This is most noticeable during 4G/5G calls. For internet-based calls like WhatsApp, the dropout rate is lower. It happens significantly less often when connected to Wi-Fi.\n\nLater, the poster added that things improved considerably after the release of QPR2 Beta 3 for Android 17, and now the main issue is that the left ear drops out more often than the right. He said that whether the connection drops out or not is no longer related to where he carries his phone on his body.\n\nThat last half-sentence is the killer.\n\nIf this report is correct, then the core statement I've been noting down over the past two weeks is flawed. That statement is: \"Which pocket you put the phone in determines which ear drops first.\" Part of it points to a software defect, not RF geometry. What's even more troublesome is that I can't tell how many cases this applies to. Because from the first post until now, I haven't once asked anyone about their system version or build number. I've accounted for the hardware. I've accounted for the protocol. I've accounted for body position. Later, I discovered that indoor versus outdoor settings were also variables, so I filled in that column as well. But the column for system version has remained empty from start to finish. Not a single one of the previous reports can be retroactively updated. Version numbers aren't something you can recall after the fact.\n\nI'm not saying that the location of the pocket isn't important. I do acknowledge the issue of the body blocking the signal. There's a report about a case where a person left their phone inside a room and walked a little over 30 meters away. When he turned his head, the signal to his left ear dropped. His skull was blocking the path between the phone and his left ear, meaning his body was in the way. It's just that this probably only happens when the signal has no margin left. I can't separate these two issues right now. That's just how it is.\n\nSo starting with this post, please include a few extra details when reporting back. I'll also start recording things this way myself:\n\n- The protocol name read at the moment of disconnection. Not which ones your device supports, but which one was connected at that exact moment\n- Indoors or outdoors\n- Whether the connection dropped in the ear closest to the phone or the other side\n- Whether you were streaming at the time. Playing music, on a call, or just leaving it idle\n- The exact location of your phone\n- OS version and build number. For Android, please also note if it's a beta version\n\nOne more thing. Why am I writing this in the post itself instead of just going back to edit my own spreadsheet? Last time, in that forum thread, I mentioned, \"Please include the date from now on.\" Within two hours, I received two reports. Both people included their OS version or firmware status on their own. I didn't have to ask either of them separately. If I write it out here, everyone will follow it. If I just put it in my own spreadsheet, no one will see it.\n\nThese six fields are all I can think of right now. I don't know if that's enough. Let me know if I've missed anything.",
+        "text_sha256": "sha256:79b796ea90dcc202ae7bd42cb8bb8924ad71652fecd9a7b71dd5140179682017"
+      }
+    },
+    {
+      "job_id": "stab2-A-4",
+      "content_id": "stab2_A_4",
+      "platform": "reddit",
+      "platform_adapter": {
+        "id": "reddit",
+        "version": "1.0.0"
+      },
+      "surface": {
+        "kind": "community",
+        "id": "r/HearingAids",
+        "observed_at": "2026-08-18T04:00:00Z"
+      },
+      "domain": "hearing_aid",
+      "language": "en",
+      "speaker_role": "op",
+      "guard_profile": "hearing_aid",
+      "context": {
+        "summary": "s2_knots 同项重跑稳定性基线。本项与同组其余各项除 job_id/content_id 外全部字段逐字相同，包括 context.summary 本身（上一版误在此处写入序号，导致分类器实际收到不同 context，测量作废）。目的：量出零输入变化下的读数抖动，作为重构验收 gate K1 的基线。不产出任何对外内容。",
+        "declaration": {
+          "进程位置": "在找方案",
+          "触发事件": "受挫/出故障",
+          "关系位置": "接触过几次",
+          "身体状态": "长期困扰",
+          "资源状态": "未提及",
+          "社会在场": "半匿名",
+          "信息环境": "主动订阅",
+          "场景类型": "未知",
+          "情绪余温": "中性"
+        },
+        "dimensions": {
+          "device": {
+            "value": "重跑稳定性测试，无真实设备",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "environment": {
+            "value": "同项重跑对照：除 job_id/content_id 外全部字段逐字相同",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "task": {
+            "value": "量 s2_knots 在零输入变化下的读数抖动",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "current_goal": {
+            "value": "为 K1 建立基线，不产出对外内容",
+            "assertion": "derived",
+            "evidence_refs": []
+          },
+          "social": {
+            "value": "内部测量",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "relationship": {
+            "value": "不适用",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "time": {
+            "value": "同批提交",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "location": {
+            "value": "未测",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "session": {
+            "value": "单批",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "life": {
+            "value": "不适用",
+            "assertion": "unknown",
+            "evidence_refs": []
+          }
+        },
+        "provenance": "同项重跑基线测量；同组各项除 job_id/content_id 外逐字相同。"
+      },
+      "reader": {
+        "actor_ref": "reddit:u/self_op",
+        "evidence_ref": "stability-probe",
+        "observed_at": "2026-08-18T04:00:00Z",
+        "source": "reddit_comment",
+        "text": "stability probe: identical input repeated",
+        "text_sha256": "sha256:f429f09bba02cf7c44ae60aacd4532cb90c41173d1672fefec7164397d417380"
+      },
+      "draft": {
+        "text": "I've received quite a few reports over the past two weeks. I've been organizing them into a table according to the protocol: one row for ASHA, one for MFi, one for LE Audio, and later I added a column for indoor vs. outdoor. Now I have to say something. This table might not be measuring what I thought it was.\n\nIt all started with a report on another hearing aid forum. Same Pixel phone, same pair of Oticon hearing aids. No hardware changes. Just a system update. On Android 16, both the left and right ears were very stable, with almost no disconnections. After installing the Android 17 beta, LE Audio started dropping frequently. The disconnections also occurred at a very specific moment: right when a call connected. This is most noticeable during 4G/5G calls. For internet-based calls like WhatsApp, the dropout rate is lower. It happens significantly less often when connected to Wi-Fi.\n\nLater, the poster added that things improved considerably after the release of QPR2 Beta 3 for Android 17, and now the main issue is that the left ear drops out more often than the right. He said that whether the connection drops out or not is no longer related to where he carries his phone on his body.\n\nThat last half-sentence is the killer.\n\nIf this report is correct, then the core statement I've been noting down over the past two weeks is flawed. That statement is: \"Which pocket you put the phone in determines which ear drops first.\" Part of it points to a software defect, not RF geometry. What's even more troublesome is that I can't tell how many cases this applies to. Because from the first post until now, I haven't once asked anyone about their system version or build number. I've accounted for the hardware. I've accounted for the protocol. I've accounted for body position. Later, I discovered that indoor versus outdoor settings were also variables, so I filled in that column as well. But the column for system version has remained empty from start to finish. Not a single one of the previous reports can be retroactively updated. Version numbers aren't something you can recall after the fact.\n\nI'm not saying that the location of the pocket isn't important. I do acknowledge the issue of the body blocking the signal. There's a report about a case where a person left their phone inside a room and walked a little over 30 meters away. When he turned his head, the signal to his left ear dropped. His skull was blocking the path between the phone and his left ear, meaning his body was in the way. It's just that this probably only happens when the signal has no margin left. I can't separate these two issues right now. That's just how it is.\n\nSo starting with this post, please include a few extra details when reporting back. I'll also start recording things this way myself:\n\n- The protocol name read at the moment of disconnection. Not which ones your device supports, but which one was connected at that exact moment\n- Indoors or outdoors\n- Whether the connection dropped in the ear closest to the phone or the other side\n- Whether you were streaming at the time. Playing music, on a call, or just leaving it idle\n- The exact location of your phone\n- OS version and build number. For Android, please also note if it's a beta version\n\nOne more thing. Why am I writing this in the post itself instead of just going back to edit my own spreadsheet? Last time, in that forum thread, I mentioned, \"Please include the date from now on.\" Within two hours, I received two reports. Both people included their OS version or firmware status on their own. I didn't have to ask either of them separately. If I write it out here, everyone will follow it. If I just put it in my own spreadsheet, no one will see it.\n\nThese six fields are all I can think of right now. I don't know if that's enough. Let me know if I've missed anything.",
+        "text_sha256": "sha256:79b796ea90dcc202ae7bd42cb8bb8924ad71652fecd9a7b71dd5140179682017"
+      }
+    },
+    {
+      "job_id": "stab2-B-1",
+      "content_id": "stab2_B_1",
+      "platform": "reddit",
+      "platform_adapter": {
+        "id": "reddit",
+        "version": "1.0.0"
+      },
+      "surface": {
+        "kind": "community",
+        "id": "r/HearingAids",
+        "observed_at": "2026-08-18T04:00:00Z"
+      },
+      "domain": "hearing_aid",
+      "language": "en",
+      "speaker_role": "op",
+      "guard_profile": "hearing_aid",
+      "context": {
+        "summary": "s2_knots 同项重跑稳定性基线。本项与同组其余各项除 job_id/content_id 外全部字段逐字相同，包括 context.summary 本身（上一版误在此处写入序号，导致分类器实际收到不同 context，测量作废）。目的：量出零输入变化下的读数抖动，作为重构验收 gate K1 的基线。不产出任何对外内容。",
+        "declaration": {
+          "进程位置": "在找方案",
+          "触发事件": "受挫/出故障",
+          "关系位置": "接触过几次",
+          "身体状态": "长期困扰",
+          "资源状态": "未提及",
+          "社会在场": "半匿名",
+          "信息环境": "主动订阅",
+          "场景类型": "未知",
+          "情绪余温": "中性"
+        },
+        "dimensions": {
+          "device": {
+            "value": "重跑稳定性测试，无真实设备",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "environment": {
+            "value": "同项重跑对照：除 job_id/content_id 外全部字段逐字相同",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "task": {
+            "value": "量 s2_knots 在零输入变化下的读数抖动",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "current_goal": {
+            "value": "为 K1 建立基线，不产出对外内容",
+            "assertion": "derived",
+            "evidence_refs": []
+          },
+          "social": {
+            "value": "内部测量",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "relationship": {
+            "value": "不适用",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "time": {
+            "value": "同批提交",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "location": {
+            "value": "未测",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "session": {
+            "value": "单批",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "life": {
+            "value": "不适用",
+            "assertion": "unknown",
+            "evidence_refs": []
+          }
+        },
+        "provenance": "同项重跑基线测量；同组各项除 job_id/content_id 外逐字相同。"
+      },
+      "reader": {
+        "actor_ref": "reddit:u/self_op",
+        "evidence_ref": "stability-probe",
+        "observed_at": "2026-08-18T04:00:00Z",
+        "source": "reddit_comment",
+        "text": "stability probe: identical input repeated",
+        "text_sha256": "sha256:f429f09bba02cf7c44ae60aacd4532cb90c41173d1672fefec7164397d417380"
+      },
+      "draft": {
+        "text": "You just did the thing I said your data couldn't do. In twenty minutes.\n\nWindows and walls at home and at the office, so the reflections are there, and no dropouts. What I'm left with is how many other radios are in the room. I read that as congestion rather than bouncing, and it's the first time anyone's split those two for me.\n\nI don't want to oversell it. Carpet at home and hard floors at the station means I still can't call the reflective side identical, so both things vary between your good places and your bad ones. But one varies a lot more than the other. Not the walls, I think.\n\nOn the movement question, your caveat is the right one and I'll take it over your answer. You only stream in those places while walking, and you pause once you're inside. So \"all while moving\" is telling me when you stream, not when the link breaks. I'm not counting it.\n\nThe test that would settle it is standing still in the station with something playing, which is a silly thing to ask of you given you can't hear it in there anyway. I'd rather leave that one unanswered than have you fake a scenario you'd never actually be in.",
+        "text_sha256": "sha256:0a20cbda728887611a43b02c516f4eaa4c2959050fb4c76d18c9adeb0a94fbe8"
+      }
+    },
+    {
+      "job_id": "stab2-B-2",
+      "content_id": "stab2_B_2",
+      "platform": "reddit",
+      "platform_adapter": {
+        "id": "reddit",
+        "version": "1.0.0"
+      },
+      "surface": {
+        "kind": "community",
+        "id": "r/HearingAids",
+        "observed_at": "2026-08-18T04:00:00Z"
+      },
+      "domain": "hearing_aid",
+      "language": "en",
+      "speaker_role": "op",
+      "guard_profile": "hearing_aid",
+      "context": {
+        "summary": "s2_knots 同项重跑稳定性基线。本项与同组其余各项除 job_id/content_id 外全部字段逐字相同，包括 context.summary 本身（上一版误在此处写入序号，导致分类器实际收到不同 context，测量作废）。目的：量出零输入变化下的读数抖动，作为重构验收 gate K1 的基线。不产出任何对外内容。",
+        "declaration": {
+          "进程位置": "在找方案",
+          "触发事件": "受挫/出故障",
+          "关系位置": "接触过几次",
+          "身体状态": "长期困扰",
+          "资源状态": "未提及",
+          "社会在场": "半匿名",
+          "信息环境": "主动订阅",
+          "场景类型": "未知",
+          "情绪余温": "中性"
+        },
+        "dimensions": {
+          "device": {
+            "value": "重跑稳定性测试，无真实设备",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "environment": {
+            "value": "同项重跑对照：除 job_id/content_id 外全部字段逐字相同",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "task": {
+            "value": "量 s2_knots 在零输入变化下的读数抖动",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "current_goal": {
+            "value": "为 K1 建立基线，不产出对外内容",
+            "assertion": "derived",
+            "evidence_refs": []
+          },
+          "social": {
+            "value": "内部测量",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "relationship": {
+            "value": "不适用",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "time": {
+            "value": "同批提交",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "location": {
+            "value": "未测",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "session": {
+            "value": "单批",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "life": {
+            "value": "不适用",
+            "assertion": "unknown",
+            "evidence_refs": []
+          }
+        },
+        "provenance": "同项重跑基线测量；同组各项除 job_id/content_id 外逐字相同。"
+      },
+      "reader": {
+        "actor_ref": "reddit:u/self_op",
+        "evidence_ref": "stability-probe",
+        "observed_at": "2026-08-18T04:00:00Z",
+        "source": "reddit_comment",
+        "text": "stability probe: identical input repeated",
+        "text_sha256": "sha256:f429f09bba02cf7c44ae60aacd4532cb90c41173d1672fefec7164397d417380"
+      },
+      "draft": {
+        "text": "You just did the thing I said your data couldn't do. In twenty minutes.\n\nWindows and walls at home and at the office, so the reflections are there, and no dropouts. What I'm left with is how many other radios are in the room. I read that as congestion rather than bouncing, and it's the first time anyone's split those two for me.\n\nI don't want to oversell it. Carpet at home and hard floors at the station means I still can't call the reflective side identical, so both things vary between your good places and your bad ones. But one varies a lot more than the other. Not the walls, I think.\n\nOn the movement question, your caveat is the right one and I'll take it over your answer. You only stream in those places while walking, and you pause once you're inside. So \"all while moving\" is telling me when you stream, not when the link breaks. I'm not counting it.\n\nThe test that would settle it is standing still in the station with something playing, which is a silly thing to ask of you given you can't hear it in there anyway. I'd rather leave that one unanswered than have you fake a scenario you'd never actually be in.",
+        "text_sha256": "sha256:0a20cbda728887611a43b02c516f4eaa4c2959050fb4c76d18c9adeb0a94fbe8"
+      }
+    },
+    {
+      "job_id": "stab2-B-3",
+      "content_id": "stab2_B_3",
+      "platform": "reddit",
+      "platform_adapter": {
+        "id": "reddit",
+        "version": "1.0.0"
+      },
+      "surface": {
+        "kind": "community",
+        "id": "r/HearingAids",
+        "observed_at": "2026-08-18T04:00:00Z"
+      },
+      "domain": "hearing_aid",
+      "language": "en",
+      "speaker_role": "op",
+      "guard_profile": "hearing_aid",
+      "context": {
+        "summary": "s2_knots 同项重跑稳定性基线。本项与同组其余各项除 job_id/content_id 外全部字段逐字相同，包括 context.summary 本身（上一版误在此处写入序号，导致分类器实际收到不同 context，测量作废）。目的：量出零输入变化下的读数抖动，作为重构验收 gate K1 的基线。不产出任何对外内容。",
+        "declaration": {
+          "进程位置": "在找方案",
+          "触发事件": "受挫/出故障",
+          "关系位置": "接触过几次",
+          "身体状态": "长期困扰",
+          "资源状态": "未提及",
+          "社会在场": "半匿名",
+          "信息环境": "主动订阅",
+          "场景类型": "未知",
+          "情绪余温": "中性"
+        },
+        "dimensions": {
+          "device": {
+            "value": "重跑稳定性测试，无真实设备",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "environment": {
+            "value": "同项重跑对照：除 job_id/content_id 外全部字段逐字相同",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "task": {
+            "value": "量 s2_knots 在零输入变化下的读数抖动",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "current_goal": {
+            "value": "为 K1 建立基线，不产出对外内容",
+            "assertion": "derived",
+            "evidence_refs": []
+          },
+          "social": {
+            "value": "内部测量",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "relationship": {
+            "value": "不适用",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "time": {
+            "value": "同批提交",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "location": {
+            "value": "未测",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "session": {
+            "value": "单批",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "life": {
+            "value": "不适用",
+            "assertion": "unknown",
+            "evidence_refs": []
+          }
+        },
+        "provenance": "同项重跑基线测量；同组各项除 job_id/content_id 外逐字相同。"
+      },
+      "reader": {
+        "actor_ref": "reddit:u/self_op",
+        "evidence_ref": "stability-probe",
+        "observed_at": "2026-08-18T04:00:00Z",
+        "source": "reddit_comment",
+        "text": "stability probe: identical input repeated",
+        "text_sha256": "sha256:f429f09bba02cf7c44ae60aacd4532cb90c41173d1672fefec7164397d417380"
+      },
+      "draft": {
+        "text": "You just did the thing I said your data couldn't do. In twenty minutes.\n\nWindows and walls at home and at the office, so the reflections are there, and no dropouts. What I'm left with is how many other radios are in the room. I read that as congestion rather than bouncing, and it's the first time anyone's split those two for me.\n\nI don't want to oversell it. Carpet at home and hard floors at the station means I still can't call the reflective side identical, so both things vary between your good places and your bad ones. But one varies a lot more than the other. Not the walls, I think.\n\nOn the movement question, your caveat is the right one and I'll take it over your answer. You only stream in those places while walking, and you pause once you're inside. So \"all while moving\" is telling me when you stream, not when the link breaks. I'm not counting it.\n\nThe test that would settle it is standing still in the station with something playing, which is a silly thing to ask of you given you can't hear it in there anyway. I'd rather leave that one unanswered than have you fake a scenario you'd never actually be in.",
+        "text_sha256": "sha256:0a20cbda728887611a43b02c516f4eaa4c2959050fb4c76d18c9adeb0a94fbe8"
+      }
+    },
+    {
+      "job_id": "stab2-B-4",
+      "content_id": "stab2_B_4",
+      "platform": "reddit",
+      "platform_adapter": {
+        "id": "reddit",
+        "version": "1.0.0"
+      },
+      "surface": {
+        "kind": "community",
+        "id": "r/HearingAids",
+        "observed_at": "2026-08-18T04:00:00Z"
+      },
+      "domain": "hearing_aid",
+      "language": "en",
+      "speaker_role": "op",
+      "guard_profile": "hearing_aid",
+      "context": {
+        "summary": "s2_knots 同项重跑稳定性基线。本项与同组其余各项除 job_id/content_id 外全部字段逐字相同，包括 context.summary 本身（上一版误在此处写入序号，导致分类器实际收到不同 context，测量作废）。目的：量出零输入变化下的读数抖动，作为重构验收 gate K1 的基线。不产出任何对外内容。",
+        "declaration": {
+          "进程位置": "在找方案",
+          "触发事件": "受挫/出故障",
+          "关系位置": "接触过几次",
+          "身体状态": "长期困扰",
+          "资源状态": "未提及",
+          "社会在场": "半匿名",
+          "信息环境": "主动订阅",
+          "场景类型": "未知",
+          "情绪余温": "中性"
+        },
+        "dimensions": {
+          "device": {
+            "value": "重跑稳定性测试，无真实设备",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "environment": {
+            "value": "同项重跑对照：除 job_id/content_id 外全部字段逐字相同",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "task": {
+            "value": "量 s2_knots 在零输入变化下的读数抖动",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "current_goal": {
+            "value": "为 K1 建立基线，不产出对外内容",
+            "assertion": "derived",
+            "evidence_refs": []
+          },
+          "social": {
+            "value": "内部测量",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "relationship": {
+            "value": "不适用",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "time": {
+            "value": "同批提交",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "location": {
+            "value": "未测",
+            "assertion": "unknown",
+            "evidence_refs": []
+          },
+          "session": {
+            "value": "单批",
+            "assertion": "observed",
+            "evidence_refs": []
+          },
+          "life": {
+            "value": "不适用",
+            "assertion": "unknown",
+            "evidence_refs": []
+          }
+        },
+        "provenance": "同项重跑基线测量；同组各项除 job_id/content_id 外逐字相同。"
+      },
+      "reader": {
+        "actor_ref": "reddit:u/self_op",
+        "evidence_ref": "stability-probe",
+        "observed_at": "2026-08-18T04:00:00Z",
+        "source": "reddit_comment",
+        "text": "stability probe: identical input repeated",
+        "text_sha256": "sha256:f429f09bba02cf7c44ae60aacd4532cb90c41173d1672fefec7164397d417380"
+      },
+      "draft": {
+        "text": "You just did the thing I said your data couldn't do. In twenty minutes.\n\nWindows and walls at home and at the office, so the reflections are there, and no dropouts. What I'm left with is how many other radios are in the room. I read that as congestion rather than bouncing, and it's the first time anyone's split those two for me.\n\nI don't want to oversell it. Carpet at home and hard floors at the station means I still can't call the reflective side identical, so both things vary between your good places and your bad ones. But one varies a lot more than the other. Not the walls, I think.\n\nOn the movement question, your caveat is the right one and I'll take it over your answer. You only stream in those places while walking, and you pause once you're inside. So \"all while moving\" is telling me when you stream, not when the link breaks. I'm not counting it.\n\nThe test that would settle it is standing still in the station with something playing, which is a silly thing to ask of you given you can't hear it in there anyway. I'd rather leave that one unanswered than have you fake a scenario you'd never actually be in.",
+        "text_sha256": "sha256:0a20cbda728887611a43b02c516f4eaa4c2959050fb4c76d18c9adeb0a94fbe8"
+      }
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+=== gen3 弃权采用率验收 (前登记) ===
+  · ★通过: 四份中性垫料**至少三份**出现弃权(任一 rep), 且真人文本**零弃权** ⇒ 弃权出口真的被用上, gen3 有了「空读数」这一档
+  · ★惰性: 四份中性垫料**全部零弃权** ⇒ 给权限不足以让模型弃权。本次换代**没换来东西**, 当日标定白作废。此时应回滚 s1 prompt 或改用外部 Eligibility Gate
+  · ★过度触发: 真人文本出现弃权 ⇒ 比改动前更坏(把真实语料判成没有主体), 必须回滚
+  · ★部分: 中性垫料一到两份弃权 ⇒ 出口可用但不可靠, 记录为「弱采用」, 不足以支撑生产使用
+  · ★ R=2 是筛选不是测量: 不得据此报「弃权率」。
+  · ★ 禁止事后改文本、改 R、改判决线。
+
+当前仪器: ea70b373d5bef630  s1_prompt_sha=eadcdcdac46a5180
+谱系: gen1 57ec6cf478d3875e → gen2 287d07a0ef1ea78e → gen3 (本代)
+  HUMAN_base(应当不弃权)                  任一 rep 出现弃权: False  (逐 rep 弃权 draw 数 [0, 0])
+  filler_numeric(应当弃权)               任一 rep 出现弃权: True  (逐 rep 弃权 draw 数 [3, 3])
+  filler_legal(应当弃权)                 任一 rep 出现弃权: True  (逐 rep 弃权 draw 数 [3, 3])
+  filler_procedural(应当弃权)            任一 rep 出现弃权: True  (逐 rep 弃权 draw 数 [3, 3])
+  filler_neutral_20260818(应当弃权)      任一 rep 出现弃权: True  (逐 rep 弃权 draw 数 [3, 3])
+
+=== 判决 ===
+  通过: 4/4 份中性垫料弃权, 真人零弃权 ⇒ gen3 有了空读数这一档
+写出 /tmp/abstention_uptake.json

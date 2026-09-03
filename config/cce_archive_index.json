@@ -1,320 +1,582 @@
 {
-  "schema_name": "cce.archive_index",
-  "version": "1.0.0",
-  "measured_at": "2026-09-01",
-  "finding": "被引用的 GitHub run 共 32 个; 本地 artifact 0 个; 远端 gh api actions/artifacts total_count = 0 ⇒ 全部**已经不可重建**, 且追不回来。§44 P5 担心的事不是将来会发生, 是已经发生过了。 另有 3 个 run 本地仍留有 artifact, 已落入 archive/ 并可按 run_id 完整重建。",
-  "what_survived": "机制注册表的 14 条 evidence_refs 全部指向 tests/data 下的本地文件, 0 条指向 run_id ⇒ Population/Mechanism 学习链没有建在会过期的东西上。本闸把这条钉死。",
-  "policy": {
-    "future_runs": "每个 run 完成时必须 archive_run() 落本地, 并入册。",
-    "new_claims": "任何新机制/新结论不得直接引用 run_id 作证据。",
-    "rebuild": "缺任何一块都大声失败, 绝不静默补空 —— 空壳重建比重建失败坏得多。"
+ "schema_name": "cce.archive_index",
+ "version": "1.0.0",
+ "measured_at": "2026-09-03",
+ "finding": "★ 2026-09-03 更正: 原 finding「32 个 run 全部不可重建」**是错的, 错在查错了仓** —— 那次 gh api 只查了私仓 luogangan7-lgtm/cce-engine, 而 2026-08-17 起生产入口已迁公开仓 luogangan7-lgtm/cce-engine-oss。换仓复查后 23 个 run 仍有 artifact 且 expired=false, 已全部取回落入 archive/(391 文件, 逐件 sha256, 源与落档件数相等)。根因不是「查错了」而是「这个查询根本没有代码」: 人工跑一次把结论写死, 没有可重跑的检查 ⇒ 错了 15 条也没有任何东西会发现。当前: 本地已归档 26 个, 两仓皆无 19 个。",
+ "what_survived": "本地归档 26 见 archive/<run_id>/_listing.json",
+ "policy": {
+  "future_runs": "每个 run 完成时必须 archive_run() 落本地, 并入册。",
+  "new_claims": "任何新机制/新结论不得直接引用 run_id 作证据。",
+  "rebuild": "缺任何一块都大声失败, 绝不静默补空 —— 空壳重建比重建失败坏得多。",
+  "irrecoverable_claim": "标 IRRECOVERABLE 必须带 checked_against(覆盖全部 push 远端)与 checked_at。★ 只查一个仓得出的「不可恢复」不是结论 —— 2026-09-03 实际发生过, 错了 15 条。"
+ },
+ "runs": {
+  "31306754953": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    "ledger/build.py",
+    "ledger/experiments.json"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
   },
-  "runs": {
-    "31306754953": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "ledger/build.py",
-        "ledger/experiments.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "31308460433": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "ledger/build.py",
-        "ledger/experiments.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "31314971609": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "ledger/build.py",
-        "ledger/experiments.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "31315790209": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "ledger/build.py",
-        "ledger/experiments.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "31321746836": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "ledger/build.py",
-        "ledger/experiments.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "31322272555": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "ledger/build.py",
-        "ledger/experiments.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "31322941186": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "ledger/build.py",
-        "ledger/experiments.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "31322998893": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "ledger/build.py",
-        "ledger/experiments.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "31353314992": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "ledger/build.py",
-        "ledger/experiments.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "31354746469": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "ledger/build.py",
-        "ledger/experiments.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "31354754280": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "ledger/build.py",
-        "ledger/experiments.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "31360516549": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "accuracy/t2_ablation.py",
-        "ledger/build.py",
-        "ledger/experiments.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "31362019408": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "ledger/build.py",
-        "ledger/experiments.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "31585862349": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "examples/cce_reddit_post6_chain_audit.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "31677565181": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "docs/cce_foundation_architecture_v1_2026-08-13.md"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "31890090368": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "scripts/reply_loop.py"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "31956489524": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "docs/cce_workflow_spec_v1.md"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "31993570335": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "docs/cce_workflow_spec_v1.md"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "32096357295": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "scripts/cce_knot_classify.py",
-        "tests/test_cce_knot_stability.py"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "32130867661": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "probes/equal_length_control.py",
-        "probes/length_null_arm.py",
-        "scripts/cce_knot_classify.py",
-        "tests/data/discriminability_20260818.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "32141330271": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "probes/length_null_arm.py",
-        "probes/second_pair_typical.py",
-        "scripts/cce_knot_classify.py",
-        "scripts/cce_ksep.py"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "32143780680": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "probes/filler_screen_and_repeat.py",
-        "scripts/cce_knot_classify.py",
-        "scripts/cce_ksep.py",
-        "tests/data/length_null_arm_20260818.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "32143785964": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "scripts/cce_knot_classify.py",
-        "scripts/cce_ksep.py",
-        "tests/data/second_pair_20260818.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "32147076464": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "scripts/cce_knot_classify.py",
-        "scripts/cce_ksep.py",
-        "tests/data/filler_screen_20260818.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "32150369795": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "scripts/cce_knot_classify.py",
-        "scripts/cce_response_chain.py",
-        "tests/data/p2_stage1_baseline_20260818.json",
-        "tests/test_cce_abstention.py"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "32223866100": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "probes/abstention_false_positive.py",
-        "scripts/cce_knot_classify.py",
-        "tests/data/abstention_uptake_20260819.json",
-        "tests/test_cce_abstention.py"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "32224198135": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "probes/gen3_qualification.py",
-        "scripts/cce_knot_classify.py",
-        "tests/data/abstention_false_positive_20260819.json",
-        "tests/test_cce_abstention.py"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "32227550589": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "scripts/cce_knot_classify.py",
-        "tests/data/gen3_qualification_20260819_VOID.json"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "32231676330": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "scripts/cce_knot_classify.py",
-        "tests/data/gen3_qualification_20260819.json",
-        "tests/test_cce_abstention.py"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "32240552713": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "probes/live_r8_calibration.py"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "32241812064": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "tests/data/live_r8_calibration_20260819.json",
-        "tests/test_cce_r_calibration.py"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "32246651860": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        "tests/data/perturbation_ladder_20260819.json",
-        "tests/test_cce_ladder_design.py"
-      ],
-      "reason": "GitHub Actions artifact 已过期且远端 total_count=0"
-    },
-    "31299473290": {
-      "status": "LOCALLY_ARCHIVED",
-      "referenced_in": [
-        "archive/31299473290/_listing.json"
-      ],
-      "reason": "本地仍留有 artifact, 已落入 Archive Plane 并逐文件钉 sha256"
-    },
-    "31300503384": {
-      "status": "LOCALLY_ARCHIVED",
-      "referenced_in": [
-        "archive/31300503384/_listing.json"
-      ],
-      "reason": "本地仍留有 artifact, 已落入 Archive Plane 并逐文件钉 sha256"
-    },
-    "31301664017": {
-      "status": "LOCALLY_ARCHIVED",
-      "referenced_in": [
-        "archive/31301664017/_listing.json"
-      ],
-      "reason": "本地仍留有 artifact, 已落入 Archive Plane 并逐文件钉 sha256"
-    },
-    "31691417474": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        ".github/workflows/cce.yml"
-      ],
-      "reason": "2026-08-13 cce.yml 出站模式在 prepare.py 前置被拒的两次失败 run; artifact 早已过期。作为「本步不可达」的实证被引用在退役注释里。"
-    },
-    "31691414219": {
-      "status": "IRRECOVERABLE",
-      "referenced_in": [
-        ".github/workflows/cce.yml"
-      ],
-      "reason": "2026-08-13 cce.yml 出站模式在 prepare.py 前置被拒的两次失败 run; artifact 早已过期。作为「本步不可达」的实证被引用在退役注释里。"
-    }
+  "31308460433": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    "ledger/build.py",
+    "ledger/experiments.json"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
   },
-  "negative_test_run_ids": {
-    "39999999999": "tests/test_cce_archive_plane.py —— 「从没归档过的 run 也能重建吗」的反向探针",
-    "39876543210": "tests/test_cce_archive_plane.py —— 「新 run_id 不入册闸会不会红」的反向探针"
+  "31314971609": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    "ledger/build.py",
+    "ledger/experiments.json"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
   },
-  "negative_test_note": "反向测试必须写出这些 id 才能证明闸会红。只允许出现在 tests/test_cce_archive_plane.py 里, 由 check() 验证出处。"
+  "31315790209": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    "ledger/build.py",
+    "ledger/experiments.json"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "31321746836": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    "ledger/build.py",
+    "ledger/experiments.json"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "31322272555": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    "ledger/build.py",
+    "ledger/experiments.json"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "31322941186": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    "ledger/build.py",
+    "ledger/experiments.json"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "31322998893": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    "ledger/build.py",
+    "ledger/experiments.json"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "31353314992": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    "ledger/build.py",
+    "ledger/experiments.json"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "31354746469": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    "ledger/build.py",
+    "ledger/experiments.json"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "31354754280": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    "ledger/build.py",
+    "ledger/experiments.json"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "31360516549": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    "accuracy/t2_ablation.py",
+    "ledger/build.py",
+    "ledger/experiments.json"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "31362019408": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    "ledger/build.py",
+    "ledger/experiments.json"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "31585862349": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    "examples/cce_reddit_post6_chain_audit.json"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "31677565181": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    "docs/cce_foundation_architecture_v1_2026-08-13.md"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "31890090368": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    "scripts/reply_loop.py"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "31956489524": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    "docs/cce_workflow_spec_v1.md"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "31993570335": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/31993570335/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。此前错记为 IRRECOVERABLE(在私仓 cce-engine 查的, 那边 404)。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32096357295": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32096357295/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。此前错记为 IRRECOVERABLE(在私仓 cce-engine 查的, 那边 404)。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32130867661": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32130867661/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。此前错记为 IRRECOVERABLE(在私仓 cce-engine 查的, 那边 404)。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32141330271": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32141330271/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。此前错记为 IRRECOVERABLE(在私仓 cce-engine 查的, 那边 404)。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32143780680": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32143780680/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。此前错记为 IRRECOVERABLE(在私仓 cce-engine 查的, 那边 404)。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32143785964": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32143785964/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。此前错记为 IRRECOVERABLE(在私仓 cce-engine 查的, 那边 404)。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32147076464": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32147076464/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。此前错记为 IRRECOVERABLE(在私仓 cce-engine 查的, 那边 404)。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32150369795": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32150369795/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。此前错记为 IRRECOVERABLE(在私仓 cce-engine 查的, 那边 404)。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32223866100": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32223866100/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。此前错记为 IRRECOVERABLE(在私仓 cce-engine 查的, 那边 404)。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32224198135": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32224198135/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。此前错记为 IRRECOVERABLE(在私仓 cce-engine 查的, 那边 404)。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32227550589": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32227550589/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。此前错记为 IRRECOVERABLE(在私仓 cce-engine 查的, 那边 404)。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32231676330": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32231676330/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。此前错记为 IRRECOVERABLE(在私仓 cce-engine 查的, 那边 404)。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32240552713": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32240552713/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。此前错记为 IRRECOVERABLE(在私仓 cce-engine 查的, 那边 404)。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32241812064": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32241812064/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。此前错记为 IRRECOVERABLE(在私仓 cce-engine 查的, 那边 404)。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32246651860": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32246651860/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。此前错记为 IRRECOVERABLE(在私仓 cce-engine 查的, 那边 404)。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "31299473290": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/31299473290/_listing.json"
+   ],
+   "reason": "本地仍留有 artifact, 已落入 Archive Plane 并逐文件钉 sha256"
+  },
+  "31300503384": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/31300503384/_listing.json"
+   ],
+   "reason": "本地仍留有 artifact, 已落入 Archive Plane 并逐文件钉 sha256"
+  },
+  "31301664017": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/31301664017/_listing.json"
+   ],
+   "reason": "本地仍留有 artifact, 已落入 Archive Plane 并逐文件钉 sha256"
+  },
+  "31691417474": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    ".github/workflows/cce.yml"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "31691414219": {
+   "status": "IRRECOVERABLE",
+   "referenced_in": [
+    ".github/workflows/cce.yml"
+   ],
+   "reason": "两个 push 远端(私仓 cce-engine / 公开仓 cce-engine-oss)均无 artifact。★ 原记录只查了私仓, 是不足以下此结论的; 本条已于 2026-09-03 补齐复查。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32095782756": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32095782756/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32099546100": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32099546100/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32100394222": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32100394222/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32111177990": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32111177990/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32113950638": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32113950638/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32114744002": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32114744002/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32126692815": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32126692815/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  },
+  "32127691127": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "archive/32127691127/_listing.json"
+   ],
+   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。",
+   "recovered_from": "luogangan7-lgtm/cce-engine-oss",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine",
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-03"
+  }
+ },
+ "negative_test_run_ids": {
+  "39999999999": "tests/test_cce_archive_plane.py —— 「从没归档过的 run 也能重建吗」的反向探针",
+  "39876543210": "tests/test_cce_archive_plane.py —— 「新 run_id 不入册闸会不会红」的反向探针"
+ },
+ "negative_test_note": "反向测试必须写出这些 id 才能证明闸会红。只允许出现在 tests/test_cce_archive_plane.py 里, 由 check() 验证出处。"
 }

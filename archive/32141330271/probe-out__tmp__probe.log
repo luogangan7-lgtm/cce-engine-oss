@@ -1,0 +1,22 @@
+=== Stage1 等长阳性对照 (前登记) ===
+  · p <= 0.05 且 T 明显 > 0 → 仪器在**等长**条件下分得开两份不同内容 ⇒ 读的是内容不是长度。min_effect 取本次 T 的下界(保守: T 的置换零分布 95 分位), KSEP 的 PASS 分支从此存在, P2 可开
+  · p > 0.05 → 在 293 字尺度上, 仪器对内容**没有可分辨的响应**。★ 此时不可直接说「仪器盲」—— 阳性对照失败无法区分「仪器无分辨力」与「这两份文本恰好真的像」。已用 Jaccard 最低对做了最有利的选择, 故更偏向前者, 但仍需第二对才能定论。P2 停
+  · ★ 无论哪一支: 两份文本各自的可复现性(结集一致率/occur-n 极差)一并报出, 它是单文本内部性质, 与本对照的成败无关
+  · ★ 禁止事后改文本、改 R、改判决线。改了就是新实验, 旧结论作废。
+
+选文本: {"a_len": 293, "b_len": 289, "b_src_index": 10, "jaccard": 0.075, "jaccard_all": [[10, 0.075], [2, 0.0875], [11, 0.0952], [1, 0.1013], [8, 0.1111], [4, 0.1139], [5, 0.1176], [6, 0.122], [7, 0.1467], [9, 0.1481], [3, 0.1558]]}
+  T_a: '[帖] Over-the-ear hearing aids?\n[楼主正文] I was hit by a car four years ago and as a result I '
+  T_b: '[帖] Hearing Aid to S25 FE bluetooth issues\n[我方原话] Which aids, and what exactly is failing:'
+  A 完成 4 rep
+  B 完成 4 rep
+
+仪器指纹全程一致: 57ec6cf478d3875e
+
+A 可复现性: UNSTABLE_MEMBERSHIP  结集一致率=0.500  翻转={'injustice': 1}
+
+B 可复现性: UNSTABLE_MEMBERSHIP  结集一致率=0.333  翻转={'display': 2}
+
+★ 分离: UNCALIBRATED  T=0.07389  p=0.0286  p下限=0.0286
+  判决: p<=0.05 ⇒ 等长下分得开, min_effect 可标定
+
+写出 /tmp/equal_length_control.json

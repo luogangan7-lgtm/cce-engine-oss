@@ -114,11 +114,49 @@ finally:
 assert A.check()[0]
 
 # ── 已发生的损失必须如实登记, 不许留一份「看起来完整」的索引 ───────────
-# 2026-09-02: cce.yml 退役注释引用了两个历史失败 run(31691417474/31691414219)
-# 作为「本步不可达」的实证 ⇒ 归档索引随之 +2。闸当场抓到它们未入册, 已补登记。
-assert stats["irrecoverable"] == 34, stats
-assert "已经发生过了" in INDEX["finding"]
+# 2026-09-03 大幅更正: 原「32 个 run 全部不可重建」是**查错仓**得出的 ——
+# 只查了私仓 cce-engine, 而生产入口 2026-08-17 起在公开仓 cce-engine-oss。
+# 换仓复查后 23 个 run 仍活着, 已全部取回落档。
+assert stats["irrecoverable"] == 19, stats
+assert stats["locally_archived"] >= 26, stats
+assert "查错了仓" in INDEX["finding"], "更正必须写在 finding 里, 不能悄悄改数字"
+
+# ── 反向 7: ★「不可恢复」缺出处 / 漏查一个 push 远端 -> 必须红 ──────────
+#    这条闸就是为上面那次更正而设: 只查一个仓得出的「不可恢复」不是结论。
+import copy, json as _json, tempfile, os as _os
+
+def _alt(mut):
+    idx = copy.deepcopy(INDEX)
+    mut(idx)
+    fd, tmp = tempfile.mkstemp(suffix=".json"); _os.close(fd)
+    _json.dump(idx, open(tmp, "w", encoding="utf-8"), ensure_ascii=False)
+    orig = A.INDEX
+    try:
+        A.INDEX = tmp
+        return A.check()
+    finally:
+        A.INDEX = orig; _os.unlink(tmp)
+
+_dead = next(r for r, v in INDEX["runs"].items() if v["status"] == "IRRECOVERABLE")
+
+ok7a, e7a, _ = _alt(lambda i: i["runs"][_dead].pop("checked_against"))
+assert not ok7a and any("没写 checked_against" in x for x in e7a), \
+    "★ 不写在哪儿查的就断言不可恢复 —— 必须红"
+
+ok7b, e7b, _ = _alt(lambda i: i["runs"][_dead].update(
+    {"checked_against": ["luogangan7-lgtm/cce-engine"]}))
+assert not ok7b and any("漏查了 push 远端" in x for x in e7b), \
+    "★ 只查一个仓 —— 必须红(这正是 2026-09-03 那次错的形状)"
+
+ok7c, e7c, _ = _alt(lambda i: i["runs"][_dead].pop("checked_at"))
+assert not ok7c and any("没写 checked_at" in x for x in e7c), \
+    "★ 可用性会随时间变, 无日期的判定不可复核"
+
+# 远端表必须是**现读 git**, 不是写死 —— 写死一个仓正是那个错的来源
+assert set(A.push_remotes()) >= {"luogangan7-lgtm/cce-engine",
+                                 "luogangan7-lgtm/cce-engine-oss"}, A.push_remotes()
 
 print(f"test_cce_archive_plane: OK "
-      f"(可重建 {len(ARCHIVED)} run · 不可恢复 {stats['irrecoverable']} 已如实登记 | "
-      "删件/改件/未归档/引 run_id 作证据/新 run 不入册 —— 各自见红)")
+      f"(可重建 {len(ARCHIVED)} run · 不可恢复 {stats['irrecoverable']} 已如实登记, "
+      f"两仓复查 {A.push_remotes()} | "
+      "删件/改件/未归档/引 run_id 作证据/新 run 不入册/不可恢复缺出处或漏查仓 —— 各自见红)")

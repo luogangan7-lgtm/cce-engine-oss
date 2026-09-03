@@ -1,282 +1,282 @@
 {
-  "schema_name": "cce.chain_conformance",
-  "version": "1.0.0",
-  "source": "§48 最简总图 15 段 + §44.9 每个 Phase 的验收 gate",
-  "what_this_proves": "声明的实现/测试文件确实存在, 且每个 Phase 的 gate 命令确实退出 0。语义正确性由各自的反向测试负责。",
-  "chain_stages": [
-    {
-      "n": 1,
-      "stage": "POPULATION FIELD",
-      "implemented_in": [
-        "scripts/cce_population.py",
-        "scripts/cce_subject_profile.py"
-      ],
-      "tested_by": [
-        "tests/test_cce_population.py",
-        "tests/test_cce_population_field.py"
-      ]
-    },
-    {
-      "n": 2,
-      "stage": "CONTEXT",
-      "implemented_in": [
-        "scripts/cce_platform_adapter.py",
-        "config/context_taxonomy.json"
-      ],
-      "tested_by": [
-        "tests/test_cce_platform_adapter.py"
-      ]
-    },
-    {
-      "n": 3,
-      "stage": "STIMULUS",
-      "implemented_in": [
-        "scripts/cce_submission.py",
-        "scripts/cce_contract.py"
-      ],
-      "tested_by": [
-        "tests/test_cce_submission.py",
-        "tests/test_cce_stimulus_blinding.py"
-      ]
-    },
-    {
-      "n": 4,
-      "stage": "MULTIMODAL PARSING",
-      "implemented_in": [
-        "scripts/cce_video_parse.py",
-        "scripts/cce_foundation_adapter.py"
-      ],
-      "tested_by": [
-        "tests/test_cce_contract.py",
-        "tests/test_cce_confidence_basis.py",
-        "tests/test_cce_skill_contract.py"
-      ],
-      "note": "video parse / foundation adapter / OCR 已实现且有测试; 但 §45 归为「部分具备」—— 生产化媒体 ingest 未建, 见 P3 的 not_built。"
-    },
-    {
-      "n": 5,
-      "stage": "OBSERVATION",
-      "implemented_in": [
-        "scripts/cce_foundation_prepare.py",
-        "scripts/cce_structural_gate.py"
-      ],
-      "tested_by": [
-        "tests/test_cce_observation_gap.py",
-        "tests/test_cce_structural_gate.py",
-        "tests/test_cce_source_aware_prep.py"
-      ]
-    },
-    {
-      "n": 6,
-      "stage": "EVENT",
-      "implemented_in": [
-        "scripts/cce_event_assemble.py",
-        "scripts/cce_case_assemble.py"
-      ],
-      "tested_by": [
-        "tests/test_cce_end_to_end.py"
-      ]
-    },
-    {
-      "n": 7,
-      "stage": "CCE MEASURE",
-      "implemented_in": [
-        "scripts/cce_knot_classify.py",
-        "scripts/exp_crossmodel_desire.py"
-      ],
-      "tested_by": [
-        "tests/test_cce_measurement_system.py",
-        "tests/test_cce_knot_stability.py",
-        "tests/test_cce_k1_gate.py"
-      ]
-    },
-    {
-      "n": 8,
-      "stage": "POPULATION RESPONSE FIELD",
-      "implemented_in": [
-        "scripts/cce_response_chain.py",
-        "scripts/cce_window_chain.py"
-      ],
-      "tested_by": [
-        "tests/test_cce_response_chain.py",
-        "tests/test_cce_window_chain.py"
-      ]
-    },
-    {
-      "n": 9,
-      "stage": "DISTRIBUTION",
-      "implemented_in": [
-        "scripts/cce_population.py",
-        "scripts/cce_ksep.py"
-      ],
-      "tested_by": [
-        "tests/test_cce_population_field.py",
-        "tests/test_cce_ksep.py"
-      ]
-    },
-    {
-      "n": 10,
-      "stage": "REAL BEHAVIOR",
-      "implemented_in": [
-        "scripts/cce_github_client.py",
-        "scripts/reply_loop.py"
-      ],
-      "tested_by": [
-        "tests/test_reply_loop_parallel.py"
-      ],
-      "note": "REAL BEHAVIOR 目前只到「把内容发出去 + 取回平台计数」; §44.10 已判定内容 A/B 在触达量级提升之前不可判 (分辨 R=0.34 与 0.75 需约 24500 浏览/帖, 历史最高 16102)。"
-    },
-    {
-      "n": 11,
-      "stage": "OUTCOME",
-      "implemented_in": [
-        "scripts/cce_workflow_manifest.py"
-      ],
-      "tested_by": [
-        "tests/test_cce_phase2_manifest.py",
-        "tests/test_cce_preparation_bridge.py"
-      ]
-    },
-    {
-      "n": 12,
-      "stage": "EVIDENCE",
-      "implemented_in": [
-        "scripts/cce_archive.py",
-        "scripts/cce_preparation_bridge.py"
-      ],
-      "tested_by": [
-        "tests/test_cce_archive_plane.py",
-        "tests/test_cce_preparation_bridge.py"
-      ]
-    },
-    {
-      "n": 13,
-      "stage": "POPULATION FIELD UPDATE",
-      "implemented_in": [
-        "scripts/cce_population.py"
-      ],
-      "tested_by": [
-        "tests/test_cce_population_field.py"
-      ]
-    },
-    {
-      "n": 14,
-      "stage": "MECHANISM LEARNING",
-      "implemented_in": [
-        "scripts/cce_mechanism.py"
-      ],
-      "tested_by": [
-        "tests/test_cce_mechanism_registry.py"
-      ]
-    },
-    {
-      "n": 15,
-      "stage": "STRATEGY",
-      "implemented_in": [
-        "scripts/cce_strategy_gate.py",
-        "scripts/style_check.py",
-        "scripts/cce_outbound_guard.py"
-      ],
-      "tested_by": [
-        "tests/test_cce_strategy_gate.py",
-        "tests/test_cce_style_gate.py",
-        "tests/test_cce_outbound_guard.py"
-      ]
-    }
-  ],
-  "loop_back": "STRATEGY -> NEW CONTENT -> STIMULUS (§48 的 ↺)",
-  "phases": [
-    {
-      "phase": "P0 地基",
-      "status": "DONE",
-      "gate_44_9": "manifest.chain == 契约 stages 断言上线; 反向: 摘掉一段 job 必须红",
-      "gate_command": "python3 tests/test_cce_phase2_manifest.py && python3 tests/test_cce_submission.py"
-    },
-    {
-      "phase": "P1 本体重命名",
-      "status": "DONE_WITH_LEGACY_CONTAINMENT",
-      "gate_44_9": "★ 原 gate「旧名 grep==0」经外部裁决判定写错且不可达, 已作废; 改为「旧本体依赖归零 + 遗留出现全部分类」",
-      "gate_command": "python3 scripts/check_ontology_migration.py && python3 tests/test_ontology_migration.py"
-    },
-    {
-      "phase": "P2 Subject/Population",
-      "status": "DONE",
-      "gate_44_9": "保留字段逐个存在性断言 + 新增字段有非空样本; 反向: 删 member_distributions 聚合必须红",
-      "gate_command": "python3 tests/test_cce_population_field.py"
-    },
-    {
-      "phase": "P3 Multimodal",
-      "status": "GATE_ONLY_CONTENT_NOT_BUILT",
-      "gate_44_9": "新增 Parser 后 CCE Core 文件 diff = 0 (铁律 20 可执行形式); 反向: 改 Core 一行 CI 必须拦",
-      "gate_command": "python3 scripts/cce_core_boundary.py && python3 tests/test_cce_core_boundary.py",
-      "not_built": [
-        "production media ingest",
-        "standalone image/audio ingest",
-        "source separation",
-        "speaker diarization",
-        "prosody",
-        "mix metrics",
-        "full cross-modal event semantics"
-      ],
-      "why": "需要真实多模态输入与媒体依赖, 本轮只交付其验收 gate; 内容未建, 不冒充 DONE"
-    },
-    {
-      "phase": "P4 九结 Research",
-      "status": "MEASURED_NOT_PASSING",
-      "gate_44_9": "K1 四项全过: n≥8 · 相同读数对 ≥6/8 · 单结极差 ≤0.10 · top-1 ≥7/8; 反向: 两份不同内容按同组提交, 闸必须报差异为真",
-      "gate_command": "python3 tests/test_cce_k1_gate.py && python3 tests/test_cce_k1_verdict.py",
-      "why": "K1 已首次真实判定(64 次调用, n=8 同指纹), 结果是 **FAIL** —— 四项里「出现率一致」与「逐对容差一致」两项不达标。判据本身经两次修正(见 measured_verdict.criterion_fix), 三版判决都是 FAIL。gate 命令验的是判定机制本身可用且判决可从原始行重算; **不是**说 K1 过了。九结强度层读数因此仍不可引用, 已由生成物闸硬拦。",
-      "measured_verdict": {
-        "measured_at": "2026-09-01",
-        "n": 8,
-        "instrument": "565470cf26c16d01",
-        "artifact": "tests/data/phase2/k1_reliability_verdict.json",
-        "verdict": "FAIL",
-        "passed": [
-          "n >= 8",
-          "top-1 一致 8/8"
-        ],
-        "failed": [
-          "出现率一致 5/8 (需 >= 7/8) —— 最差项 inertia(3/8 点火)",
-          "逐对容差一致 A(0.10) 32.1% (需 >= 95%) —— 最差项 display(8/8 点火)"
-        ],
-        "vs_baseline": "§23 历史基线 完全相同读数对 0/6 · 极差 0.37 · top-1 7/8 ⇒ 本轮 0/28 · 0.40 · 8/8: 两项仍不达标, top-1 改善",
-        "layered": "★ 结论是分层的: 首结(top-1)稳, 绝对强度不稳。铁律 24 要求这两者分离, 本轮实测正是这个形态。",
-        "downstream": "cce_strategy_gate.check_knot_readout_claims 已据此上线: [[knot_intensity:*]] / [[knot_delta:*]] 一律拦下, [[knot:*]] 首结层放行。§44.9 P7 反向测试点名的那一条终于可执行。",
-        "criteria_count": 4,
-        "criterion_revised_at": "2026-09-02",
-        "criterion_fix": "2026-09-02 两次修正, **三版判决都是 FAIL**: ① 单结极差改为只在点火 rep 上算, 并补出现率一致(4→5 项); ② 经外部裁决(ISO 5725 / ASTM C670 支撑)删「完全相同读数对」与「单结极差」, 换成逐对容差一致率 A(0.10)>=0.95 (5→4 项)。两条被删的都是**判据形态错误**: 前者测的是九维向量 exact collision probability(改小数位就能从红变绿), 后者的严格度随 rep 数单调变严(在惩罚多测量)。",
-        "criterion_frozen_at": "2026-09-02",
-        "classification": "**两个真实质量问题 + 两条坏 gate**: 真问题 = 稀有结出现率不稳(inertia 3/8) + 常火结数值不可复现(6 个里 5 个不达标, 仅 pain_seek 100%); 坏 gate = 完全相同读数对、单结极差。"
-      }
-    },
-    {
-      "phase": "P5 Archive Plane",
-      "status": "DONE_WITH_RECORDED_LOSS",
-      "gate_44_9": "任一历史 run 可按 run_id 完整重建; 反向: 删一个 artifact 重建必须失败而不是静默补空",
-      "gate_command": "python3 scripts/cce_archive.py && python3 tests/test_cce_archive_plane.py",
-      "why": "32 个被引用的历史 run 的 artifact 本地与远端均已不存在, 不可追回; 已如实登记为 IRRECOVERABLE。3 个本地尚存的已落归档且可重建。机制证据 14/14 指向本地文件, 学习链未受牵连"
-    },
-    {
-      "phase": "P6 Mechanism",
-      "status": "DONE",
-      "gate_44_9": "每条 mechanism 可追到 evidence_refs 且至少一次 replication; 反向: 造一条无 evidence 的必须被拒",
-      "gate_command": "python3 tests/test_cce_mechanism_registry.py"
-    },
-    {
-      "phase": "P7 Strategy",
-      "status": "DONE",
-      "gate_44_9": "生成物过三闸且不得引用未达标层读数; 反向: 喂一条引用 K1 未达标读数的生成物必须被拦",
-      "gate_command": "python3 tests/test_cce_strategy_gate.py && python3 tests/test_cce_style_gate.py && python3 tests/test_cce_outbound_guard.py"
-    }
-  ],
-  "status_semantics": {
-    "DONE": "验收 gate 全过, 内容已建",
-    "DONE_WITH_LEGACY_CONTAINMENT": "本体已切换; 遗留旧名全部分类隔离, 冻结件不动",
-    "DONE_WITH_RECORDED_LOSS": "该做的已做; 已发生的不可逆损失如实登记, 不假装能追回",
-    "GATE_ONLY_CONTENT_NOT_BUILT": "★ 只交付了验收 gate, 内容未建 —— 不是 DONE",
-    "NOT_STARTED": "未开始",
-    "BLOCKED": "被外部依赖阻塞",
-    "MEASURED_NOT_PASSING": "★ 验收 gate 已真实判定, 结果是**不通过**。gate 命令验的是「判定机制可用且判决可复算」, 不是「这个 Phase 过了」—— 两者混为一谈就是假绿。"
+ "schema_name": "cce.chain_conformance",
+ "version": "1.0.0",
+ "source": "§48 最简总图 15 段 + §44.9 每个 Phase 的验收 gate",
+ "what_this_proves": "声明的实现/测试文件确实存在, 且每个 Phase 的 gate 命令确实退出 0。语义正确性由各自的反向测试负责。",
+ "chain_stages": [
+  {
+   "n": 1,
+   "stage": "POPULATION FIELD",
+   "implemented_in": [
+    "scripts/cce_population.py",
+    "scripts/cce_subject_profile.py"
+   ],
+   "tested_by": [
+    "tests/test_cce_population.py",
+    "tests/test_cce_population_field.py"
+   ]
+  },
+  {
+   "n": 2,
+   "stage": "CONTEXT",
+   "implemented_in": [
+    "scripts/cce_platform_adapter.py",
+    "config/context_taxonomy.json"
+   ],
+   "tested_by": [
+    "tests/test_cce_platform_adapter.py"
+   ]
+  },
+  {
+   "n": 3,
+   "stage": "STIMULUS",
+   "implemented_in": [
+    "scripts/cce_submission.py",
+    "scripts/cce_contract.py"
+   ],
+   "tested_by": [
+    "tests/test_cce_submission.py",
+    "tests/test_cce_stimulus_blinding.py"
+   ]
+  },
+  {
+   "n": 4,
+   "stage": "MULTIMODAL PARSING",
+   "implemented_in": [
+    "scripts/cce_video_parse.py",
+    "scripts/cce_foundation_adapter.py"
+   ],
+   "tested_by": [
+    "tests/test_cce_contract.py",
+    "tests/test_cce_confidence_basis.py",
+    "tests/test_cce_skill_contract.py"
+   ],
+   "note": "video parse / foundation adapter / OCR 已实现且有测试; 但 §45 归为「部分具备」—— 生产化媒体 ingest 未建, 见 P3 的 not_built。"
+  },
+  {
+   "n": 5,
+   "stage": "OBSERVATION",
+   "implemented_in": [
+    "scripts/cce_foundation_prepare.py",
+    "scripts/cce_structural_gate.py"
+   ],
+   "tested_by": [
+    "tests/test_cce_observation_gap.py",
+    "tests/test_cce_structural_gate.py",
+    "tests/test_cce_source_aware_prep.py"
+   ]
+  },
+  {
+   "n": 6,
+   "stage": "EVENT",
+   "implemented_in": [
+    "scripts/cce_event_assemble.py",
+    "scripts/cce_case_assemble.py"
+   ],
+   "tested_by": [
+    "tests/test_cce_end_to_end.py"
+   ]
+  },
+  {
+   "n": 7,
+   "stage": "CCE MEASURE",
+   "implemented_in": [
+    "scripts/cce_knot_classify.py",
+    "scripts/exp_crossmodel_desire.py"
+   ],
+   "tested_by": [
+    "tests/test_cce_measurement_system.py",
+    "tests/test_cce_knot_stability.py",
+    "tests/test_cce_k1_gate.py"
+   ]
+  },
+  {
+   "n": 8,
+   "stage": "POPULATION RESPONSE FIELD",
+   "implemented_in": [
+    "scripts/cce_response_chain.py",
+    "scripts/cce_window_chain.py"
+   ],
+   "tested_by": [
+    "tests/test_cce_response_chain.py",
+    "tests/test_cce_window_chain.py"
+   ]
+  },
+  {
+   "n": 9,
+   "stage": "DISTRIBUTION",
+   "implemented_in": [
+    "scripts/cce_population.py",
+    "scripts/cce_ksep.py"
+   ],
+   "tested_by": [
+    "tests/test_cce_population_field.py",
+    "tests/test_cce_ksep.py"
+   ]
+  },
+  {
+   "n": 10,
+   "stage": "REAL BEHAVIOR",
+   "implemented_in": [
+    "scripts/cce_github_client.py",
+    "scripts/reply_loop.py"
+   ],
+   "tested_by": [
+    "tests/test_reply_loop_parallel.py"
+   ],
+   "note": "REAL BEHAVIOR 目前只到「把内容发出去 + 取回平台计数」; §44.10 已判定内容 A/B 在触达量级提升之前不可判 (分辨 R=0.34 与 0.75 需约 24500 浏览/帖, 历史最高 16102)。"
+  },
+  {
+   "n": 11,
+   "stage": "OUTCOME",
+   "implemented_in": [
+    "scripts/cce_workflow_manifest.py"
+   ],
+   "tested_by": [
+    "tests/test_cce_phase2_manifest.py",
+    "tests/test_cce_preparation_bridge.py"
+   ]
+  },
+  {
+   "n": 12,
+   "stage": "EVIDENCE",
+   "implemented_in": [
+    "scripts/cce_archive.py",
+    "scripts/cce_preparation_bridge.py"
+   ],
+   "tested_by": [
+    "tests/test_cce_archive_plane.py",
+    "tests/test_cce_preparation_bridge.py"
+   ]
+  },
+  {
+   "n": 13,
+   "stage": "POPULATION FIELD UPDATE",
+   "implemented_in": [
+    "scripts/cce_population.py"
+   ],
+   "tested_by": [
+    "tests/test_cce_population_field.py"
+   ]
+  },
+  {
+   "n": 14,
+   "stage": "MECHANISM LEARNING",
+   "implemented_in": [
+    "scripts/cce_mechanism.py"
+   ],
+   "tested_by": [
+    "tests/test_cce_mechanism_registry.py"
+   ]
+  },
+  {
+   "n": 15,
+   "stage": "STRATEGY",
+   "implemented_in": [
+    "scripts/cce_strategy_gate.py",
+    "scripts/style_check.py",
+    "scripts/cce_outbound_guard.py"
+   ],
+   "tested_by": [
+    "tests/test_cce_strategy_gate.py",
+    "tests/test_cce_style_gate.py",
+    "tests/test_cce_outbound_guard.py"
+   ]
   }
+ ],
+ "loop_back": "STRATEGY -> NEW CONTENT -> STIMULUS (§48 的 ↺)",
+ "phases": [
+  {
+   "phase": "P0 地基",
+   "status": "DONE",
+   "gate_44_9": "manifest.chain == 契约 stages 断言上线; 反向: 摘掉一段 job 必须红",
+   "gate_command": "python3 tests/test_cce_phase2_manifest.py && python3 tests/test_cce_submission.py"
+  },
+  {
+   "phase": "P1 本体重命名",
+   "status": "DONE_WITH_LEGACY_CONTAINMENT",
+   "gate_44_9": "★ 原 gate「旧名 grep==0」经外部裁决判定写错且不可达, 已作废; 改为「旧本体依赖归零 + 遗留出现全部分类」",
+   "gate_command": "python3 scripts/check_ontology_migration.py && python3 tests/test_ontology_migration.py"
+  },
+  {
+   "phase": "P2 Subject/Population",
+   "status": "DONE",
+   "gate_44_9": "保留字段逐个存在性断言 + 新增字段有非空样本; 反向: 删 member_distributions 聚合必须红",
+   "gate_command": "python3 tests/test_cce_population_field.py"
+  },
+  {
+   "phase": "P3 Multimodal",
+   "status": "GATE_ONLY_CONTENT_NOT_BUILT",
+   "gate_44_9": "新增 Parser 后 CCE Core 文件 diff = 0 (铁律 20 可执行形式); 反向: 改 Core 一行 CI 必须拦",
+   "gate_command": "python3 scripts/cce_core_boundary.py && python3 tests/test_cce_core_boundary.py",
+   "not_built": [
+    "production media ingest",
+    "standalone image/audio ingest",
+    "source separation",
+    "speaker diarization",
+    "prosody",
+    "mix metrics",
+    "full cross-modal event semantics"
+   ],
+   "why": "需要真实多模态输入与媒体依赖, 本轮只交付其验收 gate; 内容未建, 不冒充 DONE"
+  },
+  {
+   "phase": "P4 九结 Research",
+   "status": "MEASURED_NOT_PASSING",
+   "gate_44_9": "K1 四项全过: n≥8 · 相同读数对 ≥6/8 · 单结极差 ≤0.10 · top-1 ≥7/8; 反向: 两份不同内容按同组提交, 闸必须报差异为真",
+   "gate_command": "python3 tests/test_cce_k1_gate.py && python3 tests/test_cce_k1_verdict.py",
+   "why": "K1 已首次真实判定(64 次调用, n=8 同指纹), 结果是 **FAIL** —— 四项里「出现率一致」与「逐对容差一致」两项不达标。判据本身经两次修正(见 measured_verdict.criterion_fix), 三版判决都是 FAIL。gate 命令验的是判定机制本身可用且判决可从原始行重算; **不是**说 K1 过了。九结强度层读数因此仍不可引用, 已由生成物闸硬拦。",
+   "measured_verdict": {
+    "measured_at": "2026-09-01",
+    "n": 8,
+    "instrument": "565470cf26c16d01",
+    "artifact": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict": "FAIL",
+    "passed": [
+     "n >= 8",
+     "top-1 一致 8/8"
+    ],
+    "failed": [
+     "出现率一致 5/8 (需 >= 7/8) —— 最差项 inertia(3/8 点火)",
+     "逐对容差一致 A(0.10) 32.1% (需 >= 95%) —— 最差项 display(8/8 点火)"
+    ],
+    "vs_baseline": "§23 历史基线 完全相同读数对 0/6 · 极差 0.37 · top-1 7/8 ⇒ 本轮 0/28 · 0.40 · 8/8: 两项仍不达标, top-1 改善",
+    "layered": "★ 结论是分层的: 首结(top-1)稳, 绝对强度不稳。铁律 24 要求这两者分离, 本轮实测正是这个形态。",
+    "downstream": "cce_strategy_gate.check_knot_readout_claims 已据此上线: [[knot_intensity:*]] / [[knot_delta:*]] 一律拦下, [[knot:*]] 首结层放行。§44.9 P7 反向测试点名的那一条终于可执行。",
+    "criteria_count": 4,
+    "criterion_revised_at": "2026-09-02",
+    "criterion_fix": "2026-09-02 两次修正, **三版判决都是 FAIL**: ① 单结极差改为只在点火 rep 上算, 并补出现率一致(4→5 项); ② 经外部裁决(ISO 5725 / ASTM C670 支撑)删「完全相同读数对」与「单结极差」, 换成逐对容差一致率 A(0.10)>=0.95 (5→4 项)。两条被删的都是**判据形态错误**: 前者测的是九维向量 exact collision probability(改小数位就能从红变绿), 后者的严格度随 rep 数单调变严(在惩罚多测量)。",
+    "criterion_frozen_at": "2026-09-02",
+    "classification": "**两个真实质量问题 + 两条坏 gate**: 真问题 = 稀有结出现率不稳(inertia 3/8) + 常火结数值不可复现(6 个里 5 个不达标, 仅 pain_seek 100%); 坏 gate = 完全相同读数对、单结极差。"
+   }
+  },
+  {
+   "phase": "P5 Archive Plane",
+   "status": "DONE",
+   "gate_44_9": "任一历史 run 可按 run_id 完整重建; 反向: 删一个 artifact 重建必须失败而不是静默补空",
+   "gate_command": "python3 scripts/cce_archive.py && python3 tests/test_cce_archive_plane.py",
+   "why": "★ 2026-09-03 更正并补救: 原「32 个 run 全部不可追回」是**查错仓**的结论 —— 只查了私仓 cce-engine, 生产入口 2026-08-17 起在公开仓 cce-engine-oss。换仓复查后 23 个 run 仍活着, 已全部取回落档(391 文件, 逐件 sha256, 件数核对相等)。现状: 本地可重建 26 个, 两仓皆无 19 个(已实测复核, 非沿用旧记录)。闸同时加了第④条: 标 IRRECOVERABLE 必须带 checked_against(覆盖全部 push 远端)与 checked_at —— 只查一个仓得出的「不可恢复」不是结论。机制证据 21/21 指向本地文件, 学习链始终未建在会过期的东西上。"
+  },
+  {
+   "phase": "P6 Mechanism",
+   "status": "DONE",
+   "gate_44_9": "每条 mechanism 可追到 evidence_refs 且至少一次 replication; 反向: 造一条无 evidence 的必须被拒",
+   "gate_command": "python3 tests/test_cce_mechanism_registry.py"
+  },
+  {
+   "phase": "P7 Strategy",
+   "status": "DONE",
+   "gate_44_9": "生成物过三闸且不得引用未达标层读数; 反向: 喂一条引用 K1 未达标读数的生成物必须被拦",
+   "gate_command": "python3 tests/test_cce_strategy_gate.py && python3 tests/test_cce_style_gate.py && python3 tests/test_cce_outbound_guard.py"
+  }
+ ],
+ "status_semantics": {
+  "DONE": "验收 gate 全过, 内容已建",
+  "DONE_WITH_LEGACY_CONTAINMENT": "本体已切换; 遗留旧名全部分类隔离, 冻结件不动",
+  "DONE_WITH_RECORDED_LOSS": "该做的已做; 已发生的不可逆损失如实登记, 不假装能追回",
+  "GATE_ONLY_CONTENT_NOT_BUILT": "★ 只交付了验收 gate, 内容未建 —— 不是 DONE",
+  "NOT_STARTED": "未开始",
+  "BLOCKED": "被外部依赖阻塞",
+  "MEASURED_NOT_PASSING": "★ 验收 gate 已真实判定, 结果是**不通过**。gate 命令验的是「判定机制可用且判决可复算」, 不是「这个 Phase 过了」—— 两者混为一谈就是假绿。"
+ }
 }

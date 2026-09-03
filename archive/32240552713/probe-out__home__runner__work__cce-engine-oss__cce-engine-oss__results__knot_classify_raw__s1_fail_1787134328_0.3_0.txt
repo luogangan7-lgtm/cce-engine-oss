@@ -1,0 +1,89 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.20,
+      "成为欲": 0.00,
+      "摆脱欲": 0.40,
+      "确认欲": 0.05,
+      "超越欲": 0.00,
+      "归属欲": 0.00,
+      "控制欲": 0.20,
+      "安全感欲": 0.15,
+      "向往欲": 0.00
+    },
+    "note": "摆脱欲主导：耳道剧痛+单侧听力损失是持续负状态,急需逃离;控制欲次之:事故+后遗症让生活失控,发帖本身是夺回主动权;拥有欲指向具体可购买的替代设备;安全感欲来自对未来不确定(是否能找到可用方案)的焦虑。成为欲/超越欲/归属欲/向往欲在本帖中无激活信号。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "因中枢敏感化综合征,任何入耳设备都引发剧痛,需要立即停止这种'戴就痛'的负状态",
+      "weight": 0.40,
+      "derived_from": "由摆脱欲(逃离耳道疼痛)经'四年前车祸导致中枢敏感化+听力损失'的情境事件衍生"
+    },
+    {
+      "code": "N07_占有资源",
+      "context_slot": "左耳听力受损但标准入耳式助听器无法使用,急需获得一个可实际佩戴的外置式助听设备',
+      "weight": 0.30,
+      "derived_from": "由拥有欲(想要一个属于自己、能用的助听器)经'市面常见款式都是入耳式'的情境衍生"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "不确定助听器产品生态里是否存在'外挂式/耳背式'这一品类,需要把'有没有'这个认知缺口补上",
+      "weight": 0.20,
+      "derived_from": "由安全感欲(消除'到底有没有这种产品'的不确定)经'自己搜不到答案'的情境衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "身体被事故+后遗症锁死,标准方案又不适用,需主动向社区发问以重新握住解决路径",
+      "weight": 0.10,
+      "derived_from": "由控制欲(自己决定怎么解决听力问题)经'标准助听器对我无效'的被动处境衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "goal_relevance 极高——听力是日常刚需,疼痛是当下痛点;congruence=威胁,因为现有市面方案(入耳式)反而让情况更糟(戴=痛);need_status=未满足,提问本身只是暴露缺口,没有当场拿到解药;coping=中,因为他相信社区可能知道答案并主动求助,但结果未知——这一组合('威胁+未满足+coping中')推导出的不是纯恐惧而是fear+desire+curiosity的混合态,且带有微弱relief(把问题说出口的轻度卸负)。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.00,
+      "joy喜悦": 0.00,
+      "gratitude感激": 0.00,
+      "desire渴望": 0.35,
+      "nostalgia怀旧": 0.00,
+      "pride自豪": 0.00,
+      "love爱": 0.00,
+      "relief宽慰": 0.05,
+      "approval认同": 0.00,
+      "curiosity好奇": 0.30,
+      "fear恐惧": 0.15,
+      "sadness悲伤": 0.10,
+      "anger愤怒": 0.05
+    },
+    "note": "由(威胁+未满足,coping=中)推出:主导情绪是desire(对替代方案的强烈渴望,这是趋近动机)与curiosity(对外挂式品类是否存在的探索性期待,coping=中即'也许能找到');fear来自安全感欲未满足——怕永远找不到能用的方案;sadness是对'四年前事故→后遗症'事实的轻度哀伤;anger是对'标准方案对我无效'这一不公的小幅怨意;relief=5%来自'把问题发出来'这一行为本身带来的微弱卸负。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.55,
+      "avoidance回避": 0.00,
+      "attend关注": 0.30,
+      "reject拒斥": 0.10,
+      "agonistic对抗": 0.05,
+      "interrupt中断": 0.00,
+      "dominate支配": 0.00
+    },
+    "note": "发帖提问是典型approach行为(趋近解法)+attend(关注/扫描社区中可能的答案);reject=10%指向对入耳式设备的明确拒斥('I cannot tolerate anything in my ear');agonistic=5%是对'事故造成这一切'的微量对抗性情绪外溢。无回避、无中断、无支配。"
+  },
+  "chain_trace": "摆脱欲(逃离耳道疼痛+听力损失) + 拥有欲(想要可用的助听器) → 经'四年前车祸→中枢敏感化+左耳聋+市面标准款全是入耳式'情境事件 → 衍生需求 N06_摆脱痛苦(40%) + N07_占有资源(30%) + N04_理解世界(20%) + N02_掌控局面(10%) → 评价为 goal_relevance=0.95 / 威胁 / 未满足 / 负 / coping=中 → 推出情绪 desire渴望(0.35)+curiosity好奇(0.30)+fear恐惧(0.15)+sadness悲伤(0.10)+relief宽慰(0.05)+anger愤怒(0.05) → 行动倾向 approach趋近(0.55)+attend关注(0.30)+reject拒斥(0.10)+agonistic对抗(0.05)——完整呈现'被事故锁死的人主动发帖向社区伸手要替代方案'的因果链。",
+  "evidence": {
+    "desire": "摆脱欲:\"I cannot tolerate anything in my ear, it's too painful\"; 拥有欲/控制欲:\"Is there anything that sits on the outside of the ear instead?\"; 安全感欲:事故+后遗症(隐含对未来不确定性的焦虑)",
+    "need": "N06_摆脱痛苦:\"anything in my ear, it's too painful\"; N07_占有资源:\"Is there anything that sits on the outside of the ear instead?\"(直接询问可占有的替代物); N04_理解世界:整句问句即认知缺口",
+    "emotion": "desire渴望:问句本身是want-verb结构(\"Is there anything...\"); fear恐惧+sadness悲伤:\"I was hit by a car four years ago... hearing loss in my left ear\"(创伤+损失叙事); curiosity好奇:对未知品类的探询语气",
+    "action": "approach趋近+attend关注:发帖到 r/HearingAids 这一专门社区(精确选群) = 趋近+扫描关注; reject拒斥:\"I cannot tolerate anything in my ear\" = 对入耳式的明确排除"
+  }
+}
+```

@@ -1,0 +1,95 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.25,
+      "成为欲": 0.0,
+      "摆脱欲": 0.30,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.20,
+      "安全感欲": 0.25,
+      "向往欲": 0.0
+    },
+    "note": "楼主为听力受损的母亲寻找可过滤背景噪音的助听器。核心欲望有三：(1)摆脱欲——妈妈长期抱怨现有助听器把所有声音拉到同一响度(她一直 gripes about it),想帮她脱离这个痛苦体验;(2)拥有欲——明确表述"I'm planning to buy them for her bday",目标物具体且可购买;(3)安全感欲+控制欲——现有助听器丢了、不知道哪款真能压背景噪,不确定性高,需要夺回信息主导权以便做正确选择。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "妈妈部分失聪,现有助听器把所有声音拉到同响度,看电视和听爸爸说话一样吵,身心持续不适",
+      "weight": 0.28,
+      "derived_from": "由摆脱欲经「妈妈长期抱怨助听器体验差」情境事件衍生——想终结她这种不舒适的听觉体验"
+    },
+    {
+      "code": "N07_占有资源",
+      "context_slot": "需要在几个月内为妈妈生日购入能降背景噪的专用处方助听器(均价2k美金)",
+      "weight": 0.25,
+      "derived_from": "由拥有欲经「妈妈丢了一副备用助听器+生日礼物场景」衍生——目标物是具体可购买的处方助听器"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "Google过但发现品牌众多,上传声纹降噪的功能是否真有效、哪款适合妈妈,信息不足",
+      "weight": 0.25,
+      "derived_from": "由安全感欲经「已做的google搜索没给出确定答案」衍生——要把『哪款真能压背景噪』的不确定性降下来"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "楼主对助听器技术(声纹上传芯片、降噪)完全是新手,需要学习选品知识",
+      "weight": 0.10,
+      "derived_from": "由控制欲经「对助听器技术认知空白」衍生——想习得如何判断/选购助听器的方法"
+    },
+    {
+      "code": "N12_情感联结",
+      "context_slot": "以生日礼物形式送助听器,本身是一次与妈妈的情感互动,关系维度被激活",
+      "weight": 0.12,
+      "derived_from": "由摆脱欲(对妈妈的关切)经「生日礼物场景」衍生——用礼物强化与妈妈的联结"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.92,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "情境对楼主目标高度相关(给妈妈买助听器就是当下核心目标);但「妈妈丢备用机+现有助听器体验差」对需求是威胁——揭示问题但还没解决;need_status 未满足(尚未买到合适助听器);coping 评为中:有几个月时间存钱+有 subreddit 可问,但价格 2k、不知道哪款真管用,资源与信息都不完全到位。威胁+未满足→负情绪基调,但因 coping 中等,负面不会极端化,会混合出对帮助妈妈的渴望和对答案的好奇。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.05,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.05,
+      "desire渴望": 0.22,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.28,
+      "relief宽慰": 0.05,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.18,
+      "fear恐惧": 0.15,
+      "sadness悲伤": 0.02,
+      "anger愤怒": 0.0
+    },
+    "note": "需求(N06摆脱痛苦/N07占有资源/N01确定性)×负向 congruence(威胁+未满足)推导:(1)love 爱 主导——为妈妈生日筹谋礼物,关系驱动型行为;(2)desire 渴望——想要获得那款能压背景噪的助听器,目标物明确;(3)curiosity 好奇——「Any advice/recommendations?」以及发现「there's a sub for everything」,正向好奇因信息缺口被激活;(4)fear 恐惧——担心买错/妈妈继续受罪,但 coping 中等所以不到恐慌;(5)relief 宽慰+gratitude 感激 各 0.05——已收到几条回复(u/user_15/170/146)开始给出可行路径,有微弱被帮助感;admiration 0.05 来自对助听器声纹芯片技术的轻微赞叹。anger/sadness/pride 几乎为零——楼主态度务实、没有怨天尤人。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.50,
+      "avoidance回避": 0.0,
+      "attend关注": 0.25,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.05,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.20
+    },
+    "note": "approach 主导:Google、发帖、计划存钱买——主动趋近目标;attend:仔细读回帖、关注声纹/降噪原理;dominate:「I'm planning to buy them for her bday which is in several months so I have time to save」+自行设定了研究计划,表现出对局面的主导感;agonistic 微弱 0.05——「the ones that aren't just wireless in ear headphones on walmart」,对廉价/不专业产品有轻微对抗性拒斥。整体无回避/中断/拒斥,因为这是高目标相关、楼主在主动解题。"
+  },
+  "chain_trace": "摆脱欲+拥有欲+安全感欲 →(妈妈部分失聪、丢了备用助听器、现有助听器把所有声音同响度化、距离生日数月)→ N06_摆脱痛苦 + N07_占有资源 + N01_确定性(辅以 N12_情感联结、N03_提升能力) →(评价:目标相关度0.92, 威胁+未满足→负向, coping 中)→ love爱(0.28) + desire渴望(0.22) + curiosity好奇(0.18) + fear恐惧(0.15) → 行动倾向:approach趋近(0.50) 主导 + attend关注(0.25) + dominate支配(0.20) + 微弱 agonistic对抗(0.05)。",
+  "evidence": {
+    "desire": "摆脱欲:\"she always gripes about how hearing aids apparently don't make stuff louder, they make it all the same volume, so the TV is as loud as dad speaking to her\";拥有欲:\"I'm planning to buy them for her bday which is in several months so I have time to save\";安全感欲/控制欲:\"Any advice/recommendations for hearing aids to block out ambient noise?\" + \"the specialized brands... seem to average 2k\"",
+    "need": "N06摆脱痛苦:\"block out as music background noise as possible\" / N07占有资源:\"I'm planning to buy them for her bday\" / N01确定性:\"did some googling... I found a few brands... but any advice/recommendations\"",
+    "emotion": "love爱:\"for her bday which is in several months so I have time to save\"(为妈妈筹谋);desire渴望:\"I need recommendations for hearing aids to block out...\";curiosity好奇:\"I come to this subreddit for help (there's a sub for everything istg)\" + \"Any advice/recommendations?\";fear恐惧(隐含):对买错、妈妈继续不适的担忧(隐含在'backup hearing aids lost'+'several months to save');relief+gratitude 微弱:回帖给出方向(u/user_15/170/146确认可行)",
+    "action": "approach趋近+dominate支配:\"I'm planning to buy them for her bday which is in several months so I have time to save, did some googling\";attend关注:\"from the googling I did I found a few brands where you can upload x amount of voice clips...\";agonistic 对抗(微弱):\"the ones that aren't just wireless in ear headphones on walmart\""
+  }
+}
+```

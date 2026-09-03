@@ -1,0 +1,30 @@
+=== 垫料筛选 + 自身重复长度对照 (前登记) ===
+  · ★腿A 筛选: 候选在 R=2 内点火任何结即淘汰。全部淘汰 → 记录「本仓找不到无结垫料」, 该结论本身有价值(说明九结对任意文本都会响应, 即缺少「空读数」这一档)
+  · ★腿B 主判 BASE vs REPEAT(内容逐字相同, 仅长度变):
+  ·    EQUIVALENT   → 强证据: 长度本身不驱动读数 ⇒ 跨长度九结比较可用, T2 更丰富可归因于内容
+  ·    SEPARATED    → 歧义: 分不清长度 vs「重复很怪」。**不可直接判定长度驱动**, 需第三次设计
+  ·    UNDERPOWERED → 判不出来, **不是阴性**
+  · ★ 若有胜出垫料, additionally 跑 BASE vs PAD_best 作交叉验证; 两条腿结论不一致时以腿B为准(它不含未验证假设)
+  · ★ 禁止事后改候选、改 R、改判决线。
+
+BASE=293字  REPEAT(×5)=1473字  (对照 T1=1581字)
+  候选 filler_numeric: 888字
+  候选 filler_legal: 1160字
+  候选 filler_procedural: 953字
+  筛选 filler_numeric: 点火 ['audit', 'belong', 'display', 'pain_seek', 'reward', 'suspend']
+  筛选 filler_legal: 点火 ['audit', 'inertia', 'injustice', 'pain_seek', 'reward', 'suspend']
+  筛选 filler_procedural: 点火 ['display', 'reward']
+
+★ 筛选结果: **全部淘汰** —— 本仓找不到无结垫料
+
+仪器指纹全程一致: 57ec6cf478d3875e
+
+BASE: UNSTABLE_MEMBERSHIP  结集一致率=0.167  结=['inertia', 'injustice', 'pain_seek', 'suspend']
+
+REPEAT: UNSTABLE_MEMBERSHIP  结集一致率=0.167  结=['inertia', 'injustice', 'pain_seek', 'suspend']
+
+=== ★ 腿B 主判 (内容逐字相同, 仅长度变) ===
+  强证据: 长度本身不驱动读数 ⇒ 跨长度九结比较可用
+    T=0.02056  p=0.4857  等价上界=0.04514  null_max=0.02028
+
+写出 /tmp/filler_screen_and_repeat.json

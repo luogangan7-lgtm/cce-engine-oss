@@ -1,0 +1,112 @@
+{
+ "input_sha": "79b796ea90dcc202",
+ "run_at": "2026-08-18T03:43:51",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 3,
+  "k_ok": 3,
+  "layers": {
+   "desire_vec": [
+    0.01,
+    0.023333333333333334,
+    0.17666666666666667,
+    0.10000000000000002,
+    0.07666666666666667,
+    0.036666666666666674,
+    0.38666666666666666,
+    0.17333333333333334,
+    0.016666666666666666
+   ],
+   "need_vec": [
+    0.21,
+    0.29333333333333333,
+    0.09000000000000001,
+    0.2833333333333334,
+    0.049999999999999996,
+    0.02666666666666667,
+    0.0,
+    0.0,
+    0.0,
+    0.04666666666666667,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.03666666666666667,
+    0.006666666666666667,
+    0.01,
+    0.03333333333333333,
+    0.0,
+    0.05666666666666667,
+    0.0,
+    0.13333333333333333,
+    0.04666666666666667,
+    0.32333333333333336,
+    0.22,
+    0.08666666666666667,
+    0.04666666666666667
+   ],
+   "action_vec": [
+    0.3066666666666667,
+    0.016666666666666666,
+    0.26666666666666666,
+    0.03333333333333333,
+    0.006666666666666667,
+    0.08666666666666667,
+    0.2833333333333334
+   ]
+  },
+  "tops": {
+   "desire": "控制欲",
+   "need": "N02_掌控局面",
+   "emotion": "curiosity好奇",
+   "action": "approach趋近"
+  },
+  "appraisal": {
+   "goal_relevance": 0.95,
+   "congruence_direction": "威胁",
+   "need_status": "未满足",
+   "goal_congruence": "负",
+   "coping_potential": "中",
+   "note": "目标相关度极高（这是他亲手建的表、亲手提的协议），但事件本身（'这表可能没在测我以为它在测的东西'）直接威胁 N01/N04/N02 三条核心需求，且历史数据无法回填（'Version numbers aren't something you can recall after the fact'）意味着威胁不可被当下完全消解；coping 给中而非低，是因为他手里有一项可执行对策（公开立六字段新规范），而 QPR2 Beta 3 改善的外部证据也提供了'先可解'的支撑。"
+  },
+  "chain_trace": "控制欲（+安全感欲+摆脱欲） →（情境事件：外站单帖显示同款硬件仅因系统更新就出现同类断连，且断连时点高度特异——'right when a call connected'）→ 需求 N04_理解世界（先分清软件缺陷/RF 几何/头骨遮挡三条机制边界） + N01_确定性（OS 字段缺失导致过去两周所有报告无法回填） + N02_掌控局面（夺回数据采集方法论主导权） →（评价：goal_relevance 0.95 / direction=威胁 / need_status=未满足（历史数据不可回填）/ goal_congruence=负 / coping_potential=中，因为有 QPR2 Beta 3 改善这一外部利好和'公开立新规范'这一可执行对策）→ 情绪 curiosity 0.32（机制必须分清）+ fear 0.22（两周数据可能被自己判废）+ relief 0.10（QPR2 改善 + 有方案）+ sadness 0.10（沉没成本）+ anger 0.07（对自我方法论盲区） → 行动倾向 attend 0.32（细看六字段）+ approach 0.28（公开呼吁新规范）+ dominate 0.20（写进公共帖以让所有人无意识跟从）+ reject 0.10（推翻自己两小时前的核心陈述）。",
+  "within_js": {
+   "desire_vec": 0.0595,
+   "need_vec": 0.1171,
+   "emotion_vec": 0.099,
+   "action_vec": 0.0894
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "audit",
+    "weight": 0.5,
+    "evidence_quote": "This table might not be measuring what I thought it was. ... The column for system version has remained empty from start to finish. Not a single one of the previous reports can be retroactively updated. Version numbers aren't something you can recall after the fact. ... These six fields are all I can think of right now. I don't know if that's enough. Let me know if I've missed anything.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足"
+    },
+    "name": "验真·审计结",
+    "family": "阻挡",
+    "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+    "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前"
+   }
+  ]
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}

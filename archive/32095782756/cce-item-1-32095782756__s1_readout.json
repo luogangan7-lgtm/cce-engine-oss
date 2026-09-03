@@ -1,0 +1,163 @@
+{
+ "input_sha": "79b796ea90dcc202",
+ "run_at": "2026-08-18T03:33:38",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 3,
+  "k_ok": 3,
+  "layers": {
+   "desire_vec": [
+    0.016666666666666666,
+    0.023333333333333334,
+    0.17333333333333334,
+    0.09333333333333334,
+    0.01,
+    0.10000000000000002,
+    0.32666666666666666,
+    0.25,
+    0.006666666666666667
+   ],
+   "need_vec": [
+    0.25,
+    0.25,
+    0.10000000000000002,
+    0.24,
+    0.07666666666666667,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.023333333333333334,
+    0.06,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.03333333333333333,
+    0.0,
+    0.0,
+    0.03333333333333333,
+    0.0,
+    0.006666666666666667,
+    0.0,
+    0.14333333333333334,
+    0.08333333333333336,
+    0.25666666666666665,
+    0.23333333333333336,
+    0.06666666666666667,
+    0.14333333333333334
+   ],
+   "action_vec": [
+    0.36000000000000004,
+    0.02666666666666667,
+    0.27666666666666667,
+    0.03333333333333333,
+    0.07666666666666666,
+    0.01,
+    0.21666666666666667
+   ]
+  },
+  "tops": {
+   "desire": "控制欲",
+   "need": "N01_确定性",
+   "emotion": "curiosity好奇",
+   "action": "approach趋近"
+  },
+  "appraisal": {
+   "goal_relevance": 0.95,
+   "congruence_direction": "威胁",
+   "need_status": "未满足",
+   "goal_congruence": "负",
+   "coping_potential": "中",
+   "note": "目标相关度极高(这是他两周工作的核心)。内容(他自己的发现)对其掌控感和确定性构成威胁——核心论断被一则外部报告颠覆;且过去所有报告因OS版本列空白而无法追溯补全,需求明显未满足。但他能采取'新增6个字段+公开发帖影响填报行为'的应对策略,coping_potential 评为中(能做但有上限)。威胁+未满足→负向情绪为主(恐惧+愤怒+悲伤),但因存在应对路径,好奇/relief/desire 也被激活形成混合态。"
+  },
+  "chain_trace": "控制欲+安全感欲 →(2周数据收集后,看到另一论坛关于Android 17 beta引发LE Audio断连的报告,发现自己的'口袋决定耳朵'论断被颠覆,且OS版本列从一开始就是空白)→ N04_理解世界+N01_确定性 →(评价:方向=威胁,需求未满足,目标相关度0.95,应对潜能中因为能新增字段但无法追溯补全,目标一致性负)→ 恐惧+愤怒+好奇+宽慰+认同 的混合情绪 → 趋近(公开发帖邀反馈)+关注(精细化数据采集)+支配(重设6字段规范)+轻微对抗(用自我修正回应外部反驳) 的完整推导",
+  "within_js": {
+   "desire_vec": 0.0579,
+   "need_vec": 0.1272,
+   "emotion_vec": 0.095,
+   "action_vec": 0.0677
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "audit",
+    "weight": 0.45,
+    "evidence_quote": "This table might not be measuring what I thought it was. / If this report is correct, then the core statement I've been noting down over the past two weeks is flawed. / That last half-sentence is the killer.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "other_agent",
+     "target_layer": "epistemic_trust"
+    },
+    "desire_code": "确认欲, 安全感欲",
+    "need_code": "N10, N01",
+    "freshness_days_hint": 1,
+    "name": "验真·审计结",
+    "family": "阻挡",
+    "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+    "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前"
+   },
+   {
+    "key": "pain_seek",
+    "weight": 0.4,
+    "evidence_quote": "I've been organizing them into a table according to the protocol… / These six fields are all I can think of right now. I don't know if that's enough. Let me know if I've missed anything.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "中",
+     "time": "现在",
+     "attribution": "system",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "摆脱欲, 控制欲, 安全感欲",
+    "need_code": "N06, N02, N01",
+    "freshness_days_hint": 14,
+    "name": "痛点·求解结",
+    "family": "推动",
+    "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+    "behavior_predicted": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+   },
+   {
+    "key": "suspend",
+    "weight": 0.15,
+    "evidence_quote": "I can't separate these two issues right now. That's just how it is.",
+    "signature": {
+     "congruence": "促进与威胁并存",
+     "need_status": "未满足",
+     "coping": "不确定",
+     "time": "未来(决策悬置)",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N01",
+    "freshness_days_hint": 1,
+    "name": "悬置·焦虑结",
+    "family": "阻挡",
+    "playbook": "给判据+零成本测试塌缩不确定性+如实说trade;不推购买。反杠杆=零风险承诺/样品/证言",
+    "behavior_predicted": "质询通道·中成本:连环规格质询/征证言/比价/收藏不买/明确不动"
+   }
+  ],
+  "levers_present": [
+   "从众 (发帖者自述'上回我公开求日期,两小时两人自发补 OS 版本',借社群互证倒逼填报合规)"
+  ],
+  "notes": "两周自建数据表的认知框架被外部单帖击穿,核心结论(口袋位置决定掉线耳)被颠覆,触发 audit + pain_seek 混合态,主动公开重订六字段以恢复 epistemic_trust;suspend 来自其承认'暂无法分离软件缺陷与 RF 几何'。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}
