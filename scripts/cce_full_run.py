@@ -326,7 +326,7 @@ def qualified(ctx):
     #   [[knot_intensity:]], 这里却宣布同一份读数可引用。
     #   改为由 K1 判定驱动的**路由**, 单一真相源见 scripts/cce_k1_status.py。
     if s2m.get("knots"):
-        from cce_k1_status import layer_status
+        from cce_k1_status import layer_status, knot_readout_usable
         # ★ 必须把**本次运行**的仪器传进去: K1 判定是在某一台仪器上做的,
         #   标定不可跨仪器搬(gen2→gen3 已确立)。缺它一律扣发。
         _inst = (ctx.get("cce") or {}).get("stage2", {}).get("instrument") or {}
@@ -344,13 +344,19 @@ def qualified(ctx):
             # intensity 与**建在 intensity 上的一切**一起扣发:
             #   knots[].weight = intensity/Σ · families.mass = max(intensity)
             #   families.composition = intensity/Σ · drive_brake = 两个 mass 的象限
-            # ⚠️ 实测(1 个文本, exploratory)显示 weight 反而比 intensity 稳、mass 更差,
-            #   但那是**未单独判定**的探索性结果 —— 缺判定不等于判定通过, 一律扣发。
+            # ★ 2026-09-03 更正: weight 已**不是**「未单独判定」了 —— K1-v2 在 5 个文本上
+            #   按预注册判据判过, 结果 0/5。把已判红的东西报成「未测」是把 red 降级成
+            #   NOT_MEASURED, 而本项目的三态纪律要求这两者分开(not started is not green,
+            #   judged-and-failed 也不是 not started)。理由改为**现问**, 判定变了自动跟上。
             withheld["s2.distribution.intensity"] = st["intensity"]["reason"]
+            _w_ok, _w_why = knot_readout_usable(
+                "weight", instrument_hash=_inst.get("instrument_hash"))
             withheld["s2.distribution.knot_weight"] = (
-                "建在 intensity 上(weight = intensity/Σ), 未单独判定 ⇒ 随 intensity 一起扣发")
+                f"{_w_why}(weight = intensity/Σ, 建在 intensity 上)")
             withheld["s2.families"] = (
-                "mass = max(intensity), composition = intensity/Σ, 未单独判定 ⇒ 扣发")
+                "mass = max(intensity), composition = intensity/Σ —— 二者都建在已判红的 "
+                "intensity 上; 且 mass 自身在探索性实测里比 intensity **更差**(0.6222–0.7333), "
+                "未经预注册判定 ⇒ 扣发")
             withheld["s2.drive_brake"] = (
                 "由两个 mass 的象限决定, 未单独判定 ⇒ 扣发")
     inst = (ctx.get("cce") or {}).get("stage2", {}).get("instrument") or {}

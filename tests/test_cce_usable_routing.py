@@ -48,6 +48,19 @@ for k in ("s2.distribution.intensity", "s2.distribution.knot_weight",
 assert "K1" in out["withheld"]["s2.distribution.intensity"], \
     "★ 扣发理由必须指向 K1 判定, 不能是一句泛泛的话"
 
+# ── ★ 扣发**理由**必须与真实状态一致: 判过且不合格 != 未测 ──────────────
+#   2026-09-03 抓到: weight 已被 K1-v2 在 5 个文本上判过(0/5), 而这里的理由
+#   仍写「未单独判定」—— 把 red 报成 NOT_MEASURED 是降级。
+#   本项目的三态纪律: not started is not green, judged-and-failed 也不是 not started。
+_wr = out["withheld"]["s2.distribution.knot_weight"]
+assert "未单独判定" not in _wr, \
+    "★ weight 已判过(K1-v2 0/5), 不得再报「未单独判定」—— 把红降级成未测"
+assert "0/5" in _wr or "INSTRUMENT_WIDE_FAIL" in _wr, \
+    f"★ 扣发理由必须带上真实判定结果, 实际: {_wr[:80]}"
+# 理由须**现问**而非写死: 判定文件变了理由要自动跟上
+_src = open(os.path.join(ROOT, "scripts", "cce_full_run.py"), encoding="utf-8").read()
+assert "knot_readout_usable(" in _src, "★ 扣发理由必须现问 knot_readout_usable, 不许写死"
+
 # ── 2. ★ 单一真相源: 出站闸与 usable 路由读同一个判定文件 ──────────────
 import cce_strategy_gate as sg  # noqa: E402
 assert os.path.abspath(sg.K1_VERDICT) == os.path.abspath(ks.K1_VERDICT), \
