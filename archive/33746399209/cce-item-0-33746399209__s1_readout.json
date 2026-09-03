@@ -1,0 +1,805 @@
+{
+ "input_sha": "00be1b6643dccdf0",
+ "run_at": "2026-09-03T10:54:23",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "operational": {
+   "attempts": [
+    {
+     "temperature": 0.3,
+     "attempt": 1,
+     "status": "SUCCESS",
+     "error_class": null
+    },
+    {
+     "temperature": 0.6,
+     "attempt": 1,
+     "status": "SUCCESS",
+     "error_class": null
+    },
+    {
+     "temperature": 0.0,
+     "attempt": 1,
+     "status": "SUCCESS",
+     "error_class": null
+    }
+   ],
+   "n_attempts": 3,
+   "n_draws": 3,
+   "first_attempt_success": 3,
+   "first_attempt_success_rate": 1.0,
+   "n_infra_failed": 0,
+   "n_parse_failed": 0,
+   "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+   "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+  },
+  "preparation_id": "prep_86c7c7545d75",
+  "structural_gate": {
+   "gate_version": "1.0.0",
+   "verdict": "MEASURE",
+   "span_counts": {
+    "PERSONAL": 5,
+    "NONPERSONAL": 0,
+    "AMBIGUOUS": 4
+   },
+   "chars_in": 1422,
+   "chars_kept": 1422,
+   "chars_dropped": 0
+  },
+  "k_requested": 3,
+  "k_attempted": 3,
+  "k_valid": 3,
+  "k_abstained": 0,
+  "k_ok": 3,
+  "n_abstain": 0,
+  "abstained": false,
+  "measurement_status": "qualified",
+  "layers": {
+   "desire_vec": [
+    0.12666666666666668,
+    0.016666666666666663,
+    0.2333333333333333,
+    0.24,
+    0.03333333333333333,
+    0.016666666666666666,
+    0.18333333333333332,
+    0.13999999999999999,
+    0.01
+   ],
+   "need_vec": [
+    0.15666666666666665,
+    0.16666666666666666,
+    0.09333333333333334,
+    0.02666666666666667,
+    0.0,
+    0.18666666666666668,
+    0.13,
+    0.016666666666666666,
+    0.0,
+    0.21,
+    0.0,
+    0.0,
+    0.0,
+    0.013333333333333334,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.07333333333333333,
+    0.1366666666666667,
+    0.05333333333333334,
+    0.08,
+    0.016666666666666663,
+    0.11666666666666665,
+    0.0,
+    0.2733333333333334,
+    0.16999999999999996,
+    0.04666666666666667,
+    0.019999999999999997,
+    0.006666666666666665,
+    0.006666666666666667
+   ],
+   "action_vec": [
+    0.3666666666666667,
+    0.03,
+    0.26,
+    0.05333333333333334,
+    0.03333333333333333,
+    0.03333333333333333,
+    0.22333333333333336
+   ]
+  },
+  "tops": {
+   "desire": "确认欲",
+   "need": "N10_自我确认",
+   "emotion": "relief宽慰",
+   "action": "approach趋近"
+  },
+  "draws": [
+   {
+    "from_temperature": 0.0,
+    "abstained": false,
+    "desire_vec": [
+     0.15,
+     0.0,
+     0.25,
+     0.2,
+     0.0,
+     0.0,
+     0.2,
+     0.2,
+     0.0
+    ],
+    "need_vec": [
+     0.18,
+     0.2,
+     0.12,
+     0.0,
+     0.0,
+     0.2,
+     0.15,
+     0.0,
+     0.0,
+     0.15,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emotion_vec": [
+     0.1,
+     0.2,
+     0.05,
+     0.05,
+     0.0,
+     0.1,
+     0.0,
+     0.3,
+     0.15,
+     0.05,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "action_vec": [
+     0.4,
+     0.0,
+     0.25,
+     0.1,
+     0.05,
+     0.0,
+     0.2
+    ],
+    "tops": {
+     "desire": "摆脱欲",
+     "need": "N02_掌控局面",
+     "emotion": "relief宽慰",
+     "action": "approach趋近"
+    },
+    "appraisal": {
+     "goal_relevance": 0.9,
+     "congruence_direction": "促进",
+     "need_status": "已满足",
+     "goal_congruence": "正",
+     "coping_potential": "高",
+     "note": "内容场景与作者6类需求全部高相关(goal_relevance=0.9);Fortell的AI降噪+语音聚焦使作者明确趋近目标(促进);需求当场被满足:保留了助听器(need_status=已满足);应对潜能高——预算充足、跨州测试、可退货兜底、心理建设到位。故促进+已满足→正情绪,且高coping_potential进一步放大正情绪、抑制负情绪生成(无fear/anger)。"
+    }
+   },
+   {
+    "from_temperature": 0.3,
+    "abstained": false,
+    "desire_vec": [
+     0.15,
+     0.0,
+     0.25,
+     0.22,
+     0.05,
+     0.03,
+     0.15,
+     0.12,
+     0.03
+    ],
+    "need_vec": [
+     0.16,
+     0.1,
+     0.08,
+     0.06,
+     0.0,
+     0.22,
+     0.14,
+     0.0,
+     0.0,
+     0.2,
+     0.0,
+     0.0,
+     0.0,
+     0.04,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emotion_vec": [
+     0.04,
+     0.14,
+     0.08,
+     0.14,
+     0.0,
+     0.1,
+     0.0,
+     0.24,
+     0.18,
+     0.05,
+     0.01,
+     0.0,
+     0.02
+    ],
+    "action_vec": [
+     0.4,
+     0.04,
+     0.28,
+     0.01,
+     0.0,
+     0.0,
+     0.27
+    ],
+    "tops": {
+     "desire": "摆脱欲",
+     "need": "N06_摆脱痛苦",
+     "emotion": "relief宽慰",
+     "action": "approach趋近"
+    },
+    "appraisal": {
+     "goal_relevance": 0.92,
+     "congruence_direction": "促进",
+     "need_status": "已满足",
+     "goal_congruence": "正",
+     "coping_potential": "高",
+     "note": "goal_relevance高——内容直接回应35年佩戴者的核心痛(餐厅/酒吧对话+大脑代偿疲劳)。direction=促进:远程服务意外成功、10%改进兑现、brain-body反馈正向。need_status=已满足:不仅保留了助听器,且'I didn't even notice that my aids were in'暗示问题被消解。coping=高:'I told myself I could return them'+ 7K被量化为ROI+主动给出Top 10方法论,主体处在完全能掌控的位置。促进+已满足→正情绪,主导为relief/approval/joy。"
+    }
+   },
+   {
+    "from_temperature": 0.6,
+    "abstained": false,
+    "desire_vec": [
+     0.07999999999999999,
+     0.04999999999999999,
+     0.19999999999999996,
+     0.29999999999999993,
+     0.04999999999999999,
+     0.019999999999999997,
+     0.19999999999999996,
+     0.09999999999999998,
+     0.0
+    ],
+    "need_vec": [
+     0.13,
+     0.2,
+     0.08,
+     0.02,
+     0.0,
+     0.14,
+     0.1,
+     0.05,
+     0.0,
+     0.28,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emotion_vec": [
+     0.07999999999999999,
+     0.06999999999999999,
+     0.029999999999999992,
+     0.04999999999999999,
+     0.04999999999999999,
+     0.14999999999999997,
+     0.0,
+     0.27999999999999997,
+     0.17999999999999997,
+     0.039999999999999994,
+     0.04999999999999999,
+     0.019999999999999997,
+     0.0
+    ],
+    "action_vec": [
+     0.3,
+     0.05,
+     0.25,
+     0.05,
+     0.05,
+     0.1,
+     0.2
+    ],
+    "tops": {
+     "desire": "确认欲",
+     "need": "N10_自我确认",
+     "emotion": "relief宽慰",
+     "action": "approach趋近"
+    },
+    "appraisal": {
+     "goal_relevance": 0.95,
+     "congruence_direction": "促进",
+     "need_status": "已满足",
+     "goal_congruence": "正",
+     "coping_potential": "高",
+     "note": "目标相关度极高(直接命中N10/N02/N01)；内容(实际佩戴体验)促进且当场满足了『确认花得值+听声改善+风险兜底成功』三个核心目标；coping_potential高——飞一趟NY、设退货期、用ROI量化都说明作者有可执行的应对资源，因此情绪为正向、可控的宽慰/认同/自豪，而非焦虑型fear。"
+    }
+   }
+  ],
+  "appraisal": {
+   "goal_relevance": 0.9,
+   "congruence_direction": "促进",
+   "need_status": "已满足",
+   "goal_congruence": "正",
+   "coping_potential": "高",
+   "note": "内容场景与作者6类需求全部高相关(goal_relevance=0.9);Fortell的AI降噪+语音聚焦使作者明确趋近目标(促进);需求当场被满足:保留了助听器(need_status=已满足);应对潜能高——预算充足、跨州测试、可退货兜底、心理建设到位。故促进+已满足→正情绪,且高coping_potential进一步放大正情绪、抑制负情绪生成(无fear/anger)。"
+  },
+  "chain_trace": "摆脱欲+控制欲+安全感欲+确认欲+拥有欲 →(35年代偿疲劳+$7K预算风险+嘈杂场景失能+与Oticon横向比较+购置新品情境事件)→ N06_摆脱痛苦+N02_掌控局面+N01_确定性+N10_自我确认+N07_占有资源+N03_提升能力 →(评价:goal_relevance=0.9, 促进, 已满足, 正goal_congruence, coping_potential=高)→ relief宽慰+joy喜悦+approval认同+pride自豪+admiration钦佩 → approach趋近(留置助听器)+attend关注(系统测评)+dominate支配(向他人输出选购方法论) 的完整因果链",
+  "single_draw": {
+   "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "内容场景与作者6类需求全部高相关(goal_relevance=0.9);Fortell的AI降噪+语音聚焦使作者明确趋近目标(促进);需求当场被满足:保留了助听器(need_status=已满足);应对潜能高——预算充足、跨州测试、可退货兜底、心理建设到位。故促进+已满足→正情绪,且高coping_potential进一步放大正情绪、抑制负情绪生成(无fear/anger)。"
+   },
+   "chain_trace": "摆脱欲+控制欲+安全感欲+确认欲+拥有欲 →(35年代偿疲劳+$7K预算风险+嘈杂场景失能+与Oticon横向比较+购置新品情境事件)→ N06_摆脱痛苦+N02_掌控局面+N01_确定性+N10_自我确认+N07_占有资源+N03_提升能力 →(评价:goal_relevance=0.9, 促进, 已满足, 正goal_congruence, coping_potential=高)→ relief宽慰+joy喜悦+approval认同+pride自豪+admiration钦佩 → approach趋近(留置助听器)+attend关注(系统测评)+dominate支配(向他人输出选购方法论) 的完整因果链",
+   "from_temperature": 0.0,
+   "caveat": "单次抽样(温度阶梯第一档), 不是 K 次聚合; 与 layers/tops 不同口径, 不得并列引用"
+  },
+  "_provenance": {
+   "aggregated": [
+    "layers",
+    "tops",
+    "within_js"
+   ],
+   "single_draw": [
+    "appraisal",
+    "chain_trace"
+   ],
+   "n": 3
+  },
+  "within_js": {
+   "desire_vec": 0.0709,
+   "need_vec": 0.0703,
+   "emotion_vec": 0.0801,
+   "action_vec": 0.0873
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "reward",
+    "intensity": 0.9,
+    "support": 1.0,
+    "occur": 5,
+    "n": 5,
+    "support_ci95": [
+     0.5655,
+     1.0
+    ],
+    "support_majority": true,
+    "weight": 0.4348,
+    "name": "爽点·回报结",
+    "family": "推动",
+    "playbook": "短收;自我缩小;不再投喂信息(需求已闭,长文=把关掉的门重开)",
+    "behavior_predicted": "致谢通道·低中成本:收藏声明/致谢/自来水布道。驱动留存分享(留存维ρ≈0.26-0.5)",
+    "evidence_quote": "I kept the aids due to their noise-cancellation and speech-focus in AI mode. And I could tell that my brain-body was better, as I didn't even notice that my aids were in. I also kept the aids, as my 10% did get better at Fortell's forte: hearing conversations in loud bars and restaurants. They are way better than my Oticon aids (that cost me about the same).",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足(即时)",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N01",
+    "freshness_days_hint": 14
+   },
+   {
+    "key": "display",
+    "intensity": 0.82,
+    "support": 1.0,
+    "occur": 5,
+    "n": 5,
+    "support_ci95": [
+     0.5655,
+     1.0
+    ],
+    "support_majority": true,
+    "weight": 0.3961,
+    "name": "确证·展示结",
+    "family": "推动",
+    "playbook": "让位;被当同侪;接着他的贡献往前走,绝不纠正姿态压他",
+    "behavior_predicted": "展示通道·低→高成本:纠错亮牌/举反例晒型号/结构化长评/承诺回访。评论区最高质量UGC主力",
+    "evidence_quote": "I have been wearing aids for 35 years... If you are a hearing aid user, you know that correcting hearing loss is more of an art than a science, given the changing nature of hearing loss (dB changes across frequencies). I feel Fortell is making it more of a science. I suggest writing down your top 10 problems and what would satisfy you in the hunt for new aids.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "identity"
+    },
+    "desire_code": "超越欲",
+    "need_code": "N09",
+    "freshness_days_hint": 14
+   },
+   {
+    "key": "audit",
+    "intensity": 0.35,
+    "support": 1.0,
+    "occur": 5,
+    "n": 5,
+    "support_ci95": [
+     0.5655,
+     1.0
+    ],
+    "support_majority": true,
+    "weight": 0.1691,
+    "name": "验真·审计结",
+    "family": "阻挡",
+    "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+    "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前",
+    "evidence_quote": "So, I was also skeptical of the aids... Not that I have $7K to throw around, but if I heard just 10% better, then that is an ROI that I can justify. I told myself that I could return them, so I didn't feel the $7K was at risk.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "other_agent",
+     "target_layer": "epistemic_trust"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N10",
+    "freshness_days_hint": 30
+   },
+   {
+    "key": "inertia",
+    "intensity": 0.25,
+    "support": 0.2,
+    "occur": 1,
+    "n": 5,
+    "support_ci95": [
+     0.0362,
+     0.6245
+    ],
+    "support_majority": false,
+    "weight": 0.0,
+    "name": "惯性·缺席结",
+    "family": "阻挡",
+    "playbook": "只有精确命中其机制才值得触碰;给『一步且可逆』的最小改变;绝不布道",
+    "behavior_predicted": "缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,开口即高质量个案",
+    "evidence_quote": "You get comfortable with aids, and your brain works hard to compensate - you don't realize how hard until there is a change (good or bad).",
+    "signature": {
+     "congruence": "无激活或coping感知为零",
+     "need_status": "现状部分满足为默认",
+     "coping": "极低/习得性认命",
+     "time": "无限期现在",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "控制欲(被压抑)",
+    "need_code": "N02",
+    "freshness_days_hint": 7
+   },
+   {
+    "key": "belong",
+    "intensity": 0.15,
+    "support": 0.2,
+    "occur": 1,
+    "n": 5,
+    "support_ci95": [
+     0.0362,
+     0.6245
+    ],
+    "support_majority": false,
+    "weight": 0.0,
+    "name": "归属·确认结",
+    "family": "推动",
+    "playbook": "先『你不是一个人』把人接住,再给至多一格新知;不派任务",
+    "behavior_predicted": "确认通道·中成本:自我暴露式发帖+『only me?』;线下伴随伪装替代行为",
+    "evidence_quote": "If you are a hearing aid user, you know that correcting hearing loss is more of an art than a science",
+    "signature": {
+     "congruence": "促进(非孤立威胁)",
+     "need_status": "已满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "identity"
+    },
+    "desire_code": "归属欲",
+    "need_code": "N11",
+    "freshness_days_hint": 3
+   }
+  ],
+  "measurement_status": "qualified",
+  "n_abstain": 0,
+  "draw_ledger": [
+   {
+    "draw_id": 0,
+    "knot_vector": {
+     "pain_seek": 0.0,
+     "injustice": 0.0,
+     "belong": 0.0,
+     "reward": 0.9,
+     "display": 0.85,
+     "itch": 0.0,
+     "suspend": 0.0,
+     "inertia": 0.25,
+     "audit": 0.35
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "reward"
+   },
+   {
+    "draw_id": 1,
+    "knot_vector": {
+     "pain_seek": 0.0,
+     "injustice": 0.0,
+     "belong": 0.15,
+     "reward": 0.9,
+     "display": 0.78,
+     "itch": 0.0,
+     "suspend": 0.0,
+     "inertia": 0.0,
+     "audit": 0.32
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "reward"
+   },
+   {
+    "draw_id": 2,
+    "knot_vector": {
+     "pain_seek": 0.0,
+     "injustice": 0.0,
+     "belong": 0.0,
+     "reward": 0.75,
+     "display": 0.82,
+     "itch": 0.0,
+     "suspend": 0.0,
+     "inertia": 0.0,
+     "audit": 0.5
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "display"
+   },
+   {
+    "draw_id": 3,
+    "knot_vector": {
+     "pain_seek": 0.0,
+     "injustice": 0.0,
+     "belong": 0.0,
+     "reward": 0.82,
+     "display": 0.88,
+     "itch": 0.0,
+     "suspend": 0.0,
+     "inertia": 0.0,
+     "audit": 0.22
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "display"
+   },
+   {
+    "draw_id": 4,
+    "knot_vector": {
+     "pain_seek": 0.0,
+     "injustice": 0.0,
+     "belong": 0.0,
+     "reward": 0.9,
+     "display": 0.82,
+     "itch": 0.0,
+     "suspend": 0.0,
+     "inertia": 0.0,
+     "audit": 0.4
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "reward"
+   }
+  ],
+  "intensity": {
+   "reward": 0.9,
+   "display": 0.82,
+   "audit": 0.35
+  },
+  "families": {
+   "推动": {
+    "mass": 0.9,
+    "composition": {
+     "reward": 0.5233,
+     "display": 0.4767
+    },
+    "members_active": 2
+   },
+   "阻挡": {
+    "mass": 0.35,
+    "composition": {
+     "audit": 1.0
+    },
+    "members_active": 1
+   }
+  },
+  "drive_brake": {
+   "drive_mass": 0.9,
+   "brake_mass": 0.35,
+   "quadrant": "high_drive/low_brake",
+   "note": "象限切点 0.5 是量纲中点, 不是校准阈值; 仅作分类标签, 不得作判据"
+  },
+  "levers_present": [
+   "从众(轻: 'If you are a hearing aid user, you know that...')",
+   "种草(对其他潜在购买者的口碑/推荐效应)",
+   "种草(末段建议+祝福充当软种草)"
+  ],
+  "notes": "典型35年资深用户的 reward+display 双结长评UGC：满意+亮资历+结构化对比(oticon vs fortell)+给出方法论建议；audit为已解决的前置闸门（开口即承认skeptical并被体验化解），inertia为被回望并突破的旧默认态（大脑代偿35年不自知）。无明显内容侧杠杆驱动，纯结驱自来水。",
+  "sampling": {
+   "n_requested": 5,
+   "n_ok": 5,
+   "top1_mode": "reward",
+   "top1_mode_share": 0.6,
+   "top1_unanimous": false,
+   "top1_stable": false,
+   "top1_draws": [
+    "reward",
+    "reward",
+    "display",
+    "display",
+    "reward"
+   ],
+   "caveat_unanimous": "top1_unanimous 在 n=1 时恒真, 且 P≈p^n 随 n 单调下降 —— 跨不同 n 比较必须用 top1_mode_share, 不能用 unanimous",
+   "max_range": 0.28,
+   "per_knot": {
+    "reward": {
+     "occur": 5,
+     "n": 5,
+     "support": 1.0,
+     "intensity": 0.9,
+     "median": 0.9,
+     "min": 0.75,
+     "max": 0.9,
+     "range": 0.15
+    },
+    "belong": {
+     "occur": 1,
+     "n": 5,
+     "support": 0.2,
+     "intensity": 0.15,
+     "median": 0.15,
+     "min": 0.15,
+     "max": 0.15,
+     "range": 0.0
+    },
+    "display": {
+     "occur": 5,
+     "n": 5,
+     "support": 1.0,
+     "intensity": 0.82,
+     "median": 0.82,
+     "min": 0.78,
+     "max": 0.88,
+     "range": 0.1
+    },
+    "audit": {
+     "occur": 5,
+     "n": 5,
+     "support": 1.0,
+     "intensity": 0.35,
+     "median": 0.35,
+     "min": 0.22,
+     "max": 0.5,
+     "range": 0.28
+    },
+    "inertia": {
+     "occur": 1,
+     "n": 5,
+     "support": 0.2,
+     "intensity": 0.25,
+     "median": 0.25,
+     "min": 0.25,
+     "max": 0.25,
+     "range": 0.0
+    }
+   }
+  },
+  "caveat": "单次抽样不是测量: 本结果为 n 次抽样的逐结中位数; top1_stable=false 时首结身份本身不可复现, 不得作断言依据",
+  "instrument": {
+   "instrument_hash": "565470cf26c16d01",
+   "qualification_policy_hash": "b41ef5217a77d311",
+   "spec": {
+    "ontology_version": "1.3.1",
+    "s1_prompt_sha256": "eadcdcdac46a5180",
+    "s2_prompt_sha256": "b8d0f60d66d10f12",
+    "model": "MiniMax-M3",
+    "endpoint": "https://api.minimaxi.com/v1/text/chatcompletion_v2",
+    "sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "aggregation_policy": {
+     "support_rule": "occur * 2 > n",
+     "intensity_stat": "median_of_nonzero",
+     "composition": "within_family_then_global_weight",
+     "abstention": "empty_knots_is_abstain_v1"
+    },
+    "qualification_policy": {
+     "k_valid_min": 2,
+     "insufficient_replicates": "WITHHOLD",
+     "abstain_semantics": "empty_knots_is_abstain_v1",
+     "statuses": [
+      "qualified",
+      "abstain",
+      "insufficient_replicates"
+     ],
+     "margin": {
+      "F_max": 0.0,
+      "U_max": 0.05,
+      "bound": "exact_one_sided_95_upper",
+      "provenance": "ENGINEERING_BUDGET",
+      "concentration_flag": {
+       "per_base_unqualified_min": 2,
+       "per_base_reps": 4,
+       "effect": "ADOPT_WITH_RESTRICTIONS"
+      },
+      "why_concentration": "总体 4% 但全集中在一种表达形式, 会被均值洗掉 ⇒ 必须另报 U_by_base"
+     }
+    }
+   },
+   "preparation_id": "prep_raw_unfiltered",
+   "measurement_procedure_id": "mp_bf70e868a53efb09",
+   "hash_scope": {
+    "instrument": [
+     "ontology_version",
+     "s1_prompt_sha256",
+     "s2_prompt_sha256",
+     "model",
+     "endpoint",
+     "sampling_policy"
+    ],
+    "qualification_policy": [
+     "aggregation_policy",
+     "qualification_policy"
+    ],
+    "measurement_procedure": [
+     "instrument_hash",
+     "preparation_id",
+     "qualification_policy_hash"
+    ],
+    "criterion": "改它之后已采集的 raw draw 还能不能用"
+   }
+  },
+  "s1_pairing": "round_robin_over_3_s1_draws"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}

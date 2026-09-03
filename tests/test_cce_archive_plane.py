@@ -118,7 +118,7 @@ assert A.check()[0]
 # 只查了私仓 cce-engine, 而生产入口 2026-08-17 起在公开仓 cce-engine-oss。
 # 换仓复查后 23 个 run 仍活着, 已全部取回落档。
 assert stats["irrecoverable"] == 19, stats
-assert stats["locally_archived"] >= 25, stats
+assert stats["locally_archived"] >= 27, stats
 # ★ P3 首次生产运行必须在册: 它是「P3 进生产」这句话的证据本身
 _p3 = INDEX["runs"].get("33743931309")
 assert _p3 and _p3["status"] == "LOCALLY_ARCHIVED", "★ P3 首次生产运行未入册"
