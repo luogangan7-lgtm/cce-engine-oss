@@ -58,10 +58,12 @@ def rows() -> list[dict]:
                 "证据": (f"θ={sens['theta']} 判决 {sens['verdict_flip_rate']:.1%} 被 weight 抖动翻转"
                          f"(该数是**下界**, 未含 dissolve_hit 噪声); 已随 weight 扣发"),
                 "文件": "probes/align_theta_sensitivity.py"})
-    out.append({"组件": "top-1 playbook_hit(现行对齐出口)", "状态": UNMEASURED,
-                "证据": ("★ 它自身是 3 次 LLM 表决取中位数, **复现性从未测过**; "
-                         "历史归档从未落过 reply_alignment 产物, 补不上 ⇒ 要测必须新花钱"),
-                "文件": "scripts/reply_loop.py(top1_align)"})
+    ph = _j("tests/data/phase2/playbook_hit_verdict.json")
+    out.append({"组件": "top-1 playbook_hit(唯一剩下的对齐出口)", "状态": FAILED,
+                "证据": (f"预注册判定 {ph['decision']}: {ph['meeting_criterion']}/{ph['texts']} 文本达标"
+                         "。★ 只在答案明显「是」或「否」时稳(极差 0), 中间地带极差 0.3–0.7 —— "
+                         "阈值判决正住在中间。非退化闸**过了**, 所以是「测到了但不稳」不是「没测到」"),
+                "文件": "tests/data/phase2/playbook_hit_verdict.json"})
 
     # ── 媒体 ──────────────────────────────────────────────────────────
     out.append({"组件": "媒体**存在**声明", "状态": USABLE,

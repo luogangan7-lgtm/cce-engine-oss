@@ -1,0 +1,77 @@
+{
+ "block": "PLAYBOOK_HIT_RELIABILITY_GEN4",
+ "measured_at": "2026-09-03",
+ "instrument_hash": "565470cf26c16d01",
+ "prereg": "PLAYBOOK_HIT_RELIABILITY_GEN4",
+ "texts": 8,
+ "meeting_criterion": 4,
+ "per_text": {
+  "2ee52f67c987": {
+   "n": 8,
+   "agreement": 1.0,
+   "median": 0.0,
+   "range": 0.0,
+   "verdict": "PASS"
+  },
+  "3191a8fae98d": {
+   "n": 8,
+   "agreement": 0.75,
+   "median": 0.0,
+   "range": 0.3,
+   "verdict": "FAIL"
+  },
+  "344d81fc035f": {
+   "n": 8,
+   "agreement": 0.3929,
+   "median": 0.3,
+   "range": 0.7,
+   "verdict": "FAIL"
+  },
+  "59a1a9c7d712": {
+   "n": 8,
+   "agreement": 0.75,
+   "median": 0.0,
+   "range": 0.3,
+   "verdict": "FAIL"
+  },
+  "5bbf4543dd47": {
+   "n": 8,
+   "agreement": 1.0,
+   "median": 1.0,
+   "range": 0.0,
+   "verdict": "PASS"
+  },
+  "6b16b77dbc5b": {
+   "n": 8,
+   "agreement": 1.0,
+   "median": 0.0,
+   "range": 0.0,
+   "verdict": "PASS"
+  },
+  "6def5ddbcf25": {
+   "n": 8,
+   "agreement": 1.0,
+   "median": 0.0,
+   "range": 0.0,
+   "verdict": "PASS"
+  },
+  "712fc175d4bf": {
+   "n": 8,
+   "agreement": 0.75,
+   "median": 0.0,
+   "range": 0.3,
+   "verdict": "FAIL"
+  }
+ },
+ "degeneracy": {
+  "distinct_medians": 3,
+  "median_range": 1.0,
+  "passes": true,
+  "rule": "除一致率外必须过非退化检验: 8 个文本的 hit **中位数**至少要有 3 个不同取值, 且极差 >= 0.20。"
+ },
+ "decision": "UNRELIABLE",
+ "★decision_rule_frozen_at": "2026-09-03",
+ "★pattern": "★ 失败的形状: 4 个 PASS 里 3 个中位数 0.0、1 个 1.0, 极差全为 0 —— **稳在地板或天花板**; 4 个 FAIL 的极差 0.3–0.7, 全落在中间。⇒ 它只在答案明显「是」或明显「否」时稳, **恰恰在中间地带不稳**, 而阈值判决就住在中间地带。**在需要它的地方它不可靠。**",
+ "★not_degenerate": "非退化闸**过了**(3 个不同中位数, 极差 1.0) ⇒ 这不是「什么都没测」, 是「测到了但在需要它的地方不稳」。两者修法不同。",
+ "★scope": "只回答稳不稳, **不**回答判得对不对(效度需外部锚点, 仍无)。"
+}

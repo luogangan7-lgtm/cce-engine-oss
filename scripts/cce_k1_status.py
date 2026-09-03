@@ -133,6 +133,29 @@ def knot_readout_usable(form: str, instrument_hash=None):
     return False, f"结层读数形式 {form!r} 不可用: {why}"
 
 
+def playbook_hit_usable(path=None, instrument_hash=None):
+    """top-1 的 playbook_hit 是否可用 —— 由预注册判定决定。
+
+    ★ 2026-09-03 判定 UNRELIABLE(4/8 文本达标)。失败的形状是关键:
+      稳在地板(中位 0.0)或天花板(1.0)时极差为 0, **中间地带极差 0.3–0.7** ——
+      它只在答案明显时稳, 而阈值判决恰恰住在中间。**在需要它的地方它不可靠。**
+      非退化闸过了 ⇒ 不是「什么都没测」, 是「测到了但不稳」。
+    """
+    path = path or os.path.join(ROOT, "tests", "data", "phase2", "playbook_hit_verdict.json")
+    if not os.path.exists(path):
+        return False, "无 playbook_hit 判定 —— 缺判定不等于可用"
+    v = json.load(open(path, encoding="utf-8"))
+    if not instrument_hash:
+        return False, "本次运行未提供 instrument_hash —— 缺仪器标识不等于仪器相同"
+    if instrument_hash != v.get("instrument_hash"):
+        return False, (f"判定在仪器 {v.get('instrument_hash')} 上做的, 本次是 {instrument_hash}"
+                       " —— 标定不可跨仪器搬")
+    if v.get("decision") == "USABLE":
+        return True, f"playbook_hit 达标 {v['meeting_criterion']}/{v['texts']} 文本且非退化"
+    return False, (f"playbook_hit 判定 {v['decision']}: 仅 {v['meeting_criterion']}/{v['texts']} "
+                   "文本达标; 且它只在答案明显时稳, **中间地带不稳** —— 阈值判决正住在中间。")
+
+
 def weight_usable(path=None, instrument_hash=None):
     """weight 层是否可用 —— 由 v2 多文本判定决定, 不由单文本观察决定。
 

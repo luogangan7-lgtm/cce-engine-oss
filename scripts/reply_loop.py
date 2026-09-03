@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 from exp_crossmodel_desire import DESIRES
 from exp_v4_causal_chain import EMOTIONS, ACTIONS
 from cce_align_v2 import score as knot_align
-from cce_k1_status import knot_readout_usable
+from cce_k1_status import knot_readout_usable, playbook_hit_usable
 
 # 本链路的仪器。缺它 knot_readout_usable 一律扣发(缺仪器标识 != 仪器相同)。
 INSTRUMENT_HASH = os.environ.get("CCE_INSTRUMENT_HASH", "565470cf26c16d01")
@@ -119,13 +119,20 @@ def main():
     top1_align = None
     if _top1:
         _t = knot_align({_top1: 1.0}, {}, draft, mode="reply")
+        _ph_ok, _ph_why = playbook_hit_usable(instrument_hash=INSTRUMENT_HASH)
         top1_align = {"reader_top1": _top1, "playbook_hit": _t["alignment_score"],
+                      "★usable": _ph_ok,
+                      "★why_not_usable": None if _ph_ok else (
+                          _ph_why + " ⇒ 只作诊断留痕, 不得作为放行/拦截依据。"),
                       "detail": _t["detail"],
                       "★scope": ("只用 top-1 —— 结层唯一过了预注册判定的读数形式。"
                                  "它回答「有没有执行对方主结的 playbook」, "
                                  "**不**回答「整体对齐多少」(那需要可靠的全结权重, 现在没有)。"),
-                      "★still_noisy": ("playbook_hit 自身是 3 次 LLM 表决取中位数, "
-                                       "其复现性**未经预注册判定** —— 不得当作已验收的量。")}
+                      "★measured_2026_09_03": (
+                          "复现性已按预注册判定(8 文本 × n=8, 192 次调用): **UNRELIABLE**, "
+                          "4/8 文本达标。★ 它只在答案明显「是」或「否」时稳(极差 0), "
+                          "**中间地带极差 0.3–0.7** —— 而阈值判决正住在中间。"
+                          "非退化闸过了 ⇒ 不是「什么都没测」, 是「在需要它的地方不稳」。")}
 
     layers = {L: layer_reach(a["stage1"]["layers"][L], b["stage1"]["layers"][L], lab)
               for L, lab in LAYERS.items()}

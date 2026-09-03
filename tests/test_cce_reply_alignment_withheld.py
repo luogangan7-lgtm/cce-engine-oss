@@ -47,8 +47,14 @@ assert "守错了对象" in SRC, \
 
 # ── 必须留下只用可用层的出口, 否则 with_alignment 变成永远「不可判」────
 assert "top1_align" in SRC and "reader_top1" in SRC, "★ 缺 top-1 唯一可用层的对齐出口"
-assert "★still_noisy" in SRC, \
-    "★ top-1 对齐的 playbook_hit 自身未经预注册判定, 必须写明, 不许当已验收的量"
+# 2026-09-03: playbook_hit 已按预注册判定 UNRELIABLE(4/8) ⇒ 措辞从「未经判定」
+# 升级为「已判定不达标」。★ 「未测」与「已测不达标」是两种状态, 不许混。
+assert "★measured_2026_09_03" in SRC and "UNRELIABLE" in SRC, \
+    "★ playbook_hit 已判过, 必须写明判定结果, 不许再说「未经判定」"
+assert "playbook_hit_usable(" in SRC, \
+    "★ top-1 对齐出口必须**现问**可用性 —— 它自己也已判不达标"
+assert "中间地带" in SRC, \
+    "★ 失败的形状(只在答案明显时稳)必须留在原地 —— 那比 4/8 这个数更要紧"
 
 # ── 二值门必须仍然是摘掉的状态 ────────────────────────────────────────
 WF = open(os.path.join(ROOT, ".github", "workflows", "cce-submit.yml"), encoding="utf-8").read()
