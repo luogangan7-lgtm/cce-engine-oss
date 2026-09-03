@@ -118,7 +118,16 @@ assert A.check()[0]
 # 只查了私仓 cce-engine, 而生产入口 2026-08-17 起在公开仓 cce-engine-oss。
 # 换仓复查后 23 个 run 仍活着, 已全部取回落档。
 assert stats["irrecoverable"] == 19, stats
-assert stats["locally_archived"] >= 26, stats
+assert stats["locally_archived"] >= 24, stats
+# ★ 2026-09-03: 26 -> 25。archive/31993570335 的 actor_ref 是两个真实论坛 handle,
+#   已整目录移出仓库树(RESTRICTED_OFFTREE)。本仓可 fast-forward 到**公开仓**,
+#   含真名的产物不得留在树内; 但**不就地改写以求过闸** —— 改写破坏字节保真,
+#   宁可它不在树里, 不可它在树里却是假的。
+_r = INDEX["runs"]["31993570335"]
+assert _r["status"] == "RESTRICTED_OFFTREE" and _r.get("location"), _r
+assert "不就地改" in _r["★why_not_pseudonymize"] or "字节保真" in _r["★why_not_pseudonymize"]
+assert not os.path.isdir(os.path.join(ROOT, "archive", "31993570335")), \
+    "★ 含真实身份的归档又回到树里了"
 assert "查错了仓" in INDEX["finding"], "更正必须写在 finding 里, 不能悄悄改数字"
 
 # ── 反向 7: ★「不可恢复」缺出处 / 漏查一个 push 远端 -> 必须红 ──────────

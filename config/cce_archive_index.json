@@ -8,7 +8,8 @@
   "future_runs": "每个 run 完成时必须 archive_run() 落本地, 并入册。",
   "new_claims": "任何新机制/新结论不得直接引用 run_id 作证据。",
   "rebuild": "缺任何一块都大声失败, 绝不静默补空 —— 空壳重建比重建失败坏得多。",
-  "irrecoverable_claim": "标 IRRECOVERABLE 必须带 checked_against(覆盖全部 push 远端)与 checked_at。★ 只查一个仓得出的「不可恢复」不是结论 —— 2026-09-03 实际发生过, 错了 15 条。"
+  "irrecoverable_claim": "标 IRRECOVERABLE 必须带 checked_against(覆盖全部 push 远端)与 checked_at。★ 只查一个仓得出的「不可恢复」不是结论 —— 2026-09-03 实际发生过, 错了 15 条。",
+  "restricted_offtree": "含真实身份的归档一律 RESTRICTED_OFFTREE: 移出仓库树、登记 location、**不得**就地改写以求过闸(改写破坏字节保真)。★ 这条是 2026-09-03 实际发生后加的 —— 我取回 391 个历史文件后**没有重跑边界闸**, 而闸就是为这个存在的。"
  },
  "runs": {
   "31306754953": {
@@ -230,17 +231,19 @@
    "checked_at": "2026-09-03"
   },
   "31993570335": {
-   "status": "LOCALLY_ARCHIVED",
+   "status": "RESTRICTED_OFFTREE",
    "referenced_in": [
-    "archive/31993570335/_listing.json"
+    "config/cce_archive_index.json"
    ],
-   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。此前错记为 IRRECOVERABLE(在私仓 cce-engine 查的, 那边 404)。",
+   "reason": "★ 2026-09-03: 本 run 的 reader.actor_ref 是一个**未化名的真实论坛 handle**(hearingtracker_forum, 两个真名拼接), 违反手册「actor_ref 里只能写化名」; 读者正文里另有一个真实 handle。**具体取值不在此复述** —— 记录泄露不需要复述泄露内容, 写进来就等于把它留在了会推公开仓的树里(我第一版就这么写, 当场被边界闸再抓一次)。取值见保险库内该目录。本仓可 fast-forward 到公开仓 cce-engine-oss, 故整目录移出, 逐件 sha256 核对相符(9 文件), **数据未删只是不在树里**。",
    "recovered_from": "luogangan7-lgtm/cce-engine-oss",
    "checked_against": [
     "luogangan7-lgtm/cce-engine",
     "luogangan7-lgtm/cce-engine-oss"
    ],
-   "checked_at": "2026-09-03"
+   "checked_at": "2026-09-03",
+   "location": "/Volumes/data/cce-identified-vault/restricted_archive/31993570335",
+   "★why_not_pseudonymize": "不就地改成化名: 归档的全部意义是**字节保真**, 改了就与 _listing.json 的 sha256 不符, 等于把一份可核的产物变成不可核的。宁可它不在树里, 不可它在树里却是假的。"
   },
   "32096357295": {
    "status": "LOCALLY_ARCHIVED",
@@ -373,17 +376,18 @@
    "checked_at": "2026-09-03"
   },
   "32231676330": {
-   "status": "LOCALLY_ARCHIVED",
+   "status": "RESTRICTED_OFFTREE",
    "referenced_in": [
-    "archive/32231676330/_listing.json"
+    "config/cce_archive_index.json"
    ],
-   "reason": "2026-09-03 从公开仓 cce-engine-oss 取回并逐文件钉 sha256。此前错记为 IRRECOVERABLE(在私仓 cce-engine 查的, 那边 404)。",
+   "reason": "★ 2026-09-03: 该 run 的一份**原始 LLM 失败日志**里出现一个身份位置的通用 handle, 边界闸判为提及真实用户名。它**很可能**只是模型吐的占位符 —— 但我在识别层里查不到对应的人, 而**「查不出是谁」不等于「确认不是人」**(缺判定不等于判定通过)。本仓可 fast-forward 到公开仓, 故按同一策略整目录移出, 逐件 sha256 核对相符。★ 备选是放宽保险库那道共用闸的通用 handle 规则 —— 否决: 为了让自己过闸去调松一道共用安全控制, 方向是反的。",
    "recovered_from": "luogangan7-lgtm/cce-engine-oss",
    "checked_against": [
     "luogangan7-lgtm/cce-engine",
     "luogangan7-lgtm/cce-engine-oss"
    ],
-   "checked_at": "2026-09-03"
+   "checked_at": "2026-09-03",
+   "location": "/Volumes/data/cce-identified-vault/restricted_archive/32231676330"
   },
   "32240552713": {
    "status": "LOCALLY_ARCHIVED",
