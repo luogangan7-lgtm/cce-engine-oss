@@ -44,6 +44,19 @@ assert "\n  measure:\n" in WF and "\n  outbound:\n" not in WF, \
     "★ 跑 media_ingest 的 job 不得叫 outbound"
 assert "needs: [prep, measure]" in body, "★ 聚合 job 的依赖没跟着改名"
 
+# ── ★ measure 与 measure-aggregate 的 profile 列表必须一致 ─────────────
+#    2026-09-03 CI 实跑暴露: measure 加了 media_ingest 而 aggregate 没加,
+#    于是它跑完却**拿不到工作流级 complete 判决**(job 显示 skipped)。
+import re as _re2
+def _profiles_in(job: str) -> set:
+    blk = _re2.search(rf"\n  {job}:\n(.*?)\n  [a-z-]+:\n", WF, _re2.S)
+    assert blk, f"★ 找不到 job {job} —— 本检查失效, 修它别删它"
+    cond = _re2.search(r"\n    if: (.*?)\n", blk.group(1), _re2.S)
+    return set(_re2.findall(r"profile == '([a-z_]+)'", cond.group(1) if cond else ""))
+_m, _a = _profiles_in("measure"), _profiles_in("measure-aggregate")
+assert _m and _m == _a, f"★ 两个 job 的 profile 列表漂了: measure={sorted(_m)} vs aggregate={sorted(_a)}"
+assert "media_ingest" in _m, _m
+
 # ── ③ 媒体档不走出站的两道要求(它没有稿子, 也不该自我声明有无媒体) ────
 assert "media_ingest 不是出站" in prep, "★ 为什么不要 guard/媒体声明, 理由要留在原地"
 

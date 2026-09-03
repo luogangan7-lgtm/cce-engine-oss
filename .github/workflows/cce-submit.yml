@@ -257,7 +257,10 @@ jobs:
 
   measure-aggregate:
     needs: [prep, measure]
-    if: always() && needs.prep.result == 'success' && (needs.prep.outputs.profile == 'outbound_post' || needs.prep.outputs.profile == 'outbound_reply')
+    # ★ 必须与 measure job 的 profile 列表**一致** —— 2026-09-03 实跑暴露:
+    #   measure 加了 media_ingest 而这里没加, 于是它跑完却拿不到工作流级 complete 判决。
+    #   tests/test_cce_media_ingest_production.py 断言两处列表相同, 防再漂。
+    if: always() && needs.prep.result == 'success' && (needs.prep.outputs.profile == 'outbound_post' || needs.prep.outputs.profile == 'outbound_reply' || needs.prep.outputs.profile == 'media_ingest')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
