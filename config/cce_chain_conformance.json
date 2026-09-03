@@ -206,9 +206,9 @@
   },
   {
    "phase": "P3 Multimodal",
-   "status": "GATE_ONLY_CONTENT_NOT_BUILT",
+   "status": "PARTIAL_PRESENCE_DECLARED_CONTENT_NOT_MEASURED",
    "gate_44_9": "新增 Parser 后 CCE Core 文件 diff = 0 (铁律 20 可执行形式); 反向: 改 Core 一行 CI 必须拦",
-   "gate_command": "python3 scripts/cce_core_boundary.py && python3 tests/test_cce_core_boundary.py",
+   "gate_command": "python3 scripts/cce_core_boundary.py && python3 tests/test_cce_core_boundary.py && python3 tests/test_cce_media_declaration.py",
    "not_built": [
     "production media ingest",
     "standalone image/audio ingest",
@@ -218,14 +218,14 @@
     "mix metrics",
     "full cross-modal event semantics"
    ],
-   "why": "需要真实多模态输入与媒体依赖, 本轮只交付其验收 gate; 内容未建, 不冒充 DONE"
+   "why": "★ 2026-09-03: 实测 .github/prepare.py **零媒体感知** —— 只收 text, 带图的帖子里那张图从不进系统, manifest 却照样 complete=true。这是「静默缺席」, 不是「能力不足」。已建 scripts/cce_media_declaration.py: 检出可定位媒体引用并强制显式声明, 并把 modalities_present 与 modalities_measured 分开 —— complete=true 从此只能读成「声明过的模态都测了」。**媒体内容本身仍未测**(OCR/语音/分离/diarization/prosody 需模型与真素材, cce_video_parse 已如实标 missing_no_capability), 且尚未接入生产入口 —— 接入需 owner 定存量出站的补登策略。不冒充 DONE。"
   },
   {
    "phase": "P4 九结 Research",
    "status": "MEASURED_NOT_PASSING",
    "gate_44_9": "K1 四项全过: n≥8 · 相同读数对 ≥6/8 · 单结极差 ≤0.10 · top-1 ≥7/8; 反向: 两份不同内容按同组提交, 闸必须报差异为真",
-   "gate_command": "python3 tests/test_cce_k1_gate.py && python3 tests/test_cce_k1_verdict.py",
-   "why": "K1 已首次真实判定(64 次调用, n=8 同指纹), 结果是 **FAIL** —— 四项里「出现率一致」与「逐对容差一致」两项不达标。判据本身经两次修正(见 measured_verdict.criterion_fix), 三版判决都是 FAIL。gate 命令验的是判定机制本身可用且判决可从原始行重算; **不是**说 K1 过了。九结强度层读数因此仍不可引用, 已由生成物闸硬拦。",
+   "gate_command": "python3 tests/test_cce_k1_gate.py && python3 tests/test_cce_k1_verdict.py && python3 tests/test_cce_k1_v2.py",
+   "why": "K1 已首次真实判定(64 次调用, n=8 同指纹), 结果是 **FAIL** —— 四项里「出现率一致」与「逐对容差一致」两项不达标。判据本身经两次修正(见 measured_verdict.criterion_fix), 三版判决都是 FAIL。gate 命令验的是判定机制本身可用且判决可从原始行重算; **不是**说 K1 过了。九结强度层读数因此仍不可引用, 已由生成物闸硬拦。 ★ 2026-09-03 v2 多文本判定(5 文本 × n=8, 320 次调用, 预注册见 tests/data/phase2/k1_v2_multitext_prereg.json): **INSTRUMENT_WIDE_FAIL**。intensity 0/5 且 5 个文本失败项完全相同 ⇒ 不可复现是**仪器属性**, 不是选文运气; v1 的 FAIL 在同一文本上复现。**weight 同批同判据也是 0/5** —— 上轮单文本上「weight 稳于 intensity」的观察过不了预注册判据, 换层无依据, 已接进 cce_k1_status.weight_usable 硬拦。两层均**过**非退化检验 ⇒ 是「测到了但复现不了」而非「什么都没测」, 两者修法不同, 不合并。",
    "measured_verdict": {
     "measured_at": "2026-09-01",
     "n": 8,
@@ -277,6 +277,7 @@
   "GATE_ONLY_CONTENT_NOT_BUILT": "★ 只交付了验收 gate, 内容未建 —— 不是 DONE",
   "NOT_STARTED": "未开始",
   "BLOCKED": "被外部依赖阻塞",
-  "MEASURED_NOT_PASSING": "★ 验收 gate 已真实判定, 结果是**不通过**。gate 命令验的是「判定机制可用且判决可复算」, 不是「这个 Phase 过了」—— 两者混为一谈就是假绿。"
+  "MEASURED_NOT_PASSING": "★ 验收 gate 已真实判定, 结果是**不通过**。gate 命令验的是「判定机制可用且判决可复算」, 不是「这个 Phase 过了」—— 两者混为一谈就是假绿。",
+  "PARTIAL_PRESENCE_DECLARED_CONTENT_NOT_MEASURED": "媒体的**存在**已不能静默消失; 媒体的**内容**仍未测。两者分开记, 不合并成一个 DONE。"
  }
 }

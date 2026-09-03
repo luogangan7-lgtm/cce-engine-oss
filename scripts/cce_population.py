@@ -195,6 +195,13 @@ def build_population_subject(measurements: list[dict[str, Any]], coverage_scope:
                              evidence_refs: list[str] | None = None) -> dict[str, Any]:
     if not measurements:
         raise ValueError("population synthesis requires at least one member measurement")
+    # 铁律 25: 群体内容优化以 Coverage/Structure 为中心 —— 而覆盖率是**某个已声明框**的分数。
+    # ★ 2026-09-03 实测 coverage_scope="" 曾被放行, 于是 mode_coverage 算出来了却
+    #   没说覆盖的是什么的 ⇒ 下游只能把它读成「覆盖了全部」。
+    if not (coverage_scope or "").strip():
+        raise ValueError(
+            "coverage_scope 不能为空 —— 铁律 25: 覆盖率是**某个已声明框**的分数。"
+            "不声明框, mode_coverage 就会被读成「覆盖了全部」。")
     if min_mode_size < 2:
         raise ValueError("a descriptive mode candidate requires at least two members")
     members = {

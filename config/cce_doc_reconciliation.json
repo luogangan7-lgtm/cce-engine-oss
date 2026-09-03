@@ -13,22 +13,37 @@
  "iron_laws": {
   "1": {
    "law": "Raw ≠ Observation",
-   "kind": "FIELD_ONLY",
-   "note": "preparation_bridge 区分 raw_sha256/prepared_sha256, 但那是 raw vs prepared, 不是 raw vs observation; 无闸"
+   "kind": "GATE",
+   "file": "scripts/cce_foundation_adapter.py",
+   "evidence": "Raw != Observation",
+   "test": "tests/test_cce_ontology_iron_laws.py",
+   "upgraded_from": "FIELD_ONLY (2026-09-03: 实测 observation() 空 evidence_ref + 空 provenance 照样产出 assertion=observed —— 有洞, 已补)"
   },
   "2": {
    "law": "Observation ≠ Event",
-   "kind": "FIELD_ONLY",
-   "note": "foundation_adapter/event_assemble 分开两个 schema, 但没有断言禁止把 observation 当 event"
+   "kind": "GATE",
+   "file": "scripts/cce_event_assemble.py",
+   "evidence": "events",
+   "test": "tests/test_cce_ontology_iron_laws.py",
+   "upgraded_from": "FIELD_ONLY (2026-09-03: 行为本来就对(单 observation 产出 events=[]), 但没有测试钉住 —— 已钉)"
   },
   "3": {
    "law": "Event ≠ State",
-   "kind": "FIELD_ONLY",
-   "note": "MODEL_FORBIDDEN_KEYS 挡的是身份键不是 state 本身; 无直接闸"
+   "kind": "GATE",
+   "file": "scripts/cce_event_assemble.py",
+   "evidence": "铁律 3: Event != State",
+   "test": "tests/test_cce_ontology_iron_laws.py",
+   "upgraded_from": "FIELD_ONLY (2026-09-03: 实测 assemble 原样透传调用方自带的 events —— 贴 assertion=observed 的状态断言可冒充事件。原注「MODEL_FORBIDDEN_KEYS 挡的是身份键不是 state 本身」属实, 洞已补)",
+   "shares_mechanism_with": "2"
   },
   "4": {
    "law": "State ≠ Behavior",
-   "kind": "PROSE_ONLY"
+   "kind": "GATE",
+   "file": "scripts/cce_ledger.py",
+   "evidence": "铁律 4: State != Behavior",
+   "test": "tests/test_cce_ontology_iron_laws.py",
+   "upgraded_from": "PROSE_ONLY (2026-09-03: 实测带一个 owned key 就能把 knots 夹带进 outcome 账 —— 有洞, 已补 STATE_KEYS 拒收)",
+   "shares_mechanism_with": "5"
   },
   "5": {
    "law": "Behavior ≠ Outcome",
@@ -54,7 +69,12 @@
   },
   "8": {
    "law": "Individual ≠ Broadcast Target",
-   "kind": "PROSE_ONLY"
+   "kind": "GATE",
+   "file": "scripts/cce_ledger.py",
+   "evidence": "缺抽样框",
+   "test": "tests/test_cce_ontology_iron_laws.py",
+   "upgraded_from": "PROSE_ONLY (2026-09-03: 本来就有闸(distribution 账的 creates_identified_subjects), 分类过时; 已加测试防回退)",
+   "shares_mechanism_with": "5"
   },
   "9": {
    "law": "Activation ≠ Distribution",
@@ -176,14 +196,18 @@
   },
   "25": {
    "law": "群体内容优化以 Population Coverage/Structure 为中心",
-   "kind": "PROSE_ONLY"
+   "kind": "GATE",
+   "file": "scripts/cce_population.py",
+   "evidence": "铁律 25",
+   "test": "tests/test_cce_ontology_iron_laws.py",
+   "upgraded_from": "PROSE_ONLY (2026-09-03: 实测 coverage_scope='' 被放行, 覆盖率没有框 —— 有洞, 已补)"
   }
  },
  "iron_law_summary": {
   "total": 25,
-  "GATE": 19,
-  "FIELD_ONLY": 3,
-  "PROSE_ONLY": 3
+  "GATE": 25,
+  "FIELD_ONLY": 0,
+  "PROSE_ONLY": 0
  },
  "section_divergences": [
   {

@@ -1,139 +1,163 @@
 {
-  "kind": "cce.capability_registry.v1",
-  "version": "1.1.0",
-  "authority": {
-    "production_workflow_registry": "config/cce_workflow_registry_v1.json",
-    "architecture": "docs/cce_chain_architecture_v3_1.md",
-    "foundation_contract": "config/cce_foundation_contract_v2.json"
+ "kind": "cce.capability_registry.v1",
+ "version": "1.1.0",
+ "authority": {
+  "production_workflow_registry": "config/cce_workflow_registry_v1.json",
+  "architecture": "docs/cce_chain_architecture_v3_1.md",
+  "foundation_contract": "config/cce_foundation_contract_v2.json"
+ },
+ "status_meaning": {
+  "production_github": "可由登记的 GitHub 生产工作流运行并验证产物",
+  "component_only": "仓库已有实现或契约，但尚未接入生产 GitHub 入口",
+  "missing": "没有可诚实声称具备的实现"
+ },
+ "capabilities": [
+  {
+   "id": "outbound_post_measurement",
+   "status": "production_github",
+   "profile": "outbound_post",
+   "entrypoint": ".github/workflows/cce-submit.yml",
+   "input_contract": "config/cce_submission_contract_v1.json",
+   "output_contract": "config/cce_submission_contract_v1.json#output_contract",
+   "evidence_required": [
+    "archive/ 下按 run_id 可重建的 manifest",
+    "aggregate workflow-manifest.json complete=true"
+   ],
+   "fallback_policy": "WITHHOLD"
   },
-  "status_meaning": {
-    "production_github": "可由登记的 GitHub 生产工作流运行并验证产物",
-    "component_only": "仓库已有实现或契约，但尚未接入生产 GitHub 入口",
-    "missing": "没有可诚实声称具备的实现"
+  {
+   "id": "outbound_reply_measurement",
+   "status": "production_github",
+   "profile": "outbound_reply",
+   "entrypoint": ".github/workflows/cce-submit.yml",
+   "input_contract": "config/cce_submission_contract_v1.json",
+   "output_contract": "config/cce_submission_contract_v1.json#output_contract",
+   "evidence_required": [
+    "同上, 且 reply 链须含 reader_baseline 段(契约声明过, 曾缺失)"
+   ],
+   "fallback_policy": "WITHHOLD"
   },
-  "capabilities": [
-    {
-      "id": "outbound_post_measurement",
-      "status": "production_github",
-      "profile": "outbound_post",
-      "entrypoint": ".github/workflows/cce-submit.yml",
-      "input_contract": "config/cce_submission_contract_v1.json",
-      "output_contract": "config/cce_submission_contract_v1.json#output_contract",
-      "evidence_required": [
-        "archive/ 下按 run_id 可重建的 manifest",
-        "aggregate workflow-manifest.json complete=true"
-      ],
-      "fallback_policy": "WITHHOLD"
-    },
-    {
-      "id": "outbound_reply_measurement",
-      "status": "production_github",
-      "profile": "outbound_reply",
-      "entrypoint": ".github/workflows/cce-submit.yml",
-      "input_contract": "config/cce_submission_contract_v1.json",
-      "output_contract": "config/cce_submission_contract_v1.json#output_contract",
-      "evidence_required": [
-        "同上, 且 reply 链须含 reader_baseline 段(契约声明过, 曾缺失)"
-      ],
-      "fallback_policy": "WITHHOLD"
-    },
-    {
-      "id": "subject_population_chain",
-      "status": "production_github",
-      "profile": "subject_chain",
-      "entrypoint": ".github/workflows/cce-submit.yml",
-      "constraints": [
-        "subject is downstream of events and context",
-        "population preserves distributions and mode weights",
-        "platform product and industry are context or objects, not subject roots"
-      ],
-      "input_contract": "config/cce_submission_contract_v1.json",
-      "output_contract": "config/cce_subject_window_contract_v1.json",
-      "evidence_required": [
-        "subject-window 与 end-to-end 审计产物",
-        "s1_readout.status == OK"
-      ],
-      "fallback_policy": "WITHHOLD"
-    },
-    {
-      "id": "video_multimodal_parse_v5",
-      "status": "component_only",
-      "implementation": "scripts/cce_video_parse.py",
-      "implemented": [
-        "frame sampling",
-        "dual-model visual analysis",
-        "OCR authoritative channel",
-        "original-mix audio extraction and SenseVoice processing",
-        "six completeness gates"
-      ],
-      "missing": [
-        "production GitHub media-ingest workflow",
-        "audio source separation",
-        "speaker diarization",
-        "prosody metrics",
-        "mix metrics"
-      ],
-      "missing_state": "missing_no_capability",
-      "input_contract": null,
-      "output_contract": "config/cce_foundation_contract_v2.json",
-      "evidence_required": [
-        "★ 晋升 production_github 需要: GitHub media-ingest profile + 精确输入哈希 + 产物 manifest + 全链回放 + capability registry 同步 gate 全部通过"
-      ],
-      "fallback_policy": "NOT_IN_PRODUCTION_PATH"
-    },
-    {
-      "id": "foundation_observation_adapter",
-      "status": "component_only",
-      "implementation": "scripts/cce_foundation_adapter.py",
-      "output_boundary": "observations only; semantic and cross-modal events are later stages",
-      "input_contract": null,
-      "output_contract": "config/cce_foundation_contract_v2.json",
-      "evidence_required": [
-        "同上"
-      ],
-      "fallback_policy": "NOT_IN_PRODUCTION_PATH"
-    },
-    {
-      "id": "event_assembly",
-      "status": "component_only",
-      "implementation": "scripts/cce_event_assemble.py",
-      "output": [
-        "atomic_event",
-        "composite_event"
-      ],
-      "input_contract": "config/cce_foundation_contract_v2.json",
-      "output_contract": "config/cce_submission_contract_v1.json",
-      "evidence_required": [
-        "同上"
-      ],
-      "fallback_policy": "NOT_IN_PRODUCTION_PATH"
-    },
-    {
-      "id": "standalone_image_ingest",
-      "status": "missing",
-      "input_contract": null,
-      "output_contract": null,
-      "evidence_required": [
-        "★ 没有实现。要声称具备, 先有实现再谈证据 —— 不得因为「架构里写了」就标 component_only"
-      ],
-      "fallback_policy": "NOT_IN_PRODUCTION_PATH"
-    },
-    {
-      "id": "standalone_audio_ingest",
-      "status": "missing",
-      "input_contract": null,
-      "output_contract": null,
-      "evidence_required": [
-        "★ 没有实现。同上"
-      ],
-      "fallback_policy": "NOT_IN_PRODUCTION_PATH"
-    }
-  ],
-  "fallback_policy_values": {
-    "WITHHOLD": "依赖不可用时**扣发读数**, 不静默兜底",
-    "SKIP_EXPLICIT": "显式记「跳过」并给结构化原因, 与「成功但无产出」「失败」三态分开",
-    "NOT_IN_PRODUCTION_PATH": "不在生产链上, 无 fallback 语义"
+  {
+   "id": "subject_population_chain",
+   "status": "production_github",
+   "profile": "subject_chain",
+   "entrypoint": ".github/workflows/cce-submit.yml",
+   "constraints": [
+    "subject is downstream of events and context",
+    "population preserves distributions and mode weights",
+    "platform product and industry are context or objects, not subject roots"
+   ],
+   "input_contract": "config/cce_submission_contract_v1.json",
+   "output_contract": "config/cce_subject_window_contract_v1.json",
+   "evidence_required": [
+    "subject-window 与 end-to-end 审计产物",
+    "s1_readout.status == OK"
+   ],
+   "fallback_policy": "WITHHOLD"
   },
-  "★why_these_fields": "§36 声称每项能力至少 8 个字段, 实际只有 4 个。补的四个各自防一件今天就存在的事:\n · input_contract/output_contract —— 防能力与契约脱钩(契约改了而能力不知道)\n · evidence_required —— 防**无证据声称能力可用**, 这是本项目反复栽的那件事\n · fallback_policy —— 防**静默兜底**; 取值强制三分: 扣发 / 显式跳过 / 不在生产链\n  (库内教训: 必须区分「跳过」「成功但无产出」「失败」, 不得静默空转)",
-  "★skipped_field": "§36 还列了 version, 但那是**注册表**的版本不是逐能力的版本; 逐能力再挂一个 version 会出现两个真值源。保持在顶层。"
+  {
+   "id": "video_multimodal_parse_v5",
+   "status": "component_only",
+   "implementation": "scripts/cce_video_parse.py",
+   "implemented": [
+    "frame sampling",
+    "dual-model visual analysis",
+    "OCR authoritative channel",
+    "original-mix audio extraction and SenseVoice processing",
+    "six completeness gates"
+   ],
+   "missing": [
+    "production GitHub media-ingest workflow",
+    "audio source separation",
+    "speaker diarization",
+    "prosody metrics",
+    "mix metrics"
+   ],
+   "missing_state": "missing_no_capability",
+   "input_contract": null,
+   "output_contract": "config/cce_foundation_contract_v2.json",
+   "evidence_required": [
+    "★ 晋升 production_github 需要: GitHub media-ingest profile + 精确输入哈希 + 产物 manifest + 全链回放 + capability registry 同步 gate 全部通过"
+   ],
+   "fallback_policy": "NOT_IN_PRODUCTION_PATH"
+  },
+  {
+   "id": "foundation_observation_adapter",
+   "status": "component_only",
+   "implementation": "scripts/cce_foundation_adapter.py",
+   "output_boundary": "observations only; semantic and cross-modal events are later stages",
+   "input_contract": null,
+   "output_contract": "config/cce_foundation_contract_v2.json",
+   "evidence_required": [
+    "同上"
+   ],
+   "fallback_policy": "NOT_IN_PRODUCTION_PATH"
+  },
+  {
+   "id": "event_assembly",
+   "status": "component_only",
+   "implementation": "scripts/cce_event_assemble.py",
+   "output": [
+    "atomic_event",
+    "composite_event"
+   ],
+   "input_contract": "config/cce_foundation_contract_v2.json",
+   "output_contract": "config/cce_submission_contract_v1.json",
+   "evidence_required": [
+    "同上"
+   ],
+   "fallback_policy": "NOT_IN_PRODUCTION_PATH"
+  },
+  {
+   "id": "standalone_image_ingest",
+   "status": "missing",
+   "input_contract": null,
+   "output_contract": null,
+   "evidence_required": [
+    "★ 没有实现。要声称具备, 先有实现再谈证据 —— 不得因为「架构里写了」就标 component_only"
+   ],
+   "fallback_policy": "NOT_IN_PRODUCTION_PATH"
+  },
+  {
+   "id": "standalone_audio_ingest",
+   "status": "missing",
+   "input_contract": null,
+   "output_contract": null,
+   "evidence_required": [
+    "★ 没有实现。同上"
+   ],
+   "fallback_policy": "NOT_IN_PRODUCTION_PATH"
+  },
+  {
+   "id": "media_presence_declaration",
+   "status": "component_only",
+   "implementation": "scripts/cce_media_declaration.py",
+   "implemented": [
+    "可定位媒体引用检出(markdown 图片语法 / 带媒体扩展名的 URL / 已知媒体 host / envelope 字段)",
+    "代码块与行内代码内的链接排除(那是被讨论的文本, 不是本作品的媒体)",
+    "媒体声明闸: 缺声明 / 声明与输入不符 / 漏项 / 标未测不写 why / state 非法 —— 各自硬红",
+    "modalities_present vs modalities_measured 分离"
+   ],
+   "missing": [
+    "接入 .github/prepare.py 生产入口(需 owner 定: 存量出站是否要补声明)",
+    "媒体内容本身的测量(OCR / 语音 / 分离 / diarization / prosody) —— 见 video_multimodal_parse_v5"
+   ],
+   "missing_state": "missing_not_wired",
+   "input_contract": null,
+   "output_contract": null,
+   "evidence_required": [
+    "tests/test_cce_media_declaration.py: 6 正例检出 + 6 负例零误报 + 5 条反向各自见红",
+    "★ 晋升 production_github 需要: prepare.py 收 media_declaration 字段 + 存量出站的补登策略 + 全链回放"
+   ],
+   "fallback_policy": "NOT_IN_PRODUCTION_PATH",
+   "★why_this_before_models": "实测 .github/prepare.py 只收 text, 零媒体感知 ⇒ 带图的帖子里那张图从不进入系统, 而 manifest 照样 complete=true。**能力缺席可以接受, 声明缺席不行** —— 先把「有媒体没测」变成可见状态, 再谈装模型。"
+  }
+ ],
+ "fallback_policy_values": {
+  "WITHHOLD": "依赖不可用时**扣发读数**, 不静默兜底",
+  "SKIP_EXPLICIT": "显式记「跳过」并给结构化原因, 与「成功但无产出」「失败」三态分开",
+  "NOT_IN_PRODUCTION_PATH": "不在生产链上, 无 fallback 语义"
+ },
+ "★why_these_fields": "§36 声称每项能力至少 8 个字段, 实际只有 4 个。补的四个各自防一件今天就存在的事:\n · input_contract/output_contract —— 防能力与契约脱钩(契约改了而能力不知道)\n · evidence_required —— 防**无证据声称能力可用**, 这是本项目反复栽的那件事\n · fallback_policy —— 防**静默兜底**; 取值强制三分: 扣发 / 显式跳过 / 不在生产链\n  (库内教训: 必须区分「跳过」「成功但无产出」「失败」, 不得静默空转)",
+ "★skipped_field": "§36 还列了 version, 但那是**注册表**的版本不是逐能力的版本; 逐能力再挂一个 version 会出现两个真值源。保持在顶层。"
 }

@@ -33,6 +33,14 @@ OWNED_OUTCOMES = {"lead", "purchase", "repeat_purchase", "deal", "signup", "utm_
                   "landing_view", "form_submit"}
 
 
+# 状态层的量: 由仪器**测**出来的心理状态读数, 不是被**观察**到的行为。
+# 铁律 4 State != Behavior —— 夹带一个 owned key 就能把状态塞进 outcome 账,
+# 2026-09-03 实测确有此洞(admit('outcome', {'deal':1,'knots':{...}}) 曾放行)。
+STATE_KEYS = {"knots", "intensity", "weight", "mass", "quadrant", "families",
+              "desire_vec", "emotion_vec", "action_vec", "appraisal", "composition",
+              "drive_brake", "levers_present"}
+
+
 class LedgerAdmissionError(ValueError):
     """记录进错了账。★ typed —— 上层可精确捕获, 但捕获它不等于允许入账。"""
 
@@ -77,6 +85,16 @@ def admit(ledger: str, record: dict, path: str = SPEC) -> dict:
                 f"outcome 记录必须含至少一项自有资产链结果 {sorted(OWNED_OUTCOMES)}")
         if record.get("simulated") or (record.get("provenance") or {}).get("method") == "llm":
             raise LedgerAdmissionError("实际行为与商业结果**不可由 LLM 模拟**")
+
+    # ── 铁律 4: State != Behavior —— 状态读数不得进 outcome / distribution ──
+    #    ★ 光靠「必须含 owned key」拦不住: 带上一个 owned key 就能夹带(实测放行过)。
+    if ledger in ("outcome", "distribution"):
+        bad = keys & STATE_KEYS
+        if bad:
+            raise LedgerAdmissionError(
+                f"{ledger} 里出现状态层读数 {sorted(bad)} —— 铁律 4: State != Behavior。"
+                "状态是仪器**测**出来的, 行为与分发是**观察**到的; 前者进 content 账。"
+                "★ 带一个 owned key 就夹带进来, 正是这条闸补上的洞。")
 
     # ── content / population: 不得混入分发或商业量 ──────────────────────
     if ledger in ("content", "population"):

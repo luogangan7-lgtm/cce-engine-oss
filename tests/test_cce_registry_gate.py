@@ -24,7 +24,8 @@ WF = json.load(open(rg.WF, encoding="utf-8"))
 # ── 正向 ───────────────────────────────────────────────────────────────
 ok, errors, s = rg.check()
 assert ok, f"基线必须绿: {errors}"
-assert s["capabilities"] == 8 and s["workflows"] == 15
+# 2026-09-03: +media_presence_declaration(P3 媒体存在声明闸)
+assert s["capabilities"] == 9 and s["workflows"] == 15
 
 # ── 1. §36 补的四个字段逐条落地 ────────────────────────────────────────
 for c in CAP["capabilities"]:

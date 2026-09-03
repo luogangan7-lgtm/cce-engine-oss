@@ -38,9 +38,30 @@ def intersection(a: dict[str, Any], b: dict[str, Any]) -> dict[str, float]:
             "end": min(a["time"]["end"], b["time"]["end"])}
 
 
+# 状态层字段: 与 cce_ledger.STATE_KEYS 同源(铁律 4 用的是同一张表)
+_STATE_KEYS = {"knots", "intensity", "weight", "mass", "quadrant", "families",
+               "desire_vec", "emotion_vec", "action_vec", "appraisal", "composition",
+               "state"}
+
+
 def assemble(case: dict[str, Any]) -> dict[str, Any]:
     out = copy.deepcopy(case)
     observations = out.get("observations") or []
+    # 铁律 3: Event != State。★ 2026-09-03 实测: 调用方自带的 events 被**原样透传** ——
+    #   于是一条贴着 assertion="observed" 的状态断言可以直接冒充事件活下来。
+    #   事件在这里是**派生**出来的(assertion="derived"), 不是断言进来的。
+    # ★ 事件的**形状**(event_type/layer/assertion/member_refs/confidence)由
+    #   cce_contract.validate_case 校验, 这里不重造 —— 我第一版重造了两次都造窄了:
+    #   ① 拿 assertion=="derived" 当判别器, 拦红了真实的 evt:shot-cut(observed 合法);
+    #   ② 补 event_type 后又拦红了 evt:reinforcement(inferred 也是合同里的合法值)。
+    #   **闸开太宽和开太窄一样是缺陷。**
+    #   合同没管的只有一件: 事件对象不得携带状态层字段。铁律 3 只补这一条。
+    for e in out.get("events") or []:
+        if _STATE_KEYS & set(e):
+            raise ValueError(
+                f"事件 {e.get('id')!r} 带状态层字段 {sorted(_STATE_KEYS & set(e))} —— "
+                "铁律 3: Event != State。状态是**测**出来的推断, 事件是**发生**的事; "
+                "把状态挂在事件上, 下游就会把推断当成观察。")
     existing = {event.get("id") for event in out.get("events") or []}
     events = out.setdefault("events", [])
     atomic: list[dict[str, Any]] = []

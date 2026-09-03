@@ -41,6 +41,20 @@ def timepoint(ts: Any, duration: float) -> dict[str, float]:
 
 
 def observation(record_id: str, kind: str, evidence_ref: str, provenance: dict[str, Any], **payload: Any) -> dict[str, Any]:
+    """铁律 1: Raw != Observation。
+
+    ★ 2026-09-03 实测这里有洞: 空 evidence_ref + 空 provenance 也照样产出一个
+      assertion="observed" 的对象 —— 那不是观察, 那是把原始内容改了个名。
+      **观察之所以是观察, 就在于它指得出证据与来路。** 缺任一即拒。
+    """
+    if not (evidence_ref or "").strip():
+        raise ValueError(
+            f"observation {record_id!r} 缺 evidence_ref —— 铁律 1: Raw != Observation。"
+            "指不出证据的东西不是观察, 是被改了名的原始内容。")
+    if not provenance:
+        raise ValueError(
+            f"observation {record_id!r} 缺 provenance —— 铁律 1: 观察必须说得出来路"
+            "(谁、用什么、什么时候看到的), 否则下游无从判断它可不可信。")
     return {"id": record_id, "kind": kind, "assertion": "observed",
             "evidence_refs": [evidence_ref], "provenance": provenance, **payload}
 

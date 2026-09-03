@@ -36,6 +36,8 @@ import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 K1_VERDICT = os.path.join(ROOT, "tests", "data", "phase2", "k1_reliability_verdict.json")
+# v2 多文本判定(5 文本 × n=8)。intensity 与 weight 同批判, 决策规则在预注册里冻结。
+K1_V2_VERDICT = os.path.join(ROOT, "tests", "data", "phase2", "k1_v2_multitext_verdict.json")
 
 # 判据名 -> 它管的是哪一层
 INTENSITY_CRITERION = "逐对容差一致"
@@ -99,6 +101,35 @@ def layer_status(path=None, instrument_hash=None):
                           "reason": f"K1「{c['name']}」不达标: {c['value']} "
                                     f"(判定 {v.get('verdict')}, 见 {os.path.relpath(path, ROOT)})"}
     return out
+
+
+def weight_usable(path=None, instrument_hash=None):
+    """weight 层是否可用 —— 由 v2 多文本判定决定, 不由单文本观察决定。
+
+    ★ 为什么必须有这个函数: 上一轮派生层探针在**单个文本**上观察到
+      weight(0.9111–1.0) 比 intensity(0.7333–1.0) 稳, 很容易被读成「换成 weight 就行」。
+      v2 按预注册判据在 5 个文本上判: **weight 也是 0/5**。
+      不把这个结论接进路由, 下一个人还会照那句单文本观察去换层。
+    """
+    path = path or K1_V2_VERDICT
+    if not os.path.exists(path):
+        return False, "无 v2 多文本判定 —— 缺判定不等于可用"
+    v = json.load(open(path, encoding="utf-8"))
+    if instrument_hash and instrument_hash != v.get("instrument_hash"):
+        return False, (f"v2 判定在仪器 {v.get('instrument_hash')} 上做的, 本次是 {instrument_hash} "
+                       "—— 标定不可跨仪器搬")
+    if not instrument_hash:
+        return False, "本次运行未提供 instrument_hash —— 缺仪器标识不等于仪器相同"
+    L = (v.get("layers") or {}).get("weight") or {}
+    passed, of = L.get("passed_texts"), L.get("of")
+    if passed is None:
+        return False, "v2 判定里没有 weight 层 —— 判据变了却没更新路由"
+    need = (of or 0) - 1
+    if passed >= need and (L.get("degeneracy") or {}).get("passes"):
+        return True, f"weight 过 {passed}/{of} 文本且非退化"
+    return False, (f"weight 过 {passed}/{of} 文本(需 >= {need}) —— 判定 {v.get('decision')}。"
+                   "★ 上轮单文本上 weight 看着比 intensity 稳, 那是单文本观察, "
+                   "过不了预注册判据。")
 
 
 def intensity_usable(path=None, instrument_hash=None):
