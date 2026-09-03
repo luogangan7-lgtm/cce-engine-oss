@@ -67,11 +67,12 @@
   "K": 3,
   "stage2_n": 5,
   "calls_per_rep": 8,
-  "new_texts": 4,
-  "new_calls": 256,
-  "reuse": "050f0f2403f7 的 8 rep 复用 v1 原始行(tests/data/phase2/k1_reliability_verdict.json:raw_rows)",
+  "new_texts": 5,
+  "new_calls": 320,
+  "reuse": null,
   "protocol": "每 rep = stage1(k=3) + stage2(n=5); 与 v1 逐字相同",
-  "★infra": "INFRA_FAILED(HTTP 200 空 content / 2062) 不算一次读数, 该 rep 重试, 不进 n"
+  "★infra": "INFRA_FAILED(HTTP 200 空 content / 2062) 不算一次读数, 该 rep 重试, 不进 n",
+  "★amendment_2026-09-03_before_any_call": "原写「050f0f2403f7 复用 v1 的 8 rep」。**写完预注册后、发出任何调用之前**发现: v1 的 raw_rows 只记了 intensity, 没有 weight ⇒ weight 就只有 4 个文本, 撑不起决策规则里的「≥4/5」。故改为**该文本一并重测**。两点说明: ① 本次修订发生在零次调用之前(见 git 提交顺序), 不是看到结果再改; ② 修订使设计更严不更松, 且额外带来一个好处 —— 对 v1 的 FAIL 做同仪器复现检查。新增预算 256 -> 320 次。"
  },
  "criterion": {
   "per_text": "沿用 probes/k1_gate.judge() 的五项判据, 一字不改(δ=0.10, A≥0.95, top1≥7/8, 出现率≥7/8, n≥8)",
@@ -94,5 +95,6 @@
   "INCONCLUSIVE": "以上都不满足",
   "★what_this_cannot_do": "本设计**不能**让 K1 通过。它回答的是「失败是什么性质」与「换层有没有依据」, 不是「再试一次能不能过」。"
  },
- "★falsifier": "若 intensity 在 ≥4/5 文本上**通过**, 则 v1 的 FAIL 判定就是选文运气问题, 本预注册的前提(先扩文本)被推翻。"
+ "★falsifier": "若 intensity 在 ≥4/5 文本上**通过**, 则 v1 的 FAIL 判定就是选文运气问题, 本预注册的前提(先扩文本)被推翻。",
+ "★falsifier_added": "复现检查的反面: 若 050f0f2403f7 这次 intensity **通过**, 则 v1 的 FAIL 不可复现, 本预注册的整个前提(强度层不稳)都要重估, 而不是继续往下判。"
 }
