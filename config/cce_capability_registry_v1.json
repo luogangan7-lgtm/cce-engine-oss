@@ -80,7 +80,7 @@
     "★ 晋升 production_github 需要: GitHub media-ingest profile + 精确输入哈希 + 产物 manifest + 全链回放 + capability registry 同步 gate 全部通过"
    ],
    "fallback_policy": "NOT_IN_PRODUCTION_PATH",
-   "★historical_evidence": "★ 2026-09-03 更正「媒体内容未测」这个说法: 组件**已在 276 个真实视频上跑过**(viral-skill-eval/results/video_parse, 11M, 含 ASR 转写 + OCR 时间轴 + 帧 + 完整性; 抽样 80 个里 77 个的帧文件仍在)。所以准确说法是「已测 276 个但**未接进生产链**」, 不是「没有能力」。★ 但**域不同**: 抽样 80 个里 zh 69 / ko 7 / en 2 —— 是中文短视频, 与英文助听器论坛文本是两个域, 不能拿它当后者的能力证据。"
+   "★historical_evidence": "★ 2026-09-03 更正两次: ① 先说「媒体内容未测」—— 不准确, 组件已在 276 个真实视频上跑过; ② 又说「域不同不能当能力证据」—— **方法论错误**。owner 2026-08-12 裁定 CCE 是「随便投入一篇文章/一段聊天分析动态占比」的通用工具, 并当场用与助听器无关的中文聊天实证; 同时否决过我三版「每个域配一套容器」的方案。我拿「域」当准入容器, 是同一个错换了件衣服。★ 实测: 275/276 个历史解析产物**整链跑通**(foundation_adapter → event_assemble → contract), 产出 17726 observations → 24116 events, 合同全部合法, 含跨模态同步事件。全量语言 zh216/en32/ko16/ja2 —— 我抽样 80 个曾误报 en=2, **抽样结论不许当全量结论**。⇒ 能力**已实证**, 状态是「已具备·未接入」(component_only), 不是「未测」。仍未测的是**抽取质量**(ASR/OCR 在英文上的准确率, 语言相关); 分辨率/阈值仍 across_domains=NOT_ESTABLISHED, 禁止跨域搬。见 probes/media_chain_on_history.py"
   },
   {
    "id": "foundation_observation_adapter",

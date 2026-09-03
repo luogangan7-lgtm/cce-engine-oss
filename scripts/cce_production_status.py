@@ -21,6 +21,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 USABLE, FAILED, UNMEASURED = "可用", "已测·不达标", "未测"
+# ★ 第四档(2026-09-03 加): 能力已实证但没接进生产链。
+#   它既不是「可用」(生产里调不到)也不是「未测」(已在 275 个真实产物上跑通),
+#   更不是「不达标」。缺这一档我就把它误报成了「未测」。
+NOT_WIRED = "已具备·未接入"
 
 
 def _j(rel):
@@ -69,10 +73,16 @@ def rows() -> list[dict]:
     out.append({"组件": "媒体**存在**声明", "状态": USABLE,
                 "证据": f"能力 {cap['media_presence_declaration']['status']}; 出站两档入口必填, FAIL_CLOSED",
                 "文件": ".github/prepare.py"})
-    out.append({"组件": "媒体**内容**测量", "状态": UNMEASURED,
-                "证据": ("组件已在 276 个真实视频上跑过, 但 ①未接进生产链(component_only) "
-                         "②抽样 80 个里 zh69/ko7/en2 —— **与英文助听器论坛不是一个域**"),
-                "文件": "scripts/cce_video_parse.py"})
+    mc = _j("tests/data/media_chain_on_history.json")
+    out.append({"组件": "媒体**内容**测量(P3 链路)", "状态": NOT_WIRED,
+                "证据": (f"★ 已在 {mc['files']} 个真实解析产物上整链跑通: "
+                         f"{mc['result'].get('pass')} 通过 → {mc['observations']['total']} observations "
+                         f"→ {mc['events']['total']} events, **合同全部合法**(含跨模态同步事件)。"
+                         f"语言 {mc['language_mix']}。"
+                         "**能力已实证, 只是未接进生产链**(component_only)。"
+                         "仍未测的是**抽取质量**(ASR/OCR 在英文上的准确率), 那是语言相关的另一件事; "
+                         "分辨率/阈值仍 across_domains=NOT_ESTABLISHED, 禁止跨域搬"),
+                "文件": "probes/media_chain_on_history.py"})
 
     # ── s1 分布层 ─────────────────────────────────────────────────────
     out.append({"组件": "s1 四层分布", "状态": USABLE,
@@ -88,14 +98,14 @@ def main() -> int:
     print("=" * 74)
     w = max(len(r["组件"]) for r in rs)
     for r in rs:
-        mark = {"可用": "✓", "已测·不达标": "✗", "未测": "?"}[r["状态"]]
+        mark = {"可用": "✓", "已测·不达标": "✗", "未测": "?", "已具备·未接入": "◐"}[r["状态"]]
         print(f" {mark} {r['组件']:<{w}}  {r['状态']}")
         print(f"     {r['证据']}")
         print(f"     └─ {r['文件']}")
-    n = {s: sum(1 for r in rs if r["状态"] == s) for s in (USABLE, FAILED, UNMEASURED)}
+    n = {s: sum(1 for r in rs if r["状态"] == s) for s in (USABLE, FAILED, UNMEASURED, NOT_WIRED)}
     print("-" * 74)
-    print(f"可用 {n[USABLE]} · 已测不达标 {n[FAILED]} · **未测 {n[UNMEASURED]}**")
-    print("★ 「未测」不是「弱证据」, 是没有读数。它与「已测不达标」是两种状态, 修法也不同。")
+    print(f"可用 {n[USABLE]} · 已测不达标 {n[FAILED]} · 已具备未接入 {n[NOT_WIRED]} · **未测 {n[UNMEASURED]}**")
+    print("★ 「未测」不是「弱证据」, 是没有读数。它与「已测不达标」「已具备未接入」是三种状态, 修法都不同。")
     print("★ 引擎跑得动(70/70 测试绿·七闸 PASS) != 这些读数能用。两件事不许合并成「可以投产」。")
     return 0
 
