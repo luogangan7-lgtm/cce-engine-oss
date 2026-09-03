@@ -1,0 +1,158 @@
+{
+ "mode": "media_ingest",
+ "started": "2026-09-03 10:24:42",
+ "text_sha1": "c52e9cb88bf8",
+ "text_sha256": "sha256:50cc0a4bee1e2e206300d9e8d13f442b8ed73eae173c093bd15e7475f927751d",
+ "chain": [
+  "media_validate",
+  "foundation_adapt",
+  "event_assemble",
+  "qualified_readout"
+ ],
+ "submission": {
+  "submission_id": "media:p3-first-prod:20260903-r5",
+  "job_id": "job:p3:first",
+  "content_id": "content:media_parse:p3first",
+  "profile": "media_ingest",
+  "schema_version": "1.1.0",
+  "platform": "reddit",
+  "platform_adapter": {
+   "id": "reddit",
+   "version": "1.0.0"
+  },
+  "surface": "r/HearingAids",
+  "surface_context": {
+   "kind": "community",
+   "id": "r/HearingAids",
+   "observed_at": "2026-09-03T00:00:00Z"
+  },
+  "domain": "hearing_aid",
+  "speaker_role": "otc_hearing_aid_oem",
+  "guard_profile": null,
+  "language": "en",
+  "context_snapshot": {
+   "id": "context:content:media_parse:p3first:2026-09-03T00:00:00Z",
+   "observed_at": "2026-09-03T00:00:00Z",
+   "platform": "reddit",
+   "platform_adapter": {
+    "id": "reddit",
+    "version": "1.0.0"
+   },
+   "surface": {
+    "kind": "community",
+    "id": "r/HearingAids",
+    "observed_at": "2026-09-03T00:00:00Z"
+   },
+   "domain": "hearing_aid",
+   "summary": "Reddit r/HearingAids public educational post from an identified manufacturer account",
+   "dimensions": {
+    "time": {
+     "value": "2026-08-13T08:00:00Z",
+     "assertion": "observed",
+     "evidence_refs": [
+      "content:example:post:001"
+     ]
+    },
+    "environment": {
+     "value": "public semi-anonymous online community",
+     "assertion": "observed",
+     "evidence_refs": [
+      "content:example:post:001"
+     ]
+    },
+    "relationship": {
+     "value": "first contact",
+     "assertion": "derived",
+     "evidence_refs": [
+      "content:example:post:001"
+     ]
+    },
+    "current_goal": {
+     "value": "educational discussion",
+     "assertion": "inferred",
+     "evidence_refs": [
+      "content:example:post:001"
+     ]
+    }
+   },
+   "provenance": {
+    "producer": "example",
+    "version": "1.1.0"
+   }
+  },
+  "text_sha256": "sha256:50cc0a4bee1e2e206300d9e8d13f442b8ed73eae173c093bd15e7475f927751d"
+ },
+ "finished": "2026-09-03 10:24:42",
+ "stages": {
+  "media_validate": {
+   "status": "OK",
+   "sec": 0.0,
+   "duration_sec": 12.6,
+   "channels_present": [
+    "audio",
+    "ocr",
+    "frames",
+    "visual"
+   ],
+   "artifact_sha256": "50cc0a4bee1e2e20",
+   "★scope": "只校验形状与完整性; **抽取质量(ASR/OCR 准确率)未测**, 见 registry"
+  },
+  "foundation_adapt": {
+   "status": "OK",
+   "sec": 0.0,
+   "observations": 27,
+   "kinds": {
+    "visual_frame_description": 12,
+    "on_screen_text": 12,
+    "speech_transcript": 1,
+    "audio_tags": 1,
+    "shot_boundary": 1
+   },
+   "content_id": null
+  },
+  "event_assemble": {
+   "status": "OK",
+   "sec": 0.0,
+   "events": 39,
+   "event_types": {
+    "shot_boundary": 1,
+    "visual_frame_observed": 12,
+    "on_screen_text_observed": 12,
+    "speech_observed": 1,
+    "audio_tags_observed": 1,
+    "cross_modal_synchronization": 12
+   },
+   "contract_ok": true,
+   "counts": {
+    "observations": 27,
+    "events": 39,
+    "context_snapshots": 0,
+    "state_snapshots": 0,
+    "cce_requests": 0,
+    "measurement_results": 0,
+    "state_transitions": 0,
+    "outcomes": 0
+   }
+  },
+  "qualified_readout": {
+   "status": "OK",
+   "sec": 0.0,
+   "instrument_hash": null,
+   "instrument_spec": null,
+   "usable_keys": [
+    "p3.events",
+    "p3.observations"
+   ],
+   "withheld": {
+    "p3.extraction_quality": "ASR/OCR 抽取**准确率未测**(语言相关, 英文上从未评过) —— observation 里的文字可作证据引用, 但不得当作已验收的转写",
+    "p3.cross_domain_calibration": "分辨率/阈值 across_domains=NOT_ESTABLISHED —— 禁止跨域搬",
+    "s2.playbook_primary": "未产出"
+   },
+   "usable_count": 2,
+   "withheld_count": 3,
+   "rule": "只有 usable 里的读数允许进入下游/Population Field; withheld 不是弱证据, 是没有读数。跨读数比较前必须先比 instrument_hash。"
+  }
+ },
+ "complete": true,
+ "failed_at": null
+}
