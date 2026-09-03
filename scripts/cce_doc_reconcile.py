@@ -48,6 +48,16 @@ def check(spec_path: str = SPEC, run_tests: bool = True):
             errors.append(f"铁律{n}: 声明的 {f} 不存在")
         elif f and ev and ev not in open(os.path.join(ROOT, f), encoding="utf-8").read():
             errors.append(f"铁律{n}: {f} 里找不到证据串 {ev!r} —— 「有闸」这句话是假的")
+        # ★ 声明「与另一条共用同一机制」必须可核 —— 否则 19 条 GATE 会被读成
+        #    19 套独立保护, 而实际上 5/9/11 是同一条准入闸的三个面。
+        sm = v.get("shares_mechanism_with")
+        if sm is not None:
+            if sm not in laws:
+                errors.append(f"铁律{n}: shares_mechanism_with 指向不存在的铁律 {sm}")
+            elif laws[sm].get("file") != f:
+                errors.append(
+                    f"铁律{n}: 声明与铁律{sm}共用机制, 但两者 file 不同"
+                    f"({f} vs {laws[sm].get('file')}) —— 共用是假的")
         if t and not os.path.exists(os.path.join(ROOT, t)):
             errors.append(f"铁律{n}: 声明的测试 {t} 不存在")
         elif t:
@@ -114,6 +124,8 @@ def check(spec_path: str = SPEC, run_tests: bool = True):
     for k in KINDS:
         if s.get(k) != live[k]:
             errors.append(f"summary 的 {k}={s.get(k)} 与实际 {live[k]} 不符")
+    live["SHARED"] = sum(1 for v in laws.values() if v.get("shares_mechanism_with"))
+    live["INDEPENDENT"] = live["GATE"] - live["SHARED"]
     return (not errors), errors, live
 
 
@@ -125,6 +137,8 @@ def main() -> int:
     print(f"§43 铁律 25 条: GATE {live['GATE']} · FIELD_ONLY {live['FIELD_ONLY']} "
           f"· PROSE_ONLY {live['PROSE_ONLY']}")
     print(f"⇒ **{live['FIELD_ONLY'] + live['PROSE_ONLY']}/25 条铁律没有任何东西会因违反它而变红**")
+    print(f"   (GATE {live['GATE']} 条里有 {live['SHARED']} 条与别条共用同一机制 ⇒ "
+          f"**独立机制 {live['INDEPENDENT']} 套**, 别把条数当保护套数)")
     spec = json.load(open(SPEC, encoding="utf-8"))
     print()
     for d in spec["section_divergences"]:

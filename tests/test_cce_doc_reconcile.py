@@ -19,16 +19,21 @@ SPEC = json.load(open(dr.SPEC, encoding="utf-8"))
 # ── 正向 ───────────────────────────────────────────────────────────────
 ok, errors, live = dr.check(run_tests=False)
 assert ok, f"基线必须绿: {errors}"
-assert sum(live.values()) == 25, "§43 是 25 条铁律"
-assert live["GATE"] == 15 and live["FIELD_ONLY"] == 5 and live["PROSE_ONLY"] == 5
+assert sum(live[k] for k in dr.KINDS) == 25, "§43 是 25 条铁律"
+assert live["GATE"] == 19 and live["FIELD_ONLY"] == 3 and live["PROSE_ONLY"] == 3
 
-# ★ 核心数字: 11/25 条铁律没有任何东西会因违反它而变红
+# ★ 核心数字: 还有几条铁律违反了不会红
 unguarded = live["FIELD_ONLY"] + live["PROSE_ONLY"]
-assert unguarded == 10, f"无闸的铁律应为 10 条, 实测 {unguarded}"
-# 2026-09-02: 铁律 21 由 FIELD_ONLY 升为 GATE(§37 的 production_complete_allowed)
+assert unguarded == 6, f"无闸的铁律应为 6 条, 实测 {unguarded}"
+# ★ 19 条 GATE != 19 套保护: 5/9/11 是同一条 Ledger 准入闸的三个面
+assert live["SHARED"] == 2 and live["INDEPENDENT"] == 17, \
+    f"独立机制应为 17 套(GATE 19 - 共用 2), 实测 {live['INDEPENDENT']}"
+# 2026-09-02: 铁律 21 升 GATE; 2026-09-03: 5/9/11(Ledger 准入闸) 与 23(caveat 双向断言) 同升
 assert SPEC["iron_laws"]["21"]["kind"] == "GATE"
-assert "FIELD_ONLY" in SPEC["iron_laws"]["21"]["upgraded_from"], \
-    "★ 升级必须留痕: 它此前是什么档、为什么不算闸"
+for n in ("21", "5", "9", "11", "23"):
+    assert SPEC["iron_laws"][n]["kind"] == "GATE"
+    assert SPEC["iron_laws"][n].get("upgraded_from"), \
+        f"★ 铁律{n} 升级必须留痕: 它此前是什么档、为什么当时不算闸"
 
 # ── GATE 声明必须真的可验证(不是自称) ──────────────────────────────────
 for n, v in SPEC["iron_laws"].items():
@@ -63,10 +68,15 @@ assert not ok3 and any("「有闸」这句话是假的" in x for x in e3), \
     "★ 证据串对不上必须红 —— 否则可以随便声称有闸"
 
 # 4. FIELD_ONLY 不写「什么都不会失败」的说明 -> 红
-# 铁律 21 已升 GATE(不再有 note), 改指向仍是 FIELD_ONLY 的 23
-assert SPEC["iron_laws"]["23"]["kind"] == "FIELD_ONLY"
-ok4, e4, _ = alt(lambda s: s["iron_laws"]["23"].pop("note"))
+# 21 与 23 都已升 GATE, 改指向仍是 FIELD_ONLY 的 1
+assert SPEC["iron_laws"]["1"]["kind"] == "FIELD_ONLY"
+ok4, e4, _ = alt(lambda s: s["iron_laws"]["1"].pop("note"))
 assert not ok4 and any("必须写明" in x for x in e4)
+
+# 4b. ★ 谎称与另一条共用机制(实际不是同一个文件) -> 红
+ok4b, e4b, _ = alt(lambda s: s["iron_laws"]["9"].update({"shares_mechanism_with": "23"}))
+assert not ok4b and any("共用是假的" in x for x in e4b), \
+    "★ 共用机制的声明必须可核 —— 否则可以拿一套闸认领任意多条铁律"
 
 # 5. summary 与实际不符 -> 红(防止改了分类忘了改汇总)
 ok5, e5, _ = alt(lambda s: s["iron_law_summary"].update({"GATE": 20}))
@@ -163,7 +173,8 @@ assert not okE and any("既无 evidence 也无 note" in x for x in eE)
 
 print(f"test_cce_doc_reconcile: OK "
       f"(§43 25 条: GATE {live['GATE']} / FIELD_ONLY {live['FIELD_ONLY']} / "
-      f"PROSE_ONLY {live['PROSE_ONLY']} ⇒ **{unguarded} 条无闸**(铁律 21 已升 GATE) | "
-      f"{live['GATE']} 条 GATE 的证据串全部实存 | 8 条反向各自见红 | "
+      f"PROSE_ONLY {live['PROSE_ONLY']} ⇒ **{unguarded} 条无闸** | "
+      f"GATE {live['GATE']} 条但**独立机制仅 {live['INDEPENDENT']} 套**(5/9/11 共用 Ledger 准入闸) | "
+      f"{live['GATE']} 条 GATE 的证据串全部实存 | 9 条反向各自见红 | "
       f"§39 文档过时 · §36/§37/§42 已补闸 | "
       f"§45 37 项(①②属实·③④过时) · §1–§35 只核存在性声明节(§2 那条已由 owner 裁定摘除并落地))")

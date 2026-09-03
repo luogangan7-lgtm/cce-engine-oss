@@ -1,338 +1,354 @@
 {
-  "schema_name": "cce.doc_reconciliation",
-  "version": "1.0.0",
-  "reconciled_at": "2026-09-02",
-  "doc": "/Users/luolimo/Downloads/CCE_full_architecture_workflow_parameters_v1.md (5202 行, 49 章)",
-  "★purpose": "把架构文档的可核声明与代码逐条对上。本项目反复栽在「结论写进记录 != 结论进了执行队列」—— 一份不可执行的对照表自己就会腐烂, 所以做成可跑的: 每条 GATE 声明都必须指向真实存在的文件 + 证据串 + 会跑过的测试。",
-  "★three_way": {
-    "GATE": "有可执行检查; 违反它会让某个测试/闸变红",
-    "FIELD_ONLY": "概念有 schema 槽位或字段, 但**没有任何东西会因为误用它而失败**",
-    "PROSE_ONLY": "只有文档里的一句话",
-    "why_it_matters": "本项目已确立: 散文式 caveat 在这个项目已被证伪(13 条 Notion 读数都标了「不可单独使用」, 照样被当读数引用)。所以 FIELD_ONLY 与 PROSE_ONLY 都**不构成保护**, 只是记录。"
+ "schema_name": "cce.doc_reconciliation",
+ "version": "1.0.0",
+ "reconciled_at": "2026-09-02",
+ "doc": "/Users/luolimo/Downloads/CCE_full_architecture_workflow_parameters_v1.md (5202 行, 49 章)",
+ "★purpose": "把架构文档的可核声明与代码逐条对上。本项目反复栽在「结论写进记录 != 结论进了执行队列」—— 一份不可执行的对照表自己就会腐烂, 所以做成可跑的: 每条 GATE 声明都必须指向真实存在的文件 + 证据串 + 会跑过的测试。",
+ "★three_way": {
+  "GATE": "有可执行检查; 违反它会让某个测试/闸变红",
+  "FIELD_ONLY": "概念有 schema 槽位或字段, 但**没有任何东西会因为误用它而失败**",
+  "PROSE_ONLY": "只有文档里的一句话",
+  "why_it_matters": "本项目已确立: 散文式 caveat 在这个项目已被证伪(13 条 Notion 读数都标了「不可单独使用」, 照样被当读数引用)。所以 FIELD_ONLY 与 PROSE_ONLY 都**不构成保护**, 只是记录。"
+ },
+ "iron_laws": {
+  "1": {
+   "law": "Raw ≠ Observation",
+   "kind": "FIELD_ONLY",
+   "note": "preparation_bridge 区分 raw_sha256/prepared_sha256, 但那是 raw vs prepared, 不是 raw vs observation; 无闸"
   },
-  "iron_laws": {
-    "1": {
-      "law": "Raw ≠ Observation",
-      "kind": "FIELD_ONLY",
-      "note": "preparation_bridge 区分 raw_sha256/prepared_sha256, 但那是 raw vs prepared, 不是 raw vs observation; 无闸"
-    },
-    "2": {
-      "law": "Observation ≠ Event",
-      "kind": "FIELD_ONLY",
-      "note": "foundation_adapter/event_assemble 分开两个 schema, 但没有断言禁止把 observation 当 event"
-    },
-    "3": {
-      "law": "Event ≠ State",
-      "kind": "FIELD_ONLY",
-      "note": "MODEL_FORBIDDEN_KEYS 挡的是身份键不是 state 本身; 无直接闸"
-    },
-    "4": {
-      "law": "State ≠ Behavior",
-      "kind": "PROSE_ONLY"
-    },
-    "5": {
-      "law": "Behavior ≠ Outcome",
-      "kind": "PROSE_ONLY"
-    },
-    "6": {
-      "law": "Population Field ≠ Persona",
-      "kind": "GATE",
-      "file": "scripts/cce_window_chain.py",
-      "evidence": "must declare that its marginal is not a person",
-      "test": "tests/test_cce_population.py"
-    },
-    "7": {
-      "law": "Mode ≠ 固定人群",
-      "kind": "GATE",
-      "file": "scripts/cce_window_chain.py",
-      "evidence": "must be descriptive and reject one-person modes",
-      "test": "tests/test_cce_population_field.py"
-    },
-    "8": {
-      "law": "Individual ≠ Broadcast Target",
-      "kind": "PROSE_ONLY"
-    },
-    "9": {
-      "law": "Activation ≠ Distribution",
-      "kind": "FIELD_ONLY",
-      "note": "stage 轴有 delivered/activated 两档, 但无闸禁止混用"
-    },
-    "10": {
-      "law": "Target ≠ Reached",
-      "kind": "GATE",
-      "file": "tests/test_cce_causal_grade.py",
-      "evidence": "reached_members == seen_actors",
-      "test": "tests/test_cce_causal_grade.py"
-    },
-    "11": {
-      "law": "Responded ≠ Acted",
-      "kind": "PROSE_ONLY"
-    },
-    "12": {
-      "law": "Prediction ≠ Fact",
-      "kind": "GATE",
-      "file": "scripts/cce_window_chain.py",
-      "evidence": "must declare response basis and derived assertion",
-      "test": "tests/test_cce_population_field.py"
-    },
-    "13": {
-      "law": "Correlation ≠ Mechanism",
-      "kind": "GATE",
-      "file": "tests/test_cce_causal_grade.py",
-      "evidence": "DESCRIPTIVE",
-      "test": "tests/test_cce_causal_grade.py"
-    },
-    "14": {
-      "law": "Mechanism 必须有 Evidence",
-      "kind": "GATE",
-      "file": "scripts/cce_mechanism.py",
-      "evidence": "evidence_refs",
-      "test": "tests/test_cce_mechanism_registry.py"
-    },
-    "15": {
-      "law": "Inference 必须有 Confidence",
-      "kind": "GATE",
-      "file": "tests/test_cce_confidence_basis.py",
-      "evidence": "confidence",
-      "test": "tests/test_cce_confidence_basis.py"
-    },
-    "16": {
-      "law": "所有结果必须有 Version",
-      "kind": "GATE",
-      "file": "scripts/cce_knot_classify.py",
-      "evidence": "没有仪器标识的读数不参与任何比较",
-      "test": "tests/test_cce_measurement_system.py"
-    },
-    "17": {
-      "law": "所有高层结论必须可追溯到 Evidence",
-      "kind": "GATE",
-      "file": "tests/test_cce_scope_claim.py",
-      "evidence": "数据结构",
-      "test": "tests/test_cce_scope_claim.py"
-    },
-    "18": {
-      "law": "Population 不能用均值虚构平均人",
-      "kind": "GATE",
-      "file": "scripts/cce_window_chain.py",
-      "evidence": "must declare that its marginal is not a person",
-      "test": "tests/test_cce_population.py"
-    },
-    "19": {
-      "law": "不可比窗口的 Delta = NOT_TESTABLE",
-      "kind": "GATE",
-      "file": "scripts/cce_preparation_bridge.py",
-      "evidence": "PreparationMismatchError",
-      "test": "tests/test_cce_preparation_bridge.py"
-    },
-    "20": {
-      "law": "新模态增加 Parser, 不应修改 CCE Core",
-      "kind": "GATE",
-      "file": "scripts/cce_core_boundary.py",
-      "evidence": "静默换仪器",
-      "test": "tests/test_cce_core_boundary.py"
-    },
-    "21": {
-      "law": "研究工作流不得产出 production complete=true",
-      "kind": "GATE",
-      "file": "scripts/cce_registry_gate.py",
-      "evidence": "铁律 21 硬红",
-      "test": "tests/test_cce_registry_gate.py",
-      "upgraded_from": "FIELD_ONLY (2026-09-02: 此前只有 workflow_registry.rule 里一句散文, 零强制)"
-    },
-    "22": {
-      "law": "Legacy 组件不得成为新生产依赖",
-      "kind": "GATE",
-      "file": "scripts/check_ontology_migration.py",
-      "evidence": "unclassified",
-      "test": "tests/test_ontology_migration.py"
-    },
-    "23": {
-      "law": "九结当前是 candidate ontology",
-      "kind": "FIELD_ONLY",
-      "note": "cce_knot_classify 产出「G-K1/2/3 验收未跑, 引用须带未验」这句 caveat, 但**没有测试钉住它** —— 删掉不会红"
-    },
-    "24": {
-      "law": "九结 absolute intensity 与 relative composition 必须分离",
-      "kind": "GATE",
-      "file": "scripts/cce_k1_status.py",
-      "evidence": "intensity",
-      "test": "tests/test_cce_usable_routing.py"
-    },
-    "25": {
-      "law": "群体内容优化以 Population Coverage/Structure 为中心",
-      "kind": "PROSE_ONLY"
-    }
+  "2": {
+   "law": "Observation ≠ Event",
+   "kind": "FIELD_ONLY",
+   "note": "foundation_adapter/event_assemble 分开两个 schema, 但没有断言禁止把 observation 当 event"
   },
-  "iron_law_summary": {
-    "total": 25,
-    "GATE": 15,
-    "FIELD_ONLY": 5,
-    "PROSE_ONLY": 5
+  "3": {
+   "law": "Event ≠ State",
+   "kind": "FIELD_ONLY",
+   "note": "MODEL_FORBIDDEN_KEYS 挡的是身份键不是 state 本身; 无直接闸"
   },
-  "section_divergences": [
-    {
-      "section": "§39 基础 Contract 列表",
-      "claim": "/contracts/ 下 19 个 *.schema.json",
-      "actual": "无 contracts/ 目录; 契约在 config/cce_*_contract_v*.json (5 个) + 注册表 4 个",
-      "verdict": "文档过时",
-      "note": "§39 原文是「建议仓库最终统一」, 仓库走了另一种布局。不是欠账, 是文档没跟上。"
-    },
-    {
-      "section": "§42 四条独立 Ledger",
-      "claim": "必须分开: Content / Population / Distribution / Outcome",
-      "actual": "config/cce_ledgers_v1.json 声明四条账 + scripts/cce_ledger.py 准入闸; content=POPULATED, 另三条 DECLARED_EMPTY(各自写明无数据源)",
-      "verdict": "符合",
-      "note": "★ 2026-09-02 补。§42 用「**必须**分开」, 它要防的是**合并**不是「四张空表」。实测只有 content 有数据; 给不存在的数据建三张表是脚手架。所以建的是**准入闸**: 四对禁止合并各自可执行, 跨账只能走显式 Attribution。两条硬约束来自库内既有铁律 —— distribution 只收人工后台读数(不做自动化抓取), outcome 只收自有资产链结果(平台互动指标属不同真值域)。",
-      "gate": {
-        "file": "scripts/cce_ledger.py",
-        "test": "tests/test_cce_ledgers.py"
-      }
-    },
-    {
-      "section": "§36 Capability Registry",
-      "claim": "每项能力至少 8 个字段",
-      "actual": "已补 input_contract / output_contract / evidence_required / fallback_policy; version 保持顶层(逐能力再挂会有两个真值源, 已写明理由)",
-      "verdict": "符合",
-      "note": "四个字段各防一件今天就存在的事: 契约脱钩 / **无证据声称能力可用** / **静默兜底**(取值强制三分: 扣发·显式跳过·不在生产链)。§36 还列了 version, 跳过并写明理由 —— 逐能力挂会出现两个真值源。",
-      "gate": {
-        "file": "scripts/cce_registry_gate.py",
-        "test": "tests/test_cce_registry_gate.py"
-      }
-    },
-    {
-      "section": "§37 Workflow Registry",
-      "claim": "每条工作流 9 个字段",
-      "actual": "已补 capabilities / artifact_contract / production_complete_allowed; profile 跳过并写明理由(一条工作流服务多个 profile)。stages 与 completion_gate 仍在 submission contract 里(位置不同, 非缺失)",
-      "verdict": "符合",
-      "note": "★ production_complete_allowed 正是**铁律 21 缺的那道闸** —— 闸会实查 yml 是否真调用 cce_full_run/cce_workflow_manifest, 声明与实际能力不符即红。顺带查出一处真分歧: cce.yml(compatibility) 今天仍能产 complete, 该分歧已于 2026-09-02 由 owner 裁定摘除并落地, known_divergences 已清空。",
-      "gate": {
-        "file": "scripts/cce_registry_gate.py",
-        "test": "tests/test_cce_registry_gate.py"
-      }
-    }
-  ],
-  "★not_covered": "§36 §37 §39 §42 §43 §45 已核; §1–§35 只核了做存在性声明的 §2 与 §27, 其余是本体定义(不可机器核, 其派生约束已在 §43 铁律里核过)。**不得把本次结果当成全文逐条核对完毕。**",
-  "section_45_matrix": {
-    "★method": "每一项都先定义「什么才算证据」再查。**三次踩同一个坑**才做对: 第一轮匹配到 __pycache__/*.pyc; 第二轮 'production media ingest' 命中的是**能力注册表里声明它 missing 的那一行**; 第三轮 diariz/prosody/mix 命中的是cce_video_parse.py 里 status='missing_no_capability' 的**缺失声明**。⇒ 命中 != 实现。可靠办法只有一个: **看代码本身**。",
-    "① 已具备或接近具备": {
-      "declared": 11,
-      "verified": 11,
-      "verdict": "文档属实",
-      "note": "11 项逐条给出实现文件与关键符号, 全部有据"
-    },
-    "② 部分具备": {
-      "declared": 6,
-      "verified": 6,
-      "verdict": "文档属实",
-      "note": "6 项都有实现且「部分」这个定性准确 —— video parse 自己就把 diarization/prosody/mix_metrics 标成 missing_no_capability, 是诚实的能力台账"
-    },
-    "③ 当前缺失或未生产化": {
-      "declared": 13,
-      "verdict": "文档过时",
-      "actual": {
-        "仍缺": 7,
-        "部分": 1,
-        "已实现": 5
-      },
-      "still_missing": [
-        "production media ingest",
-        "standalone image ingest",
-        "standalone audio ingest",
-        "audio source separation",
-        "speaker diarization",
-        "prosody",
-        "mix metrics"
-      ],
-      "partial": {
-        "full cross-modal event semantics": "cce_event_assemble 有 cross_modal_synchronization, 但代码自己标 confidence_basis='definitional'(两区间重叠由时间戳算出, 构造上必然为真, 不是同步强度的度量) ⇒ 达不到「**full** semantics」"
-      },
-      "now_implemented": {
-        "population repeated-window learning": "scripts/cce_population.py window_transition/field_drift (P2)",
-        "persistent archive pipeline": "scripts/cce_archive.py rebuild() (P5)",
-        "mechanism registry": "config/mechanism_registry.json + cce_mechanism.register (P6)",
-        "experiment workflow": "cce_mechanism 的 prereg/replication/REJECTED 流 (P6)",
-        "strategy generation loop": "scripts/cce_strategy_gate.py (P7)"
-      },
-      "note": "7 项仍缺全部集中在 P3 多模态 —— 与 §44 P3 标 GATE_ONLY_CONTENT_NOT_BUILT 一致"
-    },
-    "④ 研究未定": {
-      "declared": 7,
-      "verdict": "文档过时",
-      "actual": {
-        "仍未定": 5,
-        "已定": 2
-      },
-      "settled": {
-        "9-simplex 是否合理": "**已定: 不合理, 且已改**。cce_knot_classify.py:851 「此前只有单层 9-simplex: 权重和恒为 1 ⇒ compositional data ⇒ 一个分量升必然压低其他」, 已改为 §22 四层",
-        "causal attribution": "**已定: 当前剖面下做不了**。机制 causal_ceiling_descriptive = ESTABLISHED: reached 窗构造上等于被观测响应者集合 ⇒ 激活率是常数不是测量; max_grade=DESCRIPTIVE"
-      },
-      "still_open": [
-        "九结真实潜在结构",
-        "drive/brake 分组是否成立(families 已实现但有效性未测)",
-        "transition post-state estimator",
-        "cross-region measurement validity",
-        "cross-platform mechanism transfer"
-      ]
-    },
-    "summary": "37 项: ①② 17 项文档属实; ③④ 20 项里 7 项状态已变(5 已实现 + 2 已定), 文档过时"
+  "4": {
+   "law": "State ≠ Behavior",
+   "kind": "PROSE_ONLY"
   },
-  "sections_1_35": {
-    "★method": "§1–§35 共约 560 个结构性条目(口径依赖: 三种算法给 562/564/569), 但**大多是本体定义不是存在性声明** —— 定义不可机器核。所以分开处理: 只核**做存在性声明**的节, 其余显式标为不可机器核并说明为什么。这不是偷懒, 是不把定义当断言。",
-    "checked": {
-      "§2 当前生产基线": {
-        "why_checkable": "它直接声称「生产现在是什么」, 过时就是主动误导",
-        "findings": [
-          {
-            "claim": "生产入口唯一 = .github/workflows/cce-submit.yml",
-            "verdict": "属实",
-            "evidence": "workflow_registry.production_entrypoint 逐字一致"
-          },
-          {
-            "claim": "提交协议 = cce.submission.v1",
-            "verdict": "属实",
-            "note": "指的是 workflow registry 的 accepts 字段, 不是契约文件自身的 kind(kind=cce.submission_contract.v1) —— 两者都对, 是不同的东西"
-          },
-          {
-            "claim": "三个生产 profile: outbound_post / outbound_reply / subject_chain",
-            "verdict": "属实",
-            "evidence": "submission contract 的 profiles 逐字一致"
-          },
-          {
-            "claim": "★ 兼容工作流或历史工作流不应继续承担新生产功能",
-            "verdict": "属实(2026-09-02 起)",
-            "evidence": "cce.yml 的两处 cce_full_run 调用已摘除; 实查 can_emit_complete=False",
-            "★note": "此前**当前不成立** —— 同一处分歧被 §37 与 §2.1 两个章节独立查出。owner 裁定摘除, 已落地。摘除时闸自己也暴露了一个 bug: 它把注释里的 cce_full_run 也算成「能产」, 已修为剔注释后再匹配。"
-          },
-          {
-            "claim": "§2.2 subject_chain 五段结构",
-            "verdict": "异名等价",
-            "evidence": "契约 stages = [source_validation, parallel_s0_s1_measurement, exact_fingerprint_join, activated_aggregation, end_to_end_audit]; 与文档五段逐段对应, 只是自然语言 vs 标识符"
-          },
-          {
-            "claim": "§2.4 数据进入链路的五个文件",
-            "verdict": "属实",
-            "evidence": "五个文件全部存在"
-          }
-        ]
-      },
-      "§27 Evidence / Provenance Plane": {
-        "why_checkable": "它列了 8 个 provenance 核心字段, 产物里有没有是可查的",
-        "verdict": "异名分散",
-        "detail": "8 个概念里 **7 个在仓内有对应物**, 但**没有一个统一的 provenance 块**, 名字也不同: source_ref→raw_sha256/evidence_refs · parser_version→preparation_id · schema_version→kind · cce_version→instrument_hash/measurement_procedure_id · timestamp→started/finished/measured_at · confidence→within_js。唯一没有对应物的是 **generated_by**。",
-        "not_a_gap_because": "provenance 的**功能**在(可追溯性由 instrument_hash / evidence_refs / sha256 承担, 且有闸)。缺的是**统一的字段名与块结构** —— 那是互操作性问题, 不是可追溯性问题。"
-      }
-    },
-    "not_machine_checkable": {
-      "sections": [
-        "§1",
-        "§3–§16",
-        "§17–§26(除 §27)",
-        "§28–§35"
-      ],
-      "why": "这些是**本体定义**(Population Field 是什么 / §5 讲的两种分群概念之别 / Stage 轴怎么分 / 九结的地位 …)。定义没有「实现了没有」这个问法; 能核的是**由它派生的约束**, 而那些约束已经在 §43 铁律里逐条核过了(15 GATE / 10 无闸)。",
-      "★do_not_claim": "**不得**因为这些节没核就说它们「有问题」, 也不得说「全核完了」。",
-      "★wording_note": "★ 本条初稿写了旧本体名, 被 check_ontology_migration 当场抓到(config/ 是契约面, key 与 value 都扫)。改写而不是登记豁免 —— 能不写就不写, 豁免表不该为「我图省事」而增长。"
-    },
-    "★count_is_parse_dependent": "★ 我最初写了「562 个」这个精确数, 复核时三种算法给出 562/564/569 —— 差别来自 §1 算不算、`# 19.5` 的 text 块归到哪一节、围栏语言标记怎么认。**引用一个自己复现不出来的精确数是错的**, 已改为量级。教训与本节主线同源: 数字要么能复算, 要么别当精确值引用。"
+  "5": {
+   "law": "Behavior ≠ Outcome",
+   "kind": "GATE",
+   "file": "scripts/cce_ledger.py",
+   "evidence": "无法替代商业真值",
+   "test": "tests/test_cce_ledgers.py",
+   "upgraded_from": "PROSE_ONLY (2026-09-03: §42 Ledger 准入闸建成后, outcome 账拒收平台互动指标并要求至少一项自有资产链结果 —— 分类是在建闸**之前**做的, 已过时)"
+  },
+  "6": {
+   "law": "Population Field ≠ Persona",
+   "kind": "GATE",
+   "file": "scripts/cce_window_chain.py",
+   "evidence": "must declare that its marginal is not a person",
+   "test": "tests/test_cce_population.py"
+  },
+  "7": {
+   "law": "Mode ≠ 固定人群",
+   "kind": "GATE",
+   "file": "scripts/cce_window_chain.py",
+   "evidence": "must be descriptive and reject one-person modes",
+   "test": "tests/test_cce_population_field.py"
+  },
+  "8": {
+   "law": "Individual ≠ Broadcast Target",
+   "kind": "PROSE_ONLY"
+  },
+  "9": {
+   "law": "Activation ≠ Distribution",
+   "kind": "GATE",
+   "file": "scripts/cce_ledger.py",
+   "evidence": "Activation != Distribution",
+   "test": "tests/test_cce_ledgers.py",
+   "upgraded_from": "FIELD_ONLY (2026-09-03: 原注「stage 轴有两档但无闸禁止混用」已不成立 —— content/population 账现在硬拒分发量与商业量)",
+   "shares_mechanism_with": "5"
+  },
+  "10": {
+   "law": "Target ≠ Reached",
+   "kind": "GATE",
+   "file": "tests/test_cce_causal_grade.py",
+   "evidence": "reached_members == seen_actors",
+   "test": "tests/test_cce_causal_grade.py"
+  },
+  "11": {
+   "law": "Responded ≠ Acted",
+   "kind": "GATE",
+   "file": "scripts/cce_ledger.py",
+   "evidence": "outcome 里出现平台互动指标",
+   "test": "tests/test_cce_ledgers.py",
+   "upgraded_from": "PROSE_ONLY (2026-09-03: comment/comments 在 PLATFORM_METRICS 内, 进 outcome 账即红)",
+   "shares_mechanism_with": "5"
+  },
+  "12": {
+   "law": "Prediction ≠ Fact",
+   "kind": "GATE",
+   "file": "scripts/cce_window_chain.py",
+   "evidence": "must declare response basis and derived assertion",
+   "test": "tests/test_cce_population_field.py"
+  },
+  "13": {
+   "law": "Correlation ≠ Mechanism",
+   "kind": "GATE",
+   "file": "tests/test_cce_causal_grade.py",
+   "evidence": "DESCRIPTIVE",
+   "test": "tests/test_cce_causal_grade.py"
+  },
+  "14": {
+   "law": "Mechanism 必须有 Evidence",
+   "kind": "GATE",
+   "file": "scripts/cce_mechanism.py",
+   "evidence": "evidence_refs",
+   "test": "tests/test_cce_mechanism_registry.py"
+  },
+  "15": {
+   "law": "Inference 必须有 Confidence",
+   "kind": "GATE",
+   "file": "tests/test_cce_confidence_basis.py",
+   "evidence": "confidence",
+   "test": "tests/test_cce_confidence_basis.py"
+  },
+  "16": {
+   "law": "所有结果必须有 Version",
+   "kind": "GATE",
+   "file": "scripts/cce_knot_classify.py",
+   "evidence": "没有仪器标识的读数不参与任何比较",
+   "test": "tests/test_cce_measurement_system.py"
+  },
+  "17": {
+   "law": "所有高层结论必须可追溯到 Evidence",
+   "kind": "GATE",
+   "file": "tests/test_cce_scope_claim.py",
+   "evidence": "数据结构",
+   "test": "tests/test_cce_scope_claim.py"
+  },
+  "18": {
+   "law": "Population 不能用均值虚构平均人",
+   "kind": "GATE",
+   "file": "scripts/cce_window_chain.py",
+   "evidence": "must declare that its marginal is not a person",
+   "test": "tests/test_cce_population.py"
+  },
+  "19": {
+   "law": "不可比窗口的 Delta = NOT_TESTABLE",
+   "kind": "GATE",
+   "file": "scripts/cce_preparation_bridge.py",
+   "evidence": "PreparationMismatchError",
+   "test": "tests/test_cce_preparation_bridge.py"
+  },
+  "20": {
+   "law": "新模态增加 Parser, 不应修改 CCE Core",
+   "kind": "GATE",
+   "file": "scripts/cce_core_boundary.py",
+   "evidence": "静默换仪器",
+   "test": "tests/test_cce_core_boundary.py"
+  },
+  "21": {
+   "law": "研究工作流不得产出 production complete=true",
+   "kind": "GATE",
+   "file": "scripts/cce_registry_gate.py",
+   "evidence": "铁律 21 硬红",
+   "test": "tests/test_cce_registry_gate.py",
+   "upgraded_from": "FIELD_ONLY (2026-09-02: 此前只有 workflow_registry.rule 里一句散文, 零强制)"
+  },
+  "22": {
+   "law": "Legacy 组件不得成为新生产依赖",
+   "kind": "GATE",
+   "file": "scripts/check_ontology_migration.py",
+   "evidence": "unclassified",
+   "test": "tests/test_ontology_migration.py"
+  },
+  "23": {
+   "law": "九结当前是 candidate ontology",
+   "kind": "GATE",
+   "file": "scripts/cce_knot_classify.py",
+   "evidence": "CANDIDATE_CAVEAT",
+   "test": "tests/test_cce_knot_caveat.py",
+   "upgraded_from": "FIELD_ONLY (2026-09-03: 原注「没有测试钉住它, 删掉不会红」—— 已抽成 caveats(taxo) 并双向断言)"
+  },
+  "24": {
+   "law": "九结 absolute intensity 与 relative composition 必须分离",
+   "kind": "GATE",
+   "file": "scripts/cce_k1_status.py",
+   "evidence": "intensity",
+   "test": "tests/test_cce_usable_routing.py"
+  },
+  "25": {
+   "law": "群体内容优化以 Population Coverage/Structure 为中心",
+   "kind": "PROSE_ONLY"
   }
+ },
+ "iron_law_summary": {
+  "total": 25,
+  "GATE": 19,
+  "FIELD_ONLY": 3,
+  "PROSE_ONLY": 3
+ },
+ "section_divergences": [
+  {
+   "section": "§39 基础 Contract 列表",
+   "claim": "/contracts/ 下 19 个 *.schema.json",
+   "actual": "无 contracts/ 目录; 契约在 config/cce_*_contract_v*.json (5 个) + 注册表 4 个",
+   "verdict": "文档过时",
+   "note": "§39 原文是「建议仓库最终统一」, 仓库走了另一种布局。不是欠账, 是文档没跟上。"
+  },
+  {
+   "section": "§42 四条独立 Ledger",
+   "claim": "必须分开: Content / Population / Distribution / Outcome",
+   "actual": "config/cce_ledgers_v1.json 声明四条账 + scripts/cce_ledger.py 准入闸; content=POPULATED, 另三条 DECLARED_EMPTY(各自写明无数据源)",
+   "verdict": "符合",
+   "note": "★ 2026-09-02 补。§42 用「**必须**分开」, 它要防的是**合并**不是「四张空表」。实测只有 content 有数据; 给不存在的数据建三张表是脚手架。所以建的是**准入闸**: 四对禁止合并各自可执行, 跨账只能走显式 Attribution。两条硬约束来自库内既有铁律 —— distribution 只收人工后台读数(不做自动化抓取), outcome 只收自有资产链结果(平台互动指标属不同真值域)。",
+   "gate": {
+    "file": "scripts/cce_ledger.py",
+    "test": "tests/test_cce_ledgers.py"
+   }
+  },
+  {
+   "section": "§36 Capability Registry",
+   "claim": "每项能力至少 8 个字段",
+   "actual": "已补 input_contract / output_contract / evidence_required / fallback_policy; version 保持顶层(逐能力再挂会有两个真值源, 已写明理由)",
+   "verdict": "符合",
+   "note": "四个字段各防一件今天就存在的事: 契约脱钩 / **无证据声称能力可用** / **静默兜底**(取值强制三分: 扣发·显式跳过·不在生产链)。§36 还列了 version, 跳过并写明理由 —— 逐能力挂会出现两个真值源。",
+   "gate": {
+    "file": "scripts/cce_registry_gate.py",
+    "test": "tests/test_cce_registry_gate.py"
+   }
+  },
+  {
+   "section": "§37 Workflow Registry",
+   "claim": "每条工作流 9 个字段",
+   "actual": "已补 capabilities / artifact_contract / production_complete_allowed; profile 跳过并写明理由(一条工作流服务多个 profile)。stages 与 completion_gate 仍在 submission contract 里(位置不同, 非缺失)",
+   "verdict": "符合",
+   "note": "★ production_complete_allowed 正是**铁律 21 缺的那道闸** —— 闸会实查 yml 是否真调用 cce_full_run/cce_workflow_manifest, 声明与实际能力不符即红。顺带查出一处真分歧: cce.yml(compatibility) 今天仍能产 complete, 该分歧已于 2026-09-02 由 owner 裁定摘除并落地, known_divergences 已清空。",
+   "gate": {
+    "file": "scripts/cce_registry_gate.py",
+    "test": "tests/test_cce_registry_gate.py"
+   }
+  }
+ ],
+ "★not_covered": "§36 §37 §39 §42 §43 §45 已核; §1–§35 只核了做存在性声明的 §2 与 §27, 其余是本体定义(不可机器核, 其派生约束已在 §43 铁律里核过)。**不得把本次结果当成全文逐条核对完毕。**",
+ "section_45_matrix": {
+  "★method": "每一项都先定义「什么才算证据」再查。**三次踩同一个坑**才做对: 第一轮匹配到 __pycache__/*.pyc; 第二轮 'production media ingest' 命中的是**能力注册表里声明它 missing 的那一行**; 第三轮 diariz/prosody/mix 命中的是cce_video_parse.py 里 status='missing_no_capability' 的**缺失声明**。⇒ 命中 != 实现。可靠办法只有一个: **看代码本身**。",
+  "① 已具备或接近具备": {
+   "declared": 11,
+   "verified": 11,
+   "verdict": "文档属实",
+   "note": "11 项逐条给出实现文件与关键符号, 全部有据"
+  },
+  "② 部分具备": {
+   "declared": 6,
+   "verified": 6,
+   "verdict": "文档属实",
+   "note": "6 项都有实现且「部分」这个定性准确 —— video parse 自己就把 diarization/prosody/mix_metrics 标成 missing_no_capability, 是诚实的能力台账"
+  },
+  "③ 当前缺失或未生产化": {
+   "declared": 13,
+   "verdict": "文档过时",
+   "actual": {
+    "仍缺": 7,
+    "部分": 1,
+    "已实现": 5
+   },
+   "still_missing": [
+    "production media ingest",
+    "standalone image ingest",
+    "standalone audio ingest",
+    "audio source separation",
+    "speaker diarization",
+    "prosody",
+    "mix metrics"
+   ],
+   "partial": {
+    "full cross-modal event semantics": "cce_event_assemble 有 cross_modal_synchronization, 但代码自己标 confidence_basis='definitional'(两区间重叠由时间戳算出, 构造上必然为真, 不是同步强度的度量) ⇒ 达不到「**full** semantics」"
+   },
+   "now_implemented": {
+    "population repeated-window learning": "scripts/cce_population.py window_transition/field_drift (P2)",
+    "persistent archive pipeline": "scripts/cce_archive.py rebuild() (P5)",
+    "mechanism registry": "config/mechanism_registry.json + cce_mechanism.register (P6)",
+    "experiment workflow": "cce_mechanism 的 prereg/replication/REJECTED 流 (P6)",
+    "strategy generation loop": "scripts/cce_strategy_gate.py (P7)"
+   },
+   "note": "7 项仍缺全部集中在 P3 多模态 —— 与 §44 P3 标 GATE_ONLY_CONTENT_NOT_BUILT 一致"
+  },
+  "④ 研究未定": {
+   "declared": 7,
+   "verdict": "文档过时",
+   "actual": {
+    "仍未定": 5,
+    "已定": 2
+   },
+   "settled": {
+    "9-simplex 是否合理": "**已定: 不合理, 且已改**。cce_knot_classify.py:851 「此前只有单层 9-simplex: 权重和恒为 1 ⇒ compositional data ⇒ 一个分量升必然压低其他」, 已改为 §22 四层",
+    "causal attribution": "**已定: 当前剖面下做不了**。机制 causal_ceiling_descriptive = ESTABLISHED: reached 窗构造上等于被观测响应者集合 ⇒ 激活率是常数不是测量; max_grade=DESCRIPTIVE"
+   },
+   "still_open": [
+    "九结真实潜在结构",
+    "drive/brake 分组是否成立(families 已实现但有效性未测)",
+    "transition post-state estimator",
+    "cross-region measurement validity",
+    "cross-platform mechanism transfer"
+   ]
+  },
+  "summary": "37 项: ①② 17 项文档属实; ③④ 20 项里 7 项状态已变(5 已实现 + 2 已定), 文档过时"
+ },
+ "sections_1_35": {
+  "★method": "§1–§35 共约 560 个结构性条目(口径依赖: 三种算法给 562/564/569), 但**大多是本体定义不是存在性声明** —— 定义不可机器核。所以分开处理: 只核**做存在性声明**的节, 其余显式标为不可机器核并说明为什么。这不是偷懒, 是不把定义当断言。",
+  "checked": {
+   "§2 当前生产基线": {
+    "why_checkable": "它直接声称「生产现在是什么」, 过时就是主动误导",
+    "findings": [
+     {
+      "claim": "生产入口唯一 = .github/workflows/cce-submit.yml",
+      "verdict": "属实",
+      "evidence": "workflow_registry.production_entrypoint 逐字一致"
+     },
+     {
+      "claim": "提交协议 = cce.submission.v1",
+      "verdict": "属实",
+      "note": "指的是 workflow registry 的 accepts 字段, 不是契约文件自身的 kind(kind=cce.submission_contract.v1) —— 两者都对, 是不同的东西"
+     },
+     {
+      "claim": "三个生产 profile: outbound_post / outbound_reply / subject_chain",
+      "verdict": "属实",
+      "evidence": "submission contract 的 profiles 逐字一致"
+     },
+     {
+      "claim": "★ 兼容工作流或历史工作流不应继续承担新生产功能",
+      "verdict": "属实(2026-09-02 起)",
+      "evidence": "cce.yml 的两处 cce_full_run 调用已摘除; 实查 can_emit_complete=False",
+      "★note": "此前**当前不成立** —— 同一处分歧被 §37 与 §2.1 两个章节独立查出。owner 裁定摘除, 已落地。摘除时闸自己也暴露了一个 bug: 它把注释里的 cce_full_run 也算成「能产」, 已修为剔注释后再匹配。"
+     },
+     {
+      "claim": "§2.2 subject_chain 五段结构",
+      "verdict": "异名等价",
+      "evidence": "契约 stages = [source_validation, parallel_s0_s1_measurement, exact_fingerprint_join, activated_aggregation, end_to_end_audit]; 与文档五段逐段对应, 只是自然语言 vs 标识符"
+     },
+     {
+      "claim": "§2.4 数据进入链路的五个文件",
+      "verdict": "属实",
+      "evidence": "五个文件全部存在"
+     }
+    ]
+   },
+   "§27 Evidence / Provenance Plane": {
+    "why_checkable": "它列了 8 个 provenance 核心字段, 产物里有没有是可查的",
+    "verdict": "异名分散",
+    "detail": "8 个概念里 **7 个在仓内有对应物**, 但**没有一个统一的 provenance 块**, 名字也不同: source_ref→raw_sha256/evidence_refs · parser_version→preparation_id · schema_version→kind · cce_version→instrument_hash/measurement_procedure_id · timestamp→started/finished/measured_at · confidence→within_js。唯一没有对应物的是 **generated_by**。",
+    "not_a_gap_because": "provenance 的**功能**在(可追溯性由 instrument_hash / evidence_refs / sha256 承担, 且有闸)。缺的是**统一的字段名与块结构** —— 那是互操作性问题, 不是可追溯性问题。"
+   }
+  },
+  "not_machine_checkable": {
+   "sections": [
+    "§1",
+    "§3–§16",
+    "§17–§26(除 §27)",
+    "§28–§35"
+   ],
+   "why": "这些是**本体定义**(Population Field 是什么 / §5 讲的两种分群概念之别 / Stage 轴怎么分 / 九结的地位 …)。定义没有「实现了没有」这个问法; 能核的是**由它派生的约束**, 而那些约束已经在 §43 铁律里逐条核过了(15 GATE / 10 无闸)。",
+   "★do_not_claim": "**不得**因为这些节没核就说它们「有问题」, 也不得说「全核完了」。",
+   "★wording_note": "★ 本条初稿写了旧本体名, 被 check_ontology_migration 当场抓到(config/ 是契约面, key 与 value 都扫)。改写而不是登记豁免 —— 能不写就不写, 豁免表不该为「我图省事」而增长。"
+  },
+  "★count_is_parse_dependent": "★ 我最初写了「562 个」这个精确数, 复核时三种算法给出 562/564/569 —— 差别来自 §1 算不算、`# 19.5` 的 text 块归到哪一节、围栏语言标记怎么认。**引用一个自己复现不出来的精确数是错的**, 已改为量级。教训与本节主线同源: 数字要么能复算, 要么别当精确值引用。"
+ }
 }

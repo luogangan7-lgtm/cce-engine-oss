@@ -902,6 +902,28 @@ def _stage2_aggregate(prompt, taxo, n=None):
                        "top1_stable=false 时首结身份本身不可复现, 不得作断言依据")}
 
 
+# ── 铁律 23: 九结是 candidate ontology ────────────────────────────────
+UNVERIFIED_MARKERS = ("未跑", "未验")
+CANDIDATE_CAVEAT = "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」"
+BASE_CAVEATS = [
+    "全占比: knots 是带权组合,禁把单个 top 当断言",
+    "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准",
+]
+
+
+def caveats(taxo: dict) -> list[str]:
+    """由 taxonomy.status **现推** caveat, 不写死。
+
+    ★ 双向, 缺一都会腐烂:
+      · status 说未验 -> 必须带 CANDIDATE_CAVEAT(否则「未验」被静默删掉)
+      · status 不再说未验 -> 必须**不带**(否则 G-K1/2/3 真跑过之后它变成永久谎言)
+    只钉住字符串在源码里出现, 挡不住第二种腐烂。
+    """
+    st = str(taxo.get("status", ""))
+    unverified = any(m in st for m in UNVERIFIED_MARKERS)
+    return ([CANDIDATE_CAVEAT] if unverified else []) + list(BASE_CAVEATS)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--text-file")
@@ -925,11 +947,7 @@ def main():
                        "stage2": f"knot_taxonomy v{taxo['version']} (M3)",
                        "taxonomy_status": taxo["status"]},
         "stage1": s1, "stage2": s2,
-        "caveats": [
-            "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
-            "全占比: knots 是带权组合,禁把单个 top 当断言",
-            "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准",
-        ],
+        "caveats": caveats(taxo),
     }
     js = json.dumps(out, ensure_ascii=False, indent=1)
     if a.out:
