@@ -33,16 +33,35 @@ assert "raise RuntimeError" in _src and "结构上不得产出" in _src, \
 assert "性别刻板驱动" in _src, "★ 为什么禁人格推断, 理由要留在原地"
 
 # 反向: 真塞一个被禁字段进去, 守卫必须响
+# ★ 2026-09-04 CI 实跑修: 原来这里在无 wav 时回退到 __file__, CI 上就把 .py 喂给了 librosa
+#   ⇒ LibsndfileError。**测试不许依赖本机素材** —— 现场合成一个极小 wav, 到哪儿都能跑。
+def _tiny_wav():
+    import numpy as np, soundfile as sf, tempfile
+    sr = 16000
+    t = np.linspace(0, 0.5, sr // 2, endpoint=False)
+    y = 0.2 * np.sin(2 * np.pi * 220 * t)          # 220Hz 正弦, 确定性
+    fd, path = tempfile.mkstemp(suffix=".wav"); os.close(fd)
+    sf.write(path, y, sr)
+    return path
+
+_synth = _tiny_wav()
 _orig = AP.mix_metrics
 try:
     AP.mix_metrics = lambda p: {"status": "ok", "valence": 0.7}
     try:
-        AP.analyse(WAVS[0] if WAVS else __file__)
+        AP.analyse(_synth)
         raise AssertionError("★ 被禁字段没被拦住 —— 守卫是死的")
     except RuntimeError as e:
         assert "被禁字段" in str(e), e
 finally:
     AP.mix_metrics = _orig
+
+# 合成音频上也要能真跑出数(证明不是靠真实素材才成立)
+_r0 = AP.analyse(_synth)
+assert _r0["prosody"]["status"] == "ok" and _r0["mix_metrics"]["status"] == "ok"
+assert abs(_r0["prosody"]["summary"]["f0_median_hz"] - 220) < 25, \
+    f"★ 220Hz 正弦的 f0 应≈220, 实测 {_r0['prosody']['summary']['f0_median_hz']}"
+os.unlink(_synth)
 
 if WAVS:
     r = AP.analyse(WAVS[0])
@@ -80,7 +99,8 @@ for k in ("speech_timeline", "speaker_turns"):
     assert c3[k]["status"] == "missing_no_capability", \
         f"★ {k} 需 pyannote, 未装就得如实标缺"
 
-print(f"test_cce_audio_prosody: OK (真实音频 {len(WAVS)} 份可用 | "
+_where = f"本机真实音频 {len(WAVS)} 份" if WAVS else "CI(无本机素材, 只跑合成音频)"
+print(f"test_cce_audio_prosody: OK ({_where} · 合成 220Hz 正弦 f0 实测≈220 | "
       "韵律只出声学量不出情绪分值 · 混音纯 DSP 频带和≈1 | "
       "★ 效价/人格被**代码抛错**拦住(反向验过) | "
       "四种状态词分开: present / missing_parse_failed / missing_no_capability)")

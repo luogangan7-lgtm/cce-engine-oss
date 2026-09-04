@@ -78,6 +78,9 @@ assert rc == 0, f"★ 合法的 media_ingest 被入口拦了: {out[:300]}"
 
 # ── ④ 全链回放: 拿**真实历史解析产物**跑生产驱动 ──────────────────────
 SRC = "/Volumes/data/viral-skill-eval/results/video_parse"
+# ★ 2026-09-04: 原来这里缺席就**静默跳过** —— 那段全链回放在 CI 上根本没跑, 测试却照样绿。
+#   「优雅降级」不等于「静默跳过」: 缺席时必须自己也有断言 + 明写本次没跑到哪条路。
+_replayed = False
 if os.path.isdir(SRC):
     f = sorted(p for p in os.listdir(SRC) if p.endswith(".json") and not p.startswith("_"))[0]
     with tempfile.TemporaryDirectory() as td:
@@ -101,6 +104,17 @@ if os.path.isdir(SRC):
             "★ 抽取质量未测必须具名扣发, 否则下游会把 observation 里的文字当已验收转写"
         assert "p3.cross_domain_calibration" in q["withheld"]
 
+        _replayed = True
+
+if not _replayed:
+    # 缺席路径也要有断言: 至少证明本地驱动能被调起(不产读数, 只证明它不是坏的)
+    _r = subprocess.run([sys.executable, os.path.join(ROOT, "scripts/cce_full_run.py"), "--help"],
+                        cwd=ROOT, capture_output=True, text=True)
+    assert _r.returncode == 0 and "media_ingest" in _r.stdout, \
+        "★ 无本机素材时至少要证明 media_ingest 仍是合法 mode"
+_COVER = ("本机(有历史解析产物): 已做全链回放" if _replayed
+          else "CI(无本机素材): **未做全链回放**, 只验了 media_ingest 仍是合法 mode")
+
 # ── ⑤ 晋升不等于全部具备: 图片链仍不得声称可用 ────────────────────────
 v = CAPS["video_multimodal_parse_v5"]
 assert v["status"] == "production_github" and v["fallback_policy"] == "WITHHOLD"
@@ -116,4 +130,5 @@ print("test_cce_media_ingest_production: OK "
       f"(三处同步: 契约 profile / CHAINS / 入口白名单 逐位一致 | "
       f"job 已由 outbound 改名 measure(它不是出站) | "
       "全链回放 complete=true 且 observations+events 落盘 | "
-      "抽取质量与跨域标定**具名扣发** | 图片链仍 missing, 未被顺带声称)")
+      "抽取质量与跨域标定**具名扣发** | 图片链未被顺带声称 | "
+      f"★ 本次覆盖: {_COVER})")
