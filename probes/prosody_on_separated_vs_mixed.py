@@ -46,6 +46,13 @@ def main():
         return 2
 
     wavs = sorted(f for f in os.listdir(MATERIAL) if f.endswith(".wav"))[:N]
+
+    # ★ 快失败: 先在第一份上验字段路径存在, 再开跑。
+    #   今天已因读错字段白跑过两次(图片链读 visual; 这里读 prosody.f0 而非 prosody.summary.f0)。
+    #   跑 10 分钟才发现「取到的全是 None」是纯浪费, 且极易被误读成「测量结果为空」。
+    _p0 = (AP.analyse(os.path.join(MATERIAL, wavs[0])).get("prosody") or {}).get("summary") or {}
+    assert isinstance(_p0.get("f0_median_hz"), (int, float)), \
+        f"★ 字段路径不对或首份无 f0: summary 键={list(_p0)}"
     print(f"预注册判据: ρ(非人声占比, |Δf0|半音) ≥ {RHO_GATE} 且 p < {P_GATE} ⇒ SEPARATION_MATTERS")
     print(f"样本: {len(wavs)} 份真实 WAV(排序取前 {N}, 不挑)\n" + "-" * 74)
 
@@ -56,11 +63,11 @@ def main():
         if s["status"] != "ok":
             rows.append((name, s["status"], s.get("error", ""))); continue
         nv = 1.0 - s["energy_share"]["vocals"]
-        f0_mix = (AP.analyse(p) or {}).get("prosody", {}).get("f0_median_hz")
+        f0_mix = (AP.analyse(p) or {}).get("prosody", {}).get("summary", {}).get("f0_median_hz")
         tmp = os.path.join(ROOT, ".tmp_vocals.wav")
         sf.write(tmp, s["vocals"], s["sr"])
         try:
-            f0_voc = (AP.analyse(tmp) or {}).get("prosody", {}).get("f0_median_hz")
+            f0_voc = (AP.analyse(tmp) or {}).get("prosody", {}).get("summary", {}).get("f0_median_hz")
         finally:
             os.path.exists(tmp) and os.remove(tmp)
         d = _semitones(f0_mix, f0_voc)

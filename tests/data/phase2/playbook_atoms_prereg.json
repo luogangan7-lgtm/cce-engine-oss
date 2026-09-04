@@ -1,0 +1,102 @@
+{
+ "block": "PLAYBOOK_ATOMS_RELIABILITY_GEN1",
+ "prereg_written_at": "2026-09-04",
+ "★frozen_before_measurement": "本文件在采集任何读数**之前**提交(见 git)。",
+ "why": "playbook_hit 判 UNRELIABLE(4/8)。★ 失败的形状很具体: 4 个 PASS 里 3 个中位数 0.0、1 个 1.0 —— **只在地板和天花板稳**; 4 个 FAIL 全在中段。而本项目 2026-09-03 自己测过读数形态: cardinal 0.712 / band3 0.726 / rank 0.856 / top2 0.814 / **top1 1.000**, 离散读数明显更稳。⇒ 可检验的假设: **不稳定来自 0–1 标尺本身, 不来自底层判断**。改法: 把 playbook 拆成它本来就有的离散动作(原文即分号分隔), 逐条问「做了没有 + 逐字引用」, 复合值由算术得出而非由判官在标尺上取点。",
+ "hypothesis": {
+  "H1": "逐原子二值 + 强制逐字引用, 每个原子落在判官可靠的地板/天花板区 ⇒ 一致率显著高于 4/8",
+  "H0": "不稳定来自底层判断本身 ⇒ 拆成原子后一致率不改善",
+  "★falsifiable": "H1 若成立必须表现为 >= 7/8, 且**同时**过非退化 —— 否则按 H0 记录, 不采纳"
+ },
+ "selection_rule": {
+  "rule": "**与 playbook_hit GEN4 逐字同一批 8 个文本**",
+  "why": "换文本就无法与 4/8 并列比较 —— 改善可能只是换了容易的样本",
+  "chosen": [
+   "2ee52f67c987",
+   "3191a8fae98d",
+   "344d81fc035f",
+   "59a1a9c7d712",
+   "5bbf4543dd47",
+   "6b16b77dbc5b",
+   "6def5ddbcf25",
+   "712fc175d4bf"
+  ]
+ },
+ "instrument": {
+  "instrument_hash": "565470cf26c16d01",
+  "must_equal": "565470cf26c16d01",
+  "why": "★ 跨仪器不可比。GEN4 用的就是它(k=3)"
+ },
+ "readout": {
+  "form": "playbook 按 `;` 拆成原子; 每个原子二值判定 executed∈{0,1} + **必须给逐字子串**",
+  "positive_vs_prohibition": "原子分两类: **正向动作**(做 X) 与 **禁令**(不/别/绝不 …)。复合值只由**正向动作**算: atoms_hit = 已执行正向原子数 / 正向原子总数。★ 禁令按构造几乎恒满足(缺席即通过), 混进复合值会把一致率抬高而不增加判别力 —— 那正是本项目禁止的退化。禁令单独报为 violations, 不进 atoms_hit。",
+  "evidence_required": "executed=1 必须附逐字子串; 无子串的 1 记为 0 并计入 unsupported 计数"
+ },
+ "design": {
+  "texts": [
+   {
+    "base_id": "2ee52f67c987",
+    "text_sha16": "95918a2f6d7e1203",
+    "chars": 528
+   },
+   {
+    "base_id": "3191a8fae98d",
+    "text_sha16": "29fe5e451f83148d",
+    "chars": 929
+   },
+   {
+    "base_id": "344d81fc035f",
+    "text_sha16": "d1706093c2f21797",
+    "chars": 464
+   },
+   {
+    "base_id": "59a1a9c7d712",
+    "text_sha16": "bcd0326fe9b61c7e",
+    "chars": 1952
+   },
+   {
+    "base_id": "5bbf4543dd47",
+    "text_sha16": "4f6e2403a68f5257",
+    "chars": 354
+   },
+   {
+    "base_id": "6b16b77dbc5b",
+    "text_sha16": "f78b6b6b87bae482",
+    "chars": 559
+   },
+   {
+    "base_id": "6def5ddbcf25",
+    "text_sha16": "b7033c93a4432e6f",
+    "chars": 742
+   },
+   {
+    "base_id": "712fc175d4bf",
+    "text_sha16": "39b55b18350d987c",
+    "chars": 1224
+   }
+  ],
+  "n_per_text": 8,
+  "calls_per_rep": 1,
+  "total_calls": 64,
+  "★why_1_call": "一次调用返回全部原子判定 —— 与 GEN4 的 3 次表决取中位数不同, 因为二值原子不需要在标尺上取中位。调用数因此从 192 降到 64。"
+ },
+ "criterion": {
+  "form": "逐对容差一致率: 对每对 rep, |Δatoms_hit| <= δ 记 1; 要求比例 >= agreement_min",
+  "delta": 0.1,
+  "agreement_min": 0.95,
+  "n_min": 8,
+  "why_same_as_gen4": "δ、判决线、样本量与 GEN4 逐字相同 —— 否则「改善」可能只是换了判据"
+ },
+ "★degeneracy_guard": {
+  "rule": "① 8 个文本的 atoms_hit **中位数**至少 3 个不同取值且极差 >= 0.20(与 GEN4 同);② **新增**: 正向原子的整体执行率不得为常数(全 0 或全 1) —— 一个恒答『没执行』的判官会给出完美一致率。",
+  "why": "2026-08-18 实事故: 无 key 时 dissolve_hit 返回 (0.0,'检测失败'), 断言退化成 0==0"
+ },
+ "decision_rule": {
+  "★frozen": "测量前写死。",
+  "USABLE": "一致率 >= 0.95 的文本 >= 7/8 **且**过两条非退化 ⇒ 采纳为对齐出口, 取代 playbook_hit",
+  "DEGENERATE": "任一条非退化不过 ⇒ 记 DEGENERATE, **不是通过**",
+  "INCONCLUSIVE": "5–6/8 ⇒ 改善可能为真但不达线, **不采纳**(与 playbook_mode 同处理)",
+  "UNRELIABLE": "<= 4/8 ⇒ H0 未被推翻: 不稳定来自底层判断, 拆原子无用"
+ },
+ "★what_this_does_not_test": "只测**复现性**, 不测**效度** —— 原子拆得对不对、playbook 本身是否有效, 这条实验一概不答。"
+}
