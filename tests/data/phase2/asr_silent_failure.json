@@ -1,0 +1,384 @@
+{
+ "block": "ASR_SILENT_FAILURE_IN_HISTORICAL_ARTIFACTS_GEN1",
+ "measured_at": "2026-09-04",
+ "n_short": 40,
+ "n_long": 20,
+ "vocals_median": {
+  "short": 0.1783,
+  "long": 0.9693
+ },
+ "separable": true,
+ "failure_rate_lower_bound": 0.225,
+ "★why_lower_bound": "只数 vocals>=0.5 的。人声占比低但**确有口播**的(远景/小声/被 BGM 压过)也可能是失败, 但分离分不出来 ⇒ 真实失败率**只会更高**。",
+ "mislabeled_speech_true": 9,
+ "decision": "MIXED",
+ "★how_it_surfaced": "不是我去找它。**字幕交叉核验的非退化闸**触发(字幕召回中位 0.0098, 落在预注册的 (0.05,0.95) 之外 ⇒ 规则要求「先查仪器, 不当结论」), 查下去才发现: 参照方没坏, **被参照的 ASR 才是坏的**。",
+ "★must_fix_regardless": "无论比例多少, `G1_layers.speech = true` 在转写近乎空白时就是**假的 ok**。完备性判据必须把「音轨存在」与「转写非空」分开 —— 这一条不依赖本实验的结论。",
+ "per_item_short": [
+  {
+   "id": "7308540587534339378",
+   "chars": 9,
+   "vocals": 0.5644,
+   "speech_true": true
+  },
+  {
+   "id": "7319442607547878693",
+   "chars": 8,
+   "vocals": 0.7527,
+   "speech_true": true
+  },
+  {
+   "id": "7360309561280007450",
+   "chars": 3,
+   "vocals": 0.3677,
+   "speech_true": true
+  },
+  {
+   "id": "7379467637010533641",
+   "chars": 3,
+   "vocals": 0.0039,
+   "speech_true": true
+  },
+  {
+   "id": "7569930966187059338",
+   "chars": 15,
+   "vocals": 0.211,
+   "speech_true": true
+  },
+  {
+   "id": "7569955301119066303",
+   "chars": 3,
+   "vocals": 0.9486,
+   "speech_true": true
+  },
+  {
+   "id": "7571094663072725604",
+   "chars": 3,
+   "vocals": 0.0433,
+   "speech_true": true
+  },
+  {
+   "id": "7581710947794947338",
+   "chars": 8,
+   "vocals": 0.5054,
+   "speech_true": true
+  },
+  {
+   "id": "7589209831530656177",
+   "chars": 1,
+   "vocals": 0.1009,
+   "speech_true": true
+  },
+  {
+   "id": "7596161960435074981",
+   "chars": 3,
+   "vocals": 0.6052,
+   "speech_true": true
+  },
+  {
+   "id": "7597046449235247430",
+   "chars": 17,
+   "vocals": 0.6351,
+   "speech_true": true
+  },
+  {
+   "id": "7597684854993491825",
+   "chars": 5,
+   "vocals": 0.0813,
+   "speech_true": true
+  },
+  {
+   "id": "7598077633062773369",
+   "chars": 3,
+   "vocals": 0.011,
+   "speech_true": true
+  },
+  {
+   "id": "7599288615855945381",
+   "chars": 1,
+   "vocals": 0.5803,
+   "speech_true": true
+  },
+  {
+   "id": "7599552735738574242",
+   "chars": 11,
+   "vocals": 0.1515,
+   "speech_true": true
+  },
+  {
+   "id": "7602488171008378868",
+   "chars": 11,
+   "vocals": 0.4545,
+   "speech_true": true
+  },
+  {
+   "id": "7606665212637209701",
+   "chars": 3,
+   "vocals": 0.209,
+   "speech_true": true
+  },
+  {
+   "id": "7607003342024449201",
+   "chars": 14,
+   "vocals": 0.0812,
+   "speech_true": true
+  },
+  {
+   "id": "7608540390882481061",
+   "chars": 3,
+   "vocals": 0.7454,
+   "speech_true": true
+  },
+  {
+   "id": "7618191432771608502",
+   "chars": 3,
+   "vocals": 0.5096,
+   "speech_true": true
+  },
+  {
+   "id": "7619634868528365233",
+   "chars": 3,
+   "vocals": 0.0513,
+   "speech_true": true
+  },
+  {
+   "id": "7620076173989726089",
+   "chars": 11,
+   "vocals": 0.126,
+   "speech_true": true
+  },
+  {
+   "id": "7624097727216136561",
+   "chars": 3,
+   "vocals": 0.0148,
+   "speech_true": true
+  },
+  {
+   "id": "7629301871379910577",
+   "chars": 1,
+   "vocals": 0.0,
+   "speech_true": true
+  },
+  {
+   "id": "7633037767022529434",
+   "chars": 3,
+   "vocals": 0.3667,
+   "speech_true": true
+  },
+  {
+   "id": "7649333209797486760",
+   "chars": 3,
+   "vocals": 0.2748,
+   "speech_true": true
+  },
+  {
+   "id": "7649368036851582449",
+   "chars": 9,
+   "vocals": 0.2051,
+   "speech_true": true
+  },
+  {
+   "id": "7652661970923583330",
+   "chars": 3,
+   "vocals": 0.3021,
+   "speech_true": true
+  },
+  {
+   "id": "7652707014892568945",
+   "chars": 1,
+   "vocals": 0.0,
+   "speech_true": true
+  },
+  {
+   "id": "7653070723351992950",
+   "chars": 3,
+   "vocals": 0.0051,
+   "speech_true": true
+  },
+  {
+   "id": "7653280769759072435",
+   "chars": 3,
+   "vocals": 0.2901,
+   "speech_true": true
+  },
+  {
+   "id": "7653800531232122043",
+   "chars": 3,
+   "vocals": 0.2856,
+   "speech_true": true
+  },
+  {
+   "id": "7654193918720513457",
+   "chars": 3,
+   "vocals": 0.0096,
+   "speech_true": true
+  },
+  {
+   "id": "7654306973131342833",
+   "chars": 1,
+   "vocals": 0.0547,
+   "speech_true": true
+  },
+  {
+   "id": "7654571255114346216",
+   "chars": 4,
+   "vocals": 0.4338,
+   "speech_true": true
+  },
+  {
+   "id": "7654845363706265768",
+   "chars": 3,
+   "vocals": 0.0316,
+   "speech_true": true
+  },
+  {
+   "id": "7655304382087494504",
+   "chars": 12,
+   "vocals": 0.0083,
+   "speech_true": true
+  },
+  {
+   "id": "7656409004201469044",
+   "chars": 11,
+   "vocals": 0.0054,
+   "speech_true": true
+  },
+  {
+   "id": "7656416106147846907",
+   "chars": 3,
+   "vocals": 0.0008,
+   "speech_true": true
+  },
+  {
+   "id": "7656466337150325753",
+   "chars": 3,
+   "vocals": 0.1325,
+   "speech_true": true
+  }
+ ],
+ "per_item_long": [
+  {
+   "id": "6iGJ01qw0Vk",
+   "chars": 588,
+   "vocals": 0.8762,
+   "speech_true": true
+  },
+  {
+   "id": "7531258235933969722",
+   "chars": 236,
+   "vocals": 0.9155,
+   "speech_true": true
+  },
+  {
+   "id": "7629276755527259721",
+   "chars": 951,
+   "vocals": 0.9447,
+   "speech_true": true
+  },
+  {
+   "id": "7632277642372308965",
+   "chars": 279,
+   "vocals": 0.8788,
+   "speech_true": true
+  },
+  {
+   "id": "7640018692394224948",
+   "chars": 384,
+   "vocals": 0.9978,
+   "speech_true": true
+  },
+  {
+   "id": "7641964055108845426",
+   "chars": 392,
+   "vocals": 0.9136,
+   "speech_true": true
+  },
+  {
+   "id": "7643017005565512996",
+   "chars": 280,
+   "vocals": 0.9812,
+   "speech_true": true
+  },
+  {
+   "id": "7643700809443642650",
+   "chars": 249,
+   "vocals": 0.9933,
+   "speech_true": true
+  },
+  {
+   "id": "7646376862398172426",
+   "chars": 392,
+   "vocals": 0.9632,
+   "speech_true": true
+  },
+  {
+   "id": "7652285379189542153",
+   "chars": 263,
+   "vocals": 0.9925,
+   "speech_true": true
+  },
+  {
+   "id": "7652536084710051106",
+   "chars": 407,
+   "vocals": 0.9454,
+   "speech_true": true
+  },
+  {
+   "id": "7654578196558341297",
+   "chars": 394,
+   "vocals": 1.0,
+   "speech_true": true
+  },
+  {
+   "id": "7655338364526370907",
+   "chars": 342,
+   "vocals": 0.9628,
+   "speech_true": true
+  },
+  {
+   "id": "7657534853029678470",
+   "chars": 459,
+   "vocals": 0.9755,
+   "speech_true": true
+  },
+  {
+   "id": "7657889039391211635",
+   "chars": 321,
+   "vocals": 0.9803,
+   "speech_true": true
+  },
+  {
+   "id": "7658295101403222436",
+   "chars": 458,
+   "vocals": 0.9474,
+   "speech_true": true
+  },
+  {
+   "id": "7658530455167290639",
+   "chars": 325,
+   "vocals": 0.9809,
+   "speech_true": true
+  },
+  {
+   "id": "7659456747219733787",
+   "chars": 397,
+   "vocals": 0.9985,
+   "speech_true": true
+  },
+  {
+   "id": "7660476187248646757",
+   "chars": 218,
+   "vocals": 0.8926,
+   "speech_true": true
+  },
+  {
+   "id": "7660494937217266054",
+   "chars": 483,
+   "vocals": 0.9806,
+   "speech_true": true
+  }
+ ],
+ "★spot_check_was_misleading": "我最初 6 份抽查的短转写组人声中位是 **0.472**, 看着像「一半全坏」。预注册的 40 份给出的是 **0.178** —— 抽查恰好撞上了几个高人声的失败例。★ 教训: **抽查用来发现问题, 不能用来估比例**。幸好判据要求扩样。",
+ "★scaled_estimate": "全集 275 份里短转写 138 份 × 失败率下界 22.5% ≈ **31 份**存在静默 ASR 失败且被标为完备。★ 这是**下界**: 人声占比低但确有口播的(远景/小声/被 BGM 压过)分离分不出来。",
+ "★both_causes_present": "MIXED 的意思是**两种成因都有**, 不许只报一种: 77.5% 的短转写确实是**素材本就无口播**(人声占比低, 空转写是**正确的**); 但**至少 22.5%** 是真失败。两者混在同一个 speech=true 里, 下游分不出来。"
+}

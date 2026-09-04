@@ -110,6 +110,17 @@ def items() -> list[dict]:
     out.append({"类": DECIDED, "项": f"{n} 个历史 run 两仓皆无, 不可重建",
                 "证据": "已实测复核, 如实登记为损失"})
 
+    # ★ 2026-09-04 新发现: 历史解析产物的语音层有已量化的系统性低估
+    _sf = os.path.join(ROOT, "tests/data/phase2/asr_silent_failure.json")
+    if os.path.exists(_sf):
+        _v = _j("tests/data/phase2/asr_silent_failure.json")
+        out.append({"类": OPEN, "项": "历史解析产物**未按新判定重跑** —— 语音层有已知系统性低估",
+                    "证据": (f"实测 {_v['decision']}: 短转写组失败率**下界 {_v['failure_rate_lower_bound']:.1%}**, "
+                             f"假 ok {_v['mislabeled_speech_true']}/{_v['n_short']}; "
+                             "全集外推 ≈31 份被标完备却近乎空白。"
+                             "**判定已修**(speech_status 五态), 但历史产物要重跑需原视频 + ASR 全量重算 —— "
+                             "一次独立的回填作业, **我能做, 只是没做**(耗时且要占用 ASR 配额)。")})
+
     # ⑦ 卡在外部资源上的
     out.append({"类": BLOCKED, "项": "语义 SESOI 无锚点",
                 "证据": "需 >=3 名人类评分者(5x60 设计已定); SESOI 现为 None 且有三处测试钉住"})

@@ -155,6 +155,54 @@ def _audio_capabilities(present, tags=None, wav=None):
     }
 
 
+# ★ 「转写近乎空白」的界。**这是工程预算, 不是标定过的阈值** ——
+#   出处标 ENGINEERING_BUDGET(与本项目 qualification margin 同一套约定)。
+#   为什么用**字/秒**而不是绝对字数: 3 秒视频的 9 个字是正常的, 178 秒视频的 1 个字不是。
+#   实测分布(n=275): 中位 0.926 字/秒, 十分位 0.128, 四分位 0.248/5.023 —— 跨度 20 倍。
+#   取 0.15 是**十分位附近**的保守位置; 它只决定「要不要去查人声占比」,
+#   **真正的判定由 vocals_share 做** —— 那一步是类别判断, 不受这个界的噪声影响。
+#   ★ 原始量(chars / chars_per_sec / vocals_share)一律随状态带出, 下游可自行重判。
+TRANSCRIPT_MIN_CHARS_PER_SEC = 0.15
+TRANSCRIPT_RATE_PROVENANCE = "ENGINEERING_BUDGET"
+
+
+def _speech_status(audio, duration=None):
+    """语音层四态。★ 「本就没口播」与「ASR 失败」**必须分开** —— 压成一个 true 会静默低估。
+
+    · present               转写非空(>= TRANSCRIPT_MIN_CHARS 字)
+    · missing_no_capability 无音轨
+    · absent_verified       转写近乎空白**且**人声能量占比低 ⇒ 素材本就无口播, 空是**对的**
+    · missing_parse_failed  转写近乎空白**而**人声能量占比高 ⇒ **ASR 失败**
+    · not_available         转写近乎空白, 但**查不了**人声占比(无 wav / demucs 缺席) ⇒ 不知道
+    ★ 最后一档不许写成 absent_verified —— 「查不了」不等于「查过没有」。
+    """
+    if not isinstance(audio, dict) or not audio.get('present'):
+        return {'status': 'missing_no_capability', 'why': '无音轨'}
+    tr = str(audio.get('transcript') or '').strip()
+    dur = float(duration or 0) or None
+    rate = (len(tr) / dur) if dur else None
+    base = {'chars': len(tr), 'duration_s': round(dur, 2) if dur else None,
+            'chars_per_sec': round(rate, 4) if rate is not None else None,
+            '★rate_gate': TRANSCRIPT_MIN_CHARS_PER_SEC,
+            '★rate_gate_provenance': TRANSCRIPT_RATE_PROVENANCE}
+    if rate is None:
+        return {'status': 'not_available', **base,
+                'why': '无时长 ⇒ 无法按字/秒判断转写是否近乎空白'}
+    if rate >= TRANSCRIPT_MIN_CHARS_PER_SEC:
+        return {'status': 'present', **base}
+    share = audio.get('★vocals_share')          # 由调用方在有 wav 时填
+    if share is None:
+        return {'status': 'not_available', **base,
+                'why': ('转写近乎空白, 但**未查**人声能量占比 ⇒ 分不清「本就没口播」与「ASR 失败」。'
+                        '★ 不得记 absent_verified —— 查不了不等于查过没有。')}
+    if share < 0.5:
+        return {'status': 'absent_verified', **base, 'vocals_share': round(share, 4),
+                'why': '人声能量占比低 ⇒ 素材本就无口播, 空转写是**正确的**'}
+    return {'status': 'missing_parse_failed', **base, 'vocals_share': round(share, 4),
+            'why': ('人声能量占比高却近乎空白 ⇒ **ASR 失败**。'
+                    '实测该情形在历史产物的短转写里占 >= 22.5%(下界)。')}
+
+
 def _speaker_turns(wav):
     """说话人分段。★ 依赖缺席记 missing_parse_failed(这次没跑成), **不是** missing_no_capability
     (那是「压根没这能力」)—— 能力已具备, 两者不许混。"""
@@ -526,7 +574,17 @@ def main():
     # COR(漏报率代理): 单侧检出候选 / 帧数 —— 一侧漏报的比例; CHR 需GT暂留位
     cor = round(len(div) / n_frames, 3) if visual and n_frames else None
     scorecard = {
-        'G1_layers': {'visual': bool(visual) or a.skip_vision, 'speech': audio.get('present', False),
+        # ★ 2026-09-04 实测 ASR_SILENT_FAILURE_IN_HISTORICAL_ARTIFACTS_GEN1(n=40, 预注册):
+        #   `speech` 原本 = audio.present, 即「音轨在不在」。但历史产物里 **138/275 转写不足 20 字**,
+        #   其中至少 **22.5%** 人声能量占比 >= 0.5(即确有口播), 却照样标 speech=true ——
+        #   **两种完全不同的情况被压成同一个 true**:
+        #     ① 素材本就无口播(纯音乐/音效) ⇒ 空转写是**正确的**
+        #     ② ASR 失败(人声高却近乎空白) ⇒ 空转写是**错的**
+        #   下游看到 speech=true 会以为语音层完备, 于是**静默低估**语音内容。
+        #   ⇒ 拆成四态, 与本项目其余状态词同一套语义。`speech` 保留为兼容别名。
+        'G1_layers': {'visual': bool(visual) or a.skip_vision,
+                      'speech': audio.get('present', False),   # 兼容别名: 只表示**音轨在不在**
+                      'speech_status': _speech_status(audio, dur),
                       'audio_events': bool(audio.get('event_tags')) if audio.get('present') else None,
                       **text_channel_report(ocr, ocr_meta, visual),
                       'camera_filled': any(fld(r, 'camera') for v in visual.values() for r in v.values() if isinstance(r, dict)) if visual else None,
