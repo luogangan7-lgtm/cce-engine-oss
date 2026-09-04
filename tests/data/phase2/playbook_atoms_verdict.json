@@ -1,0 +1,104 @@
+{
+ "block": "PLAYBOOK_ATOMS_RELIABILITY_GEN1",
+ "measured_at": "2026-09-04",
+ "instrument_hash": "565470cf26c16d01",
+ "texts": 8,
+ "meeting_criterion": 6,
+ "per_text": {
+  "2ee52f67c987": {
+   "n": 8,
+   "knot": "pain_seek",
+   "agreement": 1.0,
+   "median": 0.0,
+   "range": 0.0,
+   "verdict": "PASS"
+  },
+  "3191a8fae98d": {
+   "n": 8,
+   "knot": "pain_seek",
+   "agreement": 1.0,
+   "median": 0.0,
+   "range": 0.0,
+   "verdict": "PASS"
+  },
+  "344d81fc035f": {
+   "n": 8,
+   "knot": "display",
+   "agreement": 1.0,
+   "median": 0.0,
+   "range": 0.0,
+   "verdict": "PASS"
+  },
+  "59a1a9c7d712": {
+   "n": 8,
+   "knot": "pain_seek",
+   "agreement": 1.0,
+   "median": 0.0,
+   "range": 0.0,
+   "verdict": "PASS"
+  },
+  "5bbf4543dd47": {
+   "n": 8,
+   "knot": "belong",
+   "agreement": 0.5714,
+   "median": 1.0,
+   "range": 1.0,
+   "verdict": "FAIL"
+  },
+  "6b16b77dbc5b": {
+   "n": 8,
+   "knot": "reward",
+   "agreement": 1.0,
+   "median": 0.0,
+   "range": 0.0,
+   "verdict": "PASS"
+  },
+  "6def5ddbcf25": {
+   "n": 8,
+   "knot": "audit",
+   "agreement": 0.75,
+   "median": 0.5,
+   "range": 0.5,
+   "verdict": "FAIL"
+  },
+  "712fc175d4bf": {
+   "n": 8,
+   "knot": "pain_seek",
+   "agreement": 1.0,
+   "median": 1.0,
+   "range": 0.0,
+   "verdict": "PASS"
+  }
+ },
+ "degeneracy": {
+  "medians_distinct": true,
+  "not_constant": true
+ },
+ "decision": "INCONCLUSIVE",
+ "★baseline": "playbook_hit GEN4: 4/8 UNRELIABLE, 同一批文本同一仪器同一判据线",
+ "★positive_atoms_per_knot": {
+  "audit": {
+   "positive": 2,
+   "total": 3
+  },
+  "belong": {
+   "positive": 1,
+   "total": 2
+  },
+  "display": {
+   "positive": 3,
+   "total": 3
+  },
+  "pain_seek": {
+   "positive": 1,
+   "total": 2
+  },
+  "reward": {
+   "positive": 2,
+   "total": 3
+  }
+ },
+ "★reading": "改善是真的且非退化: 4/8 → 6/8, 两条非退化闸都过, 同一批文本/同一仪器/同一判据线。**但没到 7/8 的采纳线 ⇒ 按冻结规则不采纳**(与 playbook_mode 的 6/8 同处理)。",
+ "★sharper_finding": "★ 残余不稳定**不是标尺造成的**。两个 FAIL: ① belong 只有 2 个原子且其中一条是禁令 ⇒ 正向只剩 **1 条**, 复合值退化成单个二值判断, 而它在 0/1 之间来回摆(一致率 0.571, 极差 1.00) —— 连二值都不稳, 拆得再细也没用; ② audit 3 原子, 中位 0.50 极差 0.50 —— 仍在中段。⇒ H1(不稳定来自 0–1 标尺)**只被部分支持**: 拆原子确实把一批读数推到了地板并稳住, 但判官对某些具体动作的判断本身就不稳, 那部分 H0 未被推翻。",
+ "★next_if_resumed": "若要再推一版, 该动的不是读数形态而是**原子本身**: belong 的正向原子只有一条且措辞抽象(「先『你不是一个人』把人接住」), 需要先把它拆成可逐字指认的更小动作 —— 但那是改 playbook(**效度**问题), 不是改读数(复现性问题), 属于另一件事, 且需要另立预注册。"
+}

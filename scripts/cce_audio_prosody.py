@@ -99,9 +99,60 @@ def mix_metrics(path: str) -> dict:
             "★no_inference": "纯 DSP 测量, 不含任何推断; 语音带占比**不等于**「有人说话」"}
 
 
-def analyse(path: str) -> dict:
+# ★ 2026-09-04 实测判决 PROSODY_ON_SEPARATED_VS_MIXED_GEN1(tests/data/phase2/):
+#   |Δf0| 随非人声能量占比上升而上升, Spearman ρ=0.618 p=0.0003, 中位差 **12.4 半音(一个八度)**。
+#   ⇒ **混音上的 f0 会跟着音乐走**(实例: 非人声 0.996 的片段, 混音 f0 = 79Hz 是贝斯线,
+#     人声轨 231Hz 才是说话)。所以韵律读数必须标明**算在哪条轨上**, 且高 BGM 的混音读数不可用。
+NONVOCAL_GATE = 0.35        # 超过此占比的**混音**读数判不可用。改它属于判据变更。
+
+
+def prosody_usable(pros: dict) -> tuple[bool, str]:
+    """韵律读数可不可用。★ 默认拒判 —— 说不清算在哪条轨上的, 一律不可用。"""
+    if not isinstance(pros, dict) or pros.get("status") != "ok":
+        return False, f"韵律未算出(status={(pros or {}).get('status')})"
+    src = pros.get("f0_source")
+    if src == "vocals":
+        return True, "算在分离出的人声轨上"
+    if src != "mixed":
+        return False, f"未标明算在哪条轨上(f0_source={src!r}) —— 说不清就不可用"
+    nv = pros.get("nonvocal_share")
+    if nv is None:
+        return False, ("算在混音上且**非人声占比未知** —— 无法判断 f0 是不是在跟音乐走"
+                       "(实测中位差 12.4 半音)")
+    if nv > NONVOCAL_GATE:
+        return False, f"算在混音上且非人声占比 {nv:.3f} > {NONVOCAL_GATE}: f0 很可能在跟音乐走"
+    return True, f"算在混音上但非人声占比仅 {nv:.3f}, 低于闸"
+
+
+def analyse(path: str, *, separate: bool | None = None) -> dict:
+    """separate=None 表示自动: demucs 可用就分离后再算韵律, 不可用就如实标 mixed。"""
+    pros_path, f0_source, nonvocal = path, "mixed", None
+    _tmp = None
+    if separate is not False:
+        try:
+            import cce_audio_separate as SEP
+            if SEP.available():
+                r = SEP.separate(path)
+                if r["status"] == "ok":
+                    import soundfile as _sf, tempfile as _tf
+                    nonvocal = round(1.0 - r["energy_share"]["vocals"], 4)
+                    _tmp = _tf.NamedTemporaryFile(suffix=".wav", delete=False).name
+                    _sf.write(_tmp, r["vocals"], r["sr"])
+                    pros_path, f0_source = _tmp, "vocals"
+        except Exception:
+            pass                                  # 分离失败 ⇒ 退回 mixed, 并如实标注
+    try:
+        _pros = prosody(pros_path)
+    finally:
+        if _tmp and os.path.exists(_tmp):
+            os.remove(_tmp)
+    _pros["f0_source"] = f0_source
+    _pros["nonvocal_share"] = nonvocal
+    _ok, _why = prosody_usable(_pros)
+    _pros["usable"] = _ok
+    _pros["★usable_why"] = _why
     out = {"kind": "cce.audio_prosody.v1", "source": os.path.basename(path),
-           "prosody": prosody(path), "mix_metrics": mix_metrics(path)}
+           "prosody": _pros, "mix_metrics": mix_metrics(path)}
     # ★ 结构性守卫: 任何被禁字段出现即抛 —— 不是靠注释约束, 是靠代码
     blob = json.dumps(out, ensure_ascii=False).lower()
     for k in FORBIDDEN_OUTPUTS:

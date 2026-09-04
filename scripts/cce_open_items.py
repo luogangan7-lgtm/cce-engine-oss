@@ -60,8 +60,14 @@ def items() -> list[dict]:
                 "项": "结层 intensity/weight 永久不可用",
                 "证据": f"K1-v2 {ps['decision']}; 已裁定不换仪器(托管 API 无法批不变)"})
     ph_v = _j("tests/data/phase2/playbook_hit_verdict.json")
-    out.append({"类": OPEN, "项": "对齐出口 playbook_hit 不可靠, 尚无替代",
-                "证据": f"{ph_v['decision']} {ph_v['meeting_criterion']}/{ph_v['texts']} 文本达标"})
+    at_v = _j("tests/data/phase2/playbook_atoms_verdict.json") if os.path.exists(
+        os.path.join(ROOT, "tests/data/phase2/playbook_atoms_verdict.json")) else None
+    _ev = f"{ph_v['decision']} {ph_v['meeting_criterion']}/{ph_v['texts']} 文本达标"
+    if at_v:
+        _ev += (f"; 替代方案已试并实测: 原子分解 {at_v['decision']} "
+                f"{at_v['meeting_criterion']}/{at_v['texts']}(改善真实且非退化, 但未到 7/8 采纳线 ⇒ 不采纳)")
+    out.append({"类": OPEN, "项": "对齐出口 playbook_hit 不可靠, 替代已测但未达采纳线",
+                "证据": _ev})
 
     # ⑤ 文档与代码的分歧
     for s in _j("config/cce_doc_reconciliation.json")["section_divergences"]:
@@ -82,6 +88,10 @@ def items() -> list[dict]:
                 "证据": "所需样本超单帖历史最高浏览; §44.10 的 24500 不可复算(全文未定义 R)"})
     out.append({"类": BLOCKED, "项": "媒体抽取质量(ASR/OCR 英文准确率)未测",
                 "证据": "语言相关; 需英文域的带标注素材"})
+    # ★ 2026-09-04 实际去做才确认: 这不是「没装」, 是拿不到凭据 ⇒ 从 OPEN 改归 BLOCKED。
+    out.append({"类": BLOCKED, "项": "**说话人分离**(diarization) 拿不到受限模型凭据",
+                "证据": ("pyannote/speaker-diarization-3.1 是 HF **受限模型**, 需账号接受条款并给 token。"
+                         "解锁动作明确: owner 提供 HF token。★ 不拿源分离的能量占比冒充说话人数。")})
     # ★ 2026-09-03 查完改判: 这不是「待修的分叉」, 它**就是那次退役本身**。
     #   origin 独有的文件全是 mt_*(Hy-MT2 MT 实验), 本地提交 b33befd
     #   "retire Hy-MT2 MT experiment" 删掉了它们, 归档在

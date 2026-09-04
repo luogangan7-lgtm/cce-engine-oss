@@ -112,8 +112,17 @@ assert cap["status"] == "component_only", \
     "★ 2026-08-15 已否决「因视觉描述已走 outbound_post 就声称图片全链可用」"
 assert cap["fallback_policy"] == "NOT_IN_PRODUCTION_PATH"
 assert any("CI 全链回放" in m for m in cap["missing"]), "★ 晋升条件要写明"
-assert "C2PA" in " ".join(cap["missing"]), "★ C2PA 未实际读取, 要留在 missing"
-assert "不得据此推断媒体为假" in " ".join(cap["missing"])
+# ★ 2026-09-04: C2PA 已接官方库做真解析 ⇒ 它离开 missing 进入 implemented。
+#   但**边界不随之消失** —— 三态都不得据以推断媒体为假, 这条要跟着搬, 不是随实现一起删掉。
+_all = " ".join(cap["missing"]) + " " + " ".join(cap.get("implemented") or [])
+assert "C2PA" in _all and "真解析" in _all, "★ C2PA 的状态(未做/已做)必须在注册表里说清"
+assert "C2PA" not in " ".join(cap["missing"]), \
+    "★ 已接真解析就不该还留在 missing —— 那会让下一个人重做"
+assert "不得据此推断媒体为假" in _all, \
+    "★ 换了实现, 边界不变: 三态都不得用来推断媒体为假(2026-08-15 调研结论)"
+import cce_image_ingest as _II
+assert _II.c2pa_state(os.path.join(os.path.dirname(_tmp), os.path.basename(_tmp))) in \
+    ("present", "absent", "not_available"), "★ c2pa_state 必须只出这三态"
 
 os.unlink(_tmp)
 

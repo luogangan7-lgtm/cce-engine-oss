@@ -1,0 +1,27 @@
+{
+ "block": "PROSODY_ON_SEPARATED_VS_MIXED_GEN1",
+ "measured_at": "2026-09-04",
+ "prereg": "probes/prosody_on_separated_vs_mixed.py 的文档字符串(判据先于测量提交, 见 git c0bdc32)",
+ "n_effective": 30,
+ "material": "本机真实 WAV 30 份(排序取前 30, 不挑)",
+ "nonvocal_share": {
+  "median": 0.491,
+  "sd": 0.309,
+  "min": 0.002,
+  "max": 0.996
+ },
+ "delta_f0_semitones": {
+  "median": 12.4,
+  "q1": 0.74,
+  "q3": 18.61,
+  "max": 26.91
+ },
+ "spearman": {
+  "rho": 0.618,
+  "p": 0.0003
+ },
+ "decision": "SEPARATION_MATTERS",
+ "★what_it_says": "|Δf0| 随非人声能量占比上升而上升(ρ=0.618, p=0.0003), 且非人声占比本身跨 0.002–0.996 (非退化)。⇒ **混音上的 f0 被 BGM 污染**, 中位差 12.4 半音 = 一个八度。",
+ "★what_it_does_not_say": "**不说「分离后更准」** —— 没有 f0 地面真值。它只说混音那条读数不可信, 以及不可信的程度随 BGM 量走。",
+ "★consequence": "2026-09-03 上线的韵律模块在真实素材上算的 f0 常常在跟音乐走。⇒ 韵律读数必须标注 f0_source(vocals/mixed) 与 nonvocal_share; mixed 且 nonvocal_share 高的读数**不可用**。"
+}

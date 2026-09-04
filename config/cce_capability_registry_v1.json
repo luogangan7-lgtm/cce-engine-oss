@@ -66,12 +66,13 @@
     "original-mix audio extraction and SenseVoice processing",
     "six completeness gates",
     "★ 2026-09-03 P3 进生产: profile `media_ingest` —— media_validate → foundation_adapt → event_assemble → qualified_readout。输入是**解析产物 JSON**(走既有 --text-file 管道, text_sha256 即精确输入哈希)。全链回放实测 complete=true, 产出 observations.json + events.json",
-    "★ 2026-09-03 韵律与混音指标由 missing_no_capability 转为**真做**(scripts/cce_audio_prosody.py, librosa): 逐窗 f0/能量/浊音比/语速代理 + 全局摘要; 响度/动态范围/频带能量比。★ 科学边界**焊在代码里**: 只出声学量, **不出效价**(仅靠声学 CCC≈0.5)、**不出人格/特质**(近随机且性别刻板驱动的系统性误判), 被禁字段由 analyse() 抛错拦住而非靠注释"
+    "★ 2026-09-03 韵律与混音指标由 missing_no_capability 转为**真做**(scripts/cce_audio_prosody.py, librosa): 逐窗 f0/能量/浊音比/语速代理 + 全局摘要; 响度/动态范围/频带能量比。★ 科学边界**焊在代码里**: 只出声学量, **不出效价**(仅靠声学 CCC≈0.5)、**不出人格/特质**(近随机且性别刻板驱动的系统性误判), 被禁字段由 analyse() 抛错拦住而非靠注释",
+    "★ 2026-09-04 音频**源分离**接入(scripts/cce_audio_separate.py, demucs htdemucs, CPU 实测 0.27x 实时): 四源能量占比 + 人声轨。结构闸: 产出里出现 speaker/diarization/情绪 类字段直接抛。★ 并因此判出**我自己前一天上线的韵律模块有问题**: 实测 PROSODY_ON_SEPARATED_VS_MIXED_GEN1 —— |Δf0| 随非人声占比上升(Spearman ρ=0.618, p=0.0003, n=30), 中位差 **12.4 半音(一个八度)**; 实例: 非人声 0.996 的片段混音 f0=79Hz(在跟贝斯走), 人声轨 231Hz 才是说话。⇒ 韵律读数now带 f0_source(vocals/mixed) + nonvocal_share, 并由 prosody_usable() 判可用性: **说不清算在哪条轨上的一律不可用**; 混音且非人声占比 >0.35 判不可用。★ 只说「混音那条不可信」, **不说「分离后更准」** —— 没有 f0 地面真值。"
    ],
    "missing": [
     "抽取质量(ASR/OCR 准确率)评测 —— 语言相关, 英文上从未评过",
     "standalone_image_ingest 仍 missing ⇒ **不得声称图片全链可用**",
-    "音频**源分离**(需 demucs, 未装) 与 **说话人分离**(需 pyannote + HF token, 未装) —— 两者都要装重模型; 未装即如实标 missing_no_capability, 不冒充"
+    "**说话人分离**(diarization) —— pyannote 的模型是**受限模型**, 需 HF 账号接受条款并提供 token。★ 2026-09-04 实际去做才确认这一条: 它不是「没装」, 是**我拿不到凭据**, 已改归 BLOCKED_EXTERNAL。解锁动作明确: owner 提供 HF token 并接受 pyannote/speaker-diarization-3.1 条款。★ 不拿源分离的能量占比冒充说话人数 —— 那是声学量, 不是身份判断。"
    ],
    "missing_state": "missing_no_capability",
    "input_contract": null,
@@ -128,12 +129,12 @@
     "产出与 cce_video_parse **同形状**的解析产物, 由**同一条 media_ingest 链**消费 —— 不新增 profile/链",
     "JSON Schema 2020-12 校验; jsonschema 不可用即判失败, 不降级放行",
     "empty(跑了但没字)与 failed(通道坏)分开; 置信度/区域取不到各自记账",
-    "权利/来源**三态真查**: IPTC 经 Pillow 实读(present/absent/not_available); C2PA 官方库不在 ⇒ **不对称判定** —— 命中标记记 present, 未命中仍记 not_available (没有解析器时「找不到」不等于「没有」)"
+    "权利/来源**三态真查**: IPTC 经 Pillow 实读(present/absent/not_available); C2PA 官方库不在 ⇒ **不对称判定** —— 命中标记记 present, 未命中仍记 not_available (没有解析器时「找不到」不等于「没有」)",
+    "★ 2026-09-04 C2PA **真解析**接入(官方 c2pa-python 0.37.8): 由原来的不对称判定升为真三态 —— present(读到 manifest) / absent(库明确报 ManifestNotFound, 即「查过确实没有」) / not_available(其他任何失败, **不许**写成 absent)。库缺席时退回只认阳性的旧逻辑。三条分支**都在真实输入上验过**, present 是现场签一张真图(自建两级证书链)。★ 三态都不得据此推断媒体为假(2026-08-15 调研结论), 这条边界钉在测试里。"
    ],
    "missing": [
     "抽取质量(OCR 准确率)评测 —— 语言相关, 未测",
     "★ 晋升 production_github 需要: 图片档的 CI 全链回放 + 真实素材",
-    "C2PA **真解析**(官方 c2pa 库未装) —— 现为不对称判定: 命中标记记 present, 未命中记 not_available。★ 无论哪种, **不得据此推断媒体为假**(2026-08-15 调研结论)",
     "VLM 场景/对象/动作识别 —— ★ **刻意不照现状接**: cce_video_parse 的 visual 字段产出的是**自由散文**(scene/persons/actions/objects 各一段中文), 正是 2026-08-15 否决的「用提示词中的七字段当图像 Schema —— 无法机器校验、定位区域、保留模型/置信/来源」。接进来等于复现一个已被否决的设计。要做需**新仪器**: 受约束标签 + 区域 + 置信度。"
    ],
    "missing_state": "missing_no_capability",

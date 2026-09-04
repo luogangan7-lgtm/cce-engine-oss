@@ -45,7 +45,9 @@ finally:
 blocked = [r for r in rs if r["类"] == BLOCKED]
 assert blocked, "★ 至少 SESOI 与内容 A/B 是卡在外部资源上的"
 for r in blocked:
-    assert any(w in r["证据"] for w in ("人类评分者", "浏览", "素材", "触达")), \
+    # 「外部资源」不止人和素材, 也包括**拿不到的凭据**(受限模型 token 等)。
+    # 2026-09-04 加 token/凭据: diarization 不是「没装」, 是我拿不到 HF 受限模型的授权。
+    assert any(w in r["证据"] for w in ("人类评分者", "浏览", "素材", "触达", "token", "凭据")), \
         f"★ 标 BLOCKED 必须说清卡在**什么外部资源**上: {r}"
 decided = [r for r in rs if r["类"] == DECIDED]
 assert decided, "★ 已裁定不做的要留着防重开"
