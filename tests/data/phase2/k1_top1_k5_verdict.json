@@ -1,0 +1,66 @@
+{
+ "block": "K1_TOP1_ON_K5_INSTRUMENT",
+ "measured_at": "2026-09-04",
+ "instrument_hash": "0e9ca1d4e7a2f180",
+ "prereg": "tests/data/phase2/k1_v2_k5_prereg.json",
+ "★source": "复用 K1_V2_K5_INSTRUMENT 的 40 条 raw draw, **零新增调用**",
+ "★criterion_pre_exists": "判据「top-1 一致 >= 7/8」是 probes/k1_gate.judge() 五项之一, 已写在 k1_v2_k5_prereg.json 的 criterion 里(测量前冻结), **不是看完数据才定的**",
+ "n": 8,
+ "texts": 5,
+ "checks": [
+  {
+   "name": "n >= 8 (展示项)",
+   "pass": true,
+   "value": "8"
+  },
+  {
+   "name": "top-1 一致 >= 7/8",
+   "pass": true,
+   "value": "8/8 (5 个文本全为 8/8)"
+  }
+ ],
+ "verdict": "TOP1_USABLE",
+ "per_text": {
+  "050f0f2403f7": {
+   "n": 8,
+   "mode": "pain_seek",
+   "same_as_mode": 8,
+   "pass": true
+  },
+  "093c73613279": {
+   "n": 8,
+   "mode": "reward",
+   "same_as_mode": 8,
+   "pass": true
+  },
+  "0d0411f957e7": {
+   "n": 8,
+   "mode": "belong",
+   "same_as_mode": 8,
+   "pass": true
+  },
+  "1aa601bf5633": {
+   "n": 8,
+   "mode": "reward",
+   "same_as_mode": 8,
+   "pass": true
+  },
+  "2eca26909ed2": {
+   "n": 8,
+   "mode": "reward",
+   "same_as_mode": 8,
+   "pass": true
+  }
+ },
+ "degeneracy": {
+  "distinct_modes": 3,
+  "pass": true,
+  "rule": "5 个文本的 top-1 众数至少要有 2 种取值 —— 恒返回同一个结也会满分"
+ },
+ "★intensity_weight_unchanged": "同一批读数上 intensity 0/5、weight 0/5 ⇒ K1_V2_K5_INSTRUMENT 判 INSTRUMENT_WIDE_FAIL。**只放行 top-1**, 其余保持扣发。",
+ "★k3_for_comparison": {
+  "instrument": "565470cf26c16d01",
+  "top1": "8/8 (折算 8.0/8)",
+  "note": "两台仪器上 top-1 都满分 ⇒ 这是**跨仪器一致**的可复现信号, 但仍各自需要自己的判定"
+ }
+}

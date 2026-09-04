@@ -1,0 +1,30 @@
+{
+ "block": "TRANSFER_ACROSS_CONDITIONS_GEN1",
+ "recorded_at": "2026-09-04",
+ "★what_changed": "`across_domains = NOT_ESTABLISHED` 原来是**默认的保守态**(没测过, 所以不许搬)。今天的抽取质量实测**恰好就是转移性的证据**, 于是它由「默认」升为**有实测支撑的结论** —— 扣发不变, 但理由从「不知道」变成「知道它不成立」。",
+ "measured_transfer_failures": {
+  "language(OCR)": {
+   "zh_real_cover": 0.9,
+   "en_dense_scene": 0.3174,
+   "ratio": 2.84,
+   "note": "同一个 OCR 引擎, 换语言+场景密度"
+  },
+  "difficulty(ASR)": {
+   "test_clean_mean_wer": 0.0234,
+   "test_other_mean_wer": 0.1161,
+   "ratio": 4.96,
+   "note": "同一个 ASR 模型, 只换录音难度"
+  },
+  "rendering(OCR)": {
+   "synthetic_clean": 1.0,
+   "real_material": 0.9,
+   "ratio": 1.11,
+   "note": "合成干净渲染是上界, 已实证"
+  }
+ },
+ "★what_this_establishes": "**条件转移不成立**: 在语言、场景密度、录音难度这三条轴上, 同一个模型的抽取质量差 2.8–5.0 倍。⇒ 任何在一种条件下标定的阈值/分辨率, **不得**搬到另一种条件。这直接支持继续扣发 p3.cross_domain_calibration。",
+ "★what_this_does_NOT_establish": "★ 我变化的是**语言 / 场景密度 / 录音难度**, **不是「域」**(助听器 vs 生活方式 vs 广告)。**域**这条轴仍**未测** —— 不许把条件转移失败说成域转移失败, 那是两个不同的断言。要测域需要: 同一读数在 >=2 个内容域上各自测, 且每域样本足够。本机现有的真实素材只有 6 张, 分 3 个内容类别 ⇒ 每类 2 张, **远不足以判**。",
+ "★consequence": "across_domains 保持 NOT_ESTABLISHED, 但状态说明改为: 「条件转移已实测不成立(2.8–5.0 倍); 域转移仍未测」—— 比笼统的 NOT_ESTABLISHED 更有信息量, 且指明了下一步要什么。",
+ "★next_if_resumed": "每个内容域 >=30 份带逐字标注的真实素材; 公开集里没有本项目的域 ⇒ 需自建标注。",
+ "★numbers_are_derived_not_transcribed": "下面每个数都**从产物现读**(ocr_quality_en / ocr_accuracy_real_zh / asr_quality_en_gen2 / asr_quality_en_other / ocr_quality_curve), **不是手抄** —— 手抄会漂移, 本文件第一版就抄错了一位(0.317 vs 0.3174), 被测试当场抓住。"
+}

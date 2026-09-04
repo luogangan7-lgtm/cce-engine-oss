@@ -10,6 +10,13 @@
 ## 顺带钉住一条由生产实跑证实的结论
 **可用读数按 profile 不同**: outbound_post(k=5)是仪器 0e9ca1d4e7a2f180,
 K1 标定不在其上 ⇒ 结层零可用; reply(k=3)是 565470cf26c16d01(=K1 那台) ⇒ top-1 可用。
+
+★ 2026-09-04 更新: 已在 **post 自己那台仪器上**补做 K1(K1_V2_K5_INSTRUMENT, 5 文本 × n=8):
+intensity 0/5、weight 0/5(与 k=3 同形, INSTRUMENT_WIDE_FAIL), 而 **top-1 五文本全 8/8**
+⇒ post 的 top-1 由「未测」转为可用。
+★ 「可用读数按 profile 不同」这条结论**没有失效, 只是原因变了**:
+  以前是「post 那台仪器没判定」, 现在是「同一台仪器上 intensity/weight 判不达标而 top-1 达标」。
+  ★ 关键纪律没松: 每台仪器必须有**它自己的**判定, 未登记的仪器仍一律拒发。
 """
 import glob
 import json
@@ -87,5 +94,5 @@ print("test_cce_profile_ci_verified: OK "
       f"{len(CURRENT_GEN)} 档 [{', '.join(CURRENT_GEN) or '无'}] · "
       f"旧代际 {len(STALE_GEN)} 档 [{', '.join(f'{p}@{VERIFIED_AT[p]}' for p in STALE_GEN) or '无'}] "
       f"—— 旧代际的**不得**被说成「当前代码已验证」(subject_chain 的审计另判 NOT_VERIFIED) | "
-      f"实证「可用读数按 profile 不同」: post({ih_post[:8]}) 结层零可用 vs "
+      f"实证: post({ih_post[:8]}) 与 reply({ih_reply[:8]}) **各有自己的 K1 判定** — "
       f"reply({ih_reply[:8]}) top-1 可用 | 两档均不放行强度层)")

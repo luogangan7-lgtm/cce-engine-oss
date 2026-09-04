@@ -36,6 +36,29 @@ import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 K1_VERDICT = os.path.join(ROOT, "tests", "data", "phase2", "k1_reliability_verdict.json")
+
+# ★ 2026-09-04: 由「单一判定文件」改为**按仪器路由**。
+#   这**不是**放松「标定不可跨仪器搬」—— 恰恰相反: 每台仪器必须有**它自己的**预注册判定,
+#   没登记的仪器一律拒发(默认拒判方向没变)。
+#   加第二台的理由: 生产状态表里唯一的「未测」就是 outbound_post 用的 0e9ca1d4e7a2f180
+#   上没有判定 ⇒ 该档结层零可用读数。已在**那台仪器上**实测(K1_V2_K5_INSTRUMENT,
+#   5 文本 × n=8, 40 次调用): intensity 0/5、weight 0/5(与 k=3 同形, INSTRUMENT_WIDE_FAIL),
+#   而 **top-1 五个文本全 8/8**, 非退化(3 种众数) ⇒ 只放行 top-1。
+K1_VERDICT_K5 = os.path.join(ROOT, "tests", "data", "phase2", "k1_top1_k5_verdict.json")
+
+# ★ 值是**模块全局变量名**而不是路径 —— 路径在**调用时**解析。
+#   理由: 有反向测试靠 monkeypatch K1_VERDICT 来证明「闸是判定驱动的, 不是恒拦」;
+#   若在导入时把路径固定下来, 那条反向测试会被**悄悄**弄坏(闸看着还绿, 其实不再可控)。
+VERDICT_BY_INSTRUMENT = {
+    "565470cf26c16d01": "K1_VERDICT",       # k=3, reply/response
+    "0e9ca1d4e7a2f180": "K1_VERDICT_K5",    # k=5, outbound_post
+}
+
+
+def verdict_path_for(instrument_hash):
+    """按仪器取它自己的判定路径; 未登记返回 None(拒发)。调用时解析全局变量。"""
+    name = VERDICT_BY_INSTRUMENT.get(instrument_hash)
+    return globals().get(name) if name else None
 # v2 多文本判定(5 文本 × n=8)。intensity 与 weight 同批判, 决策规则在预注册里冻结。
 K1_V2_VERDICT = os.path.join(ROOT, "tests", "data", "phase2", "k1_v2_multitext_verdict.json")
 
@@ -66,7 +89,22 @@ def layer_status(path=None, instrument_hash=None):
 
     instrument_hash: **本次运行**的仪器。必须传 —— 缺它一律扣发。
     """
-    path = path or K1_VERDICT
+    # 按**本次运行的仪器**取它自己的判定。★ 两种拒发理由必须**分开** ——
+    #   「压根没给仪器标识」与「给了但那台没判定」是两回事, 合并会让日志读不出问题在哪。
+    if path is None:
+        if not instrument_hash:
+            miss = {"usable": False,
+                    "reason": ("本次运行未提供 instrument_hash —— **缺仪器标识不等于仪器相同**, "
+                               f"无从判断已有判定是否适用, 一律扣发。"
+                               f"已登记的仪器: {sorted(VERDICT_BY_INSTRUMENT)}")}
+            return {"intensity": dict(miss), "top1": dict(miss)}
+        path = verdict_path_for(instrument_hash)
+        if path is None:
+            miss = {"usable": False,
+                    "reason": (f"仪器 {instrument_hash!r} 没有登记的 K1 判定 —— "
+                               "**标定不可跨仪器搬**, 缺判定不等于判定通过, 一律扣发。"
+                               f"已登记的仪器: {sorted(VERDICT_BY_INSTRUMENT)}")}
+            return {"intensity": dict(miss), "top1": dict(miss)}
     v = _load(path)
     if v is None:
         miss = {"usable": False,
