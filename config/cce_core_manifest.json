@@ -7,7 +7,7 @@
  "core_files": {
   "config/knot_taxonomy.json": "39a423b5b196f5c9",
   "scripts/cce_knot_classify.py": "7f9a1febcf9011f5",
-  "scripts/cce_ksep.py": "d6f423aa608c94d9",
+  "scripts/cce_ksep.py": "ffd5d26a7e0cb29b",
   "scripts/exp_crossmodel_desire.py": "0e0e9d64b48fbade"
  },
  "parser_plane": [
@@ -50,6 +50,21 @@
     "tests/test_cce_contract.py"
    ],
    "★evidence_is_required_because": "instrument_hash 由 taxonomy+参数现算, 与源码字节无关 —— 所以它「没变」对本次改动**不足以**证明行为没变, 连相关都算不上。caveats 是元数据不是读数, 但「只改了元数据」是自评, 同样不足以替代证据。真证据是 test_cce_knot_caveat 里冻结的 PRE_REFACTOR 三行: 拿重构**之前** main() 的字面原文(出自 from_sha=cc7c1f8c8dcd67b5)逐字逐序比对现在的输出。"
+  },
+  {
+   "date": "2026-09-04",
+   "file": "scripts/cce_ksep.py",
+   "from_sha": "d6f423aa608c94d9",
+   "to_sha": "ffd5d26a7e0cb29b",
+   "reason": "在 SIGNIFICANCE_CONTRACT['measurement'] 下新增 provisional_distribution_based_grid。**不换代的理由**: 它是一格**契约声明**, 不参与任何计算 —— 网格的三个值全是 None(由 resolution_profile 现算, 刻意不写死), 且 SESOI 与 delta_resolution **一个字没动**, 仍是 None。★ instrument_id() 在 cce_knot_classify.py 里, 只取 taxonomy/prompt/model/endpoint/sampling_policy —— SIGNIFICANCE_CONTRACT 是**下游**契约, 不进仪器哈希。故读数分布与噪声底均不变。★ 为什么要加: 2026-09-04 调研核实 —— 只有 SD 无人类锚时, 方法学允许给**明确标注 provisional** 的分布型阈值(Norman 2003 的 0.5 SD 是 HRQoL 经验规律非统计定律; Revicki 2008 与 FDA 均判distribution-based 不足以单独建立 meaningful difference)。「完全没有阈值」会逼下游私拍一个 —— 给一个结构上不可能被误读的敏感性网格比留白安全。",
+   "instrument_hash_unchanged": true,
+   "behavior_evidence": [
+    "tests/test_cce_ksep.py",
+    "tests/test_cce_usable_routing.py",
+    "tests/test_cce_measurement_system.py"
+   ],
+   "★red_lines_untouched": "SESOI = None · delta_resolution = None · global_resolution() 仍永远不给数",
+   "★evidence_is_required_because": "instrument_hash 由 taxonomy+参数现算, 与源码字节无关 —— 所以它「没变」对本次改动**不足以**证明行为没变, 连相关都算不上。「我只加了一个字段」同样是**自评**, 不足以替代证据。真证据有三条, 都可现查: ① 新加的 provisional_distribution_based_grid 是**纯数据字面量**, 三个网格值全是 None ——   grep 全仓, 除本 manifest 与测试外**无任何代码读它**(读不到就不可能改变行为); ② SESOI 与 delta_resolution 的字面值仍是 None, 由 test_cce_ksep 直接断言; ③ 契约的两个消费方(test_cce_usable_routing / test_cce_measurement_system)重跑后  产出的 usable/withheld 键集与改动前**逐位相同** —— 那才是行为证据。"
   }
  ]
 }

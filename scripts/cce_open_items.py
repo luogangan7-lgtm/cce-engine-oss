@@ -114,12 +114,16 @@ def items() -> list[dict]:
     _sf = os.path.join(ROOT, "tests/data/phase2/asr_silent_failure.json")
     if os.path.exists(_sf):
         _v = _j("tests/data/phase2/asr_silent_failure.json")
-        out.append({"类": OPEN, "项": "历史解析产物**未按新判定重跑** —— 语音层有已知系统性低估",
-                    "证据": (f"实测 {_v['decision']}: 短转写组失败率**下界 {_v['failure_rate_lower_bound']:.1%}**, "
-                             f"假 ok {_v['mislabeled_speech_true']}/{_v['n_short']}; "
-                             "全集外推 ≈31 份被标完备却近乎空白。"
-                             "**判定已修**(speech_status 五态), 但历史产物要重跑需原视频 + ASR 全量重算 —— "
-                             "一次独立的回填作业, **我能做, 只是没做**(耗时且要占用 ASR 配额)。")})
+        out.append({"类": OPEN, "项": "静默 ASR 失败: 判定已修, 但**规模无法定论**(高人声样本仅 2 份)",
+                    "证据": ("**判定已修**为 speech_status 五态。"
+                             "★ 规模我先前报错了: 用**绝对字数**外推「约 31 份」是**错的** —— "
+                             "138 份里 108 份是短视频里的**正常**转写(时长中位 14.6 秒)。"
+                             "按**字/秒**正确界定: 全集 31 份短转写, 高人声仅 **2 份** ⇒ "
+                             "静默失败**存在但罕见**, 我放大了约 15 倍。"
+                             "★ 回填已跑(对照组 10/12 重跑正常, 环境无问题), 但高人声样本 n=2 < 8 "
+                             "⇒ **INSUFFICIENT**, 无法回答「是那轮坏了还是模型对这类素材不行」。"
+                             "要定论需**更多高人声空转写样本** —— 现有素材里就这么多, "
+                             "属于**素材限制**而非我没做。")})
 
     # ⑦ 卡在外部资源上的
     out.append({"类": BLOCKED, "项": "语义 SESOI 无锚点",

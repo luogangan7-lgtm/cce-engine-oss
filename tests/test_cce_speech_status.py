@@ -51,18 +51,23 @@ for r in (short_ok, long_bad):
 assert TRANSCRIPT_RATE_PROVENANCE == "ENGINEERING_BUDGET", \
     "★ 这个界是工程预算不是标定阈值, 出处必须如实标"
 
-# ── ③ 判决与产物一致, 且 MIXED 的两半都要报 ────────────────────────
-assert V["decision"] == "MIXED", V["decision"]
-assert V["separable"], "★ 两组人声分布不可分 ⇒ 结论不成立"
-assert 0.10 <= V["failure_rate_lower_bound"] < 0.30, \
-    f"★ 判决与数值不符: {V['failure_rate_lower_bound']} 不在 MIXED 区间"
-assert "两种成因都有" in V["★both_causes_present"] and "不许只报一种" in V["★both_causes_present"]
-assert "只会更高" in V["★why_lower_bound"], "★ 只数 vocals>=0.5 的 ⇒ 真实失败率只会更高"
-assert V["mislabeled_speech_true"] > 0, "★ 假 ok 的数量是这条缺陷的核心证据"
+# ── ③ ★ 规模已被更正 —— 判决必须标明被取代 ─────────────────────────
+assert V["decision"] == "MIXED_BUT_SCALE_SUPERSEDED", V["decision"]
+C = V["★SUPERSEDED_BY_GATE_CORRECTION_2026-09-04"]
+assert "那个界是错的" in C["★what_was_wrong"], "★ 坏在哪要写明"
+assert "约 2 份" in C["★corrected_scale"] and "15 倍" in C["★corrected_scale"], \
+    "★ 更正后的规模与放大倍数都要写明"
+assert "我自己的坏闸" in C["★so_the_22_5_percent_measured_what"], \
+    "★ 那 22.5% 测的是我的闸不是 ASR —— 这句必须留着"
+assert "与规模无关" in C["★what_still_stands"], \
+    "★ 缺陷本身仍成立(两态压一个 true), 不能因规模缩小就说没问题"
+assert "放大" in C["★fifth_instrument_failure_today"], \
+    "★ 仪器故障不只会让结果消失, 也会让它膨胀 —— 这条新签名要记下"
 
-# ── ④ 抽查不能估比例, 这条教训要留着 ────────────────────────────────
+# ── ④ 两条「我自己打脸」的教训都要留着 ──────────────────────────────
 assert "不能用来估比例" in V["★spot_check_was_misleading"], \
-    "★ 6 份抽查给 0.472 而 40 份给 0.178 —— 这个自打脸要留在产物里"
+    "★ 6 份抽查给 0.472 而 40 份给 0.178"
+assert V["separable"], "★ 两组人声分布不可分 ⇒ 结论不成立"
 
 # ── ⑤ 兼容别名 speech 仍在, 但语义已缩小 ────────────────────────────
 import inspect
@@ -73,6 +78,8 @@ assert "'speech': audio.get('present', False),   # 兼容别名: 只表示**音�
 print(f"test_cce_speech_status: OK (五态各自可达且互不混 | 「查不了」不许写成「查过没有」 | "
       f"界按**字/秒**(3秒3字=present, 178秒3字+人声高=failed), 出处 {TRANSCRIPT_RATE_PROVENANCE}, "
       "原始量随状态带出 | "
-      f"实测 {V['decision']}: 失败率下界 {V['failure_rate_lower_bound']:.1%}, "
-      f"假 ok {V['mislabeled_speech_true']}/{V['n_short']} | "
-      "★ 6 份抽查 0.472 vs 40 份 0.178 —— 抽查不能估比例)")
+      f"★ 规模已更正: 我用绝对字数外推「约 31 份」是**错的**(138 份里 108 份是短视频的正常转写), "
+      "按字/秒正确界定只有**约 2 份** —— 放大了 15 倍 | "
+      "缺陷本身与规模无关, 修法照旧 | "
+      "★ 两条自打脸: 6 份抽查 0.472 vs 40 份 0.178(抽查不能估比例) · "
+      "坏闸把发现放大 15 倍(仪器故障也会让结果**膨胀**, 不只是归零))")
