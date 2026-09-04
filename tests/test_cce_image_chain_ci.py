@@ -42,8 +42,14 @@ with tempfile.TemporaryDirectory() as td:
     assert ok, f"★ 不合 cce.visual_observation.v1: {errs}"
 
     got = [o["value"] for o in vo["observations"] if o["channel"] == "ocr_text"]
-    # 下限检查: 干净渲染文字读不出 ⇒ 引擎没在工作, 后面 complete=true 就是空转
-    assert got == gt, f"★ OCR 下限检查失败: 期望 {gt} 实得 {got}"
+    # 下限检查: 干净渲染文字读不出 ⇒ 引擎没在工作, 后面 complete=true 就是空转。
+    # ★ 2026-09-04 CI 实跑改正了这条判据: 原来断言**行级分割**逐条相等,
+    #   而分箱随字体走 —— macOS 回退字体给 2 箱, Linux 的 DejaVu 给 4 箱(按词切)。
+    #   我把「同一批字」的平台差异写成了失败。判据改为**词序列**: 读到的字必须一字不差且顺序一致,
+    #   分几个箱不属于 OCR 正确性。
+    want = [w for line in gt for w in line.split()]
+    have = [w for v in got for w in v.split()]
+    assert have == want, f"★ OCR 下限检查失败: 期望词序列 {want} 实得 {have}"
     for o in vo["observations"]:
         r = o.get("region") or {}
         assert r.get("unit") == "pixel" and len(r.get("xywh", [])) == 4, \
@@ -80,6 +86,6 @@ with tempfile.TemporaryDirectory() as td:
         f"★ 「跑不了」被写成了 {st['status']!r} —— 三态不许压成两态"
 
 print("test_cce_image_chain_ci: OK (合成素材 像素→观察→链: schema 合格 | OCR 下限 "
-      f"{len(gt)}/{len(gt)} 精确 | 每条结论带 xywh 区域 | complete=true 且抽取质量具名扣发 | "
+      f"{len(have)}/{len(want)} 词精确(**分箱数不判**, 它随字体走) | 每条结论带 xywh 区域 | complete=true 且抽取质量具名扣发 | "
       "反向: 引擎不可用记 failed 不记 empty)"
       "\n  ★ 合成图**不**代表真实素材的 OCR 准确率(无压缩/无花字/无遮挡) —— 抽取质量仍记未测")

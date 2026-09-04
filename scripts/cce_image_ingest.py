@@ -63,8 +63,13 @@ def rights_state(path: str) -> dict:
       `absent` 的意思是「查过、没有」。
 
     · IPTC: Pillow 的 IptcImagePlugin 能真读 ⇒ present / absent / not_available 三态都可给
-    · C2PA: 官方库不在 ⇒ **不对称判定** —— 找到 JUMBF/c2pa 标记记 present(阳性证据可信);
-      **没找到仍记 not_available**, 因为没有真解析器时「找不到」不等于「没有」。
+    · C2PA: ★ 2026-09-04 接上官方 c2pa 库(0.37.8), 从**不对称判定**升为真三态:
+        present       — 读到 manifest
+        absent        — 库明确报 ManifestNotFound(「查过, 确实没有」)
+        not_available — 其他任何失败(格式不支持 / IO / 库缺席)。★ 这一档**不许**写成 absent。
+      降级路径保留: 库不在时退回原来的**只认阳性**逻辑, 且未命中仍记 not_available ——
+      没有真解析器时「找不到」不等于「没有」。
+      ★ 三种状态**都不得**用来推断媒体为假(2026-08-15 调研结论), 这一条不因换了解析器而变。
     """
     out = {}
     try:
@@ -74,14 +79,30 @@ def rights_state(path: str) -> dict:
         out["iptc"] = "present" if info else "absent"      # 读成功: 两态可信
     except Exception:
         out["iptc"] = "not_available"                       # 读失败: 不知道
-    try:
-        head = open(path, "rb").read(2 * 1024 * 1024)
-        # 只认阳性: 命中 = present; 未命中**不**降为 absent
-        out["c2pa"] = "present" if (b"jumb" in head or b"c2pa" in head.lower()) \
-            else "not_available"
-    except Exception:
-        out["c2pa"] = "not_available"
+    out["c2pa"] = c2pa_state(path)
     return out
+
+
+def c2pa_state(path: str) -> str:
+    """C2PA 三态。★ 「查过确实没有」与「查不了」必须分开 —— 混为一谈是本项目记过的事故模式。"""
+    try:
+        import c2pa
+    except Exception:
+        # 库缺席: 退回只认阳性的旧逻辑。未命中记 not_available, **不**记 absent。
+        try:
+            head = open(path, "rb").read(2 * 1024 * 1024)
+            return "present" if (b"jumb" in head or b"c2pa" in head.lower()) else "not_available"
+        except Exception:
+            return "not_available"
+    try:
+        c2pa.Reader(path)
+        return "present"
+    except Exception as e:                                   # noqa: BLE001
+        # 库明确说「没有 manifest」才算查过; 其余一律 not_available。
+        # 用类名判而不是字符串搜 —— 错误文案会随版本变, 类名是它的公开契约。
+        if type(e).__name__.endswith("ManifestNotFound"):
+            return "absent"
+        return "not_available"
 
 
 def visual_observation(path: str, *, media_type="image", t=None) -> dict:
