@@ -169,5 +169,33 @@
   },
   "★dangerous_switches": "collar / score_overlap / oracle_vad / oracle_num_speakers —— 四个开关任一不同, DER 就不可比。用 oracle VAD 的 DER 基本只剩 speaker confusion。"
  },
- "★corpora_never_in_repo": "所有语料存 /Volumes/data/cce-eval-corpora, **不入仓** —— 仓内媒体二进制闸(tests/test_cce_gate_no_binary_media.py)禁止。仓内只落聚合数字。"
+ "★corpora_never_in_repo": "所有语料存 /Volumes/data/cce-eval-corpora, **不入仓** —— 仓内媒体二进制闸(tests/test_cce_gate_no_binary_media.py)禁止。仓内只落聚合数字。",
+ "overlap_detection_survey_2026-09-04": {
+  "★why_still_blocked": "说话人**分段**已做(3D-Speaker 无 token)。**重叠语音检测**仍缺, 且非受限候选逐个查过后**没有一个合格**:",
+  "candidates": {
+   "pyannote/overlapped-speech-detection": {
+    "gated": "auto",
+    "license": "mit",
+    "verdict": "受限 —— 需账号接受条款"
+   },
+   "Revai/reverb-diarization-v2": {
+    "gated": "auto",
+    "license": "other",
+    "verdict": "受限, 且 v1 已知是 non-commercial"
+   },
+   "tezuesh/overlapped-speech-detection": {
+    "gated": false,
+    "license": null,
+    "downloads": 17,
+    "verdict": "非受限但**许可未声明**, 下载 17 次 —— 未经审的第三方转存, 很可能就是受限模型的镜像。★ **许可未声明 ≠ 无限制**: 没有声明就是没有授权。"
+   },
+   "Den4ikAI/speech_overlap_detection": {
+    "gated": false,
+    "license": null,
+    "downloads": 28,
+    "verdict": "同上, 许可未声明"
+   }
+  },
+  "★conclusion": "四字段里 license_restriction 这一栏, 「未声明」必须与「无限制」分开记 —— 合并会让一个没有授权的权重看起来可用。⇒ 重叠语音检测**保持 BLOCKED**, 解锁动作: owner 提供 HF token(走 pyannote 官方渠道), 而不是找镜像绕过。"
+ }
 }

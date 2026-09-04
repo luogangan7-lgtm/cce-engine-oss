@@ -147,7 +147,12 @@ def items() -> list[dict]:
     out.append({"类": BLOCKED, "项": "**重叠语音**检测(说话人分离的其余部分)",
                 "证据": ("说话人分段本身已做(3D-Speaker, 无 token, DER STRICT 0.1004)。"
                          "但 include_overlap=True 需要 pyannote/segmentation-3.0 —— "
-                         "HF **受限模型**, 需账号接受条款并给 token。解锁动作明确: owner 提供 HF token。"
+                         "HF **受限模型**, 需账号接受条款并给 token。"
+                         "★ 2026-09-04 逐个查过非受限替代: pyannote/overlapped-speech-detection 与 "
+                         "Revai/reverb-diarization-v2 同样受限; tezuesh 与 Den4ikAI 两个转存虽非受限, "
+                         "但**许可未声明**且下载仅 17/28 次(未经审的镜像)。"
+                         "**许可未声明 ≠ 无限制** —— 没有声明就是没有授权, 商用产品线不可用。"
+                         "⇒ 解锁动作: owner 提供 HF token 走**官方渠道**, 而不是找镜像绕过。"
                          "★ 不拿源分离的能量占比冒充说话人数, 也不拿 DER 给说话人数背书。")})
     # ★ 2026-09-03 查完改判: 这不是「待修的分叉」, 它**就是那次退役本身**。
     #   origin 独有的文件全是 mt_*(Hy-MT2 MT 实验), 本地提交 b33befd
