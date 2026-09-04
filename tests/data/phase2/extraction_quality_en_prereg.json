@@ -1,0 +1,41 @@
+{
+ "block": "EXTRACTION_QUALITY_EN_GEN1",
+ "prereg_written_at": "2026-09-04",
+ "★frozen_before_measurement": "本文件在采集任何读数**之前**提交(见 git)。",
+ "why_this_unblocks_a_previously_blocked_item": {
+  "old_claim": "「抽取质量(ASR/OCR 英文准确率)未测 —— 语言相关; 需英文域的带标注素材」被我登记为 BLOCKED_EXTERNAL。",
+  "why_it_was_wrong": "★ 我把「需要标注素材」理解成「需要**本域**(助听器)的标注素材」。但本项目自己的分解是: 能力=域无关 / **抽取质量=语言相关** / 标定=域相关。抽取质量既然只与语言有关, **公开英文基准就是正确的素材**, 不需要本域数据。这是分类错误, 不是资源短缺。",
+  "verified_availability": {
+   "LibriSpeech test-clean": "openslr.org 直链 HTTP 200, 无需认证; HF 镜像 gated=False, CC-BY-4.0",
+   "ICDAR2013 (staghado/ICDAR2013)": "HF gated=False; 仅本地评测用, 不转发不入仓"
+  }
+ },
+ "★criterion_is_not_a_threshold_i_invented": {
+  "rule": "本实验**不设我自己拍的合格线**。判据是「与该模型的**公开报告值**是否可比」——",
+  "PASS_INTEGRATION": "实测值与公开报告值同一量级(相对差 <= 100%) ⇒ 我们的**集成**没坏, 这个数就是该模型在本管道下的英文抽取质量, 如实登记",
+  "FAIL_INTEGRATION": "实测值比公开报告值差一倍以上 ⇒ **我们的集成有问题**(重采样/归一化/调用方式), 是缺陷不是模型能力, 必须先修再谈数字",
+  "why": "★ 我今天刚因为「拍了个 0.35 阈值」删过一条闸。抽取质量是个**特征化**测量, 不是通过/不通过; 我唯一有资格判的是「我的集成有没有坏」。"
+ },
+ "asr": {
+  "model": "iic/SenseVoiceSmall via funasr —— 与 scripts/cce_video_parse.py 的调用**逐字相同**",
+  "corpus": "LibriSpeech test-clean",
+  "sampling": "按 utterance id 字典序取**前 100 条**, 不挑",
+  "normalization": "LibriSpeech 约定: 全大写 · 去标点 · 折叠空白。转写侧同规则。★ 不做数字展开(LibriSpeech 参考文本本身已是词形)",
+  "metric": "WER = 词级编辑距离 / 参考词数; **报逐条分布**(中位/四分位/最差), 不只报聚合均值",
+  "public_reference": "SenseVoiceSmall 官方报告的英文 LibriSpeech test-clean WER(测量时现查并记录出处)",
+  "degeneracy_guard": "逐条 WER 必须有变异(不得全 0 或全 1); 且参考文本非空的条目数 >= 90"
+ },
+ "ocr": {
+  "model": "RapidOCR —— 与 scripts/cce_image_ingest.py / cce_video_parse.py 的调用相同",
+  "corpus": "ICDAR2013 focused scene text (英文)",
+  "sampling": "按图片 id 排序取前 N, 不挑",
+  "metric": "端到端: 每图 1 − normalized edit distance(参考=该图全部 GT 文本按阅读序拼接, 去空格, 大小写归一)",
+  "★icdar_pitfalls_handled": [
+   "case sensitivity: 官方 end-to-end 用**大小写不敏感**; 本实验统一转大写",
+   "标点: ICDAR2013 的 GT 含标点, 官方 word-spotting 会去掉; 本实验**保留并明说**, 因为我们的用例是引用原文",
+   "'###' don't-care 区域: ICDAR2015 才有; 2013 无。若出现一律**排除出参考**, 且记录排除了几处"
+  ],
+  "degeneracy_guard": "逐图准确率必须有变异; 且必须含**零文字对照**或说明为何没有"
+ },
+ "★what_this_does_not_establish": "只测**英文抽取质量**。跨域标定 across_domains 仍 NOT_ESTABLISHED, 不因这条实验改变; 中文的 n=6 也不因这条实验变成基线。"
+}
