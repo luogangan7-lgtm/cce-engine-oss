@@ -18,7 +18,8 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SPEC = os.path.join(ROOT, "config", "cce_doc_reconciliation.json")
 KINDS = {"GATE", "FIELD_ONLY", "PROSE_ONLY"}
-VERDICTS = {"文档过时", "代码欠账", "位置不同+代码欠账", "异名等价", "符合"}
+VERDICTS = {"文档过时", "代码欠账", "位置不同+代码欠账", "异名等价", "符合",
+            "已就地标注"}   # 分歧仍在, 但已在**分歧那一节本身**写明并指向现行真相源
 
 
 def check(spec_path: str = SPEC, run_tests: bool = True):
@@ -71,6 +72,30 @@ def check(spec_path: str = SPEC, run_tests: bool = True):
                 errors.append(f"GATE 声明引用的测试红了: {t}")
 
     for d in spec["section_divergences"]:
+        # ★ 「已就地标注」= 分歧仍在, 但读那一节的人不会被误导。
+        #   它同样是**已解决**的一种, 所以同样必须可验 —— 否则又是自称。
+        #   判据: 分歧那一节的正文里真的有更正块, 且指向了现行真相源。
+        if d["verdict"] == "已就地标注":
+            g = d.get("gate") or {}
+            doc, anchor = g.get("file"), g.get("anchor")
+            if not doc or not anchor:
+                errors.append(f"{d['section']}: 判「已就地标注」必须给出 gate.file 与 gate.anchor")
+            else:
+                fp = os.path.join(ROOT, doc)
+                if not os.path.exists(fp):
+                    errors.append(f"{d['section']}: gate.file 不存在 {doc}")
+                else:
+                    body = open(fp, encoding="utf-8").read()
+                    i = body.find(anchor)
+                    if i < 0:
+                        errors.append(f"{d['section']}: 在 {doc} 里找不到锚点 {anchor!r}")
+                    else:
+                        head = body[i:i + 1200]
+                        if "就地更正" not in head:
+                            errors.append(f"{d['section']}: {anchor} 开头没有就地更正块 —— "
+                                          "更正放在远处等于没更正")
+                        if not any(t in head for t in ("config/cce_", "docs/README.md")):
+                            errors.append(f"{d['section']}: 更正块没指向现行真相源")
         # 判「符合」的必须给出让它成立的那道闸, 否则「符合」就是自称
         if d["verdict"] == "符合":
             g = d.get("gate") or {}
