@@ -1,0 +1,157 @@
+{
+ "block": "ASR_CONTROLLED_DEGRADATION_GEN1",
+ "measured_at": "2026-09-04",
+ "n_sentences": 12,
+ "voices": [
+  "zh-CN-XiaoxiaoNeural",
+  "zh-CN-XiaoyiNeural",
+  "zh-CN-YunjianNeural",
+  "zh-CN-YunxiNeural",
+  "zh-CN-YunxiaNeural",
+  "zh-CN-YunyangNeural",
+  "zh-CN-liaoning-XiaobeiNeural"
+ ],
+ "★voice_self_check": "只收**读回自检**通过的 zh_CN 音色 —— 第一版写死的 Eddy/Flo 是英文版同名音色, 输出为空",
+ "clean_cer_median": 0.0,
+ "axes": {
+  "bgm_snr_db": {
+   "curve": [
+    {
+     "level": null,
+     "cer_median": 0.0,
+     "cer_q3": 0.0,
+     "cer_max": 0.3571,
+     "witness": {
+      "bytes": 112172,
+      "sec": 3.5,
+      "rms_db": -19.81,
+      "mp3_bytes": null
+     }
+    },
+    {
+     "level": 10,
+     "cer_median": 0.0,
+     "cer_q3": 0.0769,
+     "cer_max": 0.3846,
+     "witness": {
+      "bytes": 112172,
+      "sec": 3.5,
+      "rms_db": -19.39,
+      "mp3_bytes": null
+     }
+    },
+    {
+     "level": 5,
+     "cer_median": 0.0,
+     "cer_q3": 0.1538,
+     "cer_max": 0.4615,
+     "witness": {
+      "bytes": 112172,
+      "sec": 3.5,
+      "rms_db": -18.61,
+      "mp3_bytes": null
+     }
+    },
+    {
+     "level": 0,
+     "cer_median": 0.1339,
+     "cer_q3": 0.2,
+     "cer_max": 0.4615,
+     "witness": {
+      "bytes": 112172,
+      "sec": 3.5,
+      "rms_db": -16.79,
+      "mp3_bytes": null
+     }
+    },
+    {
+     "level": -5,
+     "cer_median": 0.2,
+     "cer_q3": 0.3125,
+     "cer_max": 0.6923,
+     "witness": {
+      "bytes": 112172,
+      "sec": 3.5,
+      "rms_db": -14.17,
+      "mp3_bytes": null
+     }
+    }
+   ],
+   "rise": 0.2,
+   "resolution": "OK",
+   "★degradation_applied": true,
+   "★witness_proof": "rms -19.81–-14.17 dB",
+   "★if_not_applied": "见证证明处理确实施加了"
+  },
+  "mp3_kbps": {
+   "curve": [
+    {
+     "level": null,
+     "cer_median": 0.0,
+     "cer_q3": 0.0,
+     "cer_max": 0.3571,
+     "witness": {
+      "bytes": 112172,
+      "sec": 3.5,
+      "rms_db": -19.81,
+      "mp3_bytes": null
+     }
+    },
+    {
+     "level": 64,
+     "cer_median": 0.0,
+     "cer_q3": 0.0,
+     "cer_max": 0.2857,
+     "witness": {
+      "bytes": 112206,
+      "sec": 3.5,
+      "rms_db": -20.25,
+      "mp3_bytes": 29133
+     }
+    },
+    {
+     "level": 32,
+     "cer_median": 0.0,
+     "cer_q3": 0.0,
+     "cer_max": 0.2857,
+     "witness": {
+      "bytes": 112206,
+      "sec": 3.5,
+      "rms_db": -20.2,
+      "mp3_bytes": 14625
+     }
+    },
+    {
+     "level": 16,
+     "cer_median": 0.0,
+     "cer_q3": 0.0,
+     "cer_max": 0.2857,
+     "witness": {
+      "bytes": 112206,
+      "sec": 3.5,
+      "rms_db": -20.24,
+      "mp3_bytes": 7425
+     }
+    }
+   ],
+   "rise": 0.0,
+   "resolution": "NO_RESOLUTION",
+   "★degradation_applied": true,
+   "★witness_proof": "中间 mp3 字节 7425–29133(比 3.9x)",
+   "★if_not_applied": "见证证明处理确实施加了"
+  }
+ },
+ "n_synth_ok": 84,
+ "n_synth_skipped": 0,
+ "skipped": [],
+ "★is_upper_bound": "合成语音 != 真人社媒口播。**已知 domain gap**: 无口音 · 无情绪起伏 · 无口误重复 · 无远近场变化 · 韵律规整。⇒ 它给的是**上界**(真实素材只会更难), 与 OCR 那条合成上界曲线同构。",
+ "★not_claimed": "**不产出**真实素材上的准确率。「社媒音轨真准确率未测」这个状态不变。",
+ "★witness_per_level": "每档记 bytes/sec/rms_db —— 「无分辨力」要能与「仪器坏了」区分",
+ "★where_real_material_sits": {
+  "real_nonvocal_share_median": 0.491,
+  "equivalent_snr_db": 0.16,
+  "★reading": "真实社媒音轨的非人声能量占比中位 **0.491** ⇒ 等效 SNR ≈ **0.2 dB**。曲线在 SNR=0 dB 处 CER 中位跳到 **0.1339** (10dB/5dB 仍是 0.00)。⇒ **本项目素材恰好落在曲线开始塌的那一点上。**",
+  "★this_is_a_lower_bound": "★ 三重理由说明真实只会更差: ① 我用的是**高斯噪声**, 真实 BGM 是结构化音乐, 干扰方式不同; ② **TTS 语音比真人干净**(无口音/情绪/口误/远近场); ③ 真实素材还有压缩、混响、多说话人。⇒ 0.13 是该 SNR 下的**下界**。",
+  "★mp3_finding": "MP3 降到 **16 kbps** CER 仍为 0.00, 且见证证明压缩确实施加了(中间 mp3 字节 7425–29133(比 3.9x))。⇒ **压缩不是问题, 噪声才是。** 这条对工程有直接含义: 为 ASR 保留高码率音频没有收益, 该花力气的是**降噪/源分离**。"
+ }
+}

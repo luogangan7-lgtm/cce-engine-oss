@@ -52,5 +52,25 @@
   "why_it_matters": "判官只在「明显没做」和「明显做全了」时稳; 而**阈值判决恰好住在中间**。⇒ 这不是措辞问题, 是**让 LLM 判程度**这件事本身的属性。改 playbook 措辞能修 A1/A2(那是两个具体缺陷), 但**修不掉这个结构**。",
   "★reframe_worth_testing": "与其问「怎么让它在中段也稳」, 不如问「**只在它稳的地方用它**」: 地板处一致率 1.000 且 5/6 的 PASS 在地板 ⇒ 「**明显没执行 playbook**」可能是个**可靠读数**。那对出站闸是有用的(拦住完全无视 playbook 的稿子), 只是不能给程度分。★ 这是**待验假设**, 需另立预注册 —— 不许在这里就当结论。"
  },
- "★what_i_cannot_decide": "改 playbook 措辞 = 改**干预设计**(告诉人该怎么回应), 不是改测量。A1(移出跨轮规则)与 A2(拆三件事)是**测量侧**的缺陷, 我判得了; 但改写 A3 的六条抽象原子会**改变 playbook 主张什么**, 那是 owner 的产品判断。"
+ "★what_i_cannot_decide": "改 playbook 措辞 = 改**干预设计**(告诉人该怎么回应), 不是改测量。A1(移出跨轮规则)与 A2(拆三件事)是**测量侧**的缺陷, 我判得了; 但改写 A3 的六条抽象原子会**改变 playbook 主张什么**, 那是 owner 的产品判断。",
+ "★RESEARCH_VERIFIED_2026-09-04": {
+  "★corrects_my_naming": "我打算把现象叫「端点偏好」。**错** —— 端点偏好意味着 judge **偏爱输出** 0/1; 而我的数据是**稳定样本恰好落在** 0/1, 不稳定样本在中段。这是**条件稳定性不同**, 不是输出分布的 response bias。正确命名: **boundary-region instability** / instance-dependent judge uncertainty; 测量学表述: heteroskedastic measurement error concentrated near the decision boundary。",
+  "★not_a_known_law": "截至 2026-09-04 检索, **没有一篇论文直接证明**「LLM judge 在 ordinal 真值中点重复可靠性最低、端点最高」是普遍定律。最接近的是 quality-gap(Shi et al. 2025, 15 judges/22 任务/15 万次判断: 候选质量越接近判断越难)、subjectivity/verifiability、Likert inconsistency、atomic-checklist 四支文献。⇒ 我的发现只能写成**本仪器的实测性质 + 与既有文献一致的解释**, **不得**写成已知定律。",
+  "★mechanism_is_verifiability_not_position": "更准的机制不是「中间数字难判」, 而是**中间执行程度恰好对应证据不完整、语义部分匹配、多解并存 ⇒ 高判定熵**。关键变量是**可核验性**。实证(ACL 2026, 8 模型 × 4 任务 × 10 种等价改写 × 约 11.5 万次评价): factually verifiable attributes accuracy **0.71** vs subjective attributes **0.19**, 且 **verifiability 比模型选择本身更能预测 robustness**。⇒ 我第二轮把「执行程度多高」换成「有没有满足原子条件 X 的文本证据」, 正是往可验证事实属性移动 —— **那一轮不是失败, 是吃到了主要结构性收益**。",
+  "★interventions_verdict": {
+   "原子二元化": "**强烈保留**。CheckEval(EMNLP 2025) 报平均 judge agreement **+0.45** 且 variance 下降 —— 与我的 4/8→6/8 同向。已吃到主要收益。",
+   "逐字证据": "保留, 但**独立效应量 Unknown**(无干净 ablation)。价值在**可审计性**: 把「judge 为什么说做了」变成可机器复核的中间变量。",
+   "few-shot 锚点": "可做**一次窄 ablation**, 但必须给**每个原子的 YES/NO 边界示例**, **不是**给 0.3/0.6 的连续档锚 —— 后者是在教模型用一把本来就不稳的尺。",
+   "多次采样多数票": "只降随机误差。★ **majority vote 估的是 judge 的 modal response, 不是真值** —— 边界案例每次围绕同一个错误解释波动时, 采 50 次只会精确估计「它通常怎么错」。",
+   "pairwise": "**不建议** —— 它**改变 estimand**(从「这篇有没有执行」变成「A 比 B 更像执行」), 且有 position bias。为稳定性牺牲 construct validity 不划算。",
+   "更细 Likert rubric": "**不要**。rubric 应变成 **executable predicates**, 不是更多语言描述的 ordinal bins。rubric 选项本身也有位置偏差。",
+   "CoT 先理由后分": "**不作为核心补救**。证据混合 —— 有研究发现 CoT 会**压塌 judgment distribution 反而更差**。对本任务 extractive evidence > free-form reasoning。",
+   "继续同义改写 prompt": "**不建议作为主实验** —— 语义等价的 prompt 本身就会改变结果。最多做 robustness check。"
+  },
+  "★selective_prediction_is_sound": "「只在它稳的地方用它」**方法学上完全成立**, 有成熟名称: classification with reject option / **selective classification**(Chow 1970; Geifman & El-Yaniv NeurIPS 2017)。",
+  "★but_not_the_way_i_planned": "★★ **不要**定义成「score < 0.2 ⇒ 未执行」—— 那又偷偷依赖了那个不可靠的连续 score。应**改 measurement contract**: 输出只有 {CLEAR_ABSENCE, CLEAR_EXECUTION, ABSTAIN}(或只要前者+ABSTAIN), 由**可审计条件**产生: 每个原子 YES(span)/NO/UNRESOLVED, 冻结聚合规则, 证据验证器通过, 复现闸通过。",
+  "★the_trap_i_was_about_to_step_in": "★★★ **不能用「重复一致」本身定义可信区域。** 我原打算说「地板处一致率 1.000 ⇒ 可靠」—— **那测的是 reliability 不是 validity**。有 human-grounded audit 发现 LLM judges 可以彼此高度一致却与人类目标变量不一致。⇒ 要把「稳定区」合法化, **必须有独立 calibration set**(human/reference gold), 流程是 gold → judge 重复测量 → 预定义 acceptance 函数 → 测 coverage + selective risk。",
+  "★required_reporting": "不能只报「准确率 95%」。必须同时报: **coverage**(多少输入进入可判定区) · **selective risk/accuracy**(在承诺能判的区域有多可靠) · **CLEAR_ABSENCE precision**(宣布「明显没执行」的里有多少真没执行) · **absence recall**(真没执行的里捕获了多少) · 以及 risk–coverage curve。",
+  "★final_verdict": "正式**放弃** execution_intensity ∈ [0,1] 作为当前 judge 的 primary readout。改为 atomic observable evidence → deterministic composition → 三态。★ 第三轮**不应**再围绕: 把 0.3 改叫 partially · rubric 写更长 · 加 CoT · 调温度 —— 那些最多是 secondary ablation。"
+ }
 }
