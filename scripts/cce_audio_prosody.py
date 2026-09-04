@@ -103,7 +103,14 @@ def mix_metrics(path: str) -> dict:
 #   |Δf0| 随非人声能量占比上升而上升, Spearman ρ=0.618 p=0.0003, 中位差 **12.4 半音(一个八度)**。
 #   ⇒ **混音上的 f0 会跟着音乐走**(实例: 非人声 0.996 的片段, 混音 f0 = 79Hz 是贝斯线,
 #     人声轨 231Hz 才是说话)。所以韵律读数必须标明**算在哪条轨上**, 且高 BGM 的混音读数不可用。
-NONVOCAL_GATE = 0.35        # 超过此占比的**混音**读数判不可用。改它属于判据变更。
+# ★ 这里**没有** nonvocal_share 阈值闸, 是刻意的 ——
+#   ① 全占比原则明令禁止「在噪声连续量上设布尔闸」: 0.34 与 0.36 在测量上不可区分,
+#      却会得到相反的判决。我第一版写了 0.35, 那是个拍出来的数。
+#   ② 而且它**不可达**: nonvocal_share 只在分离成功那一支被赋值, 而那一支 f0_source
+#      就是 "vocals" ⇒「mixed 且占比已知」这个组合在代码里不存在。
+#   ⇒ 判据改成纯**类别**的: 算在人声轨上=可用; 算在混音上=不可用(此时占比必然未知)。
+#     类别判断不受连续量噪声影响, 也不需要我拍一个阈值。
+#   若将来真出现「混音但占比已知」的路径, 阈值必须**从数据重新推**, 不许继承这个被删掉的猜测。
 
 
 def prosody_usable(pros: dict) -> tuple[bool, str]:
@@ -113,15 +120,11 @@ def prosody_usable(pros: dict) -> tuple[bool, str]:
     src = pros.get("f0_source")
     if src == "vocals":
         return True, "算在分离出的人声轨上"
-    if src != "mixed":
-        return False, f"未标明算在哪条轨上(f0_source={src!r}) —— 说不清就不可用"
-    nv = pros.get("nonvocal_share")
-    if nv is None:
-        return False, ("算在混音上且**非人声占比未知** —— 无法判断 f0 是不是在跟音乐走"
-                       "(实测中位差 12.4 半音)")
-    if nv > NONVOCAL_GATE:
-        return False, f"算在混音上且非人声占比 {nv:.3f} > {NONVOCAL_GATE}: f0 很可能在跟音乐走"
-    return True, f"算在混音上但非人声占比仅 {nv:.3f}, 低于闸"
+    if src == "mixed":
+        return False, ("算在混音上 —— 实测 |Δf0| 随非人声占比上升(ρ=0.618, p=0.0003), "
+                       "中位差 12.4 半音(一个八度); 且此时非人声占比必然未知, "
+                       "无法判断 f0 是不是在跟音乐走")
+    return False, f"未标明算在哪条轨上(f0_source={src!r}) —— 说不清就不可用"
 
 
 def analyse(path: str, *, separate: bool | None = None) -> dict:

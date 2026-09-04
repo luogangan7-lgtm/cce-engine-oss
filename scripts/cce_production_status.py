@@ -92,6 +92,18 @@ def rows() -> list[dict]:
                          "**但差一个也是差** —— 不采纳, 不下调阈值, 不合并两轮凑数。"
                          "⇒ 对齐线整体保持关闭"),
                 "文件": "tests/data/phase2/playbook_mode_verdict.json"})
+    _ap = os.path.join(ROOT, "tests/data/phase2/playbook_atoms_verdict.json")
+    if os.path.exists(_ap):
+        pa = _j("tests/data/phase2/playbook_atoms_verdict.json")
+        out.append({"组件": "对齐出口 playbook **原子分解**形式(第二次替代尝试)", "状态": FAILED,
+                    "证据": (f"预注册判定 {pa['decision']}: 达标 {pa['meeting_criterion']}/{pa['texts']}(需 7)。"
+                             "同一批文本/同一仪器/δ 与判决线逐字同 GEN4, 两条非退化闸都过 —— "
+                             "**改善是真的**(4/8 → 6/8), 但未到采纳线 ⇒ 不采纳。"
+                             "★ 更锐: 残余不稳定**不在标尺上** —— belong 的正向原子只剩 1 条, "
+                             "复合值退化成单个二值判断, 而它在 0/1 间来回摆。"
+                             "⇒ 再推一版要动的是 **playbook 原子本身**(效度), 不是读数形态(复现性), "
+                             "那是改干预设计, **需 owner 拍板**"),
+                    "文件": "tests/data/phase2/playbook_atoms_verdict.json"})
 
     # ── 媒体 ──────────────────────────────────────────────────────────
     out.append({"组件": "媒体**存在**声明", "状态": USABLE,
@@ -107,7 +119,11 @@ def rows() -> list[dict]:
                          "★ 但其中两项**具名扣发**: 抽取质量(ASR/OCR 准确率, 语言相关, 未测) "
                          "与跨域标定(across_domains=NOT_ESTABLISHED)。"
                          "observation 里的文字可作证据引用, **不得当作已验收的转写**。"
-                         "图片链(standalone_image_ingest)仍 missing, 未被顺带声称"),
+                         "★ 2026-09-04 图片链**已晋升 production_github**"
+                         "(本机真实素材 6/6 + CI run 33840200869 全链回放, CI 上真跑了 OCR): "
+                         "静态图与视频帧共用同一条链、同一份视觉合同, 未分建两套。"
+                         "抽取质量: **中文域已有实测**(真实 n=6 中位 0.900, 零文字对照无中生有 0 次)"
+                         "+ 合成上界曲线; **英文域仍无一张标注素材 ⇒ 那一半仍未测**, 扣发不变"),
                 "文件": ".github/workflows/cce-submit.yml(profile media_ingest)"})
 
     # ── s1 分布层 ─────────────────────────────────────────────────────
@@ -134,7 +150,8 @@ def main() -> int:
     print("★ 「未测」不是「弱证据」, 是没有读数。它与「已测不达标」「已具备未接入」是三种状态, 修法都不同。")
     import glob as _g
     _n = len(_g.glob(os.path.join(ROOT, "tests", "test_*.py")))
-    print(f"★ 引擎跑得动({_n} 个测试·七闸 PASS) != 这些读数能用。两件事不许合并成「可以投产」。")
+    _g8 = len(_g.glob(os.path.join(ROOT, "tests", "test_cce_*gate*.py")))
+    print(f"★ 引擎跑得动({_n} 个测试·{_g8} 道闸 PASS) != 这些读数能用。两件事不许合并成「可以投产」。")
     print("★ 这张表由仓库现算, 不是我说的 —— 见 2026-08-07 立的汇报纪律。")
     return 0
 
