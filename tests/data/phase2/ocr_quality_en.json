@@ -1,0 +1,57 @@
+{
+ "block": "EXTRACTION_QUALITY_EN_GEN1:OCR",
+ "measured_at": "2026-09-04",
+ "corpus": "TextOCR v0.1 val (CC BY 4.0)",
+ "model": "RapidOCR (与生产同一调用)",
+ "n_images": 98,
+ "dontcare_excluded": 1356,
+ "raw": {
+  "median": 0.4763,
+  "mean": 0.4672,
+  "q1": 0.241,
+  "q3": 0.7162,
+  "min": 0.0,
+  "max": 1.0
+ },
+ "normalized": {
+  "median": 0.554,
+  "mean": 0.5055,
+  "q1": 0.2705,
+  "q3": 0.773,
+  "min": 0.0,
+  "max": 1.0
+ },
+ "word_f1_order_insensitive": {
+  "median": 0.3174,
+  "mean": 0.3376,
+  "q1": 0.0,
+  "q3": 0.5036,
+  "min": 0.0,
+  "max": 1.0
+ },
+ "degeneracy_pass": true,
+ "★why_word_f1": "序列编辑距离对**拼接顺序**极敏感; 只报它会把我的拼接方式当成 OCR 的错。词级 F1 顺序无关 ⇒ 两者的差距能分辨「没读出来」与「读出来但顺序不同」。",
+ "★normalization_profile": {
+  "raw": "unicode NFC, 保留 case/标点/空白",
+  "normalized": "NFC + 大写 + 去非字母数字 + 去空白"
+ },
+ "★why_two_profiles": "ICDAR 各 task 的大小写/标点策略并不统一, 不能拿一个 .lower() 当通用 scorer ⇒ 两档都报, **不合成一个「标准 OCR 准确率」**",
+ "★why_not_icdar": "ICDAR2013/2015 官方下载在 RRC 需注册, 不满足匿名可复现; HF 转存许可不明",
+ "★criterion": "与公开报告值同量级 ⇒ 集成没坏; 差一倍以上 ⇒ 是我的集成有缺陷",
+ "★criterion_as_written_was_unexecutable": "预注册判据是「与该模型的**公开报告值**比对量级」。实际执行时发现: RapidOCR × TextOCR 这一对**没有公开报告值** ⇒ 该判据在此不可执行。★ 如实记下来, 不偷偷换成别的判据。",
+ "independent_engine_crosscheck": {
+  "★status": "**追加**的集成自检, 不是替换预注册判据",
+  "why": "原判据要回答的是「我的集成有没有坏」。换个问法: 同样 100 张图, 另一个独立引擎能得多少分。",
+  "engine": "tesseract 5.5.2",
+  "n": 98,
+  "word_f1": {
+   "median": 0.0,
+   "q1": 0.0,
+   "q3": 0.0,
+   "mean": 0.079
+  },
+  "verdict": "RapidOCR 词级 F1 中位 0.3174 vs tesseract 0.0(均值 0.079) ⇒ **我的集成没坏** —— 本管道显著优于通用引擎; 低分来自基准本身的难度。"
+ },
+ "★what_this_number_is_and_is_not": "TextOCR 标注图上**每一个**词, 包括极小的背景字; 而本项目的用例是画面上的**醒目叠字**。⇒ 这个数是我们用例的**下界**, 不是用例上的准确率。与已有的两个数配成区间: 合成干净渲染 **1.000(上界)** > 真实中文封面 **0.900** > 英文密集场景文字 **0.317(下界)**。★ 报区间不报点估计。",
+ "★still_not_established": "跨域标定 across_domains 仍 NOT_ESTABLISHED, 不因这条实验改变。"
+}

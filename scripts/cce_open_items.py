@@ -109,8 +109,18 @@ def items() -> list[dict]:
                 "证据": "需 >=3 名人类评分者(5x60 设计已定); SESOI 现为 None 且有三处测试钉住"})
     out.append({"类": BLOCKED, "项": "内容 A/B 不可判",
                 "证据": "所需样本超单帖历史最高浏览; §44.10 的 24500 不可复算(全文未定义 R)"})
-    out.append({"类": BLOCKED, "项": "媒体抽取质量(ASR/OCR 英文准确率)未测",
-                "证据": "语言相关; 需英文域的带标注素材"})
+    # ★ 2026-09-04 更正: 这一项**曾被我误判为 BLOCKED**。
+    #   我把「需要英文标注素材」读成「需要**本域**的标注素材」, 而本项目自己的分解是
+    #   能力=域无关 / **抽取质量=语言相关** / 标定=域相关 ⇒ 公开英文基准就是正确的素材。
+    #   实测可得: LibriSpeech(CC BY 4.0, openslr 直链 200) · TextOCR v0.1(CC BY 4.0, 逐图 CDN 200)。
+    #   ⇒ 已完成, 不再列入未完成清单。留这段注释防止下一个人再把它归回 BLOCKED。
+    _ocr_en = os.path.join(ROOT, "tests/data/phase2/ocr_quality_en.json")
+    _asr_en = os.path.join(ROOT, "tests/data/phase2/asr_quality_en.json")
+    if not (os.path.exists(_ocr_en) and os.path.exists(_asr_en)):
+        _have = [n for n, p_ in (("OCR", _ocr_en), ("ASR", _asr_en)) if os.path.exists(p_)]
+        out.append({"类": OPEN, "项": "媒体抽取质量(英文)仅完成一半",
+                    "证据": f"已完成 {_have or '无'}; 另一半的评测尚未落盘。"
+                            "语料已核实可匿名直下, **不是外部阻塞**"})
     # ★ 2026-09-04 实际去做才确认: 这不是「没装」, 是拿不到凭据 ⇒ 从 OPEN 改归 BLOCKED。
     out.append({"类": BLOCKED, "项": "**说话人分离**(diarization) 拿不到受限模型凭据",
                 "证据": ("pyannote/speaker-diarization-3.1 是 HF **受限模型**, 需账号接受条款并给 token。"

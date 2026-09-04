@@ -1,227 +1,233 @@
 {
-  "schema_name": "cce.ontology_legacy_exceptions",
-  "version": "1.0.0",
-  "purpose": "P1 本体迁移闸的遗留出现登记表。旧名不是自动违规；未分类的旧名才是违规。",
-  "token_map": {
-    "segment_mixture": "mode_mixture",
-    "segment_basis": "mode_basis",
-    "segment_id": "mode_id",
-    "segment_capabilities": "mode_capabilities",
-    "SEGMENT_JS_THRESHOLD": "MODE_JS_THRESHOLD",
-    "within_segment_mean_js": "within_mode_mean_js",
-    "segmentation_status": "mode_partition_status",
-    "segmentation": "mode_partition",
-    "dynamic_segment": "mode",
-    "segments": "modes",
-    "segment": "mode",
-    "individual_id": "evidence_unit_id",
-    "individual": "evidence_unit",
-    "individuals": "evidence_units",
-    "min_segment_size": "min_mode_size",
-    "MIN_SEGMENT_SIZE": "MIN_MODE_SIZE",
-    "segment_members": "mode_members",
-    "segment_structure": "mode_structure",
-    "segment_bases": "mode_bases",
-    "segment_basis_required": "mode_basis_required",
-    "no_singleton_segment": "no_singleton_mode",
-    "stable_segments": "stable_modes",
-    "structural_subject_segments": "structural_subject_modes",
-    "shared_stimulus_response_segments": "shared_stimulus_response_modes",
-    "54_segment_membership": "54_mode_membership",
-    "segmenter": "segmenter",
-    "Segment": "Mode",
-    "Segments": "Modes"
-  },
-  "surfaces": {
-    "EVIDENCE_DATA": [
-      "tests/data/"
-    ],
-    "CODE": [
-      "scripts/",
-      ".github/"
-    ],
-    "TEST": [
-      "tests/"
-    ],
-    "CONTRACT": [
-      "config/"
-    ],
-    "DOCUMENTATION": [
-      "docs/"
-    ],
-    "EXPERIMENT": [
-      "probes/",
-      "accuracy/",
-      "ledger/"
-    ]
-  },
-  "surface_scan_mode": {
-    "EVIDENCE_DATA": "json_keys_only",
-    "CODE": "python_source_text",
-    "TEST": "python_source_text",
-    "CONTRACT": "json_keys_and_values",
-    "DOCUMENTATION": "inventory_only",
-    "EXPERIMENT": "python_source_text",
-    "EVIDENCE": "json_keys_only"
-  },
-  "surface_note": "surfaces 按最长前缀匹配 (tests/data/ 先于 tests/)，未声明的路径按 EVIDENCE 处理；EVIDENCE 里出现 .py 直接红 (UNDECLARED_CODE_SURFACE)，防止新代码靠换目录逃闸。EVIDENCE 只扫 JSON object key，绝不扫 value —— 语料 value 里真人写的 'susceptible individuals' 是被测量的 payload，不是本体使用。",
-  "allowed_classes": [
-    "FROZEN_EVIDENCE",
-    "LEGACY_READ_ADAPTER",
-    "DENYLIST_SENTINEL",
-    "UNRELATED_HOMONYM",
-    "HISTORICAL_DOCUMENTATION",
-    "MEASURED_PAYLOAD",
-    "NEGATIVE_TEST"
+ "schema_name": "cce.ontology_legacy_exceptions",
+ "version": "1.0.0",
+ "purpose": "P1 本体迁移闸的遗留出现登记表。旧名不是自动违规；未分类的旧名才是违规。",
+ "token_map": {
+  "segment_mixture": "mode_mixture",
+  "segment_basis": "mode_basis",
+  "segment_id": "mode_id",
+  "segment_capabilities": "mode_capabilities",
+  "SEGMENT_JS_THRESHOLD": "MODE_JS_THRESHOLD",
+  "within_segment_mean_js": "within_mode_mean_js",
+  "segmentation_status": "mode_partition_status",
+  "segmentation": "mode_partition",
+  "dynamic_segment": "mode",
+  "segments": "modes",
+  "segment": "mode",
+  "individual_id": "evidence_unit_id",
+  "individual": "evidence_unit",
+  "individuals": "evidence_units",
+  "min_segment_size": "min_mode_size",
+  "MIN_SEGMENT_SIZE": "MIN_MODE_SIZE",
+  "segment_members": "mode_members",
+  "segment_structure": "mode_structure",
+  "segment_bases": "mode_bases",
+  "segment_basis_required": "mode_basis_required",
+  "no_singleton_segment": "no_singleton_mode",
+  "stable_segments": "stable_modes",
+  "structural_subject_segments": "structural_subject_modes",
+  "shared_stimulus_response_segments": "shared_stimulus_response_modes",
+  "54_segment_membership": "54_mode_membership",
+  "segmenter": "segmenter",
+  "Segment": "Mode",
+  "Segments": "Modes"
+ },
+ "surfaces": {
+  "EVIDENCE_DATA": [
+   "tests/data/"
   ],
-  "forbidden_exception_locations": [
-    "canonical schema",
-    "canonical serializer",
-    "new production writer",
-    "new business-domain type",
-    "new output artifact"
+  "CODE": [
+   "scripts/",
+   ".github/"
   ],
-  "entries": [
-    {
-      "path": "scripts/cce_structural_gate.py",
-      "token": "segment",
-      "class": "UNRELATED_HOMONYM",
-      "reason": "segment(text) 把稿件切成 PERSONAL/NONPERSONAL/AMBIGUOUS span; 与 Population Mode 无关。改成 mode(text) 反而把文本处理概念改错。"
-    },
-    {
-      "path": "tests/test_cce_structural_gate.py",
-      "token": "segment",
-      "class": "UNRELATED_HOMONYM",
-      "reason": "同上, 测的是文本跨度切分。"
-    },
-    {
-      "path": "tests/test_cce_segmenter_ground_truth.py",
-      "token": "segmenter",
-      "class": "UNRELATED_HOMONYM",
-      "reason": "文本跨度 segmenter 的地面真值测试, 与人群本体无关。"
-    },
-    {
-      "path": "scripts/calibration_framework.py",
-      "token": "individual",
-      "class": "UNRELATED_HOMONYM",
-      "reason": "print(\"Total individual result files\") —— 普通英文「单个」, 不是本体尺度。"
-    },
-    {
-      "path": "scripts/cce_population.py",
-      "token": "individual",
-      "class": "UNRELATED_HOMONYM",
-      "reason": "\"never an individual persona\" —— 普通英文「不是某一个人」; 该断言在新本体下依然成立, 且与 cce_window_chain.py 逐字节比对。"
-    },
-    {
-      "path": "scripts/cce_window_chain.py",
-      "token": "individual",
-      "class": "UNRELATED_HOMONYM",
-      "reason": "与 cce_population.py 的 marginal_semantics 断言逐字节比对, 必须成对保留。"
-    },
-    {
-      "path": "scripts/cce_case_assemble.py",
-      "token": "individual_id",
-      "class": "DENYLIST_SENTINEL",
-      "reason": "MODEL_FORBIDDEN_KEYS 里的旧本体拒绝哨兵; 删掉等于让旧名重新可注入。"
-    },
-    {
-      "path": "scripts/cce_case_assemble.py",
-      "token": "segment_id",
-      "class": "DENYLIST_SENTINEL",
-      "reason": "同上; 旧名代表拒绝能力, 不代表业务依赖旧本体。"
-    },
-    {
-      "path": "tests/data/length_vs_dilution/verdict.json",
-      "token": "segments",
-      "class": "FROZEN_EVIDENCE",
-      "reason": "length_vs_dilution 实验的冻结判决产物; 字节不可改, 只能经 cce_population_v1_reader 只读回放。"
-    },
-    {
-      "path": "scripts/cce_population_v1_reader.py",
-      "token": "segment_mixture",
-      "class": "LEGACY_READ_ADAPTER",
-      "reason": "v1->v2 单向只读映射表。"
-    },
-    {
-      "path": "scripts/cce_population_v1_reader.py",
-      "token": "segmentation",
-      "class": "LEGACY_READ_ADAPTER",
-      "reason": "同上。"
-    },
-    {
-      "path": "scripts/cce_population_v1_reader.py",
-      "token": "segment_id",
-      "class": "LEGACY_READ_ADAPTER",
-      "reason": "同上。"
-    },
-    {
-      "path": "scripts/cce_population_v1_reader.py",
-      "token": "segment_basis",
-      "class": "LEGACY_READ_ADAPTER",
-      "reason": "同上。"
-    },
-    {
-      "path": "scripts/cce_population_v1_reader.py",
-      "token": "within_segment_mean_js",
-      "class": "LEGACY_READ_ADAPTER",
-      "reason": "同上。"
-    },
-    {
-      "path": "scripts/cce_population_v1_reader.py",
-      "token": "min_segment_size",
-      "class": "LEGACY_READ_ADAPTER",
-      "reason": "同上。"
-    },
-    {
-      "path": "config/cce_subject_system_contract_v1.json",
-      "token": "individual",
-      "class": "UNRELATED_HOMONYM",
-      "reason": "population_not_mean_person 条款里的 \"never an individual persona\" —— 普通英文「不是某一个人」, 新本体下依然成立; 且与 cce_population.py 的断言逐字节比对。"
-    },
-    {
-      "path": "tests/test_cce_population.py",
-      "token": "individual",
-      "class": "UNRELATED_HOMONYM",
-      "reason": "断言 marginal_semantics 逐字节, 同上。"
-    },
-    {
-      "path": "tests/test_cce_response_chain.py",
-      "token": "individual",
-      "class": "UNRELATED_HOMONYM",
-      "reason": "断言 marginal_semantics 逐字节, 同上。"
-    },
-    {
-      "path": "tests/test_ontology_migration.py",
-      "token": "SEGMENT_JS_THRESHOLD",
-      "class": "NEGATIVE_TEST",
-      "reason": "反向测试必须写出旧名才能制造违规并断言闸变红。"
-    },
-    {
-      "path": "tests/test_ontology_migration.py",
-      "token": "individual_id",
-      "class": "NEGATIVE_TEST",
-      "reason": "反向测试必须写出旧名才能制造违规并断言闸变红。"
-    },
-    {
-      "path": "tests/test_ontology_migration.py",
-      "token": "segment",
-      "class": "NEGATIVE_TEST",
-      "reason": "反向测试必须写出旧名才能制造违规并断言闸变红。"
-    },
-    {
-      "path": "tests/test_ontology_migration.py",
-      "token": "segment_id",
-      "class": "NEGATIVE_TEST",
-      "reason": "反向测试必须写出旧名才能制造违规并断言闸变红。"
-    },
-    {
-      "path": "tests/test_ontology_migration.py",
-      "token": "segment_mixture",
-      "class": "NEGATIVE_TEST",
-      "reason": "反向测试必须写出旧名才能制造违规并断言闸变红。"
-    }
+  "TEST": [
+   "tests/"
   ],
-  "class_note": {
-    "NEGATIVE_TEST": "负向/反向测试必须**写出**旧名才能证明闸会红。仅限 tests/test_ontology_migration.py。"
+  "CONTRACT": [
+   "config/"
+  ],
+  "DOCUMENTATION": [
+   "docs/"
+  ],
+  "EXPERIMENT": [
+   "probes/",
+   "accuracy/",
+   "ledger/"
+  ]
+ },
+ "surface_scan_mode": {
+  "EVIDENCE_DATA": "json_keys_only",
+  "CODE": "python_source_text",
+  "TEST": "python_source_text",
+  "CONTRACT": "json_keys_and_values",
+  "DOCUMENTATION": "inventory_only",
+  "EXPERIMENT": "python_source_text",
+  "EVIDENCE": "json_keys_only"
+ },
+ "surface_note": "surfaces 按最长前缀匹配 (tests/data/ 先于 tests/)，未声明的路径按 EVIDENCE 处理；EVIDENCE 里出现 .py 直接红 (UNDECLARED_CODE_SURFACE)，防止新代码靠换目录逃闸。EVIDENCE 只扫 JSON object key，绝不扫 value —— 语料 value 里真人写的 'susceptible individuals' 是被测量的 payload，不是本体使用。",
+ "allowed_classes": [
+  "FROZEN_EVIDENCE",
+  "LEGACY_READ_ADAPTER",
+  "DENYLIST_SENTINEL",
+  "UNRELATED_HOMONYM",
+  "HISTORICAL_DOCUMENTATION",
+  "MEASURED_PAYLOAD",
+  "NEGATIVE_TEST"
+ ],
+ "forbidden_exception_locations": [
+  "canonical schema",
+  "canonical serializer",
+  "new production writer",
+  "new business-domain type",
+  "new output artifact"
+ ],
+ "entries": [
+  {
+   "path": "scripts/cce_structural_gate.py",
+   "token": "segment",
+   "class": "UNRELATED_HOMONYM",
+   "reason": "segment(text) 把稿件切成 PERSONAL/NONPERSONAL/AMBIGUOUS span; 与 Population Mode 无关。改成 mode(text) 反而把文本处理概念改错。"
+  },
+  {
+   "path": "tests/test_cce_structural_gate.py",
+   "token": "segment",
+   "class": "UNRELATED_HOMONYM",
+   "reason": "同上, 测的是文本跨度切分。"
+  },
+  {
+   "path": "tests/test_cce_segmenter_ground_truth.py",
+   "token": "segmenter",
+   "class": "UNRELATED_HOMONYM",
+   "reason": "文本跨度 segmenter 的地面真值测试, 与人群本体无关。"
+  },
+  {
+   "path": "scripts/calibration_framework.py",
+   "token": "individual",
+   "class": "UNRELATED_HOMONYM",
+   "reason": "print(\"Total individual result files\") —— 普通英文「单个」, 不是本体尺度。"
+  },
+  {
+   "path": "scripts/cce_population.py",
+   "token": "individual",
+   "class": "UNRELATED_HOMONYM",
+   "reason": "\"never an individual persona\" —— 普通英文「不是某一个人」; 该断言在新本体下依然成立, 且与 cce_window_chain.py 逐字节比对。"
+  },
+  {
+   "path": "scripts/cce_window_chain.py",
+   "token": "individual",
+   "class": "UNRELATED_HOMONYM",
+   "reason": "与 cce_population.py 的 marginal_semantics 断言逐字节比对, 必须成对保留。"
+  },
+  {
+   "path": "scripts/cce_case_assemble.py",
+   "token": "individual_id",
+   "class": "DENYLIST_SENTINEL",
+   "reason": "MODEL_FORBIDDEN_KEYS 里的旧本体拒绝哨兵; 删掉等于让旧名重新可注入。"
+  },
+  {
+   "path": "scripts/cce_case_assemble.py",
+   "token": "segment_id",
+   "class": "DENYLIST_SENTINEL",
+   "reason": "同上; 旧名代表拒绝能力, 不代表业务依赖旧本体。"
+  },
+  {
+   "path": "tests/data/length_vs_dilution/verdict.json",
+   "token": "segments",
+   "class": "FROZEN_EVIDENCE",
+   "reason": "length_vs_dilution 实验的冻结判决产物; 字节不可改, 只能经 cce_population_v1_reader 只读回放。"
+  },
+  {
+   "path": "scripts/cce_population_v1_reader.py",
+   "token": "segment_mixture",
+   "class": "LEGACY_READ_ADAPTER",
+   "reason": "v1->v2 单向只读映射表。"
+  },
+  {
+   "path": "scripts/cce_population_v1_reader.py",
+   "token": "segmentation",
+   "class": "LEGACY_READ_ADAPTER",
+   "reason": "同上。"
+  },
+  {
+   "path": "scripts/cce_population_v1_reader.py",
+   "token": "segment_id",
+   "class": "LEGACY_READ_ADAPTER",
+   "reason": "同上。"
+  },
+  {
+   "path": "scripts/cce_population_v1_reader.py",
+   "token": "segment_basis",
+   "class": "LEGACY_READ_ADAPTER",
+   "reason": "同上。"
+  },
+  {
+   "path": "scripts/cce_population_v1_reader.py",
+   "token": "within_segment_mean_js",
+   "class": "LEGACY_READ_ADAPTER",
+   "reason": "同上。"
+  },
+  {
+   "path": "scripts/cce_population_v1_reader.py",
+   "token": "min_segment_size",
+   "class": "LEGACY_READ_ADAPTER",
+   "reason": "同上。"
+  },
+  {
+   "path": "config/cce_subject_system_contract_v1.json",
+   "token": "individual",
+   "class": "UNRELATED_HOMONYM",
+   "reason": "population_not_mean_person 条款里的 \"never an individual persona\" —— 普通英文「不是某一个人」, 新本体下依然成立; 且与 cce_population.py 的断言逐字节比对。"
+  },
+  {
+   "path": "tests/test_cce_population.py",
+   "token": "individual",
+   "class": "UNRELATED_HOMONYM",
+   "reason": "断言 marginal_semantics 逐字节, 同上。"
+  },
+  {
+   "path": "tests/test_cce_response_chain.py",
+   "token": "individual",
+   "class": "UNRELATED_HOMONYM",
+   "reason": "断言 marginal_semantics 逐字节, 同上。"
+  },
+  {
+   "path": "tests/test_ontology_migration.py",
+   "token": "SEGMENT_JS_THRESHOLD",
+   "class": "NEGATIVE_TEST",
+   "reason": "反向测试必须写出旧名才能制造违规并断言闸变红。"
+  },
+  {
+   "path": "tests/test_ontology_migration.py",
+   "token": "individual_id",
+   "class": "NEGATIVE_TEST",
+   "reason": "反向测试必须写出旧名才能制造违规并断言闸变红。"
+  },
+  {
+   "path": "tests/test_ontology_migration.py",
+   "token": "segment",
+   "class": "NEGATIVE_TEST",
+   "reason": "反向测试必须写出旧名才能制造违规并断言闸变红。"
+  },
+  {
+   "path": "tests/test_ontology_migration.py",
+   "token": "segment_id",
+   "class": "NEGATIVE_TEST",
+   "reason": "反向测试必须写出旧名才能制造违规并断言闸变红。"
+  },
+  {
+   "path": "tests/test_ontology_migration.py",
+   "token": "segment_mixture",
+   "class": "NEGATIVE_TEST",
+   "reason": "反向测试必须写出旧名才能制造违规并断言闸变红。"
+  },
+  {
+   "path": "probes/diarization_der.py",
+   "token": "Segment",
+   "class": "UNRELATED_HOMONYM",
+   "reason": "`pyannote.core.Segment` 是**第三方**的时间区间类(from pyannote.core import Annotation, Segment), 与本项目的 Population Mode 本体无关。改名会直接改坏 import。★ 可验: 该文件里 Segment 只出现在 pyannote 的 import 与 Annotation 赋值上, 不做本体语义。"
   }
+ ],
+ "class_note": {
+  "NEGATIVE_TEST": "负向/反向测试必须**写出**旧名才能证明闸会红。仅限 tests/test_ontology_migration.py。"
+ }
 }
