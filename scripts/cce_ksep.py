@@ -258,6 +258,30 @@ SIGNIFICANCE_CONTRACT = {
         ],
         "how_to_calibrate": "same-input repeated runs × 多文本类别 → T_same 分布, "
                             "且应出 resolution_profile 而非单一全局常量",
+        # ★ 2026-09-04 调研后新增。**delta_resolution 仍是 None, 一个字没动。**
+        #   加这一格的理由: 「完全没有阈值」逼着下游要么停摆要么自己私拍一个;
+        #   给一个**结构上不可能被误读**的敏感性网格, 比留白更安全。
+        #   方法学依据(已核): Norman/Sloan/Wyrwich 2003 的 0.5 SD 是 **HRQoL 文献里的经验规律**,
+        #   不是统计定律; Revicki 2008 与 FDA 指南均判 distribution-based **不足以单独**建立
+        #   meaningful difference(它不含 patient voice); SEM/MDC 回答的是**可检出性**不是**重要性**。
+        #   ⇒ 只能作**设计与敏感性分析**用, 且必须报网格而非单点。
+        "provisional_distribution_based_grid": {
+            "★status": "PROVISIONAL",
+            "★meaningfulness_validated": False,
+            "★is_not_sesoi": ("这**不是** SESOI, 也不是 delta_resolution。"
+                              "minimal detectable change != minimally important change。"),
+            "source_sd": "resolution_profile 的 T_same 分布(n_base=29, 同一仪器 565470cf26c16d01)",
+            "grid": {"0.2SD": None, "0.5SD": None, "0.8SD": None},
+            "★grid_is_none_until_computed": ("网格的**数值**由 tests/data/phase2/resolution_profile.json "
+                "现算, 不在这里写死 —— 写死就会变成下一个 0.06278。"),
+            "★claim_allowed": "用于设计取值范围与敏感性分析: 结论若只在某一档成立, 必须报 threshold-sensitive",
+            "★claim_forbidden": (
+                "「低于此值的差异对人类是无意义的」·「高于此值的差异是有意义的」·"
+                "「这是已验证的 SESOI」·「这是全局分辨率」——**四条都禁止**"),
+            "★what_would_upgrade_it": ("外部人类锚: 构造文本对 → 取 T_CCE → **盲评人**判 "
+                "same/trivially/meaningfully different → 估 P(meaningful | T_CCE) → 得 δ_semantic。"
+                "需 >=3 名评分者(判断题不同于转写, 单人不够)。这一条我做不了。"),
+        },
     },
     # ② 语义/解释显著性: 差异大到什么程度会**改变对文本的解释**。
     #    ★ 这一档**不需要销售/转化数据**就能建立 —— 用外部人类锚:

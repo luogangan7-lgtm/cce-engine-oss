@@ -94,8 +94,11 @@ def main():
         print(f"★ 中位 {med:.3f} 落在 (0.05,0.95) 之外或取值无变异 ⇒ **先查仪器**, 不当结论")
         if not varied:
             return 1
-    decision = ("CONSTRAINS_ASR" if med < 0.6 else
-                "WEAK_SUPPORT" if med > 0.9 else "INCONCLUSIVE")
+    # ★ 2026-09-04 调研后更正推论(判据本身未追改, 见预注册的 ★AMENDED 段):
+    #   字幕差异**既不是**真 WER 的上界**也不是**下界 —— ASR 逐字正确而字幕被压缩会**高估**错误,
+    #   字幕写错而 ASR 错得一样会**低估**错误。⇒ 判决词一律降级为「弱一致」, 不作方向性约束。
+    decision = ("WEAK_AGREEMENT_LOW" if med < 0.6 else
+                "WEAK_AGREEMENT_HIGH" if med > 0.9 else "WEAK_AGREEMENT_MID")
     print(f"字幕召回(以字幕为参考): 中位 {med:.4f} · 四分位 {q[0]:.4f}/{q[2]:.4f} · "
           f"范围 {min(rec_cap):.4f}–{max(rec_cap):.4f}")
     print(f"ASR 召回(反方向)      : 中位 {statistics.median(rec_asr):.4f}")

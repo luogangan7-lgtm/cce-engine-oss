@@ -1,0 +1,24 @@
+{
+ "block": "AB_DESIGN_FEASIBILITY_2026-09-04",
+ "★status": "设计已改, **尚未实施** —— 实施需要真实发帖序列, 那是产品侧的事",
+ "old_blocker": "「内容 A/B 不可判 —— 所需样本超单帖历史最高浏览」。★ 这句话的**隐含前提**是: 实验单位 = **一篇** post, 每篇都要自己 powered。",
+ "★research_verified_2026-09-04": {
+  "equivalence_test_would_make_it_worse": "我原本以为「改成等价检验(差异是否超过 δ)」能省样本。**错**: TOST 的 margin 越窄需要的 CI 越精确 ⇒ 样本**急剧增加**(δ 由 0.10 收到 0.05 可从数百升到上千)。而「只关心 A 比 B 好至少 δ」是带 superiority margin 的检验, n ∝ 1/(Δ−δ)² —— Δ=0.20 时把线从 0 提到 0.10, 所需信息 **×4**。⇒ 改 estimand 是**科学问题重定义, 不是省样本**。",
+  "sequential_SPRT": "真省的是 **expected n**(常见 20–50%), **最大 n 未必下降**(示例里反而 +13%)。对「单篇一生最多几百浏览」这种 feasibility 问题**不解决**, 只让明显赢/输的提前停。",
+  "bayesian_informative_prior": "真能减少**本轮新数据**, 减少量 ≈ prior 的 effective sample size。但需 robust mixture prior + prior-data conflict 检查 + 借用比例敏感性(0/25/50/100%), 否则是把「主观相信历史」伪装成样本量节省。渠道/受众/算法régime 变了就不成立。",
+  "paired_within_subject": "降幅可能最大(Var ∝ 2σ²(1−r), r 高时降 30–80%)。★ 但内容 A/B 通常**做不了**同一读者先看 A 再看 B —— carryover/novelty/order 污染; 且平台算法会依早期互动改变后续分发, 普通 within-post crossover 也会被污染。可行的是把配对提到**更高层级**: 同 SKU / 同创作者 / 同发布时段 / 同预测流量的 matched block。",
+  "hierarchical_pooling": "★ **这才是解**。把实验单位从「一篇 post」改成「**一系列 post**」, 跨 post 随机化同一个冻结的 manipulation, 用分层模型估**跨 post 平均效应** μ_β。每篇只有几十/几百曝光没关系, 只要 post 数够。★ 但要说准: 它**不是**把总信息需求从 1000 降到 100, 而是让 10 篇各出 100 凑够 1000。异质性 τ² 大时 partial pooling 显著减弱, **不能按 1/K 算**。"
+ },
+ "★new_design": {
+  "unit_of_experiment": "**一系列 post**, 不是单篇",
+  "manipulation": "预注册并冻结的**同一个**规则对比(例: 标题问句 vs 陈述句), 跨 post 随机化",
+  "blocking": "按 SKU / 创作者 / 主题 / 发布时段 / 基线预测流量做 matched block —— 直接降残差方差",
+  "primary_estimand": "μ_β 跨 post 平均处理效应",
+  "secondary": "β_j 的异质性(不许只报均值)",
+  "not_claimed": "**不声称每一篇都受益** —— population mean 不能替代 post-specific effect",
+  "stopping": "在其上用 valid sequential(always-valid p / confidence sequence), **不是普通 peeking**",
+  "★exchangeability_required": "必须能主张这 K 篇是在估**同一个 treatment family**。每次 A/B 差异都不同、或平台/国家/受众/目标行为完全不同 ⇒ 不可 pooling。"
+ },
+ "★why_still_blocked": "设计问题已解决, 但**实施仍卡在产品侧**: 需要按冻结的 manipulation 发一**系列**帖并随机化。这不是我能做的事 —— 它需要真实发布。★ 但阻塞的**性质变了**: 从「样本量根本不够, 无解」变成「设计已就绪, 等发帖序列」。",
+ "★forbidden": "不许倒推 δ —— 「我只有 200 浏览, 所以把 SESOI 调到刚好 n=200」那是降低标准不是省样本。"
+}
