@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 """元测试: 测试不许依赖仓外的本机素材/路径。
 
+## ★ 第六次: 「有降级分支」不等于「降级分支是对的」
+test_cce_visual_prose_gap 我加了 `if r is not None:`, 本机绿, CI 照样红 ——
+因为无素材时 run() 返回的是**结构完整但 prose/constrained 为 None 的 dict**, 不是 None。
+我**读代码推断**了它的缺席形态, 没去跑。
+⇒ 习惯改为: 降级路径要**实际强制触发一次**(把 SRC 指到空目录跑一遍), 不许靠读代码断言。
+
 ## 为什么加它 —— 同一类错我今天犯了三次, 全靠 CI 实跑才发现
 ① tests/test_cce_strategy_gate.py 断言「可发布」, 而 check_boundary 在 /Volumes/data/cce-identified-vault
 ② tests/test_cce_no_real_identities.py 运行时从那个保险库读化名表

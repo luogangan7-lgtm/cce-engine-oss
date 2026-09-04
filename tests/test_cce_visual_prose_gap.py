@@ -39,8 +39,11 @@ assert bigrams(None) == set()
 #   前四次都在测试文件里写着仓外路径, 这次是**通过 import 的 probe 间接依赖**,
 #   所以 tests/test_cce_no_offrepo_dependency 没扫到。元测试已相应扩到「导入 probes 的测试」。
 # ★ 缺席时**不静默跳过**: 改为验「记录在案的结论仍在且自洽」, 并明写本次没重测。
+# ★ 第六次同类错(第二次栽在同一个文件上): 我以为无素材时 run() 返回 None,
+#   实际它返回**结构完整但 prose/constrained 为 None 的 dict** —— 判 `r is not None` 照样进分支。
+#   ⇒ 判据改成看**它答没答出东西**, 不是看它有没有返回。
 r = run()
-if r is not None:
+if r and r.get("prose") and r.get("constrained"):
     assert r["prose"]["n"] > 500 and r["constrained"]["n"] > 0, r
     assert r["ratio_constrained_over_prose"] > 1.5, \
         f"★ 受约束若不再明显优于散文, 「散文做不成 Schema」的论证要另找依据: {r}"
