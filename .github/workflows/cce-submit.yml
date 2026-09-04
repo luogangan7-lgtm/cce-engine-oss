@@ -38,7 +38,7 @@ concurrency:
 jobs:
   contract:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20   # 装 onnxruntime+模型 约 100MB, 10 分钟不够
     steps:
       - uses: actions/checkout@v4
         with:
@@ -53,6 +53,10 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -r requirements.txt
+      - name: Media deps
+        # 合同 job 跑**全部**测试, 其中 test_cce_image_chain_ci 要真跑 OCR。
+        # 不装 ⇒ 它在 CI 上恒走降级路径, 「CI 全链回放」这个晋升条件就永远只是名义上满足。
+        run: pip install -r requirements-media.txt
       - name: Submission, content, subject-window, cross-plane and response gates
         # 2026-08-18: 原先是硬编码的 11 行清单。新增测试文件若忘了加进去,
         # 它就**永远不跑, 而 CI 照样全绿** —— 假检查, 且失效时无声。
@@ -155,6 +159,11 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -r requirements.txt
+      - name: Media deps (only for media_ingest)
+        # 不装它, CI 上 OCR 恒为 not_available ⇒ 「全链回放」只跑到降级路径,
+        # 绿而没测到东西。跑媒体的 job 必须真装。
+        if: needs.prep.outputs.profile == 'media_ingest'
+        run: pip install -r requirements-media.txt
       - run: python3 scripts/consistency_check.py
       - uses: actions/download-artifact@v4
         with:
