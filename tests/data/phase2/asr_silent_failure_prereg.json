@@ -1,0 +1,25 @@
+{
+ "block": "ASR_SILENT_FAILURE_IN_HISTORICAL_ARTIFACTS_GEN1",
+ "prereg_written_at": "2026-09-04",
+ "★frozen_before_measurement": "本文件在扩样**之前**提交(见 git)。",
+ "how_it_surfaced": "不是我去找它。**字幕交叉核验的非退化闸**触发(字幕召回中位 0.0098, 落在预注册的 (0.05,0.95) 之外 ⇒ 规则要求「先查仪器, 不当结论」), 查下去才发现: 参照方没坏, **被参照的 ASR 才是坏的**。",
+ "observation": {
+  "n_artifacts": 275,
+  "transcript_lt_20_chars": 138,
+  "share": 0.502,
+  "of_those_marked_speech_true": 130,
+  "★spot_check_6": "短转写组人声能量占比中位 0.472, 含 0.767 / 0.876 / **0.962**; 长转写组(>=200字)中位 0.897。★ 人声占比 0.962 却只有 3 个字 —— 那不是纯音乐视频, 是 **ASR 失败**。"
+ },
+ "★why_this_matters": "media_ingest 链就是从这 276 份产物跑出 17726 条 observation 的。若一半产物的 ASR 近乎空白却标着 speech:true, 那些 observation 会**系统性低估**语音内容, 而下游看不出来 —— 这正是本项目最忌讳的「静默失败」。",
+ "hypothesis": {
+  "H1": "短转写主要是 **ASR 失败**(人声能量高却无字)",
+  "H0": "短转写主要是**素材本就无口播**(纯音乐/纯音效, 人声能量低)"
+ },
+ "design": {
+  "sample": "转写 <20 字且有对应 wav 的产物, 按文件名排序取前 40(不挑); 对照组: 转写 >=200 字的同样取前 20",
+  "measure": "demucs 源分离的 vocals 能量占比(前 30 秒), 与 asr_quality/prosody 用的是同一实现",
+  "★criterion": "短转写组里 **vocals 占比 >= 0.5** 的比例 = **失败率下界**。>= 0.30 ⇒ SILENT_FAILURE_CONFIRMED(H1); < 0.10 ⇒ MOSTLY_NO_SPEECH(H0); 之间 ⇒ MIXED, 两种成因都有, 不许只报一种",
+  "★degeneracy": "两组的 vocals 占比分布必须可分(中位差 >= 0.2), 否则说明分离本身没有判别力"
+ },
+ "★what_must_be_fixed_regardless": "无论比例多少, `G1_layers.speech = true` 在转写近乎空白时就是**假的 ok**。完备性判据必须把「音轨存在」与「转写非空」分开 —— 这一条不依赖本实验的结论。"
+}

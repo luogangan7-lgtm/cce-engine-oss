@@ -1,0 +1,22 @@
+{
+ "block": "ASR_VS_BURNED_CAPTION_CROSSMODAL_GEN1",
+ "measured_at": "2026-09-04",
+ "n": 249,
+ "★zero_new_calls": true,
+ "caption_recall": {
+  "median": 0.0098,
+  "q1": 0.0038,
+  "q3": 0.1116,
+  "min": 0.0,
+  "max": 0.9942
+ },
+ "asr_recall": {
+  "median": 0.7333
+ },
+ "degeneracy_pass": false,
+ "decision": "CONSTRAINS_ASR",
+ "★modality_independent": "OCR 败于花字/遮挡/低对比, ASR 败于噪声/口音/BGM —— **失效模式不重叠** ⇒ 比两个 ASR 的一致更有约束力",
+ "★caption_is_not_ground_truth": "字幕**不是**真值, 至少四种系统性偏倚: ① 创作者常**改写/缩短**口语 ② 字幕**加标点**而 ASR 不加 ③ 字幕**漏掉语气词/重复/口误** ④ **OCR 自己有误差**(本项目实测中文真实素材中位 0.900)。⇒ 只能给**约束**, 不能给准确率。",
+ "★what_this_does_not_establish": "**不产出准确率**, 不改变「社媒音轨真准确率未测」这个状态。它只是把那条 BLOCKED 的**证据基础**从「推测」换成「模态独立的约束」。",
+ "★decision_rule_frozen_at": "2026-09-04"
+}
