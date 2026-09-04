@@ -126,13 +126,14 @@
     "OCR 文字 + **区域**(W3C Media Fragments xywh, pixel) + 置信度",
     "产出与 cce_video_parse **同形状**的解析产物, 由**同一条 media_ingest 链**消费 —— 不新增 profile/链",
     "JSON Schema 2020-12 校验; jsonschema 不可用即判失败, 不降级放行",
-    "empty(跑了但没字)与 failed(通道坏)分开; 置信度/区域取不到各自记账"
+    "empty(跑了但没字)与 failed(通道坏)分开; 置信度/区域取不到各自记账",
+    "权利/来源**三态真查**: IPTC 经 Pillow 实读(present/absent/not_available); C2PA 官方库不在 ⇒ **不对称判定** —— 命中标记记 present, 未命中仍记 not_available (没有解析器时「找不到」不等于「没有」)"
    ],
    "missing": [
     "场景/对象/动作识别(需 VLM, 另算)",
-    "C2PA/IPTC 实际读取 —— 现一律记 absent(**不得据此推断媒体为假**)",
     "抽取质量(OCR 准确率)评测 —— 语言相关, 未测",
-    "★ 晋升 production_github 需要: 图片档的 CI 全链回放 + 真实素材"
+    "★ 晋升 production_github 需要: 图片档的 CI 全链回放 + 真实素材",
+    "C2PA **真解析**(官方 c2pa 库未装) —— 现为不对称判定: 命中标记记 present, 未命中记 not_available。★ 无论哪种, **不得据此推断媒体为假**(2026-08-15 调研结论)"
    ],
    "missing_state": "missing_no_capability",
    "entrypoint": null,

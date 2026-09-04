@@ -52,6 +52,38 @@ def _dims(path: str):
         return None, None, None
 
 
+def rights_state(path: str) -> dict:
+    """媒体权利/来源状态。★ 三态严格分开, 不许把「查不了」写成「查过没有」。
+
+    2026-08-15 调研结论: 缺 C2PA manifest **只能记 absent/not_available, 不能推断媒体为假**。
+    库里另有一条通则: `empty_verified`(查过确实为空)与 `missing_parse_failed`(不知道)
+    必须分开 —— 混为一谈是记过的事故模式。
+
+    ★ 2026-09-03 修我自己一小时前写的错: 原来这里**硬编码 `absent`**, 而我根本没查过。
+      `absent` 的意思是「查过、没有」。
+
+    · IPTC: Pillow 的 IptcImagePlugin 能真读 ⇒ present / absent / not_available 三态都可给
+    · C2PA: 官方库不在 ⇒ **不对称判定** —— 找到 JUMBF/c2pa 标记记 present(阳性证据可信);
+      **没找到仍记 not_available**, 因为没有真解析器时「找不到」不等于「没有」。
+    """
+    out = {}
+    try:
+        from PIL import Image, IptcImagePlugin
+        with Image.open(path) as im:
+            info = IptcImagePlugin.getiptcinfo(im)
+        out["iptc"] = "present" if info else "absent"      # 读成功: 两态可信
+    except Exception:
+        out["iptc"] = "not_available"                       # 读失败: 不知道
+    try:
+        head = open(path, "rb").read(2 * 1024 * 1024)
+        # 只认阳性: 命中 = present; 未命中**不**降为 absent
+        out["c2pa"] = "present" if (b"jumb" in head or b"c2pa" in head.lower()) \
+            else "not_available"
+    except Exception:
+        out["c2pa"] = "not_available"
+    return out
+
+
 def visual_observation(path: str, *, media_type="image", t=None) -> dict:
     """一张图片(或一个视频帧)→ cce.visual_observation.v1。"""
     from cce_video_parse import _ocr_rows, OCR_CONF_MIN
@@ -94,8 +126,9 @@ def visual_observation(path: str, *, media_type="image", t=None) -> dict:
             "provenance": {"activity": "cce_image_ingest", "agent": None,
                            "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
                            "source_path": os.path.basename(path)},
-            # 缺 C2PA/IPTC 只记 absent —— **不得据此推断媒体为假**(2026-08-15 调研结论)
-            "rights": {"c2pa": "absent", "iptc": "absent"},
+            # ★ 真查而不是硬编码。三态分开: present / absent(查过没有) /
+            #   not_available(查不了)。**不得据此推断媒体为假**(2026-08-15 调研结论)。
+            "rights": rights_state(path),
             "completeness": {"status": status, "conf_unparsed": conf_unparsed,
                              "box_unparsed": box_unparsed, "error": err}}
 

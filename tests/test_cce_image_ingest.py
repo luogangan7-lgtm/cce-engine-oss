@@ -80,6 +80,32 @@ assert "不得" in oo["★regions_absent_why"], "★ 必须写明不得声称能
 assert not any(isinstance(r, dict) and r.get("xywh") == [0, 0, 0, 0]
                for r in (oo["regions"] or [])), "★ 不许补零"
 
+# ── ★ 权利/来源三态: 「查不了」不许写成「查过没有」 ────────────────────
+#    2026-09-03: 我最初硬编码 rights={"c2pa":"absent","iptc":"absent"} —— **根本没查过**。
+#    `absent` 的意思是「查过、没有」。库里早有通则:
+#    empty_verified(查过确实为空) 与 missing_parse_failed(不知道) 必须分开。
+from cce_image_ingest import rights_state  # noqa: E402
+_src_ii = open(os.path.join(ROOT, "scripts", "cce_image_ingest.py"), encoding="utf-8").read()
+assert '"c2pa": "absent"' not in _src_ii and "'c2pa': 'absent'" not in _src_ii, \
+    "★ C2PA 不得被硬编码成 absent —— 没有解析器时那是在断言未经核实的事"
+assert "rights_state(path)" in _src_ii, "★ 必须真查, 不是写死"
+
+_r = rights_state(os.path.join(ROOT, "config", "cce_visual_observation_v1.schema.json"))
+assert set(_r) == {"iptc", "c2pa"} and all(
+    v in ("present", "absent", "not_available") for v in _r.values()), _r
+
+# ★ 不对称判定: C2PA 官方库不在时, **未命中标记必须记 not_available 而非 absent**
+try:
+    import c2pa  # noqa: F401
+    _HAS_C2PA = True
+except Exception:
+    _HAS_C2PA = False
+if not _HAS_C2PA:
+    assert _r["c2pa"] != "absent", \
+        "★ 没有 C2PA 解析器却报 absent —— 「找不到标记」不等于「没有来源信息」"
+    assert "阳性证据可信" in _src_ii and "不等于「没有」" in _src_ii, \
+        "★ 不对称判定的理由要留在原地"
+
 # ── ④ 边界: 图片链**不得**被声称为生产可用 ────────────────────────────
 cap = CAPS["standalone_image_ingest"]
 assert cap["status"] == "component_only", \
