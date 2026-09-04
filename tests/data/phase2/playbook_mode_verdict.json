@@ -1,0 +1,82 @@
+{
+ "block": "PLAYBOOK_MODE_SHARE_GEN4",
+ "measured_at": "2026-09-04",
+ "instrument_hash": "565470cf26c16d01",
+ "texts": 8,
+ "meeting_criterion": 6,
+ "required": 7,
+ "per_text": {
+  "739b240fd52a": {
+   "n": 8,
+   "mode": 0.0,
+   "mode_share": 1.0,
+   "outliers": 0,
+   "verdict": "PASS"
+  },
+  "7be3af6e0e26": {
+   "n": 8,
+   "mode": 0.0,
+   "mode_share": 1.0,
+   "outliers": 0,
+   "verdict": "PASS"
+  },
+  "80769cc0222a": {
+   "n": 8,
+   "mode": 0.0,
+   "mode_share": 1.0,
+   "outliers": 0,
+   "verdict": "PASS"
+  },
+  "8dc468c70ce3": {
+   "n": 8,
+   "mode": 0.3,
+   "mode_share": 0.875,
+   "outliers": 1,
+   "verdict": "PASS"
+  },
+  "919671d9d867": {
+   "n": 8,
+   "mode": 0.0,
+   "mode_share": 0.75,
+   "outliers": 2,
+   "verdict": "FAIL"
+  },
+  "96c05a7f8073": {
+   "n": 8,
+   "mode": 0.3,
+   "mode_share": 0.75,
+   "outliers": 2,
+   "verdict": "FAIL"
+  },
+  "9f0d49fe019d": {
+   "n": 8,
+   "mode": 1.0,
+   "mode_share": 1.0,
+   "outliers": 0,
+   "verdict": "PASS"
+  },
+  "a05bd9ac0645": {
+   "n": 8,
+   "mode": 0.0,
+   "mode_share": 1.0,
+   "outliers": 0,
+   "verdict": "PASS"
+  }
+ },
+ "degeneracy": {
+  "distinct_modes": 3,
+  "modes": [
+   0.0,
+   0.3,
+   1.0
+  ],
+  "texts_sharing_top_mode": 5,
+  "passes": true,
+  "rule": "8 个文本的众数至少要有 **2 个不同取值**; 且众数为同一值的文本不得超过 7/8。"
+ },
+ "decision": "INCONCLUSIVE",
+ "★decision_rule_frozen_at": "2026-09-03",
+ "★what_i_may_not_do": "★ 判定 INCONCLUSIVE(6/8, 需 7) ⇒ **不得采纳**。三件事一律不做: ① 重跑换一个好点的抽样 ② 事后下调阈值 ③ 把 v1 与 v2 合并凑够数。预注册说 8 个文本、≥7 —— 拿到 6 就是 6。",
+ "★what_improved": "改读数形式**确实有改善**, 如实记: 同样 8 个文本, 旧判据(逐对容差一致 >=0.95)达标 4/8, 新判据(众数占比 >=7/8)达标 6/8; 非退化也变好 —— v1 里 6/8 个文本众数是 0.0, 本轮最多 5/8 共用同一众数, 3 个不同众数。**地板效应的担心因此减轻, 但改善没到线。**",
+ "★consequence": "对齐线**保持关闭**: 九结加权分与 playbook 标量/众数三种形式全部不可用。要再推进需**新的预注册**且按成本曲线的教训 —— **先扩文本, 不是加 rep**。"
+}

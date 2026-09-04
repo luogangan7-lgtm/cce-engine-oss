@@ -79,11 +79,19 @@ def rows() -> list[dict]:
                          f"(该数是**下界**, 未含 dissolve_hit 噪声); 已随 weight 扣发"),
                 "文件": "probes/align_theta_sensitivity.py"})
     ph = _j("tests/data/phase2/playbook_hit_verdict.json")
+    pm = _j("tests/data/phase2/playbook_mode_verdict.json")
     out.append({"组件": "top-1 playbook_hit(唯一剩下的对齐出口)", "状态": FAILED,
                 "证据": (f"预注册判定 {ph['decision']}: {ph['meeting_criterion']}/{ph['texts']} 文本达标"
                          "。★ 只在答案明显「是」或「否」时稳(极差 0), 中间地带极差 0.3–0.7 —— "
                          "阈值判决正住在中间。非退化闸**过了**, 所以是「测到了但不稳」不是「没测到」"),
                 "文件": "tests/data/phase2/playbook_hit_verdict.json"})
+    out.append({"组件": "对齐出口 playbook **众数占比**形式(替代尝试)", "状态": FAILED,
+                "证据": (f"预注册判定 {pm['decision']}: 达标 {pm['meeting_criterion']}/{pm['texts']}"
+                         f"(需 {pm['required']})。★ 改读数形式**确实有改善**(旧判据 4/8 → 新 6/8, "
+                         f"非退化由 6/8 同众数降到 {pm['degeneracy']['texts_sharing_top_mode']}/8), "
+                         "**但差一个也是差** —— 不采纳, 不下调阈值, 不合并两轮凑数。"
+                         "⇒ 对齐线整体保持关闭"),
+                "文件": "tests/data/phase2/playbook_mode_verdict.json"})
 
     # ── 媒体 ──────────────────────────────────────────────────────────
     out.append({"组件": "媒体**存在**声明", "状态": USABLE,

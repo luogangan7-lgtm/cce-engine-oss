@@ -156,6 +156,28 @@ def playbook_hit_usable(path=None, instrument_hash=None):
                    "文本达标; 且它只在答案明显时稳, **中间地带不稳** —— 阈值判决正住在中间。")
 
 
+def playbook_mode_usable(path=None, instrument_hash=None):
+    """playbook 的**众数占比**形式是否可用 —— 由预注册判定决定。
+
+    ★ 2026-09-03 判定 INCONCLUSIVE(达标 6/8, 需 7/8)。
+      改读数形式(标量 → 分布摘要)确实把达标从 4/8 提到 6/8, 非退化也变好,
+      **但没到预注册的线**。差一个也是差 —— 不得采纳, 更不得事后下调阈值或合并两轮凑数。
+    """
+    path = path or os.path.join(ROOT, "tests", "data", "phase2", "playbook_mode_verdict.json")
+    if not os.path.exists(path):
+        return False, "无 playbook_mode 判定 —— 缺判定不等于可用"
+    v = json.load(open(path, encoding="utf-8"))
+    if not instrument_hash:
+        return False, "本次运行未提供 instrument_hash —— 缺仪器标识不等于仪器相同"
+    if instrument_hash != v.get("instrument_hash"):
+        return False, f"判定在仪器 {v.get('instrument_hash')} 上做的, 本次是 {instrument_hash}"
+    if v.get("decision") == "USABLE":
+        return True, f"达标 {v['meeting_criterion']}/{v['texts']} 且非退化"
+    return False, (f"playbook_mode 判定 {v['decision']}: 达标 {v['meeting_criterion']}/{v['texts']}"
+                   f"(需 {v['required']})。改形式有改善(旧判据 4/8 → 新判据 6/8)但**未到线**; "
+                   "对齐线保持关闭。")
+
+
 def weight_usable(path=None, instrument_hash=None):
     """weight 层是否可用 —— 由 v2 多文本判定决定, 不由单文本观察决定。
 
