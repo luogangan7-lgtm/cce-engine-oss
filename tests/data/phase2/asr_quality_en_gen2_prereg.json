@@ -1,0 +1,17 @@
+{
+ "block": "EXTRACTION_QUALITY_EN_GEN2_ASR_STRATIFIED",
+ "prereg_written_at": "2026-09-04",
+ "★frozen_before_measurement": "本文件在采集任何 GEN2 读数**之前**提交(见 git)。",
+ "why_gen2_exists": "GEN1 严格执行了「字典序取前 100」, 但**后果**是样本只覆盖 2 个说话人。★ 不能因此改 GEN1 的规则 —— 看到结果后改预注册是明令禁止的。⇒ GEN1 结果原样保留并标注局限; GEN2 是**另一个**、抽样规则不同的实验。",
+ "sampling": {
+  "rule": "test-clean 的每个说话人取其**字典序第一条** utterance, 覆盖全部说话人",
+  "why": "让样本在**说话人**这一维上有变异 —— GEN1 缺的正是这个",
+  "n_expected": "= test-clean 的说话人数(测量时现算并记录)"
+ },
+ "model": "iic/SenseVoiceSmall via funasr —— 与 GEN1、与 cce_video_parse 逐字相同",
+ "normalization": "与 GEN1 逐字相同(大写/去标点/折空白; 先剥 <|...|> 标签) —— 换归一化就不可比",
+ "metric": "WER, **报逐条分布 + 逐说话人分布**",
+ "★degeneracy_guard": "① 逐条 WER 必须有变异; ② **说话人数必须 > 10** —— 否则 GEN2 相对 GEN1 没有增加任何东西, 记 NO_ADDED_RESOLUTION 而不是「确认了 GEN1」",
+ "★criterion": "与 GEN1 比: 若 GEN2 的中位 WER 落在 GEN1 的四分位区间内 ⇒ 说话人维度未显著改变结论, GEN1 的数可作参考; 若显著更差 ⇒ GEN1 因样本集中而**乐观**, 以 GEN2 为准。★ 无论哪种, 都报**两个**结果, 不合并。",
+ "★what_this_does_not_establish": "仍只是 LibriSpeech(朗读语音)。自发语音/带噪场景未测。"
+}

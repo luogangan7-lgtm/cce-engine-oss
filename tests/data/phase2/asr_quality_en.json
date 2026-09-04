@@ -1,0 +1,27 @@
+{
+ "block": "EXTRACTION_QUALITY_EN_GEN1:ASR",
+ "measured_at": "2026-09-04",
+ "corpus": "LibriSpeech test-clean",
+ "n": 100,
+ "failed": 0,
+ "model": "iic/SenseVoiceSmall (funasr)",
+ "wer": {
+  "median": 0.0,
+  "mean": 0.0389,
+  "q1": 0.0,
+  "q3": 0.0328,
+  "max": 1.0
+ },
+ "degeneracy_pass": true,
+ "★normalization": "LibriSpeech 约定: 大写/去标点/折空白; 识别侧先剥 <|...|> 标签",
+ "★criterion": "与公开报告值同量级 ⇒ 集成没坏; 差一倍以上 ⇒ 是我的集成有缺陷",
+ "★sampling_limitation_found_after_measurement": "★ 预注册写的是「按 utterance id 字典序取前 100 条, 不挑」, 我**严格执行了** —— 但事后发现后果: 这 100 条只来自 **2 个说话人**(1089:64, 1188:36), 而 test-clean 共 40 个。⇒ 3.89% 这个数**没有说话人变异**, 不能推广到 test-clean 整体。★ 不改 GEN1 的抽样规则(那是看到结果后改预注册, 明令禁止); 另立 GEN2 做分层抽样。",
+ "★worst_cases_are_real_errors_not_normalization_artifacts": "WER>0.15 的 6 条已逐条查看: 全是**真实识别错误**(专有名词 STEPHANOS DEDALOS→SSTEPHANOS DELO; 英式拼写 COLOURS→COLORSS; IN A CHORD→ACCORD), **不是**数字/缩写格式造成的假象。⇒ 我的归一化没有虚增 WER。(调研提醒过这个坑: 不许自己临时制定 7 vs SEVEN 的规则。)",
+ "speakers": {
+  "n": 2,
+  "distribution": {
+   "1089": 64,
+   "1188": 36
+  }
+ }
+}
