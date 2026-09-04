@@ -1,0 +1,24 @@
+{
+ "block": "READOUT_USABILITY_NOT_REPRODUCIBLE_OBS1",
+ "observed_at": "2026-09-04",
+ "★this_is_an_observation_not_a_measurement": "n=2 次 run/档, **没有**预注册, 因此这里给的是一次观察, **不是翻转率**。它是重验三档时顺带发现的, 不许当作已测量的可靠性数字引用。",
+ "design_that_makes_it_interpretable": "两次 run 的信封**逐位相同**(只改 submission_id/trace_id, 已用脚本核对); 两处闸的代码与常量最后改动是 **2026-08-18**, 早于两次 run。⇒ 输入与判据都不变, 差异只能来自估计量本身的随机性。",
+ "flips": {
+  "outbound_post": {
+   "run_old": "33745544418",
+   "run_new": "33842081104",
+   "s1.tops.need": "可用 → 扣发 (within_js=0.3158 > 0.161)",
+   "s2.playbook_primary": "可用 → 扣发 (top1 不稳: ['belong','pain_seek','pain_seek','pain_seek','belong'])"
+  },
+  "outbound_reply": {
+   "run_old": "33746399209",
+   "run_new": "33842084279",
+   "s1.tops.need": "可用 → 扣发",
+   "s2.playbook_primary": "**扣发 → 可用**"
+  }
+ },
+ "★bidirectional": "s2.playbook_primary 在两档里**方向相反**(post 丢、reply 得) ⇒ 是随机性, **不是**今天的代码把闸改严了。这条排除了「回归」这个解释。",
+ "★one_direction_worth_flagging": "s1.tops.need 在**两档都**由可用转扣发(09-03 两档都可用)。方向一致, 但 n=2 ⇒ **登记为待测, 不下结论**。要判它需要预注册 + 同输入多次重跑。",
+ "★consequence": "生产状态表里标「可用」的读数, 其可用性是**逐次运行由闸在运行时判**的, **不是系统的固有属性**。下游不得假定某个读数下次还在。这与已测的 θ 敏感性(18.4% 判决被 weight 抖动翻转)是同一族问题。",
+ "★what_it_does_not_say": "不说「读数没用」——闸正常工作, 不稳时如实扣发, 这正是设计意图。只说「**可用与否本身会变**」, 所以不能把某一次的可用集当成常态承诺。"
+}

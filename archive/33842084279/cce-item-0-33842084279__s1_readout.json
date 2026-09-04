@@ -1,0 +1,886 @@
+{
+ "input_sha": "00be1b6643dccdf0",
+ "run_at": "2026-09-04T05:57:31",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "operational": {
+   "attempts": [
+    {
+     "temperature": 0.0,
+     "attempt": 1,
+     "status": "SUCCESS",
+     "error_class": null
+    },
+    {
+     "temperature": 0.3,
+     "attempt": 1,
+     "status": "SUCCESS",
+     "error_class": null
+    },
+    {
+     "temperature": 0.6,
+     "attempt": 1,
+     "status": "SUCCESS",
+     "error_class": null
+    }
+   ],
+   "n_attempts": 3,
+   "n_draws": 3,
+   "first_attempt_success": 3,
+   "first_attempt_success_rate": 1.0,
+   "n_infra_failed": 0,
+   "n_parse_failed": 0,
+   "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+   "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+  },
+  "preparation_id": "prep_86c7c7545d75",
+  "structural_gate": {
+   "gate_version": "1.0.0",
+   "verdict": "MEASURE",
+   "span_counts": {
+    "PERSONAL": 5,
+    "NONPERSONAL": 0,
+    "AMBIGUOUS": 4
+   },
+   "chars_in": 1422,
+   "chars_kept": 1422,
+   "chars_dropped": 0
+  },
+  "k_requested": 3,
+  "k_attempted": 3,
+  "k_valid": 3,
+  "k_abstained": 0,
+  "k_ok": 3,
+  "n_abstain": 0,
+  "abstained": false,
+  "measurement_status": "qualified",
+  "layers": {
+   "desire_vec": [
+    0.06,
+    0.043333333333333335,
+    0.24,
+    0.25,
+    0.06666666666666667,
+    0.03333333333333333,
+    0.13333333333333333,
+    0.15666666666666665,
+    0.016666666666666666
+   ],
+   "need_vec": [
+    0.15,
+    0.12666666666666668,
+    0.10000000000000002,
+    0.05666666666666667,
+    0.05000000000000001,
+    0.19333333333333333,
+    0.05000000000000001,
+    0.0,
+    0.0,
+    0.2233333333333333,
+    0.03333333333333333,
+    0.0,
+    0.0,
+    0.0,
+    0.016666666666666666,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.07876118868600072,
+    0.14344790547798067,
+    0.023469387755102045,
+    0.047815968492660225,
+    0.010068027210884354,
+    0.1703186537773004,
+    0.0,
+    0.29029717150017903,
+    0.18854278553526674,
+    0.030408163265306123,
+    0.006802721088435375,
+    0.0034013605442176874,
+    0.006666666666666667
+   ],
+   "action_vec": [
+    0.42333333333333334,
+    0.05666666666666667,
+    0.24333333333333332,
+    0.05000000000000001,
+    0.0033333333333333335,
+    0.0033333333333333335,
+    0.21999999999999997
+   ]
+  },
+  "tops": {
+   "desire": "确认欲",
+   "need": "N10_自我确认",
+   "emotion": "relief宽慰",
+   "action": "approach趋近"
+  },
+  "draws": [
+   {
+    "from_temperature": 0.0,
+    "abstained": false,
+    "desire_vec": [
+     0.1,
+     0.05,
+     0.3,
+     0.2,
+     0.1,
+     0.05,
+     0.1,
+     0.05,
+     0.05
+    ],
+    "need_vec": [
+     0.0,
+     0.15,
+     0.08,
+     0.07,
+     0.1,
+     0.25,
+     0.0,
+     0.0,
+     0.0,
+     0.25,
+     0.05,
+     0.0,
+     0.0,
+     0.0,
+     0.05,
+     0.0,
+     0.0
+    ],
+    "emotion_vec": [
+     0.08,
+     0.15,
+     0.05,
+     0.05,
+     0.02,
+     0.2,
+     0.0,
+     0.3,
+     0.1,
+     0.03,
+     0.0,
+     0.0,
+     0.02
+    ],
+    "action_vec": [
+     0.45,
+     0.05,
+     0.2,
+     0.05,
+     0.0,
+     0.0,
+     0.25
+    ],
+    "tops": {
+     "desire": "摆脱欲",
+     "need": "N06_摆脱痛苦",
+     "emotion": "relief宽慰",
+     "action": "approach趋近"
+    },
+    "appraisal": {
+     "goal_relevance": 0.95,
+     "congruence_direction": "促进",
+     "need_status": "已满足",
+     "goal_congruence": "正",
+     "coping_potential": "高",
+     "note": "目标高度相关(花了$7K等回报);内容方向是'帮观众趋近目标'(降噪/言语聚焦/远程服务均优于Oticon);当场满足(10%升级、餐厅对话清晰、ROI可证);正+高应对潜能 → 触发宽慰、认同、自豪等正情绪,且会催生'我也行'的行动倾向。"
+    }
+   },
+   {
+    "from_temperature": 0.3,
+    "abstained": false,
+    "desire_vec": [
+     0.029999999999999992,
+     0.07999999999999999,
+     0.21999999999999995,
+     0.24999999999999994,
+     0.04999999999999999,
+     0.04999999999999999,
+     0.14999999999999997,
+     0.16999999999999998,
+     0.0
+    ],
+    "need_vec": [
+     0.15,
+     0.08,
+     0.12,
+     0.1,
+     0.05,
+     0.18,
+     0.05,
+     0.0,
+     0.0,
+     0.22,
+     0.05,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emotion_vec": [
+     0.05102040816326531,
+     0.12244897959183673,
+     0.020408163265306124,
+     0.04081632653061225,
+     0.010204081632653062,
+     0.15306122448979592,
+     0.0,
+     0.25510204081632654,
+     0.25510204081632654,
+     0.061224489795918366,
+     0.020408163265306124,
+     0.010204081632653062,
+     0.0
+    ],
+    "action_vec": [
+     0.42,
+     0.02,
+     0.28,
+     0.05,
+     0.01,
+     0.01,
+     0.21
+    ],
+    "tops": {
+     "desire": "确认欲",
+     "need": "N10_自我确认",
+     "emotion": "relief宽慰",
+     "action": "approach趋近"
+    },
+    "appraisal": {
+     "goal_relevance": 0.92,
+     "congruence_direction": "促进",
+     "need_status": "已满足",
+     "goal_congruence": "正",
+     "coping_potential": "高",
+     "note": "goal_relevance极高——内容直接回应了『助听器是否值得$7K』『能否在嘈杂环境听清』『35年疲劳能否缓解』三个核心目标。congruence_direction=促进:AI降噪+言语聚焦让10%提升变为现实;need_status=已满足:『I kept the aids』『my brain-body was better』『to my surprise, it has worked out fine』都说明需求当场被兜住。coping_potential=高:有$7K预算、能跨州执行、有35年经验做判断框架、能远程完成售后。促进+已满足+高应对潜能→强正情绪(宽慰、认同、自豪),而非焦虑类悬置负情绪。"
+    }
+   },
+   {
+    "from_temperature": 0.6,
+    "abstained": false,
+    "desire_vec": [
+     0.05,
+     0.0,
+     0.2,
+     0.3,
+     0.05,
+     0.0,
+     0.15,
+     0.25,
+     0.0
+    ],
+    "need_vec": [
+     0.3,
+     0.15,
+     0.1,
+     0.0,
+     0.0,
+     0.15,
+     0.1,
+     0.0,
+     0.0,
+     0.2,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emotion_vec": [
+     0.10526315789473685,
+     0.15789473684210525,
+     0.0,
+     0.052631578947368425,
+     0.0,
+     0.15789473684210525,
+     0.0,
+     0.3157894736842105,
+     0.2105263157894737,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "action_vec": [
+     0.4,
+     0.1,
+     0.25,
+     0.05,
+     0.0,
+     0.0,
+     0.2
+    ],
+    "tops": {
+     "desire": "确认欲",
+     "need": "N01_确定性",
+     "emotion": "relief宽慰",
+     "action": "approach趋近"
+    },
+    "appraisal": {
+     "goal_relevance": 0.95,
+     "congruence_direction": "促进",
+     "need_status": "已满足",
+     "goal_congruence": "正",
+     "coping_potential": "高",
+     "note": "对N01/N06/N02这一组核心需求,内容是同时'促进+已满足'——10% better实现了,脑力代偿消失了,远程服务worked out fine,且自己手里有退货这把安全锁(coping_potential=高)。没有揭示新威胁,没有悬置焦虑,故goal_congruence=正,情绪应当是宽慰-认可-满足带的正情绪,而不是fear/anger类。"
+    }
+   }
+  ],
+  "appraisal": {
+   "goal_relevance": 0.95,
+   "congruence_direction": "促进",
+   "need_status": "已满足",
+   "goal_congruence": "正",
+   "coping_potential": "高",
+   "note": "目标高度相关(花了$7K等回报);内容方向是'帮观众趋近目标'(降噪/言语聚焦/远程服务均优于Oticon);当场满足(10%升级、餐厅对话清晰、ROI可证);正+高应对潜能 → 触发宽慰、认同、自豪等正情绪,且会催生'我也行'的行动倾向。"
+  },
+  "chain_trace": "摆脱欲(35年听不清+脑补疲劳)+确认欲(花$7K要回看对错)+控制欲(可退货留回旋) →(情境:刚体验完Fortell、在嘈杂餐厅对话明显改善、远程服务跑通)→ 需求N06_摆脱痛苦 + N10_自我确认 + N02_掌控局面 + N05_优化效率 →(评价:目标相关度0.95、促进+已满足=正情绪、高应对潜能)→ 情绪relief宽慰(主) + pride自豪 + joy喜悦 + approval认同 → 行动倾向approach趋近(发推荐帖)+ dominate支配(写top10清单建议) + attend关注(继续做厂商对比)。",
+  "single_draw": {
+   "appraisal": {
+    "goal_relevance": 0.95,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "目标高度相关(花了$7K等回报);内容方向是'帮观众趋近目标'(降噪/言语聚焦/远程服务均优于Oticon);当场满足(10%升级、餐厅对话清晰、ROI可证);正+高应对潜能 → 触发宽慰、认同、自豪等正情绪,且会催生'我也行'的行动倾向。"
+   },
+   "chain_trace": "摆脱欲(35年听不清+脑补疲劳)+确认欲(花$7K要回看对错)+控制欲(可退货留回旋) →(情境:刚体验完Fortell、在嘈杂餐厅对话明显改善、远程服务跑通)→ 需求N06_摆脱痛苦 + N10_自我确认 + N02_掌控局面 + N05_优化效率 →(评价:目标相关度0.95、促进+已满足=正情绪、高应对潜能)→ 情绪relief宽慰(主) + pride自豪 + joy喜悦 + approval认同 → 行动倾向approach趋近(发推荐帖)+ dominate支配(写top10清单建议) + attend关注(继续做厂商对比)。",
+   "from_temperature": 0.0,
+   "caveat": "单次抽样(温度阶梯第一档), 不是 K 次聚合; 与 layers/tops 不同口径, 不得并列引用"
+  },
+  "_provenance": {
+   "aggregated": [
+    "layers",
+    "tops",
+    "within_js"
+   ],
+   "single_draw": [
+    "appraisal",
+    "chain_trace"
+   ],
+   "n": 3
+  },
+  "within_js": {
+   "desire_vec": 0.1051,
+   "need_vec": 0.2099,
+   "emotion_vec": 0.0732,
+   "action_vec": 0.0214
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "reward",
+    "intensity": 0.88,
+    "support": 1.0,
+    "occur": 5,
+    "n": 5,
+    "support_ci95": [
+     0.5655,
+     1.0
+    ],
+    "support_majority": true,
+    "weight": 0.3911,
+    "name": "爽点·回报结",
+    "family": "推动",
+    "playbook": "短收;自我缩小;不再投喂信息(需求已闭,长文=把关掉的门重开)",
+    "behavior_predicted": "致谢通道·低中成本:收藏声明/致谢/自来水布道。驱动留存分享(留存维ρ≈0.26-0.5)",
+    "evidence_quote": "I kept the aids due to their noise-cancellation and speech-focus in AI mode. And I could tell that my brain-body was better, as I didn't even notice that my aids were in. I also kept the aids, as my 10% did get better at Fortell's forte: hearing conversations in loud bars and restaurants.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足(即时)",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N01",
+    "freshness_days_hint": 14
+   },
+   {
+    "key": "display",
+    "intensity": 0.82,
+    "support": 1.0,
+    "occur": 5,
+    "n": 5,
+    "support_ci95": [
+     0.5655,
+     1.0
+    ],
+    "support_majority": true,
+    "weight": 0.3644,
+    "name": "确证·展示结",
+    "family": "推动",
+    "playbook": "让位;被当同侪;接着他的贡献往前走,绝不纠正姿态压他",
+    "behavior_predicted": "展示通道·低→高成本:纠错亮牌/举反例晒型号/结构化长评/承诺回访。评论区最高质量UGC主力",
+    "evidence_quote": "I have been wearing aids for 35 years... They are way better than my Oticon aids (that cost me about the same). I feel Fortell is making it more of a science. Their service model is basically remote for me, and to my surprise, it has worked out fine.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "identity"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N10",
+    "freshness_days_hint": 14
+   },
+   {
+    "key": "belong",
+    "intensity": 0.3,
+    "support": 0.6,
+    "occur": 3,
+    "n": 5,
+    "support_ci95": [
+     0.2307,
+     0.8824
+    ],
+    "support_majority": true,
+    "weight": 0.1333,
+    "name": "归属·确认结",
+    "family": "推动",
+    "playbook": "先『你不是一个人』把人接住,再给至多一格新知;不派任务",
+    "behavior_predicted": "确认通道·中成本:自我暴露式发帖+『only me?』;线下伴随伪装替代行为",
+    "evidence_quote": "If you are a hearing aid user, you know that correcting hearing loss is more of an art than a science... I suggest writing down your top 10 problems and what would satisfy you in the hunt for new aids. Good luck in your journey.",
+    "signature": {
+     "congruence": "威胁(孤立)",
+     "need_status": "未满足",
+     "coping": "低",
+     "time": "过去-现在",
+     "attribution": "none",
+     "target_layer": "identity"
+    },
+    "desire_code": "归属欲",
+    "need_code": "N11",
+    "freshness_days_hint": 10
+   },
+   {
+    "key": "audit",
+    "intensity": 0.25,
+    "support": 0.8,
+    "occur": 4,
+    "n": 5,
+    "support_ci95": [
+     0.3755,
+     0.9638
+    ],
+    "support_majority": true,
+    "weight": 0.1111,
+    "name": "验真·审计结",
+    "family": "阻挡",
+    "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+    "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前",
+    "evidence_quote": "Not that I have $7K to throw around, but if I heard just 10% better, then that is an ROI that I can justify... it sounds like proven studies between hearing aid manufacturers is a top priority.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "other_agent",
+     "target_layer": "epistemic_trust"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N10",
+    "freshness_days_hint": 30
+   },
+   {
+    "key": "pain_seek",
+    "intensity": 0.175,
+    "support": 0.4,
+    "occur": 2,
+    "n": 5,
+    "support_ci95": [
+     0.1176,
+     0.7693
+    ],
+    "support_majority": false,
+    "weight": 0.0,
+    "name": "痛点·求解结",
+    "family": "推动",
+    "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+    "behavior_predicted": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)",
+    "evidence_quote": "Not that I have $7K to throw around, but if I heard just 10% better, then that is an ROI that I can justify.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "已满足(回溯)",
+     "coping": "高",
+     "time": "过去→现在",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲/控制欲",
+    "need_code": "N01/N06",
+    "freshness_days_hint": 25
+   },
+   {
+    "key": "inertia",
+    "intensity": 0.15,
+    "support": 0.4,
+    "occur": 2,
+    "n": 5,
+    "support_ci95": [
+     0.1176,
+     0.7693
+    ],
+    "support_majority": false,
+    "weight": 0.0,
+    "name": "惯性·缺席结",
+    "family": "阻挡",
+    "playbook": "只有精确命中其机制才值得触碰;给『一步且可逆』的最小改变;绝不布道",
+    "behavior_predicted": "缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,开口即高质量个案",
+    "evidence_quote": "I was also skeptical of the aids... You get comfortable with aids, and your brain works hard to compensate - you don't realize how hard until there is a change.",
+    "signature": {
+     "congruence": "无激活或coping感知为零",
+     "need_status": "现状部分满足为默认",
+     "coping": "极低/习得性认命",
+     "time": "无限期现在",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "控制欲(被压抑)",
+    "need_code": "N02(被搁置)",
+    "freshness_days_hint": 60
+   },
+   {
+    "key": "suspend",
+    "intensity": 0.12,
+    "support": 0.2,
+    "occur": 1,
+    "n": 5,
+    "support_ci95": [
+     0.0362,
+     0.6245
+    ],
+    "support_majority": false,
+    "weight": 0.0,
+    "name": "悬置·焦虑结",
+    "family": "阻挡",
+    "playbook": "给判据+零成本测试塌缩不确定性+如实说trade;不推购买。反杠杆=零风险承诺/样品/证言",
+    "behavior_predicted": "质询通道·中成本:连环规格质询/征证言/比价/收藏不买/明确不动",
+    "evidence_quote": "I told myself that I could return them, so I didn't feel the $7K was at risk.",
+    "signature": {
+     "congruence": "促进与威胁并存",
+     "need_status": "未满足",
+     "coping": "不确定",
+     "time": "未来(决策悬置)",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N01",
+    "freshness_days_hint": 45
+   }
+  ],
+  "measurement_status": "qualified",
+  "n_abstain": 0,
+  "draw_ledger": [
+   {
+    "draw_id": 0,
+    "knot_vector": {
+     "pain_seek": 0.0,
+     "injustice": 0.0,
+     "belong": 0.4,
+     "reward": 0.85,
+     "display": 0.78,
+     "itch": 0.0,
+     "suspend": 0.12,
+     "inertia": 0.18,
+     "audit": 0.28
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "reward"
+   },
+   {
+    "draw_id": 1,
+    "knot_vector": {
+     "pain_seek": 0.15,
+     "injustice": 0.0,
+     "belong": 0.0,
+     "reward": 0.92,
+     "display": 0.88,
+     "itch": 0.0,
+     "suspend": 0.0,
+     "inertia": 0.0,
+     "audit": 0.08
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "reward"
+   },
+   {
+    "draw_id": 2,
+    "knot_vector": {
+     "pain_seek": 0.2,
+     "injustice": 0.0,
+     "belong": 0.3,
+     "reward": 0.88,
+     "display": 0.78,
+     "itch": 0.0,
+     "suspend": 0.0,
+     "inertia": 0.0,
+     "audit": 0.0
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "reward"
+   },
+   {
+    "draw_id": 3,
+    "knot_vector": {
+     "pain_seek": 0.0,
+     "injustice": 0.0,
+     "belong": 0.0,
+     "reward": 0.88,
+     "display": 0.82,
+     "itch": 0.0,
+     "suspend": 0.0,
+     "inertia": 0.12,
+     "audit": 0.28
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "reward"
+   },
+   {
+    "draw_id": 4,
+    "knot_vector": {
+     "pain_seek": 0.0,
+     "injustice": 0.0,
+     "belong": 0.15,
+     "reward": 0.88,
+     "display": 0.86,
+     "itch": 0.0,
+     "suspend": 0.0,
+     "inertia": 0.0,
+     "audit": 0.22
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "reward"
+   }
+  ],
+  "intensity": {
+   "reward": 0.88,
+   "display": 0.82,
+   "belong": 0.3,
+   "audit": 0.25
+  },
+  "families": {
+   "推动": {
+    "mass": 0.88,
+    "composition": {
+     "reward": 0.44,
+     "display": 0.41,
+     "belong": 0.15
+    },
+    "members_active": 3
+   },
+   "阻挡": {
+    "mass": 0.25,
+    "composition": {
+     "audit": 1.0
+    },
+    "members_active": 1
+   }
+  },
+  "drive_brake": {
+   "drive_mass": 0.88,
+   "brake_mass": 0.25,
+   "quadrant": "high_drive/low_brake",
+   "note": "象限切点 0.5 是量纲中点, 不是校准阈值; 仅作分类标签, 不得作判据"
+  },
+  "levers_present": [
+   "social_proof(弱·对比Oticon作为参照锚)",
+   "从众(自述经验作为社会证明)",
+   "好奇缺口(10%提升的ROI锚定)",
+   "种草"
+  ],
+  "notes": "典型 reward+display 双结驱动的资深用户长评: 35年佩戴史背书 + 具体产品对比(Oticon) + ROI量化,结驱动叙事,几乎不靠杠杆拉动。",
+  "sampling": {
+   "n_requested": 5,
+   "n_ok": 5,
+   "top1_mode": "reward",
+   "top1_mode_share": 1.0,
+   "top1_unanimous": true,
+   "top1_stable": true,
+   "top1_draws": [
+    "reward",
+    "reward",
+    "reward",
+    "reward",
+    "reward"
+   ],
+   "caveat_unanimous": "top1_unanimous 在 n=1 时恒真, 且 P≈p^n 随 n 单调下降 —— 跨不同 n 比较必须用 top1_mode_share, 不能用 unanimous",
+   "max_range": 0.25,
+   "per_knot": {
+    "display": {
+     "occur": 5,
+     "n": 5,
+     "support": 1.0,
+     "intensity": 0.82,
+     "median": 0.82,
+     "min": 0.78,
+     "max": 0.88,
+     "range": 0.1
+    },
+    "suspend": {
+     "occur": 1,
+     "n": 5,
+     "support": 0.2,
+     "intensity": 0.12,
+     "median": 0.12,
+     "min": 0.12,
+     "max": 0.12,
+     "range": 0.0
+    },
+    "audit": {
+     "occur": 4,
+     "n": 5,
+     "support": 0.8,
+     "intensity": 0.25,
+     "median": 0.25,
+     "min": 0.08,
+     "max": 0.28,
+     "range": 0.2
+    },
+    "belong": {
+     "occur": 3,
+     "n": 5,
+     "support": 0.6,
+     "intensity": 0.3,
+     "median": 0.3,
+     "min": 0.15,
+     "max": 0.4,
+     "range": 0.25
+    },
+    "pain_seek": {
+     "occur": 2,
+     "n": 5,
+     "support": 0.4,
+     "intensity": 0.175,
+     "median": 0.175,
+     "min": 0.15,
+     "max": 0.2,
+     "range": 0.05
+    },
+    "reward": {
+     "occur": 5,
+     "n": 5,
+     "support": 1.0,
+     "intensity": 0.88,
+     "median": 0.88,
+     "min": 0.85,
+     "max": 0.92,
+     "range": 0.07
+    },
+    "inertia": {
+     "occur": 2,
+     "n": 5,
+     "support": 0.4,
+     "intensity": 0.15,
+     "median": 0.15,
+     "min": 0.12,
+     "max": 0.18,
+     "range": 0.06
+    }
+   }
+  },
+  "caveat": "单次抽样不是测量: 本结果为 n 次抽样的逐结中位数; top1_stable=false 时首结身份本身不可复现, 不得作断言依据",
+  "instrument": {
+   "instrument_hash": "565470cf26c16d01",
+   "qualification_policy_hash": "b41ef5217a77d311",
+   "spec": {
+    "ontology_version": "1.3.1",
+    "s1_prompt_sha256": "eadcdcdac46a5180",
+    "s2_prompt_sha256": "b8d0f60d66d10f12",
+    "model": "MiniMax-M3",
+    "endpoint": "https://api.minimaxi.com/v1/text/chatcompletion_v2",
+    "sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "aggregation_policy": {
+     "support_rule": "occur * 2 > n",
+     "intensity_stat": "median_of_nonzero",
+     "composition": "within_family_then_global_weight",
+     "abstention": "empty_knots_is_abstain_v1"
+    },
+    "qualification_policy": {
+     "k_valid_min": 2,
+     "insufficient_replicates": "WITHHOLD",
+     "abstain_semantics": "empty_knots_is_abstain_v1",
+     "statuses": [
+      "qualified",
+      "abstain",
+      "insufficient_replicates"
+     ],
+     "margin": {
+      "F_max": 0.0,
+      "U_max": 0.05,
+      "bound": "exact_one_sided_95_upper",
+      "provenance": "ENGINEERING_BUDGET",
+      "concentration_flag": {
+       "per_base_unqualified_min": 2,
+       "per_base_reps": 4,
+       "effect": "ADOPT_WITH_RESTRICTIONS"
+      },
+      "why_concentration": "总体 4% 但全集中在一种表达形式, 会被均值洗掉 ⇒ 必须另报 U_by_base"
+     }
+    }
+   },
+   "preparation_id": "prep_raw_unfiltered",
+   "measurement_procedure_id": "mp_bf70e868a53efb09",
+   "hash_scope": {
+    "instrument": [
+     "ontology_version",
+     "s1_prompt_sha256",
+     "s2_prompt_sha256",
+     "model",
+     "endpoint",
+     "sampling_policy"
+    ],
+    "qualification_policy": [
+     "aggregation_policy",
+     "qualification_policy"
+    ],
+    "measurement_procedure": [
+     "instrument_hash",
+     "preparation_id",
+     "qualification_policy_hash"
+    ],
+    "criterion": "改它之后已采集的 raw draw 还能不能用"
+   }
+  },
+  "s1_pairing": "round_robin_over_3_s1_draws"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}

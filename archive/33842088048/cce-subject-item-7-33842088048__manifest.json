@@ -1,0 +1,260 @@
+{
+ "mode": "response",
+ "started": "2026-09-04 05:55:03",
+ "text_sha1": "68ddf2bf3243",
+ "text_sha256": "sha256:55ded1e1558d001018ec95c6d221114ed9f7e58d7f4ea5efd84d46540e410ab5",
+ "chain": [
+  "s0_context",
+  "s1_readout",
+  "s2_knots",
+  "s3_emotion_policy"
+ ],
+ "submission": {
+  "submission_id": "reverify-subject-chain-20260904-1334",
+  "job_id": "comment:p3c8xwy",
+  "content_id": "reddit:1vma3l2",
+  "profile": "subject_chain",
+  "schema_version": "1.1.0",
+  "text_sha256": "sha256:55ded1e1558d001018ec95c6d221114ed9f7e58d7f4ea5efd84d46540e410ab5",
+  "actor_ref": "reddit:u/user_09",
+  "evidence_ref": "comment:p3c8xwy",
+  "context_snapshot": {
+   "id": "context:reddit:1vma3l2:2026-08-12T23:15:00Z",
+   "observed_at": "2026-08-12T23:15:00Z",
+   "platform": "reddit",
+   "platform_adapter": {
+    "id": "reddit",
+    "version": "1.0.0"
+   },
+   "surface": {
+    "kind": "community",
+    "id": "r/HearingAids",
+    "observed_at": "2026-08-12T23:15:00Z"
+   },
+   "domain": "hearing_aid",
+   "summary": "Identifiable inbound top-level comments responding to the published shirt-pocket Bluetooth post",
+   "dimensions": {
+    "time": {
+     "value": "2026-08-12T10:16:00Z/2026-08-12T23:15:00Z",
+     "assertion": "observed",
+     "evidence_refs": [
+      "reddit:1vma3l2"
+     ]
+    },
+    "environment": {
+     "value": "public semi-anonymous online community",
+     "assertion": "observed",
+     "evidence_refs": [
+      "reddit:1vma3l2"
+     ]
+    },
+    "social": {
+     "value": "top-level community responses",
+     "assertion": "observed",
+     "evidence_refs": [
+      "reddit:1vma3l2"
+     ]
+    },
+    "relationship": {
+     "value": "member responding to identified manufacturer account",
+     "assertion": "derived",
+     "evidence_refs": [
+      "reddit:1vma3l2"
+     ]
+    },
+    "current_goal": {
+     "value": "experience sharing and troubleshooting",
+     "assertion": "inferred",
+     "evidence_refs": [
+      "reddit:1vma3l2"
+     ]
+    }
+   },
+   "provenance": {
+    "producer": "notion-social-ops",
+    "version": "1.1.0"
+   }
+  }
+ },
+ "finished": "2026-09-04 05:56:41",
+ "stages": {
+  "s0_context": {
+   "status": "OK",
+   "sec": 34.3,
+   "file": "s0_context.json",
+   "fill_rate": 0.333,
+   "已声明": [],
+   "读出": [
+    "触发事件",
+    "关系位置",
+    "情绪余温"
+   ],
+   "未知": [
+    "进程位置",
+    "身体状态",
+    "资源状态",
+    "社会在场",
+    "场景类型",
+    "信息环境"
+   ],
+   "置信提示": "填充度低, 下游只出人群级结论, 不出个体级判断"
+  },
+  "s1_readout": {
+   "status": "OK",
+   "sec": 64.4,
+   "file": "s1_readout.json",
+   "measurement_status": "qualified",
+   "k": {
+    "k_requested": 3,
+    "k_attempted": 3,
+    "k_valid": 3,
+    "k_abstained": 0
+   },
+   "within_js": {
+    "desire_vec": 0.1132,
+    "need_vec": 0.2728,
+    "emotion_vec": 0.1311,
+    "action_vec": 0.1436
+   },
+   "within_js_max": {
+    "desire_vec": 0.12,
+    "need_vec": 0.161,
+    "emotion_vec": 0.157,
+    "action_vec": 0.125
+   },
+   "over_noise_floor": {
+    "need_vec": 0.2728,
+    "action_vec": 0.1436
+   },
+   "tops": {
+    "desire": "摆脱欲",
+    "need": null,
+    "emotion": "relief宽慰",
+    "action": null
+   },
+   "tops_withheld": {
+    "need": "need_vec within_js=0.2728 > 0.161",
+    "action": "action_vec within_js=0.1436 > 0.125"
+   },
+   "high_divergence_flag": {
+    "need_vec": 0.2728
+   }
+  },
+  "s2_knots": {
+   "status": "OK",
+   "sec": 0.0,
+   "taxonomy": "1.3.1",
+   "knots": [
+    [
+     "reward",
+     0.5985
+    ],
+    [
+     "display",
+     0.4015
+    ],
+    [
+     "pain_seek",
+     0.0
+    ]
+   ],
+   "intensity": {
+    "reward": 0.82,
+    "display": 0.55
+   },
+   "families": {
+    "阻挡": {
+     "mass": 0.0,
+     "composition": {},
+     "members_active": 0
+    },
+    "推动": {
+     "mass": 0.82,
+     "composition": {
+      "reward": 0.5985,
+      "display": 0.4015
+     },
+     "members_active": 2
+    }
+   },
+   "drive_brake": {
+    "drive_mass": 0.82,
+    "brake_mass": 0.0,
+    "quadrant": "high_drive/low_brake",
+    "note": "象限切点 0.5 是量纲中点, 不是校准阈值; 仅作分类标签, 不得作判据"
+   },
+   "n": 5,
+   "top1_stable": true,
+   "top1_mode_share": 1.0,
+   "top1_mode": "reward",
+   "instrument": "565470cf26c16d01",
+   "top1_draws": [
+    "reward",
+    "reward",
+    "reward",
+    "reward",
+    "reward"
+   ],
+   "max_range": 0.44,
+   "per_knot": {
+    "reward": {
+     "occur": 5,
+     "n": 5,
+     "support": 1.0,
+     "intensity": 0.82,
+     "median": 0.82,
+     "min": 0.82,
+     "max": 0.88,
+     "range": 0.06
+    },
+    "pain_seek": {
+     "occur": 1,
+     "n": 5,
+     "support": 0.2,
+     "intensity": 0.15,
+     "median": 0.15,
+     "min": 0.15,
+     "max": 0.15,
+     "range": 0.0
+    },
+    "display": {
+     "occur": 5,
+     "n": 5,
+     "support": 1.0,
+     "intensity": 0.55,
+     "median": 0.55,
+     "min": 0.38,
+     "max": 0.82,
+     "range": 0.44
+    }
+   },
+   "playbook_primary": "短收;自我缩小;不再投喂信息(需求已闭,长文=把关掉的门重开)",
+   "playbook_withheld_reason": null
+  },
+  "s3_emotion_policy": {
+   "status": "OK",
+   "sec": 0.0,
+   "policy": "distribution_only(单模型运行)",
+   "emotion_distribution": [
+    [
+     "relief宽慰",
+     0.317
+    ],
+    [
+     "joy喜悦",
+     0.183
+    ],
+    [
+     "pride自豪",
+     0.167
+    ],
+    [
+     "approval认同",
+     0.133
+    ]
+   ]
+  }
+ },
+ "complete": true,
+ "failed_at": null
+}

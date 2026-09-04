@@ -1,0 +1,242 @@
+{
+ "mode": "response",
+ "started": "2026-09-04 05:54:59",
+ "text_sha1": "8dce0d41f103",
+ "text_sha256": "sha256:4280a5ad2ba56bd82f93ac43eb57b041928c3e2a4e483260e90931a6f1e336ee",
+ "chain": [
+  "s0_context",
+  "s1_readout",
+  "s2_knots",
+  "s3_emotion_policy"
+ ],
+ "submission": {
+  "submission_id": "reverify-subject-chain-20260904-1334",
+  "job_id": "comment:p3a3dqh",
+  "content_id": "reddit:1vma3l2",
+  "profile": "subject_chain",
+  "schema_version": "1.1.0",
+  "text_sha256": "sha256:4280a5ad2ba56bd82f93ac43eb57b041928c3e2a4e483260e90931a6f1e336ee",
+  "actor_ref": "reddit:u/user_79",
+  "evidence_ref": "comment:p3a3dqh",
+  "context_snapshot": {
+   "id": "context:reddit:1vma3l2:2026-08-12T23:15:00Z",
+   "observed_at": "2026-08-12T23:15:00Z",
+   "platform": "reddit",
+   "platform_adapter": {
+    "id": "reddit",
+    "version": "1.0.0"
+   },
+   "surface": {
+    "kind": "community",
+    "id": "r/HearingAids",
+    "observed_at": "2026-08-12T23:15:00Z"
+   },
+   "domain": "hearing_aid",
+   "summary": "Identifiable inbound top-level comments responding to the published shirt-pocket Bluetooth post",
+   "dimensions": {
+    "time": {
+     "value": "2026-08-12T10:16:00Z/2026-08-12T23:15:00Z",
+     "assertion": "observed",
+     "evidence_refs": [
+      "reddit:1vma3l2"
+     ]
+    },
+    "environment": {
+     "value": "public semi-anonymous online community",
+     "assertion": "observed",
+     "evidence_refs": [
+      "reddit:1vma3l2"
+     ]
+    },
+    "social": {
+     "value": "top-level community responses",
+     "assertion": "observed",
+     "evidence_refs": [
+      "reddit:1vma3l2"
+     ]
+    },
+    "relationship": {
+     "value": "member responding to identified manufacturer account",
+     "assertion": "derived",
+     "evidence_refs": [
+      "reddit:1vma3l2"
+     ]
+    },
+    "current_goal": {
+     "value": "experience sharing and troubleshooting",
+     "assertion": "inferred",
+     "evidence_refs": [
+      "reddit:1vma3l2"
+     ]
+    }
+   },
+   "provenance": {
+    "producer": "notion-social-ops",
+    "version": "1.1.0"
+   }
+  }
+ },
+ "finished": "2026-09-04 05:56:15",
+ "stages": {
+  "s0_context": {
+   "status": "OK",
+   "sec": 12.5,
+   "file": "s0_context.json",
+   "fill_rate": 0.333,
+   "已声明": [],
+   "读出": [
+    "进程位置",
+    "触发事件",
+    "情绪余温"
+   ],
+   "未知": [
+    "关系位置",
+    "身体状态",
+    "资源状态",
+    "社会在场",
+    "场景类型",
+    "信息环境"
+   ],
+   "置信提示": "填充度低, 下游只出人群级结论, 不出个体级判断"
+  },
+  "s1_readout": {
+   "status": "OK",
+   "sec": 63.6,
+   "file": "s1_readout.json",
+   "measurement_status": "qualified",
+   "k": {
+    "k_requested": 3,
+    "k_attempted": 3,
+    "k_valid": 3,
+    "k_abstained": 0
+   },
+   "within_js": {
+    "desire_vec": 0.0554,
+    "need_vec": 0.224,
+    "emotion_vec": 0.0476,
+    "action_vec": 0.0774
+   },
+   "within_js_max": {
+    "desire_vec": 0.12,
+    "need_vec": 0.161,
+    "emotion_vec": 0.157,
+    "action_vec": 0.125
+   },
+   "over_noise_floor": {
+    "need_vec": 0.224
+   },
+   "tops": {
+    "desire": "确认欲",
+    "need": null,
+    "emotion": "approval认同",
+    "action": "approach趋近"
+   },
+   "tops_withheld": {
+    "need": "need_vec within_js=0.224 > 0.161"
+   },
+   "high_divergence_flag": null
+  },
+  "s2_knots": {
+   "status": "OK",
+   "sec": 0.0,
+   "taxonomy": "1.3.1",
+   "knots": [
+    [
+     "reward",
+     0.6415
+    ],
+    [
+     "belong",
+     0.3585
+    ]
+   ],
+   "intensity": {
+    "reward": 0.85,
+    "belong": 0.475
+   },
+   "families": {
+    "推动": {
+     "mass": 0.85,
+     "composition": {
+      "reward": 0.6415,
+      "belong": 0.3585
+     },
+     "members_active": 2
+    },
+    "阻挡": {
+     "mass": 0.0,
+     "composition": {},
+     "members_active": 0
+    }
+   },
+   "drive_brake": {
+    "drive_mass": 0.85,
+    "brake_mass": 0.0,
+    "quadrant": "high_drive/low_brake",
+    "note": "象限切点 0.5 是量纲中点, 不是校准阈值; 仅作分类标签, 不得作判据"
+   },
+   "n": 5,
+   "top1_stable": true,
+   "top1_mode_share": 1.0,
+   "top1_mode": "reward",
+   "instrument": "565470cf26c16d01",
+   "top1_draws": [
+    "reward",
+    "reward",
+    "reward",
+    "reward",
+    "reward"
+   ],
+   "max_range": 0.6,
+   "per_knot": {
+    "belong": {
+     "occur": 4,
+     "n": 5,
+     "support": 0.8,
+     "intensity": 0.475,
+     "median": 0.475,
+     "min": 0.18,
+     "max": 0.78,
+     "range": 0.6
+    },
+    "reward": {
+     "occur": 5,
+     "n": 5,
+     "support": 1.0,
+     "intensity": 0.85,
+     "median": 0.85,
+     "min": 0.82,
+     "max": 0.85,
+     "range": 0.03
+    }
+   },
+   "playbook_primary": "短收;自我缩小;不再投喂信息(需求已闭,长文=把关掉的门重开)",
+   "playbook_withheld_reason": null
+  },
+  "s3_emotion_policy": {
+   "status": "OK",
+   "sec": 0.0,
+   "policy": "distribution_only(单模型运行)",
+   "emotion_distribution": [
+    [
+     "approval认同",
+     0.356
+    ],
+    [
+     "gratitude感激",
+     0.311
+    ],
+    [
+     "relief宽慰",
+     0.179
+    ],
+    [
+     "admiration钦佩",
+     0.121
+    ]
+   ]
+  }
+ },
+ "complete": true,
+ "failed_at": null
+}

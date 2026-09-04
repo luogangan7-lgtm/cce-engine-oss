@@ -148,6 +148,11 @@ def main() -> int:
     print("-" * 74)
     print(f"可用 {n[USABLE]} · 已测不达标 {n[FAILED]} · 已具备未接入 {n[NOT_WIRED]} · **未测 {n[UNMEASURED]}**")
     print("★ 「未测」不是「弱证据」, 是没有读数。它与「已测不达标」「已具备未接入」是三种状态, 修法都不同。")
+    print("★ 标「可用」的读数, 其可用性是**逐次运行**由闸在运行时判的, **不是系统的固有属性**。")
+    print("  2026-09-04 重验实证: 信封逐位相同、闸代码早于两次 run, 可用集仍然变了 ——")
+    print("  post 的 s1.tops.need 与 s2.playbook_primary 双双转扣发; reply 的 playbook **反向**转可用。")
+    print("  ⇒ 下游**不得**假定某个读数下次还在。(n=2 无预注册, 是观察不是翻转率:")
+    print("   tests/data/phase2/readout_usability_flip_obs.json)")
     import glob as _g
     _n = len(_g.glob(os.path.join(ROOT, "tests", "test_*.py")))
     _g8 = len(_g.glob(os.path.join(ROOT, "tests", "test_cce_*gate*.py")))
