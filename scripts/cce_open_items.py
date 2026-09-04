@@ -114,13 +114,18 @@ def items() -> list[dict]:
     #   能力=域无关 / **抽取质量=语言相关** / 标定=域相关 ⇒ 公开英文基准就是正确的素材。
     #   实测可得: LibriSpeech(CC BY 4.0, openslr 直链 200) · TextOCR v0.1(CC BY 4.0, 逐图 CDN 200)。
     #   ⇒ 已完成, 不再列入未完成清单。留这段注释防止下一个人再把它归回 BLOCKED。
-    _ocr_en = os.path.join(ROOT, "tests/data/phase2/ocr_quality_en.json")
-    _asr_en = os.path.join(ROOT, "tests/data/phase2/asr_quality_en.json")
-    if not (os.path.exists(_ocr_en) and os.path.exists(_asr_en)):
-        _have = [n for n, p_ in (("OCR", _ocr_en), ("ASR", _asr_en)) if os.path.exists(p_)]
-        out.append({"类": OPEN, "项": "媒体抽取质量(英文)仅完成一半",
-                    "证据": f"已完成 {_have or '无'}; 另一半的评测尚未落盘。"
-                            "语料已核实可匿名直下, **不是外部阻塞**"})
+    _need = {"OCR": "tests/data/phase2/ocr_quality_en.json",
+             "ASR(GEN1)": "tests/data/phase2/asr_quality_en.json",
+             "ASR(GEN2 分层)": "tests/data/phase2/asr_quality_en_gen2.json"}
+    _missing = [k for k, v in _need.items() if not os.path.exists(os.path.join(ROOT, v))]
+    if _missing:
+        out.append({"类": OPEN, "项": "媒体抽取质量(英文)未完成",
+                    "证据": f"缺 {', '.join(_missing)}。语料已核实可匿名直下, **不是外部阻塞**"})
+    # 已完成的部分仍有未测的一角, 单列出来防止被「英文测过了」一句话盖住
+    if not _missing:
+        out.append({"类": OPEN, "项": "英文 ASR 仅测了 test-clean(朗读语音)",
+                    "证据": ("test-other(带噪)与自发语音未测。语料同样可匿名直下"
+                             "(openslr resources/12/test-other.tar.gz) ⇒ **不是外部阻塞**, 只是没做")})
     # ★ 2026-09-04 实际去做才确认: 这不是「没装」, 是拿不到凭据 ⇒ 从 OPEN 改归 BLOCKED。
     out.append({"类": BLOCKED, "项": "**说话人分离**(diarization) 拿不到受限模型凭据",
                 "证据": ("pyannote/speaker-diarization-3.1 是 HF **受限模型**, 需账号接受条款并给 token。"

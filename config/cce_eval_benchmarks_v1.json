@@ -1,0 +1,173 @@
+{
+ "kind": "cce.eval_benchmarks.v1",
+ "created": "2026-09-04",
+ "★why_this_file_exists": "评测基准的准入条件与评分口径**逐库分开记**。压成一个「开放/不开放」或一个「标准 CER」都会出错 —— 本文件的每一列都是因为压缩会出错才单列的。",
+ "★four_access_fields_never_collapse": {
+  "rule": "account_required / token_required / click_through_terms / license_restriction 是**四件事**, 禁止合并成一个 OPEN 布尔。",
+  "counterexamples_verified_2026-09-04": [
+   "sherpa-onnx reverb-diarization-v1: 可匿名直链下载(前三项都 false), 但许可是 **non-commercial**",
+   "NVIDIA NeMo/NGC: 可匿名 curl, 但**下载即视为接受 NGC Terms** ⇒ click_through_terms=true",
+   "NVIDIA Sortformer: HF gated=False, 但 **CC-BY-NC-4.0** ⇒ 商用产品线不可用",
+   "pyannote.audio: **包**是 MIT 开源(装包无需 token), 受限的是**权重** ⇒ 包与权重必须分开记"
+  ]
+ },
+ "datasets": {
+  "librispeech_test_clean": {
+   "role": "英文 ASR 主基准",
+   "license": "CC BY 4.0",
+   "account_required": false,
+   "token_required": false,
+   "click_through_terms": false,
+   "license_restriction": null,
+   "download": "https://www.openslr.org/resources/12/test-clean.tar.gz (实测 HTTP 200)",
+   "annotation_granularity": "utterance-level transcript(**不是**逐词时间戳)",
+   "metric": "WER",
+   "normalization_profile": "librispeech_native",
+   "★pitfall": "参考文本是面向经典 ASR 的 normalized transcription(全大写无标点)。带标点大小写的现代 ASR 输出必须先映射到同一 lexical space 再算 WER。★ **不许自己临时制定** 7 vs SEVEN / Mr. vs MISTER / don't vs DONT 的规则; 要测标点大小写应改用 LibriSpeech-PC。",
+   "status": "已用于 EXTRACTION_QUALITY_EN_GEN1 与 GEN2"
+  },
+  "textocr_v0.1": {
+   "role": "英文场景文字 OCR 主基准",
+   "license": "CC BY 4.0",
+   "account_required": false,
+   "token_required": false,
+   "click_through_terms": false,
+   "license_restriction": null,
+   "download": "标注 https://dl.fbaipublicfiles.com/textvqa/data/textocr/TextOCR_0.1_val.json (200); 图像**逐张** https://open-images-dataset.s3.amazonaws.com/train/<id>.jpg (200) —— 不必下 6.6GB 整包",
+   "scale": "val 3,124 图 / 107,802 word annotations",
+   "annotation_granularity": "word transcription + box",
+   "metric": "两档都报: RAW(NFC 保留 case/标点) 与 NORMALIZED(大写去非字母数字); 另加**顺序无关**词级 F1",
+   "★dont_care": "utf8_string == '.' 表示不可读 ⇒ 排除出参考并**计数**",
+   "status": "已用于 EXTRACTION_QUALITY_EN_GEN1:OCR"
+  },
+  "cord_v2": {
+   "role": "**不得**用于英文 OCR 汇总",
+   "license": "CC BY 4.0",
+   "account_required": false,
+   "token_required": false,
+   "click_through_terms": false,
+   "license_restriction": null,
+   "★excluded_why": "CORD 是**印尼**收据数据集, 不是英文。许可与可得性都很好, 但语种不对 —— 差点被我选中。",
+   "status": "EXCLUDED_FROM_ENGLISH_AGGREGATE"
+  },
+  "funsd": {
+   "role": "英文文档 OCR(候选, 未使用)",
+   "license": "非通用开放许可",
+   "account_required": false,
+   "token_required": false,
+   "click_through_terms": false,
+   "license_restriction": "**non-commercial research purposes only**",
+   "★note": "可作研究/内部 fixture, **不得**标成无条件商业许可数据集。",
+   "status": "NOT_USED",
+   "★excluded_why": "本轮未使用: 它是**扫描表单**(文档 OCR), 而本项目用例是画面叠字(场景文字) —— 域不对。★ 另外它的许可是 non-commercial research only, 若将来要用, 必须先记清这一条, 不得标成无条件商业许可数据集。"
+  },
+  "icdar2013_2015": {
+   "role": "经典对照(未使用)",
+   "license": "RRC challenge 条件",
+   "account_required": true,
+   "token_required": false,
+   "click_through_terms": true,
+   "license_restriction": "RRC 条款",
+   "★excluded_why": "官方 RRC 下载**需注册** ⇒ 不满足「匿名可复现」; HF 上的第三方转存许可不明。",
+   "★case_policy_pitfall": "ICDAR 各 task 的大小写/标点策略**并不统一** —— 不许拿一个 .lower() 当通用 scorer。",
+   "status": "NOT_USED"
+  },
+  "common_voice": {
+   "role": "未使用",
+   "license": "多为 CC0-1.0",
+   "account_required": false,
+   "token_required": false,
+   "click_through_terms": true,
+   "license_restriction": null,
+   "★excluded_why": "下载需提供 email ⇒ public/free = yes, 但**匿名冷启动不可复现** = no。",
+   "status": "NOT_USED"
+  },
+  "gigaspeech": {
+   "role": "未使用",
+   "license": "HF metadata 标 Apache-2.0",
+   "account_required": true,
+   "token_required": true,
+   "click_through_terms": true,
+   "license_restriction": "独立 Terms of Access",
+   "★excluded_why": "HF gated, 需登录+联系方式+接受条款(还要 Google Form) ⇒ 不满足匿名可复现。",
+   "status": "NOT_USED"
+  },
+  "voxconverse_dev": {
+   "role": "说话人分离 DER 基准",
+   "license": "CC BY 4.0",
+   "account_required": false,
+   "token_required": false,
+   "click_through_terms": false,
+   "license_restriction": null,
+   "download": "RTTM https://github.com/joonson/voxconverse (302→200); 音频 https://mm.kaist.ac.kr/datasets/voxconverse/data/voxconverse_dev_wav.zip (200)",
+   "metric": "DER, **两档 profile 都报**",
+   "status": "评测进行中"
+  }
+ },
+ "diarization_implementations": {
+  "3d_speaker": {
+   "config_frozen": {
+    "include_overlap": false,
+    "hf_access_token": null
+   },
+   "★why_config_must_be_frozen": "只写「3D-Speaker」不够 —— include_overlap=True 时**才**要求 hf_access_token(源码已核)。配置不同, 准入结论就不同。",
+   "account_required": false,
+   "token_required": false,
+   "click_through_terms": false,
+   "license_restriction": null,
+   "weights": "ModelScope CAM++ (iic/speech_campplus_*)",
+   "official_der_reference": {
+    "voxconverse": 0.1175,
+    "ami_sdm": 0.2176,
+    "★profile_unknown": "官方未注明 collar/overlap 口径 ⇒ 只作量级参考, **不作验收线**"
+   },
+   "★structural_limit": "include_overlap=False ⇒ 结构上不检测重叠语音",
+   "status": "SELECTED"
+  },
+  "sherpa_onnx_reverb": {
+   "account_required": false,
+   "token_required": false,
+   "click_through_terms": false,
+   "license_restriction": "**non-commercial**",
+   "★excluded_why": "前三项全 false 但许可非商用 —— 这正是「四字段不能压成一个 OPEN」的实例。",
+   "status": "EXCLUDED"
+  },
+  "nemo_ngc": {
+   "account_required": false,
+   "token_required": false,
+   "click_through_terms": true,
+   "license_restriction": "NGC Terms",
+   "★excluded_why": "即使能匿名 curl, **下载即视为接受 NGC Terms** ⇒ 不满足「无需接受条款」。",
+   "status": "EXCLUDED"
+  },
+  "speechbrain_assembled": {
+   "account_required": false,
+   "token_required": false,
+   "click_through_terms": false,
+   "license_restriction": null,
+   "★excluded_why": "权重开放, 但**没有 turnkey diarizer** —— 自己拼 VAD+embedding+聚类+RTTM 组装+重叠策略, 会把大量**测量自由度**带进 benchmark。开放不等于适合当验收实现。",
+   "status": "EXCLUDED"
+  },
+  "diart_default": {
+   "★excluded_why": "包本身开放, 但默认 pipeline 仍依赖 pyannote 资产 —— 只是把受限依赖包了一层 API。",
+   "status": "EXCLUDED"
+  }
+ },
+ "der_scorer_profiles": {
+  "★no_cross_profile_ranking": "两档参数不同, **禁止**拿一档的数去和另一档比。公开论文的 DER 常常不可横比。",
+  "STRICT": {
+   "collar_sec": 0.0,
+   "score_overlap": true,
+   "oracle_vad": false,
+   "oracle_num_speakers": false
+  },
+  "LEGACY": {
+   "collar_sec": 0.25,
+   "score_overlap": false,
+   "oracle_vad": false,
+   "oracle_num_speakers": false
+  },
+  "★dangerous_switches": "collar / score_overlap / oracle_vad / oracle_num_speakers —— 四个开关任一不同, DER 就不可比。用 oracle VAD 的 DER 基本只剩 speaker confusion。"
+ },
+ "★corpora_never_in_repo": "所有语料存 /Volumes/data/cce-eval-corpora, **不入仓** —— 仓内媒体二进制闸(tests/test_cce_gate_no_binary_media.py)禁止。仓内只落聚合数字。"
+}
