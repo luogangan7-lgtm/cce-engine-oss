@@ -193,8 +193,27 @@ def items() -> list[dict]:
     # ★ 去重: 同一件事可能既被注册表列为 missing, 又被显式标为 BLOCKED。
     #   显式的分类优先 —— 否则「卡在外部资源」会被误报成「我能做只是没做」。
     blocked_keys = [r["项"] for r in out if r["类"] == BLOCKED]
+    # ★ 2026-09-04 补: 前缀去重挡不住「注册表 missing 与显式项讲同一件事但措辞不同」——
+    #   静默 ASR 失败就同时出现了两条。改为**按主题词**去重, 显式项(证据更细的那条)优先。
+    TOPICS = ("静默 ASR 失败", "抽取质量", "跨域标定", "重叠语音", "说话人分离")
+
+    def topic_of(item):
+        for t in TOPICS:
+            if t in item:
+                return t
+        return None
+
+    seen_topic = {}
+    for r in out:                      # 先扫一遍: 每个主题保留**证据最长**的那条
+        t = topic_of(r["项"] + r["证据"])
+        if t and (t not in seen_topic or len(r["证据"]) > len(seen_topic[t]["证据"])):
+            seen_topic[t] = r
+
     deduped, seen_open = [], set()
     for r in out:
+        t = topic_of(r["项"] + r["证据"])
+        if t and seen_topic[t] is not r:
+            continue                      # 同主题已有证据更细的一条
         if r["类"] == OPEN and any(k[:8] in r["项"] or r["项"][:12] in k for k in blocked_keys):
             continue                      # 已被更准确的 BLOCKED 覆盖
         key = (r["类"], r["项"][:40])
