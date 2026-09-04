@@ -122,10 +122,17 @@ def items() -> list[dict]:
         out.append({"类": OPEN, "项": "媒体抽取质量(英文)未完成",
                     "证据": f"缺 {', '.join(_missing)}。语料已核实可匿名直下, **不是外部阻塞**"})
     # 已完成的部分仍有未测的一角, 单列出来防止被「英文测过了」一句话盖住
-    if not _missing:
-        out.append({"类": OPEN, "项": "英文 ASR 仅测了 test-clean(朗读语音)",
-                    "证据": ("test-other(带噪)与自发语音未测。语料同样可匿名直下"
-                             "(openslr resources/12/test-other.tar.gz) ⇒ **不是外部阻塞**, 只是没做")})
+    # test-other 已于 2026-09-04 补测(均值 11.61%, 4.96x 于 clean)。
+    # 仍未测的是**自发语音**与社媒音轨那一档 —— 前者语料受限(TED-LIUM3 是 CC BY-NC-ND),
+    # 后者根本没有带逐字标注的公开集。这两条形状不同, 分开记。
+    if not _missing and not os.path.exists(
+            os.path.join(ROOT, "tests/data/phase2/asr_quality_en_other.json")):
+        out.append({"类": OPEN, "项": "英文 ASR 仅测了 test-clean", "证据": "test-other 未测"})
+    out.append({"类": BLOCKED, "项": "ASR 在**自发语音/社媒音轨**上未测",
+                "证据": ("朗读语音(test-clean 2.34% / test-other 11.61%)已测, 但社媒音轨有 BGM/压缩/重叠, "
+                         "比两者都难 ⇒ 现有数**对本用例仍是乐观值**。"
+                         "缺的是**带逐字标注的社媒音轨素材** —— 公开集没有; "
+                         "TED-LIUM3 虽可补自发语音但许可是 CC BY-NC-ND(非商用)。")})
     # ★ 2026-09-04 实际去做才确认: 这不是「没装」, 是拿不到凭据 ⇒ 从 OPEN 改归 BLOCKED。
     out.append({"类": BLOCKED, "项": "**说话人分离**(diarization) 拿不到受限模型凭据",
                 "证据": ("pyannote/speaker-diarization-3.1 是 HF **受限模型**, 需账号接受条款并给 token。"

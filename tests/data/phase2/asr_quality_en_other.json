@@ -1,0 +1,31 @@
+{
+ "block": "EXTRACTION_QUALITY_EN_ASR_TEST_OTHER",
+ "measured_at": "2026-09-04",
+ "corpus": "LibriSpeech test-other",
+ "sampling": "每说话人第一条(与 GEN2 同)",
+ "n_speakers": 33,
+ "n": 33,
+ "wer": {
+  "median": 0.0417,
+  "mean": 0.1161,
+  "q1": 0.0,
+  "q3": 0.202,
+  "max": 0.6429
+ },
+ "test_clean_gen2_for_comparison": {
+  "median": 0.0,
+  "mean": 0.0234,
+  "q1": 0.0,
+  "q3": 0.0351,
+  "max": 0.2
+ },
+ "★never_merge": "test-clean 与 test-other **不得**拼成一个无权重的「English ASR accuracy」——两者难度不同, 合并等于用一个数掩盖噪声条件下的表现。",
+ "★degeneracy": true,
+ "★degradation": {
+  "clean_mean": 0.0234,
+  "other_mean": 0.1161,
+  "ratio": 4.96,
+  "reading": "test-other 的均值 WER 是 test-clean 的 4.96 倍。⇒ 难度条件一变, 结论就变 —— **这就是不许合并成一个「英文 ASR 准确率」的实证**。"
+ },
+ "★still_optimistic_for_our_use_case": "★ 两个集合都是**朗读语音**。本项目的真实素材是社媒视频音轨: 有 BGM、有压缩、有重叠、有喊话。那比 test-other 还难 ⇒ **11.6% 对我们的用例仍是乐观值**, 不是可承诺的准确率。(同一天已实测: 混音上的 f0 会跟着音乐走, 中位差 12.4 半音 —— 音轨污染是真实存在的。)"
+}

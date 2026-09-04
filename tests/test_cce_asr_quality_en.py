@@ -48,7 +48,22 @@ assert G2["decision"] == expect, f"★ 判决与数据不符: 记 {G2['decision'
 assert "自发语音" in P2["★what_this_does_not_establish"], \
     "★ LibriSpeech 是朗读语音; 自发/带噪场景未测, 这条边界要留着"
 
+# ── ⑥ test-other 必须单独报, 且不许与 test-clean 合并 ──────────────
+import os as _os
+_op = _os.path.join(ROOT, "tests/data/phase2/asr_quality_en_other.json")
+assert _os.path.exists(_op), "★ 英文 ASR 必须同时报 test-clean 与 test-other"
+O = json.load(open(_op, encoding="utf-8"))
+assert "不得**拼成一个" in O["★never_merge"] or "不得" in O["★never_merge"], \
+    "★ 「两者不许合并」这条要留在产物里"
+assert O["n_speakers"] > 10 and O["★degeneracy"], "★ test-other 也要过非退化闸"
+assert O["★degradation"]["ratio"] > 1.0, \
+    "★ test-other 若不比 test-clean 差, 要么抽样错了要么归一化错了 —— 先查仪器"
+assert "乐观值" in O["★still_optimistic_for_our_use_case"], \
+    "★ 朗读语音的数对社媒音轨仍是乐观值, 这条边界要留着"
+
 print(f"test_cce_asr_quality_en: OK (GEN1 前100条/**2 个说话人** 均值 {G1['wer']['mean']} · "
       f"GEN2 分层/**{G2['n_speakers']} 个说话人** 均值 {G2['wer']['mean']} ⇒ {G2['decision']} | "
       "GEN1 的抽样局限事后发现, **不改其规则**而另立 GEN2 | 两个都报不合并 | "
-      "最差条目逐条查过: 真实识别错误而非归一化假象 | 仅朗读语音, 自发/带噪未测)")
+      "最差条目逐条查过: 真实识别错误而非归一化假象 | "
+      f"**test-other 单独报** 均值 {O['wer']['mean']}({O['★degradation']['ratio']}x 于 clean), "
+      "两者不合并 | ★ 都是朗读语音, 对社媒音轨仍是乐观值)")

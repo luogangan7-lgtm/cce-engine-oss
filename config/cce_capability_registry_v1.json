@@ -72,7 +72,7 @@
     "★ 2026-09-04 图片档晋升 production_github(CI run 33840200869 + 本机真实素材 6/6): 静态图与视频帧**共用同一条 media_ingest 链与同一份视觉合同**(图片是 selector 退化为 whole 的 VisualObservation), 未新增 profile/链/合同。"
    ],
    "missing": [
-    "抽取质量: **中英双语、OCR 与 ASR 均已实测**。OCR 英文 TextOCR val n=98 顺序无关词级 F1 中位 **0.3174**(独立引擎 tesseract 同图仅 0.0/均值 0.079 ⇒ 集成没坏); OCR 中文真实素材 n=6 中位 **0.900**; 合成干净渲染 **1.000(上界)** —— 三者配成区间, **不给点估计**。ASR 英文 LibriSpeech test-clean: GEN1(字典序前100, 仅 2 个说话人) 均值 WER **3.89%**; GEN2(每说话人一条, **40 个说话人**) 均值 **2.34%** ⇒ GEN1_CONSISTENT。**两个都报, 不合并**。★ **仍未测**: LibriSpeech test-other(带噪) 与自发语音; 跨域标定 across_domains 仍 NOT_ESTABLISHED。★ 语料与口径见 config/cce_eval_benchmarks_v1.json(四个准入字段逐个分开记)。",
+    "抽取质量: **中英双语、OCR 与 ASR 均已实测**(区间, **不给点估计**)。OCR: 合成干净渲染 1.000(上界) > 真实中文封面 0.900 > 英文密集场景文字 0.317(下界, TextOCR n=98; 独立引擎 tesseract 同图仅 0.0/均值 0.079 ⇒ 集成没坏)。ASR(LibriSpeech, 每说话人一条): test-clean 40 人均值 WER **2.34%**; test-other 33 人均值 **11.61%** —— **4.96 倍**。★ 两者**分别报, 不合并** —— 难度一变结论就变, 合并等于用一个数掩盖带噪表现。★ **仍是乐观值**: 两个集合都是朗读语音, 而本项目素材是社媒音轨(BGM/压缩/重叠), 比 test-other 更难。★ 跨域标定 across_domains 仍 NOT_ESTABLISHED。口径见 config/cce_eval_benchmarks_v1.json。",
     "**说话人分离**(diarization) —— pyannote 的模型是**受限模型**, 需 HF 账号接受条款并提供 token。★ 2026-09-04 实际去做才确认这一条: 它不是「没装」, 是**我拿不到凭据**, 已改归 BLOCKED_EXTERNAL。解锁动作明确: owner 提供 HF token 并接受 pyannote/speaker-diarization-3.1 条款。★ 不拿源分离的能量占比冒充说话人数 —— 那是声学量, 不是身份判断。"
    ],
    "missing_state": "missing_no_capability",
@@ -136,7 +136,7 @@
     "★ 2026-09-04 抽取质量有了**上界曲线**(probes/ocr_quality_curve.py, 零调用): 中英各 6 条, 四条退化轴各自单独扫。模糊与缩放两轴有分辨力(σ>=4.5 或缩到 0.12 时塌到 0); JPEG 与对比度两轴在测试范围内**无分辨力** —— 且由**物理见证**证明退化真的施加了(对比度 RMS 43.5→2.6, JPEG 9383→2464 字节), 所以是真稳健不是仪器坏。★ 这是**上界不是准确率**: 合成图无花字/描边/遮挡/渐变背景, 同等退化下真实只会更差。★ 第一版曾跑出「四条轴全无分辨力」, 差点读成「OCR 稳健」—— 实为中文渲成豆腐块, 仪器坏了。见证与渲染器自检就是为这个加的。"
    ],
    "missing": [
-    "抽取质量: **中英双语、OCR 与 ASR 均已实测**。OCR 英文 TextOCR val n=98 顺序无关词级 F1 中位 **0.3174**(独立引擎 tesseract 同图仅 0.0/均值 0.079 ⇒ 集成没坏); OCR 中文真实素材 n=6 中位 **0.900**; 合成干净渲染 **1.000(上界)** —— 三者配成区间, **不给点估计**。ASR 英文 LibriSpeech test-clean: GEN1(字典序前100, 仅 2 个说话人) 均值 WER **3.89%**; GEN2(每说话人一条, **40 个说话人**) 均值 **2.34%** ⇒ GEN1_CONSISTENT。**两个都报, 不合并**。★ **仍未测**: LibriSpeech test-other(带噪) 与自发语音; 跨域标定 across_domains 仍 NOT_ESTABLISHED。★ 语料与口径见 config/cce_eval_benchmarks_v1.json(四个准入字段逐个分开记)。",
+    "抽取质量: **中英双语、OCR 与 ASR 均已实测**(区间, **不给点估计**)。OCR: 合成干净渲染 1.000(上界) > 真实中文封面 0.900 > 英文密集场景文字 0.317(下界, TextOCR n=98; 独立引擎 tesseract 同图仅 0.0/均值 0.079 ⇒ 集成没坏)。ASR(LibriSpeech, 每说话人一条): test-clean 40 人均值 WER **2.34%**; test-other 33 人均值 **11.61%** —— **4.96 倍**。★ 两者**分别报, 不合并** —— 难度一变结论就变, 合并等于用一个数掩盖带噪表现。★ **仍是乐观值**: 两个集合都是朗读语音, 而本项目素材是社媒音轨(BGM/压缩/重叠), 比 test-other 更难。★ 跨域标定 across_domains 仍 NOT_ESTABLISHED。口径见 config/cce_eval_benchmarks_v1.json。",
     "VLM 场景/对象/动作识别 —— ★ **刻意不照现状接**: cce_video_parse 的 visual 字段产出的是**自由散文**(scene/persons/actions/objects 各一段中文), 正是 2026-08-15 否决的「用提示词中的七字段当图像 Schema —— 无法机器校验、定位区域、保留模型/置信/来源」。接进来等于复现一个已被否决的设计。要做需**新仪器**: 受约束标签 + 区域 + 置信度。"
    ],
    "missing_state": "missing_no_capability",
