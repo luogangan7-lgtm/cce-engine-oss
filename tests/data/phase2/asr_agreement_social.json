@@ -1,0 +1,33 @@
+{
+ "block": "ASR_CROSS_ENGINE_AGREEMENT_SOCIAL",
+ "measured_at": "2026-09-04",
+ "material": "本机社媒音轨(抖音/YouTube 音频缓存), 每份前 30s",
+ "n": 18,
+ "engine_a": "iic/SenseVoiceSmall (生产用)",
+ "engine_b": "faster-whisper small (Apache-2.0, 独立实现与训练数据)",
+ "agreement": {
+  "median": 0.4754,
+  "mean": 0.3914,
+  "q1": 0.061,
+  "q3": 0.661,
+  "min": 0.0,
+  "max": 0.8176
+ },
+ "★this_is_not_accuracy": "没有 ground truth ⇒ 这是**一致性**不是准确率。两引擎分歧大 ⇒ 至少一个错得多 ⇒ **准确率上界低**(有效负面约束); 两引擎一致 ⇒ **不能**推出「都对」, 同类模型可能犯同样的错。",
+ "★compare_librispeech": "对照: 同一个 SenseVoice 在 LibriSpeech test-clean 上 WER 2.34%、test-other 11.61%(**有** ground truth)。社媒音轨上的这个一致性数**不能**与它们并列。",
+ "★unit_by_language": "CJK 按**字符**比, 拉丁按**词**比。第一版复用了英文归一化, 中文被整个抹掉 ⇒ 一致性全 0.000 零方差 —— 那是**仪器坏了**不是结果, 靠「全同值=退化」这条本能才没报出去。",
+ "languages": {
+  "cjk": 18
+ },
+ "degeneracy_pass": true,
+ "★why_no_ground_truth": "我听不了音频, 做不了逐字标注; 公开集里没有本项目域的带标注社媒音轨。⇒ 真准确率仍**未测**, 这条不改变那个状态。",
+ "★derivable_bound": {
+  "inequality": "a + b <= 1 + p",
+  "★derivation": "a、b 分别是两个转写与(未知)真值的匹配率, p 是两者**彼此**的一致率。两者**同时**匹配真值的位置必然也彼此一致 ⇒ 同时匹配的比例 <= p。由容斥: a + b − 1 <= 同时匹配 <= p ⇒ **a + b <= 1 + p**。",
+  "p_median": 0.4754,
+  "a_plus_b_max": 1.4754,
+  "if_equal_each_max": 0.7377,
+  "★reading": "实测 p = 0.4754 ⇒ a + b <= 1.4754 ⇒ **两者中至少一个的匹配率 <= 0.7377**。若两引擎水平相当, 则**各自都 <= 0.7377**。★ 这**不能**推出生产用的那个(SenseVoice)就是差的那个 —— 但也**不能**证明它是好的那个。",
+  "★contrast_with_librispeech": "同一个 SenseVoice 在 LibriSpeech test-clean 上 WER 2.34%(匹配率 ~0.977)。社媒音轨上两引擎只有 0.475 的一致 ⇒ **朗读语音的数严重高估了本项目素材上的表现**。这正是此前只能靠推测说「仍是乐观值」的那句话, 现在有了可证的约束。"
+ }
+}

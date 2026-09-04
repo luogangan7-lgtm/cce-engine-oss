@@ -134,8 +134,13 @@ def items() -> list[dict]:
     if not _missing and not os.path.exists(
             os.path.join(ROOT, "tests/data/phase2/asr_quality_en_other.json")):
         out.append({"类": OPEN, "项": "英文 ASR 仅测了 test-clean", "证据": "test-other 未测"})
-    out.append({"类": BLOCKED, "项": "ASR 在**自发语音/社媒音轨**上未测",
-                "证据": ("朗读语音(test-clean 2.34% / test-other 11.61%)已测, 但社媒音轨有 BGM/压缩/重叠, "
+    out.append({"类": BLOCKED, "项": "ASR 在**社媒音轨**上的真准确率未测(已有可证上界)",
+                "证据": ("★ 2026-09-04 补: 用**第二个独立引擎**(faster-whisper small, Apache-2.0)在 18 份"
+                         "真实社媒音轨上做跨引擎一致性, 中位 **0.475** ⇒ 由 a+b<=1+p 得"
+                         "**至少一个引擎的匹配率 <= 0.738**; 对照 LibriSpeech 的 ~0.977 ⇒ "
+                         "**朗读语音的数确实高估了本项目素材**(此前只能靠推测说这句话)。"
+                         "★ 但一致 != 准确 —— 真准确率仍未测。"
+                         "朗读语音(test-clean 2.34% / test-other 11.61%)已测, 但社媒音轨有 BGM/压缩/重叠, "
                          "比两者都难 ⇒ 现有数**对本用例仍是乐观值**。"
                          "缺的是**带逐字标注的社媒音轨素材** —— 公开集没有; "
                          "TED-LIUM3 虽可补自发语音但许可是 CC BY-NC-ND(非商用)。")})
