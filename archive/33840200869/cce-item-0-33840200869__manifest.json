@@ -1,0 +1,126 @@
+{
+ "mode": "media_ingest",
+ "started": "2026-09-04 05:24:59",
+ "text_sha1": "cc945b5f6774",
+ "text_sha256": "sha256:a34c9ad4b68610d687e08530080f2c2a12bb47ba360d46038bf92831c2db5236",
+ "chain": [
+  "media_validate",
+  "foundation_adapt",
+  "event_assemble",
+  "qualified_readout"
+ ],
+ "submission": {
+  "submission_id": "verify-image-ingest-20260904-1321-r4",
+  "job_id": "img_synth_01",
+  "content_id": "img_synth_01",
+  "profile": "media_ingest",
+  "schema_version": "1.1.0",
+  "platform": "owned_site",
+  "platform_adapter": {
+   "id": "owned_site",
+   "version": "1.0.0"
+  },
+  "surface": "ci.local/synthetic-image",
+  "surface_context": {
+   "kind": "owned_site",
+   "id": "ci.local/synthetic-image",
+   "observed_at": "2026-09-04T04:31:24Z"
+  },
+  "domain": "hearing_aids",
+  "speaker_role": null,
+  "guard_profile": null,
+  "language": "en",
+  "context_snapshot": {
+   "id": "context:img_synth_01:2026-09-04T04:31:24Z",
+   "observed_at": "2026-09-04T04:31:24Z",
+   "platform": "owned_site",
+   "platform_adapter": {
+    "id": "owned_site",
+    "version": "1.0.0"
+   },
+   "surface": {
+    "kind": "owned_site",
+    "id": "ci.local/synthetic-image",
+    "observed_at": "2026-09-04T04:31:24Z"
+   },
+   "domain": "hearing_aids",
+   "summary": "CI 图片档全链回放: 现场合成的确定性图片(HEARING TEST / 2026 REPORT)。真实素材不进公开仓 —— 边界闸是文本闸, 看不见 PNG 像素里的身份。",
+   "dimensions": {
+    "time": {
+     "value": "2026-09-04T04:31:24Z",
+     "assertion": "observed",
+     "evidence_refs": [
+      "content:ci:synthetic-image"
+     ]
+    }
+   },
+   "provenance": {
+    "producer": "cce_synth_image + cce_image_ingest",
+    "version": "1.1.0"
+   }
+  },
+  "text_sha256": "sha256:a34c9ad4b68610d687e08530080f2c2a12bb47ba360d46038bf92831c2db5236"
+ },
+ "finished": "2026-09-04 05:24:59",
+ "stages": {
+  "media_validate": {
+   "status": "OK",
+   "sec": 0.0,
+   "duration_sec": 0.0,
+   "channels_present": [
+    "audio",
+    "ocr"
+   ],
+   "artifact_sha256": "a34c9ad4b68610d6",
+   "★scope": "只校验形状与完整性; **抽取质量(ASR/OCR 准确率)未测**, 见 registry"
+  },
+  "foundation_adapt": {
+   "status": "OK",
+   "sec": 0.0,
+   "observations": 1,
+   "kinds": {
+    "on_screen_text": 1
+   },
+   "content_id": null
+  },
+  "event_assemble": {
+   "status": "OK",
+   "sec": 0.0,
+   "events": 1,
+   "event_types": {
+    "on_screen_text_observed": 1
+   },
+   "contract_ok": true,
+   "counts": {
+    "observations": 1,
+    "events": 1,
+    "context_snapshots": 0,
+    "state_snapshots": 0,
+    "cce_requests": 0,
+    "measurement_results": 0,
+    "state_transitions": 0,
+    "outcomes": 0
+   }
+  },
+  "qualified_readout": {
+   "status": "OK",
+   "sec": 0.0,
+   "instrument_hash": null,
+   "instrument_spec": null,
+   "usable_keys": [
+    "p3.events",
+    "p3.observations"
+   ],
+   "withheld": {
+    "p3.extraction_quality": "ASR/OCR 抽取**准确率未测**(语言相关, 英文上从未评过) —— observation 里的文字可作证据引用, 但不得当作已验收的转写",
+    "p3.cross_domain_calibration": "分辨率/阈值 across_domains=NOT_ESTABLISHED —— 禁止跨域搬",
+    "s2.playbook_primary": "未产出"
+   },
+   "usable_count": 2,
+   "withheld_count": 3,
+   "rule": "只有 usable 里的读数允许进入下游/Population Field; withheld 不是弱证据, 是没有读数。跨读数比较前必须先比 instrument_hash。"
+  }
+ },
+ "complete": true,
+ "failed_at": null
+}

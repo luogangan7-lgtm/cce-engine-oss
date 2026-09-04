@@ -68,11 +68,11 @@
     "★ 2026-09-03 P3 进生产: profile `media_ingest` —— media_validate → foundation_adapt → event_assemble → qualified_readout。输入是**解析产物 JSON**(走既有 --text-file 管道, text_sha256 即精确输入哈希)。全链回放实测 complete=true, 产出 observations.json + events.json",
     "★ 2026-09-03 韵律与混音指标由 missing_no_capability 转为**真做**(scripts/cce_audio_prosody.py, librosa): 逐窗 f0/能量/浊音比/语速代理 + 全局摘要; 响度/动态范围/频带能量比。★ 科学边界**焊在代码里**: 只出声学量, **不出效价**(仅靠声学 CCC≈0.5)、**不出人格/特质**(近随机且性别刻板驱动的系统性误判), 被禁字段由 analyse() 抛错拦住而非靠注释",
     "★ 2026-09-04 音频**源分离**接入(scripts/cce_audio_separate.py, demucs htdemucs, CPU 实测 0.27x 实时): 四源能量占比 + 人声轨。结构闸: 产出里出现 speaker/diarization/情绪 类字段直接抛。★ 并因此判出**我自己前一天上线的韵律模块有问题**: 实测 PROSODY_ON_SEPARATED_VS_MIXED_GEN1 —— |Δf0| 随非人声占比上升(Spearman ρ=0.618, p=0.0003, n=30), 中位差 **12.4 半音(一个八度)**; 实例: 非人声 0.996 的片段混音 f0=79Hz(在跟贝斯走), 人声轨 231Hz 才是说话。⇒ 韵律读数now带 f0_source(vocals/mixed) + nonvocal_share, 并由 prosody_usable() 判可用性: **说不清算在哪条轨上的一律不可用**; 混音且非人声占比 >0.35 判不可用。★ 只说「混音那条不可信」, **不说「分离后更准」** —— 没有 f0 地面真值。",
-    "★ 2026-09-04 抽取质量有了**上界曲线**(probes/ocr_quality_curve.py, 零调用): 中英各 6 条, 四条退化轴各自单独扫。模糊与缩放两轴有分辨力(σ>=4.5 或缩到 0.12 时塌到 0); JPEG 与对比度两轴在测试范围内**无分辨力** —— 且由**物理见证**证明退化真的施加了(对比度 RMS 43.5→2.6, JPEG 9383→2464 字节), 所以是真稳健不是仪器坏。★ 这是**上界不是准确率**: 合成图无花字/描边/遮挡/渐变背景, 同等退化下真实只会更差。★ 第一版曾跑出「四条轴全无分辨力」, 差点读成「OCR 稳健」—— 实为中文渲成豆腐块, 仪器坏了。见证与渲染器自检就是为这个加的。"
+    "★ 2026-09-04 抽取质量有了**上界曲线**(probes/ocr_quality_curve.py, 零调用): 中英各 6 条, 四条退化轴各自单独扫。模糊与缩放两轴有分辨力(σ>=4.5 或缩到 0.12 时塌到 0); JPEG 与对比度两轴在测试范围内**无分辨力** —— 且由**物理见证**证明退化真的施加了(对比度 RMS 43.5→2.6, JPEG 9383→2464 字节), 所以是真稳健不是仪器坏。★ 这是**上界不是准确率**: 合成图无花字/描边/遮挡/渐变背景, 同等退化下真实只会更差。★ 第一版曾跑出「四条轴全无分辨力」, 差点读成「OCR 稳健」—— 实为中文渲成豆腐块, 仪器坏了。见证与渲染器自检就是为这个加的。",
+    "★ 2026-09-04 图片档晋升 production_github(CI run 33840200869 + 本机真实素材 6/6): 静态图与视频帧**共用同一条 media_ingest 链与同一份视觉合同**(图片是 selector 退化为 whole 的 VisualObservation), 未新增 profile/链/合同。"
    ],
    "missing": [
     "抽取质量: **中文域已有实测**(真实素材 n=6 单标注者, 中位 0.900, 范围 0.25–1.0, 零文字对照上无中生有 0 次; 最低两例是四字散在拼图四格 0.25 与标题被裁+半透明水印 0.545)。★ **英文域仍无一张标注素材 ⇒ 仍未测**, 而该能力是语言相关的, 中文的数不许外推到英文。★ n=6 区间宽, 不得当作稳定基线。解锁动作: 英文域的带逐字标注素材。",
-    "standalone_image_ingest 仍 missing ⇒ **不得声称图片全链可用**",
     "**说话人分离**(diarization) —— pyannote 的模型是**受限模型**, 需 HF 账号接受条款并提供 token。★ 2026-09-04 实际去做才确认这一条: 它不是「没装」, 是**我拿不到凭据**, 已改归 BLOCKED_EXTERNAL。解锁动作明确: owner 提供 HF token 并接受 pyannote/speaker-diarization-3.1 条款。★ 不拿源分离的能量占比冒充说话人数 —— 那是声学量, 不是身份判断。"
    ],
    "missing_state": "missing_no_capability",
@@ -115,14 +115,15 @@
   },
   {
    "id": "standalone_image_ingest",
-   "status": "component_only",
+   "status": "production_github",
    "input_contract": null,
    "output_contract": null,
    "evidence_required": [
     "tests/test_cce_image_ingest.py",
-    "★ 2026-08-15 否决过「静态图片与视频帧各建一套视觉合同」与「因视觉描述已走 outbound_post 就声称图片全链可用」—— 本实现共用合同, 且状态仍为 component_only"
+    "★ 2026-08-15 否决过「静态图片与视频帧各建一套视觉合同」与「因视觉描述已走 outbound_post 就声称图片全链可用」—— 本实现共用合同, 且状态仍为 component_only",
+    "★ 2026-09-04 晋升 production_github。原记的条件是「CI 全链回放 + 真实素材」, 去做才发现两半**不能同时满足**: 真实素材带真名, 而边界闸 check_boundary 是文本闸(read_text 逐文件扫身份字面量), **看不见 PNG 像素里的人脸和屏幕上的 handle** ⇒ 会给假绿。⇒ 拆成两半各自可验, 缺一不算: ① **本机真实素材**全链回放 probes/image_chain_real_material.py 实测 **6/6 PASS**(schema 合格 · 每条结论带 xywh 区域 · complete=true · 抽取质量具名扣发); ② **CI 全链回放** run 33840200869 全绿 —— 合同 job 装了 requirements-media.txt, CI 上**真跑了 OCR**(读到 ['HEARING TEST','2026 REPORT']), manifest complete=true, 四阶段齐, usable_keys=[p3.observations, p3.events], withheld={p3.extraction_quality, p3.cross_domain_calibration} 具名扣发。③ 配套闸 tests/test_cce_gate_no_binary_media.py: 公开仓结构上不放媒体二进制, 补住边界闸对像素的盲区。"
    ],
-   "fallback_policy": "NOT_IN_PRODUCTION_PATH",
+   "fallback_policy": "WITHHOLD",
    "implementation": "scripts/cce_image_ingest.py",
    "implemented": [
     "静态图片 → cce.visual_observation.v1(与视频帧**共用**同一合同, 未另建一套)",
@@ -136,11 +137,10 @@
    ],
    "missing": [
     "抽取质量: **中文域已有实测**(真实素材 n=6 单标注者, 中位 0.900, 范围 0.25–1.0, 零文字对照上无中生有 0 次; 最低两例是四字散在拼图四格 0.25 与标题被裁+半透明水印 0.545)。★ **英文域仍无一张标注素材 ⇒ 仍未测**, 而该能力是语言相关的, 中文的数不许外推到英文。★ n=6 区间宽, 不得当作稳定基线。解锁动作: 英文域的带逐字标注素材。",
-    "★ 晋升 production_github 需要: 图片档的 CI 全链回放 + 真实素材",
     "VLM 场景/对象/动作识别 —— ★ **刻意不照现状接**: cce_video_parse 的 visual 字段产出的是**自由散文**(scene/persons/actions/objects 各一段中文), 正是 2026-08-15 否决的「用提示词中的七字段当图像 Schema —— 无法机器校验、定位区域、保留模型/置信/来源」。接进来等于复现一个已被否决的设计。要做需**新仪器**: 受约束标签 + 区域 + 置信度。"
    ],
    "missing_state": "missing_no_capability",
-   "entrypoint": null,
+   "entrypoint": ".github/workflows/cce-submit.yml",
    "★p0_fixed": "2026-08-15 登记的 P0「OCR 原始 box 在 _ocr_rows 中被丢弃, 结论不能回指图像区域」已修: 解析器保留 box, foundation_adapter 把区域挂到 observation; 老产物无区域时记 None 并标注, **不补零**。",
    "★vlm_evidence": "零调用方向性实测(probes/visual_prose_vs_constrained.py, 301 帧双模型 M3+Qwen3.8): 自由散文字段双模型 Jaccard 均值 **0.151**, 而受约束字段 on_screen_text **0.388** —— **受约束高 2.58 倍**。支持「散文做不成图像 Schema」这条否决。★ 只作方向参考不作判据: 跨模型一致 != 重测信度, 且跨模型共识闸 2026-08-18 已否决。"
   },

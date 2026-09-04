@@ -218,7 +218,8 @@
     "mix metrics",
     "full cross-modal event semantics"
    ],
-   "why": "★ 2026-09-03 P3 进生产: 新 profile `media_ingest` (media_validate → foundation_adapt → event_assemble → qualified_readout), 三处同步(契约 profile / CHAINS / 入口白名单)且逐位一致 —— 守卫 test_cce_retired_chain_removed 的核心不变量。输入是**解析产物 JSON**(解析要 ffmpeg/OCR/ASR 与真实媒体文件, 不塞 CI; 走既有 --text-file 管道, text_sha256 即精确输入哈希)。全链回放实测 complete=true, 落 observations.json + events.json。能力 component_only → **production_github**。跑它的 job 由 outbound 改名 **measure** —— media_ingest 不是出站, 名实不符会被读成「发出去了」。★ 边界照 2026-08-15 的否决逐条守住: 只收**视频**解析产物; standalone_image_ingest 仍 missing, **不得声称图片全链可用**; 抽取质量(ASR/OCR 准确率)与跨域标定由 qualified_readout **具名扣发** —— 抽出来了 != 抽得准。媒体**存在**声明(prepare.py 出站必填)与本档是两件事, 各自独立。"
+   "why": "★ 2026-09-03 P3 进生产: 新 profile `media_ingest` (media_validate → foundation_adapt → event_assemble → qualified_readout), 三处同步(契约 profile / CHAINS / 入口白名单)且逐位一致 —— 守卫 test_cce_retired_chain_removed 的核心不变量。输入是**解析产物 JSON**(解析要 ffmpeg/OCR/ASR 与真实媒体文件, 不塞 CI; 走既有 --text-file 管道, text_sha256 即精确输入哈希)。全链回放实测 complete=true, 落 observations.json + events.json。能力 component_only → **production_github**。跑它的 job 由 outbound 改名 **measure** —— media_ingest 不是出站, 名实不符会被读成「发出去了」。★ 边界照 2026-08-15 的否决逐条守住: 只收**视频**解析产物; standalone_image_ingest 仍 missing, **不得声称图片全链可用**; 抽取质量(ASR/OCR 准确率)与跨域标定由 qualified_readout **具名扣发** —— 抽出来了 != 抽得准。媒体**存在**声明(prepare.py 出站必填)与本档是两件事, 各自独立。",
+   "★condition": "扣发的是 p3.extraction_quality 与 p3.cross_domain_calibration(具名扣发, 非静默)。2026-09-04 复核: 抽取质量**中文域已有实测**(真实 n=6 中位 0.900)+ 合成上界曲线, 但**英文域仍无一张标注素材**, 而该能力是语言相关的 ⇒ 扣发**仍然正确**。跨域标定 across_domains 仍 NOT_ESTABLISHED, 禁止跨域搬阈值。★ 解开条件: ① 英文域带逐字标注素材 ② 跨域标定实验 —— 前者是外部资源, 我做不了。⇒ 这一项不是「我能做只是没做」, 它的剩余部分挂在 BLOCKED_EXTERNAL 上。"
   },
   {
    "phase": "P4 九结 Research",
@@ -248,7 +249,8 @@
     "criterion_fix": "2026-09-02 两次修正, **三版判决都是 FAIL**: ① 单结极差改为只在点火 rep 上算, 并补出现率一致(4→5 项); ② 经外部裁决(ISO 5725 / ASTM C670 支撑)删「完全相同读数对」与「单结极差」, 换成逐对容差一致率 A(0.10)>=0.95 (5→4 项)。两条被删的都是**判据形态错误**: 前者测的是九维向量 exact collision probability(改小数位就能从红变绿), 后者的严格度随 rep 数单调变严(在惩罚多测量)。",
     "criterion_frozen_at": "2026-09-02",
     "classification": "**两个真实质量问题 + 两条坏 gate**: 真问题 = 稀有结出现率不稳(inertia 3/8) + 常火结数值不可复现(6 个里 5 个不达标, 仅 pain_seek 100%); 坏 gate = 完全相同读数对、单结极差。"
-   }
+   },
+   "★condition": "只保留 top-1 读数(实测一致率 1.000); intensity/weight 已判永久不可用, 已裁定不换仪器。"
   },
   {
    "phase": "P5 Archive Plane",

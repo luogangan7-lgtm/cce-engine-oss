@@ -137,19 +137,28 @@ def test_capability_registry_matches_production_workflow_boundary() -> None:
     assert any("韵律" in i for i in video["implemented"]), \
         "★ 韵律离开了 missing 却没进 implemented —— 那是被删掉不是被做掉"
     assert "抽取质量" in _miss, "★ ASR/OCR 准确率未测这件事必须留在 missing 里"
-    assert "standalone_image_ingest" in _miss, \
-        "★ 图片链仍 missing —— 2026-08-15 已否决「因视觉描述已走 outbound_post 就声称图片全链可用」"
+    # 2026-09-04: 图片链已晋升 ⇒ 它离开 video 档的 missing。同上一条的形状:
+    # 离开 missing 必须**进 implemented**, 否则就是被悄悄删掉冒充做完。
+    assert "standalone_image_ingest" not in _miss, "★ 图片链已晋升, 不该还留在 missing"
+    assert any("图片档晋升" in i and "33840200869" in i for i in video["implemented"]), \
+        "★ 图片链离开 missing 却没进 implemented(且带 run id) —— 那是被删掉不是被做掉"
     assert video["fallback_policy"] == "WITHHOLD", \
         "★ 抽取质量未测 ⇒ 必须扣发, 不是静默放行"
     assert video["missing_state"] == "missing_no_capability"
     # 2026-09-03: standalone_image_ingest 由 missing → component_only(有实现了)。
     # ★ 断言改为**更准确的性质**而不是放宽: 本意是「不得声称图片全链可用」,
     #   所以要钉的是**不在生产路径**, 不是「没有实现」。
+    # 2026-09-04 晋升。★ 2026-08-15 那条否决**不因晋升而失效** —— 它否决的是「顺带声称」。
+    #   现在能声称, 靠的是图片档**自己的**两半实证; 所以断言从「不许晋升」改成「凭据必须具名可核」。
     _img = caps["standalone_image_ingest"]
-    assert _img["status"] != "production_github", \
-        "★ 2026-08-15 已否决「因视觉描述已走 outbound_post 就声称图片全链可用」"
-    assert _img["fallback_policy"] == "NOT_IN_PRODUCTION_PATH"
-    assert any("CI 全链回放" in m for m in _img["missing"]), "★ 晋升条件必须写明"
+    assert _img["status"] == "production_github", f"★ 状态未晋升: {_img['status']}"
+    assert _img["fallback_policy"] == "WITHHOLD", "★ 晋升后仍要扣发未测的读数"
+    _iev = " ".join(_img["evidence_required"])
+    assert "33840200869" in _iev, "★ 「CI 验过」必须给出具体 run id, 否则不可复核"
+    assert "6/6" in _iev and "本机真实素材" in _iev, "★ 本机那一半的实测结果要写明"
+    assert "文本闸" in _iev, "★ 「为什么真实素材不能进 CI」的理由要留下, 否则下一个人会去补这一半"
+    assert any("抽取质量" in m for m in _img["missing"]), \
+        "★ 晋升只覆盖「链能不能跑」—— 抽取质量不许被顺带划掉"
     assert caps["standalone_audio_ingest"]["status"] == "missing"
 
 

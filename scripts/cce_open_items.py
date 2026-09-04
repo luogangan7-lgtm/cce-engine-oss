@@ -34,8 +34,11 @@ def items() -> list[dict]:
         if not ph["status"].startswith("DONE") and "DECIDED" not in ph["status"]:
             out.append({"类": OPEN, "项": f"{ph['phase']} 未完成", "证据": ph["status"]})
         elif "SCOPED_WITHHOLDING" in ph["status"] or "DECIDED" in ph["status"]:
+            # ★ 只写状态词等于没写 —— 读的人看不出「条件是什么、谁能解开」。
+            #   带条件完成的项必须自带: 扣发了什么 + 什么能解开它。
             out.append({"类": DECIDED if "DECIDED" in ph["status"] else OPEN,
-                        "项": f"{ph['phase']} 带条件完成", "证据": ph["status"]})
+                        "项": f"{ph['phase']} 带条件完成",
+                        "证据": f"{ph['status']} — {ph.get('★condition') or '条件未写明(需补)'}"})
 
     # ② profile 未经 CI 验证的
     seen = set()
@@ -50,9 +53,25 @@ def items() -> list[dict]:
                         "证据": "archive/ 里没有它的成功 run"})
 
     # ③ 能力注册表里仍缺的
+    # ★ 2026-09-04: 原来一律记 OPEN, 于是「卡在拿不到的外部资源上」和「已裁定不做」
+    #   都被显示成「我能做只是没做」—— 三类混成一类, 清单就失去了它唯一的用处。
+    #   ⇒ 让 missing 条目**自己声明所属类**(靠它本来就写着的字样), 默认仍是 OPEN。
+    def _class_of(m: str) -> str:
+        if any(w in m for w in ("仍 BLOCKED", "拿不到", "受限模型", "需英文域", "无一张标注素材",
+                                "解锁动作")):
+            return BLOCKED
+        if any(w in m for w in ("刻意不", "已裁定", "已否决")):
+            return DECIDED
+        return OPEN
+
     for c in _j("config/cce_capability_registry_v1.json")["capabilities"]:
         for m in (c.get("missing") or []):
-            out.append({"类": OPEN, "项": f"{c['id']}: {m[:64]}", "证据": f"status={c['status']}"})
+            _cls = _class_of(m)
+            # ★ BLOCKED/DECIDED 的理由写在 missing 原文里, 而「项」只截 64 字会把它切掉。
+            #   ⇒ 非 OPEN 的项, 证据必须带上原文, 否则「卡在什么资源上」无处可读。
+            out.append({"类": _cls, "项": f"{c['id']}: {m[:64]}",
+                        "证据": (f"status={c['status']}" if _cls == OPEN
+                                 else f"status={c['status']} — {m}")})
 
     # ④ 读数层判红的(修法只有换仪器或接受)
     ps = _j("tests/data/phase2/k1_v2_multitext_verdict.json")
@@ -67,11 +86,15 @@ def items() -> list[dict]:
         _ev += (f"; 替代方案已试并实测: 原子分解 {at_v['decision']} "
                 f"{at_v['meeting_criterion']}/{at_v['texts']}(改善真实且非退化, 但未到 7/8 采纳线 ⇒ 不采纳)")
     out.append({"类": OPEN, "项": "对齐出口 playbook_hit 不可靠, 替代已测但未达采纳线",
-                "证据": _ev})
+                "证据": _ev + ("。★ 下一步不是再换读数形态 —— 实测显示残余不稳定不在标尺上"
+                               "(belong 的正向原子只剩 1 条, 连二值都在 0/1 间摆)。"
+                               "要动的是 **playbook 原子本身**(措辞太抽象, 无法逐字指认), "
+                               "那是改**干预设计**不是改测量 ⇒ **需 owner 拍板**, 且要另立预注册。")})
 
     # ⑤ 文档与代码的分歧
+    # 「已就地标注」= 分歧仍在但读那一节的人不会被误导, 且有闸钉住 ⇒ 与「符合」同属已解决
     for s in _j("config/cce_doc_reconciliation.json")["section_divergences"]:
-        if s["verdict"] != "符合":
+        if s["verdict"] not in ("符合", "已就地标注"):
             out.append({"类": OPEN, "项": f"{s['section']}: {s['verdict']}",
                         "证据": s.get("note", "")[:70]})
 

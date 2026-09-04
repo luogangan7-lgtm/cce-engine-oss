@@ -108,10 +108,22 @@ if not _HAS_C2PA:
 
 # ── ④ 边界: 图片链**不得**被声称为生产可用 ────────────────────────────
 cap = CAPS["standalone_image_ingest"]
-assert cap["status"] == "component_only", \
-    "★ 2026-08-15 已否决「因视觉描述已走 outbound_post 就声称图片全链可用」"
-assert cap["fallback_policy"] == "NOT_IN_PRODUCTION_PATH"
-assert any("CI 全链回放" in m for m in cap["missing"]), "★ 晋升条件要写明"
+# ★ 2026-09-04 晋升 production_github。但 2026-08-15 那条否决**不因晋升而失效** ——
+#   它否决的是「因视觉描述已走 outbound_post 就**顺带声称**图片全链可用」。
+#   现在可以声称, 靠的是**两半各自实测**, 不是顺带。所以要钉住的是「凭据是什么」。
+assert cap["status"] == "production_github", f"★ 状态未晋升: {cap['status']}"
+assert cap["fallback_policy"] == "WITHHOLD", "★ 晋升后仍要扣发未测的读数"
+_ev = " ".join(cap["evidence_required"])
+assert "6/6" in _ev and "本机真实素材" in _ev, "★ 本机真实素材那一半的实测结果要写明"
+assert "33840200869" in _ev, "★ CI 那一半必须给出**具体 run id**, 否则「CI 验过」不可复核"
+assert "真跑了 OCR" in _ev, "★ 要写明 CI 上跑的是真 OCR 而非降级路径"
+assert "文本闸" in _ev and "看不见" in _ev, \
+    "★ 「为什么真实素材不能进 CI」这个理由必须留下 —— 否则下一个人会去补这一半"
+assert "具名扣发" in _ev, "★ 晋升不等于抽取质量已测"
+# 晋升了, 但抽取质量与 VLM 仍在 missing —— 不许被顺带划掉
+_m = " ".join(cap["missing"])
+assert "抽取质量" in _m and "刻意不照现状接" in _m, \
+    "★ 晋升只覆盖「链能不能跑」, 不覆盖抽取质量与 VLM"
 # ★ 2026-09-04: C2PA 已接官方库做真解析 ⇒ 它离开 missing 进入 implemented。
 #   但**边界不随之消失** —— 三态都不得据以推断媒体为假, 这条要跟着搬, 不是随实现一起删掉。
 _all = " ".join(cap["missing"]) + " " + " ".join(cap.get("implemented") or [])
@@ -128,4 +140,4 @@ os.unlink(_tmp)
 
 print("test_cce_image_ingest: OK (P0 两段闭合: 解析器保 box + 区域进 observation | "
       "图片与视频帧**共用**合同(selector 退化) · 三条反向不合合同各自见红 | "
-      "老产物记 None 不补零 | 图片链仍 component_only, 未被声称生产可用)")
+      "老产物记 None 不补零 | 图片链已晋升 production_github(本机 6/6 + CI run 33840200869 真跑 OCR), 但抽取质量与 VLM 仍在 missing, 未被顺带划掉)")

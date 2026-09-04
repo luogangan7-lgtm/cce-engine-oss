@@ -675,6 +675,23 @@
     "luogangan7-lgtm/cce-engine-oss"
    ],
    "checked_at": "2026-09-03"
+  },
+  "33840200869": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_capability_registry_v1.json",
+    "config/cce_submission_contract_v1.json",
+    "tests/test_cce_image_ingest.py"
+   ],
+   "reason": "图片档晋升 production_github 的 CI 那一半。合同 job 装了 requirements-media.txt, CI 上**真跑了 OCR**(读到 ['HEARING TEST','2026 REPORT']), 不是降级路径。",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-04",
+   "local_path": "archive/33840200869",
+   "files": 8,
+   "★rebuildable_locally": "是。输入是**现场合成**的确定性图片(scripts/cce_synth_image.py), 不依赖任何本机素材 ⇒ 任何机器上都能重跑得到同一输入。重建: python3 scripts/cce_synth_image.py x.png && python3 scripts/cce_image_ingest.py x.png --out a.json && python3 scripts/cce_full_run.py --mode media_ingest --text-file a.json --context 回放 --outdir out",
+   "★what_it_proves": "链能在**任何机器上**从像素跑到读数。**不**证明真实素材的抽取质量 —— 合成图无花字/描边/遮挡, 抽取质量由 qualified_readout 具名扣发。"
   }
  },
  "negative_test_run_ids": {

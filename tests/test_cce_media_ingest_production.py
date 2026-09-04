@@ -118,13 +118,17 @@ _COVER = ("本机(有历史解析产物): 已做全链回放" if _replayed
 # ── ⑤ 晋升不等于全部具备: 图片链仍不得声称可用 ────────────────────────
 v = CAPS["video_multimodal_parse_v5"]
 assert v["status"] == "production_github" and v["fallback_policy"] == "WITHHOLD"
-# 2026-09-03: 图片链已有组件实现(cce_image_ingest), 但**仍不在生产路径**。
-# ★ 断言改为钉住「不在生产路径」这个真正要守的性质, 不是「没有实现」。
+# 2026-09-04: 图片链已晋升 production_github。★ 原来这里守的是「不得**顺带**把图片说成生产可用」——
+#   那条纪律没变, 变的是图片现在有了**自己的**两半实证。所以断言改为钉住「凭据存在且具名」。
 _img = CAPS["standalone_image_ingest"]
-assert _img["status"] != "production_github" and \
-       _img["fallback_policy"] == "NOT_IN_PRODUCTION_PATH", \
-    "★ 视频档进生产不得顺带把图片也说成生产可用"
-assert "★scope_video_only" in prof and "standalone_image_ingest" in prof["★scope_video_only"]
+assert _img["status"] == "production_github" and _img["fallback_policy"] == "WITHHOLD", \
+    f"★ 图片档状态与扣发策略不符: {_img['status']} / {_img['fallback_policy']}"
+_iev = " ".join(_img["evidence_required"])
+assert "33840200869" in _iev and "6/6" in _iev, \
+    "★ 图片档进生产必须给出**它自己的**证据(CI run id + 本机真实素材), 不得靠视频档顺带"
+assert "★scope_video_and_image" in prof, "★ 合同的 scope 要跟着改, 否则契约与注册表打架"
+assert "同一条链" in prof["★scope_video_and_image"] and "同一份合同" in prof["★scope_video_and_image"], \
+    "★ 必须写明图片没有另建链/另建合同(2026-08-15 否决过分建两套)"
 
 print("test_cce_media_ingest_production: OK "
       f"(三处同步: 契约 profile / CHAINS / 入口白名单 逐位一致 | "
