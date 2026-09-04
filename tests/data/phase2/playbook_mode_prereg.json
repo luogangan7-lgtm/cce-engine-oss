@@ -1,0 +1,99 @@
+{
+ "block": "PLAYBOOK_MODE_SHARE_GEN4",
+ "prereg_written_at": "2026-09-03",
+ "★frozen_before_measurement": "本文件在采集任何新读数**之前**提交(见 git)。",
+ "why": "playbook_hit(标量)判 UNRELIABLE(4/8)。**但先查清了失败的性质**: 旧判据是逐对容差一致率 >= 0.95, 而 n=8 时**一个离群 rep 就产生 7 个不符对 → 0.75**, 自动判负 —— 该判据实际要求**零离群**。6/8 个文本正是「7 个 0.0 + 1 个 0.3」被判 FAIL。⇒ 问题一半在读数形式(拿标量当读数), 一半在判据(对单个离群零容忍)。",
+ "★why_not_pairwise": "LLM-as-judge 文献说 pairwise 优于 pointwise, 但**本项目 2026-08-07 的实测记录**是: pairwise 偏好翻转率 ~35% vs 绝对打分 9%, 需换序双跑 + 平局处理。**故排除成对比较这条路。**",
+ "design_change": {
+  "readout": "由标量 hit 改为**分布摘要**: {mode, mode_share, outlier_count} —— 符合本项目全占比原则「分布是一等对象」, 且与已在用的 top1_mode_share 同形。",
+  "criterion": "mode_share >= **7/8**。★ 这个阈值**不是新拍的**: 它是 K1 现成的 「top-1 一致 >= 7/8」逐字同形同数。",
+  "★threshold_chosen_after_seeing_v1_data": "★ 诚实记录: 7/8 这个阈值是我**看过 v1 那 8 个文本的数据之后**定的。所以本轮**必须在新文本上确认** —— 选文取资格池字典序第 14–21 个, 与 K1-v2(前 5)和 playbook_hit v1(第 6–13)全部错开。"
+ },
+ "selection_rule": {
+  "rule": "资格池字典序取第 14–21 个",
+  "chosen": [
+   "739b240fd52a",
+   "7be3af6e0e26",
+   "80769cc0222a",
+   "8dc468c70ce3",
+   "919671d9d867",
+   "96c05a7f8073",
+   "9f0d49fe019d",
+   "a05bd9ac0645"
+  ],
+  "why_offset": "与前两轮用过的文本全部错开, 避免「同一批输入既调参又验收」"
+ },
+ "instrument": {
+  "instrument_hash": "565470cf26c16d01",
+  "must_equal": "565470cf26c16d01"
+ },
+ "design": {
+  "texts": [
+   {
+    "base_id": "739b240fd52a",
+    "text_sha16": "c879b24c8c5d479f",
+    "chars": 337
+   },
+   {
+    "base_id": "7be3af6e0e26",
+    "text_sha16": "3266823c39945e8f",
+    "chars": 578
+   },
+   {
+    "base_id": "80769cc0222a",
+    "text_sha16": "b8bba2db0d017b7b",
+    "chars": 163
+   },
+   {
+    "base_id": "8dc468c70ce3",
+    "text_sha16": "d48df49d40a112d8",
+    "chars": 525
+   },
+   {
+    "base_id": "919671d9d867",
+    "text_sha16": "ecc1cbdf1d0122e6",
+    "chars": 625
+   },
+   {
+    "base_id": "96c05a7f8073",
+    "text_sha16": "34049e6845b36862",
+    "chars": 262
+   },
+   {
+    "base_id": "9f0d49fe019d",
+    "text_sha16": "334984d2ab5812dc",
+    "chars": 775
+   },
+   {
+    "base_id": "a05bd9ac0645",
+    "text_sha16": "e04fb299a028203a",
+    "chars": 261
+   }
+  ],
+  "n_per_text": 8,
+  "votes_per_hit": 3,
+  "total_calls": 192,
+  "protocol": "与 v1 逐字相同: 取该文本自己的 top-1 结, 对同一文本调 dissolve_hit 一次(内含 3 次表决取中位数)",
+  "★no_resample_to_escape": "★ 不许「抽到够为止」—— gen3 立过这条: 那会条件化于模型愿意给读数, **隐藏真实弃权/离群率**。离群就是离群, 计入。"
+ },
+ "criterion": {
+  "statistic": "mode_share = 众数出现次数 / 有效 rep 数",
+  "mode_share_min": 0.875,
+  "n_min": 8,
+  "texts_meeting_min": 7,
+  "of": 8
+ },
+ "★degeneracy_guard": {
+  "rule": "8 个文本的众数至少要有 **2 个不同取值**; 且众数为同一值的文本不得超过 7/8。",
+  "why": "★ v1 数据里 **6/8 个文本众数是 0.0** —— 若新一批也几乎全 0, 那这个读数是在「对什么都说没执行」, 高占比来自地板而非精度。本项目已两次栽在「高一致率 + 零区分度」上(C2 常数估计器 / quadrant 1.000)。"
+ },
+ "decision_rule": {
+  "★frozen": "测量前写死。",
+  "USABLE": "mode_share >= 0.875 的文本 >= 7/8 **且**过非退化 ⇒ 可作对齐出口",
+  "DEGENERATE": "达标但**未过**非退化 ⇒ 判退化, 登记「它对什么都说同一句话」",
+  "STILL_UNRELIABLE": "达标文本 <= 5/8 ⇒ 换读数形式也救不回来, 对齐线整体关闭",
+  "INCONCLUSIVE": "以上都不满足"
+ },
+ "★falsifier": "若新一批达标 <= 5/8, 则「问题在判据不在读数」这个诊断被推翻, 得回到「标量本身不可测」。",
+ "★what_this_cannot_do": "不回答 playbook 判得**对不对**(效度需外部锚点, 仍无); 也不回答 6/8 众数为 0.0 是**真的没执行**还是**地板效应** —— 那需要一批**刻意执行 playbook 的稿子**作阳性对照, 本轮没有。"
+}
