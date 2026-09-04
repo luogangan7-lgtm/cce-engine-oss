@@ -121,7 +121,7 @@ def edit_rhythm(scene_cut_ts, dur):
             'shot_len_var': round(var, 3),
             'detector': "ffmpeg select='gt(scene,0.3)'"}
 
-def _audio_capabilities(present, tags=None):
+def _audio_capabilities(present, tags=None, wav=None):
     """Capability ledger, not a claim that missing source separation is silence.
 
     The former v4 output mixed a full-track ASR result and a BGM tag into a
@@ -140,9 +140,38 @@ def _audio_capabilities(present, tags=None):
         },
         'speech_timeline': {'status': 'missing_no_capability'},
         'speaker_turns': {'status': 'missing_no_capability'},
-        'prosody_timeline': {'status': 'missing_no_capability'},
-        'mix_metrics': {'status': 'missing_no_capability'},
+        # ★ 2026-09-03: 韵律与混音由 missing_no_capability 转为**真做**。
+        #   科学边界(2026-07-22 调研)焊在 cce_audio_prosody 里:
+        #   韵律→唤醒度是已重复验证的通道; **效价仅靠声学弱, 人格/特质是伪科学** ⇒ 都不产出。
+        #   这里只给**声学量本身**, 不给情绪分值 —— 韵律是 Observation 不是推断。
+        **_prosody_mix(wav),
+        # 仍缺: 源分离需 demucs、说话人分离需 pyannote —— 两者都要装重模型, 未装即如实标缺。
     }
+
+
+def _prosody_mix(wav):
+    if not wav or not os.path.exists(wav):
+        return {'prosody_timeline': {'status': 'missing_parse_failed'},
+                'mix_metrics': {'status': 'missing_parse_failed'}}
+    try:
+        import cce_audio_prosody as AP
+        r = AP.analyse(wav)
+        pr, mx = r['prosody'], r['mix_metrics']
+        # ★ 台账用 present/missing_*, 与其余条目同一套词; 内层自己的 status 另存,
+        #   否则 **pr 会把台账的状态词覆盖成 'ok', 两套词混在一个字段里。
+        def _wrap(d):
+            st = 'present' if d.get('status') == 'ok' else (
+                'empty_verified' if d.get('status') == 'empty' else 'missing_parse_failed')
+            return {**{k: v for k, v in d.items() if k != 'status'},
+                    'status': st, 'inner_status': d.get('status')}
+        return {'prosody_timeline': _wrap(pr), 'mix_metrics': _wrap(mx)}
+    except Exception as e:
+        # ★ 依赖缺席即如实标缺, **不降级为 missing_no_capability**(那是「压根没这能力」,
+        #   与「这次没跑成」是两回事)
+        return {'prosody_timeline': {'status': 'missing_parse_failed',
+                                     'error': f"{type(e).__name__}: {str(e)[:100]}"},
+                'mix_metrics': {'status': 'missing_parse_failed',
+                                'error': f"{type(e).__name__}: {str(e)[:100]}"}}
 
 
 def parse_audio(video, name):
@@ -155,7 +184,7 @@ def parse_audio(video, name):
         r = run(['ffmpeg','-y','-i',video,'-ar','16000','-ac','1',wav])
         if not os.path.exists(wav) or os.path.getsize(wav) < 1000:
             return {'present': False, 'reason': '无音轨或抽取失败(显式标注, 禁静默跳过)',
-                    'capabilities': _audio_capabilities(False)}
+                    'capabilities': _audio_capabilities(False, wav=wav)}
     from funasr import AutoModel
     m = AutoModel(model="iic/SenseVoiceSmall", trust_remote_code=False, disable_update=True)
     res = m.generate(input=wav, language="auto", use_itn=True)
@@ -166,7 +195,7 @@ def parse_audio(video, name):
     return {'present': True, 'transcript': text, 'tags': tags,
             'emotion_tags': [t for t in tags if t.upper() in ('HAPPY','SAD','ANGRY','NEUTRAL','FEARFUL','DISGUSTED','SURPRISED','EMO_UNKNOWN')],
             'event_tags': [t for t in tags if t in ('Speech','Music','Laughter','Applause','Cry','BGM','Cough','Sneeze','Breath')],
-            'capabilities': _audio_capabilities(True, tags)}
+            'capabilities': _audio_capabilities(True, tags, wav=wav)}
 
 _OCR = None
 OCR_CONF_MIN = 0.5

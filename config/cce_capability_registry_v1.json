@@ -65,12 +65,13 @@
     "OCR authoritative channel",
     "original-mix audio extraction and SenseVoice processing",
     "six completeness gates",
-    "★ 2026-09-03 P3 进生产: profile `media_ingest` —— media_validate → foundation_adapt → event_assemble → qualified_readout。输入是**解析产物 JSON**(走既有 --text-file 管道, text_sha256 即精确输入哈希)。全链回放实测 complete=true, 产出 observations.json + events.json"
+    "★ 2026-09-03 P3 进生产: profile `media_ingest` —— media_validate → foundation_adapt → event_assemble → qualified_readout。输入是**解析产物 JSON**(走既有 --text-file 管道, text_sha256 即精确输入哈希)。全链回放实测 complete=true, 产出 observations.json + events.json",
+    "★ 2026-09-03 韵律与混音指标由 missing_no_capability 转为**真做**(scripts/cce_audio_prosody.py, librosa): 逐窗 f0/能量/浊音比/语速代理 + 全局摘要; 响度/动态范围/频带能量比。★ 科学边界**焊在代码里**: 只出声学量, **不出效价**(仅靠声学 CCC≈0.5)、**不出人格/特质**(近随机且性别刻板驱动的系统性误判), 被禁字段由 analyse() 抛错拦住而非靠注释"
    ],
    "missing": [
-    "音频源分离 / 说话人分离 / 韵律 / 混音指标(cce_video_parse 自陈 missing_no_capability)",
     "抽取质量(ASR/OCR 准确率)评测 —— 语言相关, 英文上从未评过",
-    "standalone_image_ingest 仍 missing ⇒ **不得声称图片全链可用**"
+    "standalone_image_ingest 仍 missing ⇒ **不得声称图片全链可用**",
+    "音频**源分离**(需 demucs, 未装) 与 **说话人分离**(需 pyannote + HF token, 未装) —— 两者都要装重模型; 未装即如实标 missing_no_capability, 不冒充"
    ],
    "missing_state": "missing_no_capability",
    "input_contract": null,
