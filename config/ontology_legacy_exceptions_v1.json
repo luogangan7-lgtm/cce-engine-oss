@@ -225,6 +225,24 @@
    "token": "Segment",
    "class": "UNRELATED_HOMONYM",
    "reason": "`pyannote.core.Segment` 是**第三方**的时间区间类(from pyannote.core import Annotation, Segment), 与本项目的 Population Mode 本体无关。改名会直接改坏 import。★ 可验: 该文件里 Segment 只出现在 pyannote 的 import 与 Annotation 赋值上, 不做本体语义。"
+  },
+  {
+   "path": "scripts/cce_audio_diarize.py",
+   "token": "segments",
+   "class": "UNRELATED_HOMONYM",
+   "reason": "说话人分段的时间片(start/end/speaker), 是**声学时间轴**上的切分, 与 Population Mode 本体无关。改成 modes 会把音频概念改错, 且与 3D-Speaker 的返回语义脱节。"
+  },
+  {
+   "path": "scripts/cce_video_parse.py",
+   "token": "segments",
+   "class": "UNRELATED_HOMONYM",
+   "reason": "同上: speaker_turns 里透传的是 cce_audio_diarize 的时间片列表, 非本体概念。"
+  },
+  {
+   "path": "scripts/cce_open_items.py",
+   "token": "segmentation",
+   "class": "UNRELATED_HOMONYM",
+   "reason": "`pyannote/segmentation-3.0` 是**第三方模型名**(重叠语音检测所需的受限权重), 出现在未完成清单的说明文字里。它是专有名词, 不是本体术语, 改名会指向不存在的模型。"
   }
  ],
  "class_note": {

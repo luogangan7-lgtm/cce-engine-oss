@@ -133,7 +133,20 @@ def test_capability_registry_matches_production_workflow_boundary() -> None:
     # ★ 断言改为更强的两条, 不是放宽:
     #   ① 当前仍缺的(源分离 / 说话人分离)必须列着 —— 晋升不得抹掉欠账
     #   ② 韵律必须**出现在 implemented 里** —— 防「从 missing 里悄悄删掉」冒充做完
-    assert "说话人分离" in _miss and "源分离" in _miss, "★ 仍缺的能力不许在晋升时被抹掉"
+    # ★ 2026-09-04: 源分离与说话人分离**都已接入并实测** ⇒ 离开 missing。
+    #   同上一条的形状: 离开 missing 必须**进 implemented 且带实测数字**, 否则就是被悄悄删掉。
+    assert "说话人分离" not in _miss and "源分离" not in _miss, \
+        "★ 两者已实测接入, 不该还留在 missing —— 那会让下一个人重做"
+    _imp = " ".join(video["implemented"])
+    assert "说话人分离接入" in _imp.replace("*", "") and "DER STRICT" in _imp, \
+        "★ 说话人分离离开 missing 却没进 implemented(且带 DER) —— 那是被删掉不是被做掉"
+    # 断言不依赖 markdown 强调符号(注册表里写的是「音频**源分离**接入」)
+    _flat = _imp.replace("*", "")
+    assert "源分离接入" in _flat and "ρ=0.618" in _flat, \
+        "★ 源分离离开 missing 却没进 implemented(且带实测 ρ) —— 同上"
+    # 而**重叠语音**那一半仍缺, 不许被「说话人分离做了」盖住
+    assert "重叠" in _miss or "include_overlap" in _imp, \
+        "★ 不检测重叠语音这个结构性代价必须在某处写明"
     assert any("韵律" in i for i in video["implemented"]), \
         "★ 韵律离开了 missing 却没进 implemented —— 那是被删掉不是被做掉"
     assert "抽取质量" in _miss, "★ ASR/OCR 准确率未测这件事必须留在 missing 里"

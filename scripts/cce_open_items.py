@@ -140,9 +140,15 @@ def items() -> list[dict]:
                          "缺的是**带逐字标注的社媒音轨素材** —— 公开集没有; "
                          "TED-LIUM3 虽可补自发语音但许可是 CC BY-NC-ND(非商用)。")})
     # ★ 2026-09-04 实际去做才确认: 这不是「没装」, 是拿不到凭据 ⇒ 从 OPEN 改归 BLOCKED。
-    out.append({"类": BLOCKED, "项": "**说话人分离**(diarization) 拿不到受限模型凭据",
-                "证据": ("pyannote/speaker-diarization-3.1 是 HF **受限模型**, 需账号接受条款并给 token。"
-                         "解锁动作明确: owner 提供 HF token。★ 不拿源分离的能量占比冒充说话人数。")})
+    # ★ 2026-09-04 更正并**完成**: 这一项曾被我记为 BLOCKED(「拿不到 HF 凭据」), 两处错 ——
+    #   pyannote.audio 是 MIT 开源**包**(受限的是权重), 且 3D-Speaker 的默认路径根本不碰那些权重。
+    #   已接入并实测(VoxConverse DER STRICT 0.1004 / LEGACY 0.0338, CPU RTF 0.133)。
+    #   剩下的是**重叠语音检测**, 那一条才真的要 pyannote 受限权重 —— 形状不同, 单列。
+    out.append({"类": BLOCKED, "项": "**重叠语音**检测(说话人分离的其余部分)",
+                "证据": ("说话人分段本身已做(3D-Speaker, 无 token, DER STRICT 0.1004)。"
+                         "但 include_overlap=True 需要 pyannote/segmentation-3.0 —— "
+                         "HF **受限模型**, 需账号接受条款并给 token。解锁动作明确: owner 提供 HF token。"
+                         "★ 不拿源分离的能量占比冒充说话人数, 也不拿 DER 给说话人数背书。")})
     # ★ 2026-09-03 查完改判: 这不是「待修的分叉」, 它**就是那次退役本身**。
     #   origin 独有的文件全是 mt_*(Hy-MT2 MT 实验), 本地提交 b33befd
     #   "retire Hy-MT2 MT experiment" 删掉了它们, 归档在

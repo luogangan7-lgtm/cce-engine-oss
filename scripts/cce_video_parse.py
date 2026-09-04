@@ -139,14 +139,62 @@ def _audio_capabilities(present, tags=None, wav=None):
             'sfx': dict(unavailable), 'ambient': dict(unavailable), 'noise': dict(unavailable),
         },
         'speech_timeline': {'status': 'missing_no_capability'},
-        'speaker_turns': {'status': 'missing_no_capability'},
+        # ★ 2026-09-04: speaker_turns 由 missing_no_capability 转为**真做**。
+        #   原来登记的理由是「pyannote 是受限模型, 需 HF token」—— **两处错**:
+        #   ① pyannote.audio 是 MIT 开源**包**, 受限的是**权重**, 装包无需 token;
+        #   ② 3D-Speaker 默认路径 include_overlap=False **根本不碰** pyannote 权重。
+        #   实测 VoxConverse dev n=20: DER STRICT 0.1004 / LEGACY 0.0338, CPU RTF 0.133。
+        #   ★ 结构性代价如实标: 不检测重叠语音; speaker_N 是**局部标签不是身份**。
+        **_speaker_turns(wav),
         # ★ 2026-09-03: 韵律与混音由 missing_no_capability 转为**真做**。
         #   科学边界(2026-07-22 调研)焊在 cce_audio_prosody 里:
         #   韵律→唤醒度是已重复验证的通道; **效价仅靠声学弱, 人格/特质是伪科学** ⇒ 都不产出。
         #   这里只给**声学量本身**, 不给情绪分值 —— 韵律是 Observation 不是推断。
         **_prosody_mix(wav),
-        # 仍缺: 源分离需 demucs、说话人分离需 pyannote —— 两者都要装重模型, 未装即如实标缺。
+        **_source_separation(wav),
     }
+
+
+def _speaker_turns(wav):
+    """说话人分段。★ 依赖缺席记 missing_parse_failed(这次没跑成), **不是** missing_no_capability
+    (那是「压根没这能力」)—— 能力已具备, 两者不许混。"""
+    if not wav or not os.path.exists(wav):
+        return {'speaker_turns': {'status': 'missing_parse_failed'}}
+    try:
+        import cce_audio_diarize as DZ
+        r = DZ.diarize(wav)
+        if r['status'] != 'ok':
+            return {'speaker_turns': {'status': 'missing_parse_failed',
+                                      'inner_status': r['status'], 'error': r.get('error')}}
+        return {'speaker_turns': {
+            'status': 'present', 'inner_status': 'ok',
+            'implementation': r['implementation'], 'n_speakers': r['n_speakers'],
+            'segments': r['segments'],
+            '★overlap_not_detected': r['★overlap_not_detected'],
+            '★labels_are_local': r['★labels_are_local']}}
+    except Exception as e:
+        return {'speaker_turns': {'status': 'missing_parse_failed',
+                                  'error': f"{type(e).__name__}: {str(e)[:100]}"}}
+
+
+def _source_separation(wav):
+    """源分离能量占比。★ 只给声学量, 不给语义判断(结构闸在 cce_audio_separate 里)。"""
+    if not wav or not os.path.exists(wav):
+        return {'source_separation': {'status': 'missing_parse_failed'}}
+    try:
+        import cce_audio_separate as SEP
+        r = SEP.separate(wav)
+        if r['status'] != 'ok':
+            return {'source_separation': {'status': 'missing_parse_failed',
+                                          'inner_status': r['status'], 'error': r.get('error')}}
+        return {'source_separation': {
+            'status': 'present', 'inner_status': 'ok', 'model': r['model'],
+            'energy_share': r['energy_share'], 'analysed_seconds': r['analysed_seconds'],
+            'truncated': r['truncated'],
+            '★energy_share_is_acoustic': '能量占比是**声学量**, 不得读成说话人数或语义内容占比'}}
+    except Exception as e:
+        return {'source_separation': {'status': 'missing_parse_failed',
+                                      'error': f"{type(e).__name__}: {str(e)[:100]}"}}
 
 
 def _prosody_mix(wav):

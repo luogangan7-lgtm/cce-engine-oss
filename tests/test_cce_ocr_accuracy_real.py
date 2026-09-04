@@ -46,10 +46,17 @@ assert _upper >= D["acc_median"], \
 CAPS = {c["id"]: c for c in json.load(
     open(os.path.join(ROOT, "config/cce_capability_registry_v1.json"), encoding="utf-8")
 )["capabilities"]}
+# ★ 2026-09-04 更新: 英文域**已实测**(OCR TextOCR n=98 / ASR test-clean+test-other),
+#   所以「卡住的是英文域」这条断言已过时。但**中文 n=6 仍不是基线**这条没变,
+#   而且新的缺口(社媒音轨/视频帧素材、跨域标定)必须写明 —— 不许被「都测了」一句话盖住。
 for cid in ("standalone_image_ingest", "video_multimodal_parse_v5"):
+    _all = " ".join(CAPS[cid]["missing"]) + " " + " ".join(CAPS[cid].get("implemented") or [])
+    assert "抽取质量" in _all, f"★ {cid}: 抽取质量的状态必须在注册表里说清"
     _m = " ".join(CAPS[cid]["missing"])
-    assert "抽取质量" in _m, f"★ {cid}: 中文有 n=6 估计**不等于**整项已测, 不许划掉"
-    assert "英文" in _m, f"★ {cid}: 必须写明卡住的是英文域"
+    assert "社媒" in _m, f"★ {cid}: 已测的都是朗读语音/静态图, 社媒素材那一缺口要写明"
+    assert "跨域标定" in _m, f"★ {cid}: 跨域标定仍 NOT_ESTABLISHED, 不许被顺带划掉"
+    assert "真外部阻塞" in _m and "我能做" in _m, \
+        f"★ {cid}: 剩下的两半形状不同(一半真阻塞、一半我能做), 必须分开写"
 
 print(f"test_cce_ocr_accuracy_real: OK (真实中文 n={D['n_with_text']} 中位 {D['acc_median']} "
       f"范围 {D['acc_min']}–{D['acc_max']} | 零文字对照无中生有 {D['hallucinated_on_blank']} 次 | "

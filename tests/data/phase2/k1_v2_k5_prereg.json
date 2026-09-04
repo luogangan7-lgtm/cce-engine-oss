@@ -1,0 +1,82 @@
+{
+ "block": "K1_V2_K5_INSTRUMENT",
+ "prereg_written_at": "2026-09-04",
+ "★frozen_before_measurement": "本文件在采集任何读数**之前**提交(见 git)。",
+ "why": "生产状态表里唯一的「未测」是: **outbound_post 用的仪器 0e9ca1d4e7a2f180 上没有 K1 判定**。K1-v2 是在 565470cf26c16d01(k=3)上做的, **标定不可跨仪器搬**(gen2→gen3 已确立) ⇒ outbound_post 结层**零可用读数**。这不是「弱证据」, 是没有读数。★ 已核实该仪器 = k=5 + s1_pairing='round_robin_over_5_s1_draws'(用 instrument_id 反解命中)。",
+ "instrument": {
+  "instrument_hash": "0e9ca1d4e7a2f180",
+  "must_equal": "0e9ca1d4e7a2f180",
+  "★how_verified": "K.instrument_id(taxo, k=5, s1_pairing='round_robin_over_5_s1_draws') 逐位命中; 并与归档 run 33842081104 的产物里记的 instrument 字段一致"
+ },
+ "selection_rule": {
+  "rule": "**与 K1-v2 逐字同一批 5 个文本**",
+  "chosen": [
+   "050f0f2403f7",
+   "093c73613279",
+   "0d0411f957e7",
+   "1aa601bf5633",
+   "2eca26909ed2"
+  ],
+  "why": "换文本就无法与 k=3 的结论并列 —— 差异必须只来自仪器"
+ },
+ "design": {
+  "texts": [
+   {
+    "base_id": "050f0f2403f7",
+    "text_sha256": "6c736952f41dc6a245656b9e3973d3e2322422d4c256e2ae48b7a535083a834d",
+    "text_sha16": "6c736952f41dc6a2",
+    "chars": 811,
+    "already_measured": true
+   },
+   {
+    "base_id": "093c73613279",
+    "text_sha256": "00be1b6643dccdf05625c7da5c6c5225e896c8de04518112450a9d8ed5a053ff",
+    "text_sha16": "00be1b6643dccdf0",
+    "chars": 1422,
+    "already_measured": false
+   },
+   {
+    "base_id": "0d0411f957e7",
+    "text_sha256": "2a2b8d9e79460f4ecc729d3e623d170b0a43f54a6a136717e762c92794909da8",
+    "text_sha16": "2a2b8d9e79460f4e",
+    "chars": 741,
+    "already_measured": false
+   },
+   {
+    "base_id": "1aa601bf5633",
+    "text_sha256": "8a0b3ccaa1b28ce258e341aa908882a97de588c54d39ea6ddd625bbb0fc8f7a2",
+    "text_sha16": "8a0b3ccaa1b28ce2",
+    "chars": 222,
+    "already_measured": false
+   },
+   {
+    "base_id": "2eca26909ed2",
+    "text_sha256": "51a53487dfab19ac8999eb6b8fa6bbf1a4bc8ab71f01034eeb1e447139a61ef7",
+    "text_sha16": "51a53487dfab19ac",
+    "chars": 388,
+    "already_measured": false
+   }
+  ],
+  "K": 5,
+  "stage2_n": 5,
+  "n_per_text": 8,
+  "★no_reuse": "k=3 的 raw draw **一条都不能复用** —— 仪器不同"
+ },
+ "criterion": {
+  "per_text": "沿用 probes/k1_gate.judge() 的五项判据, 一字不改(δ=0.10, A≥0.95, top1≥7/8, 出现率≥7/8, n≥8)",
+  "layers_judged": [
+   "intensity",
+   "weight"
+  ],
+  "★why_two_layers": "同一批读数同时按两层判, 不额外花钱; 层的选择必须由预注册决定, 不能看完结果再挑。",
+  "★identical_to_k3": "判据与 K1-v2 **逐字相同** —— 换判据就无法判断差异来自仪器还是来自尺"
+ },
+ "decision_rule": {
+  "★frozen": "测量前写死。",
+  "TOP1_USABLE": "top-1 达标 ⇒ outbound_post 的结层 top-1 由「未测」转为可用",
+  "INSTRUMENT_WIDE_FAIL": "与 k=3 同样的形状 ⇒ 该仪器同样不可用, outbound_post 结层保持关闭",
+  "MIXED": "部分层达标 ⇒ **只放行达标的那一层**, 其余保持扣发"
+ },
+ "★what_this_does_not_establish": "只测这台仪器。**不得**据此推断第三台仪器, 也不改变 k=3 上 intensity/weight 的 INSTRUMENT_WIDE_FAIL 判定。",
+ "★expected_cost": "5 文本 × n=8, 每 rep 含 k=5 次 s1 抽样 + s2 —— 比 k=3 那轮更贵, 如实记在案。"
+}

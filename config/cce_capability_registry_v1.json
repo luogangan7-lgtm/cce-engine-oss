@@ -70,11 +70,11 @@
     "★ 2026-09-04 音频**源分离**接入(scripts/cce_audio_separate.py, demucs htdemucs, CPU 实测 0.27x 实时): 四源能量占比 + 人声轨。结构闸: 产出里出现 speaker/diarization/情绪 类字段直接抛。★ 并因此判出**我自己前一天上线的韵律模块有问题**: 实测 PROSODY_ON_SEPARATED_VS_MIXED_GEN1 —— |Δf0| 随非人声占比上升(Spearman ρ=0.618, p=0.0003, n=30), 中位差 **12.4 半音(一个八度)**; 实例: 非人声 0.996 的片段混音 f0=79Hz(在跟贝斯走), 人声轨 231Hz 才是说话。⇒ 韵律读数now带 f0_source(vocals/mixed) + nonvocal_share, 并由 prosody_usable() 判可用性: **说不清算在哪条轨上的一律不可用**; 混音且非人声占比 >0.35 判不可用。★ 只说「混音那条不可信」, **不说「分离后更准」** —— 没有 f0 地面真值。",
     "★ 2026-09-04 抽取质量有了**上界曲线**(probes/ocr_quality_curve.py, 零调用): 中英各 6 条, 四条退化轴各自单独扫。模糊与缩放两轴有分辨力(σ>=4.5 或缩到 0.12 时塌到 0); JPEG 与对比度两轴在测试范围内**无分辨力** —— 且由**物理见证**证明退化真的施加了(对比度 RMS 43.5→2.6, JPEG 9383→2464 字节), 所以是真稳健不是仪器坏。★ 这是**上界不是准确率**: 合成图无花字/描边/遮挡/渐变背景, 同等退化下真实只会更差。★ 第一版曾跑出「四条轴全无分辨力」, 差点读成「OCR 稳健」—— 实为中文渲成豆腐块, 仪器坏了。见证与渲染器自检就是为这个加的。",
     "★ 2026-09-04 图片档晋升 production_github(CI run 33840200869 + 本机真实素材 6/6): 静态图与视频帧**共用同一条 media_ingest 链与同一份视觉合同**(图片是 selector 退化为 whole 的 VisualObservation), 未新增 profile/链/合同。",
-    "★ 2026-09-04 抽取质量**已实测**(结果见 implemented 与 tests/data/phase2/): OCR 合成 1.000 / 真实中文 0.900 / 英文密集场景 0.317; ASR test-clean 2.34% / test-other 11.61%。口径见 config/cce_eval_benchmarks_v1.json。 ★ 两个方法论要点: (a) 抽样规则**执行对了后果仍可能坏** —— ASR GEN1 严格按字典序抽前 100, 结果只覆盖 2 个说话人; 不改其规则而另立 GEN2 分层, 两个都报。(b) **先验仪器**: 序列编辑距离对拼接顺序极敏感, 加了顺序无关词级 F1 才能分辨「没读出来」与「顺序不同」; 且用独立引擎 tesseract 交叉验证了集成没坏。"
+    "★ 2026-09-04 抽取质量**已实测**(结果见 implemented 与 tests/data/phase2/): OCR 合成 1.000 / 真实中文 0.900 / 英文密集场景 0.317; ASR test-clean 2.34% / test-other 11.61%。口径见 config/cce_eval_benchmarks_v1.json。 ★ 两个方法论要点: (a) 抽样规则**执行对了后果仍可能坏** —— ASR GEN1 严格按字典序抽前 100, 结果只覆盖 2 个说话人; 不改其规则而另立 GEN2 分层, 两个都报。(b) **先验仪器**: 序列编辑距离对拼接顺序极敏感, 加了顺序无关词级 F1 才能分辨「没读出来」与「顺序不同」; 且用独立引擎 tesseract 交叉验证了集成没坏。",
+    "★ 2026-09-04 **说话人分离接入**(scripts/cce_audio_diarize.py, 3D-Speaker CAM++), speaker_turns 由 missing_no_capability 转为 present。★ 更正我原来的判断: 登记的理由是「pyannote 受限模型需 HF token ⇒ 拿不到凭据」, **两处错** —— ① pyannote.audio 是 MIT 开源**包**, 受限的是**权重**, 装包无需 token; ② 3D-Speaker 默认路径 include_overlap=False **根本不碰** pyannote 权重(源码已核), 走 ModelScope 权重。⇒ 无账号/无 token/无点击条款/无许可限制 —— **四项分别成立**。实测 VoxConverse dev n=20(判据 profile 冻结): DER STRICT **0.1004** / LEGACY **0.0338**; 官方报 0.1175 但未注明 profile ⇒ 只作量级参考, **不作验收线**, 也不能说「我们更好」。CPU RTF 中位 **0.133**(本机铸值, 官方无同口径数字)。★ 结构性代价如实标: **不检测重叠语音**; speaker_N 是**本录音内的局部标签**, 跨录音不可比, 与任何真实身份无关(结构闸禁止产出身份类字段)。★ 说话人**数**预测正确 14/20 —— **DER 低不等于人数对**, 下游若要用「有几个人说话」用的是后者。"
    ],
    "missing": [
-    "**仍缺**(两条形状不同, 分开记): ① **社媒音轨与视频帧上的抽取质量** —— 已测的都是朗读语音与静态图, 比真实素材容易; 缺带逐字标注的社媒素材, 公开集没有 ⇒ **真外部阻塞**。② **跨域标定** across_domains 仍 NOT_ESTABLISHED, 禁止跨域搬阈值 ⇒ **我能做, 只是没做**。",
-    "**说话人分离**(diarization) —— pyannote 的模型是**受限模型**, 需 HF 账号接受条款并提供 token。★ 2026-09-04 实际去做才确认这一条: 它不是「没装」, 是**我拿不到凭据**, 已改归 BLOCKED_EXTERNAL。解锁动作明确: owner 提供 HF token 并接受 pyannote/speaker-diarization-3.1 条款。★ 不拿源分离的能量占比冒充说话人数 —— 那是声学量, 不是身份判断。"
+    "**仍缺**(两条形状不同, 分开记): ① **社媒音轨与视频帧上的抽取质量** —— 已测的都是朗读语音与静态图, 比真实素材容易; 缺带逐字标注的社媒素材, 公开集没有 ⇒ **真外部阻塞**。② **跨域标定** across_domains 仍 NOT_ESTABLISHED, 禁止跨域搬阈值 ⇒ **我能做, 只是没做**。"
    ],
    "missing_state": "missing_no_capability",
    "input_contract": null,
@@ -165,11 +165,10 @@
     "代码块与行内代码内的链接排除(那是被讨论的文本, 不是本作品的媒体)",
     "媒体声明闸: 缺声明 / 声明与输入不符 / 漏项 / 标未测不写 why / state 非法 —— 各自硬红",
     "modalities_present vs modalities_measured 分离",
-    ".github/prepare.py 出站两档(reply/outbound_post)必填 media_declaration, 缺/不符/漏项/非法 JSON 各自 rc=1"
+    ".github/prepare.py 出站两档(reply/outbound_post)必填 media_declaration, 缺/不符/漏项/非法 JSON 各自 rc=1",
+    "★ 2026-09-04 媒体**内容**测量五项全部落地(此前只有存在声明): OCR(RapidOCR, 中英均已评质量) · 语音 ASR(SenseVoiceSmall, test-clean 2.34%/test-other 11.61%) · 源分离(demucs htdemucs, 四源能量占比) · **说话人分离**(3D-Speaker, DER STRICT 0.1004, 无 token) · 韵律与混音(librosa, 且已由源分离实测判出混音 f0 不可信)。★ 本档只做**存在声明**, 内容测量走 video_multimodal_parse_v5 / standalone_image_ingest —— 两者的抽取质量与跨域标定各自扣发, **不因内容测量落地而放行**。"
    ],
-   "missing": [
-    "媒体内容本身的测量(OCR / 语音 / 分离 / diarization / prosody) —— 见 video_multimodal_parse_v5"
-   ],
+   "missing": [],
    "missing_state": "missing_no_capability",
    "input_contract": null,
    "output_contract": null,
