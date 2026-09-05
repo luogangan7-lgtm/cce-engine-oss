@@ -313,10 +313,28 @@ def parse_v4(parsed):
     }
 
 
-def top_label(vec, keys):
+def top_label(vec, keys, _ndigits=9):
+    """向量的最大坐标对应的标签。
+
+    ★★ 2026-09-06 修: 此前是 `keys[max(range(len(vec)), key=lambda j: vec[j])]` ——
+       两个坐标差 **1 ULP** 就换标签, 且打平时按索引取胜(隐式、与标签无关)。
+       实测一例: archive/33748217410/cce-subject-item-2 的 need 层,
+       N02_掌控局面 与 N06_摆脱痛苦 聚合后相差 1 ULP
+       (0.2833333333333333 vs 0.28333333333333334) —— 归档取 N06、重算取 N02,
+       而 within_js 与整条 need_vec 到 12 位小数**完全相同**。
+       ⇒ 标签在浮点噪声上翻, 而它正是 s1 四层 top 的来源, 下游一路吃到 s2 配对。
+
+    改法(与 tie-break 同一条纪律): **先按固定精度取整再比, 打平按标签名定序**。
+    · 取整消掉 1 ULP 级别的实现差异(同一份数据换个求和顺序就会有)
+    · 名序取代索引序 ⇒ 结果不依赖 keys 的排列, 跨实现可复现
+
+    ★ 它**不解决**「真打平时该不该断言一个 top」—— 那是效度问题, 需要在调用侧扣发。
+      本函数只保证: 同样的数, 任何实现、任何进程都给同一个标签。
+    """
     if not vec:
         return None
-    return keys[max(range(len(vec)), key=lambda j: vec[j])]
+    m = max(round(x, _ndigits) for x in vec)
+    return min(k for k, x in zip(keys, vec) if round(x, _ndigits) == m)
 
 
 def call_parse(mk, case_input, temperature, note):

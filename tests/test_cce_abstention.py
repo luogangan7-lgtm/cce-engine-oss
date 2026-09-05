@@ -111,8 +111,15 @@ assert "no_inferable_subject" in k_src2, "s1 prompt 必须给出显式弃权字�
 assert "不要为它构造一个人" in k_src2
 # ★ 弃权信号必须**显式**, 不得拿全零向量当弃权
 from exp_v4_full_validation import top_label, DESIRES  # noqa: E402
-assert top_label([0.0] * len(DESIRES), DESIRES) == DESIRES[0], \
-    "共享 top_label 对全零返回第一个标签 —— 这正是不能拿全零当弃权信号的理由"
+# ★ 2026-09-06: 判据从「== DESIRES[0]」改为「不是 None」。
+#   立意**没变**: 全零向量照样会拿到一个**自信的标签**, 所以不能拿全零当弃权信号。
+#   变的只是打平取哪个 —— top_label 的 tie-break 从**索引序**改成了**名序**
+#   (索引序依赖 keys 的排列, 换个实现就换标签; 见 test_cce_withholding_and_labels)。
+#   ⇒ 断言不该钉住「取哪一个」, 该钉住「它确实给了一个」。
+_z = top_label([0.0] * len(DESIRES), DESIRES)
+assert _z is not None and _z in DESIRES, \
+    ("共享 top_label 对全零仍会返回一个标签(现为名序最小: %r) —— "
+     "这正是不能拿全零当弃权信号的理由" % _z)
 assert "全零守卫" in k_src2 and "sum(vec) > 0" in k_src2, \
     "stage1 必须自带全零守卫, 否则全零会被报成一个自信的假 top"
 

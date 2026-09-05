@@ -6,9 +6,10 @@
  "instrument_generation": 6,
  "core_files": {
   "config/knot_taxonomy.json": "836fdcda646dbcbc",
-  "scripts/cce_knot_classify.py": "ccc5c6cf4279369a",
+  "scripts/cce_knot_classify.py": "64e9e701797f8cc6",
   "scripts/cce_ksep.py": "ffd5d26a7e0cb29b",
-  "scripts/exp_crossmodel_desire.py": "0e0e9d64b48fbade"
+  "scripts/exp_crossmodel_desire.py": "0e0e9d64b48fbade",
+  "scripts/exp_v4_full_validation.py": "f934b56b01b6b6b2"
  },
  "parser_plane": [
   "scripts/cce_case_assemble.py",
@@ -101,6 +102,22 @@
    "★which_half_of_behavior_changed": "**变了的一半**: operational 账本的 draw 计数(温度重复时此前是错的) · 打平时的结顺序(此前随进程变, 现在确定) · playbook 扣发闸在单抽下的行为(此前永不触发, 现在扣发并标注「不可判」)。\n**没变的一半**: 送给模型的 prompt、采样策略、聚合算法、instrument_hash —— 已采集的 raw draw 全部仍然有效, 无需重新投料。",
    "★evidence_is_required_because": "instrument_hash 不变对本次**不足以**当证据, 而且本次**行为确实变了**。真证据: ① 新增 test_cce_operational_ledger_key 用**全同温**的 attempts 直接断言 n_draws=3(旧实现会给 1), 并断言缺主键时不产出数字; ② 新增 test_cce_tiebreak_determinism 在 **6 个不同 PYTHONHASHSEED 的子进程**里跑三方打平, 断言首位恒定(旧实现实测会变); ③ test_cce_knot_stability 的断言已从 `is True` 反转为 `is None`, 且旧断言的报错文案原文是「n=1 必然 unanimous —— **这正是问题**」——一条自认病名却把病固化成契约的闸。",
    "★a_pattern_worth_naming": "★★ 本次三条里有两条**规则早已存在、执行从未发生**: tie-break 记进库 19 天没改; unanimous 的缺陷写进代码注释 18 天没改。加上 2026-09-05 的两条(「迭代前必须先量噪声地板」记进库后两轮迭代照样没量; gen2 声称已把 s1 prompt 纳入指纹, 实际没有), **同一形状已第四次**。⇒ 缺的不是知识, 是**把知识变成闸**的那一步。"
+  },
+  {
+   "date": "2026-09-06",
+   "file": "scripts/cce_knot_classify.py",
+   "from_sha": "ccc5c6cf4279369a",
+   "to_sha": "64e9e701797f8cc6",
+   "route": "第四条路(行为变了, 但变的是身份登记的完整性, 不是仪器)",
+   "reason": "⑤ 补传 preparation_id: 两个生产调用点(s1 弃权分支 / 正常分支)此前都不传, 兜底成 RAW_PREPARATION_ID, 而同一份读数的 stage1 段记的是真实制备 id ⇒ **22/22 存量读数自相矛盾**, 且把同一制备打成两个 measurement_procedure_id。★ instrument_hash 不受影响(制备与仪器是两个身份, 有测试钉住这一点)。",
+   "instrument_hash_unchanged": true,
+   "behavior_evidence": [
+    "tests/test_cce_withholding_and_labels.py",
+    "tests/test_cce_preparation_bridge.py"
+   ],
+   "★which_half_of_behavior_changed": "**变了**: 读数落盘的 preparation_id 与 measurement_procedure_id(此前是错的兜底值)。**没变**: instrument_hash、prompt、采样策略、聚合算法 —— raw draw 全部仍有效。",
+   "★evidence_is_required_because": "「哈希没变」不足以当证据; 本次行为确实变了。真证据: 新测试断言① 两个生产调用点都传 preparation_id(源码计数=2) ② 传不同的 prep 会**真的**改变 measurement_procedure_id 而**不改** instrument_hash —— 若它不改变联合身份, 这个形参就是装饰。"
   }
- ]
+ ],
+ "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。"
 }

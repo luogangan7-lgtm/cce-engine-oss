@@ -715,8 +715,13 @@ def stage2(text, s1, taxo):
                 "draw_ledger": [], "intensity": {}, "families": {},
                 "levers_present": [], "notes": "", "n_abstain": 0,
                 "s1_pairing": "n/a(s1_abstained)",
+                # ★ 2026-09-06: 补传 preparation_id。此前两个生产调用点都不传 ⇒
+                #   兜底成 RAW_PREPARATION_ID("prep_raw_unfiltered"), 而 stage1 同一份读数里
+                #   记的是真实制备 id ⇒ **22/22 存量读数自相矛盾**, 且把同一制备打成两种
+                #   measurement_procedure_id(生产与探针各一个)。
                 "instrument": instrument_id(taxo, k=s1.get("k_requested"), knot_n=KNOT_N,
-                                            s1_pairing="n/a(s1_abstained)"),
+                                            s1_pairing="n/a(s1_abstained)",
+                                            preparation_id=s1.get("preparation_id")),
                 "sampling": {"n_requested": 0, "n_ok": 0, "top1_mode": None,
                              "top1_mode_share": 0.0, "top1_unanimous": False,
                              "top1_stable": False, "top1_draws": [], "max_range": 0.0,
@@ -731,7 +736,9 @@ def stage2(text, s1, taxo):
         prompts = _build_stage2_prompt(taxo, text, s1)
         pairing = "single_s1_aggregate(legacy)"
     out = _stage2_aggregate(prompts, taxo)
-    out["instrument"] = instrument_id(taxo, k=s1.get("k_requested"), knot_n=KNOT_N, s1_pairing=pairing)
+    out["instrument"] = instrument_id(taxo, k=s1.get("k_requested"), knot_n=KNOT_N,
+                                      s1_pairing=pairing,
+                                      preparation_id=s1.get("preparation_id"))   # ★ 见上
     out["s1_pairing"] = pairing
     return out
 

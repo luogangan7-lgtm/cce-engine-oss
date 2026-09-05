@@ -422,9 +422,33 @@ def qualified(ctx):
             "observation 里的文字可作证据引用, 但不得当作已验收的转写")
         withheld["p3.cross_domain_calibration"] = (
             "分辨率/阈值 across_domains=NOT_ESTABLISHED —— 禁止跨域搬")
-    for name, val in (s1m.get("tops") or {}).items():
-        (usable if val is not None else withheld)[f"s1.tops.{name}"] = (
-            val if val is not None else (s1m.get("tops_withheld") or {}).get(name, "超噪声底"))
+    # ★★ 2026-09-06 修: 此前只有这个 for 循环。`tops` 为 `{}` 时(k<2 判 WITHHOLD、
+    #   s1 弃权、或全部失败), 循环体一次都不执行 ⇒ 四条扣发记录**既不进 usable
+    #   也不进 withheld, 直接消失**。
+    #   而 s1 manifest 里明明写着 tops_withheld="all(insufficient_replicates)" ——
+    #   那句话从未抵达出口闸的台账。
+    #   ★ 这与本出口闸自己的立意直接相反:「withheld 不是弱证据, 是**没有读数**」——
+    #     一条没被记为 withheld 的缺席, 下游读到的是**什么都没发生**。
+    _tops = s1m.get("tops")
+    _wh = s1m.get("tops_withheld")
+    # tops_withheld 有两种形状: 逐层 dict(部分扣发) 或整体 str(全层扣发)。此前只按 dict 取,
+    # 若真走到 str 分支会 AttributeError —— 被上面那个「循环不执行」的 bug 一直遮着。
+    def _reason(name, default):
+        if isinstance(_wh, dict):
+            return _wh.get(name, default)
+        return _wh if isinstance(_wh, str) and _wh else default
+
+    if _tops:
+        for name, val in _tops.items():
+            (usable if val is not None else withheld)[f"s1.tops.{name}"] = (
+                val if val is not None else _reason(name, "超噪声底"))
+    else:
+        # ★ 四层一条不少地记为扣发, 并写明**为什么没有** —— 而不是让它们消失。
+        _why = (_wh if isinstance(_wh, str) and _wh else None) or (
+            f"s1 未产出 tops(measurement_status={s1m.get('measurement_status')!r}, "
+            f"n={s1m.get('n')!r})")
+        for name in _LAYER_OF_TOP:
+            withheld[f"s1.tops.{name}"] = _why
     if s2m.get("playbook_primary"):
         usable["s2.playbook_primary"] = s2m["playbook_primary"]
     else:
