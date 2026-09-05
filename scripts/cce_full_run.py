@@ -262,9 +262,37 @@ def s2(ctx):
             "per_knot": samp.get("per_knot"),
             "playbook_primary": (knots[0].get("playbook", "")[:120]
                                  if knots and top1_stable is not False else None),
+            # ★ 2026-09-05 A1/A2: 两类建议被**移出单文本打分**, 但**不能因此从交付里消失**。
+            #   移出的理由是判官**结构上看不见**它们(跨轮规则拿不出本文子串; 顺序约束不是
+            #   单一子串), 不是这两条建议错了。若只把它们搬进 taxonomy 就不管了,
+            #   它们会变成没人读的死规则 —— 一致性闸当场判了红, 判得对。
+            #   ⇒ 随 playbook_primary 一同下发, 但**显式标注不参与打分**。
+            "playbook_unscored_guidance": (_unscored_guidance(taxo, knots[0]["key"])
+                                           if knots and top1_stable is not False else None),
             "playbook_withheld_reason": (None if top1_stable is not False else
                                          f"top1 不稳: {samp.get('top1_draws')}")}
 
+
+
+def _unscored_guidance(taxo, knot_key):
+    """随 playbook 一同下发、但**刻意不进单文本打分**的建议。
+
+    ★ 为什么要单独一格而不是并进 playbook: 这两类条目判官**结构上看不见** ——
+      cross_turn_strategy 说的是跨多轮该做什么, 本文里根本没有第二轮;
+      composition_note 是两个动作之间的**顺序**, 拿不出单一逐字子串。
+      把它们留在打分清单里, 只会让判官在看不见的东西上瞎猜(实测: audit 因此
+      常年卡在中位 0.50)。移出打分是对的, **移出交付是错的** —— 写稿的人仍然要照做。
+    """
+    for k in taxo.get("knots", []):
+        if k.get("key") != knot_key:
+            continue
+        out = {}
+        if k.get("cross_turn_strategy"):
+            out["cross_turn"] = k["cross_turn_strategy"]
+        if k.get("composition_note"):
+            out["composition"] = k["composition_note"]
+        return out or None
+    return None
 
 @stage("s3_emotion_policy")
 def s3(ctx):

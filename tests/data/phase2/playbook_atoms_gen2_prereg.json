@@ -1,0 +1,85 @@
+{
+ "block": "PLAYBOOK_ATOMS_RELIABILITY_GEN2",
+ "prereg_written_at": "2026-09-05",
+ "★frozen_before_measurement": "本文件在采集任何 GEN2 读数**之前**提交(见 git)。提交后到出结果之间不修改。",
+ "★what_changed_and_what_did_not": {
+  "changed": "**只有 manipulation(playbook 文本的分解方式)**。",
+  "unchanged_byte_for_byte": [
+   "同一批 8 个文本",
+   "δ = 0.1",
+   "agreement_min = 0.95",
+   "n_per_text = 8",
+   "同一仪器 565470cf26c16d01",
+   "同一判官与同一 PROMPT"
+  ],
+  "★instrument_hash_evidence": "实测: 把 taxonomy 里**全部** playbook 替换成占位串后重算 instrument_id, instrument_hash 与 s2_prompt_sha256 **一字不变** —— 因为 playbook 不进 _stage2_template。⇒ 结分类仪器未换代, 面板读数仍有效。",
+  "★but_hash_unchanged_is_not_behavior_evidence": "库内已立的教训: instrument_hash 由 taxonomy+参数现算, 「哈希没变」对行为**不足以当证据**。本次行为证据是: playbook 只被 cce_align_v2.PLAYBOOK 读取并喂给 playbook_* 三个读数, grep 可核; 结分类链路不读它。"
+ },
+ "★the_two_fixes": {
+  "A1_audit_移出跨轮规则": {
+   "why": "「第二次提及=放大事件」是**跨轮次**规则, 描述回应者在多轮里不该做什么 —— **单文本判官结构上看不到**, 而 PROMPT 要求 executed=1 必须给逐字子串。一个结构上不可能被指认的原子留在打分清单里, 只会制造噪声或被幻觉成「执行了」。",
+   "from": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+   "to": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』)",
+   "★relocated_verbatim_not_deleted": {
+    "to_field": "cross_turn_strategy",
+    "text": "第二次提及=放大事件",
+    "why": "★ 这条建议**本身没有错**, 错的是它被放进了单文本打分清单。原文逐字保留, 只换存放位置 ⇒ **playbook 主张什么没有改变**, 改的是怎么分解它。"
+   }
+  },
+  "A2_belong_拆开塞了三件事的原子": {
+   "why": "「先『你不是一个人』把人接住,再给至多一格新知」= **两个动作 + 一个数量上界 + 一个顺序约束**。判官必须把多个判断压成一个二值 ⇒ 必然不稳(实测一致率 0.571, 极差 1.00), 且 8 次里有 **5 次 unsupported≥1**(判了执行却给不出逐字子串) —— ★ 这正是「没有任何单句同时做完这几件事」的直接证据。",
+   "from": "先『你不是一个人』把人接住,再给至多一格新知;不派任务",
+   "to": "有一句把人接住(『你不是一个人』之意);给出新知;不给超过一格新知;不派任务",
+   "★why_not_the_literal_3_way_split": "诊断原稿建议拆成「①接住 ②至多一格新知 ③接住在前」。★ 但 ③ 是**顺序约束**, 与 A1 那条跨轮规则同病: **拿不出单一逐字子串**。照抄就会把我正在修的 bug 重新引入一次。⇒ 改为: 正向原子 = ①接住 ②给出新知; **数量上界**「不给超过一格新知」按预注册既有规则归入**禁令**(禁令单独报 violations, 不进 atoms_hit —— 上界本来就是违规检查不是执行检查); **顺序约束**与 A1 同样处理, 原文逐字移入 composition_note。",
+   "★relocated_verbatim_not_deleted": {
+    "to_field": "composition_note",
+    "text": "接住的句子在新知之前"
+   },
+   "★semantic_content_preserved": "接住 · 新知 · 至多一格 · 不派任务 · 接住在前 —— **五项一项不少**, 只是各自搬到了能被正确检验的位置。⇒ 这是**测量侧**改动, 不是产品主张改动。",
+   "★side_effect_by_design": "belong 的正向原子从 **1 → 2**, 复合值不再退化成单个二值判断。"
+  }
+ },
+ "hypotheses": {
+  "H_A2": "拆开后每个正向原子各自可逐字指认 ⇒ belong 的 8 次读数落在同一取值 ⇒ 一致率 >= 0.95 ⇒ PASS",
+  "H0_A2": "不稳定不来自原子塞多件事 ⇒ 拆开后 belong 仍 < 0.95",
+  "★H_A1_是一个否定预测": {
+   "prediction": "audit 的一致率**预测仍为 0.750, 一个点不变**。",
+   "★derivation": "现状 audit 8 次 atoms_hit = [0.5×7, 0.0×1](n_positive=2), 一致率 = C(7,2)/C(8,2) = 21/28 = 0.750。若被移出的原子**恒判 0**(它结构上不可见, 这是应然), 则移出后取值变为 [1.0×7, 0.0×1] —— 这是观测值上的**双射**, 而逐对判据只看 |Δ| 是否 <= 0.1; 两组的组内差都是 0、组间差都 > 0.1 ⇒ **每一对的分类完全相同** ⇒ 一致率恒等于 0.750。",
+   "★therefore": "★★ **A1 在数学上不可能改善 audit**, 只可能持平或**变差**。我 2026-09-05 早先对 owner 说「修完 A1/A2 可能直接到 8/8」—— **那句是错的**, 在此更正。",
+   "★what_a_drop_would_prove": "若 audit 一致率**低于** 0.750, 那证明被移出的原子此前**有时被判成执行了** —— 而它在单文本里结构上不可指认 ⇒ 那是**幻觉**。这是一条**效度**发现, 比一致率本身值钱。",
+   "★why_do_it_at_all": "A1 是**设计正确性**修复(结构上不可指认的条目不该进打分清单), **不是**可靠性修复。两者不该混为一谈 —— 这正是本项目反复强调的 reliability ≠ validity。"
+  }
+ },
+ "★falsifiable_predictions_frozen": [
+  "P1: belong(5bbf4543dd47) 一致率 >= 0.95 ⇒ PASS。达不到 ⇒ H_A2 被推翻, A2 诊断错。",
+  "P2: audit(6def5ddbcf25) 一致率 **= 0.750**。高于它 ⇒ 我上面那条推导错了, 必须先查推导再谈结论。低于它 ⇒ 被移出的原子此前被幻觉成执行, 记为效度发现。",
+  "P3: 现有 6 个 PASS 文本**全部仍 PASS**。任何一个翻掉 ⇒ 本次改动有非预期波及, 结果作废重查。"
+ ],
+ "criterion": {
+  "form": "逐对容差一致率: 对每对 rep, |Δatoms_hit| <= δ 记 1; 要求比例 >= agreement_min",
+  "delta": 0.1,
+  "agreement_min": 0.95,
+  "n_min": 8,
+  "adoption_line": 7,
+  "★line_not_moved": "采纳线**仍是 7**, 与 GEN1 逐字相同。★ 已知本轮最好结果就是 **7/8**(A2 修好 belong, 而 A1 按上述推导不改变 audit) —— **即使如此也不下调线**。恰好压线通过是**弱证据**, 出结果时必须如实标注: 「n=8 下压线通过, 距不通过只差一个文本」。"
+ },
+ "selection_rule": {
+  "rule": "**与 GEN1 / playbook_hit GEN4 逐字同一批 8 个文本**",
+  "chosen": [
+   "2ee52f67c987",
+   "3191a8fae98d",
+   "344d81fc035f",
+   "59a1a9c7d712",
+   "5bbf4543dd47",
+   "6b16b77dbc5b",
+   "6def5ddbcf25",
+   "712fc175d4bf"
+  ]
+ },
+ "instrument": {
+  "instrument_hash": "565470cf26c16d01",
+  "must_equal": "565470cf26c16d01"
+ },
+ "★comparability": "GEN1 与 GEN2 **可比不可合**: 同文本、同判据、同仪器、只差 manipulation ⇒ 这是**设计好的对照**, 允许并列比较; 但两轮读数**绝不可汇总成一个 n**。playbook_hit GEN1–4 与 playbook_mode 同理。",
+ "★what_this_round_does_NOT_touch": "**A3 的六条抽象原子一个字没动。** 那是改产品主张, 需 owner 另行拍板; 且 A1/A2 未修时测不准 A3 还剩多少问题 —— 顺序不能反。"
+}

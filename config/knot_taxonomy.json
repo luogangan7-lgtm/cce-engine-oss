@@ -102,7 +102,7 @@
     ]
    },
    "behavior": "确认通道·中成本:自我暴露式发帖+『only me?』;线下伴随伪装替代行为",
-   "playbook": "先『你不是一个人』把人接住,再给至多一格新知;不派任务",
+   "playbook": "有一句把人接住(『你不是一个人』之意);给出新知;不给超过一格新知;不派任务",
    "evidence_level": "强(内部实证 + need to belong 1995)",
    "internal_examples": [
     "user_154",
@@ -110,7 +110,8 @@
    ],
    "hard_discriminant": "落点意图=确认『我和你们是一类人/我在这个群体里』(自报身份/呼应他人经历以入群),无信息增量要求。若带大量新信息增量→display。",
    "cost_tier": "mid",
-   "negative_examples_prompt": "自报身份但主体是输出经验增量(那是display)"
+   "negative_examples_prompt": "自报身份但主体是输出经验增量(那是display)",
+   "composition_note": "接住的句子在新知之前"
   },
   {
    "key": "reward",
@@ -303,7 +304,7 @@
     ]
    },
    "behavior": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前",
-   "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+   "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』)",
    "evidence_level": "强(链E实测:『你是托』→『你是机器』;仅内部数据发现,中西方框架均无)",
    "internal_examples": [
     "user_87#c2",
@@ -311,7 +312,8 @@
    ],
    "hard_discriminant": "**前置(二值)**: 文本里必须有直接指向「你/某个具体的人」的质询句(你是AI吧/你是托吧/凭什么信你)。没有 → 不是 audit。\n质询对象是厂商、行业、系统 → 不是 audit(讨说法→injustice, 求解→pain_seek)。\n满足前置后再看落点: 验证对方可信度, 而非解决自身问题。",
    "cost_tier": "mid",
-   "negative_examples_prompt": "质疑的是产品性能而非某人的可信度(那是pain_seek或injustice); 反问只是修辞、落点仍是求解(那是pain_seek)"
+   "negative_examples_prompt": "质疑的是产品性能而非某人的可信度(那是pain_seek或injustice); 反问只是修辞、落点仍是求解(那是pain_seek)",
+   "cross_turn_strategy": "第二次提及=放大事件"
   }
  ],
  "levers_not_knots": {
@@ -384,5 +386,6 @@
   ],
   "intent": "保住 v1.3.0 的语义(堵语境推断), 降低解释方差, 目标: G-K2 增益保住的同时 JS 回到 ≤0.25"
  },
- "changelog_1_3_1_b": "2026-08-09: 将生产 prompt 中实际使用的决策树/负例措辞升为配置真值(decision_tree_prompt / knots[].negative_examples_prompt), prompt 改为从配置组装。原 decision_tree / negative_examples 为较简的人读版, 内容与生产版语义一致(已逐条核对), 保留。annotation_protocol.version 同步至分类学版本, 此前滞留 1.2.0。 同时删除冗余人读副本: annotation_protocol.decision_tree; annotation_protocol.anchor_examples(与 accuracy/data/anchors.json 同5条, 已核对); knots[].negative_examples (9处)。单一真值原则: 同一条规则只允许存在一处。"
+ "changelog_1_3_1_b": "2026-08-09: 将生产 prompt 中实际使用的决策树/负例措辞升为配置真值(decision_tree_prompt / knots[].negative_examples_prompt), prompt 改为从配置组装。原 decision_tree / negative_examples 为较简的人读版, 内容与生产版语义一致(已逐条核对), 保留。annotation_protocol.version 同步至分类学版本, 此前滞留 1.2.0。 同时删除冗余人读副本: annotation_protocol.decision_tree; annotation_protocol.anchor_examples(与 accuracy/data/anchors.json 同5条, 已核对); knots[].negative_examples (9处)。单一真值原则: 同一条规则只允许存在一处。",
+ "changelog_2026_09_05_atoms_a1a2": "A1/A2: 只改 playbook 的**分解方式**, 两条建议原文逐字保留(audit.cross_turn_strategy · belong.composition_note)。★ 实测 instrument_hash 与 s2_prompt_sha256 不变 —— playbook 不进 _stage2_template ⇒ 结分类未换代, 已采集面板仍有效。变的只是 playbook_* 三个读数的 manipulation, 已另立 GEN2 预注册, 与 GEN1 **可比不可合**。A3 的六条抽象原子**一个字没动**。 ★ 理由不在本文件逐结重复 —— 见 refactor_log / GEN2 预注册 / tests/test_cce_playbook_atoms_a1a2.py。分类学只放**行为字段**, 说明放一处就够。"
 }
