@@ -55,11 +55,26 @@ def rep_layers(rep, taxo):
 
 
 def agree(vals):
+    """逐对容差一致率 + **非退化标记**。返回 (rate, n, degenerate)。
+
+    ★★ 2026-09-06 补: 此前只返回 (rate, n), **没有非退化闸** —— 一个**常数估计器**
+       (永远吐同一个数)会拿满分 1.000, 而它零判别力。
+       ⇒ 违反本项目铁律「**恒定值 + 零方差 ⇒ 先查仪器, 不当结论**」。
+
+    ★ 而讽刺的是: **同一个文件的 quadrant 那条路径早就有这个闸**
+      (`degenerate = len(set(q)) == 1` + 「零方差, 不是信度证据」的注记)。
+      同一位作者、同一个函数体里, 纪律只落实了一半 ——
+      这正是「知道规则」与「规则被执行」之间的那道缝。
+
+    degenerate=True 时 rate **不得当作可靠性证据**: 一致率高可以来自真稳定,
+    也可以来自估计器根本不动, 两者**从 rate 上不可区分**。
+    """
     v = [x for x in vals if x is not None]
     if len(v) < 2:
-        return None, len(v)
+        return None, len(v), None
     pr = list(itertools.combinations(v, 2))
-    return sum(1 for a, b in pr if abs(a - b) <= DELTA) / len(pr), len(v)
+    rate = sum(1 for a, b in pr if abs(a - b) <= DELTA) / len(pr)
+    return rate, len(v), len(set(v)) == 1
 
 
 def main() -> int:
@@ -73,24 +88,34 @@ def main() -> int:
     L = [rep_layers(r, taxo) for r in reps]
     m, need = len(L), len(L) * 7 // 8
     out = {}
+    degenerate_quantities = []   # ★ 零方差的量 —— 它们的 A 值不是信度证据
     print(f"生产口径 n={N_DRAW} draw · {m} rep · A(δ={DELTA}) >= {AMIN} 才算达标\n")
     print(f"  {'量':<32} {'A':>7} {'可评估':>7}")
     for fam_key, getter in (("intensity", lambda x, k: x["intensity"].get(k)),
                             ("weight", lambda x, k: x["weight"].get(k))):
         for k in sorted({kk for x in L for kk in x[fam_key]}):
-            a, c = agree([getter(x, k) for x in L])
+            a, c, deg = agree([getter(x, k) for x in L])
             if a is not None and c >= need:
                 out[f"{fam_key}.{k}"] = round(a, 4)
-                print(f"  {fam_key + '.' + k:<32} {a:>7.3f} {c:>7}")
+                if deg:
+                    degenerate_quantities.append(f"{fam_key}.{k}")
+                print(f"  {fam_key + '.' + k:<32} {a:>7.3f} {c:>7}"
+                      f"   {'⚠️ 零方差, 不是信度证据' if deg else ''}")
     for f in ("推动", "阻挡"):
-        a, c = agree([x["mass"][f] for x in L])
+        a, c, deg = agree([x["mass"][f] for x in L])
         out[f"mass.{f}"] = round(a, 4)
-        print(f"  {'mass.' + f:<32} {a:>7.3f} {c:>7}")
+        if deg:
+            degenerate_quantities.append(f"mass.{f}")
+        print(f"  {'mass.' + f:<32} {a:>7.3f} {c:>7}"
+              f"   {'⚠️ 零方差, 不是信度证据' if deg else ''}")
         for k in sorted({kk for x in L for kk in x["composition"][f]}):
-            a2, c2 = agree([x["composition"][f].get(k) for x in L])
+            a2, c2, deg2 = agree([x["composition"][f].get(k) for x in L])
             if a2 is not None and c2 >= need:
                 out[f"composition.{f}.{k}"] = round(a2, 4)
-                print(f"  {'composition.' + f + '.' + k:<32} {a2:>7.3f} {c2:>7}")
+                if deg2:
+                    degenerate_quantities.append(f"composition.{f}.{k}")
+                print(f"  {'composition.' + f + '.' + k:<32} {a2:>7.3f} {c2:>7}"
+                      f"   {'⚠️ 零方差, 不是信度证据' if deg2 else ''}")
     q = [x["quadrant"] for x in L]
     qa = max(q.count(t) for t in set(q)) / m
     degenerate = len(set(q)) == 1
@@ -103,6 +128,13 @@ def main() -> int:
         "delta": DELTA, "agreement_min": AMIN,
         "source": "tests/data/phase2/k1_rootcause_checkpoint.jsonl (LIVE 臂, 前 5 draw)",
         "per_quantity": out,
+        # ★ 2026-09-06: 零方差的量必须**具名列出**。它们的 A 值在 per_quantity 里看起来
+        #   和真稳定的量一模一样 —— 不列出来, 读者无从分辨。
+        "★degenerate_quantities": sorted(degenerate_quantities),
+        "★why_degenerate_matters": ("零方差 ⇒ 一致率必然 1.000, 但那是「估计器不动」而非"
+                                    "「它测得准」。两者从 A 值上**不可区分**, 故必须单独标。"
+                                    "此前本探针只给 quadrant 加了这个闸, agree() 覆盖的"
+                                    "intensity/weight/mass/composition 全都没有。"),
         "quadrant": {"agreement": round(qa, 4), "values": sorted(set(q)),
                      "degenerate": degenerate,
                      "★note": ("10 个 rep 全是同一个值 ⇒ **零方差, 不是信度证据**。"

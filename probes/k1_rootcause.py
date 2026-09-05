@@ -69,13 +69,9 @@ def _s2_with_ledger(text, s1, n):
         if d is None:
             ledger.append({"draw_id": i, "prompt_idx": pidx, "infra": True, "knot_vector": None})
             continue
-        ledger.append({"draw_id": i, "prompt_idx": pidx, "infra": False,
-                       "abstained": not d["knots"],
-                       "weight_shim_fired": bool(d.get("_weight_shim_fired")),
-                       "knot_vector": {k: next((float(x["intensity"]) for x in d["knots"]
-                                                if x["key"] == k), 0.0) for k in K.KNOTS_ALL},
-                       "top1": (max(d["knots"], key=lambda x: x["intensity"])["key"]
-                                if d["knots"] else None)})
+        # ★ 2026-09-06: 改用生产那份实现。此前这里**手抄了一份**同样的 9 维构造,
+        #   而三个「读 ledger」的分析走的正是这份抄的 —— 生产侧的修正到不了分析。
+        ledger.append({**K.draw_ledger_row(i, d, prompt_idx=pidx), "infra": False})
     return ledger
 
 

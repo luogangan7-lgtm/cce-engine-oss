@@ -854,6 +854,30 @@ def _stage2_draw(prompt, taxo, tag):
     return None
 
 
+
+def draw_ledger_row(i, d, prompt_idx=None):
+    """单条 draw 的 9 维台账行。**抽成公开函数是为了让探针与生产共用一份实现。**
+
+    ★ 2026-09-06: 消融审计查出 `probes/k1_rootcause.py` 里**手抄了一份**同样的 9 维构造
+      —— 而三个「读 ledger」的分析走的正是 probe 那一份, 生产这份根本没被消费。
+      同一逻辑两份实现, 被消费的还是抄的那份 ⇒ 生产侧的任何修正都到不了分析。
+      本项目已栽过「两份实现悄悄漂移」的坑(derived_layers 就是为此抽的函数)。
+
+    ★ top1 的打平: `max(..., key=intensity)` 取首个最大 —— 与 exp_v4 的 top_label 同病。
+      这里显式按 (−intensity, key) 定序, 与 2026-09-06 那批 tie-break 修复同一条纪律。
+    """
+    row = {"draw_id": i,
+           "knot_vector": {k: next((float(x["intensity"]) for x in d["knots"]
+                                    if x["key"] == k), 0.0) for k in KNOTS_ALL},
+           "weight_shim_fired": bool(d.get("_weight_shim_fired")),
+           "abstained": not d["knots"],
+           "top1": (min(d["knots"], key=lambda x: (-x["intensity"], x["key"]))["key"]
+                    if d["knots"] else None)}
+    if prompt_idx is not None:
+        row["prompt_idx"] = prompt_idx
+    return row
+
+
 def derived_layers(stability, keys, taxo):
     """从 stability 算 §22 的第 3/4 层。**抽成纯函数是为了让探针与生产共用一份实现** ——
     本项目栽过「两份实现悄悄漂移」的坑, 派生量的可靠性又必须能被独立测量。
@@ -1005,14 +1029,7 @@ def _stage2_aggregate(prompt, taxo, n=None):
         k["weight"] = round(k["intensity"] / _tot, 4) if k["support_majority"] else 0.0
     # ★ draw ledger: 完整 9 维向量, **缺席显式记 0** —— 只存 top1 或只存最终 intensity
     #   都会永久失去 co-occurrence / latent structure / 替代阈值 / 替代聚合 的重研究能力。
-    draw_ledger = [{"draw_id": i,
-                    "knot_vector": {k: next((float(x["intensity"]) for x in d["knots"]
-                                             if x["key"] == k), 0.0) for k in KNOTS_ALL},
-                    "weight_shim_fired": bool(d.get("_weight_shim_fired")),
-                    "abstained": not d["knots"],
-                    "top1": (max(d["knots"], key=lambda x: x["intensity"])["key"]
-                             if d["knots"] else None)}
-                   for i, d in enumerate(draws)]
+    draw_ledger = [draw_ledger_row(i, d) for i, d in enumerate(draws)]
     return {"knots": out_knots,
             "measurement_status": "qualified" if out_knots else "abstain",
             "n_abstain": n_abstain,

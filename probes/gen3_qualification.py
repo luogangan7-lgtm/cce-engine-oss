@@ -56,6 +56,17 @@ VERDICT_LINES = [
 ]
 
 
+def _zero_event_n(target, alpha=0.05):
+    """零事件下要把单侧 95% 上界压到 target 所需的最小 n。
+
+    闭式: 0/n 的上界是 1 - alpha**(1/n) <= target  ⇒  n >= log(alpha)/log(1-target)。
+    ★ 存在的理由: 报「U=0」时必须同时能回答「那要多少次才够说它接近零」——
+      否则「没看见」会被读成「不会发生」。
+    """
+    import math
+    return math.ceil(math.log(alpha) / math.log(1 - target))
+
+
 def _rep(text):
     s1 = K.stage1(text, CTX, KK)
     # ★ 2026-08-19: 初版这里写的是 s1.get("k_valid", s1.get("k_ok")) —— **兜底害死了一整轮**。
@@ -123,7 +134,19 @@ if __name__ == "__main__":
     elif F > 0:
         verdict = f"ROLLBACK: F={F:.4f}>0, 有真实文本被整条删掉"
     elif U == 0:
-        verdict = "ADOPT_PENDING_MARGIN: F=0 且 U=0(ADOPT 需已标定 margin, 现不存在)"
+        # ★★ 2026-09-06: 此前只报点估计 U=0。**零事件不等于零发生率** ——
+        #   0/n 的精确单侧 95% 上界是 1 - 0.05**(1/n); n=20 时仍有 **0.139**, n=42 时 0.069。
+        #   ⇒ 「U=0」单独说出来会被读成「不会发生」, 而数据只支持「在 n 次里没看见」。
+        #   ★ 生产侧早有 binom_upper(Clopper-Pearson 精确上界)与 adopt_verdict
+        #     (**唯一**允许把仪器升到 ADOPT 的入口), 而此处手搓的平行判决绕过了它们 ——
+        #     同一逻辑两份实现, 被用的偏偏是没有上界的那份。
+        _u_hi = K.binom_upper(sum(1 for k in kv if k < 2), len(kv))
+        res["U_upper95"] = round(_u_hi, 4)
+        res["zero_event_n_needed"] = _zero_event_n(0.05)
+        verdict = (f"ADOPT_PENDING_MARGIN: F=0 且 U=0(**点估计**), "
+                   f"但 95% 上界 **U<={_u_hi:.4f}** —— 零事件只说明「n={len(kv)} 次里没看见」, "
+                   f"不说明发生率为零。要把上界压到 0.05 需 n>={res['zero_event_n_needed']}。"
+                   f"ADOPT 仍需已标定 margin, 现不存在。")
     else:
         q = st.mean(sum(1 for d in r["draws"] if d["abstained"]) / max(1, len(r["draws"]))
                     for v in res["human"].values() for r in v["reps"])

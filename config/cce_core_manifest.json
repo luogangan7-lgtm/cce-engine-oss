@@ -6,7 +6,7 @@
  "instrument_generation": 6,
  "core_files": {
   "config/knot_taxonomy.json": "836fdcda646dbcbc",
-  "scripts/cce_knot_classify.py": "64e9e701797f8cc6",
+  "scripts/cce_knot_classify.py": "10fdbca4cd62f7f5",
   "scripts/cce_ksep.py": "ffd5d26a7e0cb29b",
   "scripts/exp_crossmodel_desire.py": "0e0e9d64b48fbade",
   "scripts/exp_v4_full_validation.py": "f934b56b01b6b6b2"
@@ -117,6 +117,22 @@
    ],
    "★which_half_of_behavior_changed": "**变了**: 读数落盘的 preparation_id 与 measurement_procedure_id(此前是错的兜底值)。**没变**: instrument_hash、prompt、采样策略、聚合算法 —— raw draw 全部仍有效。",
    "★evidence_is_required_because": "「哈希没变」不足以当证据; 本次行为确实变了。真证据: 新测试断言① 两个生产调用点都传 preparation_id(源码计数=2) ② 传不同的 prep 会**真的**改变 measurement_procedure_id 而**不改** instrument_hash —— 若它不改变联合身份, 这个形参就是装饰。"
+  },
+  {
+   "date": "2026-09-06",
+   "file": "scripts/cce_knot_classify.py",
+   "from_sha": "64e9e701797f8cc6",
+   "to_sha": "10fdbca4cd62f7f5",
+   "route": "第四条路(行为变了: 去重 + 打平定序)",
+   "reason": "⑧ 把 draw_ledger 的 9 维构造抽成公开函数 draw_ledger_row, 生产与探针共用。★ 消融审计查出 probes/k1_rootcause.py **手抄了一份**同样的构造, 而三个「读 ledger」的分析走的正是抄的那份 ⇒ 生产侧的任何修正都到不了分析。本项目已栽过「两份实现悄悄漂移」的坑(derived_layers 就是为此抽的函数)。★ 顺带修掉抄本与原本共有的一处: top1 用 max(key=intensity) 取首个最大 —— 与 top_label 同病, 已改为按 (−intensity, key) 定序。",
+   "instrument_hash_unchanged": true,
+   "behavior_evidence": [
+    "tests/test_cce_draw_ledger.py",
+    "tests/test_cce_k1_rootcause.py",
+    "tests/test_cce_withholding_and_labels.py"
+   ],
+   "★which_half_of_behavior_changed": "**变了**: draw_ledger 的 top1 在打平时按名序而非索引序; 探针与生产从此不可能漂移。**没变**: instrument_hash、prompt、采样、聚合 —— raw draw 全部仍有效。",
+   "★evidence_is_required_because": "「哈希没变」不足以当证据。真证据: 探针源码里已无手抄的 `for k in K.KNOTS_ALL}` 构造, 改为 `K.draw_ledger_row(...)`; 且 draw_ledger_row 在两结打平时返回名序较小者(可现跑)。"
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。"
