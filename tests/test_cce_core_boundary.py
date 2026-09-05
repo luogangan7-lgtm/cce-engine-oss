@@ -20,7 +20,9 @@ MAN = json.load(open(MANIFEST, encoding="utf-8"))
 ok, errors, info = cb.check()
 assert ok, f"基线: Core 边界闸当前必须通过: {errors}"
 assert info["core_n"] >= 4 and info["parser_n"] >= 3
-assert MAN["instrument_generation"] == 4
+# ★ 2026-09-05 gen4 → gen6: s1 指纹从 238 字外壳扩到 4403 字完整 prompt。
+#   gen5 是被回退的 qwen3.7-max 那代(配额耗尽), 故本代是 6 不是 5。
+assert MAN["instrument_generation"] == 6
 
 # Core 与 Parser 不许有交集(否则把 Core 文件塞进 Parser 就能蒙混过关)
 assert not (set(MAN["core_files"]) & set(MAN["parser_plane"]))
@@ -29,7 +31,7 @@ assert not (set(MAN["core_files"]) & set(MAN["parser_plane"]))
 #    只钉文件 sha 有个抓不到的洞: MEASUREMENT_MODEL 是**环境变量**,
 #    换它就换仪器却一个文件都不动 ⇒ 旧闸全绿。
 exp = MAN["instrument_expected"]
-assert exp["instrument_hash"] == "565470cf26c16d01"
+assert exp["instrument_hash"] == "d4cce4c745f3f991"   # gen6
 _saved_model = os.environ.get("CCE_MEASUREMENT_MODEL")
 import importlib  # noqa: E402
 import json as _j  # noqa: E402

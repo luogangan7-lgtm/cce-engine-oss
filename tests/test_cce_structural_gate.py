@@ -69,11 +69,29 @@ assert n_touched == 13, \
 
 # ── ③ 结构闸不得换仪器 ────────────────────────────────────────────────────
 import cce_knot_classify as KC  # noqa: E402
-assert KC._stage1_template() == KC._stage1_case("<TEXT>", "<CONTEXT>"), "模板取哈希的方式变了"
-assert "eadcdcdac46a5180" == __import__("hashlib").sha256(
+# ★★★ 2026-09-05 这条断言原本是反的, 而且它**主动锁死了一个 P0**:
+#   原文 `assert _stage1_template() == _stage1_case(...)` 断言「进指纹的就是那个 238 字外壳」,
+#   报错文案写着「模板取哈希的方式变了」—— 谁去修那个洞, 它就判谁红。
+#   而实际送进模型的是 build_prompt(case) = 4403 字, **指纹覆盖率 5.4%**。
+#   ⇒ 现在断言相反的性质: 进指纹的必须是**发出去的那一份**, 且必须**包含**外壳。
+assert KC._stage1_case("<TEXT>", "<CONTEXT>") in KC._stage1_template(), \
+    "★ case 外壳不在指纹字符串里 —— 那说明指纹取的不是真实 prompt"
+import exp_v4_full_validation as _V
+assert KC._stage1_template() == _V.build_prompt(KC._stage1_case("<TEXT>", "<CONTEXT>")), \
+    ("★ 指纹取的字符串 != 真正发给模型的 prompt。"
+     "这正是 gen1→gen6 那个洞的形状: 指纹漏掉本体载荷 ⇒ 改分类学不换仪器 ⇒ **静默换仪器**。")
+assert len(KC._stage1_template()) > 4000, \
+    f"★ 指纹字符串只有 {len(KC._stage1_template())} 字 —— 真实 prompt 约 4403 字, 覆盖不全"
+# ★ 钉住的值随 gen6 更新: eadcdcdac46a5180(旧口径, 只哈希 238 字外壳)
+#   → 61fe230f5c588c1f(新口径, 哈希 4403 字完整 prompt)。
+#   ★★ 这个钉子的**用途没变**: 结构闸只做样品制备, 一个字都不许碰 prompt。
+#   变的是它现在**真的**能发现改动 —— 旧口径下改 EMOTIONS/NEED_TAXO 它是看不见的。
+assert "61fe230f5c588c1f" == __import__("hashlib").sha256(
     KC._stage1_template().encode("utf-8")).hexdigest()[:16], \
-    ("★ stage1 prompt 模板被改动了。结构闸只做样品制备, 一个字都不许碰模板 —— "
-     "碰了 s1_prompt_sha256 就变, 仪器换代, gen4 那 311 样本的资格标定当场作废。")
+    ("★ stage1 prompt 被改动了。结构闸只做样品制备, 一个字都不许碰 prompt —— "
+     "碰了 s1_prompt_sha256 就变, 仪器换代。"
+     "★ 注意: gen6 起这个钉子覆盖**整份 prompt**(含 EMOTIONS/ACTIONS/NEED_TAXO/"
+     "DESIRE_TAXO/appraisal 规范/输出 schema), 不再只是那 238 字外壳。")
 
 # ── ④ 制备身份必须随读数走, 且跨制备比较必须被拦 ──────────────────────────
 assert preparation_id().startswith("prep_") and preparation_id() != RAW_PREPARATION_ID

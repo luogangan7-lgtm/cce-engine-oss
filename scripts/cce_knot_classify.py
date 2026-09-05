@@ -47,7 +47,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 from cce_structural_gate import (VERDICT_ABSTAIN as SG_ABSTAIN,
                                  structural_gate)
-from exp_v4_full_validation import call_parse, extract_json_robust, DESIRES, NEED_KEYS, top_label, js_divergence
+from exp_v4_full_validation import (call_parse, extract_json_robust, DESIRES, NEED_KEYS,
+                                    top_label, js_divergence, build_prompt)
 from exp_v4_causal_chain import EMOTIONS, ACTIONS
 from exp_crossmodel_desire import call_model
 
@@ -70,8 +71,31 @@ LAYERS = ("desire_vec", "need_vec", "emotion_vec", "action_vec")
 #   **不会改变 instrument_hash** ⇒ **静默换仪器**, 正是 instrument_id 当初要防的事。
 #   现在 s1 与 s2 各出一份模板哈希, 两边都忘不掉。
 def _stage1_template(context="<CONTEXT>", text="<TEXT>"):
-    """stage1 prompt 里**不随内容变化**的部分, 变量位用哨兵占位, 用于取仪器哈希。"""
-    return _stage1_case(text, context)
+    """取仪器哈希用的 s1 prompt —— 必须是**真正发给模型的那一份**, 变量位用哨兵占位。
+
+    ★★★ 2026-09-05 修一个 P0: 此前它只返回 `_stage1_case(...)` —— 那是 **238 字的外壳**,
+        而实际送进模型的是 `build_prompt(case)` = **4403 字**, 里面装着
+        13 类 EMOTIONS · 7 类 ACTIONS · 17 个 NEED_KEYS · 47KB NEED_TAXO ·
+        DESIRE_TAXO · appraisal 五维规范 · 输出 JSON schema。
+        **指纹覆盖率 5.4%, 漏掉的 94.6% 恰好是本体载荷。**
+
+    实测反证(可重跑): 把 EMOTIONS 截到 8 类、NEED_KEYS 截到 5 个、NEED_TAXO 清空 ⇒
+        真实 prompt 的 sha 从 61fe230f5c588c1f 变成 44a3f3e270c898bb,
+        而 instrument_hash **一字不变**, 仍是 565470cf26c16d01。
+    反向: 改一个 k=3 时**永不取用**的温度档(第 6/7 档) ⇒ instrument_hash **变了**。
+        ⇒ **标签空间是反的**: 最能改变读数的东西在指纹外, 死常量在指纹内。
+
+    ★ 更要命的是 INSTRUMENT_LINEAGE 里 gen2 的原文声称
+      「把 s1 prompt 与 abstention 策略纳入指纹」—— **它从来没有纳入**,
+      那次改的是外壳的哈希。这条假声明被 gen3/gen4 一路继承。
+    ★ 而 tests/test_cce_structural_gate.py 里有一条断言在**主动锁死**这个 bug
+      (断言进指纹的就是外壳), 报错文案写着「模板取哈希的方式变了」——
+      谁去修它, 它就判谁红。已一并改为断言相反的性质。
+
+    ⇒ 本函数现在返回**发给模型的完整 prompt**。它必须与 s1 实际调用点
+      (`_stage1_run` 里 `build_prompt(case)`)用**同一个函数**构造, 否则同样的洞会再开一次。
+    """
+    return build_prompt(_stage1_case(text, context))
 
 
 def _stage1_case(text, context):
@@ -343,6 +367,31 @@ INSTRUMENT_LINEAGE = [
               "该重叠**本身可测**(G1 组 vs G2 组读数差异会暴露它), 必须分组报告。"
               "⚠️ 订阅约 2026-08-22 到期 ⇒ 这台仪器届时**不可复现**, "
               "其 profile 只能标 ESTIMATED_SCOPED 且注明仪器已不可得。")},
+    {"gen": 6, "hash": "d4cce4c745f3f991",
+     "s1_prompt_sha256": "61fe230f5c588c1f", "s2_prompt_sha256": "b8d0f60d66d10f12",
+     "runs": [],
+     "note": ("★★★ 把 s1 prompt **真正**纳入指纹 —— 这正是 gen2 的 note 声称做过、"
+              "但**从来没有做到**的那件事。"
+              "此前 s1_prompt_sha256 哈希的是 `_stage1_case(...)` = **238 字的外壳**, "
+              "而实际送进模型的是 `build_prompt(case)` = **4403 字**, "
+              "里面装着 13 类 EMOTIONS · 7 类 ACTIONS · 17 个 NEED_KEYS · 47KB NEED_TAXO · "
+              "DESIRE_TAXO · appraisal 五维规范 · 输出 schema。**覆盖率 5.4%**。\n"
+              "实测反证: 砍掉 5 类情绪 / 砍掉 12 个 need code / 清空 need 分类学 —— "
+              "三者都改变了真实 prompt, 而 instrument_hash **一字不变**; "
+              "反向, 改一个 k=3 时永不取用的温度档, 指纹**却会变**。"
+              "⇒ **标签空间是反的**: 最能改变读数的东西在指纹外, 死常量在指纹内。\n"
+              "★ **物理仪器与 gen4 相同** ⇒ gen4 的数据与标定对 gen6 **仍然适用** —— "
+              "但这一次这句话有证据, 见 SCOPE_WIDENINGS 与下面两条:\n"
+              "  (a) **运行时可核**: gen4 所哈希的那 238 字, 是 gen6 所哈希的 4403 字的**子串** "
+              "     ⇒ 旧口径覆盖的部分一字未改, 只是新口径覆盖得更多(见 test_cce_hash_scope)。\n"
+              "  (b) **只能靠 git 核, 运行时核不了**: 新纳入的 4165 字来自 "
+              "     scripts/exp_v4_full_validation.py, 其 build_prompt/EMOTIONS/NEED_*/ACTIONS/"
+              "     APPRAISAL 自 **commit 1463226 (2026-08-09)** 起逐字未改; "
+              "     其后唯一一次改动 b1e2dd6 (2026-09-01) 只加了 4 行注释。"
+              "     而现存 s1 读数产于 2026-09-01 之后。⇒ 测量窗口内 prompt 是稳定的。\n"
+              "★★ 但必须说清: (b) 是**历史断言**, 运行时验不了。gen6 之前的『同一仪器』"
+              "从来没有被指纹保证过 —— **没漏, 不是因为闸拦住了, 是因为没人碰它。**"
+              "从 gen6 起这个保证才是真的。")},
 ]
 # 兼容别名(旧引用仍可用)
 LEGACY_INSTRUMENT_20260818 = INSTRUMENT_LINEAGE[0]
@@ -372,11 +421,54 @@ def calibration_transfers(calibration, taxo, k=3, knot_n=None, s1_pairing=None):
         return {"transfers": False, "reason": "标定未声明 depends_on/snapshot ⇒ 无法判定, 一律不搬"}
     cur = instrument_id(taxo, k=k, knot_n=knot_n, s1_pairing=s1_pairing)["spec"]
     changed = [d for d in dep if _spec_field(cur, d) != snap.get(d)]
-    return {"transfers": not changed,
+
+    # ★★ 口径扩大豁免 —— 极窄, 且必须**运行时可核**。
+    #   机器缺的那个类别是:「**字段的定义变了, 不是它描述的东西变了**」。
+    #   2026-09-05 就撞上一次: s1_prompt_sha256 从哈希 238 字外壳改成哈希 4403 字全文,
+    #   物理 prompt 一个字没改, 但依赖它的标定按上面的逻辑全部判为不可搬。
+    #   ⇒ 给它一条通道, 但通道必须**自证**, 不能像 gen2 那样靠一句声称。
+    exempt, residual = [], []
+    for d in changed:
+        w = SCOPE_WIDENINGS.get((d, snap.get(d), _spec_field(cur, d)))
+        if w and w["verify"]():
+            exempt.append(d)
+        else:
+            residual.append(d)
+
+    if residual or not changed:
+        return {"transfers": not changed,
+                "changed": changed,
+                "reason": ("所依赖的仪器字段全部未变 ⇒ 标定可搬" if not changed else
+                           f"★ 依赖字段已变 {residual} ⇒ 标定**不可搬**, 必须重标定"),
+                "checked": dep}
+    return {"transfers": True,
             "changed": changed,
-            "reason": ("所依赖的仪器字段全部未变 ⇒ 标定可搬" if not changed else
-                       f"★ 依赖字段已变 {changed} ⇒ 标定**不可搬**, 必须重标定"),
+            "scope_widening_exemption": exempt,
+            "reason": ("★ 依赖字段的**值**变了, 但变的是**该字段的口径**不是它描述的对象: "
+                       f"{exempt}。已逐条运行时自证(旧口径覆盖的字符串是新口径的子串)。"
+                       "⇒ 标定可搬, **但结果带豁免标记**, 下游不得当作「什么都没变」。"),
+            "★caveat": "★ 子串性质只证明**旧口径覆盖的部分**未改; 新纳入部分的历史稳定性"
+                       "只能靠 git 核, 运行时核不了。见 INSTRUMENT_LINEAGE gen6 note (b)。",
             "checked": dep}
+
+
+def _s1_scope_widening_holds():
+    """gen4→gen6 的口径扩大自证: 旧口径哈希的那段, 必须是新口径哈希的**子串**。
+
+    ★ 它证明的是「只是覆盖得更多, 没有改动或移除任何已覆盖的部分」。
+      它**不证明**新纳入的那 4165 字在历史上没变过 —— 那只能靠 git。
+    """
+    return _stage1_case("<TEXT>", "<CONTEXT>") in _stage1_template()
+
+
+# (字段路径, 旧值, 新值) -> 自证函数。★ 只允许逐条具名登记, 不接受通配。
+SCOPE_WIDENINGS = {
+    ("s1_prompt_sha256", "eadcdcdac46a5180", "61fe230f5c588c1f"): {
+        "gen": "4→6",
+        "what": "s1_prompt_sha256 从哈希 238 字的 case 外壳, 改为哈希 4403 字的完整 prompt",
+        "verify": _s1_scope_widening_holds,
+    },
+}
 
 
 # ─────────────────────────────────────────────────────────────────────────────

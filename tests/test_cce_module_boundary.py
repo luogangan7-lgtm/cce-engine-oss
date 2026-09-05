@@ -45,7 +45,11 @@ PER_FILE = {
     "cce_knot_classify.py": {
         "exp_crossmodel_desire": ["MODELS", "call_model"],
         "exp_v4_causal_chain": ["ACTIONS", "EMOTIONS"],
-        "exp_v4_full_validation": ["DESIRES", "NEED_KEYS", "call_parse",
+        "exp_v4_full_validation": ["DESIRES", "NEED_KEYS",
+                                   # ★ 2026-09-05 gen6 新增: 指纹要哈希**真实 prompt**,
+                                   #   就必须用产 prompt 的那个函数, 不能另抄一份 ——
+                                   #   另抄一份正是 gen1→gen4 那个洞的成因。
+                                   "build_prompt", "call_parse",
                                    "extract_json_robust", "js_divergence", "top_label"]},
     "cce_response_chain.py": {
         "exp_v4_causal_chain": ["ACTIONS", "EMOTIONS"],

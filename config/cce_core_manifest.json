@@ -3,10 +3,10 @@
  "version": "1.0.0",
  "iron_rule": "20 · 新模态增加 Parser, 不应修改 CCE Core",
  "criterion": "Core = 改了它已采集的原始 draw 就不能用的文件; 与 instrument_hash 同源判据",
- "instrument_generation": 4,
+ "instrument_generation": 6,
  "core_files": {
   "config/knot_taxonomy.json": "836fdcda646dbcbc",
-  "scripts/cce_knot_classify.py": "7f9a1febcf9011f5",
+  "scripts/cce_knot_classify.py": "56f3f2407e7901e9",
   "scripts/cce_ksep.py": "ffd5d26a7e0cb29b",
   "scripts/exp_crossmodel_desire.py": "0e0e9d64b48fbade"
  },
@@ -19,10 +19,11 @@
  "parser_plane_note": "Parser/Ingest 层可自由增删改, 不影响本闸; 新增模态只许落在这一层。",
  "how_to_change_core": "必须同时: ① 更新本文件里该文件的 hash ② 递增 instrument_generation ③ 在 cce_knot_classify.INSTRUMENT_LINEAGE 里加一代并写明「上一代的标定还能不能用」。三者缺一, 闸红。 【2026-09-02 新增第四条路】纯重构(行为不变)可不换代, 但必须: ① 更新 pin ② 在 refactor_log 追加一条, 写明 from/to sha、理由、**行为证据(具体测试文件)** ③ instrument_expected 现算仍相符。三者缺一, 闸红。 【2026-09-05 新增第五条路】改动**只影响下游 manipulation、不影响仪器**的字段(当前唯一实例: knots[].playbook —— 它不进 s1/s2 prompt, 故不进 instrument_hash, 但会改变 playbook_* 三个读数**测的是什么**)。这类改动**不是纯重构**(行为确实变了), 也**不该换代**(换代会假称结分类仪器变了, 白白作废仍然有效的标定)。必须: ① 更新 pin ② refactor_log 追加一条, 写明**哪一半行为变了、哪一半没变**, 各自给证据 ③ 为受影响的读数**另立预注册**, 并声明与旧代结果**可比不可合** ④ instrument_expected 现算仍相符。★ 四者缺一, 视同静默换 manipulation —— 它比静默换仪器更隐蔽, 因为所有哈希都不会变。",
  "instrument_expected": {
-  "instrument_hash": "565470cf26c16d01",
+  "instrument_hash": "d4cce4c745f3f991",
   "qualification_policy_hash": "b41ef5217a77d311",
   "probe": "instrument_id(taxo, k=3, knot_n=5, s1_pairing='round_robin_over_3_s1_draws')",
-  "★why": "★ 只钉文件 sha 有一个抓不到的洞: **MEASUREMENT_MODEL 是环境变量**, 换它就换仪器, 却一个文件都不动 ⇒ 旧闸全绿。所以闸必须**现算**仪器哈希与这里比对, 而不是只比文件字节。"
+  "★why": "★ 只钉文件 sha 有一个抓不到的洞: **MEASUREMENT_MODEL 是环境变量**, 换它就换仪器, 却一个文件都不动 ⇒ 旧闸全绿。所以闸必须**现算**仪器哈希与这里比对, 而不是只比文件字节。",
+  "★gen6": "★★★ 2026-09-05 gen4→gen6: s1_prompt_sha256 从哈希 238 字的 case 外壳, 改为哈希 **4403 字的完整 prompt**(含 EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema)。此前**覆盖率仅 5.4%** —— 改本体载荷不换指纹, 而改一个永不取用的温度档却换指纹, **标签空间是反的**。★ 物理仪器未变(git: exp_v4_full_validation 的 prompt 面自 1463226/2026-08-09 起逐字未改), 故 gen4 标定对 gen6 仍适用 —— 由 SCOPE_WIDENINGS 运行时自证子串性质, 见 test_cce_hash_scope。"
  },
  "refactor_log": [
   {
