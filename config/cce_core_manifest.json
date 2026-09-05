@@ -6,7 +6,7 @@
  "instrument_generation": 6,
  "core_files": {
   "config/knot_taxonomy.json": "836fdcda646dbcbc",
-  "scripts/cce_knot_classify.py": "56f3f2407e7901e9",
+  "scripts/cce_knot_classify.py": "ccc5c6cf4279369a",
   "scripts/cce_ksep.py": "ffd5d26a7e0cb29b",
   "scripts/exp_crossmodel_desire.py": "0e0e9d64b48fbade"
  },
@@ -83,6 +83,24 @@
    "★which_half_of_behavior_changed": "**变了的一半**: playbook_hit / playbook_mode / playbook_atoms 三个读数的 manipulation —— 它们**测的是什么**变了。故已另立 GEN2 预注册, 并声明与 GEN1 **可比不可合**(同文本同判据同仪器只差 manipulation ⇒ 允许并列对照, 绝不汇总成一个 n)。\n**没变的一半**: 结分类链路。playbook 不进 _stage1_template / _stage2_template, 故不进 instrument_hash ⇒ 已采集的面板 draw 仍然有效, 无需重新投料。",
    "★evidence_is_required_because": "instrument_hash 由 taxonomy+参数现算, 与源码字节无关 —— 「哈希没变」对本次改动**不足以**证明行为没变(而且本次行为**确实变了一半**, 更不能拿它当挡箭牌)。真证据三条, 都可现查: ① test_cce_playbook_atoms_a1a2 直接断言 playbook 的每个原子**都不出现在** s1/s2 prompt 里, 并把**全部** playbook 换成占位串后验证 instrument_hash 与 s2_prompt_sha256 一字不变 —— 这是不变性的**构造性证明**, 不是自评; ② 同文件逐字冻结两条被移走的建议与 A3 六条未动的原子, 三条反向验证证明改坏任一条即判红; ③ GEN2 预注册在**采集任何读数之前**提交(见 git), 且 δ/判决线/样本量/选文与 GEN1 逐字相同。",
    "★known_confound_declared_upfront": "★ A1 **在数学上不可能改善** audit 的一致率: 现状取值 [0.5×7, 0.0×1](2 个正向原子), 逐对一致率 21/28 = 0.750; 移出一个恒判 0 的原子后取值变为 [1.0×7, 0.0×1] —— 这是观测值上的**双射**, 而判据只看 |Δ| <= 0.1, 两组的组内差恒为 0、组间差恒 > 0.1 ⇒ 每一对的分类完全相同 ⇒ 一致率**恒等于 0.750**。故 A1 是**设计正确性**修复(结构上不可指认的条目不该进打分清单), **不是可靠性修复**。已在 GEN2 预注册里作为**否定预测 P2** 冻结: 若 audit 高于 0.750, 说明我这条推导错了, 必须先查推导; 若**低于** 0.750, 则证明该原子此前**被幻觉成执行了** —— 那是效度发现。"
+  },
+  {
+   "date": "2026-09-06",
+   "file": "scripts/cce_knot_classify.py",
+   "from_sha": "56f3f2407e7901e9",
+   "to_sha": "ccc5c6cf4279369a",
+   "route": "第四条路(行为确实变了, 但变的是**账本与判决逻辑**, 不是仪器)",
+   "reason": "消融审计查出的三个零成本缺陷, 一次修完:\n① **温度当 draw 主键**: `by_t.setdefault(a[\"temperature\"],…)` 在温度重复时把多个 draw **塌成一个桶** ⇒ n_draws 3→1、first_attempt_success_rate 0.6667→**0.0**, 而退出码正常、无告警。8/8 确定性复现。改为用 draw 序号(它本来就是主键); ★ 缺主键时**不给数**(n_draws=None + ★ledger_degraded), **不拿温度兜底** —— 兜底正是这个 bug 的成因。\n② **排序无 tie-break**(3 处): `sorted(keys, key=-intensity)` 打平时顺序随 PYTHONHASHSEED 变, 而 knots[0] → **playbook_primary**, 整条链里唯一直接指挥「怎么写」的字段。★ 库内 2026-08-18 已实测记录(同输入连跑 6 次首位 display/display/audit/audit/display/audit)并写明修法 —— **规则在库里躺了 19 天, 代码没改**。本次补上, 并加实测闸(6 个 seed)。\n③ **top1_unanimous 在 n<2 时恒真** ⇒ 下游 playbook 扣发闸在单抽下**永不触发**, 而 manifest 显示「稳定」。★ 该缺陷 2026-08-18 就写进本文件注释了, 但只改了名字没改判据 —— **注释不是闸**。改为三态: 可投票 draw < 2 ⇒ **None(不可判)**, 不引入任何阈值。",
+   "instrument_hash_unchanged": true,
+   "behavior_evidence": [
+    "tests/test_cce_operational_ledger_key.py",
+    "tests/test_cce_tiebreak_determinism.py",
+    "tests/test_cce_knot_stability.py",
+    "tests/test_cce_attempt_ledger.py"
+   ],
+   "★which_half_of_behavior_changed": "**变了的一半**: operational 账本的 draw 计数(温度重复时此前是错的) · 打平时的结顺序(此前随进程变, 现在确定) · playbook 扣发闸在单抽下的行为(此前永不触发, 现在扣发并标注「不可判」)。\n**没变的一半**: 送给模型的 prompt、采样策略、聚合算法、instrument_hash —— 已采集的 raw draw 全部仍然有效, 无需重新投料。",
+   "★evidence_is_required_because": "instrument_hash 不变对本次**不足以**当证据, 而且本次**行为确实变了**。真证据: ① 新增 test_cce_operational_ledger_key 用**全同温**的 attempts 直接断言 n_draws=3(旧实现会给 1), 并断言缺主键时不产出数字; ② 新增 test_cce_tiebreak_determinism 在 **6 个不同 PYTHONHASHSEED 的子进程**里跑三方打平, 断言首位恒定(旧实现实测会变); ③ test_cce_knot_stability 的断言已从 `is True` 反转为 `is None`, 且旧断言的报错文案原文是「n=1 必然 unanimous —— **这正是问题**」——一条自认病名却把病固化成契约的闸。",
+   "★a_pattern_worth_naming": "★★ 本次三条里有两条**规则早已存在、执行从未发生**: tie-break 记进库 19 天没改; unanimous 的缺陷写进代码注释 18 天没改。加上 2026-09-05 的两条(「迭代前必须先量噪声地板」记进库后两轮迭代照样没量; gen2 声称已把 s1 prompt 纳入指纹, 实际没有), **同一形状已第四次**。⇒ 缺的不是知识, 是**把知识变成闸**的那一步。"
   }
  ]
 }

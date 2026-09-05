@@ -261,16 +261,23 @@ def s2(ctx):
             "top1_draws": samp.get("top1_draws"), "max_range": samp.get("max_range"),
             "per_knot": samp.get("per_knot"),
             "playbook_primary": (knots[0].get("playbook", "")[:120]
-                                 if knots and top1_stable is not False else None),
+                                 if knots and top1_stable is True else None),
             # ★ 2026-09-05 A1/A2: 两类建议被**移出单文本打分**, 但**不能因此从交付里消失**。
             #   移出的理由是判官**结构上看不见**它们(跨轮规则拿不出本文子串; 顺序约束不是
             #   单一子串), 不是这两条建议错了。若只把它们搬进 taxonomy 就不管了,
             #   它们会变成没人读的死规则 —— 一致性闸当场判了红, 判得对。
             #   ⇒ 随 playbook_primary 一同下发, 但**显式标注不参与打分**。
             "playbook_unscored_guidance": (_unscored_guidance(taxo, knots[0]["key"])
-                                           if knots and top1_stable is not False else None),
-            "playbook_withheld_reason": (None if top1_stable is not False else
-                                         f"top1 不稳: {samp.get('top1_draws')}")}
+                                           if knots and top1_stable is True else None),
+            # ★ 2026-09-06: 判据从 `is not False` 收紧为 `is True`。
+            #   上游现在会在**可投票 draw < 2** 时返回 None(不可判) ——
+            #   而 `is not False` 会把 None 当成通过, 那正是「查不了当查过了」。
+            #   ★ 两种扣发理由必须分开: 「测了, 不稳」与「压根测不了」不是一回事。
+            "playbook_withheld_reason": (
+                None if top1_stable is True else
+                (f"top1 一致性**不可判**(可投票 draw < 2, 一个观测点上观察不到一致性): "
+                 f"{samp.get('top1_draws')}" if top1_stable is None else
+                 f"top1 不稳: {samp.get('top1_draws')}"))}
 
 
 

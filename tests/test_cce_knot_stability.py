@@ -247,7 +247,15 @@ assert "paired" in src and "from_temperature\": paired[0][0]" in src.replace("'"
 #   · P(全体一致) ≈ p^n, 随 n 单调下降是构造性的 ⇒ 提高 n 即收紧闸, 与现象无关
 # 这意味着「把 n 从 1 提到 5 后 top1_stable 变差」这句话在数学上是必然的, 不是发现。
 r1 = agg([[("display", 0.6), ("audit", 0.4)]])                  # n=1
-assert r1["sampling"]["top1_unanimous"] is True, "n=1 必然 unanimous —— 这正是问题"
+# ★★★ 2026-09-06: 这条断言原文是
+#     `assert ... is True, "n=1 必然 unanimous —— 这正是问题"`
+#   ——**报错文案自己写着「这正是问题」, 然后把这个问题钉死。**
+#   与 test_cce_structural_gate 那条(2026-09-05 修)同形: 测试识别出了缺陷,
+#   却把它固化成契约。⇒ 一个能说出病名的闸, 不等于一个会治病的闸。
+#   现在判据改为三态: 一个观测点上**观察不到**一致性 ⇒ None(不可判), 不是 True。
+assert r1["sampling"]["top1_unanimous"] is None, (
+    "★ n=1 时 top1_unanimous 必须是 None(不可判) —— "
+    "恒 True 会让下游 playbook 扣发闸在单抽下**永不触发**")
 assert r1["sampling"]["top1_mode_share"] == 1.0, r1["sampling"]
 
 # 9a. ★ mode_share 跨 n 可比: 同一个「4/5 命中」在 n=5 与 n=10 上给相同的数

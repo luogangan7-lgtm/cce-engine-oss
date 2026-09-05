@@ -111,9 +111,29 @@ def _stage1_case(text, context):
 def _op_summary(attempts):
     """operational 账本。★ 绝不与 measurement 混: 前者问「调用成功了吗」,
     后者问「在能解析的条件下仪器读出了什么」。混账会让 infra 抖动伪装成仪器不稳。"""
+    # ★★ 2026-09-06 修: 此前这里用 `a["temperature"]` 当 draw 主键。
+    #   温度值一旦重复(阶梯被截短、k 大于阶梯长度而补出重复值、或有意同温重复采样),
+    #   多个 draw **塌成一个桶**: n_draws 3→1、first_attempt_success 2→0、
+    #   rate 0.6667→**0.0**, 而退出码正常、无任何告警。8/8 确定性复现。
+    #   ⇒ 温度在这里是**事实上的主键**, 而代码里一个字都没说。
+    #   这是本项目反复栽的那类 fail-silent: **退出码正常、数字合理、账本已经错了。**
+    #   改法: 用 draw 序号当主键(它本来就是主键), 温度只是 draw 的一个标签。
+    missing = [i for i, a in enumerate(attempts) if "draw" not in a]
+    if missing:
+        # ★ 缺主键就**不给数**, 不用温度兜底 —— 兜底正是上面那个 bug 的成因。
+        #   「查不了」不许写成「查过了没问题」。
+        return {"attempts": attempts, "n_attempts": len(attempts),
+                "n_draws": None, "first_attempt_success": None,
+                "first_attempt_success_rate": None,
+                "★ledger_degraded": (f"{len(missing)}/{len(attempts)} 条 attempt 缺 `draw` 序号 ⇒ "
+                                     "无法确定它们属于哪次抽样。**不产出 draw 级统计**, "
+                                     "而不是拿温度当主键去猜(那正是 2026-09-06 修掉的 bug)。"),
+                "n_infra_failed": sum(1 for a in attempts if a["status"] == "INFRA_FAILED"),
+                "n_parse_failed": sum(1 for a in attempts if a["status"] == "PARSE_FAILED"),
+                "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet"}
     by_t = {}
     for a in attempts:
-        by_t.setdefault(a["temperature"], []).append(a)
+        by_t.setdefault(a["draw"], []).append(a)
     first_ok = sum(1 for v in by_t.values() if v[0]["status"] in ("SUCCESS", "ABSTAIN"))
     return {"attempts": attempts, "n_attempts": len(attempts), "n_draws": len(by_t),
             "first_attempt_success": first_ok,
@@ -167,11 +187,14 @@ def stage1(text, context, k):
         # 有内容但解析/schema 不过 ⇒ **仪器行为**, 不是基础设施
         return "PARSE_FAILED", (err or "unparseable_or_schema_violation")
 
-    def one(T):
+    def one(item):
+        # ★ 2026-09-06: 形参从 T 改成 (draw_index, T)。draw 序号必须显式带上 ——
+        #   此前账本用温度值反推 draw, 温度一重复就塌桶(见 _op_summary 的注释)。
+        i, T = item
         for att in range(3):
             c, p, pv, m, ok = call_parse(MEASUREMENT_MODEL, case, T, f"knot_s1_T{T}")
             _st, _ec = _classify(c, m, ok, p)
-            attempts.append({"temperature": T, "attempt": att + 1,
+            attempts.append({"draw": i, "temperature": T, "attempt": att + 1,
                              "status": _st, "error_class": _ec})
             # ★ 弃权信号必须**显式**。绝不能拿「全零向量」当弃权 ——
             #   top_label(全零) 会返回第一个标签(实测: 拥有欲), 即一个自信的假读数。
@@ -189,7 +212,7 @@ def stage1(text, context, k):
         # 2026-08-18: 此前只留 pvs, 丢掉了「哪一档温度成功了」——
         # 于是 from_temperature 恒写 temps[0], 首档失败时记的是错的出处。
         # 一个专门记出处的字段记错出处, 比没有这个字段更坏。
-        paired = [(T, p) for T, p in zip(temps, ex.map(one, temps)) if p]
+        paired = [(T, p) for T, p in zip(temps, ex.map(one, list(enumerate(temps)))) if p]
     pvs_all = [p for _, p in paired]
     if not pvs_all:
         raise RuntimeError("stage1 全部失败(raw 已存 results/knot_classify_raw/)")
@@ -842,7 +865,8 @@ def derived_layers(stability, keys, taxo):
         families[fam] = {
             "mass": round(max(mem.values()), 4) if mem else 0.0,
             "composition": {k: round(v / tot, 4)
-                            for k, v in sorted(mem.items(), key=lambda x: -x[1])} if tot else {},
+                            # ★ tie-break 同上: 打平按 key 定序, 否则 JSON 键序随进程变
+                            for k, v in sorted(mem.items(), key=lambda x: (-x[1], x[0]))} if tot else {},
             "members_active": len(mem)}
     return families, inten
 
@@ -912,11 +936,23 @@ def _stage2_aggregate(prompt, taxo, n=None):
     _mode = _C(tops).most_common(1)[0]
     # ★ 分母用 len(draws) 而不是 len(tops): 弃权若不计入分母, 弃权越多众数占比越高
     mode_share = round(_mode[1] / len(draws), 4)
-    top1_unanimous = len(set(tops)) == 1
+    # ★★ 2026-09-06 修: 此前 `len(set(tops)) == 1` 在**只有一个可投票 draw** 时**恒为 True**
+    #   ⇒ 下游 cce_full_run 的 playbook 扣发闸(`top1_stable is not False`)在单抽下**永不触发**,
+    #   即闸结构性失效, 而 manifest 上显示的是「稳定」。
+    #   ★ 这个缺陷 2026-08-18 就写进本文件上方的注释了(「n=1 时 len(set)==1 恒成立
+    #     ⇒ 扣发闸在单抽下永不触发」), 但只改了名字没改判据。**注释不是闸。**
+    #   改法不引入任何阈值: 一个观测点上**根本观察不到一致性** —— 那是「查不了」,
+    #   不是「查过了没问题」。⇒ 返回 None(三态), 由下游显式处理。
+    top1_unanimous = (len(set(tops)) == 1) if len(tops) >= 2 else None
     top1_stable = top1_unanimous   # 兼容别名, 语义同 unanimous; 新代码请用 mode_share
 
     # knots 保持 [[key, weight]] 的既有形状(weight 改为中位数), 下游 5 个消费者不需要改。
-    merged = sorted(keys, key=lambda k: -stability[k]["intensity"])
+  # ★ tie-break: 打平必须按 key 定序。库内 2026-08-18 已实测同一输入连跑 6 次
+    #   keys[0] 得到 display/display/audit/audit/display/audit —— str 集合迭代顺序
+    #   受 PYTHONHASHSEED 随机化影响, 而 knots[0] → **playbook_primary**,
+    #   即整条链里唯一直接指挥「怎么写」的字段。构造用例下 12 个 seed 里 5 次翻成
+    #   **语义相反**的写作指令。规则记进库 19 天, 代码一直没改 —— 本次补上。
+    merged = sorted(keys, key=lambda k: (-stability[k]["intensity"], k))
     out_knots = []
     for k in merged:
         # ★ 不再 `continue` 掉少数派 —— 那是把测到的东西丢掉。
@@ -974,7 +1010,9 @@ def _stage2_aggregate(prompt, taxo, n=None):
             "measurement_status": "qualified" if out_knots else "abstain",
             "n_abstain": n_abstain,
             "draw_ledger": draw_ledger,
-            "intensity": {k: round(v, 4) for k, v in sorted(inten.items(), key=lambda x: -x[1])},
+            # ★ tie-break 同上
+            "intensity": {k: round(v, 4)
+                          for k, v in sorted(inten.items(), key=lambda x: (-x[1], x[0]))},
             "families": families,
             "drive_brake": {"drive_mass": dm, "brake_mass": bm,
                             "quadrant": f"{'high' if dm >= 0.5 else 'low'}_drive/"
@@ -986,8 +1024,10 @@ def _stage2_aggregate(prompt, taxo, n=None):
                          "top1_mode": _mode[0], "top1_mode_share": mode_share,
                          "top1_unanimous": top1_unanimous,
                          "top1_stable": top1_stable, "top1_draws": tops,
-                         "caveat_unanimous": ("top1_unanimous 在 n=1 时恒真, 且 P≈p^n 随 n 单调下降 —— "
-                                              "跨不同 n 比较必须用 top1_mode_share, 不能用 unanimous"),
+                         "caveat_unanimous": ("★ 2026-09-06 起 top1_unanimous 在可投票 draw < 2 时返回 "
+                                              "**None**(不可判), 不再恒真 —— 一个观测点上观察不到一致性。"
+                                              "且 P≈p^n 随 n 单调下降 ⇒ 跨不同 n 比较必须用 "
+                                              "top1_mode_share, 不能用 unanimous"),
                          "max_range": round(max((v["range"] for v in stability.values()), default=0.0), 4),
                          "per_knot": stability},
             "caveat": ("单次抽样不是测量: 本结果为 n 次抽样的逐结中位数; "
