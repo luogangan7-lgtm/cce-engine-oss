@@ -13,8 +13,16 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import cce_align_v2 as A                      # noqa: E402
 
 P = ROOT / "tests" / "data" / "phase2"
-SPEC = json.loads((P / "playbook_atoms_prereg.json").read_text(encoding="utf-8"))
-CKPT = P / "playbook_atoms_checkpoint.jsonl"
+
+# ★ 2026-09-05: 按**代**隔离三个路径。此前全部写死为 GEN1 的文件名, 而本探针会
+#   **断点续跑**(从 checkpoint 读 done) —— GEN1 的 64 条已填满, 直接重跑会让 jobs 为空,
+#   于是拿**旧分解下采集的数据**算出一个「新一代判决书」, 且数字完全合理、没有任何东西报警。
+#   这是**混淆**不是归零, 非退化闸也抓不到。⇒ 代号进文件名, 让它在构造上不可能发生。
+GEN = os.environ.get("CCE_ATOMS_GEN", "1")
+_suffix = "" if GEN == "1" else f"_gen{GEN}"
+SPEC = json.loads((P / f"playbook_atoms{_suffix}_prereg.json").read_text(encoding="utf-8"))
+CKPT = P / f"playbook_atoms{_suffix}_checkpoint.jsonl"
+VERDICT = P / f"playbook_atoms{_suffix}_verdict.json"
 PANEL = P / "panel_checkpoint.jsonl"
 MAN = json.loads((P / "panel_manifest.json").read_text(encoding="utf-8"))
 N = SPEC["design"]["n_per_text"]
@@ -74,7 +82,15 @@ def read_once(knot, text, temperature):
     return {"atoms_hit": round(sum(got[i][0] for i in pos) / len(pos), 4),
             "violations": sum(1 - got[i][0] for i, (_, neg) in enumerate(items) if neg),
             "unsupported": sum(1 for v in got.values() if v[2]),
-            "n_positive": len(pos), "n_atoms": len(items)}
+            "n_positive": len(pos), "n_atoms": len(items),
+            # ★ 2026-09-05: 逐原子结果必须落盘。此前只存聚合的 atoms_hit, 逐原子判完即丢 ——
+            #   同一天里**两次**因此无法定论: ① 用旧数据预检 A1 效果时, 分不出 0.5 是哪个原子在命中
+            #   ② GEN2 audit 掉到 0.429 后, 分不开「跨轮原子被判成执行过」与「清单变短改变了
+            #      判官对剩下那条的判断」两种机制。
+            #   ⇒ 聚合值回答不了「是哪个原子在动」, 而那恰是每次真正要问的问题。
+            "per_atom": [{"i": i, "text": items[i][0], "is_prohibition": items[i][1],
+                          "executed": got[i][0], "quote": got[i][1],
+                          "unsupported": got[i][2]} for i in range(len(items))]}
 
 
 def main():
@@ -163,7 +179,11 @@ def main():
 
     if not (d1 and d2):
         decision = "DEGENERATE"
-    elif ok >= 7:
+    _line = C.get("adoption_line", 7)
+    assert _line == 7, f"★ 采纳线被改成了 {_line} —— 阈值不因看到结果而下调, 拒绝执行"
+    if False:
+        pass
+    elif ok >= _line:
         decision = "USABLE"
     elif ok >= 5:
         decision = "INCONCLUSIVE"
@@ -171,12 +191,18 @@ def main():
         decision = "UNRELIABLE"
     print(f"{ok}/8 文本达标 ⇒ **{decision}**   (对照: playbook_hit GEN4 = 4/8 UNRELIABLE)")
 
-    (P / "playbook_atoms_verdict.json").write_text(json.dumps(
-        {"block": SPEC["block"], "measured_at": "2026-09-04",
+    import datetime
+    VERDICT.write_text(json.dumps(
+        {"block": SPEC["block"],
+         # ★ 此前写死 "2026-09-04" —— 重跑会报一个假日期, 而假日期让任何时序对账失效
+         "measured_at": datetime.date.today().isoformat(),
          "instrument_hash": ih, "texts": len(todo), "meeting_criterion": ok,
          "per_text": per, "degeneracy": {"medians_distinct": d1, "not_constant": d2},
          "decision": decision,
-         "★baseline": "playbook_hit GEN4: 4/8 UNRELIABLE, 同一批文本同一仪器同一判据线"},
+         "★baseline": SPEC.get("★baseline_for_verdict",
+                                 "playbook_hit GEN4: 4/8 UNRELIABLE, 同一批文本同一仪器同一判据线"),
+         "★comparable_not_poolable": "同文本同判据同仪器、只差 manipulation ⇒ 允许并列对照, "
+                                     "**绝不汇总成一个 n**"},
         ensure_ascii=False, indent=1), encoding="utf-8")
     return 0
 

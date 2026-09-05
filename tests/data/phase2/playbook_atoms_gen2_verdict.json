@@ -1,0 +1,129 @@
+{
+ "block": "PLAYBOOK_ATOMS_RELIABILITY_GEN2",
+ "measured_at": "2026-09-05",
+ "instrument_hash": "565470cf26c16d01",
+ "texts": 8,
+ "meeting_criterion": 6,
+ "per_text": {
+  "2ee52f67c987": {
+   "n": 8,
+   "knot": "pain_seek",
+   "agreement": 1.0,
+   "median": 0.0,
+   "range": 0.0,
+   "verdict": "PASS"
+  },
+  "3191a8fae98d": {
+   "n": 8,
+   "knot": "pain_seek",
+   "agreement": 1.0,
+   "median": 0.0,
+   "range": 0.0,
+   "verdict": "PASS"
+  },
+  "344d81fc035f": {
+   "n": 8,
+   "knot": "display",
+   "agreement": 0.75,
+   "median": 0.0,
+   "range": 0.333,
+   "verdict": "FAIL"
+  },
+  "59a1a9c7d712": {
+   "n": 8,
+   "knot": "pain_seek",
+   "agreement": 1.0,
+   "median": 0.0,
+   "range": 0.0,
+   "verdict": "PASS"
+  },
+  "5bbf4543dd47": {
+   "n": 8,
+   "knot": "belong",
+   "agreement": 1.0,
+   "median": 1.0,
+   "range": 0.0,
+   "verdict": "PASS"
+  },
+  "6b16b77dbc5b": {
+   "n": 8,
+   "knot": "reward",
+   "agreement": 1.0,
+   "median": 0.0,
+   "range": 0.0,
+   "verdict": "PASS"
+  },
+  "6def5ddbcf25": {
+   "n": 8,
+   "knot": "audit",
+   "agreement": 0.4286,
+   "median": 0.5,
+   "range": 1.0,
+   "verdict": "FAIL"
+  },
+  "712fc175d4bf": {
+   "n": 8,
+   "knot": "pain_seek",
+   "agreement": 1.0,
+   "median": 1.0,
+   "range": 0.0,
+   "verdict": "PASS"
+  }
+ },
+ "degeneracy": {
+  "medians_distinct": true,
+  "not_constant": true
+ },
+ "decision": "INCONCLUSIVE",
+ "★baseline": "GEN1(原子分解): 6/8 INCONCLUSIVE · playbook_hit GEN4(原始): 4/8 UNRELIABLE —— 三者同 8 文本、同仪器 565470cf26c16d01、同 δ=0.1/线 0.95/n=8, **只差 manipulation**",
+ "★comparable_not_poolable": "同文本同判据同仪器、只差 manipulation ⇒ 允许并列对照, **绝不汇总成一个 n**",
+ "★PREREGISTERED_PREDICTIONS_SETTLED": {
+  "P1_belong_A2": {
+   "predicted": "belong 一致率 >= 0.95 ⇒ PASS",
+   "observed": "GEN1 [0,1,1,1,0,1,1,1] 一致率 **0.571** → GEN2 [1×8] 一致率 **1.000**",
+   "verdict": "★★ **CONFIRMED, 且是决定性的**",
+   "★why_it_survives_the_noise_argument": "变化幅度是 0.571 → 1.000, **不是**一次重复的翻转; 而 belong 恰是本轮唯一被**设计去改变**的臂。⇒ A2 的诊断(一个原子塞了两个动作+一个数量上界+一个顺序约束)**成立**, 拆开确实修好了它。正向原子 1 → 2, 复合值不再退化成单个二值判断。"
+  },
+  "P2_audit_A1": {
+   "predicted": "audit 一致率 **= 0.750, 一点不变**(推导: 移出一个恒判 0 的原子是观测值上的双射, 逐对判据在双射下不变)。高于 ⇒ 推导错; **低于** ⇒ 该原子此前被判成执行过 ⇒ 效度发现。",
+   "observed": "GEN1 [0.5×7, 0.0×1] 一致率 0.750 → GEN2 [1,1,0,0,0,1,1,0] 一致率 **0.429**",
+   "verdict": "★★ **「低于」那一支触发了。** 预注册在测量前就写好了这一支该怎么读。",
+   "★what_it_tells_us": "GEN1 的 0.5 出现在 8 次里的 7 次 ⇒ 两个正向原子**每次恰好命中一个**。而 GEN2 显示: 那个**看得见**的原子只在 8 次里命中 **4 次**。⇒ GEN1 里那些「看得见的没命中」的轮次, 命中的必然是**另一个** —— 那条**跨轮规则**, 它在单文本里结构上不可指认, 且 unsupported 全程为 0 意味着判官**为它给出了逐字子串**。",
+   "★★but_two_mechanisms_remain_unseparated": "★ 我**不能**据此断言「判官幻觉了证据」, 因为还有第二种解释同样成立: 把清单从 3 条缩到 2 条**本身**改变了判官对剩下那条的判断(上下文效应)。**两者从现有数据分不开** —— 因为探针只存了聚合值 `atoms_hit`, **没存逐原子结果**。⇒ 这正是今天第二次被同一个缺口挡住(上午预检时也是它)。已修: 见 ★probe_fix。",
+   "★what_is_certain_either_way": "audit 的真实可靠性是 **0.429**(≈ 抛硬币), 而 GEN1 的 0.750 是**复合掩盖出来的**: 两个原子 + 「每次恰好命中一个」的模式, 把一个抛硬币级的判断包装成了看起来只是「一般般」的 0.750。⇒ **A1 没有弄坏 audit, A1 把 audit 早就坏了这件事露了出来。**"
+  },
+  "P3_no_side_effects": {
+   "predicted": "现有 6 个 PASS 文本**全部仍 PASS**。任何一个翻掉 ⇒ 有非预期波及。",
+   "observed": "★★ **违反。** 344d81fc035f (display) GEN1 一致率 1.000 PASS → GEN2 **0.750 FAIL**。",
+   "★★but_its_playbook_is_byte_identical": "display 属 A3, 本轮**一个字没动**(test_cce_playbook_atoms_a1a2 逐字钉住)。取值 GEN1 [0.0×8] → GEN2 [0.0×7, 0.333×1] —— **整个翻转只由一次重复造成**。⇒ 这**不是**我的改动波及, 是**判官的轮间方差**: 同文本、同 playbook、同判官, 换一轮就翻。"
+  },
+  "★★THE_REAL_FINDING": {
+   "headline": "★★★ **问题不在 playbook, 在判据本身。**",
+   "the_arithmetic": {
+    "8 次全同": "一致率 1.000 ⇒ PASS",
+    "8 次里 7 同 1 异": "一致率 21/28 = **0.750** ⇒ FAIL",
+    "⇒": "0.95 的线在 n=8 下**等价于要求 8 次全同** —— **零容差**, 一次偏离即判 FAIL。"
+   },
+   "the_noise_estimate": "display 两轮共 16 次重复里出现 1 次偏离 ⇒ 单次偏离率 p̂ ≈ 1/16 = 0.0625。⇒ P(某轮 PASS) = (1-p)^8 = **0.597** ⇒ **纯噪声就有约 40% 概率翻掉一个臂**。若 8 个臂的偏离率相近, 纯噪声下的期望达标数 ≈ **4.8/8**。",
+   "★therefore": "★★ 「4/8 → 6/8 → 6/8」这些**计数之差落在噪声量级内**。本轮直接观测到一个**零改动**的臂移动了 1 —— 那就是噪声的现场证据, 不是推测。⇒ 这台仪器在 n=8 + 零容差判据下, **分辨不出它被要求分辨的东西**。",
+   "★what_this_does_NOT_mean": "**不是**「所以 6/8 该算过」。采纳线 7 是预注册冻结的, **不下调** —— 判决仍是 **不采纳**。噪声大只说明**这个判据测不准**, 不说明**结果该往有利方向读**。这两件事必须分开。"
+  },
+  "★DECISION": {
+   "count": "6/8 —— 与 GEN1 相同, 但**构成变了**: belong 修好(+1) · audit 暴露为抛硬币 · display 因噪声翻掉(-1)",
+   "against_frozen_line": "6 < 7 ⇒ **不采纳**(与 GEN1 同处理, 线不动)",
+   "★but_the_count_is_not_the_result": "★★ 本轮真正的产出**不是那个计数**, 是三件事: ① A2 的诊断被证实且修法有效(0.571 → 1.000) ② audit 的 0.750 被证明是复合掩盖出来的假稳(真值 0.429) ③ **判据在 n=8 下零容差 ⇒ 计数本身在噪声里** —— 这条使前两代的计数比较全部需要重读。"
+  },
+  "★WHAT_TO_DO_NEXT_and_what_not_to": {
+   "★keep": "**保留 A2**。它的效应大且不是单次重复的假象, 且 belong 是唯一被设计去改变的臂。",
+   "★keep_but_reclassify": "**保留 A1**, 但如实归类为**设计正确性**修复而非可靠性修复 —— 结构上不可指认的条目本就不该进打分清单。它的实测效应被上下文效应混淆, 现有数据分不开。",
+   "★do_NOT": "**不要再改 playbook 措辞去追那个计数。** 已有直接证据表明计数在噪声里, 再改一版只会得到另一个噪声样本。★ 尤其**不要**因为「差一个就到 7」去动 A3 —— 那是拿产品主张去补一个测不准的判据。",
+   "★do_instead": [
+    "① **加重复数**。零容差判据要能分辨, n 必须远大于 8。先做一次**纯噪声基线**: 对一个**零改动**的臂跑 n=30, 量它自己的轮间方差 —— 那是所有比较的底噪。",
+    "② **存逐原子结果**(已修, 见 ★probe_fix)。今天两次被同一个缺口挡住。",
+    "③ 判据从「零容差全同」改为能容忍偶发偏离的形式, 或直接走三态 {CLEAR_ABSENCE, CLEAR_EXECUTION, ABSTAIN} —— ★ 后者与本轮结论一致: 判官在地板/天花板稳、中段是抛硬币, 那就**只在它稳的地方用它**。"
+   ]
+  },
+  "★probe_fix": "探针原先只落盘聚合值 `atoms_hit`, 逐原子的 executed/quote 判完即丢。今天两次因此无法定论(上午的零成本预检 · 本轮 P2 的两种机制)。已改为同时落盘 `per_atom` —— 下一轮可直接回答「是哪个原子在动」。",
+  "★comparability_reminder": "GEN1 与 GEN2 **可比不可合**。以上全部为并列对照, 无一处把两轮汇总成一个 n。"
+ }
+}
