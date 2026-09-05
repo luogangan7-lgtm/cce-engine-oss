@@ -93,6 +93,30 @@ def read_once(knot, text, temperature):
                           "unsupported": got[i][2]} for i in range(len(items))]}
 
 
+
+def texts_and_knots(texts):
+    """每个文本的 top-1 结 + 正文, 由**已冻结的面板读数**确定, 不重测。
+
+    ★ 2026-09-05 抽成函数: 底噪探针需要**完全相同**的选结逻辑 —— 各写一份就会漂,
+      而漂了就等于量了别的臂的噪声。抄一遍时我已经漂过一次(把 r["knots"] 当成了
+      对象列表), 当场报错。⇒ 共用一份, 让它在构造上不可能不一致。
+    """
+    arms = {(a["base_id"], a["arm"]): a for a in MAN["arms"]}
+    knots = defaultdict(list)
+    for l in PANEL.read_text(encoding="utf-8").splitlines():
+        if not l.strip():
+            continue
+        r = json.loads(l)
+        if r.get("arm") == "L0" and str(r.get("qualified")) == "True" and r.get("knots"):
+            knots[r["base_id"]].append(r["knots"])
+    out = []
+    for t in texts:
+        bid = t["base_id"]
+        tally = Counter(max(kk, key=kk.get) for kk in knots[bid])
+        out.append((bid, tally.most_common(1)[0][0], arms[(bid, "L0")]["text"]))
+    return out
+
+
 def main():
     if not os.environ.get("MINIMAX_API_KEY"):
         print("★ 无 MINIMAX_API_KEY —— 不出结论, 不降级。"
@@ -102,19 +126,7 @@ def main():
     assert ih == SPEC["instrument"]["must_equal"], f"★ 仪器不符: {ih}"
 
     # 每个文本的 top-1 结, 由**已冻结的面板读数**确定, 不重测
-    arms = {(a["base_id"], a["arm"]): a for a in MAN["arms"]}
-    knots = defaultdict(list)
-    for l in PANEL.read_text(encoding="utf-8").splitlines():
-        if not l.strip():
-            continue
-        r = json.loads(l)
-        if r.get("arm") == "L0" and str(r.get("qualified")) == "True" and r.get("knots"):
-            knots[r["base_id"]].append(r["knots"])
-    todo = []
-    for t in SPEC["design"]["texts"]:
-        bid = t["base_id"]
-        tally = Counter(max(kk, key=kk.get) for kk in knots[bid])
-        todo.append((bid, tally.most_common(1)[0][0], arms[(bid, "L0")]["text"]))
+    todo = texts_and_knots(SPEC["design"]["texts"])
 
     done = {}
     if CKPT.exists():

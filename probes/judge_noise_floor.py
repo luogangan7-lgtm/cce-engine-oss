@@ -56,19 +56,8 @@ def main() -> int:
     ih = os.environ.get("CCE_INSTRUMENT_HASH", "565470cf26c16d01")
     assert ih == SPEC["instrument"]["must_equal"], f"★ 仪器不符: {ih}"
 
-    arms = {(a["base_id"], a["arm"]): a for a in R.MAN["arms"]}
-    knots = defaultdict(list)
-    for l in R.PANEL.read_text(encoding="utf-8").splitlines():
-        if l.strip():
-            r = json.loads(l)
-            if r.get("arm") == "L0" and r.get("knots"):
-                knots[r["base_id"]].append({k["key"]: k.get("intensity", 0) for k in r["knots"]})
-
-    todo = []
-    for t in SPEC["design"]["texts"]:
-        bid = t["base_id"]
-        tally = Counter(max(kk, key=kk.get) for kk in knots[bid])
-        todo.append((bid, tally.most_common(1)[0][0], arms[(bid, "L0")]["text"]))
+    # ★ 与 GEN2 **共用同一个**选结函数 —— 各写一份就会漂, 漂了就是量了别的臂的噪声。
+    todo = R.texts_and_knots(SPEC["design"]["texts"])
 
     done = {}
     if CKPT.exists():
