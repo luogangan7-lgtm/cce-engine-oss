@@ -76,6 +76,36 @@ PROMPT_V2 = """你判定一段内容对一份"拆除动作清单"的逐条符合
 ★ hit=1 必须给出内容里的**原样子串**; 给不出就填 0。"""
 
 
+# ★ 2026-09-05 GEN3b: v3 —— **最小化**的禁令修复。
+#
+#   v2 失败了, 而且是**对照组抓到的**: 我在预注册里写「正向原子语义不变」, 实际
+#   v2 **丢掉了 v1 的一整句约束** ——「执行 = 内容里有可逐字指认的句子在做这条描述的事;
+#   **只是谈论相关话题不算执行**」。少了这句, 正向判定变松:
+#   audit 那条正向原子 executed 0.267 → 1.000、不稳度 0.533 → 0.000。
+#   ⇒ 我声称只改一件事, 实际改了两件, 于是 P1 的归因不成立。
+#
+#   v3 的做法: **v1 的判定说明逐字保留**, 只**追加**一段【禁】的问法。
+#   唯一的额外改动是 JSON 字段 executed → hit(禁令下 executed=1 会同时表示满足与违反,
+#   一个字段扛不了两个方向) —— 这一处如实登记在 delta 里, 不假称零改动。
+PROMPT_V3 = """你判定一段内容是否执行了某个"拆除动作清单"里的每一条。
+
+【阻挡结】{knot}
+判据(受众处于该状态的表现): {discr}
+
+【待判内容】
+{text}
+
+【逐条判定】下面每条独立判, 只判**是否实际执行**, 不判好坏, 不判是否提到该话题。
+执行 = 内容里有**可逐字指认的句子**在做这条描述的事; 只是谈论相关话题不算执行。
+★ 标【禁】的条目问法不同: 判**有没有违反**它。
+  违反 = 内容里有**可逐字指认的句子**在做这条禁令所禁止的事;
+  找不到这样的句子 ⇒ 未违反, hit=0, **不需要子串**(没违反就没有可引的原文)。
+{items}
+
+只输出JSON: {{"atoms": [{{"i": 序号, "hit": 0或1, "quote": "逐字子串, hit=0 则空"}}]}}
+★ hit=1 必须给出内容里的**原样子串**; 给不出就填 0。"""
+
+
 def atoms_of(knot: str):
     """playbook 原文即分号分隔 ⇒ 直接拆, 不另造一套。返回 [(text, is_prohibition)]。"""
     raw = A.PLAYBOOK.get(knot, "")
@@ -89,10 +119,10 @@ def read_once(knot, text, temperature, form="v1"):
     ★ form 必须显式传, 且**按代冻结** —— 换提问形式就是换 manipulation, 不是重构。
     """
     items = atoms_of(knot)
-    if form == "v2":
+    if form in ("v2", "v3"):
         listing = "\n".join(f"{i+1}. 【{'禁' if neg else '做'}】{t}"
                              for i, (t, neg) in enumerate(items))
-        tmpl, field = PROMPT_V2, "hit"
+        tmpl, field = (PROMPT_V2 if form == "v2" else PROMPT_V3), "hit"
     else:
         listing = "\n".join(f"{i+1}. {t}" for i, (t, _) in enumerate(items))
         tmpl, field = PROMPT, "executed"
@@ -113,7 +143,7 @@ def read_once(knot, text, temperature, form="v1"):
             # 无逐字支撑的 1 记为 0 —— 预注册写死, 两个 form 同规则
             supported = raw if (raw == 0 or q.strip()) else 0
             unsupported = raw == 1 and not q.strip()
-            if form == "v2" and items[i][1]:
+            if form in ("v2", "v3") and items[i][1]:
                 # ★ 禁令在 v2 下问的是「违反了吗」⇒ **满足 = NOT 违反**。
                 #   取反后放回同一个槽位, 使 executed 的含义与 v1 一致(禁令: 1=满足),
                 #   否则跨代的 per_atom 对照会读反。

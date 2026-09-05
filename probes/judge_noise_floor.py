@@ -43,7 +43,7 @@ else:
     SPEC = json.loads((P / f"playbook_atoms_gen{GEN}_prereg.json").read_text(encoding="utf-8"))
     CKPT = P / f"playbook_atoms_gen{GEN}_noise_checkpoint.jsonl"
     OUT = P / f"playbook_atoms_gen{GEN}_noise.json"
-    FORM = "v2"
+    FORM = "v2" if GEN == "3" else "v3"
 N = SPEC["design"]["n_per_text"]
 _lock = threading.Lock()
 
