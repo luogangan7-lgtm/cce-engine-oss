@@ -31,3 +31,9 @@ de-identified corpus, and the subject distiller produces identical statistics.
 
 Research code. The knot taxonomy's acceptance gates (G-K1/G-K2/G-K3) have not
 been run; any conclusion drawn from stage-2 output should carry that caveat.
+
+**[OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) says exactly which parts are still
+unproven** — including two things a person can help with and I cannot: a human
+baseline for semantic distance (36 pairs, ~10 minutes), and verbatim
+transcripts for social-media audio. Corrections to that page are more welcome
+than participation.
