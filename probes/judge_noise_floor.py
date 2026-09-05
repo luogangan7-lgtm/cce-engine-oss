@@ -30,9 +30,20 @@ sys.path.insert(0, str(ROOT / "probes"))
 import playbook_atoms_reliability as R      # noqa: E402
 
 P = ROOT / "tests" / "data" / "phase2"
-SPEC = json.loads((P / "judge_noise_floor_prereg.json").read_text(encoding="utf-8"))
-CKPT = P / "judge_noise_floor_checkpoint.jsonl"
-OUT = P / "judge_noise_floor.json"
+
+# ★ 按代隔离。GEN=1 是 v1 提问形式下的底噪 A/A(已跑);
+#   GEN=3 是 v2(禁令改问「违反了吗」)下的同一批测量 —— 唯一变量是提问形式。
+GEN = os.environ.get("CCE_NOISE_GEN", "1")
+if GEN == "1":
+    SPEC = json.loads((P / "judge_noise_floor_prereg.json").read_text(encoding="utf-8"))
+    CKPT = P / "judge_noise_floor_checkpoint.jsonl"
+    OUT = P / "judge_noise_floor.json"
+    FORM = "v1"
+else:
+    SPEC = json.loads((P / f"playbook_atoms_gen{GEN}_prereg.json").read_text(encoding="utf-8"))
+    CKPT = P / f"playbook_atoms_gen{GEN}_noise_checkpoint.jsonl"
+    OUT = P / f"playbook_atoms_gen{GEN}_noise.json"
+    FORM = "v2"
 N = SPEC["design"]["n_per_text"]
 _lock = threading.Lock()
 
@@ -66,7 +77,7 @@ def main() -> int:
                 r = json.loads(l)
                 done[(r["base_id"], r["rep"])] = r
 
-    print(f"前登记: {SPEC['block']} | **A/A 零改动** | {len(todo)} 文本 × {N} 重复 "
+    print(f"前登记: {SPEC['block']} | 提问形式 **{FORM}** | {len(todo)} 文本 × {N} 重复 "
           f"= {len(todo) * N} 次调用")
     print("原子数:", {k: len(R.atoms_of(k)) for k in sorted({k for _, k, _ in todo})})
     print("-" * 78)
@@ -76,7 +87,7 @@ def main() -> int:
     def run(job):
         b, k, tx, r = job
         for attempt in range(4):
-            v = R.read_once(k, tx, [0.0, 0.3, 0.6, 0.9][attempt])
+            v = R.read_once(k, tx, [0.0, 0.3, 0.6, 0.9][attempt], form=FORM)
             if v:
                 rec = {"base_id": b, "knot": k, "rep": r, **v, "ok": True}
                 with _lock:

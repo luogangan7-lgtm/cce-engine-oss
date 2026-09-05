@@ -47,6 +47,34 @@ PROMPT = """你判定一段内容是否执行了某个"拆除动作清单"里的
 只输出JSON: {{"atoms": [{{"i": 序号, "executed": 0或1, "quote": "逐字子串, 未执行则空"}}]}}
 ★ executed=1 必须给出内容里的**原样子串**; 给不出就填 0。"""
 
+# ★ 2026-09-05 GEN3: v2 提问形式 —— 按条目类型分别提问。
+#   v1 的缺陷(底噪 A/A 实测): 它对**每一条**都问「执行了吗 + 必须给逐字子串」,
+#   而禁令的「满足」是**缺席**, **你没法为「不存在」引一段原文**。
+#   实测 belong 的「不派任务」无子串率 **0.733** ⇒ 判官想说满足却给不出子串, 被记成违反。
+#   ⇒ 举证责任应落在**可举证的一侧**: 违反是在场的(有一句在派任务), 可引证。
+#
+# ★ v1 **原样保留**: GEN1/GEN2 与底噪 A/A 都是在 v1 下采集的, 它们的判决书还挂在仓里。
+#   旧代必须能原样重跑, 否则「可比不可合」就成了一句空话。
+PROMPT_V2 = """你判定一段内容对一份"拆除动作清单"的逐条符合情况。
+
+【阻挡结】{knot}
+判据(受众处于该状态的表现): {discr}
+
+【待判内容】
+{text}
+
+【逐条判定】下面每条独立判, 不判好坏, 不判是否提到该话题。
+★ **两类条目问的问题不同, 不要混**:
+· 标【做】的条目 —— 问「内容里**有没有**在做这件事」。
+  有 ⇒ hit=1, 并给出**做这件事的那句原样子串**; 给不出子串就填 0。
+· 标【禁】的条目 —— 问「内容里**有没有违反**这条禁令」。
+  违反 ⇒ hit=1, 并给出**违反处的原样子串**;
+  ★ 找不到违反 ⇒ hit=0, **不需要子串**(没有违反, 本来就没有可引的原文)。
+{items}
+
+只输出JSON: {{"atoms": [{{"i": 序号, "hit": 0或1, "quote": "原样子串, hit=0 则空"}}]}}
+★ hit=1 必须给出内容里的**原样子串**; 给不出就填 0。"""
+
 
 def atoms_of(knot: str):
     """playbook 原文即分号分隔 ⇒ 直接拆, 不另造一套。返回 [(text, is_prohibition)]。"""
@@ -55,11 +83,21 @@ def atoms_of(knot: str):
     return [(p, any(p.startswith(n) or n in p[:3] for n in _NEG)) for p in parts]
 
 
-def read_once(knot, text, temperature):
+def read_once(knot, text, temperature, form="v1"):
+    """一次读数。form 决定**提问形式**: v1 对所有条目问「执行了吗」; v2 按类型分问。
+
+    ★ form 必须显式传, 且**按代冻结** —— 换提问形式就是换 manipulation, 不是重构。
+    """
     items = atoms_of(knot)
-    listing = "\n".join(f"{i+1}. {t}" for i, (t, _) in enumerate(items))
-    out = A._call(PROMPT.format(knot=knot, discr=A.DISCR.get(knot, ""),
-                                text=text, items=listing), temperature=temperature)
+    if form == "v2":
+        listing = "\n".join(f"{i+1}. 【{'禁' if neg else '做'}】{t}"
+                             for i, (t, neg) in enumerate(items))
+        tmpl, field = PROMPT_V2, "hit"
+    else:
+        listing = "\n".join(f"{i+1}. {t}" for i, (t, _) in enumerate(items))
+        tmpl, field = PROMPT, "executed"
+    out = A._call(tmpl.format(knot=knot, discr=A.DISCR.get(knot, ""),
+                              text=text, items=listing), temperature=temperature)
     d = A._extract_json(out)
     if not isinstance(d, dict) or not isinstance(d.get("atoms"), list):
         return None
@@ -70,10 +108,18 @@ def read_once(knot, text, temperature):
         except Exception:
             continue
         if 0 <= i < len(items):
-            ex = 1 if a.get("executed") in (1, "1", True) else 0
+            raw = 1 if a.get(field) in (1, "1", True) else 0
             q = str(a.get("quote") or "")
-            # 无逐字支撑的 1 记为 0 —— 预注册写死
-            got[i] = (ex if (ex == 0 or q.strip()) else 0, q, ex == 1 and not q.strip())
+            # 无逐字支撑的 1 记为 0 —— 预注册写死, 两个 form 同规则
+            supported = raw if (raw == 0 or q.strip()) else 0
+            unsupported = raw == 1 and not q.strip()
+            if form == "v2" and items[i][1]:
+                # ★ 禁令在 v2 下问的是「违反了吗」⇒ **满足 = NOT 违反**。
+                #   取反后放回同一个槽位, 使 executed 的含义与 v1 一致(禁令: 1=满足),
+                #   否则跨代的 per_atom 对照会读反。
+                got[i] = (1 - supported, q, unsupported)
+            else:
+                got[i] = (supported, q, unsupported)
     if len(got) != len(items):
         return None
     pos = [i for i, (_, neg) in enumerate(items) if not neg]
