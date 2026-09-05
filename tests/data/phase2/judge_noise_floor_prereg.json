@@ -1,0 +1,97 @@
+{
+ "block": "PLAYBOOK_JUDGE_NOISE_FLOOR_GEN1",
+ "prereg_written_at": "2026-09-05",
+ "★frozen_before_measurement": "本文件在采集任何读数**之前**提交(见 git)。",
+ "★why_this_must_come_first": {
+  "the_rule_already_existed": "库内 2026-08-09 已立: 「版本间差异全在噪声地板以内…三轮分类学迭代实质是在噪声上调参。**迭代前必须先量噪声地板。**」",
+  "★i_violated_it_twice_this_week": "GEN1(原子分解) 与 GEN2(A1/A2) 两轮迭代**都没先量底噪**。⇒ 本次不是新发现, 是**执行一条库里早有的规则**。",
+  "what_went_wrong_without_it": "GEN2 里一个 playbook 一字未改的臂(display)从 PASS 翻成 FAIL —— 没有底噪就分不出那是信号还是噪声。"
+ },
+ "★calibration_only_prior": {
+  "source": "GEN1 与 GEN2 中 **6 个 playbook 逐字未改**的臂, 各 8+8 = 16 次重复",
+  "observed": {
+   "2ee52f67c987": "0/16",
+   "3191a8fae98d": "0/16",
+   "344d81fc035f(display)": "1/16",
+   "59a1a9c7d712": "0/16",
+   "6b16b77dbc5b": "0/16",
+   "712fc175d4bf": "0/16"
+  },
+  "pooled": "p̂ = 1/96 = 0.0104",
+  "★★CALIBRATION_ONLY": "★★ 这个 p̂ 是从**将被重新解读的同一批数据**里导出的 ⇒ 按库内「评估泄漏」教训, **只能当先验, 绝不能拿回去重判 GEN1/GEN2 的结果**。本轮 n=30 是**独立重复**, 才是确认性测量。",
+  "★corrects_my_own_claim": "我 2026-09-05 早先报「纯噪声期望达标 ≈ 4.8/8」—— **错**: 那是把 display 单臂的 p̂=1/16 外推到全部 8 臂, 而另 5 个未改臂合计 **0/80**。合并 p̂=0.0104 ⇒ 期望达标 **7.36/8**。★ 方向是反的: 真实底噪比我说的**低**, 这让计数比我说的**更有信息量**, 不是更少。"
+ },
+ "design": {
+  "texts": [
+   {
+    "base_id": "2ee52f67c987",
+    "text_sha16": "95918a2f6d7e1203",
+    "chars": 528
+   },
+   {
+    "base_id": "3191a8fae98d",
+    "text_sha16": "29fe5e451f83148d",
+    "chars": 929
+   },
+   {
+    "base_id": "344d81fc035f",
+    "text_sha16": "d1706093c2f21797",
+    "chars": 464
+   },
+   {
+    "base_id": "59a1a9c7d712",
+    "text_sha16": "bcd0326fe9b61c7e",
+    "chars": 1952
+   },
+   {
+    "base_id": "5bbf4543dd47",
+    "text_sha16": "4f6e2403a68f5257",
+    "chars": 354
+   },
+   {
+    "base_id": "6b16b77dbc5b",
+    "text_sha16": "f78b6b6b87bae482",
+    "chars": 559
+   },
+   {
+    "base_id": "6def5ddbcf25",
+    "text_sha16": "b7033c93a4432e6f",
+    "chars": 742
+   },
+   {
+    "base_id": "712fc175d4bf",
+    "text_sha16": "39b55b18350d987c",
+    "chars": 1224
+   }
+  ],
+  "n_per_text": 30,
+  "★why_30": "要分辨的是「几乎不动(p<0.05)」与「抛硬币(p≈0.5)」两类, n=30 足够; 它**不足以**精确到 0.01 量级, 这一点如实记为局限。总调用 8×30 = 240。",
+  "★conditions_identical_to_gen2": "同 8 文本 · 同判官 · 同 PROMPT · 同仪器 565470cf26c16d01 · 同 playbook(A1/A2 后) —— **零改动**。这是一次 A/A, 不是 A/B。"
+ },
+ "★what_is_estimated": [
+  "每臂: 众数取值 · **众数占比** · 全部取值的分布",
+  "每臂每原子: executed 率 与 是否给出逐字子串 —— ★ per_atom 已落盘(2026-09-05 新增), 这是本轮第一次能回答「是哪个原子在动」",
+  "★ 众数位置(地板 0.0 / 天花板 1.0 / 中段)与众数占比的关系"
+ ],
+ "★falsifiable_predictions": {
+  "P_A_核心": "众数落在**地板或天花板**的臂, 众数占比 >= 0.95; 众数落在**中段**的臂, 众数占比 < 0.95。★ 这就是「只在它稳的地方用它」所依赖的那条性质。**若不成立, 三态方案的前提就没了**, 必须先重想再谈实现。",
+  "P_B_audit": "audit(6def5ddbcf25) 众数占比 **< 0.70**(n=8 时为 0.429) ⇒ 它是**真不稳**, 不是噪声。",
+  "P_C_display": "display(344d81fc035f) 众数占比 **>= 0.95** ⇒ 它在 GEN2 的 FAIL 是**噪声**。★ 若 display 也低于 0.95, 则 GEN2 的判决需要重读, 且先验 p̂ 严重低估。"
+ },
+ "★degeneracy_guards": [
+  "① 若**全部 8 臂**众数占比都是 1.000(含 audit) ⇒ **先查仪器**: audit 在 n=8 下是 0.429, 与之不相容, 更可能是这轮读数没真正打到模型",
+  "② 若全部取值恒定同一个数 ⇒ 仪器失败, 不出结论",
+  "③ 若失败/解析不通过的比例 > 10% ⇒ 本轮作废, 先查通路"
+ ],
+ "★this_round_produces_NO_playbook_verdict": "★★ 本轮是**仪器表征**, 不是 playbook 判决。它不改变 GEN2 的「6/8 < 7 ⇒ 不采纳」。把噪声测量读成结果, 正是本项目要防的那类错。",
+ "★what_it_will_be_used_for": [
+  "① 定一个**有分辨力**的判据: 现行 0.95@n=8 等价于「8 次全同」, 零容差。用实测 p 反推所需 n 与容差。",
+  "② 三态 measurement contract {CLEAR_ABSENCE, CLEAR_EXECUTION, ABSTAIN} 的**弃权边界**: 由 P_A 的实测结果划, 而不是由我拍。",
+  "③ 回答 GEN2 留下的悬案: audit 掉到 0.429 是「跨轮原子曾被判成执行」还是「清单变短的上下文效应」—— per_atom 现在能分开了。"
+ ],
+ "instrument": {
+  "instrument_hash": "565470cf26c16d01",
+  "must_equal": "565470cf26c16d01"
+ },
+ "criterion_note": "★ 本轮**不设 PASS/FAIL 判据** —— 它估的是参数不是判结论。非退化闸仍在(见上), 那是查仪器不是判结果。"
+}
