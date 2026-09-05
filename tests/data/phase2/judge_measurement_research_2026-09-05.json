@@ -1,0 +1,94 @@
+{
+ "block": "JUDGE_MEASUREMENT_RESEARCH_2026-09-05",
+ "★source_policy": "网页版 GPT(思考 4m53s), 按既定分层属**线索层**。它给了具体文献与出处, 下列凡带文献名的都可自行核; **未核前不作证据**。",
+ "★why_it_matters_here": "它**解释了我 v2/v3 实测的全部三条异常**, 而且其中两条是我**测完才知道**、它**从原理上先说了**的。",
+ "Q1_歧义条目能否改成可核验": {
+  "★verdict": "**能改成「可指认的显式行为」, 但不能在不改变 construct 的前提下把「姿态/意图」变成客观事实。**",
+  "the_two_constructs": {
+   "原 construct": "作者是否**表现出**接受检验的姿态 —— pragmatic/stance inference, 允许隐含表达",
+   "可机械 construct": "文本是否出现**预先定义、可定位**的 auditability behavior —— surface/behavioral coding"
+  },
+  "★precedent": "**BARS**(Behaviorally Anchored Rating Scales, Smith & Kendall 1963): 把抽象维度用**具体行为实例**锚定, 让其他判断者把这些行为**重新分配**回维度, **分不清的 anchor 被淘汰**。",
+  "★★empirical_limit": "**Eguchi & Kyle 2023 (ACL)**: 把 epistemic stance 做成逐字 span identification, **adjudication 前的人类 intercoder F1 仍只有约 0.663**。⇒ ★★ **要求指出原文可以约束幻觉, 却没有消灭 stance 的解释歧义。**★ 这正是我实测到的形状: 无子串率 0.000(不幻觉) 但判定在两类间摆(有歧义)。",
+  "★concrete_rewrite_proposed": {
+   "A_可核验事实": "文本是否提出**至少一个**具有明确核验对象/数据/来源/检查路径的事实性主张? PASS 必须返回该主张与对应核验指针的原文 span。",
+   "B_显式核验开放信号": "文本是否**明确**邀请/允许/承诺接受核验、纠错、反证、复查, 或承诺因相反证据而修正? PASS 必须返回实施该言语行为的原文 span。例: 「数据可以查原始表」「如与原始记录不符以记录为准」「有反例我会撤回」。",
+   "★★the_key_rule": "★★★ **一个实际上很开放、但没有显式说出来的文本, B 必须判 0。**这是 **measurement definition**, 不是 judge 漏判。"
+  },
+  "★final": "自动清单里**弃用 latent stance**; 替换为显式、行为锚定的 auditability signal。若理论对象必须是隐含姿态 ⇒ 进**人类多人标注层**, 不继续要求单 judge 二值机械判定。★ **不存在某个措辞能把 pragmatic intention 自动变成事实属性。**"
+ },
+ "Q2_禁令反转是否正确": {
+  "★verdict": "**正确**, 且比「满足了吗+满足子串」在逻辑上更匹配该条目的性质。",
+  "★★but_not_a_named_standard": "★★ GPT 明说: **没有找到一篇 LLM-as-judge 文献把这个操作正式命名**。⇒ **不得声称「这是 LLM judge 的标准做法」。**",
+  "★stronger_grounding": "**safety property / counterexample monitoring**。**Alpern & Schneider 1985**: 违反 safety property 时应存在一个**有限的 bad prefix / counterexample**。",
+  "★★the_asymmetric_schema": {
+   "positive obligation": "SATISFIED ⇒ 必须给 satisfaction witness; VIOLATED ⇒ 可由缺少必要行为得出, **但要求 complete_scan=true**",
+   "prohibition / safety": "VIOLATED ⇒ 必须给 violation witness; SATISFIED ⇒ violation_witness=[] **AND complete_scan=true**"
+  },
+  "★★★three_valued": "**SATISFIED / VIOLATED / INDETERMINATE**。complete_scan=true 相当于在**完整观察域**上采用 closed-world assumption(**Reiter**, On Closed World Data Bases)。Runtime verification 文献常用 **true/false/inconclusive** 三值语义处理不完整观察。",
+  "★★the_pit_named_exactly_as_i_measured": {
+   "before": "「不能证明满足」→ FAIL ⇒ **假违反偏差**",
+   "after": "「不能证明违反」→ PASS ⇒ **假满足偏差**",
+   "three_cases": [
+    "**隐含违反**: 没有单一连续子串能证明, 但跨句组合明显是在派任务",
+    "**同义表达**: violation detector 漏掉不在 anchor 里的说法",
+    "**输入不完整**: 截断/上下文缺失/解析失败被当成「没有 witness」⇒ 误判 PASS"
+   ],
+   "★my_data_confirms": "reward「不再投喂信息」与 audit「不辩解不表演」满足率**双双 0.000 → 1.000**。★ 我事先在预注册里声明了这个风险, 它实现了。"
+  }
+ },
+ "Q3_众数占比": {
+  "★★it_has_a_name_and_it_is_not_a_reliability_coefficient": "众数占比 C = f_m/n 是 **variation ratio** VR = 1 − f_m/n 的补数。★★ VR 是**名义变量的离散度统计量**, **不是** Cohen κ / Krippendorff α 那类 reliability coefficient。⇒ 字段应叫 **modal_concentration**, **不要**叫 reliability_score。",
+  "★★★finite_sample_upward_bias": "★★★ 因为众数是**看完数据才挑的**, q̂ = max(X/n, 1−X/n) **天然向上偏**。**纯 50/50 抛硬币在 n=8 时 E[q̂] = 0.6367。**⇒ ★★ **我在 n=8 下报的稳定性数全部结构性偏高。** GEN2 里 audit 的 0.5(4/8) 与本轮 n=30 的 0.733 之差, 有一部分**只是 n 的产物**。n=8 只能做 screening, **不能铸生产阈值**。",
+  "★threshold_must_not_be_the_midpoint_of_two_observed_groups": "正确做法: 先定工程状态 q_bad / q_good, 再做 H0: q<=q_bad vs H1: q>=q_good, 按 **exact binomial reliability demonstration** 反推 n 与允许失败数。",
+  "★design_examples_given(exact binomial tail)": [
+   "区分 q<=.70 与 q>=.90, α=.05, power>=.80 ⇒ **n=28, PASS 需 modal >= 24/28**",
+   "同上 power>=.90 ⇒ n=37, modal >= 31/37",
+   "区分 q<=.80 与 q>=.90, α=.05, power>=.80 ⇒ n=82; power>=.90 ⇒ n=112"
+  ],
+  "★estimation_sample_sizes": "半宽 ±0.10 ≈ 35 次 · ±0.075 ≈ 62 · ±0.05 ≈ 139。区间用 **Wilson 或 Jeffreys**, **不要 Wald**(Brown, Cai & DasGupta 2001 明确指出 Wald coverage 很差)。★ 但众数是**数据后选择**的, 正式做 CI 时不能无脑把 modal count 当普通 binomial success count。",
+  "★★★it_explains_my_own_empirical_finding_exactly": "二值判官 dominant probability 为 q 时, 两次独立调用同答的理论概率 **A = q² + (1−q)²**。⇒ 反推 q* = (1 + √(2A*−1)) / 2:  pairwise >= 0.80 ⇒ q >= 0.887 · >= 0.90 ⇒ q >= 0.947 · **>= 0.95 ⇒ q >= 0.974**。★★ 我实测得出「0.95@n=8 等价于要求全同」是**对的**, 现在它有了闭式解释: 那条线实际要求的是 **q >= 0.974**。"
+ },
+ "Q4_人类金标": {
+  "★two_questions_must_be_separated": [
+   "人类能不能**一致地应用**这个条目 ⇒ annotator reliability / teachability",
+   "LLM 是否符合**冻结后**的人类 reference ⇒ criterion validity",
+   "★ **不能只做后者。**"
+  ],
+  "★stage_A_teachability_pilot": {
+   "★precedent": "**Klie, Eckart de Castilho & Gurevych** 对 **591 个 NLP dataset 项目**的系统研究: 正式标注前做小规模 pilot, 迭代修改 guidelines, 按 agreement 与反馈**修订或过滤有问题的标签**。",
+   "design": [
+    "**3 名独立标注者** —— ★ 文献**没有**规定 3 是最低标准(2 人已可算 agreement); 3 是工程选择: 二值分歧时不至于只知道「两人不同」, 且允许 majority/adjudication",
+    "每个可疑条目 **30–50 个 (text,item) 单元**, 故意含 clear positive / clear negative / boundary",
+    "三人**先独立标, 不讨论**",
+    "标签用 **SATISFIED / VIOLATED / INDETERMINATE**",
+    "★★ **先算 pre-adjudication agreement, 再讨论。绝不能先 majority vote 再算 agreement。**",
+    "分歧逐条归因: guideline ambiguity / genuinely ambiguous text / annotator mistake / missing observable criterion",
+    "**修改一次条目定义, 用新 cases 再 pilot**"
+   ],
+   "★★the_stopping_rule": "★★★ 若第二轮仍主要是 **substantive interpretation disagreement**(而非操作错误), **那个条目已经给了你答案: split / redefine / remove。****不要继续拿 LLM 跑更多轮去弥补一个人类本身不可复制的 construct。**"
+  },
+  "★stage_B_frozen_gold": "冻结定义后用**未参加 guideline debugging 的 held-out 文本**; 每单元仍 3 人独立; **保存全部 raw labels**; 先算人类 agreement, **之后**才 majority vote; borderline 由 senior adjudicator 处理; genuinely underdetermined 的**保留 INDETERMINATE**, 不为凑二值强行投票。",
+  "★statistic": "**Krippendorff α(nominal) + bootstrap CI**。理由不是「α 最好」, 而是它对 >2 名标注者、缺失判断、不同数量 ratings 都比较自然(Artstein & Poesio 的经典 survey)。★★ **.800 / .667 是 convention 不是统计定律**; Klie et al. 2024 明确提醒不应机械套 Landis–Koch 语言档。⇒ 应**事前冻结** human_agreement_target + 报 bootstrap CI + disagreement taxonomy + fresh-pilot 复现。",
+  "★★sample_size_is_PER_ITEM_not_pooled": {
+   "★rule": "★★ 若每个 playbook 条目都要**独立**声称 validity, 就必须**按条目**算, 不能把所有条目混成一个大 N。",
+   "at_true_accuracy_0.90_wilson_ci": {
+    "30 单元": "约 0.744–0.965",
+    "50": "约 0.786–0.957",
+    "100": "约 0.826–0.945",
+    "±0.05": "约 139/条目"
+   },
+   "★minimum": "筛条目 30–50/条目; **正式 per-item validity 至少 50/条目**; 若要分别报 sensitivity 与 specificity ⇒ 约 **50 正 + 50 负 = 100/条目**。★ 50/条目仍只叫 minimum viable, **不是精确金标**。"
+  },
+  "★llm_vs_gold_metrics": "冻结 gold 后**不要**再拿 α 当主效度指标。用 confusion matrix / accuracy / sensitivity(SATISFIED 召回) / specificity(VIOLATED 召回) / balanced accuracy(类别不均衡时)。★★ 并**分开报** verdict correctness 与 **witness correctness** —— 「判对但引错子串」不能算完全成功。"
+ },
+ "★★GPT_final_engineering_verdict": "★★★ 「**你的下一步不应该再增加一轮同模型重复实验。**当前数据已经足够说明优先级。」四条: ① 把 interpretive stance item 从 deterministic checklist 拿出来 ② 所有 prohibition 改 violation-witness 语义(PASS = complete scan + no counterexample) ③ 保留 modal concentration 但视为 **repeatability concentration 而非 validity**, 用 exact-binomial 设计阈值, 8 次只做 screening ④ **先做人类 teachability pilot, 再冻结 gold**。",
+ "★★its_reading_of_my_own_data": "★ 「你这次那个『**每次都有合法子串、但标签仍反复变化**』的条目尤其重要: 它已经是一个相当干净的证据, 说明 **evidence-grounding 解决了 hallucinated justification, 但没有解决 construct ambiguity**。这两类误差必须在架构里分开。」",
+ "★what_i_must_verify_before_treating_any_of_this_as_evidence": [
+  "Smith & Kendall 1963 (BARS) · Eguchi & Kyle 2023 ACL (stance span, 人类 F1 0.663)",
+  "Alpern & Schneider 1985 (safety property / bad prefix) · Reiter (closed world)",
+  "Brown, Cai & DasGupta 2001 (binomial CI) · Artstein & Poesio (agreement coefficients)",
+  "Klie, Eckart de Castilho & Gurevych (591 项目综述, 2024)",
+  "★ E[q̂]=0.6367 @ n=8 的算术 —— 这条**我可以自己算**, 应当自己算, 不靠转述"
+ ]
+}
