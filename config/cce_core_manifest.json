@@ -9,7 +9,8 @@
   "scripts/cce_knot_classify.py": "10fdbca4cd62f7f5",
   "scripts/cce_ksep.py": "ffd5d26a7e0cb29b",
   "scripts/exp_crossmodel_desire.py": "0e0e9d64b48fbade",
-  "scripts/exp_v4_full_validation.py": "f934b56b01b6b6b2"
+  "scripts/exp_v4_full_validation.py": "f934b56b01b6b6b2",
+  "scripts/calibration_framework.py": "9a8651c6d407ef50"
  },
  "parser_plane": [
   "scripts/cce_case_assemble.py",
@@ -135,5 +136,7 @@
    "★evidence_is_required_because": "「哈希没变」不足以当证据。真证据: 探针源码里已无手抄的 `for k in K.KNOTS_ALL}` 构造, 改为 `K.draw_ledger_row(...)`; 且 draw_ledger_row 在两结打平时返回名序较小者(可现跑)。"
   }
  ],
- "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。"
+ "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",
+ "★why_calibration_framework_is_core": "★★★ 2026-09-06 消融第二轮的最刺眼一条: `extract_json_robust`(约 60 行) 是**全仓唯一的模型输出 JSON 解析器**, 被 8 个文件用(含 cce_knot_classify / cce_full_run 这条生产主链)。实测: 存量 159 份真实模型输出里 **0 份**以 `{` 开头、124 份(78%)带 ```json 围栏 ⇒ 裸 `json.loads` **159/159 全失败**; 换成 stdlib 后端到端 4/4 从 qualified 翻成扣发、complete=false、CI 红。**这是全仓单点最承重的几十行。**\n★ 而它此前**不在哈希钉里** —— 可以被静默换掉而全仓无人报警; 与此同时, k=3 时永不取用的死常量 `_S1_BASE_TEMPS[5:7]` **却在**指纹里。\n★★ 「标签空间是反的」不只是审计方法的毛病, **是这个仓自己的保护面装反了**: 钉住了不动的东西, 漏掉了承重的东西。",
+ "★note_2026_09_06_reverse5_debris": "★ 与 Core 无关但必须留档: tests/test_ontology_migration.py 的反向5 把缺陷**写进活仓**(scripts/_ontology_reverse_probe.py), 靠 finally 清理 —— 而 **finally 挡不住 SIGKILL**。2026-09-06 的并发消融审计里一个进程被杀, 残骸留仓, 从那一刻起 P1 闸对**所有人**恒红(active_legacy_dependency=1), 连带 test_ontology_migration 与 test_cce_chain_conformance 一起红, **且没有任何东西说明红的原因是测试残骸**。已改为起手自愈并大声报出。⇒ 通则: **会改活仓的测试, 在并发与中断下不安全** —— 与 scratchpad 交叉污染同族。"
 }

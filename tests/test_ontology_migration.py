@@ -82,7 +82,19 @@ for current in ("mode_id", "population_field_id", "evidence_unit_id"):
     assert current in MODEL_FORBIDDEN_KEYS, f"反向4 失败: 黑名单缺 canonical v2 名 {current}"
 
 # ── 反向 5: 未登记的旧名出现在生产代码 -> 闸必须红 ──────────────────────
+# ★★ 2026-09-06: 这条反向验证把缺陷**写进活仓**(scripts/), 靠 finally 清理。
+#   而 finally **挡不住 SIGKILL** —— 2026-09-06 的并发审计里就有一个进程被杀,
+#   地雷留在仓里, 从那一刻起 P1 闸对**所有人**恒红(check_ontology_migration 报
+#   active_legacy_dependency=1), 连带 test_ontology_migration 与
+#   test_cce_chain_conformance 一起红, 且**没有任何东西说明红的原因是测试残骸**。
+#   ⇒ 会改活仓的测试, 在并发与中断下不安全。这是与「scratchpad 交叉污染」同族的问题。
+#   修法: 起手先清陈旧残骸, 并**大声报出来** —— 清掉但不吭声, 等于把证据也一起清了。
 probe = os.path.join(ROOT, "scripts", "_ontology_reverse_probe.py")
+if os.path.exists(probe):
+    print(f"⚠️  清理上一次被中断的反向5残骸: {probe} "
+          f"(内容 {open(probe, encoding='utf-8').read()!r}) —— "
+          f"它会让 P1 闸恒红。若这不是残骸而是真实代码, 说明有人用了这个保留文件名。")
+    os.remove(probe)
 with open(probe, "w", encoding="utf-8") as fh:
     fh.write('SEGMENT_JS_THRESHOLD = 0.08\n')
 try:
