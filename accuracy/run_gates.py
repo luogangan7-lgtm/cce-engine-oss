@@ -306,17 +306,51 @@ def qualify(model):
             "qualified": hits >= 4, "detail": detail}
 
 
+def admit_annotators(quals):
+    """由资格考结果决定谁进验收 —— **纯函数, 无 API, 可离线测**。
+
+    ★★★ 2026-09-07 修三处 fail-open。原实现:
+        if len(passed) < 2: print(...)          # 只打印, 然后照跑
+        globals()["MODELS"] = passed or MODELS  # ★ 零人合格 ⇒ **静默回退到全员**
+
+    `passed or MODELS` 让「**没人合格**」与「**全员合格**」在输出上**不可区分** ——
+    而上一行刚把他们逐个打印成「★不合格, 剔除」。打印说剔除, 代码把他们放了回去。
+    ⇒ 这正是本项目命名过的 fail-silent: **缺判定不等于判定通过**。
+    而函数上方的注释写着「本次起**强制执行**」—— **注释不是闸**。
+
+    ★ 现在: 合格者 <2 ⇒ **不产出判决**(admit=None), 由调用方扣发, 不回退、不硬跑。
+      两两一致性在 <2 个标注者上**数学上无定义**, 硬跑出来的数是假的。
+    """
+    passed = [q["model"] for q in quals if q.get("qualified")]
+    if len(passed) >= 2:
+        return {"admit": passed, "status": "OK",
+                "reason": f"{len(passed)}/{len(quals)} 名标注者通过留一法锚例考(top1>=4/5)"}
+    return {"admit": None,
+            "status": "INSUFFICIENT_QUALIFIED_ANNOTATORS",
+            "reason": (f"仅 {len(passed)}/{len(quals)} 名标注者合格({passed or '无'}) —— "
+                       "两两一致性需要 >=2 名合格标注者, 少于此**数学上无定义**。"
+                       "★ 不回退到全员: 那会让「没人合格」与「全员合格」不可区分。"
+                       "★ 不产出判决 != 判决通过。")}
+
+
 def main():
-    # ── 资格考(协议既有规定, 本次起强制执行) ──
+    # ── 资格考(协议既有规定; 2026-09-07 起**真的**强制执行) ──
     print("=== 标注者资格考(留一法·锚例 top1≥4/5) ===", flush=True)
     quals = [qualify(m) for m in MODELS]
     for q in quals:
         print(f"  {q['model']:22s} {q['hits']}/{q['of']} {'合格' if q['qualified'] else '★不合格, 剔除'}", flush=True)
-    passed = [q["model"] for q in quals if q["qualified"]]
-    if len(passed) < 2:
-        print(f"合格标注者不足2个({passed}), 无法计算两两一致性")
-    globals()["MODELS"] = passed or MODELS
-    globals()["QUAL_REPORT"] = quals
+    adm = admit_annotators(quals)
+    globals()["QUAL_REPORT"] = {"per_model": quals, **adm}
+    if adm["admit"] is None:
+        out = {"gate": "九结分类学验收", "overall_pass": None,
+               "★withheld": adm["reason"], "annotator_qualification": globals()["QUAL_REPORT"]}
+        os.makedirs(os.path.join(os.path.dirname(os.path.abspath(__file__)), "out"), exist_ok=True)
+        json.dump(out, open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                         "out", "gates_result.json"), "w"),
+                  ensure_ascii=False, indent=1)
+        print(json.dumps(out, ensure_ascii=False, indent=1))
+        return 2      # ★ 扣发, 不是失败也不是通过
+    globals()["MODELS"] = adm["admit"]
     print(f"进入验收的标注者: {globals()['MODELS']}\n", flush=True)
 
     print(f"样本 {len(SAMPLE)} 条 · 标注者 {MODELS}", flush=True)
@@ -509,7 +543,13 @@ def main():
            "sample_n": len(SAMPLE), "annotators": MODELS, "coverage": cover,
            "G_K1v2_分布一致性": gk1, "G_K2v2_成本档预测": gk2, "混淆诊断": diag,
            "annotator_qualification": globals().get("QUAL_REPORT"),
-        "overall_pass": gk1["pass"] and gk2["pass"]}
+           # ★ 2026-09-07: 资格考此前**只被报告, 不进判决** —— 于是 4/5 不合格也能 overall_pass=True。
+           #   现在它是判决的一部分。三项缺一即不通过。
+           "overall_pass": bool(gk1["pass"] and gk2["pass"]
+                                and (globals().get("QUAL_REPORT") or {}).get("status") == "OK"),
+           "★pass_components": {"G_K1": gk1["pass"], "G_K2": gk2["pass"],
+                                "annotator_qualification":
+                                    (globals().get("QUAL_REPORT") or {}).get("status")}}
     json.dump(out, open(os.path.join(os.path.dirname(os.path.abspath(__file__)),"out","gates_result.json"), "w"), ensure_ascii=False, indent=1)
     print(json.dumps({k: v for k, v in out.items() if k != "混淆诊断"}, ensure_ascii=False, indent=1))
     if diag:
