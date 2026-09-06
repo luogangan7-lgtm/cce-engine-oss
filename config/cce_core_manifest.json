@@ -6,7 +6,7 @@
  "instrument_generation": 6,
  "core_files": {
   "config/knot_taxonomy.json": "836fdcda646dbcbc",
-  "scripts/cce_knot_classify.py": "10fdbca4cd62f7f5",
+  "scripts/cce_knot_classify.py": "1d9bcef72a0de894",
   "scripts/cce_ksep.py": "ffd5d26a7e0cb29b",
   "scripts/exp_crossmodel_desire.py": "0e0e9d64b48fbade",
   "scripts/exp_v4_full_validation.py": "f934b56b01b6b6b2",
@@ -134,6 +134,23 @@
    ],
    "★which_half_of_behavior_changed": "**变了**: draw_ledger 的 top1 在打平时按名序而非索引序; 探针与生产从此不可能漂移。**没变**: instrument_hash、prompt、采样、聚合 —— raw draw 全部仍有效。",
    "★evidence_is_required_because": "「哈希没变」不足以当证据。真证据: 探针源码里已无手抄的 `for k in K.KNOTS_ALL}` 构造, 改为 `K.draw_ledger_row(...)`; 且 draw_ledger_row 在两结打平时返回名序较小者(可现跑)。"
+  },
+  {
+   "date": "2026-09-06",
+   "file": "scripts/cce_knot_classify.py",
+   "from_sha": "10fdbca4cd62f7f5",
+   "to_sha": "1d9bcef72a0de894",
+   "route": "第四条路(行为变了: 修一个我自己昨天造成的活的后果)",
+   "reason": "★★ 抽出唯一一份 `same_physical_instrument(a,b)`, 并给 SCOPE_WIDENINGS 补上 from_instrument / to_instrument 两端。\n起因是**我昨天 gen4→gen6 换代造成的活的后果**: 口径扩大后 hash 变了, 而「同一台仪器」这个概念在**三个地方各判一次** —— calibration_transfers(标定能不能搬) · cce_k1_status.verdict_path_for(判定路由) · cce_k1_status 里对 verdict 文件哈希的裸 `!=` 比对。我只在第一处开了口径扩大通道 ⇒ 后两处照旧拦 ⇒ **top1(唯一被允许的读数)在生产上被全面扣发**, 而我昨天没发现。\n★ 这正是本项目今天刚记过的那条: **同一逻辑多份实现, 修了一份漏了其余**。第三次。\n★ 继承**不是**裸加映射: 只在 SCOPE_WIDENINGS **具名登记**且 verify() **当场返回 True** 时成立; 自证一破立刻回到「未登记 ⇒ 拒发」(已实测四种情形)。",
+   "instrument_hash_unchanged": true,
+   "behavior_evidence": [
+    "tests/test_cce_hash_scope.py",
+    "tests/test_cce_fingerprint_coverage.py",
+    "tests/test_cce_k1_gate.py",
+    "tests/test_cce_usable_routing.py"
+   ],
+   "★which_half_of_behavior_changed": "**变了**: gen6 仪器现在能沿具名边继承 gen4 的 K1 判定 ⇒ top1 恢复可用(此前被全面扣发)。**没变**: instrument_hash · prompt · 采样 · 聚合; 未登记的仪器与自证失败仍一律拒发。",
+   "★evidence_is_required_because": "「哈希没变」不足以当证据, 且本次行为**确实变了**(从全面扣发变成可用)。真证据四条可现跑: gen6→True(带继承理由) · gen4→True(直判) · 未登记假哈希→False · **把 verify() 换成恒 False ⇒ gen6 立刻 False**。第四条是关键: 它证明放行走的是自证, 不是映射。"
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",

@@ -56,9 +56,46 @@ VERDICT_BY_INSTRUMENT = {
 
 
 def verdict_path_for(instrument_hash):
-    """按仪器取它自己的判定路径; 未登记返回 None(拒发)。调用时解析全局变量。"""
+    """按仪器取它自己的判定路径; 未登记返回 None(拒发)。调用时解析全局变量。
+
+    ★★ 2026-09-06 补一条**极窄**的继承通道, 起因是我自己制造的后果:
+      gen4→gen6 只把 s1 指纹的**口径**从 238 字外壳扩到 4403 字完整 prompt,
+      物理仪器一个字没变 —— 但 hash 变了, 于是这张表查不到, **top1(唯一被允许的读数)
+      在生产上被全面扣发**。闸判得对(「缺判定不等于判定通过」), 错的是我只给
+      cce_knot_classify.calibration_transfers 建了口径扩大通道, **漏了这个兄弟查表**。
+      同一个洞的第二现场。
+
+    ★ 继承**不是**裸加映射。它要求 cce_knot_classify.SCOPE_WIDENINGS 里
+      **具名登记**过这次口径扩大, 且它的 `verify()` **当场返回 True**
+      (旧口径哈希的字符串必须仍是新口径的子串)。
+      自证一旦不成立 ⇒ 立刻回到「未登记 ⇒ 拒发」。
+    """
     name = VERDICT_BY_INSTRUMENT.get(instrument_hash)
-    return globals().get(name) if name else None
+    if name:
+        return globals().get(name)
+    inherited = _inherited_verdict_name(instrument_hash)
+    return globals().get(inherited) if inherited else None
+
+
+def _inherited_verdict_name(instrument_hash):
+    """未登记的仪器能否**继承**前代判定 —— 只在「口径扩大」这一种情形下, 且必须当场自证。"""
+    try:
+        import cce_knot_classify as _KC
+    except Exception:
+        return None
+    for w in getattr(_KC, "SCOPE_WIDENINGS", {}).values():
+        if w.get("to_instrument") != instrument_hash:
+            continue
+        src = w.get("from_instrument")
+        if src not in VERDICT_BY_INSTRUMENT:
+            return None          # 前代自己都没判定 ⇒ 没得继承
+        try:
+            if not w["verify"]():
+                return None      # ★ 自证不成立 ⇒ 立刻回到「未登记 ⇒ 拒发」
+        except Exception:
+            return None
+        return VERDICT_BY_INSTRUMENT[src]
+    return None
 # v2 多文本判定(5 文本 × n=8)。intensity 与 weight 同批判, 决策规则在预注册里冻结。
 K1_V2_VERDICT = os.path.join(ROOT, "tests", "data", "phase2", "k1_v2_multitext_verdict.json")
 
@@ -118,12 +155,23 @@ def layer_status(path=None, instrument_hash=None):
                 "reason": ("本次运行未提供 instrument_hash —— **缺仪器标识不等于仪器相同**, "
                            f"无从判断 K1 判定(在 {verdict_inst} 上做的)是否适用, 一律扣发")}
         return {"intensity": dict(miss), "top1": dict(miss)}
-    if instrument_hash != verdict_inst:
+    # ★ 2026-09-06: 改用**唯一一份**「同一台物理仪器」判定(cce_knot_classify.same_physical_instrument),
+    #   它只在 SCOPE_WIDENINGS 具名登记且当场自证通过时返回 True。
+    #   此前这里是裸的 `!=` 比较 ⇒ gen4→gen6 的口径扩大在这一处被拦住,
+    #   而同一条边在 calibration_transfers 已经放行 —— 同一概念三份实现, 修一漏二。
+    _same = False
+    try:
+        import cce_knot_classify as _KC
+        _same = _KC.same_physical_instrument(instrument_hash, verdict_inst)
+    except Exception:
+        _same = (instrument_hash == verdict_inst)
+    if not _same:
         miss = {"usable": False,
                 "reason": (f"K1 判定是在仪器 {verdict_inst} 上做的, 本次是 {instrument_hash} —— "
                            "**标定不可跨仪器搬**(gen2→gen3 已确立), 这台仪器没有 K1 判定, "
                            "不是「判定通过」")}
         return {"intensity": dict(miss), "top1": dict(miss)}
+    _widened = instrument_hash != verdict_inst
 
     out = {}
     for layer, needle in (("intensity", INTENSITY_CRITERION), ("top1", TOP1_CRITERION)):

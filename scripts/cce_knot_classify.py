@@ -427,6 +427,30 @@ def _spec_field(spec, path):
     return cur
 
 
+def same_physical_instrument(a, b):
+    """两个仪器哈希是否指向**同一台物理仪器** —— 即差异只来自**口径扩大**。
+
+    ★★ 2026-09-06 抽成唯一一份实现。此前「同一台仪器」这个概念在**三个地方各判一次**:
+       calibration_transfers(标定能不能搬) · cce_k1_status.verdict_path_for(判定路由) ·
+       cce_k1_status 里对 verdict 文件 instrument_hash 的比对。
+       gen4→gen6 那次口径扩大, 我只在第一处开了通道 ⇒ 后两处照旧拦 ⇒
+       **top1(唯一被允许的读数)在生产上被全面扣发**, 而我昨天没发现。
+       ⇒ 这正是本项目今天刚记过的那条: **同一逻辑多份实现, 修了一份漏了其余。**
+
+    ★ 返回 True 的**唯一**条件: 这条边在 SCOPE_WIDENINGS 里**具名登记**过,
+      且它的 verify() **当场返回 True**。自证不成立即 False —— 没有例外通道。
+    """
+    if a == b:
+        return True
+    for w in SCOPE_WIDENINGS.values():
+        if {w.get("from_instrument"), w.get("to_instrument")} == {a, b}:
+            try:
+                return bool(w["verify"]())
+            except Exception:
+                return False
+    return False
+
+
 def calibration_transfers(calibration, taxo, k=3, knot_n=None, s1_pairing=None):
     """某个标定能不能搬到当前仪器上。
 
@@ -489,6 +513,13 @@ SCOPE_WIDENINGS = {
     ("s1_prompt_sha256", "eadcdcdac46a5180", "61fe230f5c588c1f"): {
         "gen": "4→6",
         "what": "s1_prompt_sha256 从哈希 238 字的 case 外壳, 改为哈希 4403 字的完整 prompt",
+        # ★ 2026-09-06 补: 显式记下**前后代的仪器哈希**。
+        #   起因: 下游 cce_k1_status 想沿这条边继承 gen4 的 K1 判定, 却搜不到前代 ——
+        #   INSTRUMENT_LINEAGE 里 gen4 的 "hash" 记的是 **None**(当初写「由代码现算」),
+        #   于是按 hash 建索引时 gen4 根本不在表里。
+        #   ⇒ 口径扩大是一条**具名的边**, 就该把两端都写出来, 而不是让下游去搜。
+        "from_instrument": "565470cf26c16d01",
+        "to_instrument": "d4cce4c745f3f991",
         "verify": _s1_scope_widening_holds,
     },
 }

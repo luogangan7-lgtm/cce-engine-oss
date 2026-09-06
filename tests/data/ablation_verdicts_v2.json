@@ -87,7 +87,16 @@
    "★reclassified_from": "DECORATIVE",
    "deletable": false,
    "deletable_why": "它的**全部职责**就是拦住 R=3 这种「p_floor=0.1 > alpha=0.05, 永远不可能拒绝零假设」的设计。存量语料全 R>=4 ⇒ 本工况下永不触发。删掉 = 静默放行一个必然无意义的检验。**典型的防御性守卫被判装饰。**",
-   "what_would_make_it_reachable": "任何一次 R=3 的 separation 调用"
+   "what_would_make_it_reachable": "任何一次 R=3 的 separation 调用",
+   "★adjudicated_at_its_operating_point": {
+    "operating_point": "R=3",
+    "verdict_there": "LOAD_BEARING_L2_AT_THIS_OPERATING_POINT",
+    "evidence": {
+     "guard_fired": "24/24"
+    },
+    "corpus": "tests/data/operating_points/ · 裁定台 probes/operating_point_adjudication.py",
+    "★still_unreachable_in_production": true
+   }
   },
   {
    "component": "separation(sesoi=) 参数 + 返回的 practical 块 (scripts/cce_ksep.py:390,424-429,438;522)",
@@ -126,7 +135,18 @@
    "★reclassified_from": "DECORATIVE",
    "deletable": false,
    "deletable_why": "尖峰中文语料实测: cn 档下 L2_s4=WITHHOLD / strategy_gate=FAIL; 同语料 intl 档全 PASS。它不可达的唯一原因是 cce_full_run.py:317 硬编 `--intl` —— **而 `--intl` 在同一轮被判 LOAD_BEARING_L2**。★ 两条判决互为对方的前提, **不能各自单读**: 把 `--intl` 当缺陷去掉, adlaw_cn 立刻变 L2 承重。",
-   "what_would_make_it_reachable": "market=cn(去掉 cce_full_run.py:317 的硬编 --intl) + 中文出站语料"
+   "what_would_make_it_reachable": "market=cn(去掉 cce_full_run.py:317 的硬编 --intl) + 中文出站语料",
+   "★adjudicated_at_its_operating_point": {
+    "operating_point": "market=cn",
+    "verdict_there": "LOAD_BEARING_L2_AT_THIS_OPERATING_POINT",
+    "evidence": {
+     "sensitivity": "9/9 阳性命中了预期规则",
+     "specificity": "7/7 阴性近似样本**未**被拦",
+     "★market_flip": "9/9 条在 cn 档被拦、intl 档放行 —— 这就是硬编 --intl 的实际后果"
+    },
+    "corpus": "tests/data/operating_points/ · 裁定台 probes/operating_point_adjudication.py",
+    "★still_unreachable_in_production": true
+   }
   },
   {
    "component": "PROFILE_HALLUC 查表（品类凭证幻觉词，49 条编译项 / 12 条原始条目）",
@@ -140,7 +160,17 @@
    "★reclassified_from": "DECORATIVE",
    "deletable": false,
    "deletable_why": "表里只有 agent_memory 一个 key, 而生产 profile 不是它 ⇒ `.get(profile, [])` 静默空回退。★ 而 agent_memory 是**已注册的合法生产 profile**(cce_submission.py 认它), 一份 domain=agent_memory 的投料就能激活 —— 第二轮自己的产物记录: agent_memory 臂 L1_diff **47** / L2_diff **46**。★★ 这是为 Humaux 自己那条产品线建的**唯一一份**合规档案。按「装饰」删它, 等于在准备发自家内容的前一刻把守卫拆了。",
-   "what_would_make_it_reachable": "guard_profile=agent_memory 的一次投料"
+   "what_would_make_it_reachable": "guard_profile=agent_memory 的一次投料",
+   "★adjudicated_at_its_operating_point": {
+    "operating_point": "profile=agent_memory",
+    "verdict_there": "LOAD_BEARING_L2_AT_THIS_OPERATING_POINT",
+    "evidence": {
+     "specificity": "5/5 阴性近似样本**未**被拦",
+     "★profile_flip": "4/6 条在 agent_memory 档被拦、在生产 profile 下放行 —— 生产 profile 不在 compliance_profiles.json 里, 走静默空回退"
+    },
+    "corpus": "tests/data/operating_points/ · 裁定台 probes/operating_point_adjudication.py",
+    "★still_unreachable_in_production": true
+   }
   },
   {
    "component": "PROFILE_EFFICACY 查表（品类疗效红线，9 条）",
@@ -154,7 +184,17 @@
    "★reclassified_from": "DECORATIVE",
    "deletable": false,
    "deletable_why": "同 PROFILE_HALLUC: 生产 profile 不在表里 ⇒ 空回退。L2 面**确实存在且不被扣发**(cce_full_run.py:320 非 clean 即 raise 中断整条链), 机制是真的, 只是本工况没流量。",
-   "what_would_make_it_reachable": "guard_profile=agent_memory 的一次投料"
+   "what_would_make_it_reachable": "guard_profile=agent_memory 的一次投料",
+   "★adjudicated_at_its_operating_point": {
+    "operating_point": "profile=agent_memory",
+    "verdict_there": "LOAD_BEARING_L2_AT_THIS_OPERATING_POINT",
+    "evidence": {
+     "specificity": "5/5 阴性近似样本**未**被拦",
+     "★profile_flip": "4/6 条在 agent_memory 档被拦、在生产 profile 下放行 —— 生产 profile 不在 compliance_profiles.json 里, 走静默空回退"
+    },
+    "corpus": "tests/data/operating_points/ · 裁定台 probes/operating_point_adjudication.py",
+    "★still_unreachable_in_production": true
+   }
   },
   {
    "component": "PROFILE_CATEGORY 查表 + category tier（4 条：SLA guaranteed / enterprise SLA / 24-7 support team / dedicated account manager），面：scripts/cce_outbound_guard.py",
@@ -181,7 +221,20 @@
    "★reclassified_from": "DECORATIVE",
    "deletable": false,
    "deletable_why": "PASS 恒 False(32/32), 因为 knot_ok 恒 None —— 而 knot_ok 恒 None 的原因是 cce_k1_status.KNOT_READOUT_ALLOWLIST={'top1'} 把 weight 扣发了。★ 根因不在 PASS 自己身上。把 weight 移出扣发, 这一条连同另外 4 条一起活。",
-   "what_would_make_it_reachable": "KNOT_READOUT_ALLOWLIST 放行 weight"
+   "what_would_make_it_reachable": "KNOT_READOUT_ALLOWLIST 放行 weight",
+   "★adjudicated_at_its_operating_point": {
+    "operating_point": "allowlist 放行 weight（反事实）",
+    "verdict_there": "UNREACHABLE_CONFIRMED_ROOT_CAUSE_IS_THE_ALLOWLIST",
+    "evidence": {
+     "usable_after": {
+      "top1": true,
+      "weight": true,
+      "intensity": false
+     }
+    },
+    "corpus": "tests/data/operating_points/ · 裁定台 probes/operating_point_adjudication.py",
+    "★still_unreachable_in_production": true
+   }
   },
   {
    "component": "need_ok / need 层触达率 >= 0.5 闸 (scripts/reply_loop.py:144, 镜像 scripts/reply_batch.py:73)",
@@ -195,7 +248,20 @@
    "★reclassified_from": "DECORATIVE",
    "deletable": false,
    "deletable_why": "L1 确实变(触达率取值集合 6 个值, 5/32 恰好压在 0.500 判决线上), 但 L2 逐字节不变 —— 因为它的下游 PASS 已被 knot_ok 恒 None 钉死。同一根因。★ 另: 该条的消融臂被核验者指出**构造错了**(32 对里 0 对是生产配对), 判决依据打折。",
-   "what_would_make_it_reachable": "KNOT_READOUT_ALLOWLIST 放行 weight"
+   "what_would_make_it_reachable": "KNOT_READOUT_ALLOWLIST 放行 weight",
+   "★adjudicated_at_its_operating_point": {
+    "operating_point": "allowlist 放行 weight（反事实）",
+    "verdict_there": "UNREACHABLE_CONFIRMED_ROOT_CAUSE_IS_THE_ALLOWLIST",
+    "evidence": {
+     "usable_after": {
+      "top1": true,
+      "weight": true,
+      "intensity": false
+     }
+    },
+    "corpus": "tests/data/operating_points/ · 裁定台 probes/operating_point_adjudication.py",
+    "★still_unreachable_in_production": true
+   }
   },
   {
    "component": "九结加权对齐分 ka = cce_align_v2.score(a_knots, b_knots, mode='reply')（reply_loop.py:110",
@@ -233,7 +299,20 @@
    "★reclassified_from": "DECORATIVE",
    "deletable": false,
    "deletable_why": "五臂(0.0/0.35/9.9/删 env/删整行)200/200 全等, THETA 也不进任何输出字段 —— 因为它的消费者 knot_ok 恒 None。同一根因。★ 注意同批里 need_ok 是变的(True 120/False 80) ⇒ **判决面本身有活性**, 只是 theta 那一路被掐断。",
-   "what_would_make_it_reachable": "KNOT_READOUT_ALLOWLIST 放行 weight"
+   "what_would_make_it_reachable": "KNOT_READOUT_ALLOWLIST 放行 weight",
+   "★adjudicated_at_its_operating_point": {
+    "operating_point": "allowlist 放行 weight（反事实）",
+    "verdict_there": "UNREACHABLE_CONFIRMED_ROOT_CAUSE_IS_THE_ALLOWLIST",
+    "evidence": {
+     "usable_after": {
+      "top1": true,
+      "weight": true,
+      "intensity": false
+     }
+    },
+    "corpus": "tests/data/operating_points/ · 裁定台 probes/operating_point_adjudication.py",
+    "★still_unreachable_in_production": true
+   }
   },
   {
    "component": "audio.capabilities 整块 (cce_video_parse._audio_capabilities → foundation 消费面)",
@@ -435,5 +514,6 @@
   "CIRCULAR": 5
  },
  "★deletable_count": 3,
- "★needs_rerun_count": 3
+ "★needs_rerun_count": 3,
+ "★operating_point_adjudication_added": "★ 2026-09-06: 7 条 UNREACHABLE 全部在**各自工况**上跑过, 7 条已回写裁定。三条(adlaw_cn / 三张品类表 / p_floor 守卫)在它们的工况上判 **LOAD_BEARING_L2** ——**它们不是装饰, 是保险丝**。第四条(weight 那三个)确认根因就是扣发名单本身。★ 但**生产工况没变** ⇒ 它们在生产上**仍然不可达**, 判决表里的 UNREACHABLE **不改**。变的是: 现在有证据说「换到那个工况它会活」, 而不是只有「在这个工况看不出来」。"
 }

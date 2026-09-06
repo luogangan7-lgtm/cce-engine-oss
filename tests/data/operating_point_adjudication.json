@@ -1,0 +1,350 @@
+{
+ "block": "OPERATING_POINT_ADJUDICATION",
+ "★zero_api": "全程零 API 请求; 未修改任何生产配置文件。",
+ "★scope": "只回答「换到各自工况后它会不会活」。**不产出真实违规率** —— 中文与 agent_memory 两份语料是造的夹具。",
+ "market_cn__adlaw_cn": {
+  "operating_point": {
+   "market": "cn"
+  },
+  "sensitivity": "9/9 阳性命中了预期规则",
+  "specificity": "7/7 阴性近似样本**未**被拦",
+  "false_positives": [],
+  "unmatched_positives": [],
+  "★market_flip": "9/9 条在 cn 档被拦、intl 档放行 —— 这就是硬编 --intl 的实际后果",
+  "★verdict": "LOAD_BEARING_L2_AT_THIS_OPERATING_POINT",
+  "rows": [
+   {
+    "id": "cn_p01",
+    "kind": "positive",
+    "cn_hits": [
+     "国家级"
+    ],
+    "intl_hits": [],
+    "expect_rule": "国家级",
+    "matched_expected": true,
+    "clean_cn": false,
+    "clean_intl": true
+   },
+   {
+    "id": "cn_p02",
+    "kind": "positive",
+    "cn_hits": [
+     "最高级"
+    ],
+    "intl_hits": [],
+    "expect_rule": "最高级",
+    "matched_expected": true,
+    "clean_cn": false,
+    "clean_intl": true
+   },
+   {
+    "id": "cn_p03",
+    "kind": "positive",
+    "cn_hits": [
+     "最佳"
+    ],
+    "intl_hits": [],
+    "expect_rule": "最佳",
+    "matched_expected": true,
+    "clean_cn": false,
+    "clean_intl": true
+   },
+   {
+    "id": "cn_p04",
+    "kind": "positive",
+    "cn_hits": [
+     "顶级/顶尖"
+    ],
+    "intl_hits": [],
+    "expect_rule": "顶级/顶尖",
+    "matched_expected": true,
+    "clean_cn": false,
+    "clean_intl": true
+   },
+   {
+    "id": "cn_p05",
+    "kind": "positive",
+    "cn_hits": [
+     "第一/销量第一"
+    ],
+    "intl_hits": [],
+    "expect_rule": "第一/销量第一",
+    "matched_expected": true,
+    "clean_cn": false,
+    "clean_intl": true
+   },
+   {
+    "id": "cn_p06",
+    "kind": "positive",
+    "cn_hits": [
+     "领先断言"
+    ],
+    "intl_hits": [],
+    "expect_rule": "领先断言",
+    "matched_expected": true,
+    "clean_cn": false,
+    "clean_intl": true
+   },
+   {
+    "id": "cn_p07",
+    "kind": "positive",
+    "cn_hits": [
+     "绝对有效"
+    ],
+    "intl_hits": [],
+    "expect_rule": "绝对有效",
+    "matched_expected": true,
+    "clean_cn": false,
+    "clean_intl": true
+   },
+   {
+    "id": "cn_p08",
+    "kind": "positive",
+    "cn_hits": [
+     "绝对X"
+    ],
+    "intl_hits": [],
+    "expect_rule": "绝对X",
+    "matched_expected": true,
+    "clean_cn": false,
+    "clean_intl": true
+   },
+   {
+    "id": "cn_p09",
+    "kind": "positive",
+    "cn_hits": [
+     "永不X"
+    ],
+    "intl_hits": [],
+    "expect_rule": "永不X",
+    "matched_expected": true,
+    "clean_cn": false,
+    "clean_intl": true
+   },
+   {
+    "id": "cn_n01",
+    "kind": "negative",
+    "cn_hits": [],
+    "clean_cn": true,
+    "why_should_not_fire": "词表对「最佳」带负向前瞻 (?!实践|化) —— 「最佳实践」不该命中"
+   },
+   {
+    "id": "cn_n02",
+    "kind": "negative",
+    "cn_hits": [],
+    "clean_cn": true,
+    "why_should_not_fire": "「最好」不在词表里; 只有「最佳」在。这条测的是**边界不外溢**"
+   },
+   {
+    "id": "cn_n03",
+    "kind": "negative",
+    "cn_hits": [],
+    "clean_cn": true,
+    "why_should_not_fire": "「第一」的正则要求前缀 ∈ {销量,排名,全球,全国,世界,行业}, 「全网」不在其中"
+   },
+   {
+    "id": "cn_n04",
+    "kind": "negative",
+    "cn_hits": [],
+    "clean_cn": true,
+    "why_should_not_fire": "「绝对X」带负向前瞻 (?!值) —— 「绝对值」是术语不是宣称"
+   },
+   {
+    "id": "cn_n05",
+    "kind": "negative",
+    "cn_hits": [],
+    "clean_cn": true,
+    "why_should_not_fire": "「领先」需要地域/行业前缀; 这句没有任何绝对化词"
+   },
+   {
+    "id": "cn_n06",
+    "kind": "negative",
+    "cn_hits": [],
+    "clean_cn": true,
+    "why_should_not_fire": "★ 这是**正确写法**的样本 —— 一条合规稿必须能干净通过"
+   },
+   {
+    "id": "cn_n07",
+    "kind": "negative",
+    "cn_hits": [
+     "国家级"
+    ],
+    "clean_cn": true,
+    "why_should_not_fire": "★ 含违规词但**是否定式**。guard 有 negated 标记 —— 本条测的是「如实否定」不被当成违规(strict=False 下应豁免)"
+   }
+  ]
+ },
+ "profile_agent_memory__three_tables": {
+  "operating_point": {
+   "profile": "agent_memory",
+   "market": "intl"
+  },
+  "per_tier": {
+   "core": {
+    "n": 2,
+    "hit": 2
+   },
+   "efficacy": {
+    "n": 2,
+    "hit": 2
+   },
+   "category": {
+    "n": 2,
+    "hit": 2
+   }
+  },
+  "specificity": "5/5 阴性近似样本**未**被拦",
+  "false_positives": [],
+  "★profile_flip": "4/6 条在 agent_memory 档被拦、在生产 profile 下放行 —— 生产 profile 不在 compliance_profiles.json 里, 走静默空回退",
+  "★verdict": "LOAD_BEARING_L2_AT_THIS_OPERATING_POINT",
+  "rows": [
+   {
+    "id": "am_p01",
+    "kind": "positive",
+    "expect_tier": "core",
+    "tiers_agent_memory": [
+     "core"
+    ],
+    "n_hits_agent_memory": 2,
+    "n_hits_production_profile": 0,
+    "matched_expected": true,
+    "clean_am": false,
+    "clean_prod": true
+   },
+   {
+    "id": "am_p02",
+    "kind": "positive",
+    "expect_tier": "core",
+    "tiers_agent_memory": [
+     "core"
+    ],
+    "n_hits_agent_memory": 1,
+    "n_hits_production_profile": 1,
+    "matched_expected": true,
+    "clean_am": false,
+    "clean_prod": false
+   },
+   {
+    "id": "am_p03",
+    "kind": "positive",
+    "expect_tier": "efficacy",
+    "tiers_agent_memory": [
+     "efficacy"
+    ],
+    "n_hits_agent_memory": 1,
+    "n_hits_production_profile": 0,
+    "matched_expected": true,
+    "clean_am": false,
+    "clean_prod": true
+   },
+   {
+    "id": "am_p04",
+    "kind": "positive",
+    "expect_tier": "efficacy",
+    "tiers_agent_memory": [
+     "efficacy"
+    ],
+    "n_hits_agent_memory": 1,
+    "n_hits_production_profile": 0,
+    "matched_expected": true,
+    "clean_am": false,
+    "clean_prod": true
+   },
+   {
+    "id": "am_p05",
+    "kind": "positive",
+    "expect_tier": "category",
+    "tiers_agent_memory": [
+     "category"
+    ],
+    "n_hits_agent_memory": 2,
+    "n_hits_production_profile": 0,
+    "matched_expected": true,
+    "clean_am": true,
+    "clean_prod": true
+   },
+   {
+    "id": "am_p06",
+    "kind": "positive",
+    "expect_tier": "category",
+    "tiers_agent_memory": [
+     "category",
+     "core"
+    ],
+    "n_hits_agent_memory": 3,
+    "n_hits_production_profile": 0,
+    "matched_expected": true,
+    "clean_am": false,
+    "clean_prod": true
+   },
+   {
+    "id": "am_n01",
+    "kind": "negative",
+    "hits": [
+     "SOC 2"
+    ],
+    "clean_am": true,
+    "why_should_not_fire": "★ 如实否定。strict=False 下应豁免 —— 这正是「承认没有」的正确写法"
+   },
+   {
+    "id": "am_n02",
+    "kind": "negative",
+    "hits": [],
+    "clean_am": true,
+    "why_should_not_fire": "★ 与 never forgets / lossless memory **语义相反**, 不该命中"
+   },
+   {
+    "id": "am_n03",
+    "kind": "negative",
+    "hits": [],
+    "clean_am": true,
+    "why_should_not_fire": "否定式 + 无 category 词; 这是诚实版本"
+   },
+   {
+    "id": "am_n04",
+    "kind": "negative",
+    "hits": [],
+    "clean_am": true,
+    "why_should_not_fire": "谈 recall 但不宣称 perfect —— 边界不该外溢到中性技术表述"
+   },
+   {
+    "id": "am_n05",
+    "kind": "negative",
+    "hits": [],
+    "clean_am": true,
+    "why_should_not_fire": "★ 全篇都在说「没有」, 一条都不该响"
+   }
+  ]
+ },
+ "R3__p_floor_guard": {
+  "operating_point": {
+   "R": 3,
+   "n_splits": 10,
+   "p_floor": 0.1,
+   "alpha": 0.05
+  },
+  "guard_fired": "24/24",
+  "passed_through": 0,
+  "sample_error": "ValueError: 050f0f2403f7: R=3 < 4, 精确置换的 p 下限过粗",
+  "★counterfactual_if_removed": "R=3 ⇒ n_splits=10 ⇒ p_floor=0.1000 > alpha=0.05 ⇒ **任何一对都不可能判 SEPARATED**。守卫若不在, 这 24 对会**静默全判 NOT_SEPARATED**, 而那不是「两文本相同」, 是「这个设计根本没有拒绝能力」—— 一整轮无意义的检验被当成阴性结果读走。",
+  "★verdict": "LOAD_BEARING_L2_AT_THIS_OPERATING_POINT"
+ },
+ "allowlist__weight_gated_trio": {
+  "operating_point": {
+   "KNOT_READOUT_ALLOWLIST": "top1 + weight（反事实）"
+  },
+  "★this_is_counterfactual_not_a_corpus": "★★ 这一条与前三条**性质不同**: 前三条是换语料/换参数(都是合法生产取值), 这一条是**改扣发名单** —— 而那个扣发有依据(K1-v2 预注册判定 0/5 文本)。⇒ 本结果只回答「若那条扣发被解除, 这三个组件会不会活」, **不构成解除扣发的理由**。解除需要新的 K1 证据, 不是这份测量。",
+  "usable_before": {
+   "top1": true,
+   "weight": false,
+   "intensity": false
+  },
+  "usable_after": {
+   "top1": true,
+   "weight": true,
+   "intensity": false
+  },
+  "restored_ok": true,
+  "★verdict": "UNREACHABLE_CONFIRMED_ROOT_CAUSE_IS_THE_ALLOWLIST"
+ }
+}

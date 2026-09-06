@@ -239,6 +239,23 @@ _HYPOTHETICAL = re.compile(
 )
 
 
+# ★★ 2026-09-06: 中文否定。此前三条否定正则**全是英文的**, 而 adlaw_cn 是**唯一在中文上
+#   生效的规则层** —— 一个只认中文的规则层, 配一个只认英文的否定器。
+#   后果实测(tests/data/operating_points/cn_outbound.json 的 cn_n07):
+#   「我们没有国家级认证, 也不打算这样宣传。」在 cn 档被判**违规**,
+#   而同义的英文 "We have no SOC 2 report." 被正确豁免。
+#   ⇒ 在中文工况上, **如实否定会被当成违规** —— 那比漏判更贵: 它会把最诚实的写法拦下来。
+#   ★ 这个缺陷只在 market=cn 上看得见, 而生产硬编 --intl ⇒ 存量语料**永远暴露不了它**。
+#     它是「补工况语料」第一次跑就抓到的东西。
+_NEG_ZH_BEFORE = re.compile(
+    r"(?:没有|沒有|无|無|不是|并非|並非|未经|未獲|未取得|从未|從未|不具备|不具備|"
+    r"不属于|不屬於|谈不上|談不上|算不上|称不上|稱不上|不敢说|不敢說)"
+    r"[^，。；！？\n]{0,8}$")
+_NEG_ZH_NEAR = re.compile(
+    r"(?:不(?:做|搞|打算|会|會|可能|能)[^，。；！？\n]{0,6}(?:宣传|宣稱|宣称|声称|聲稱|标榜|標榜)|"
+    r"避免使用|不建议使用|不建議使用|广告法|廣告法|违规词|違規詞|禁用词|禁用詞)")
+
+
 def _is_negated(text: str, start: int, end: int, back: int = 60, fwd: int = 130) -> bool:
     """
     命中词的语境是否为「如实否定 / 免责 / 假设」而非「声称持有」。
@@ -250,6 +267,12 @@ def _is_negated(text: str, start: int, end: int, back: int = 60, fwd: int = 130)
     seg = before + " " + after
     # 术语紧邻前置否定: 「not FDA / no ISO / rather than FDA / instead of ISO」(对比式否定, 非声称)
     if re.search(r"(?:\bnot|\bno|\brather\s+than|\binstead\s+of|\bnon[- ]?)\s*[\-,:]?\s*$", before, re.I):
+        return True
+    # ★ 中文: 否定词必须**紧邻在前**(<=8 字, 且不跨句读) —— 与英文那条同样的窄窗口。
+    #   宽了会把「不是最好的选择, 但是最佳方案」这类**先否后肯**误豁免。
+    if _NEG_ZH_BEFORE.search(before):
+        return True
+    if _NEG_ZH_NEAR.search(seg):
         return True
     return bool(_NEG_POSSESS.search(seg) or _NEG_MARK.search(seg) or _HYPOTHETICAL.search(seg))
 

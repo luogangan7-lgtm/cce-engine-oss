@@ -1,0 +1,69 @@
+{
+ "block": "OPERATING_POINT_CORPUS · profile=agent_memory",
+ "★banner": "★★★ 这是**测试夹具**, 不是可发布内容。里面的阳性样本**故意**含违规表述, 任何情况下都不得被当作出站稿使用。它存在的唯一目的是: 让那些「本工况不可达」的规则层能在**它们各自的工况**上被判死活 —— 在存量语料(硬编 --intl + 单一 profile)上它们永远判不了。",
+ "★operating_point": {
+  "profile": "agent_memory",
+  "★note": "★ 它是 config/outbound_guard_registry_v1.json 里**已注册**、被 cce_submission.py 强制校验认可的**合法生产取值** —— 距离启用只差一份投料 payload, **不需要改任何代码**。而 compliance_profiles.json 里只有它一个 profile, 生产却用的是别的 ⇒ 三张表在生产路径上走静默空回退。"
+ },
+ "★synthetic": "★ 我造的夹具。阳性样本是**引擎最容易自己伸手去抓的那类信任信号** —— 该档 engine_predictability 字段自己写着: 「引擎在需要可信度时会自动伸手抓 SaaS 行业最常见的信任信号(安全认证/规模/融资/可用性/地位), 而 Humaux 一个都没有」。",
+ "★why_negatives": "★★ 阴性近似对照是这份语料的**主要价值**, 不是配菜。只有阳性只能证明「规则会响」, **不能证明它不乱响** —— 而一条乱响的规则会把干净稿判成违规, 那是比漏判更贵的错。本表的阴性样本是**刻意贴着边界造的**: 词表要「最佳」我就给「最好」, 要「销量第一」我就给「全网第一」, 要「绝对X」我就给「绝对值」。",
+ "positive": [
+  {
+   "id": "am_p01",
+   "text": "Our memory layer is SOC 2 Type II certified and audited annually.",
+   "expect_tier": "core"
+  },
+  {
+   "id": "am_p02",
+   "text": "We are ISO 27001 compliant, so your agent data is safe.",
+   "expect_tier": "core"
+  },
+  {
+   "id": "am_p03",
+   "text": "The agent never forgets a single fact you told it.",
+   "expect_tier": "efficacy"
+  },
+  {
+   "id": "am_p04",
+   "text": "Perfect recall across sessions, guaranteed.",
+   "expect_tier": "efficacy"
+  },
+  {
+   "id": "am_p05",
+   "text": "Enterprise SLA and a dedicated account manager come standard.",
+   "expect_tier": "category"
+  },
+  {
+   "id": "am_p06",
+   "text": "We offer SLA guaranteed uptime with a 24-7 support team.",
+   "expect_tier": "category"
+  }
+ ],
+ "negative_near_miss": [
+  {
+   "id": "am_n01",
+   "text": "We have no SOC 2 report. If that is a blocker for you, it should be.",
+   "why_should_not_fire": "★ 如实否定。strict=False 下应豁免 —— 这正是「承认没有」的正确写法"
+  },
+  {
+   "id": "am_n02",
+   "text": "The agent can and does forget. Retrieval is lossy, and we measure how lossy.",
+   "why_should_not_fire": "★ 与 never forgets / lossless memory **语义相反**, 不该命中"
+  },
+  {
+   "id": "am_n03",
+   "text": "There is no SLA. Support is me, usually within a day.",
+   "why_should_not_fire": "否定式 + 无 category 词; 这是诚实版本"
+  },
+  {
+   "id": "am_n04",
+   "text": "Recall quality is measured on a frozen set; the number is in the repo.",
+   "why_should_not_fire": "谈 recall 但不宣称 perfect —— 边界不该外溢到中性技术表述"
+  },
+  {
+   "id": "am_n05",
+   "text": "We are a solo project with no funding round and no certifications.",
+   "why_should_not_fire": "★ 全篇都在说「没有」, 一条都不该响"
+  }
+ ]
+}
