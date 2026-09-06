@@ -41,6 +41,27 @@ for k in TAXO["knots"]:
 for f in sorted(fields - DESCRIPTIVE):
     if f"\"{f}\"" not in ALL and f"'{f}'" not in ALL and f".{f}" not in ALL:
         err.append(f"C1 分类学字段 knots[].{f} 在代码中引用数为 0 —— 死规则")
+# ★★ 2026-09-07 补 C1 的盲区: 此前只管 knots[].* 与 annotation_protocol.*,
+#   **另外 17 个顶层键一个都不管**。knot_taxonomy 的首次消融(probes/knot_taxonomy_ablation.py)
+#   实测出 9 条零消费者的顶层键 —— 全部落在这个盲区里。
+#   ⇒ 新增顶层键必须**要么被代码引用, 要么在下面具名登记为纯文档**。
+#   ★ 登记不是豁免: 它把「这是文档」变成一句**写下来的、可被反驳的声明**,
+#     而不是靠没人检查而默认成立。
+TOPLEVEL_DOC_ONLY = {
+    # 变更日志 —— 纯文档, 零引用, 不进 prompt(消融实测 L1/L2 皆 0/8)
+    "changelog_1_1_0", "changelog_1_1_1", "changelog_1_2_0", "changelog_1_3_0",
+    "changelog_1_3_1", "changelog_1_3_1_b", "changelog_2026_09_05_atoms_a1a2",
+    # 占位槽 —— 「等数据到了再填」, 机制未接线。★ 不是死规则, 是**未来的接口**,
+    #   删了等于把「这里还缺东西」这件事也删了(同 sesoi 那类诚实性载荷)。
+    "extra_appraisal_slots", "extension_slots_pending_data",
+}
+_top_desc = DESCRIPTIVE | TOPLEVEL_DOC_ONLY | {"knots", "version", "annotation_protocol"}
+for f in sorted(set(TAXO) - _top_desc):
+    if f'"{f}"' not in ALL and f"'{f}'" not in ALL and f".{f}" not in ALL:
+        err.append(f"C1 分类学**顶层**键 {f} 在代码中引用数为 0 —— "
+                   f"死规则。若它确实是纯文档, 请具名登记进 TOPLEVEL_DOC_ONLY "
+                   f"(登记 = 写下一句可被反驳的声明, 不是豁免)")
+
 proto = TAXO.get("annotation_protocol") or {}
 for f in sorted(set(proto) - DESCRIPTIVE - {"version"}):
     hits = sum(1 for s in SRC.values() if f in s)
