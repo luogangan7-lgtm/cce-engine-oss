@@ -29,13 +29,32 @@ PRE_REFACTOR = [
     "全占比: knots 是带权组合,禁把单个 top 当断言",
     "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准",
 ]
-assert caveats(TAXO) == PRE_REFACTOR, "★ 重构改变了输出 —— 那就不是纯重构, 必须换代而非记 refactor_log"
+# ── ★★ 2026-09-07: 首条 caveat 的正文**被有意改了**, 因为它自己变成了那句假话 ──
+#    旧正文写「G-K1/G-K2/G-K3 验收**未跑**」。而 2026-09-07 真跑了一次, G-K1 **通过**
+#    (核心面板 top2=0.9042 / JS=0.2321, 资格考首次真正生效, M2.7 因 3/5 被剔除)。
+#    ⇒ 继续挂着「未跑」就是这条闸自己 docstring 里写的那种**永久谎言**。
+#    ★ 但也**不能**改成「已验收」: G-K3 本轮未跑 · G-K2 不可判(n=81 < 冻结的 N≥150) ·
+#      重复性与外部效度未验 ⇒ 新正文把这四件事**逐项写明**, caveat 仍然出现。
+#    ★ PRE_REFACTOR **保留不删**: 它是 2026-09-03 那次纯重构的证据(from_sha=cc7c1f8c8dcd67b5),
+#      删了就没法再证明那次重构是纯的。现在它是**历史锚点**, 不再是当前期望值。
+CURRENT = [
+    "结分类学 v1: G-K1 已通过(2026-09-07, 资格考生效); "
+    "**G-K3 未跑 · G-K2 不可判 · 重复性与外部效度未验** —— 引用须带「未验」",
+] + PRE_REFACTOR[1:]
+assert caveats(TAXO) == CURRENT, (
+    "★ caveat 输出与预期不符。若是**有意**改动内容, 请同时更新 CURRENT 并写明为什么; "
+    "若不是, 那就是漂移")
+assert PRE_REFACTOR[1:] == CURRENT[1:], "★ 基础 caveat 不许趁机改 —— 本次只动首条"
+assert "未验" in CURRENT[0] or "未跑" in CURRENT[0], (
+    "★ 新首条 caveat 里既无「未跑」也无「未验」⇒ caveats() 不会再产出它, "
+    "而 G-K3 确实还没跑 —— 那就成了反方向的谎言")
 
 # ── 1. 现网配置: 未验 -> 必须带 caveat, 且排在首位 ──────────────────────
 live = caveats(TAXO)
 assert CANDIDATE_CAVEAT in live, "★ 现网 taxonomy 标未验, 输出却没有「未验」caveat"
 assert live[0] == CANDIDATE_CAVEAT, "「未验」必须在首位 —— 排到末尾等于埋掉"
 assert live[1:] == list(BASE_CAVEATS), "基础 caveat 不得被顺带改掉"
+assert live[0] == CURRENT[0], "★ 首条 caveat 与 CURRENT 不符"
 
 # ── 2. ★ 反向一: 状态说未验, 却把 caveat 摘了 -> 必须能被这条测试抓到 ──
 #    (Kontrolle: 证明探测器真的会响, 而不是恒绿)

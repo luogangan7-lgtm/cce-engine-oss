@@ -5,8 +5,8 @@
  "criterion": "Core = 改了它已采集的原始 draw 就不能用的文件; 与 instrument_hash 同源判据",
  "instrument_generation": 6,
  "core_files": {
-  "config/knot_taxonomy.json": "836fdcda646dbcbc",
-  "scripts/cce_knot_classify.py": "1d9bcef72a0de894",
+  "config/knot_taxonomy.json": "128c028c24cd245a",
+  "scripts/cce_knot_classify.py": "cd3d9d7e1d3871ae",
   "scripts/cce_ksep.py": "ffd5d26a7e0cb29b",
   "scripts/exp_crossmodel_desire.py": "0e0e9d64b48fbade",
   "scripts/exp_v4_full_validation.py": "f934b56b01b6b6b2",
@@ -151,6 +151,36 @@
    ],
    "★which_half_of_behavior_changed": "**变了**: gen6 仪器现在能沿具名边继承 gen4 的 K1 判定 ⇒ top1 恢复可用(此前被全面扣发)。**没变**: instrument_hash · prompt · 采样 · 聚合; 未登记的仪器与自证失败仍一律拒发。",
    "★evidence_is_required_because": "「哈希没变」不足以当证据, 且本次行为**确实变了**(从全面扣发变成可用)。真证据四条可现跑: gen6→True(带继承理由) · gen4→True(直判) · 未登记假哈希→False · **把 verify() 换成恒 False ⇒ gen6 立刻 False**。第四条是关键: 它证明放行走的是自证, 不是映射。"
+  },
+  {
+   "date": "2026-09-07",
+   "file": "config/knot_taxonomy.json",
+   "from_sha": "836fdcda646dbcbc",
+   "to_sha": "128c028c24cd245a",
+   "route": "第四条路(改的是**自述**, 不是仪器): status / gate_record 两句互相矛盾的话改成精确的",
+   "reason": "此前 `status` 说「G-K1/G-K2/G-K3 未跑」, 而同文件 `gate_record` 说「G-K1 v5通过(2026-08-07)」—— 两者并存数月。★ 因为 gate_record 在 consistency_check 的 DESCRIPTIVE 豁免名单里、**从不被核对**, 而 status **冻结在文件创建当天**。\n2026-09-07 真跑一次(预注册 6323368, 调用前提交), 把两句都改成**精确的**: G-K1 **已通过**(核心面板 top2=0.9042 / JS=0.2321, 资格考首次真正生效, M2.7 因 3/5 剔除) · G-K2 **只记录不判决**(n=81 < 冻结的 N>=150 复测触发) · G-K3 **本轮未跑** · 重复性与外部效度**未验**。",
+   "instrument_hash_unchanged": true,
+   "behavior_evidence": [
+    "tests/test_cce_knot_caveat.py",
+    "accuracy/out/gates_result.json",
+    "tests/data/nine_knot_acceptance_rerun_prereg.json"
+   ],
+   "★which_half_of_behavior_changed": "**变了**: caveats() 由 status 现推, status 变 ⇒ 首条 caveat 的正文变(仍出现, 因 G-K3 未跑)。**没变**: prompt · 采样 · 聚合 · instrument_hash —— 已采集 draw 全部仍有效。",
+   "★evidence_is_required_because": "「哈希没变」不足以当证据。真证据: ① accuracy/out/gates_result.json 是**这个仓里第一份**落盘的验收产物(该目录此前不存在) ② test_cce_knot_caveat 的双向断言仍绿: status 里仍含「未验」⇒ caveat 仍出现; 而注入「已验收」的探针仍能让它消失 ③ 新增断言: 首条 caveat 若既无「未跑」也无「未验」即判红 —— 防止改成反方向的谎言。"
+  },
+  {
+   "date": "2026-09-07",
+   "file": "scripts/cce_knot_classify.py",
+   "from_sha": "1d9bcef72a0de894",
+   "to_sha": "cd3d9d7e1d3871ae",
+   "route": "第四条路(改 caveat 正文, 因为它自己变成了那句假话)",
+   "reason": "CANDIDATE_CAVEAT 旧正文写「G-K1/G-K2/G-K3 验收**未跑**」。2026-09-07 真跑后 G-K1 **通过** ⇒ 继续挂着「未跑」就是 test_cce_knot_caveat 自己 docstring 里写的那种**永久谎言**。★ 但也**不改成「已验收」**: G-K3 本轮未跑 · G-K2 不可判 · 重复性与外部效度未验 ⇒ 新正文把这四件事**逐项写明**, caveat 仍然出现。",
+   "instrument_hash_unchanged": true,
+   "behavior_evidence": [
+    "tests/test_cce_knot_caveat.py"
+   ],
+   "★which_half_of_behavior_changed": "**变了**: 首条 caveat 的字面。**没变**: 它出不出现的判据(UNVERIFIED_MARKERS 未动)。",
+   "★evidence_is_required_because": "★ 「instrument_hash 没变」**不足以**证明行为没变 —— 它由 taxonomy+参数现算, 与源码字节无关; 而本次行为**确实变了**(caveat 正文变了)。真证据: test_cce_knot_caveat 里 PRE_REFACTOR 那个冻结字面量**保留不删** —— 它是 2026-09-03 纯重构的证据(from_sha=cc7c1f8c8dcd67b5), 删了就没法再证明那次是纯的。现在它是**历史锚点**, 当前期望值另立 CURRENT, 且断言 CURRENT[1:] == PRE_REFACTOR[1:](基础 caveat 不许趁机改), 外加一条新断言: 首条 caveat 若既无「未跑」也无「未验」即判红 —— 防止改成反方向的谎言。"
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",

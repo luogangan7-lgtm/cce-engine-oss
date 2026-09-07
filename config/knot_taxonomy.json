@@ -1,7 +1,7 @@
 {
  "version": "1.3.1",
  "frozen_at": "2026-08-04",
- "status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注",
+ "status": "v1 操作化启用。**G-K1 已通过**(2026-09-07 首次在资格考真正生效的条件下重跑: 核心面板 4 人 top2=0.904≥0.8 · 平均JS=0.2321≤0.25 · κ=0.618 参考项; M2.7 因锚例考 3/5 被剔除。产物 accuracy/out/gates_result.json)。**G-K2 只记录不判决**(本轮 ρ=0.652 p<0.001 macro-recall=0.62, 按其自身判据为通过; 但 2026-08-07 已把它正式定性为「不可判」并冻结 N≥150 复测, 本轮 n=81 <150, 故**不据此改判**)。**G-K3(签名两两可分)本轮未跑** —— run_gates.py 只算 G-K1/G-K2。**重复性未验**: 单次运行, 无误差棒。**外部效度未验**: 单一社区语料。⇒ 结论引用仍须带「未验」标注, 但**不得再说 G-K1 未跑**。",
  "source": "results/knot_taxonomy_research_2026-08-05.json 综合裁决(中文框架×西方行为科学×内部数据三路)",
  "definition_of_knot": "结 = 四层(欲望×情境×需求×appraisal)的具名配置,人侧预装、有保质期(τ_need≈75d);与杠杆(内容侧制造、瞬时)严格区分",
  "identity_criterion": "两实例同结 ⟺ appraisal签名 + 欲望/需求code + 闸门对象 全同,且相距 < 保质期;一人可持多结",
@@ -334,7 +334,7 @@
  "annotation_protocol": {
   "version": "1.3.1",
   "annotator_qualification": "生产协议留一法考锚例,top1≥4/5合格;解析失败单独记账不计答错",
-  "gate_record": "G-K1 v5通过(2026-08-07): top2=0.933≥0.8, JS=0.2424≤0.25(判据v2冻结未动); 冷启动盲测待跑(非MiniMax系标注者,防interpretive convergence)",
+  "gate_record": "G-K1 ✅ 2026-09-07 重跑通过(首次在资格考真正生效下): 核心面板 M3/M2.5/M2/Text-01, top2=0.9042 / JS=0.2321 / κ=0.6178, n=81。M2.7 锚例考 3/5 不合格被剔除。判据 v2 冻结未动。★ 此前 2026-08-07 记的「v5通过 …… 冷启动盲测待跑」与 status 里的「未跑」**互相矛盾**, 且本字段在 consistency_check 的 DESCRIPTIVE 豁免名单里、从不被核对; 而 2026-08-07 的冷启动盲测据库内记录已通过(Claude×3, top2=0.842/JS=0.2098)。★★ 更根本: 那些结论**在仓里没有可复核产物** —— accuracy/out/ 此前不存在。本次是第一份落盘的 gates_result.json。G-K2: 只记录不判决(n=81 < 冻结的 N≥150 复测触发)。G-K3: 本轮未跑。",
   "decision_tree_prompt": [
    "1. 有对某方真实性/资历/动机的质询句? -> audit 权重优先",
    "2. 有明确归责对象+讨说法? -> injustice",
@@ -387,5 +387,6 @@
   "intent": "保住 v1.3.0 的语义(堵语境推断), 降低解释方差, 目标: G-K2 增益保住的同时 JS 回到 ≤0.25"
  },
  "changelog_1_3_1_b": "2026-08-09: 将生产 prompt 中实际使用的决策树/负例措辞升为配置真值(decision_tree_prompt / knots[].negative_examples_prompt), prompt 改为从配置组装。原 decision_tree / negative_examples 为较简的人读版, 内容与生产版语义一致(已逐条核对), 保留。annotation_protocol.version 同步至分类学版本, 此前滞留 1.2.0。 同时删除冗余人读副本: annotation_protocol.decision_tree; annotation_protocol.anchor_examples(与 accuracy/data/anchors.json 同5条, 已核对); knots[].negative_examples (9处)。单一真值原则: 同一条规则只允许存在一处。",
- "changelog_2026_09_05_atoms_a1a2": "A1/A2: 只改 playbook 的**分解方式**, 两条建议原文逐字保留(audit.cross_turn_strategy · belong.composition_note)。★ 实测 instrument_hash 与 s2_prompt_sha256 不变 —— playbook 不进 _stage2_template ⇒ 结分类未换代, 已采集面板仍有效。变的只是 playbook_* 三个读数的 manipulation, 已另立 GEN2 预注册, 与 GEN1 **可比不可合**。A3 的六条抽象原子**一个字没动**。 ★ 理由不在本文件逐结重复 —— 见 refactor_log / GEN2 预注册 / tests/test_cce_playbook_atoms_a1a2.py。分类学只放**行为字段**, 说明放一处就够。"
+ "changelog_2026_09_05_atoms_a1a2": "A1/A2: 只改 playbook 的**分解方式**, 两条建议原文逐字保留(audit.cross_turn_strategy · belong.composition_note)。★ 实测 instrument_hash 与 s2_prompt_sha256 不变 —— playbook 不进 _stage2_template ⇒ 结分类未换代, 已采集面板仍有效。变的只是 playbook_* 三个读数的 manipulation, 已另立 GEN2 预注册, 与 GEN1 **可比不可合**。A3 的六条抽象原子**一个字没动**。 ★ 理由不在本文件逐结重复 —— 见 refactor_log / GEN2 预注册 / tests/test_cce_playbook_atoms_a1a2.py。分类学只放**行为字段**, 说明放一处就够。",
+ "changelog_2026_09_07_acceptance_rerun": "★ 更正两句互相矛盾的自述。此前 status 说「G-K1/G-K2/G-K3 未跑」而同文件 gate_record 说「G-K1 v5通过(2026-08-07)」—— 两者并存数月, 因为 gate_record 在一致性闸的豁免名单里、从不被核对, 而 status 冻结在文件创建当天。2026-09-07 真跑一次(预注册见 tests/data/nine_knot_acceptance_rerun_prereg.json), 并把两句都改成**精确的**: 哪一道过了、哪一道没跑、哪一道不可判、哪些维度未验。"
 }

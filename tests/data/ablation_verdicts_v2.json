@@ -30,10 +30,21 @@
   "corpus_sha": {
    "tests/data/phase2/panel_checkpoint.jsonl": "d4907b3a1782a6be",
    "tests/data/phase2/stimuli_frozen.json": "42fb6f763604f0b4",
-   "config/knot_taxonomy.json": "836fdcda646dbcbc"
+   "config/knot_taxonomy.json": "128c028c24cd245a"
   },
   "★corpus_caveat": "存量语料是**合成的、单语种(0 条中文)、单主题(助听器)**, 由 GLM-5.2/Qwen-3.8 生成。⇒ 中文出站、agent_memory profile、v5 媒体批次、[[mech:]] 标记的覆盖率**都是 0**。",
-  "★pollution_incident": "2026-09-06 第二轮审计期间, 并行 agent 把 run/guard_profile 从 daerdo 改成字面量 \"g\", 并把 tests/data/phase2/panel_analysis.json 改了 +948/−316 行 —— **那正是三条 ksep 判决的下游消费语料**。已 git checkout 还原; 受影响的三条判决(separation 枚举 / p 数值 / alpha)标为 needs_rerun。"
+  "★pollution_incident": "2026-09-06 第二轮审计期间, 并行 agent 把 run/guard_profile 从 daerdo 改成字面量 \"g\", 并把 tests/data/phase2/panel_analysis.json 改了 +948/−316 行 —— **那正是三条 ksep 判决的下游消费语料**。已 git checkout 还原; 受影响的三条判决(separation 枚举 / p 数值 / alpha)标为 needs_rerun。",
+  "★corpus_sha_history": [
+   {
+    "file": "config/knot_taxonomy.json",
+    "from": "836fdcda646dbcbc",
+    "to": "128c028c24cd245a",
+    "date": "2026-09-07",
+    "what_changed": "只改了 status / gate_record / 新增一条 changelog —— **三者都是自述字段**",
+    "★why_verdicts_survive": "★ 这条闸**判得对**: 语料指纹变了就该红, 否则判决会挂在一份已经变了的语料上。本次之所以不作废 30 条判决, 是因为**改动落在已被实测为无消费者的字段上** —— 2026-09-07 的 knot_taxonomy 首次消融(tests/data/knot_taxonomy_ablation.json)显示: `status` 在 8 个 base 上 L1=0/8 · L2=0/8(判 INCONCLUSIVE, 粗计 165 处引用是**词碰撞**, 严计 5); `gate_record` 在 consistency_check 的 DESCRIPTIVE 豁免里、从不被核对; 新增的 changelog 键已登记为纯文档(实测 L1/L2 皆 0/8)。⇒ **有实测支撑, 不是「我觉得没影响」**。",
+    "★what_would_have_invalidated_them": "若改的是 knots[].key/name/family/behavior/playbook/signature/typical_codes 或顶层 version/levers_not_knots —— 那 9 条实测为 LOAD_BEARING_L2, 改它们**必须**作废相关判决并重跑。"
+   }
+  ]
  },
  "verdicts": [
   {

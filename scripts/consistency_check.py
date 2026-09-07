@@ -51,6 +51,7 @@ TOPLEVEL_DOC_ONLY = {
     # 变更日志 —— 纯文档, 零引用, 不进 prompt(消融实测 L1/L2 皆 0/8)
     "changelog_1_1_0", "changelog_1_1_1", "changelog_1_2_0", "changelog_1_3_0",
     "changelog_1_3_1", "changelog_1_3_1_b", "changelog_2026_09_05_atoms_a1a2",
+    "changelog_2026_09_07_acceptance_rerun",   # ★ 这条闸昨天刚建, 今天就抓到了我自己新加的键
     # 占位槽 —— 「等数据到了再填」, 机制未接线。★ 不是死规则, 是**未来的接口**,
     #   删了等于把「这里还缺东西」这件事也删了(同 sesoi 那类诚实性载荷)。
     "extra_appraisal_slots", "extension_slots_pending_data",
