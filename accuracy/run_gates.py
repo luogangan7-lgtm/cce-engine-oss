@@ -288,7 +288,15 @@ def qualify(model):
         shown = [a for a in ANCHORS if a.get("id") != held]
         demo = "\n".join(f"【锚例·{a['knot']}】{a.get('text','')[:200]}" for a in shown)
         # 用与正式标注完全相同的模板考试, 只是把示范锚例换成留一法的4个
-        p = DIST_TMPL.format(brief=KNOT_BRIEF + "\n\n★示范锚例(留一法, 已隐去本题):\n" + demo,
+        # ★★ 2026-09-07 修: 此前只填了 brief/body, 漏了 decision_tree 与 negative_examples
+        #   ⇒ `DIST_TMPL.format(...)` 抛 KeyError('decision_tree') ⇒ **qualify() 一次都没跑通过**。
+        #   而它是 main() 的第一步 ⇒ **整个验收闸根本跑不起来**。
+        #   ⇒ `gate_record` 里那句「G-K1 v5 通过(2026-08-07)」只能来自 qualify() 被加进来**之前**
+        #     的版本 —— 有人写了资格考、写了「本次起强制执行」的注释, 而这段代码从未执行。
+        #   ★ 本函数自己的注释写着「用与正式标注**完全相同的模板**考试」—— 现在它才真的相同。
+        p = DIST_TMPL.format(decision_tree=DECISION_TREE,
+                             negative_examples=NEGATIVE_EXAMPLES,
+                             brief=KNOT_BRIEF + "\n\n★示范锚例(留一法, 已隐去本题):\n" + demo,
                              body=item["b"][:700])
         out = call(model, p)
         d = extract_json_robust(out, log_note="qual")
