@@ -1502,6 +1502,30 @@
     "不得说资格层「守得住」—— 它现在只给候选, 语义仍未验。",
     "不得把 evidence_quote_verbatim=True 读成证据成立(逐字≠支持)。"
    ]
+  },
+  {
+   "date": "2026-09-23",
+   "event": "ABLATION_V3_ROUND3_CHAIN_STAGES_S0_S2_S3_OVERLAP_XM_JUDGED",
+   "file": "tests/data/ablation_v3/r3_主链编排段.json",
+   "to_sha": "732357da3d86a0a9",
+   "also": {
+    "probes/ablation_r3_chain_stages.py": "bc64417a367ecc52"
+   },
+   "reason": "消融审计 v3 第三轮: 生产主链两轮零判决的编排段 —— s0_context(接 Jev 后)/ s2_knots(taxo 钉 · is True · 两种扣发理由 · unscored_guidance · label_qualification)/ s3_emotion_policy / reader_baseline∥s1 重叠编排 / exp_crossmodel_desire 的生产消费面 —— 32 条判决进 tests/data/ablation_verdicts_v3.json(v3-310..341): {'LOAD_BEARING_L1_ONLY': 10, 'NO_CONSUMER': 11, 'UNREACHABLE': 7, 'LOAD_BEARING_L2': 4}。零 API(绊线 []), 阳性对照过, L4 走 rsync 冻结快照磁盘副本减空操作臂。**未改任何生产代码**; core_files 六个 pin 与 parser_plane 逐字未动, instrument_generation 不变。",
+   "behavior_evidence": [
+    "tests/test_cce_ablation_verdicts_v3.py",
+    "tests/test_cce_ablation_verdict_schema.py",
+    "tests/test_cce_ablation_harness_injection_reach.py",
+    "tests/test_cce_verdicts_no_stale_evidence.py"
+   ],
+   "★evidence_is_required_because": "「这几段两轮没消融」这句话本身**不足以**说明它们承重还是装饰; 「仪器哈希没变」也**不足以**证明编排段的行为没变 —— 32 行每行都带 L1/L2 差分 + 注入臂 + 工况, 由现算闸(tally/coverage/ledger/冻结件 sha)守住。",
+   "route": "**判决表变更(非 core_files, instrument_generation 不变) + 新增零 API 探针 probes/ablation_r3_chain_stages.py**; 生产代码零改动。",
+   "★不得据此说": [
+    "不得说 s0 两个后端「读得一样」—— 桩回放同一读出面, 语义差异本轮结构上不可见。",
+    "不得说 exp_crossmodel_desire 测透了: 32 条仍全在存量回放 + 桩化工况下。",
+    "不得把 NO_CONSUMER(P 侧)读成可删: 32 行里 deletable=True 只有 2 条(v3-338 ctx['reader_cce'] · v3-339 未用 import re), 其余 NO_CONSUMER 都有 G 侧闸或 owner 决定钉着。",
+    "不得说读者基线「进了判决」: v3-332/337/338 合读 = 读者读数只到 manifest 为止, 链上零判决消费者。"
+   ]
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",

@@ -1,0 +1,5007 @@
+{
+ "block": "ABLATION_V3_CLUSTER_r3_主链编排段",
+ "cluster": "r3_主链编排段",
+ "round": "v3-第三轮(主链编排段)",
+ "targets": [
+  "scripts/cce_full_run.py",
+  "scripts/cce_s0_jev.py",
+  "scripts/exp_crossmodel_desire.py"
+ ],
+ "decided_at": "2026-09-23T23:30:36",
+ "started_at": "2026-09-23T23:30:24",
+ "harness": "probes/ablation_r3_chain_stages.py(量具 probes/ablation_harness_v3.py)",
+ "methodology": "M1 先验收判官再用判官 · M2 L3(instrument_hash)是重言零证据力 · M3 按 tag 索引重放(不用共享迭代器)且扫描面含 accuracy/ · M4 引用计数报粗计与严计两个数 · M5 判决词表 LOAD_BEARING_L2 / LOAD_BEARING_L1_ONLY / UNREACHABLE / NO_CONSUMER / COULD_NOT_RUN / CIRCULAR / INCONCLUSIVE, deletable 是独立字段不由 verdict 推导 · M6 凡判无差异必跑荒谬值注入臂 · M7 工况(market/profile/k分布/语料sha/时点)随判决同行 · M8 存量消融天然把保险丝判成装饰: NO_CONSUMER 必须区分真死与本工况未触发",
+ "evidence_scope": "本装置能支持的结论**仅限**: 在**存量语料重放 + 内存内源码变异**这一工况下, 某常量/字段是否改变数值输出(L1)与判决面(L2)。它**不能**证明: 真实模型的语义判断准确率 · 重复稳定性 · 线上工况下的行为 · 该常量在**其它 k / 其它 market / 其它 profile** 下是否承重。",
+ "observable_note": "★ 只用 L1(数值输出改变) 与 L2(判决改变)。**明确排除 L3 = instrument_hash**: 它覆盖 ontology_version / s1_prompt_sha256 / s2_prompt_sha256 / model / endpoint / sampling_policy, 改**任何**被覆盖的常量它都会变, **包括改一个永不取用的死常量** ⇒ 用它判必然 100% 承重, 是重言。",
+ "injection_note": "★ N1 注入作用域 ≠ 观测面作用域 —— 第三/四/五轮各复发一次。(b) 仓内 48 个模块在 **import 期自己再从磁盘读一份 config**(两种写法都有: `json.load(open(...))` 与 `Path.read_text()`→`io.open`), 只注内存字典**到不了**它们; (c) 变异模块不进 `sys.modules`, 跨模块 `import X` 拿到的是**磁盘原件**, 消融臂静默绑回基线。两者都让「注入后下游不变」被读成「没有消费者」—— **假阴性, 且读起来像最强的证据**。⇒ 到不了的面只能标 blind + INCONCLUSIVE, **不许**拿来支撑无差异结论。",
+ "zero_api": {
+  "in_process": "全程 socket.socket.connect 绊线, tripwire_tripped=[]",
+  "s0_backends": "Jev(_post)与 MiniMax(call_model)全部桩掉; TYPESAFE_API_KEY 只置假值/空串, MINIMAX_API_KEY 只置 OFFLINE-FAKE-KEY-NOT-A-SECRET; 仓内无 .env",
+  "l4_subprocess": "每个测试子进程 env 里两把 key 同样是假值/空串; 绊线不覆盖子进程(如实)",
+  "corpus_privacy": "产物只有统计量与指针(路径/sha/长度), 不落任何语料原文",
+  "tripwire_scope": "覆盖: 本进程内**经 socket.socket.connect 新建**的连接(含 urllib/requests/http.client)。 **不覆盖**: ① 进入本上下文**之前已建立**的连接 ② 不走 socket 的传输(共享内存 / 本机文件 / unix pipe 以外的自带通道) ③ **子进程**(subprocess / os.system 另起进程, 有自己的 socket 模块) ④ **C 扩展自带的网络栈**(不经 Python socket 对象) ⑤ 本进程外的任何东西。 ⇒ 证据只能说「**本进程内经 socket 新建的连接被拦截, 且整段运行中一次都没被触发**」, **不能**说「全进程所有网络出口都已关闭」。"
+ },
+ "positive_control": {
+  "passed": true,
+  "failed_gates": [],
+  "gates": {
+   "dead_swap_not_load_bearing": true,
+   "dead_absurd_injection_still_no_diff": true,
+   "liquid_L1_changed": true,
+   "liquid_changed_broadly": true,
+   "noop_no_diff": true,
+   "determinism": true,
+   "tags_indexed": true,
+   "tripwire_never_tripped": true,
+   "repo_files_untouched": true,
+   "L3_is_tautology_confirmed": true,
+   "dead_constant_is_UNREACHABLE_not_NO_CONSUMER": true
+  },
+  "checks": {
+   "determinism_same_module_twice": true,
+   "determinism_fresh_reload": true,
+   "baseline_replay_reproduces_archived_intensity": "22/22",
+   "tags_indexed_not_iterator": true,
+   "dead_constant_revives_at_k": {
+    "k": 7,
+    "base_temps": [
+     0.0,
+     0.3,
+     0.6,
+     0.9,
+     0.15,
+     0.45,
+     0.75
+    ],
+    "dead_arm_temps": [
+     0.0,
+     0.3,
+     0.6,
+     0.9,
+     0.15,
+     999.0,
+     -999.0
+    ],
+    "L1_changed_at_this_k": true
+   },
+   "tripwire_tripped": []
+  },
+  "judge_verdict_on_dead_constant": "UNREACHABLE(本工况 k≤5 下第 6/7 档永不取用; k≥6 即复活 —— 实证见 checks.dead_constant_revives_at_k)。M5 词表下**不是** NO_CONSUMER, 更**不是**承重。"
+ },
+ "operating_point": {
+  "OP_s0_archive50": {
+   "n_s0_context_files": 50,
+   "n_with_real_body": 50,
+   "n_body_gt_2000": 8,
+   "n_need_read_empty(全声明)": 30,
+   "archived_source_hist": {
+    "已声明": 286,
+    "读出": 81
+   },
+   "archived_fill_hist": {
+    "1.0": 30,
+    "0.778": 1,
+    "0.889": 3,
+    "0.444": 4,
+    "0.556": 8,
+    "0.333": 3,
+    "0.111": 1
+   },
+   "corpus_sha256": "87ba9cf7f050675b8935224346504585a1d39a789001b43ea4668f9795bdc568",
+   "★读出面的循环性": "存量 s0_context.json 只存**过了非法值守卫之后**的读出值 ⇒ 回放桩永远只回放合法值; 非法值守卫在本语料上结构性满足, 只能靠注入臂判活。",
+   "scenarios": [
+    "KEY(TYPESAFE_API_KEY=假值, Jev 桩)",
+    "NOKEY(空串 ⇒ NO_TYPESAFE_API_KEY ⇒ MiniMax 桩)"
+   ]
+  },
+  "OP_text52": {
+   "n_texts": 52,
+   "n_gt_2000": 9,
+   "max_len": 11479,
+   "corpus_sha256": "e85a386c2746ee7cf2afcab823bd11492095f4103ec774c02ce1ccc7b20dfcf8",
+   "★只量一面": "后端收到的字节数(桩记录), 不量语义"
+  },
+  "OP_s2_archive79": {
+   "n_files": 79,
+   "n_reader_baseline": 16,
+   "n_with_real_text": 66,
+   "n_with_archived_s1_manifest": 79,
+   "top1_stable_hist": {
+    "None": 31,
+    "False": 35,
+    "True": 13
+   },
+   "top1_key_hist": {
+    "display": 27,
+    "audit": 16,
+    "reward": 22,
+    "pain_seek": 12,
+    "injustice": 1,
+    "belong": 1
+   },
+   "taxonomy_version": "1.3.1",
+   "CCE_TAXO_VERSION": "未设 ⇒ 默认 1.3.1",
+   "corpus_sha256": "f3102d74716d111ea9d32d0885c2616fe7e9ce08fb9eb891f648b8ad9c38bf19"
+  },
+  "OP_ov6": {
+   "scenarios": [
+    "reply_overlap",
+    "reply_serial",
+    "reply_overlap_nokey",
+    "reply_fail_reader",
+    "reply_fail_s0",
+    "reply_overlap_late_thread",
+    "outbound_post"
+   ],
+   "classifier": "桩(sleep 0.05s, 返回一份真实存量 s1_readout 的深拷贝)",
+   "s4": "桩(不起子进程)",
+   "s0": "真 s0 + 后端桩(KEY 场景)",
+   "s2/s3/qualified": "真代码",
+   "★晚启动调度": "reply_overlap_late_thread 用 LateExecutor(submit 只登记, join 时才跑) 把线程晚启动做成确定性; 真线程池场景另跑一次"
+  },
+  "market": {
+   "★口径": "词边界 \\bmarket\\b, 扫 scripts/config/accuracy/probes 下的 *.py 与 *.json(不含 __pycache__)",
+   "总命中": 65,
+   "逐目录": {
+    "scripts": 32,
+    "config": 2,
+    "accuracy": 8,
+    "probes": 23
+   },
+   "命中最多的前几处": [
+    "scripts/cce_outbound_guard.py:27",
+    "probes/operating_point_adjudication.py:16",
+    "probes/ablation_harness_v3.py:6",
+    "scripts/cce_strategy_gate.py:4",
+    "accuracy/data/hearingaids_regulars_20260809.json:3",
+    "accuracy/data/reddit_snapshot_20260809.json:3"
+   ],
+   "★这条曾经是假的": "本函数替换掉的硬编串写着「仓内无 market 字段(已实扫)」——**假**, 它是 CE-2 的源头, 被指出两轮未改。真消费点见 scripts/cce_strategy_gate.py(含 CCE_MARKET 环境变量)与 scripts/cce_outbound_guard.py。",
+   "★仍成立的那一半": "存量语料按 archive/<run_id> 归档, **不带市场维度** ⇒ 基于存量的判决仍**不能**外推到按市场分层的工况。★ 但那是**语料**的性质, 不是「仓内没有 market」。两句话被我先前混成了一句。"
+  },
+  "decided_at": "2026-09-23T23:30:25",
+  "drift_rule": "以上任一项变化 ⇒ 基于本工况的判决当场失效, 必须重跑。"
+ },
+ "baseline_noise_floor": {
+  "s0_KEY": {
+   "L1_same": true,
+   "L2_same": true
+  },
+  "s2s3": {
+   "L1_same": true,
+   "L2_same": true
+  },
+  "ov": {
+   "L1_same": true,
+   "L2_same": true
+  }
+ },
+ "wiring_checks": {
+  "s0_replay_reproduces_archived_facets": "50/50",
+  "s0_replay_reproduces_archived_fill": "50/50",
+  "s3_replay_reproduces_archived_distribution(s1_readout only; reader_baseline 无自己的 s3 段)": "59/59",
+  "s2_replay_reproduces_archived_playbook_primary(s1_readout only)": "37/63",
+  "s2_replay_mismatch_explained_by_code_history": "存档 s2 段按 (taxonomy, top1_stable, playbook 是否发出) 分组: 1.2.0 时代 9 份(旧代码无 sampling 也发) · 1.3.1 且 top1_stable=None 却发出 18 份(2026-09-06 `is not False`→`is True` 收紧之前) · False 却发出 2 份(同上更早) · 无 s2 段 4 份 ⇒ 回放复现的是**现行**语义, 不匹配的全部落在收紧之前的存档上。",
+  "s0_base_KEY_backend_hist": {
+   "none": 30,
+   "jev": 20
+  },
+  "s0_base_NOKEY_backend_hist": {
+   "none": 30,
+   "minimax_fallback(NO_TYPESAFE_API_KEY)": 20
+  },
+  "s2_base_playbook_issued": "13/79",
+  "s2_base_verbatim_true": "26/79(有原文 66)",
+  "s2_base_label_state_hist": {
+   "UNCONFIRMED_CANDIDATE": 79
+  },
+  "s2_base_unscored_guidance_nonnull": 1,
+  "ov_base": {
+   "reply_overlap": {
+    "rc": 0,
+    "failed_at": null,
+    "overlapped": true,
+    "reader_ctx": "C0",
+    "s1_ctx_has_scene": true,
+    "wall": 0.057
+   },
+   "reply_serial": {
+    "rc": 0,
+    "failed_at": null,
+    "overlapped": false,
+    "reader_ctx": "C0",
+    "s1_ctx_has_scene": true,
+    "wall": 0.109
+   },
+   "reply_overlap_nokey": {
+    "rc": 0,
+    "failed_at": null,
+    "overlapped": true,
+    "reader_ctx": "C0",
+    "s1_ctx_has_scene": true,
+    "wall": 0.059
+   },
+   "reply_fail_reader": {
+    "rc": 1,
+    "failed_at": "reader_baseline",
+    "overlapped": true,
+    "reader_ctx": "C0",
+    "s1_ctx_has_scene": true,
+    "wall": 0.054
+   },
+   "reply_fail_s0": {
+    "rc": 1,
+    "failed_at": "s0_context",
+    "overlapped": false,
+    "reader_ctx": "C0",
+    "s1_ctx_has_scene": false,
+    "wall": 0.054
+   },
+   "reply_overlap_late_thread": {
+    "rc": 0,
+    "failed_at": null,
+    "overlapped": false,
+    "reader_ctx": "C0",
+    "s1_ctx_has_scene": true,
+    "wall": 0.108
+   },
+   "outbound_post": {
+    "rc": 0,
+    "failed_at": null,
+    "overlapped": false,
+    "reader_ctx": null,
+    "s1_ctx_has_scene": true,
+    "wall": 0.057
+   }
+  }
+ },
+ "arms": {
+  "S0_A1_jev_precedence_off": {
+   "patch": {
+    "old": "if jr is not None:\n            read, backend = jr, \"jev\"",
+    "new": "if False:\n            read, backend = jr, \"jev\""
+   },
+   "source_sha16": "a4373855396c8374",
+   "s0_KEY": {
+    "L1": {
+     "n_changed": 20,
+     "n": 50,
+     "changed_ptrs": [
+      "archive/33745544418/cce-item-0-33745544418__s0_context.json",
+      "archive/33746399209/cce-item-0-33746399209__s0_context.json",
+      "archive/33748217410/cce-subject-item-0-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-1-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-2-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-3-33748217410__s0_context.json"
+     ]
+    },
+    "L2": {
+     "n_changed": 20,
+     "n": 50,
+     "changed_ptrs": [
+      "archive/33745544418/cce-item-0-33745544418__s0_context.json",
+      "archive/33746399209/cce-item-0-33746399209__s0_context.json",
+      "archive/33748217410/cce-subject-item-0-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-1-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-2-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-3-33748217410__s0_context.json"
+     ]
+    },
+    "backend_hist": {
+     "none": 30,
+     "minimax_fallback(None)": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 40,
+    "asked_hist": {
+     "4": 8,
+     "6": 32
+    }
+   },
+   "s0_NOKEY": {
+    "L1": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "backend_hist": {
+     "none": 30,
+     "minimax_fallback(NO_TYPESAFE_API_KEY)": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "4": 4,
+     "6": 16
+    }
+   }
+  },
+  "S0_A2_fallback_mislabeled_as_jev": {
+   "patch": {
+    "old": "backend = \"minimax_fallback(%s)\" % jerr",
+    "new": "backend = \"jev\""
+   },
+   "source_sha16": "da2c855f8be92860",
+   "s0_KEY": {
+    "L1": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "backend_hist": {
+     "none": 30,
+     "jev": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "4": 4,
+     "6": 16
+    }
+   },
+   "s0_NOKEY": {
+    "L1": {
+     "n_changed": 20,
+     "n": 50,
+     "changed_ptrs": [
+      "archive/33745544418/cce-item-0-33745544418__s0_context.json",
+      "archive/33746399209/cce-item-0-33746399209__s0_context.json",
+      "archive/33748217410/cce-subject-item-0-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-1-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-2-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-3-33748217410__s0_context.json"
+     ]
+    },
+    "L2": {
+     "n_changed": 20,
+     "n": 50,
+     "changed_ptrs": [
+      "archive/33745544418/cce-item-0-33745544418__s0_context.json",
+      "archive/33746399209/cce-item-0-33746399209__s0_context.json",
+      "archive/33748217410/cce-subject-item-0-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-1-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-2-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-3-33748217410__s0_context.json"
+     ]
+    },
+    "backend_hist": {
+     "none": 30,
+     "jev": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "4": 4,
+     "6": 16
+    }
+   }
+  },
+  "S0_A3_read_overrides_declared": {
+   "patch": {
+    "old": "        if k in decl:\n            merged[k], src[k] = decl[k], \"已声明\"\n        elif read.get(k) not in CTX_UNKNOWN and read.get(k) in f[\"values\"]:\n            merged[k], src[k] = read[k], \"读出\"\n",
+    "new": "        if read.get(k) not in CTX_UNKNOWN and read.get(k) in f[\"values\"]:\n            merged[k], src[k] = read[k], \"读出\"\n        elif k in decl:\n            merged[k], src[k] = decl[k], \"已声明\"\n"
+   },
+   "source_sha16": "a4a86ccc14e33873",
+   "s0_KEY": {
+    "L1": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "backend_hist": {
+     "none": 30,
+     "jev": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "4": 4,
+     "6": 16
+    }
+   },
+   "s0_NOKEY": {
+    "L1": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "backend_hist": {
+     "none": 30,
+     "minimax_fallback(NO_TYPESAFE_API_KEY)": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "4": 4,
+     "6": 16
+    }
+   }
+  },
+  "S0_A4_illegal_value_not_mapped_to_unknown": {
+   "patch": {
+    "old": "elif read.get(k) not in CTX_UNKNOWN and read.get(k) in f[\"values\"]:",
+    "new": "elif read.get(k) not in CTX_UNKNOWN:"
+   },
+   "source_sha16": "7751722cd4813015",
+   "s0_KEY": {
+    "L1": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "backend_hist": {
+     "none": 30,
+     "jev": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "4": 4,
+     "6": 16
+    }
+   },
+   "s0_NOKEY": {
+    "L1": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "backend_hist": {
+     "none": 30,
+     "minimax_fallback(NO_TYPESAFE_API_KEY)": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "4": 4,
+     "6": 16
+    }
+   }
+  },
+  "S0_A5_miss_guard_removed": {
+   "patch": {
+    "old": "    if miss:\n        raise RuntimeError(f\"情境声明未生效: {miss} —— 传参链路断了, 拒绝用读出值冒充声明值\")",
+    "new": "    if miss:\n        pass"
+   },
+   "source_sha16": "19cbcce36a8834db",
+   "s0_KEY": {
+    "L1": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "backend_hist": {
+     "none": 30,
+     "jev": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "4": 4,
+     "6": 16
+    }
+   },
+   "s0_NOKEY": {
+    "L1": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "backend_hist": {
+     "none": 30,
+     "minimax_fallback(NO_TYPESAFE_API_KEY)": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "4": 4,
+     "6": 16
+    }
+   }
+  },
+  "S0_A6_fill_zero_guard_removed": {
+   "patch": {
+    "old": "    if fill == 0:\n        raise RuntimeError(\"情境九面全未知且无声明 —— 引擎拒答: 缺必要输入时不硬给结论\")",
+    "new": "    if fill == 0:\n        pass"
+   },
+   "source_sha16": "163624675f9dbe3d",
+   "s0_KEY": {
+    "L1": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "backend_hist": {
+     "none": 30,
+     "jev": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "4": 4,
+     "6": 16
+    }
+   },
+   "s0_NOKEY": {
+    "L1": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "backend_hist": {
+     "none": 30,
+     "minimax_fallback(NO_TYPESAFE_API_KEY)": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "4": 4,
+     "6": 16
+    }
+   }
+  },
+  "S0_A7_context_append_removed": {
+   "patch": {
+    "old": "    ctx[\"context\"] = ctx[\"context\"] + \" 【情境】\" + json.dumps(\n        {k: v for k, v in merged.items() if v != \"未知\"}, ensure_ascii=False)",
+    "new": "    ctx[\"context\"] = ctx[\"context\"]"
+   },
+   "source_sha16": "0af0dfad7a25efa1",
+   "s0_KEY": {
+    "L1": {
+     "n_changed": 50,
+     "n": 50,
+     "changed_ptrs": [
+      "archive/32095782756/cce-item-0-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-1-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-2-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-3-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-4-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-5-32095782756__s0_context.json"
+     ]
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "backend_hist": {
+     "none": 30,
+     "jev": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "4": 4,
+     "6": 16
+    }
+   },
+   "s0_NOKEY": {
+    "L1": {
+     "n_changed": 50,
+     "n": 50,
+     "changed_ptrs": [
+      "archive/32095782756/cce-item-0-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-1-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-2-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-3-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-4-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-5-32095782756__s0_context.json"
+     ]
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "backend_hist": {
+     "none": 30,
+     "minimax_fallback(NO_TYPESAFE_API_KEY)": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "4": 4,
+     "6": 16
+    }
+   }
+  },
+  "S0_A8_body_not_truncated": {
+   "patch": {
+    "old": "body = open(ctx[\"text_file\"], encoding=\"utf-8\").read()[:2000]",
+    "new": "body = open(ctx[\"text_file\"], encoding=\"utf-8\").read()"
+   },
+   "source_sha16": "7fe2d4b6df95c2d7",
+   "s0_KEY": {
+    "L1": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "backend_hist": {
+     "none": 30,
+     "jev": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "4": 4,
+     "6": 16
+    }
+   },
+   "s0_NOKEY": {
+    "L1": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "backend_hist": {
+     "none": 30,
+     "minimax_fallback(NO_TYPESAFE_API_KEY)": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "4": 4,
+     "6": 16
+    }
+   },
+   "len_KEY": {
+    "L1": {
+     "n_changed": 9,
+     "n": 52,
+     "changed_ptrs": [
+      "archive/32095782756/cce-submission-source__items.json[0]",
+      "archive/32095782756/cce-submission-source__items.json[1]",
+      "archive/32095782756/cce-submission-source__items.json[2]",
+      "archive/32095782756/cce-submission-source__items.json[3]",
+      "archive/32096357295/cce-submission-source__items.json[0]",
+      "archive/32096357295/cce-submission-source__items.json[1]"
+     ]
+    },
+    "n_texts_gt_2000": 9,
+    "base_sent_hist": {
+     "2000": 9
+    },
+    "arm_sent_gt_2000": [
+     3845,
+     3845,
+     3845,
+     3845,
+     3845,
+     3845,
+     3845,
+     3845,
+     11479
+    ]
+   },
+   "len_NOKEY": {
+    "L1": {
+     "n_changed": 9,
+     "n": 52,
+     "changed_ptrs": [
+      "archive/32095782756/cce-submission-source__items.json[0]",
+      "archive/32095782756/cce-submission-source__items.json[1]",
+      "archive/32095782756/cce-submission-source__items.json[2]",
+      "archive/32095782756/cce-submission-source__items.json[3]",
+      "archive/32096357295/cce-submission-source__items.json[0]",
+      "archive/32096357295/cce-submission-source__items.json[1]"
+     ]
+    },
+    "n_texts_gt_2000": 9,
+    "base_sent_hist": {
+     "2000": 9
+    },
+    "arm_sent_gt_2000": [
+     3845,
+     3845,
+     3845,
+     3845,
+     3845,
+     3845,
+     3845,
+     3845,
+     11479
+    ]
+   }
+  },
+  "S0_A9_readable_filter_removed": {
+   "patch": {
+    "old": "if f[\"key\"] not in decl and f.get(\"readable_from_text\") in (True, \"partial\")]",
+    "new": "if f[\"key\"] not in decl]"
+   },
+   "source_sha16": "1fa7210d9aec8812",
+   "s0_KEY": {
+    "L1": {
+     "n_changed": 20,
+     "n": 50,
+     "changed_ptrs": [
+      "archive/33745544418/cce-item-0-33745544418__s0_context.json",
+      "archive/33746399209/cce-item-0-33746399209__s0_context.json",
+      "archive/33748217410/cce-subject-item-0-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-1-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-2-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-3-33748217410__s0_context.json"
+     ]
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "backend_hist": {
+     "none": 30,
+     "jev": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "5": 4,
+     "9": 16
+    }
+   },
+   "s0_NOKEY": {
+    "L1": {
+     "n_changed": 20,
+     "n": 50,
+     "changed_ptrs": [
+      "archive/33745544418/cce-item-0-33745544418__s0_context.json",
+      "archive/33746399209/cce-item-0-33746399209__s0_context.json",
+      "archive/33748217410/cce-subject-item-0-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-1-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-2-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-3-33748217410__s0_context.json"
+     ]
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "backend_hist": {
+     "none": 30,
+     "minimax_fallback(NO_TYPESAFE_API_KEY)": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "5": 4,
+     "9": 16
+    }
+   }
+  },
+  "S0_A2i_read_backend_absurd_999": {
+   "patch": {
+    "old": "backend = \"minimax_fallback(%s)\" % jerr",
+    "new": "backend = 999"
+   },
+   "source_sha16": "ecd49892fc50b1c9",
+   "ov": {
+    "L1_scenarios_changed": [
+     "reply_overlap_nokey"
+    ],
+    "L2_scenarios_changed": [],
+    "nokey_read_backend": 999,
+    "nokey_rc_complete_usable": [
+     0,
+     true,
+     [
+      "s1.tops.action",
+      "s1.tops.desire",
+      "s1.tops.emotion",
+      "s1.tops.need"
+     ]
+    ]
+   },
+   "s0_KEY": {
+    "L1": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "backend_hist": {
+     "none": 30,
+     "jev": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "4": 4,
+     "6": 16
+    }
+   },
+   "s0_NOKEY": {
+    "L1": {
+     "n_changed": 20,
+     "n": 50,
+     "changed_ptrs": [
+      "archive/33745544418/cce-item-0-33745544418__s0_context.json",
+      "archive/33746399209/cce-item-0-33746399209__s0_context.json",
+      "archive/33748217410/cce-subject-item-0-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-1-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-2-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-3-33748217410__s0_context.json"
+     ]
+    },
+    "L2": {
+     "n_changed": 20,
+     "n": 50,
+     "changed_ptrs": [
+      "archive/33745544418/cce-item-0-33745544418__s0_context.json",
+      "archive/33746399209/cce-item-0-33746399209__s0_context.json",
+      "archive/33748217410/cce-subject-item-0-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-1-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-2-33748217410__s0_context.json",
+      "archive/33748217410/cce-subject-item-3-33748217410__s0_context.json"
+     ]
+    },
+    "backend_hist": {
+     "none": 30,
+     "999": 20
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 20,
+    "asked_hist": {
+     "4": 4,
+     "6": 16
+    }
+   }
+  },
+  "S0_A12_backend_called_even_if_nothing_to_read": {
+   "patch": {
+    "old": "    if need_read:\n        body = open",
+    "new": "    if True:\n        body = open"
+   },
+   "source_sha16": "58d146c32a3c4cd7",
+   "s0_KEY": {
+    "L1": {
+     "n_changed": 30,
+     "n": 50,
+     "changed_ptrs": [
+      "archive/32095782756/cce-item-0-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-1-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-2-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-3-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-4-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-5-32095782756__s0_context.json"
+     ]
+    },
+    "L2": {
+     "n_changed": 30,
+     "n": 50,
+     "changed_ptrs": [
+      "archive/32095782756/cce-item-0-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-1-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-2-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-3-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-4-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-5-32095782756__s0_context.json"
+     ]
+    },
+    "backend_hist": {
+     "jev": 50
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 50,
+    "asked_hist": {
+     "0": 30,
+     "4": 4,
+     "6": 16
+    }
+   },
+   "s0_NOKEY": {
+    "L1": {
+     "n_changed": 30,
+     "n": 50,
+     "changed_ptrs": [
+      "archive/32095782756/cce-item-0-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-1-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-2-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-3-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-4-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-5-32095782756__s0_context.json"
+     ]
+    },
+    "L2": {
+     "n_changed": 30,
+     "n": 50,
+     "changed_ptrs": [
+      "archive/32095782756/cce-item-0-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-1-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-2-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-3-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-4-32095782756__s0_context.json",
+      "archive/32095782756/cce-item-5-32095782756__s0_context.json"
+     ]
+    },
+    "backend_hist": {
+     "minimax_fallback(NO_TYPESAFE_API_KEY)": 50
+    },
+    "raised_hist": {
+     "": 50
+    },
+    "n_backend_calls": 50,
+    "asked_hist": {
+     "0": 30,
+     "4": 4,
+     "6": 16
+    }
+   }
+  },
+  "S2_B1_taxo_pin_literal_1_3_0": {
+   "patch": {
+    "old": "PINNED_TAXO = os.environ.get(\"CCE_TAXO_VERSION\", \"1.3.1\")",
+    "new": "PINNED_TAXO = os.environ.get(\"CCE_TAXO_VERSION\", \"1.3.0\")"
+   },
+   "source_sha16": "e1b6c05ca393cec9",
+   "s2s3": {
+    "L1": {
+     "n_changed": 79,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L2": {
+     "n_changed": 79,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L1_s2_changed": {
+     "n_changed": 79,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L1_s3_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_usable_changed": {
+     "n_changed": 24,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/32113950638/cce-item-0-32113950638__s1_readout.json",
+      "archive/32114744002/cce-item-0-32114744002__s1_readout.json",
+      "archive/33745544418/cce-item-0-33745544418__s1_readout.json",
+      "archive/33746399209/cce-item-0-33746399209__reader_baseline.json",
+      "archive/33746399209/cce-item-0-33746399209__s1_readout.json",
+      "archive/33748217410/cce-subject-item-0-33748217410__s1_readout.json"
+     ]
+    },
+    "L2_withheld_changed": {
+     "n_changed": 79,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L2_playbook_issued": "0/79",
+    "raised_hist": {
+     "RuntimeError": 79
+    },
+    "verbatim_true": 0,
+    "unscored_nonnull": 0
+   }
+  },
+  "S2_B2_taxo_guard_removed": {
+   "patch": {
+    "old": "        raise RuntimeError(f\"taxonomy版本漂移: {taxo.get('version')} != {PINNED_TAXO}\")",
+    "new": "        pass"
+   },
+   "source_sha16": "d0a53d40192a5209",
+   "s2s3": {
+    "L1": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L1_s2_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L1_s3_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_usable_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_withheld_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_playbook_issued": "13/79",
+    "raised_hist": {
+     "": 79
+    },
+    "verbatim_true": 26,
+    "unscored_nonnull": 1
+   }
+  },
+  "S2_B3_top1_is_not_False": {
+   "patch": {
+    "old": "\"playbook_primary\": (knots[0].get(\"playbook\", \"\")[:120]\n                                 if knots and top1_stable is True else None),",
+    "new": "\"playbook_primary\": (knots[0].get(\"playbook\", \"\")[:120]\n                                 if knots and top1_stable is not False else None),"
+   },
+   "source_sha16": "d34b6ce637d3227f",
+   "s2s3": {
+    "L1": {
+     "n_changed": 31,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L2": {
+     "n_changed": 31,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L1_s2_changed": {
+     "n_changed": 31,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L1_s3_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_usable_changed": {
+     "n_changed": 31,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L2_withheld_changed": {
+     "n_changed": 31,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L2_playbook_issued": "44/79",
+    "raised_hist": {
+     "": 79
+    },
+    "verbatim_true": 26,
+    "unscored_nonnull": 1
+   }
+  },
+  "S2_B4_withheld_reason_collapsed": {
+   "patch": {
+    "old": "                (f\"top1 一致性**不可判**(可投票 draw < 2, 一个观测点上观察不到一致性): \"\n                 f\"{samp.get('top1_draws')}\" if top1_stable is None else\n                 f\"top1 不稳: {samp.get('top1_draws')}\")),",
+    "new": "                f\"top1 不稳: {samp.get('top1_draws')}\"),"
+   },
+   "source_sha16": "f3ba58359a621fb0",
+   "s2s3": {
+    "L1": {
+     "n_changed": 31,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L2": {
+     "n_changed": 31,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L1_s2_changed": {
+     "n_changed": 31,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L1_s3_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_usable_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_withheld_changed": {
+     "n_changed": 31,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L2_playbook_issued": "13/79",
+    "raised_hist": {
+     "": 79
+    },
+    "verbatim_true": 26,
+    "unscored_nonnull": 1
+   }
+  },
+  "S2_B5_playbook_cut_10": {
+   "patch": {
+    "old": "\"playbook_primary\": (knots[0].get(\"playbook\", \"\")[:120]",
+    "new": "\"playbook_primary\": (knots[0].get(\"playbook\", \"\")[:10]"
+   },
+   "source_sha16": "1e77e018a87c3a16",
+   "s2s3": {
+    "L1": {
+     "n_changed": 13,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/32113950638/cce-item-0-32113950638__s1_readout.json",
+      "archive/32114744002/cce-item-0-32114744002__s1_readout.json",
+      "archive/33745544418/cce-item-0-33745544418__s1_readout.json",
+      "archive/33746399209/cce-item-0-33746399209__reader_baseline.json",
+      "archive/33748217410/cce-subject-item-1-33748217410__s1_readout.json",
+      "archive/33748217410/cce-subject-item-3-33748217410__s1_readout.json"
+     ]
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L1_s2_changed": {
+     "n_changed": 13,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/32113950638/cce-item-0-32113950638__s1_readout.json",
+      "archive/32114744002/cce-item-0-32114744002__s1_readout.json",
+      "archive/33745544418/cce-item-0-33745544418__s1_readout.json",
+      "archive/33746399209/cce-item-0-33746399209__reader_baseline.json",
+      "archive/33748217410/cce-subject-item-1-33748217410__s1_readout.json",
+      "archive/33748217410/cce-subject-item-3-33748217410__s1_readout.json"
+     ]
+    },
+    "L1_s3_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_usable_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_withheld_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_playbook_issued": "13/79",
+    "raised_hist": {
+     "": 79
+    },
+    "verbatim_true": 26,
+    "unscored_nonnull": 1
+   }
+  },
+  "S2_B6_unscored_guidance_removed": {
+   "patch": {
+    "old": "\"playbook_unscored_guidance\": (_unscored_guidance(taxo, knots[0][\"key\"])\n                                           if knots and top1_stable is True else None),",
+    "new": "\"playbook_unscored_guidance\": None,"
+   },
+   "source_sha16": "fe35f2f1202f7a31",
+   "s2s3": {
+    "L1": {
+     "n_changed": 1,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/32114744002/cce-item-0-32114744002__s1_readout.json"
+     ]
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L1_s2_changed": {
+     "n_changed": 1,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/32114744002/cce-item-0-32114744002__s1_readout.json"
+     ]
+    },
+    "L1_s3_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_usable_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_withheld_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_playbook_issued": "13/79",
+    "raised_hist": {
+     "": 79
+    },
+    "verbatim_true": 26,
+    "unscored_nonnull": 0
+   }
+  },
+  "S2_B7_label_qualification_removed": {
+   "patch": {
+    "old": "\"label_qualification\": _s2_label_qualification(ctx, knots)}",
+    "new": "\"label_qualification\": None}"
+   },
+   "source_sha16": "65f4047335cd8129",
+   "s2s3": {
+    "L1": {
+     "n_changed": 79,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L2": {
+     "n_changed": 79,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L1_s2_changed": {
+     "n_changed": 79,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L1_s3_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_usable_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_withheld_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_playbook_issued": "13/79",
+    "raised_hist": {
+     "": 79
+    },
+    "verbatim_true": 0,
+    "unscored_nonnull": 1
+   }
+  },
+  "S2_B8_verbatim_check_removed": {
+   "patch": {
+    "old": "\"evidence_quote_verbatim\": bool(quote) and quote in text,",
+    "new": "\"evidence_quote_verbatim\": bool(quote),"
+   },
+   "source_sha16": "d3901c015e23db52",
+   "s2s3": {
+    "L1": {
+     "n_changed": 53,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L2": {
+     "n_changed": 53,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L1_s2_changed": {
+     "n_changed": 53,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L1_s3_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_usable_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_withheld_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_playbook_issued": "13/79",
+    "raised_hist": {
+     "": 79
+    },
+    "verbatim_true": 79,
+    "unscored_nonnull": 1
+   }
+  },
+  "S3_C1_top3": {
+   "patch": {
+    "old": "dist = sorted(zip(EMOTIONS, vec), key=lambda x: -x[1])[:4]",
+    "new": "dist = sorted(zip(EMOTIONS, vec), key=lambda x: -x[1])[:3]"
+   },
+   "source_sha16": "2d811cf04af18d04",
+   "s2s3": {
+    "L1": {
+     "n_changed": 79,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L1_s2_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L1_s3_changed": {
+     "n_changed": 79,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L2_usable_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_withheld_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_playbook_issued": "13/79",
+    "raised_hist": {
+     "": 79
+    },
+    "verbatim_true": 26,
+    "unscored_nonnull": 1
+   }
+  },
+  "S3_C2_labels_reversed": {
+   "patch": {
+    "old": "dist = sorted(zip(EMOTIONS, vec), key=lambda x: -x[1])[:4]",
+    "new": "dist = sorted(zip(list(reversed(EMOTIONS)), vec), key=lambda x: -x[1])[:4]"
+   },
+   "source_sha16": "76c17aefff1b232a",
+   "s2s3": {
+    "L1": {
+     "n_changed": 79,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L2": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L1_s2_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L1_s3_changed": {
+     "n_changed": 79,
+     "n": 79,
+     "changed_ptrs": [
+      "archive/31299473290/cce-0-31299473290__s1_readout.json",
+      "archive/31299473290/cce-1-31299473290__s1_readout.json",
+      "archive/31299473290/cce-2-31299473290__s1_readout.json",
+      "archive/31299473290/cce-3-31299473290__s1_readout.json",
+      "archive/31299473290/cce-4-31299473290__s1_readout.json",
+      "archive/31299473290/cce-5-31299473290__s1_readout.json"
+     ]
+    },
+    "L2_usable_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_withheld_changed": {
+     "n_changed": 0,
+     "n": 79,
+     "changed_ptrs": []
+    },
+    "L2_playbook_issued": "13/79",
+    "raised_hist": {
+     "": 79
+    },
+    "verbatim_true": 26,
+    "unscored_nonnull": 1
+   }
+  },
+  "OV_O1_lazy_context_no_snapshot": {
+   "patch": {
+    "old": "fut = _DEFER_EX.submit(run_knot_classify, rf, context, ctx[\"k\"], out)",
+    "new": "fut = _DEFER_EX.submit(lambda: run_knot_classify(rf, ctx[\"context\"], ctx[\"k\"], out))"
+   },
+   "source_sha16": "6b5f4cf508928548",
+   "ov": {
+    "L1_scenarios_changed": [
+     "reply_overlap_late_thread"
+    ],
+    "L2_scenarios_changed": [],
+    "per_scenario": {
+     "reply_overlap": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.056
+     },
+     "reply_serial": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.111
+     },
+     "reply_overlap_nokey": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.057
+     },
+     "reply_fail_reader": {
+      "rc": 1,
+      "failed_at": "reader_baseline",
+      "complete": false,
+      "reader_status": "FAIL",
+      "reader_manifest_keys": [
+       "error",
+       "status"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.057
+     },
+     "reply_fail_s0": {
+      "rc": 1,
+      "failed_at": "s0_context",
+      "complete": false,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.057
+     },
+     "reply_overlap_late_thread": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0 【情境】{\"进程位置\": \"在找方案\", \"关系位置\": \"首次接触\"}",
+      "overlapped": false,
+      "wall": 0.11
+     },
+     "outbound_post": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": null,
+      "reader_manifest_keys": [],
+      "reader_ctx": null,
+      "overlapped": false,
+      "wall": 0.057
+     }
+    }
+   }
+  },
+  "OV_O2_fallback_join_removed": {
+   "patch": {
+    "old": "    for dn in list(ctx.get(\"_deferred\", {})):\n        try:\n            _join_deferred(ctx, dn)\n        except Exception:\n            failed = dn\n",
+    "new": "    pass\n"
+   },
+   "source_sha16": "a98571f30728f850",
+   "ov": {
+    "L1_scenarios_changed": [
+     "reply_fail_s0"
+    ],
+    "L2_scenarios_changed": [
+     "reply_fail_s0"
+    ],
+    "per_scenario": {
+     "reply_overlap": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.057
+     },
+     "reply_serial": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.111
+     },
+     "reply_overlap_nokey": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.058
+     },
+     "reply_fail_reader": {
+      "rc": 1,
+      "failed_at": "reader_baseline",
+      "complete": false,
+      "reader_status": "FAIL",
+      "reader_manifest_keys": [
+       "error",
+       "status"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.056
+     },
+     "reply_fail_s0": {
+      "rc": 1,
+      "failed_at": "s0_context",
+      "complete": false,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "deferred_until",
+       "file",
+       "reader_chars",
+       "status"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.001
+     },
+     "reply_overlap_late_thread": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.108
+     },
+     "outbound_post": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": null,
+      "reader_manifest_keys": [],
+      "reader_ctx": null,
+      "overlapped": false,
+      "wall": 0.057
+     }
+    }
+   }
+  },
+  "OV_O3_failure_attributed_to_trigger_stage": {
+   "patch": {
+    "old": "                    _join_deferred(ctx, dn)\n                except Exception:\n                    failed = dn\n",
+    "new": "                    _join_deferred(ctx, dn)\n                except Exception:\n                    failed = fn.stage_name\n"
+   },
+   "source_sha16": "d23c420e75971e10",
+   "ov": {
+    "L1_scenarios_changed": [],
+    "L2_scenarios_changed": [
+     "reply_fail_reader"
+    ],
+    "per_scenario": {
+     "reply_overlap": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.057
+     },
+     "reply_serial": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.11
+     },
+     "reply_overlap_nokey": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.057
+     },
+     "reply_fail_reader": {
+      "rc": 1,
+      "failed_at": "s1_readout",
+      "complete": false,
+      "reader_status": "FAIL",
+      "reader_manifest_keys": [
+       "error",
+       "status"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.054
+     },
+     "reply_fail_s0": {
+      "rc": 1,
+      "failed_at": "s0_context",
+      "complete": false,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.056
+     },
+     "reply_overlap_late_thread": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.107
+     },
+     "outbound_post": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": null,
+      "reader_manifest_keys": [],
+      "reader_ctx": null,
+      "overlapped": false,
+      "wall": 0.056
+     }
+    }
+   }
+  },
+  "OV_O4_overlap_off_by_default": {
+   "patch": {
+    "old": "ctx[\"_overlap\"] = os.environ.get(\"CCE_SERIAL_STAGES\") != \"1\"",
+    "new": "ctx[\"_overlap\"] = os.environ.get(\"CCE_SERIAL_STAGES\") == \"1\""
+   },
+   "source_sha16": "31b6240a573c7c16",
+   "ov": {
+    "L1_scenarios_changed": [
+     "reply_fail_reader",
+     "reply_fail_s0",
+     "reply_overlap",
+     "reply_overlap_late_thread",
+     "reply_overlap_nokey",
+     "reply_serial"
+    ],
+    "L2_scenarios_changed": [
+     "reply_fail_reader",
+     "reply_fail_s0",
+     "reply_overlap",
+     "reply_overlap_late_thread",
+     "reply_overlap_nokey",
+     "reply_serial"
+    ],
+    "per_scenario": {
+     "reply_overlap": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.112
+     },
+     "reply_serial": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.057
+     },
+     "reply_overlap_nokey": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.113
+     },
+     "reply_fail_reader": {
+      "rc": 1,
+      "failed_at": "reader_baseline",
+      "complete": false,
+      "reader_status": "FAIL",
+      "reader_manifest_keys": [
+       "error",
+       "status"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.0
+     },
+     "reply_fail_s0": {
+      "rc": 1,
+      "failed_at": "s0_context",
+      "complete": false,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.053
+     },
+     "reply_overlap_late_thread": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.113
+     },
+     "outbound_post": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": null,
+      "reader_manifest_keys": [],
+      "reader_ctx": null,
+      "overlapped": false,
+      "wall": 0.056
+     }
+    }
+   }
+  },
+  "OV_O5_defer_target_s2": {
+   "patch": {
+    "old": "DEFER_UNTIL = {\"reader_baseline\": \"s1_readout\"}",
+    "new": "DEFER_UNTIL = {\"reader_baseline\": \"s2_knots\"}"
+   },
+   "source_sha16": "10c10317cb14cdd3",
+   "ov": {
+    "L1_scenarios_changed": [
+     "reply_fail_s0",
+     "reply_overlap",
+     "reply_overlap_late_thread",
+     "reply_overlap_nokey"
+    ],
+    "L2_scenarios_changed": [
+     "reply_fail_reader"
+    ],
+    "per_scenario": {
+     "reply_overlap": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.058
+     },
+     "reply_serial": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.11
+     },
+     "reply_overlap_nokey": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.057
+     },
+     "reply_fail_reader": {
+      "rc": 1,
+      "failed_at": "reader_baseline",
+      "complete": false,
+      "reader_status": "FAIL",
+      "reader_manifest_keys": [
+       "error",
+       "status"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.052
+     },
+     "reply_fail_s0": {
+      "rc": 1,
+      "failed_at": "s0_context",
+      "complete": false,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.055
+     },
+     "reply_overlap_late_thread": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.112
+     },
+     "outbound_post": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": null,
+      "reader_manifest_keys": [],
+      "reader_ctx": null,
+      "overlapped": false,
+      "wall": 0.053
+     }
+    }
+   }
+  },
+  "OV_O5i_defer_target_absurd": {
+   "patch": {
+    "old": "DEFER_UNTIL = {\"reader_baseline\": \"s1_readout\"}",
+    "new": "DEFER_UNTIL = {\"reader_baseline\": \"NO_SUCH_STAGE\"}"
+   },
+   "source_sha16": "b04f735a84a9291d",
+   "ov": {
+    "L1_scenarios_changed": [
+     "reply_fail_s0",
+     "reply_overlap",
+     "reply_overlap_late_thread",
+     "reply_overlap_nokey"
+    ],
+    "L2_scenarios_changed": [
+     "reply_fail_reader"
+    ],
+    "per_scenario": {
+     "reply_overlap": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.056
+     },
+     "reply_serial": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.108
+     },
+     "reply_overlap_nokey": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.057
+     },
+     "reply_fail_reader": {
+      "rc": 1,
+      "failed_at": "reader_baseline",
+      "complete": false,
+      "reader_status": "FAIL",
+      "reader_manifest_keys": [
+       "error",
+       "status"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.057
+     },
+     "reply_fail_s0": {
+      "rc": 1,
+      "failed_at": "s0_context",
+      "complete": false,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.057
+     },
+     "reply_overlap_late_thread": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.113
+     },
+     "outbound_post": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": null,
+      "reader_manifest_keys": [],
+      "reader_ctx": null,
+      "overlapped": false,
+      "wall": 0.058
+     }
+    }
+   }
+  },
+  "OV_O6_join_drops_reader_out": {
+   "patch": {
+    "old": "\"overlapped_with\": DEFER_UNTIL[name], **_reader_out(d, body)}",
+    "new": "\"overlapped_with\": DEFER_UNTIL[name]}"
+   },
+   "source_sha16": "b59ae1d1d2288f3b",
+   "ov": {
+    "L1_scenarios_changed": [
+     "reply_fail_s0",
+     "reply_overlap",
+     "reply_overlap_late_thread",
+     "reply_overlap_nokey"
+    ],
+    "L2_scenarios_changed": [
+     "reply_fail_s0",
+     "reply_overlap",
+     "reply_overlap_late_thread",
+     "reply_overlap_nokey"
+    ],
+    "per_scenario": {
+     "reply_overlap": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "overlapped_with",
+       "status"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.054
+     },
+     "reply_serial": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.112
+     },
+     "reply_overlap_nokey": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "overlapped_with",
+       "status"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.058
+     },
+     "reply_fail_reader": {
+      "rc": 1,
+      "failed_at": "reader_baseline",
+      "complete": false,
+      "reader_status": "FAIL",
+      "reader_manifest_keys": [
+       "error",
+       "status"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.055
+     },
+     "reply_fail_s0": {
+      "rc": 1,
+      "failed_at": "s0_context",
+      "complete": false,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "overlapped_with",
+       "status"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.055
+     },
+     "reply_overlap_late_thread": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "overlapped_with",
+       "status"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.107
+     },
+     "outbound_post": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": null,
+      "reader_manifest_keys": [],
+      "reader_ctx": null,
+      "overlapped": false,
+      "wall": 0.057
+     }
+    }
+   }
+  },
+  "OV_O6i_reader_manifest_absurd_999": {
+   "patch": {
+    "old": "\"overlapped_with\": DEFER_UNTIL[name], **_reader_out(d, body)}",
+    "new": "\"overlapped_with\": DEFER_UNTIL[name], \"tops\": 999, \"within_js\": 999, \"knots\": 999, \"reader_chars\": 999, \"file\": 999}"
+   },
+   "source_sha16": "d7e40b23144b1d04",
+   "ov": {
+    "L1_scenarios_changed": [
+     "reply_fail_s0",
+     "reply_overlap",
+     "reply_overlap_late_thread",
+     "reply_overlap_nokey"
+    ],
+    "L2_scenarios_changed": [],
+    "per_scenario": {
+     "reply_overlap": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.053
+     },
+     "reply_serial": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.109
+     },
+     "reply_overlap_nokey": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.056
+     },
+     "reply_fail_reader": {
+      "rc": 1,
+      "failed_at": "reader_baseline",
+      "complete": false,
+      "reader_status": "FAIL",
+      "reader_manifest_keys": [
+       "error",
+       "status"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.057
+     },
+     "reply_fail_s0": {
+      "rc": 1,
+      "failed_at": "s0_context",
+      "complete": false,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.053
+     },
+     "reply_overlap_late_thread": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.113
+     },
+     "outbound_post": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": null,
+      "reader_manifest_keys": [],
+      "reader_ctx": null,
+      "overlapped": false,
+      "wall": 0.057
+     }
+    }
+   }
+  },
+  "OV_O7_reader_cce_absurd": {
+   "patch": {
+    "old": "    ctx[\"reader_cce\"] = d\n    MANIFEST[name] = {\"status\": \"OK\"",
+    "new": "    ctx[\"reader_cce\"] = 999\n    MANIFEST[name] = {\"status\": \"OK\""
+   },
+   "source_sha16": "69b1413c48a76a29",
+   "ov": {
+    "L1_scenarios_changed": [],
+    "L2_scenarios_changed": [],
+    "per_scenario": {
+     "reply_overlap": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.057
+     },
+     "reply_serial": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.113
+     },
+     "reply_overlap_nokey": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.056
+     },
+     "reply_fail_reader": {
+      "rc": 1,
+      "failed_at": "reader_baseline",
+      "complete": false,
+      "reader_status": "FAIL",
+      "reader_manifest_keys": [
+       "error",
+       "status"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": true,
+      "wall": 0.057
+     },
+     "reply_fail_s0": {
+      "rc": 1,
+      "failed_at": "s0_context",
+      "complete": false,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.056
+     },
+     "reply_overlap_late_thread": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": "OK",
+      "reader_manifest_keys": [
+       "file",
+       "knots",
+       "overlapped_with",
+       "reader_chars",
+       "status",
+       "tops",
+       "within_js"
+      ],
+      "reader_ctx": "C0",
+      "overlapped": false,
+      "wall": 0.113
+     },
+     "outbound_post": {
+      "rc": 0,
+      "failed_at": null,
+      "complete": true,
+      "reader_status": null,
+      "reader_manifest_keys": [],
+      "reader_ctx": null,
+      "overlapped": false,
+      "wall": 0.058
+     }
+    }
+   }
+  }
+ },
+ "injection_arms": {
+  "A3_over_answer": {
+   "★Jev 路径": {
+    "KEY_base_vs_arm_L2": {
+     "n_changed": 0,
+     "n": 50,
+     "changed_ptrs": []
+    },
+    "why_zero": "scripts/cce_s0_jev.py:45 `{k: ans[k]['choice'] for k in qs}` 只取问过的面 ⇒ Jev 适配器结构上不会多答, 精度翻转在 Jev 路径不可达"
+   },
+   "★MiniMax 路径(NOKEY)": {
+    "base_vs_arm_L2": {
+     "n_changed": 4,
+     "n": 50,
+     "changed_ptrs": [
+      "archive/33745544418/cce-item-0-33745544418__s0_context.json",
+      "archive/33746399209/cce-item-0-33746399209__s0_context.json",
+      "archive/33842081104/cce-item-0-33842081104__s0_context.json",
+      "archive/33842084279/cce-item-0-33842084279__s0_context.json"
+     ]
+    }
+   },
+   "n_cases_with_decl_and_backend_call": 4,
+   "A3_plus_A5_both_removed_L2_vs_base": {
+    "n_changed": 4,
+    "n": 50,
+    "changed_ptrs": [
+     "archive/33745544418/cce-item-0-33745544418__s0_context.json",
+     "archive/33746399209/cce-item-0-33746399209__s0_context.json",
+     "archive/33842081104/cce-item-0-33842081104__s0_context.json",
+     "archive/33842084279/cce-item-0-33842084279__s0_context.json"
+    ]
+   },
+   "A3_plus_A5_facets_source_read_overrides": 20,
+   "base_raised_hist": {
+    "OK": 50
+   },
+   "A3_raised_hist": {
+    "OK": 46,
+    "RuntimeError": 4
+   },
+   "★读法": "多答面时基线仍判「已声明」(0 raise); A3 臂读出覆盖声明 ⇒ 每个多答且被声明的面都触发 miss 防呆 RuntimeError ⇒ 精度守卫与防呆是一对: 精度坏了防呆当场抓。",
+   "A5_guard_removed_on_same_input": {
+    "n_changed": 0,
+    "n": 50,
+    "changed_ptrs": []
+   }
+  },
+  "A4_illegal_value": {
+   "base_vs_arm_L1": {
+    "n_changed": 20,
+    "n": 50,
+    "changed_ptrs": [
+     "archive/33745544418/cce-item-0-33745544418__s0_context.json",
+     "archive/33746399209/cce-item-0-33746399209__s0_context.json",
+     "archive/33748217410/cce-subject-item-0-33748217410__s0_context.json",
+     "archive/33748217410/cce-subject-item-1-33748217410__s0_context.json",
+     "archive/33748217410/cce-subject-item-2-33748217410__s0_context.json",
+     "archive/33748217410/cce-subject-item-3-33748217410__s0_context.json"
+    ]
+   },
+   "base_vs_arm_L2": {
+    "n_changed": 20,
+    "n": 50,
+    "changed_ptrs": [
+     "archive/33745544418/cce-item-0-33745544418__s0_context.json",
+     "archive/33746399209/cce-item-0-33746399209__s0_context.json",
+     "archive/33748217410/cce-subject-item-0-33748217410__s0_context.json",
+     "archive/33748217410/cce-subject-item-1-33748217410__s0_context.json",
+     "archive/33748217410/cce-subject-item-2-33748217410__s0_context.json",
+     "archive/33748217410/cce-subject-item-3-33748217410__s0_context.json"
+    ]
+   },
+   "base_illegal_kept": 0,
+   "arm_illegal_kept": 20
+  },
+  "A5_stray_decl_key": {
+   "base_raised": 50,
+   "arm_raised": 0,
+   "L2": {
+    "n_changed": 50,
+    "n": 50,
+    "changed_ptrs": [
+     "archive/32095782756/cce-item-0-32095782756__s0_context.json",
+     "archive/32095782756/cce-item-1-32095782756__s0_context.json",
+     "archive/32095782756/cce-item-2-32095782756__s0_context.json",
+     "archive/32095782756/cce-item-3-32095782756__s0_context.json",
+     "archive/32095782756/cce-item-4-32095782756__s0_context.json",
+     "archive/32095782756/cce-item-5-32095782756__s0_context.json"
+    ]
+   },
+   "★上游闸": ".github/prepare.py:58 在 cce_full_run 之前已拒绝分类学外的面名 ⇒ 生产(cce-submit)路径上此 raise 是第二道; 本地 CLI 直呼时是唯一一道。"
+  },
+  "A6_empty_decl_all_unknown": {
+   "base_raised": 50,
+   "arm_raised": 0,
+   "arm_fill_hist": {
+    "0.0": 50
+   },
+   "L2": {
+    "n_changed": 50,
+    "n": 50,
+    "changed_ptrs": [
+     "archive/32095782756/cce-item-0-32095782756__s0_context.json",
+     "archive/32095782756/cce-item-1-32095782756__s0_context.json",
+     "archive/32095782756/cce-item-2-32095782756__s0_context.json",
+     "archive/32095782756/cce-item-3-32095782756__s0_context.json",
+     "archive/32095782756/cce-item-4-32095782756__s0_context.json",
+     "archive/32095782756/cce-item-5-32095782756__s0_context.json"
+    ]
+   }
+  },
+  "A10_jev_probs_absurd": {
+   "L1": {
+    "n_changed": 0,
+    "n": 50,
+    "changed_ptrs": []
+   },
+   "L2": {
+    "n_changed": 0,
+    "n": 50,
+    "changed_ptrs": []
+   }
+  },
+  "A2_read_backend_consumers": {
+   "grep_scripts_github_accuracy": [
+    "scripts/cce_full_run.py",
+    "scripts/cce_open_items.py"
+   ],
+   "★读法": "除 cce_full_run.py 自己与 cce_open_items.py(报告文本)外, 生产代码零读者; probes/stage_overlap_bench.py 与 tests/test_cce_s0_wiring.py 是 G 侧。"
+  },
+  "B2_env_pin_absurd": {
+   "base_raised": 79,
+   "arm_raised": 0,
+   "L2": {
+    "n_changed": 79,
+    "n": 79,
+    "changed_ptrs": [
+     "archive/31299473290/cce-0-31299473290__s1_readout.json",
+     "archive/31299473290/cce-1-31299473290__s1_readout.json",
+     "archive/31299473290/cce-2-31299473290__s1_readout.json",
+     "archive/31299473290/cce-3-31299473290__s1_readout.json",
+     "archive/31299473290/cce-4-31299473290__s1_readout.json",
+     "archive/31299473290/cce-5-31299473290__s1_readout.json"
+    ]
+   }
+  },
+  "B5_playbook_lengths": {
+   "pain_seek": 23,
+   "injustice": 37,
+   "belong": 38,
+   "reward": 31,
+   "display": 26,
+   "itch": 38,
+   "suspend": 45,
+   "inertia": 33,
+   "audit": 49
+  },
+  "B6_unscored_guidance_999": {
+   "n_changed": 0,
+   "n": 79,
+   "changed_ptrs": []
+  },
+  "B7_label_qualification_999": {
+   "n_changed": 0,
+   "n": 79,
+   "changed_ptrs": []
+  },
+  "C1_emotion_distribution_999": {
+   "n_changed": 0,
+   "n": 79,
+   "changed_ptrs": []
+  },
+  "C3_policy_string_999": {
+   "n_changed": 0,
+   "n": 79,
+   "changed_ptrs": []
+  },
+  "B4_withheld_reason_999": {
+   "n_changed": 66,
+   "n": 79,
+   "changed_ptrs": [
+    "archive/31299473290/cce-0-31299473290__s1_readout.json",
+    "archive/31299473290/cce-1-31299473290__s1_readout.json",
+    "archive/31299473290/cce-2-31299473290__s1_readout.json",
+    "archive/31299473290/cce-3-31299473290__s1_readout.json",
+    "archive/31299473290/cce-4-31299473290__s1_readout.json",
+    "archive/31299473290/cce-5-31299473290__s1_readout.json"
+   ]
+  },
+  "B4_note": "withheld_reason 荒谬值会**逐字进入**出口闸 withheld['s2.playbook_primary'] ⇒ 它有消费者(出口闸台账), 但只改台账文本不改 usable/withheld 成员。",
+  "B7_evidence_none_vs_quote_as_evidence(state: evidence=None → EvidenceSpan(quote) → +required_conjuncts=[P])": {
+   "UNCONFIRMED_CANDIDATE → ERR:ValueError → -": 53,
+   "UNCONFIRMED_CANDIDATE → UNCONFIRMED_CANDIDATE → CITED_SEMANTICS_UNVERIFIED": 26
+  },
+  "O7_reader_cce_readers": [
+   "scripts/cce_full_run.py"
+  ],
+  "XM_E1_call_model_poisoned_in_fallback": {
+   "base_raised": 0,
+   "poison_raised": 20,
+   "poison_raised_hist": {
+    "OK": 30,
+    "RuntimeError: POISONED_CALL_MODEL": 20
+   },
+   "L2": {
+    "n_changed": 20,
+    "n": 50,
+    "changed_ptrs": [
+     "archive/33745544418/cce-item-0-33745544418__s0_context.json",
+     "archive/33746399209/cce-item-0-33746399209__s0_context.json",
+     "archive/33748217410/cce-subject-item-0-33748217410__s0_context.json",
+     "archive/33748217410/cce-subject-item-1-33748217410__s0_context.json",
+     "archive/33748217410/cce-subject-item-2-33748217410__s0_context.json",
+     "archive/33748217410/cce-subject-item-3-33748217410__s0_context.json"
+    ]
+   },
+   "n_cases_that_call_backend": 20,
+   "KEY_scenario_poisoned_unaffected": {
+    "n_changed": 0,
+    "n": 50,
+    "changed_ptrs": []
+   }
+  }
+ },
+ "xm": {
+  "XM_E2_unused_import_re_removed": {
+   "import_ok": true,
+   "has_attr_re": false,
+   "s0_NOKEY_L1": {
+    "n_changed": 0,
+    "n": 50,
+    "changed_ptrs": []
+   },
+   "s0_NOKEY_L2": {
+    "n_changed": 0,
+    "n": 50,
+    "changed_ptrs": []
+   },
+   "js_divergence_same": true,
+   "RESULTS_basename": "results"
+  },
+  "XM_E3_syspath_insert_removed": {
+   "import_ok": true,
+   "has_attr_re": true,
+   "s0_NOKEY_L1": {
+    "n_changed": 0,
+    "n": 50,
+    "changed_ptrs": []
+   },
+   "s0_NOKEY_L2": {
+    "n_changed": 0,
+    "n": 50,
+    "changed_ptrs": []
+   },
+   "js_divergence_same": true,
+   "RESULTS_basename": "results"
+  },
+  "XM_E4_results_dir_renamed": {
+   "import_ok": true,
+   "has_attr_re": true,
+   "s0_NOKEY_L1": {
+    "n_changed": 0,
+    "n": 50,
+    "changed_ptrs": []
+   },
+   "s0_NOKEY_L2": {
+    "n_changed": 0,
+    "n": 50,
+    "changed_ptrs": []
+   },
+   "js_divergence_same": true,
+   "RESULTS_basename": "results_abl_r3_tmp",
+   "side_effect_dir_created(under VSE_ROOT=scratch)": true
+  },
+  "XM_E3_injection_import_from_bare_syspath": {
+   "base": "IMPORT_OK",
+   "arm": "ModuleNotFoundError: No module named 'calibration_framework'"
+  },
+  "XM_E4_absurd_unwritable_path": "import 期 OSError ⇒ 整条链在 import 就死(v3-183 makedirs 的面)",
+  "XM_consumers_of_exp_crossmodel_desire(grep, 不含 tests/data)": [
+   "accuracy/aggregate_core.py",
+   "accuracy/chain_ablation.py",
+   "accuracy/chain_validity.py",
+   "accuracy/context_sensitivity.py",
+   "accuracy/external_validity.py",
+   "accuracy/order_calibration.py",
+   "accuracy/t1_prior.py",
+   "accuracy/t2_ablation.py",
+   "accuracy/t2_control.py",
+   "accuracy/t2_rewrite.py",
+   "accuracy/t3_profile.py",
+   "accuracy/twoarm.py",
+   "accuracy/twoarm_stable.py",
+   "config/cce_chain_conformance.json",
+   "config/cce_core_manifest.json",
+   "probes/draw_latency_probe.py",
+   "probes/extractor_counterexample_run.py",
+   "probes/extractor_counterexample_run_r2.py",
+   "probes/phase2_blind_verify.py",
+   "probes/phase2_generate_stimuli.py",
+   "probes/phase2_llm_proxy_anchor.py",
+   "probes/real_corpus_pilot_prereg.py",
+   "probes/real_corpus_pilot_r2_run.py",
+   "probes/real_corpus_pilot_run.py",
+   "probes/refusal_gradient_run_r3.py",
+   "probes/rephrase_vs_append_gen.py",
+   "probes/s0_jev_shadow.py",
+   "probes/s0_retest.py",
+   "probes/slot_filling_run_r4.py",
+   "probes/slot_filling_run_r5.py",
+   "probes/slot_filling_run_r6.py",
+   "scripts/cce_full_run.py",
+   "scripts/cce_knot_classify.py",
+   "scripts/distill_subjects.py",
+   "scripts/exp_crossmodel_desire.py",
+   "scripts/exp_v4_causal_chain.py",
+   "scripts/exp_v4_full_validation.py",
+   "scripts/reply_loop.py",
+   "scripts/simulate_subjects.py",
+   "tests/test_cce_contract_pairs_v4.py",
+   "tests/test_cce_js_metric_definition.py",
+   "tests/test_cce_module_boundary.py",
+   "tests/test_cce_p2_fail_anatomy.py",
+   "tests/test_cce_phase2_manifest.py",
+   "tests/test_cce_real_corpus_pilot_formal_quality.py",
+   "tests/test_cce_real_corpus_pilot_r2_prereg.py",
+   "tests/test_cce_real_corpus_pilot_r2_smoke.py",
+   "tests/test_cce_real_corpus_pilot_result.py",
+   "tests/test_cce_real_corpus_pilot_rollup.py",
+   "tests/test_cce_real_corpus_pilot_smoke.py",
+   "tests/test_cce_repeat_measure_r3.py",
+   "tests/test_cce_s0_wiring.py",
+   "tests/test_cce_shallow_rule_reality_check.py",
+   "tests/test_cce_slot_filling_r4.py",
+   "tests/test_cce_slot_filling_r5.py",
+   "tests/test_cce_stimulus_blinding.py"
+  ]
+ },
+ "★exp_crossmodel_desire_生产消费面": {
+  "★这是什么": "任务 ⑤ 要的清单: 本文件在生产链上被谁消费(不是 tests/data 里的引用), 以及本轮之后还剩哪些位点没判。",
+  "进程内消费者(import 时绑定)": {
+   "scripts/cce_full_run.py:172 s0 MiniMax 回退臂 call_model": "★ 2026-09-23 新增, 本轮 v3-321 判 LOAD_BEARING_L2",
+   "scripts/cce_knot_classify.py:53 call_model · :642 MODELS": "s1/s2 draw 管道 + instrument_id(v3-159/160/167 已判)",
+   "scripts/exp_v4_full_validation.py:35 / scripts/exp_v4_causal_chain.py:31": "stage1 模板/EMOTIONS 等常量再导出(v3-172/174 已判)",
+   "scripts/reply_loop.py:18 DESIRES": "诊断性对齐分(不作放行依据)",
+   "scripts/distill_subjects.py / simulate_subjects.py": "非生产 profile"
+  },
+  "子进程消费者": "cce_full_run.run_knot_classify 起 `python3 scripts/cce_knot_classify.py` ⇒ 每次 s1/reader_baseline 都在新进程里 import 本文件(含 import 期 makedirs 副作用)",
+  "accuracy/ 与 probes/": "13 个 accuracy 模块与 15 个 probes 导 call_model/DESIRES/MODELS —— 验收闸与探针面, 不在 cce-submit 主链上",
+  "grep 全集(--include=*.py/*.yml/*.json, 不含 tests/data)": [
+   "accuracy/aggregate_core.py",
+   "accuracy/chain_ablation.py",
+   "accuracy/chain_validity.py",
+   "accuracy/context_sensitivity.py",
+   "accuracy/external_validity.py",
+   "accuracy/order_calibration.py",
+   "accuracy/t1_prior.py",
+   "accuracy/t2_ablation.py",
+   "accuracy/t2_control.py",
+   "accuracy/t2_rewrite.py",
+   "accuracy/t3_profile.py",
+   "accuracy/twoarm.py",
+   "accuracy/twoarm_stable.py",
+   "config/cce_chain_conformance.json",
+   "config/cce_core_manifest.json",
+   "probes/draw_latency_probe.py",
+   "probes/extractor_counterexample_run.py",
+   "probes/extractor_counterexample_run_r2.py",
+   "probes/phase2_blind_verify.py",
+   "probes/phase2_generate_stimuli.py",
+   "probes/phase2_llm_proxy_anchor.py",
+   "probes/real_corpus_pilot_prereg.py",
+   "probes/real_corpus_pilot_r2_run.py",
+   "probes/real_corpus_pilot_run.py",
+   "probes/refusal_gradient_run_r3.py",
+   "probes/rephrase_vs_append_gen.py",
+   "probes/s0_jev_shadow.py",
+   "probes/s0_retest.py",
+   "probes/slot_filling_run_r4.py",
+   "probes/slot_filling_run_r5.py",
+   "probes/slot_filling_run_r6.py",
+   "scripts/cce_full_run.py",
+   "scripts/cce_knot_classify.py",
+   "scripts/distill_subjects.py",
+   "scripts/exp_crossmodel_desire.py",
+   "scripts/exp_v4_causal_chain.py",
+   "scripts/exp_v4_full_validation.py",
+   "scripts/reply_loop.py",
+   "scripts/simulate_subjects.py",
+   "tests/test_cce_contract_pairs_v4.py",
+   "tests/test_cce_js_metric_definition.py",
+   "tests/test_cce_module_boundary.py",
+   "tests/test_cce_p2_fail_anatomy.py",
+   "tests/test_cce_phase2_manifest.py",
+   "tests/test_cce_real_corpus_pilot_formal_quality.py",
+   "tests/test_cce_real_corpus_pilot_r2_prereg.py",
+   "tests/test_cce_real_corpus_pilot_r2_smoke.py",
+   "tests/test_cce_real_corpus_pilot_result.py",
+   "tests/test_cce_real_corpus_pilot_rollup.py",
+   "tests/test_cce_real_corpus_pilot_smoke.py",
+   "tests/test_cce_repeat_measure_r3.py",
+   "tests/test_cce_s0_wiring.py",
+   "tests/test_cce_shallow_rule_reality_check.py",
+   "tests/test_cce_slot_filling_r4.py",
+   "tests/test_cce_slot_filling_r5.py",
+   "tests/test_cce_stimulus_blinding.py"
+  ],
+  "本轮之后仍零判决的位点": [
+   "无 —— R6 独立复核点名的 :18 import(v3-339) · :21 sys.path.insert(v3-340) · :25 RESULTS(v3-341) 本轮填齐; :26 CAL 由 :25 与 v3-183 夹住, 不另立行。"
+  ],
+  "★不得据此说": "不得说 exp_crossmodel_desire「测透了」: 28+4 条判决仍全在存量回放 + 桩化工况下; call_model 的线上请求面只有 v3-空白轮 的 F9 记录型桩证据。"
+ },
+ "L4": {
+  "farm": "rsync 冻结快照(排除 .git/__pycache__/本探针) → 每臂改磁盘副本 → 递归清 __pycache__ → 全量 tests/test_*.py 并行 python3 -B → 红的串行复验两次 → 还原",
+  "n_tests": 225,
+  "noop_baseline_reds": {
+   "scripts/cce_full_run.py": [
+    "test_cce_k1_cost_curve.py",
+    "test_cce_open_items.py"
+   ],
+   "scripts/exp_crossmodel_desire.py": [
+    "test_cce_chain_conformance.py",
+    "test_cce_core_boundary.py",
+    "test_cce_gate_protocol_version.py",
+    "test_cce_k1_cost_curve.py",
+    "test_cce_open_items.py"
+   ]
+  },
+  "★空操作臂的红是什么": "快照无 .git ⇒ 查冻结 commit 的闸(test_cce_k1_cost_curve / test_cce_open_items 等)恒红, 与被测件无关, 逐臂减去。",
+  "per_arm": {
+   "S0_A1_jev_precedence_off": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 86.5
+   },
+   "S0_A2_fallback_mislabeled_as_jev": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 95.7
+   },
+   "S0_A3_read_overrides_declared": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 80.6
+   },
+   "S0_A4_illegal_value_not_mapped_to_unknown": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 83.3
+   },
+   "S0_A5_miss_guard_removed": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 82.7
+   },
+   "S0_A6_fill_zero_guard_removed": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 81.1
+   },
+   "S0_A7_context_append_removed": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_ablation_verdicts_v3.py",
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [
+     "test_cce_ablation_verdicts_v3.py"
+    ],
+    "sec": 83.6
+   },
+   "S0_A8_body_not_truncated": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py",
+     "test_cce_s0_jev_shadow.py"
+    ],
+    "net_new": [
+     "test_cce_s0_jev_shadow.py"
+    ],
+    "sec": 82.1
+   },
+   "S0_A9_readable_filter_removed": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 81.6
+   },
+   "S0_A12_backend_called_even_if_nothing_to_read": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 133.5
+   },
+   "S2_B1_taxo_pin_literal_1_3_0": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 138.5
+   },
+   "S2_B2_taxo_guard_removed": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 123.7
+   },
+   "S2_B3_top1_is_not_False": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 89.1
+   },
+   "S2_B4_withheld_reason_collapsed": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_ablation_verdicts_v3.py",
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [
+     "test_cce_ablation_verdicts_v3.py"
+    ],
+    "sec": 80.2
+   },
+   "S2_B5_playbook_cut_10": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 87.1
+   },
+   "S2_B6_unscored_guidance_removed": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_ablation_verdicts_v3.py",
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [
+     "test_cce_ablation_verdicts_v3.py"
+    ],
+    "sec": 78.7
+   },
+   "S2_B7_label_qualification_removed": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 77.7
+   },
+   "S2_B8_verbatim_check_removed": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 80.1
+   },
+   "S3_C1_top3": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 84.6
+   },
+   "S3_C2_labels_reversed": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 75.8
+   },
+   "OV_O1_lazy_context_no_snapshot": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 76.1
+   },
+   "OV_O2_fallback_join_removed": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_ablation_verdicts_v3.py",
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [
+     "test_cce_ablation_verdicts_v3.py"
+    ],
+    "sec": 72.6
+   },
+   "OV_O3_failure_attributed_to_trigger_stage": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 71.2
+   },
+   "OV_O4_overlap_off_by_default": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 75.3
+   },
+   "OV_O5_defer_target_s2": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 70.4
+   },
+   "OV_O5i_defer_target_absurd": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 77.2
+   },
+   "OV_O6_join_drops_reader_out": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 76.3
+   },
+   "OV_O7_reader_cce_absurd": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 75.7
+   },
+   "XM_E2_unused_import_re_removed": {
+    "file": "scripts/exp_crossmodel_desire.py",
+    "reds": [
+     "test_cce_chain_conformance.py",
+     "test_cce_core_boundary.py",
+     "test_cce_gate_protocol_version.py",
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 117.5
+   },
+   "XM_E3_syspath_insert_removed": {
+    "file": "scripts/exp_crossmodel_desire.py",
+    "reds": [
+     "test_cce_chain_conformance.py",
+     "test_cce_core_boundary.py",
+     "test_cce_gate_protocol_version.py",
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 110.2
+   },
+   "XM_E4_results_dir_renamed": {
+    "file": "scripts/exp_crossmodel_desire.py",
+    "reds": [
+     "test_cce_chain_conformance.py",
+     "test_cce_core_boundary.py",
+     "test_cce_gate_protocol_version.py",
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 114.6
+   },
+   "NOOP_full_run": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 75.5
+   },
+   "NOOP_xm": {
+    "file": "scripts/exp_crossmodel_desire.py",
+    "reds": [
+     "test_cce_chain_conformance.py",
+     "test_cce_core_boundary.py",
+     "test_cce_gate_protocol_version.py",
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 101.4
+   },
+   "S0_A2i_read_backend_absurd_999": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 123.6
+   },
+   "OV_O6i_reader_manifest_absurd_999": {
+    "file": "scripts/cce_full_run.py",
+    "reds": [
+     "test_cce_k1_cost_curve.py",
+     "test_cce_open_items.py"
+    ],
+    "net_new": [],
+    "sec": 135.5
+   }
+  }
+ },
+ "★acceptance_gaps_found": {
+  "★这是什么": "承重(L2 / L1_ONLY)或保险丝(UNREACHABLE)行里, 源码臂在全量测试上**零行为闸翻红**(只剩钉/哈希/行数闸或什么都没有)的位点 —— 改了会翻生产行为/记录, 但没有任何闸会红。",
+  "位点": [
+   {
+    "id": "v3-310",
+    "verdict": "LOAD_BEARING_L1_ONLY",
+    "component": "有 TYPESAFE_API_KEY 走 Jev、否则回退 MiniMax(`if jr is not None`)",
+    "arm": "S0_A1_jev_precedence_off",
+    "reds_net": []
+   },
+   {
+    "id": "v3-312",
+    "verdict": "UNREACHABLE",
+    "component": "优先级 已声明 > 读出 > 未知",
+    "arm": "S0_A3_read_overrides_declared",
+    "reds_net": []
+   },
+   {
+    "id": "v3-313",
+    "verdict": "UNREACHABLE",
+    "component": "非法值归未知(`read.get(k) in f[\"values\"]`)",
+    "arm": "S0_A4_illegal_value_not_mapped_to_unknown",
+    "reds_net": []
+   },
+   {
+    "id": "v3-314",
+    "verdict": "UNREACHABLE",
+    "component": "miss 防呆 `raise RuntimeError(\"情境声明未生效…\")`",
+    "arm": "S0_A5_miss_guard_removed",
+    "reds_net": []
+   },
+   {
+    "id": "v3-315",
+    "verdict": "UNREACHABLE",
+    "component": "fill==0 拒答 `raise RuntimeError(\"情境九面全未知且无声明…\")`",
+    "arm": "S0_A6_fill_zero_guard_removed",
+    "reds_net": []
+   },
+   {
+    "id": "v3-316",
+    "verdict": "LOAD_BEARING_L1_ONLY",
+    "component": "把情境并入下游语境串 `ctx[\"context\"] += \" 【情境】\" + json`",
+    "arm": "S0_A7_context_append_removed",
+    "reds_net": [
+     "test_cce_ablation_verdicts_v3.py"
+    ]
+   },
+   {
+    "id": "v3-317",
+    "verdict": "LOAD_BEARING_L1_ONLY",
+    "component": "送后端的正文截断 body[:2000]",
+    "arm": "S0_A8_body_not_truncated",
+    "reds_net": [
+     "test_cce_s0_jev_shadow.py"
+    ]
+   },
+   {
+    "id": "v3-318",
+    "verdict": "LOAD_BEARING_L1_ONLY",
+    "component": "只把 readable_from_text ∈ {True, partial} 的面交给后端",
+    "arm": "S0_A9_readable_filter_removed",
+    "reds_net": []
+   },
+   {
+    "id": "v3-320",
+    "verdict": "LOAD_BEARING_L1_ONLY",
+    "component": "need_read 为空 ⇒ 不调后端, read_backend=\"none\"",
+    "arm": "S0_A12_backend_called_even_if_nothing_to_read",
+    "reds_net": []
+   },
+   {
+    "id": "v3-322",
+    "verdict": "LOAD_BEARING_L2",
+    "component": "分类学版本钉 PINNED_TAXO 默认 \"1.3.1\"(CCE_TAXO_VERSION 可覆盖)",
+    "arm": "S2_B1_taxo_pin_literal_1_3_0",
+    "reds_net": []
+   },
+   {
+    "id": "v3-323",
+    "verdict": "UNREACHABLE",
+    "component": "版本漂移守卫 `if taxo.version != PINNED_TAXO: raise`",
+    "arm": "S2_B2_taxo_guard_removed",
+    "reds_net": []
+   },
+   {
+    "id": "v3-324",
+    "verdict": "LOAD_BEARING_L2",
+    "component": "`top1_stable is True` 才发 playbook_primary(2026-09-06 由 `is n",
+    "arm": "S2_B3_top1_is_not_False",
+    "reds_net": []
+   },
+   {
+    "id": "v3-325",
+    "verdict": "LOAD_BEARING_L1_ONLY",
+    "component": "两种扣发理由分开: None ⇒「不可判」/ False ⇒「不稳」",
+    "arm": "S2_B4_withheld_reason_collapsed",
+    "reds_net": [
+     "test_cce_ablation_verdicts_v3.py"
+    ]
+   },
+   {
+    "id": "v3-326",
+    "verdict": "UNREACHABLE",
+    "component": "playbook_primary 截断 [:120]",
+    "arm": "S2_B5_playbook_cut_10",
+    "reds_net": []
+   },
+   {
+    "id": "v3-332",
+    "verdict": "LOAD_BEARING_L1_ONLY",
+    "component": "reader_baseline 的 context 在 submit 时绑定快照(s0 追加【情境】之前)",
+    "arm": "OV_O1_lazy_context_no_snapshot",
+    "reds_net": []
+   },
+   {
+    "id": "v3-333",
+    "verdict": "LOAD_BEARING_L1_ONLY",
+    "component": "提前退出时的兜底收回(`for dn in list(ctx.get(\"_deferred\"))`)",
+    "arm": "OV_O2_fallback_join_removed",
+    "reds_net": [
+     "test_cce_ablation_verdicts_v3.py"
+    ]
+   },
+   {
+    "id": "v3-334",
+    "verdict": "LOAD_BEARING_L2",
+    "component": "后台段失败归名 `failed = dn`(记 reader_baseline, 不记触发收回的 s1_readout)",
+    "arm": "OV_O3_failure_attributed_to_trigger_stage",
+    "reds_net": []
+   },
+   {
+    "id": "v3-335",
+    "verdict": "LOAD_BEARING_L1_ONLY",
+    "component": "CCE_SERIAL_STAGES!=\"1\" ⇒ 默认重叠(=1 逐段串行)",
+    "arm": "OV_O4_overlap_off_by_default",
+    "reds_net": []
+   },
+   {
+    "id": "v3-336",
+    "verdict": "LOAD_BEARING_L1_ONLY",
+    "component": "DEFER_UNTIL = {reader_baseline: s1_readout}(后台段在哪一段之后收回)",
+    "arm": "OV_O5_defer_target_s2",
+    "reds_net": []
+   },
+   {
+    "id": "v3-340",
+    "verdict": "UNREACHABLE",
+    "component": "`sys.path.insert(0, <scripts/>)`(让 `from calibration_framewo",
+    "arm": "XM_E3_syspath_insert_removed",
+    "reds_net": []
+   }
+  ]
+ },
+ "file_integrity": {
+  "identical": true,
+  "changed": [],
+  "before": {
+   "scripts/cce_knot_classify.py": "0a740ba16e80dc54",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c",
+   "config/cce_core_manifest.json": "44c06d8db21d43c0",
+   "accuracy/run_gates.py": "b758e6676a94acf3",
+   "scripts/cce_full_run.py": "1d4e5cd5ba6d1441",
+   "scripts/cce_s0_jev.py": "0280528bfcd7d49c",
+   "scripts/exp_crossmodel_desire.py": "0e0e9d64b48fbade",
+   "config/context_taxonomy.json": "c024e5557551f4bb",
+   "scripts/cce_label_qualification.py": "359ce2529695da00",
+   "scripts/cce_k1_status.py": "5f0df2624754c865"
+  }
+ },
+ "tripwire_tripped": [],
+ "limits": [
+  "① s0 的两个后端全部桩化且回放同一读出面 ⇒ 后端之间的语义差异(owner 点头 Jev 的依据)本簇结构上看不见; 本簇判的是**编排**不是**读出质量**。",
+  "② s2/s3 的 L2 判官是 qualified() 出口闸(真代码)与 s2 自己的 raise; reply_batch.py:57 对 playbook_primary 的消费未实跑。",
+  "③ OV 用桩分类器(sleep 0.05s)与确定性晚启动调度; 真线程池下 O1 的竞态未观测到(0/1 场景), 不得据此说快照「没用」。",
+  "④ 工况单一: 存量 50 份 s0 / 79 份 s1_readout+reader_baseline / 52 条原文, market 未分层, k∈{3,5}; 结论不可外推到其它 profile / 语料。",
+  "⑤ L4 的空操作基线红来自快照无 .git; 净新增里的 test_cce_ablation_verdicts_v3.py 是行数钉(改行数的臂必红), 已按钉闸分类而非行为闸。",
+  "⑥ 本簇没有独立复核; 每行的 verdict 由出判决的 agent 一人给出。"
+ ],
+ "verdicts": [
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s0_archive50",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[0]",
+   "faces_observed": [
+    "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
+    "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
+    "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+   ],
+   "faces_blind": [
+    "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
+    "blind::s1 子进程对追加后 context 的消费(真实模型)",
+    "blind::GitHub 托管 CI 实跑面(.github/prepare.py 的前置校验只读码核实)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "有 TYPESAFE_API_KEY 走 Jev、否则回退 MiniMax(`if jr is not None`)",
+   "locus": "scripts/cce_full_run.py:168-179",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "deletable": false,
+   "deletable_reason": "不可删: 它决定 20/50 份(需要读出的那些)走哪个外部后端 —— owner 2026-09-23 按 results/s0_retest.json 的稳定性证据(Jev κ 1.0/.88 vs MiniMax .38–.58)点头的路由; 删掉即回到 MiniMax。",
+   "L1_changed": "KEY: 20/50(read_backend jev→minimax_fallback(None), 后端调用次数 20→40: Jev 仍被调一次再回退); NOKEY: 0/50(无 key 时本分支本就不走)",
+   "L2_changed": "决策面(facets/source/fill/raise)0/50 —— 桩让两后端回放同一读出面; 变的只有 read_backend 标签与调用路由 ⇒ 记 L1_ONLY。★ 两后端真实读出不同这件事(κ 差)本装置结构上看不见。",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "已有 L1 差异 ⇒ M6 不要求。",
+   "note": "★ 30/50 全声明的 case 两臂都零调用 —— 路由只对需要读出的 case 存在。",
+   "evidence": "arms.S0_A1_jev_precedence_off",
+   "id": "v3-310"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s0_archive50",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[1]",
+   "faces_observed": [
+    "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
+    "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
+    "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+   ],
+   "faces_blind": [
+    "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
+    "blind::s1 子进程对追加后 context 的消费(真实模型)",
+    "blind::GitHub 托管 CI 实跑面(.github/prepare.py 的前置校验只读码核实)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "回退标签 read_backend=\"minimax_fallback(<err>)\" 写进产物",
+   "locus": "scripts/cce_full_run.py:180 · :198 · :204",
+   "verdict": "NO_CONSUMER",
+   "deletable": false,
+   "deletable_reason": "不可删: P 侧零读者但这是 owner 2026-09-23 的明示纪律「回退必须写进产物(区分执行了与有产出)」, 且 G 侧 tests/test_cce_s0_wiring.py 三处断言钉它(变异 5/5)。删它 = 线上走了 MiniMax 却读成 Jev, 正是 A2 臂造出的形状。",
+   "L1_changed": "NOKEY: 20/50(标签 minimax_fallback(NO_TYPESAFE_API_KEY)→jev); KEY: 0/50",
+   "L2_changed": "s0 自身决策 0/50; 下游 s1/s2/s3/qualified 结构上不读它(A2i 注入: 标签=999 跑完整 reply 链 rc=0 complete=True usable_keys 不变)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6 已跑(arms.S0_A2i_read_backend_absurd_999): read_backend 置 999, 整条 reply 链(NOKEY 场景) L2 场景变化 []; grep --include=*.py 读者: ['scripts/cce_full_run.py', 'scripts/cce_open_items.py'](除本文件与报告文本 cce_open_items.py 外为零)",
+   "note": "★ 消费者是**人**(manifest / PR 摘要 .github/summarize.py 逐段打印要点)与 G 侧闸, 不是生产判决代码。",
+   "evidence": "arms.S0_A2_fallback_mislabeled_as_jev",
+   "id": "v3-311"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s0_archive50",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[2]",
+   "faces_observed": [
+    "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
+    "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
+    "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+   ],
+   "faces_blind": [
+    "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
+    "blind::s1 子进程对追加后 context 的消费(真实模型)",
+    "blind::GitHub 托管 CI 实跑面(.github/prepare.py 的前置校验只读码核实)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "优先级 已声明 > 读出 > 未知",
+   "locus": "scripts/cce_full_run.py:183-189",
+   "verdict": "UNREACHABLE",
+   "deletable": false,
+   "deletable_reason": "不可删: 它是「我们自己产内容时情境是已知入参, 不该让模型猜」这条生产纪律的实现; 注入臂证明一旦翻转, 4/50 份的声明值会被后端答案覆盖。",
+   "L1_changed": "KEY 0/50 · NOKEY 0/50(存量回放里后端从不返回被声明的面: s0 只把 need_read 的面交给后端)",
+   "L2_changed": "0/50",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6 已跑(injection_arms.A3_over_answer): 让后端**多答**(把已声明的面也答了)。Jev 路径 KEY 仍 0/50 —— scripts/cce_s0_jev.py:45 `{k: ans[k]['choice'] for k in qs}` 只取问过的面, 适配器结构上不会多答; MiniMax 路径 NOKEY: A3 臂 L2 4/50(恰是同时有声明又有待读面的 4 份), 表现为 miss 防呆 RuntimeError {'OK': 46, 'RuntimeError': 4}; A3+A5 双拆 ⇒ L2 4/50(同样那 4 份: 声明面被读出覆盖且不再报错)。",
+   "note": "★ 精度守卫与 miss 防呆是一对: 精度翻转会被防呆当场抓住(4/4), 只有两者同时坏才静默。",
+   "evidence": "arms.S0_A3_read_overrides_declared",
+   "id": "v3-312",
+   "unreachable_condition": "复活条件: 走 MiniMax 回退路径(无 TYPESAFE_API_KEY 或 Jev 失败)且模型在 JSON 里多答了被声明的面(提示词只列 need_read 的面, 但自由 JSON 不受约束) —— 且该 case 同时有声明面与待读面(存量 4/50 满足后半条件)。Jev 路径结构上不可达。"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s0_archive50",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[3]",
+   "faces_observed": [
+    "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
+    "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
+    "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+   ],
+   "faces_blind": [
+    "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
+    "blind::s1 子进程对追加后 context 的消费(真实模型)",
+    "blind::GitHub 托管 CI 实跑面(.github/prepare.py 的前置校验只读码核实)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "非法值归未知(`read.get(k) in f[\"values\"]`)",
+   "locus": "scripts/cce_full_run.py:186",
+   "verdict": "UNREACHABLE",
+   "deletable": false,
+   "deletable_reason": "不可删: 保险丝 —— 注入臂里 20/50 份的非法值会原样进 facets 并把 fill_rate 抬高(用一个分类学外的值冒充「读出」)。",
+   "L1_changed": "KEY 0/50 · NOKEY 0/50",
+   "L2_changed": "0/50",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6 已跑(injection_arms.A4_illegal_value): 桩对每份第一个读出面返回「★非法值★」⇒ 基线归未知(非法值进入 facets 0/50), 臂保留 20/50; L1 20/50 · L2 20/50(fill_rate 变)。",
+   "note": "★ 语料循环性: 存量 s0_context.json 只存过了本守卫之后的值 ⇒ 回放永远合法, 本工况下它必然「不动」; 判活只能靠注入。",
+   "evidence": "arms.S0_A4_illegal_value_not_mapped_to_unknown",
+   "id": "v3-313",
+   "unreachable_condition": "复活条件: 后端返回不在 f['values'] 里的值。Jev 的 choice 受 criteria 键约束(jev_questions 把合法值 + 未知 作为选项), 只有 MiniMax 自由 JSON 回退路径能给出分类学外的字符串。"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s0_archive50",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[4]",
+   "faces_observed": [
+    "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
+    "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
+    "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+   ],
+   "faces_blind": [
+    "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
+    "blind::s1 子进程对追加后 context 的消费(真实模型)",
+    "blind::GitHub 托管 CI 实跑面(.github/prepare.py 的前置校验只读码核实)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "miss 防呆 `raise RuntimeError(\"情境声明未生效…\")`",
+   "locus": "scripts/cce_full_run.py:192-194",
+   "verdict": "UNREACHABLE",
+   "deletable": false,
+   "deletable_reason": "不可删: 保险丝 —— 它同时抓两种断裂: 声明含分类学外的面名(注入 50/50 抓住)与 精度翻转(A3 注入 4/4 抓住)。",
+   "L1_changed": "KEY 0/50 · NOKEY 0/50",
+   "L2_changed": "0/50",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6 已跑(injection_arms.A5_stray_decl_key): 每份声明加一个分类学外的面名 ⇒ 基线 raise 50/50, 臂 raise 0/50, L2 50/50。",
+   "note": "★ 上游闸: .github/prepare.py:58 在 cce_full_run 之前已拒绝分类学外的面名 ⇒ cce-submit 路径上它是第二道; 本地 CLI 直呼 cce_full_run.py 时是唯一一道。",
+   "evidence": "arms.S0_A5_miss_guard_removed",
+   "id": "v3-314",
+   "unreachable_condition": "复活条件: ① --context-decl 含分类学外的面名且绕过 .github/prepare.py(本地 CLI / n8n 单环节) ② 已声明>读出 的优先级被破坏(见 v3-312 注入)。"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s0_archive50",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[5]",
+   "faces_observed": [
+    "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
+    "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
+    "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+   ],
+   "faces_blind": [
+    "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
+    "blind::s1 子进程对追加后 context 的消费(真实模型)",
+    "blind::GitHub 托管 CI 实跑面(.github/prepare.py 的前置校验只读码核实)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "fill==0 拒答 `raise RuntimeError(\"情境九面全未知且无声明…\")`",
+   "locus": "scripts/cce_full_run.py:199-200",
+   "verdict": "UNREACHABLE",
+   "deletable": false,
+   "deletable_reason": "不可删: 保险丝 —— 拆掉后 fill_rate=0.0 的运行照样进 s1(注入 50/50), 违反「缺必要输入时不硬给结论」。",
+   "L1_changed": "KEY 0/50 · NOKEY 0/50(存量最低 fill 0.111)",
+   "L2_changed": "0/50",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6 已跑(injection_arms.A6_empty_decl_all_unknown): 空声明 + 后端九面全未知 ⇒ 基线 raise 50/50, 臂 raise 0/50 且 fill 直方图 {'0.0': 50}。",
+   "note": "存量 fill 直方图见工况; 全声明 30/50。",
+   "evidence": "arms.S0_A6_fill_zero_guard_removed",
+   "id": "v3-315",
+   "unreachable_condition": "复活条件: 无 --context-decl(或空对象)且后端对全部可读面都答「未知」(存量 50 份最低 fill 0.111, 从未发生)。"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s0_archive50",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[6]",
+   "faces_observed": [
+    "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
+    "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
+    "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+   ],
+   "faces_blind": [
+    "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
+    "blind::s1 子进程对追加后 context 的消费(真实模型)",
+    "blind::GitHub 托管 CI 实跑面(.github/prepare.py 的前置校验只读码核实)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: ['test_cce_ablation_verdicts_v3.py']",
+   "component": "把情境并入下游语境串 `ctx[\"context\"] += \" 【情境】\" + json`",
+   "locus": "scripts/cce_full_run.py:196-197",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "deletable": false,
+   "deletable_reason": "不可删: 这是情境层唯一到达 s1 的通道 —— 拆掉后 s0 的产物照写, 但 s1 的 prompt 语境 50/50 份回到无情境; 2026-08-09/10 的 148 次受控调用实测情境显著改变下游(情绪 .36–.78 / 行动 .43–.78)。",
+   "L1_changed": "KEY 50/50 · NOKEY 50/50(context 串; 所有 case 至少有一个已知面)",
+   "L2_changed": "s0 自身决策 0/50; 下游 s1 的判决(真实模型读 prompt)本装置盲 ⇒ 只能记 L1_ONLY, 不得据此说「不影响判决」。G 侧: tests/test_cce_stage_overlap.py:61 断言 s1 收到的 context 以 【情境】 开头。",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_ablation_verdicts_v3.py'] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 ['test_cce_ablation_verdicts_v3.py'] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "已有 L1 差异 ⇒ M6 不要求。",
+   "note": "★ reader_baseline 在重叠模式下拿的是追加**之前**的快照(见 v3-332)。",
+   "evidence": "arms.S0_A7_context_append_removed",
+   "id": "v3-316"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s0_archive50",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[7]",
+   "faces_observed": [
+    "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
+    "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
+    "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+   ],
+   "faces_blind": [
+    "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
+    "blind::s1 子进程对追加后 context 的消费(真实模型)",
+    "blind::GitHub 托管 CI 实跑面(.github/prepare.py 的前置校验只读码核实)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: ['test_cce_s0_jev_shadow.py']",
+   "component": "送后端的正文截断 body[:2000]",
+   "locus": "scripts/cce_full_run.py:163",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "deletable": false,
+   "deletable_reason": "不可删: 它是送给外部后端的输入上限 —— 52 条真实原文里 9 条超 2000(最长 11479), 拆掉后这 9 条送出 3845/11479 字符。语义上截断是否伤读出未测, 但改它必须重做 s0_retest 的稳定性证据(那 42 条是在 [:2000] 下测的)。",
+   "L1_changed": "OP_text52 后端字节数面: KEY 9/52 · NOKEY 9/52(超 2000 的 9 条: 基线 2000, 臂 [3845, 3845, 3845, 3845, 3845, 3845, 3845, 3845, 11479]); OP_s0_archive50 决策面 0/50",
+   "L2_changed": "0/50 —— 桩不看正文内容; 真实后端读长文本的差异盲。",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_s0_jev_shadow.py'] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 ['test_cce_s0_jev_shadow.py'] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "已有 L1 差异 ⇒ M6 不要求。",
+   "note": "两个后端(Jev state / MiniMax prompt 的【内容】段)都吃同一个截断后的 body。",
+   "evidence": "arms.S0_A8_body_not_truncated(len_KEY/len_NOKEY)",
+   "id": "v3-317"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s0_archive50",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[8]",
+   "faces_observed": [
+    "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
+    "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
+    "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+   ],
+   "faces_blind": [
+    "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
+    "blind::s1 子进程对追加后 context 的消费(真实模型)",
+    "blind::GitHub 托管 CI 实跑面(.github/prepare.py 的前置校验只读码核实)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "只把 readable_from_text ∈ {True, partial} 的面交给后端",
+   "locus": "scripts/cce_full_run.py:159-160",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "deletable": false,
+   "deletable_reason": "不可删: 它把「影响大但拿不到」的三面(社会在场/场景类型/信息环境, readable=False)挡在提示词外 —— 拆掉后 20/50 份的请求从 4/6 面变 5/9 面; 桩答未知所以决策不变, 真实模型会不会猜是本装置看不见的。",
+   "L1_changed": "KEY 20/50 · NOKEY 20/50(问了几面: 基线 {4,6} → 臂 {5,9})",
+   "L2_changed": "0/50(桩对未登记的面一律答未知)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "已有 L1 差异 ⇒ M6 不要求。",
+   "note": "★ 与 config/context_taxonomy.json 的 readable_from_text 字段是一对: 那个字段的消费者只有这一行。",
+   "evidence": "arms.S0_A9_readable_filter_removed",
+   "id": "v3-318"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s0_archive50",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py",
+    "scripts/cce_s0_jev.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[9]",
+   "faces_observed": [
+    "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
+    "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
+    "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+   ],
+   "faces_blind": [
+    "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
+    "blind::s1 子进程对追加后 context 的消费(真实模型)",
+    "blind::GitHub 托管 CI 实跑面(.github/prepare.py 的前置校验只读码核实)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "同上",
+   "component": "Jev 逐面概率 `_probs` 被丢弃",
+   "locus": "scripts/cce_full_run.py:168 `jr, _probs, jerr = s0_jev_read(...)` ← scripts/cce_s0_jev.py:46",
+   "verdict": "NO_CONSUMER",
+   "deletable": false,
+   "deletable_reason": "不可删: 三元组返回形状被 tests/test_cce_s0_wiring.py 的 monkeypatch 与 probes/s0_jev_shadow.py 钉住; 且它是将来把「读出置信度」接进 fill_rate/置信提示的唯一现成通道 —— 现在丢弃是产品决定(s0 六面无金标, 概率无处标定), 不是死代码。",
+   "L1_changed": "KEY 0/50",
+   "L2_changed": "KEY 0/50",
+   "L4_net_new_reds": "无源码变异臂(本行的消融走桩返回值/属性毒化, 不改仓内文件) ⇒ L4 不适用; 同文件源码级 L4 见同簇其它行。",
+   "injection_test": "M6 已跑(injection_arms.A10_jev_probs_absurd): 桩返回荒谬概率 {x: 999.0} 经真 s0_jev_read 解析 ⇒ L1 0/50 · L2 0/50。",
+   "note": "消费者数: 0(全仓 grep `_probs` 只在本行)。",
+   "evidence": "injection_arms.A10_jev_probs_absurd",
+   "id": "v3-319"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s0_archive50",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[10]",
+   "faces_observed": [
+    "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
+    "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
+    "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+   ],
+   "faces_blind": [
+    "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
+    "blind::s1 子进程对追加后 context 的消费(真实模型)",
+    "blind::GitHub 托管 CI 实跑面(.github/prepare.py 的前置校验只读码核实)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "need_read 为空 ⇒ 不调后端, read_backend=\"none\"",
+   "locus": "scripts/cce_full_run.py:161",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "deletable": false,
+   "deletable_reason": "不可删: 存量 30/50 份全声明 —— 它省掉这 30 次外部调用(成本面), 并让 read_backend=none 如实说「没读出」。",
+   "L1_changed": "KEY 30/50 · NOKEY 30/50(后端调用 20→50 次, read_backend none→jev/minimax)",
+   "L2_changed": "facets/source/fill 0/50(问空题得空答); 变的是 read_backend 标签与调用次数。",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "已有 L1 差异 ⇒ M6 不要求。",
+   "note": "",
+   "evidence": "arms.S0_A12_backend_called_even_if_nothing_to_read",
+   "id": "v3-320"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s0_archive50",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/exp_crossmodel_desire.py",
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[11]",
+   "faces_observed": [
+    "L1/L2: 变异版 exp_crossmodel_desire 经 as_import 注入(CE-21-c)后 s0 NOKEY 回退面 50 份 · import 是否成立 · 属性存在性 · js_divergence 同值",
+    "注入: 裸 sys.path 导入 · 不可写路径 · 毒化 call_model"
+   ],
+   "faces_blind": [
+    "blind::cce_knot_classify 子进程对 call_model 的消费(另一进程; 已由 v3-167 判过)",
+    "blind::真实模型"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "同上",
+   "component": "exp_crossmodel_desire.call_model 的**新生产消费者**: cce_full_run.s0 的 MiniMax 回退臂(2026-09-23 接 Jev 时保留)",
+   "locus": "scripts/cce_full_run.py:172-178 → scripts/exp_crossmodel_desire.py:116 call_model",
+   "verdict": "LOAD_BEARING_L2",
+   "deletable": false,
+   "deletable_reason": "不可删: 无 TYPESAFE_API_KEY(GitHub secrets 尚未加, 见 cce_open_items)时线上 s0 全靠它; 毒化后 20/50 份 s0 FAIL ⇒ failed_at=s0_context ⇒ cce-submit 步骤红。",
+   "L1_changed": "NOKEY 毒化: 20 份 raise(RuntimeError: POISONED_CALL_MODEL); KEY 场景 0/50(Jev 优先, 回退臂不触碰)",
+   "L2_changed": "NOKEY L2 20/50(s0 由 OK 变 FAIL ⇒ 链停在 s0)",
+   "L4_net_new_reds": "无源码变异臂(本行的消融走桩返回值/属性毒化, 不改仓内文件) ⇒ L4 不适用; 同文件源码级 L4 见同簇其它行。",
+   "injection_test": "毒化即注入(属性替换成必抛的桩), 已有 L2 差异。",
+   "note": "★ 这是 v3-167(call_model 整体, 判决时消费者只有 cce_knot_classify 子进程)之后新长出的**进程内**消费边; 全部消费面见簇文件 ★exp_crossmodel_desire_生产消费面。",
+   "evidence": "injection_arms.XM_E1_call_model_poisoned_in_fallback",
+   "id": "v3-321"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s2_archive79",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[12]",
+   "faces_observed": [
+    "L1: s2 返回体全字段 · s3 返回体",
+    "L2: s2/s3/qualified raise · playbook_primary 发/扣 · playbook_withheld_reason · 出口闸 usable_keys/withheld(真 qualified(), MANIFEST.s1_readout 取自同 item 存档 manifest 79/79) · label_qualification.state / evidence_quote_verbatim",
+    "79 份存量(63 s1_readout + 16 reader_baseline; top1_stable None 31 / False 35 / True 13), 66 份配有真实原文(逐字核用)",
+    "L4: 同上"
+   ],
+   "faces_blind": [
+    "blind::scripts/reply_batch.py:57 对 playbook_primary 的消费(读产物文件, 未实跑)",
+    "blind::真实模型语义(零 API)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "分类学版本钉 PINNED_TAXO 默认 \"1.3.1\"(CCE_TAXO_VERSION 可覆盖)",
+   "locus": "scripts/cce_full_run.py:279",
+   "verdict": "LOAD_BEARING_L2",
+   "deletable": false,
+   "deletable_reason": "不可删: 钉值与 config/knot_taxonomy.json.version 一致时整链才走得通; 改一位(1.3.0)⇒ 79/79 份 s2 RuntimeError, 链停在 s2_knots。",
+   "L1_changed": "79/79",
+   "L2_changed": "79/79(全部 raise: {'RuntimeError': 79})",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "已有 L2 差异 ⇒ M6 不要求。",
+   "note": "★ G 侧零闸: tests/ 里没有任何测试提到 CCE_TAXO_VERSION / PINNED_TAXO —— 换版时只能靠线上红。",
+   "evidence": "arms.S2_B1_taxo_pin_literal_1_3_0",
+   "id": "v3-322"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s2_archive79",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[13]",
+   "faces_observed": [
+    "L1: s2 返回体全字段 · s3 返回体",
+    "L2: s2/s3/qualified raise · playbook_primary 发/扣 · playbook_withheld_reason · 出口闸 usable_keys/withheld(真 qualified(), MANIFEST.s1_readout 取自同 item 存档 manifest 79/79) · label_qualification.state / evidence_quote_verbatim",
+    "79 份存量(63 s1_readout + 16 reader_baseline; top1_stable None 31 / False 35 / True 13), 66 份配有真实原文(逐字核用)",
+    "L4: 同上"
+   ],
+   "faces_blind": [
+    "blind::scripts/reply_batch.py:57 对 playbook_primary 的消费(读产物文件, 未实跑)",
+    "blind::真实模型语义(零 API)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "版本漂移守卫 `if taxo.version != PINNED_TAXO: raise`",
+   "locus": "scripts/cce_full_run.py:280-281",
+   "verdict": "UNREACHABLE",
+   "deletable": false,
+   "deletable_reason": "不可删: 保险丝 —— 拆掉后分类学悄悄换版不再拦(注入: 环境钉 9.9.9 时基线 79/79 raise, 臂 0/79)。",
+   "L1_changed": "0/79",
+   "L2_changed": "0/79(本工况 version==钉)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6 已跑(injection_arms.B2_env_pin_absurd): CCE_TAXO_VERSION=9.9.9 ⇒ 基线 raise 79/79, 臂 raise 0/79, L2 79/79。",
+   "note": "G 侧零闸(同 v3-322)。",
+   "evidence": "arms.S2_B2_taxo_guard_removed",
+   "id": "v3-323",
+   "unreachable_condition": "复活条件: config/knot_taxonomy.json 的 version 与钉不一致 —— 分类学换版而未同步改 :279 的默认值, 或 CCE_TAXO_VERSION 环境变量被设成别的值。"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s2_archive79",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[14]",
+   "faces_observed": [
+    "L1: s2 返回体全字段 · s3 返回体",
+    "L2: s2/s3/qualified raise · playbook_primary 发/扣 · playbook_withheld_reason · 出口闸 usable_keys/withheld(真 qualified(), MANIFEST.s1_readout 取自同 item 存档 manifest 79/79) · label_qualification.state / evidence_quote_verbatim",
+    "79 份存量(63 s1_readout + 16 reader_baseline; top1_stable None 31 / False 35 / True 13), 66 份配有真实原文(逐字核用)",
+    "L4: 同上"
+   ],
+   "faces_blind": [
+    "blind::scripts/reply_batch.py:57 对 playbook_primary 的消费(读产物文件, 未实跑)",
+    "blind::真实模型语义(零 API)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "`top1_stable is True` 才发 playbook_primary(2026-09-06 由 `is not False` 收紧)",
+   "locus": "scripts/cce_full_run.py:298-299",
+   "verdict": "LOAD_BEARING_L2",
+   "deletable": false,
+   "deletable_reason": "不可删: 松回 `is not False` 会把 31/79 份「不可判(None: 可投票 draw<2)」当成通过 ⇒ 出口闸 usable_keys 多出 s2.playbook_primary 31/79 —— 正是「查不了当查过了」。",
+   "L1_changed": "31/79(s2 返回体)",
+   "L2_changed": "playbook 发出 13/79 → 44/79; 出口闸 usable 31/79 · withheld 31/79",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "已有 L2 差异 ⇒ M6 不要求。",
+   "note": "存量 top1_stable: None 31 / False 35 / True 13 —— None 那 31 份全是 2026-09-06 前的老 s1_readout(无 sampling 块)。",
+   "evidence": "arms.S2_B3_top1_is_not_False",
+   "id": "v3-324"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s2_archive79",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[15]",
+   "faces_observed": [
+    "L1: s2 返回体全字段 · s3 返回体",
+    "L2: s2/s3/qualified raise · playbook_primary 发/扣 · playbook_withheld_reason · 出口闸 usable_keys/withheld(真 qualified(), MANIFEST.s1_readout 取自同 item 存档 manifest 79/79) · label_qualification.state / evidence_quote_verbatim",
+    "79 份存量(63 s1_readout + 16 reader_baseline; top1_stable None 31 / False 35 / True 13), 66 份配有真实原文(逐字核用)",
+    "L4: 同上"
+   ],
+   "faces_blind": [
+    "blind::scripts/reply_batch.py:57 对 playbook_primary 的消费(读产物文件, 未实跑)",
+    "blind::真实模型语义(零 API)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: ['test_cce_ablation_verdicts_v3.py']",
+   "component": "两种扣发理由分开: None ⇒「不可判」/ False ⇒「不稳」",
+   "locus": "scripts/cce_full_run.py:313-317",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "deletable": false,
+   "deletable_reason": "不可删: 「测了不稳」与「压根测不了」不是一回事(代码注释的原话); 合并后 31/79 份的出口闸 withheld 台账文本把不可判写成不稳。",
+   "L1_changed": "31/79(理由文本, 31 份 None case)",
+   "L2_changed": "usable/withheld **成员** 0/79; withheld['s2.playbook_primary'] 的**文本** 31/79(出口闸逐字转抄 playbook_withheld_reason)",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_ablation_verdicts_v3.py'] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 ['test_cce_ablation_verdicts_v3.py'] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6 已跑(injection_arms.B4_withheld_reason_999): 理由置 \"999\" ⇒ 出口闸 withheld 文本变 66/79, 成员不变 ⇒ 消费者是台账文本。",
+   "note": "",
+   "evidence": "arms.S2_B4_withheld_reason_collapsed",
+   "id": "v3-325"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s2_archive79",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[16]",
+   "faces_observed": [
+    "L1: s2 返回体全字段 · s3 返回体",
+    "L2: s2/s3/qualified raise · playbook_primary 发/扣 · playbook_withheld_reason · 出口闸 usable_keys/withheld(真 qualified(), MANIFEST.s1_readout 取自同 item 存档 manifest 79/79) · label_qualification.state / evidence_quote_verbatim",
+    "79 份存量(63 s1_readout + 16 reader_baseline; top1_stable None 31 / False 35 / True 13), 66 份配有真实原文(逐字核用)",
+    "L4: 同上"
+   ],
+   "faces_blind": [
+    "blind::scripts/reply_batch.py:57 对 playbook_primary 的消费(读产物文件, 未实跑)",
+    "blind::真实模型语义(零 API)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "playbook_primary 截断 [:120]",
+   "locus": "scripts/cce_full_run.py:298",
+   "verdict": "UNREACHABLE",
+   "deletable": false,
+   "deletable_reason": "不可删: 上限型保险丝(UNREACHABLE 一律不拆); 现分类学最长 playbook 49 字(audit), 远低于 120。",
+   "L1_changed": "0/79(改 120→10 才动: 13/79, 只影响发出的 13 份)",
+   "L2_changed": "0/79",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6 已跑: 荒谬值 [:10] 臂 = arms.S2_B5_playbook_cut_10, L1 13/79 ⇒ 截断逻辑接着, 只是 120 在本分类学上够不着。",
+   "note": "playbook 长度表: {'pain_seek': 23, 'injustice': 37, 'belong': 38, 'reward': 31, 'display': 26, 'itch': 38, 'suspend': 45, 'inertia': 33, 'audit': 49}",
+   "evidence": "arms.S2_B5_playbook_cut_10",
+   "id": "v3-326",
+   "unreachable_condition": "复活条件: config/knot_taxonomy.json 里某结的 playbook 超过 120 字(现最长 49)。"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s2_archive79",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[17]",
+   "faces_observed": [
+    "L1: s2 返回体全字段 · s3 返回体",
+    "L2: s2/s3/qualified raise · playbook_primary 发/扣 · playbook_withheld_reason · 出口闸 usable_keys/withheld(真 qualified(), MANIFEST.s1_readout 取自同 item 存档 manifest 79/79) · label_qualification.state / evidence_quote_verbatim",
+    "79 份存量(63 s1_readout + 16 reader_baseline; top1_stable None 31 / False 35 / True 13), 66 份配有真实原文(逐字核用)",
+    "L4: 同上"
+   ],
+   "faces_blind": [
+    "blind::scripts/reply_batch.py:57 对 playbook_primary 的消费(读产物文件, 未实跑)",
+    "blind::真实模型语义(零 API)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: ['test_cce_ablation_verdicts_v3.py']",
+   "component": "playbook_unscored_guidance(cross_turn / composition 随 playbook 下发但不进打分)",
+   "locus": "scripts/cce_full_run.py:305-306 + _unscored_guidance :342-360",
+   "verdict": "NO_CONSUMER",
+   "deletable": false,
+   "deletable_reason": "不可删: owner 2026-09-05 A1/A2 决定「移出打分是对的, 移出交付是错的」—— 消费者是写稿的人, 不是代码; 一致性闸曾因它被搬走判红。",
+   "L1_changed": "1/79(存量只有 1 份 top1=audit 且 top1_stable=True; belong 那份不稳)",
+   "L2_changed": "0/79",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_ablation_verdicts_v3.py'] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 ['test_cce_ablation_verdicts_v3.py'] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6 已跑(injection_arms.B6_unscored_guidance_999): 字段置 999 ⇒ 出口闸 usable/withheld 0/79。",
+   "note": "分类学里只有 audit(cross_turn_strategy) 与 belong(composition_note) 两结带这类条目。",
+   "evidence": "arms.S2_B6_unscored_guidance_removed",
+   "id": "v3-327"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s2_archive79",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[18]",
+   "faces_observed": [
+    "L1: s2 返回体全字段 · s3 返回体",
+    "L2: s2/s3/qualified raise · playbook_primary 发/扣 · playbook_withheld_reason · 出口闸 usable_keys/withheld(真 qualified(), MANIFEST.s1_readout 取自同 item 存档 manifest 79/79) · label_qualification.state / evidence_quote_verbatim",
+    "79 份存量(63 s1_readout + 16 reader_baseline; top1_stable None 31 / False 35 / True 13), 66 份配有真实原文(逐字核用)",
+    "L4: 同上"
+   ],
+   "faces_blind": [
+    "blind::scripts/reply_batch.py:57 对 playbook_primary 的消费(读产物文件, 未实跑)",
+    "blind::真实模型语义(零 API)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "label_qualification 诊断字段(恒候选 / citable 恒 False / evidence_quote 逐字核)",
+   "locus": "scripts/cce_full_run.py:325 + _s2_label_qualification :327-340",
+   "verdict": "NO_CONSUMER",
+   "deletable": false,
+   "deletable_reason": "不可删: 2026-09-23 授权代定(manifest refactor_log #44)「资格层第一次有生产调用方」; G 侧 tests/test_cce_s2_label_qualification_wired.py 钉形状/恒候选/逐字核两向/AST 调用方(变异 3/3)。P 侧零读者是设计: 它是 fail-closed 的诊断字段, 不改判决。",
+   "L1_changed": "79/79(整个字段消失)",
+   "L2_changed": "出口闸 usable/withheld 0/79; 79/79 存量 state=UNCONFIRMED_CANDIDATE, citable False",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6 已跑(injection_arms.B7_label_qualification_999): 字段置 999 ⇒ 出口闸 0/79。★ 附: 恒候选的机制实测 —— 把 evidence_quote 包成 EvidenceSpan 再传 required_conjuncts=[P]: {'UNCONFIRMED_CANDIDATE → ERR:ValueError → -': 53, 'UNCONFIRMED_CANDIDATE → UNCONFIRMED_CANDIDATE → CITED_SEMANTICS_UNVERIFIED': 26} ⇒ 状态能升到 ③′ 的前提正是 s2 协议没给的「支撑哪一支 + 关于哪个对象」。",
+   "note": "★ 顺带的读数: 66 份有原文里 evidence_quote 逐字在原文的只有 26 份 —— 模型给的引文 40/66 不是逐字的(见 v3-329)。",
+   "evidence": "arms.S2_B7_label_qualification_removed",
+   "id": "v3-328"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s2_archive79",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[19]",
+   "faces_observed": [
+    "L1: s2 返回体全字段 · s3 返回体",
+    "L2: s2/s3/qualified raise · playbook_primary 发/扣 · playbook_withheld_reason · 出口闸 usable_keys/withheld(真 qualified(), MANIFEST.s1_readout 取自同 item 存档 manifest 79/79) · label_qualification.state / evidence_quote_verbatim",
+    "79 份存量(63 s1_readout + 16 reader_baseline; top1_stable None 31 / False 35 / True 13), 66 份配有真实原文(逐字核用)",
+    "L4: 同上"
+   ],
+   "faces_blind": [
+    "blind::scripts/reply_batch.py:57 对 playbook_primary 的消费(读产物文件, 未实跑)",
+    "blind::真实模型语义(零 API)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "evidence_quote_verbatim = bool(quote) and quote in text",
+   "locus": "scripts/cce_full_run.py:335",
+   "verdict": "NO_CONSUMER",
+   "deletable": false,
+   "deletable_reason": "不可删: G 侧 tests/test_cce_s2_label_qualification_wired.py 钉「逐字核真假两向」; 拆成 bool(quote) 后 53/79 份把不逐字的引文报成逐字 —— 那是「逐字≠支持」之外再加一层假。",
+   "L1_changed": "53/79(标志翻转: 13 份无原文 + 40 份有原文但引文不逐字)",
+   "L2_changed": "出口闸 0/79",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6: 与 v3-328 同一注入(整字段置 999 ⇒ 出口闸 0/79)。",
+   "note": "基线 verbatim True 26/79(有原文 66)。",
+   "evidence": "arms.S2_B8_verbatim_check_removed",
+   "id": "v3-329"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s2_archive79",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[20]",
+   "faces_observed": [
+    "L1: s2 返回体全字段 · s3 返回体",
+    "L2: s2/s3/qualified raise · playbook_primary 发/扣 · playbook_withheld_reason · 出口闸 usable_keys/withheld(真 qualified(), MANIFEST.s1_readout 取自同 item 存档 manifest 79/79) · label_qualification.state / evidence_quote_verbatim",
+    "79 份存量(63 s1_readout + 16 reader_baseline; top1_stable None 31 / False 35 / True 13), 66 份配有真实原文(逐字核用)",
+    "L4: 同上"
+   ],
+   "faces_blind": [
+    "blind::scripts/reply_batch.py:57 对 playbook_primary 的消费(读产物文件, 未实跑)",
+    "blind::真实模型语义(零 API)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "情绪分布只报 top4(distribution_only, 单模型禁单 top)",
+   "locus": "scripts/cce_full_run.py:363-370",
+   "verdict": "NO_CONSUMER",
+   "deletable": false,
+   "deletable_reason": "不可删: 段名 s3_emotion_policy 被 config/cce_submission_contract_v1.json 的 profile stages 与 tests/test_cce_submission.py / cce_workflow_manifest 的 chain 断言钉死; 产物是 manifest 里给人看的情绪分布(PR 摘要逐段打印)。P 侧代码零读者是它的设计(纪律: 情绪层不出 top, 只报分布)。",
+   "L1_changed": "79/79(top4→top3)",
+   "L2_changed": "出口闸 usable/withheld 0/79; qualified() 源码不读 s3 段",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6 已跑(injection_arms.C1_emotion_distribution_999 / C3_policy_string_999): 分布置 999 ⇒ 出口闸 0/79; policy 串置 999 ⇒ 0/79。",
+   "note": "回放复现存档 s3 分布 59/59(s1_readout 61 份里有 s3 段的)。全仓 grep emotion_distribution: 生产代码零读者。",
+   "evidence": "arms.S3_C1_top3",
+   "id": "v3-330"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s2_archive79",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[21]",
+   "faces_observed": [
+    "L1: s2 返回体全字段 · s3 返回体",
+    "L2: s2/s3/qualified raise · playbook_primary 发/扣 · playbook_withheld_reason · 出口闸 usable_keys/withheld(真 qualified(), MANIFEST.s1_readout 取自同 item 存档 manifest 79/79) · label_qualification.state / evidence_quote_verbatim",
+    "79 份存量(63 s1_readout + 16 reader_baseline; top1_stable None 31 / False 35 / True 13), 66 份配有真实原文(逐字核用)",
+    "L4: 同上"
+   ],
+   "faces_blind": [
+    "blind::scripts/reply_batch.py:57 对 playbook_primary 的消费(读产物文件, 未实跑)",
+    "blind::真实模型语义(零 API)"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "EMOTIONS 标签与 emotion_vec 的位置绑定 zip(EMOTIONS, vec)",
+   "locus": "scripts/cce_full_run.py:367 ← scripts/exp_v4_causal_chain.py:70 EMOTIONS(13)",
+   "verdict": "NO_CONSUMER",
+   "deletable": false,
+   "deletable_reason": "不可删: 反转绑定后 79/79 份的情绪标签全错但没有任何代码会发现 —— 这正是「没消费者」的危险面: 该加闸不该删。",
+   "L1_changed": "79/79",
+   "L2_changed": "0/79",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6: 同 v3-330 的 999 注入(0/79)。",
+   "note": "★ 验收缺口: 没有闸核 EMOTIONS 的顺序与 stage1 layers.emotion_vec 的顺序同源(两者分别来自 exp_v4_causal_chain 与 cce_knot_classify 的 prompt)。",
+   "evidence": "arms.S3_C2_labels_reversed",
+   "id": "v3-331"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_ov7",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[22]",
+   "faces_observed": [
+    "L1: 后台段实际收到的 context/k · manifest.stages 各段键集与值(去 sec) · 调用次数 · 是否真的重叠(时间戳) · 墙钟(不进 sha)",
+    "L2: rc · complete · failed_at · chain · 各段 status · 出口闸 usable/withheld 键",
+    "7 个场景(reply 重叠 / 串行 / NOKEY / 后台段失败 / s0 失败 / 线程晚启动 / outbound_post); 分类器与 s4 桩化, s0(后端桩)/s2/s3/qualified 真代码, main() 进程内实跑",
+    "L4: 同上"
+   ],
+   "faces_blind": [
+    "blind::真实 knot_classify 子进程的墙钟(桩 sleep 0.05s; 真实 n=1 读数见 scripts/cce_open_items.py)",
+    "blind::真线程池下 O1 的竞态 —— 只在确定性的晚启动调度(LateExecutor)下观测到"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "reader_baseline 的 context 在 submit 时绑定快照(s0 追加【情境】之前)",
+   "locus": "scripts/cce_full_run.py:107 `context = ctx[\"context\"]` · :113 submit(..., context, ...)",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "deletable": false,
+   "deletable_reason": "不可删: 它保证重叠模式下读者用的是与串行**逐字相同**的语境(「同一把尺」); 晚启动调度下拆掉它, 读者 prompt 混入我方草稿的情境。G 侧 tests/test_cce_stage_overlap.py:90 静态守。",
+   "L1_changed": "场景 ['reply_overlap_late_thread']: 后台段收到的 context 由 \"C0\" 变成 \"C0 【情境】{…}\"; 真线程池场景 0(线程即刻启动, 竞态没被赢)",
+   "L2_changed": "0/7(rc/complete/failed_at/usable 全同 —— 读者读数 reader_cce 在链上零消费者, 见 v3-338)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "已有 L1 差异 ⇒ M6 不要求。",
+   "note": "★ 差异只在确定性晚启动调度下可见 —— 真线程池里它是竞态, 行为测试抓不住, 所以仓里用静态串断言守。",
+   "evidence": "arms.OV_O1_lazy_context_no_snapshot",
+   "id": "v3-332"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_ov7",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[23]",
+   "faces_observed": [
+    "L1: 后台段实际收到的 context/k · manifest.stages 各段键集与值(去 sec) · 调用次数 · 是否真的重叠(时间戳) · 墙钟(不进 sha)",
+    "L2: rc · complete · failed_at · chain · 各段 status · 出口闸 usable/withheld 键",
+    "7 个场景(reply 重叠 / 串行 / NOKEY / 后台段失败 / s0 失败 / 线程晚启动 / outbound_post); 分类器与 s4 桩化, s0(后端桩)/s2/s3/qualified 真代码, main() 进程内实跑",
+    "L4: 同上"
+   ],
+   "faces_blind": [
+    "blind::真实 knot_classify 子进程的墙钟(桩 sleep 0.05s; 真实 n=1 读数见 scripts/cce_open_items.py)",
+    "blind::真线程池下 O1 的竞态 —— 只在确定性的晚启动调度(LateExecutor)下观测到"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: ['test_cce_ablation_verdicts_v3.py']",
+   "component": "提前退出时的兜底收回(`for dn in list(ctx.get(\"_deferred\"))`)",
+   "locus": "scripts/cce_full_run.py:614-618",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "deletable": false,
+   "deletable_reason": "不可删: s0 失败时它把后台 reader 段收回成真产出; 拆掉后 manifest 里 reader_baseline 停在占位 {deferred_until} 且线程悬着(进程退出才 join)。rc/failed_at/complete 虽同, 记录已经是假的。",
+   "L1_changed": "场景 ['reply_fail_s0']: reader_baseline 条目键集 [file,knots,overlapped_with,…] → [deferred_until,file,reader_chars,status]",
+   "L2_changed": "rc=1 / failed_at=s0_context / complete=false 全同; 变的是 manifest.stages 记录形状 ⇒ 按本表口径记 L1(记录面), 不记判决面。G 侧 tests/test_cce_stage_overlap.py:83 钉。",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_ablation_verdicts_v3.py'] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 ['test_cce_ablation_verdicts_v3.py'] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "已有 L1 差异 ⇒ M6 不要求。",
+   "note": "cce_workflow_manifest.py:58 只读 stages.s1_readout.status, 不读 reader_baseline ⇒ P 侧零判决消费者。",
+   "evidence": "arms.OV_O2_fallback_join_removed",
+   "id": "v3-333"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_ov7",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[24]",
+   "faces_observed": [
+    "L1: 后台段实际收到的 context/k · manifest.stages 各段键集与值(去 sec) · 调用次数 · 是否真的重叠(时间戳) · 墙钟(不进 sha)",
+    "L2: rc · complete · failed_at · chain · 各段 status · 出口闸 usable/withheld 键",
+    "7 个场景(reply 重叠 / 串行 / NOKEY / 后台段失败 / s0 失败 / 线程晚启动 / outbound_post); 分类器与 s4 桩化, s0(后端桩)/s2/s3/qualified 真代码, main() 进程内实跑",
+    "L4: 同上"
+   ],
+   "faces_blind": [
+    "blind::真实 knot_classify 子进程的墙钟(桩 sleep 0.05s; 真实 n=1 读数见 scripts/cce_open_items.py)",
+    "blind::真线程池下 O1 的竞态 —— 只在确定性的晚启动调度(LateExecutor)下观测到"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "后台段失败归名 `failed = dn`(记 reader_baseline, 不记触发收回的 s1_readout)",
+   "locus": "scripts/cce_full_run.py:603-607",
+   "verdict": "LOAD_BEARING_L2",
+   "deletable": false,
+   "deletable_reason": "不可删: failed_at 是 workflow manifest 的判决字段(scripts/cce_workflow_manifest.py:61,70 与 .github/summarize.py:12 直接消费); 归错名会把读者原文的问题报成我方草稿的 s1 问题。",
+   "L1_changed": "0/7",
+   "L2_changed": "场景 ['reply_fail_reader']: failed_at reader_baseline → s1_readout",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "已有 L2 差异 ⇒ M6 不要求。",
+   "note": "",
+   "evidence": "arms.OV_O3_failure_attributed_to_trigger_stage",
+   "id": "v3-334"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_ov7",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[25]",
+   "faces_observed": [
+    "L1: 后台段实际收到的 context/k · manifest.stages 各段键集与值(去 sec) · 调用次数 · 是否真的重叠(时间戳) · 墙钟(不进 sha)",
+    "L2: rc · complete · failed_at · chain · 各段 status · 出口闸 usable/withheld 键",
+    "7 个场景(reply 重叠 / 串行 / NOKEY / 后台段失败 / s0 失败 / 线程晚启动 / outbound_post); 分类器与 s4 桩化, s0(后端桩)/s2/s3/qualified 真代码, main() 进程内实跑",
+    "L4: 同上"
+   ],
+   "faces_blind": [
+    "blind::真实 knot_classify 子进程的墙钟(桩 sleep 0.05s; 真实 n=1 读数见 scripts/cce_open_items.py)",
+    "blind::真线程池下 O1 的竞态 —— 只在确定性的晚启动调度(LateExecutor)下观测到"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "CCE_SERIAL_STAGES!=\"1\" ⇒ 默认重叠(=1 逐段串行)",
+   "locus": "scripts/cce_full_run.py:596",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "deletable": false,
+   "deletable_reason": "不可删: 它是 owner 2026-09-23「把两次 knot_classify 并发化」的开关; 反转后 reply 链回到串行(桩下墙钟 0.057→0.109 s; 真实 n=1 读数在 cce_open_items), manifest 少 overlapped_with。",
+   "L1_changed": "场景 ['reply_fail_reader', 'reply_fail_s0', 'reply_overlap', 'reply_overlap_late_thread', 'reply_overlap_nokey', 'reply_serial']: 墙钟 + overlapped_with 标签 + 是否真的重叠",
+   "L2_changed": "rc/complete/failed_at/usable 全同(串行与重叠产出同形同值正是本功能的验收条件 ①②)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "已有 L1 差异 ⇒ M6 不要求。",
+   "note": "outbound_post 链无后台段, 不受影响(场景 outbound_post 0 差异)。",
+   "evidence": "arms.OV_O4_overlap_off_by_default",
+   "id": "v3-335"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_ov7",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[26]",
+   "faces_observed": [
+    "L1: 后台段实际收到的 context/k · manifest.stages 各段键集与值(去 sec) · 调用次数 · 是否真的重叠(时间戳) · 墙钟(不进 sha)",
+    "L2: rc · complete · failed_at · chain · 各段 status · 出口闸 usable/withheld 键",
+    "7 个场景(reply 重叠 / 串行 / NOKEY / 后台段失败 / s0 失败 / 线程晚启动 / outbound_post); 分类器与 s4 桩化, s0(后端桩)/s2/s3/qualified 真代码, main() 进程内实跑",
+    "L4: 同上"
+   ],
+   "faces_blind": [
+    "blind::真实 knot_classify 子进程的墙钟(桩 sleep 0.05s; 真实 n=1 读数见 scripts/cce_open_items.py)",
+    "blind::真线程池下 O1 的竞态 —— 只在确定性的晚启动调度(LateExecutor)下观测到"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "DEFER_UNTIL = {reader_baseline: s1_readout}(后台段在哪一段之后收回)",
+   "locus": "scripts/cce_full_run.py:128",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "deletable": false,
+   "deletable_reason": "不可删: 目标段决定后台失败多早中止主链 —— 改成 s2_knots 或不存在的段名后, reader 失败时 s2…qualified 白跑一遍再报错(reply_fail_reader 场景多执行的段进了 manifest)。G 侧静态钉字面。",
+   "L1_changed": "场景 ['reply_fail_s0', 'reply_overlap', 'reply_overlap_late_thread', 'reply_overlap_nokey'](overlapped_with 标签值)",
+   "L2_changed": "rc/failed_at/complete 全同; 场景 ['reply_fail_reader'] 里已执行的段集合变(s2/s3/s4/qualified 在后台失败被发现前跑完)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6 已跑(arms.OV_O5i_defer_target_absurd): 目标改成 NO_SUCH_STAGE ⇒ 循环内永不收回, 兜底收回兜住 ⇒ 与 s2 臂同形(L1 ['reply_fail_s0', 'reply_overlap', 'reply_overlap_late_thread', 'reply_overlap_nokey'] · L2 ['reply_fail_reader'])。",
+   "note": "",
+   "evidence": "arms.OV_O5_defer_target_s2",
+   "id": "v3-336"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_ov7",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[27]",
+   "faces_observed": [
+    "L1: 后台段实际收到的 context/k · manifest.stages 各段键集与值(去 sec) · 调用次数 · 是否真的重叠(时间戳) · 墙钟(不进 sha)",
+    "L2: rc · complete · failed_at · chain · 各段 status · 出口闸 usable/withheld 键",
+    "7 个场景(reply 重叠 / 串行 / NOKEY / 后台段失败 / s0 失败 / 线程晚启动 / outbound_post); 分类器与 s4 桩化, s0(后端桩)/s2/s3/qualified 真代码, main() 进程内实跑",
+    "L4: 同上"
+   ],
+   "faces_blind": [
+    "blind::真实 knot_classify 子进程的墙钟(桩 sleep 0.05s; 真实 n=1 读数见 scripts/cce_open_items.py)",
+    "blind::真线程池下 O1 的竞态 —— 只在确定性的晚启动调度(LateExecutor)下观测到"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "收回后 MANIFEST[reader_baseline] 与串行同形(**_reader_out: tops/within_js/knots)",
+   "locus": "scripts/cce_full_run.py:142 _join_deferred",
+   "verdict": "NO_CONSUMER",
+   "deletable": false,
+   "deletable_reason": "不可删: G 侧 tests/test_cce_stage_overlap.py:57 钉「与串行同形同值」; 且这些字段是 reply 链里读者测量唯一落到 manifest 的地方(给人看)。P 侧零读者是现状不是设计 —— 读者读数本该进出口闸(见 v3-338)。",
+   "L1_changed": "场景 ['reply_fail_s0', 'reply_overlap', 'reply_overlap_late_thread', 'reply_overlap_nokey'](条目只剩 status/overlapped_with)",
+   "L2_changed": "rc/complete/failed_at/usable 全同(['reply_fail_s0', 'reply_overlap', 'reply_overlap_late_thread', 'reply_overlap_nokey'])",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6 已跑(arms.OV_O6i_reader_manifest_absurd_999): tops/within_js/knots/reader_chars/file 全置 999 ⇒ L2 场景变化 无。",
+   "note": "",
+   "evidence": "arms.OV_O6_join_drops_reader_out",
+   "id": "v3-337"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_ov7",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/cce_full_run.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[28]",
+   "faces_observed": [
+    "L1: 后台段实际收到的 context/k · manifest.stages 各段键集与值(去 sec) · 调用次数 · 是否真的重叠(时间戳) · 墙钟(不进 sha)",
+    "L2: rc · complete · failed_at · chain · 各段 status · 出口闸 usable/withheld 键",
+    "7 个场景(reply 重叠 / 串行 / NOKEY / 后台段失败 / s0 失败 / 线程晚启动 / outbound_post); 分类器与 s4 桩化, s0(后端桩)/s2/s3/qualified 真代码, main() 进程内实跑",
+    "L4: 同上"
+   ],
+   "faces_blind": [
+    "blind::真实 knot_classify 子进程的墙钟(桩 sleep 0.05s; 真实 n=1 读数见 scripts/cce_open_items.py)",
+    "blind::真线程池下 O1 的竞态 —— 只在确定性的晚启动调度(LateExecutor)下观测到"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "ctx[\"reader_cce\"] = d(读者读数挂到 ctx)",
+   "locus": "scripts/cce_full_run.py:119 · :141",
+   "verdict": "NO_CONSUMER",
+   "deletable": true,
+   "deletable_reason": "可删: 全仓唯一写入点, 零读取点(grep --include=*.py scripts/.github/accuracy/probes/tests 读者 = ['scripts/cce_full_run.py']; 置 999 跑 7 个场景 L1/L2 零差异)。删它不动任何闸。若将来读者读数要进出口闸, 应经 MANIFEST 而不是 ctx 私键 —— 那是另一条改动, 不是留着这行的理由。",
+   "L1_changed": "0/7",
+   "L2_changed": "0/7",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6 已跑(arms.OV_O7_reader_cce_absurd): 置 999 ⇒ 7 场景 L1 0 · L2 0。",
+   "note": "★ 与 v3-332/337 合读: 读者基线整段在链上没有判决消费者 —— reply profile 「量读者」这件事目前只到 manifest 为止。",
+   "evidence": "arms.OV_O7_reader_cce_absurd",
+   "id": "v3-338"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s0_archive50",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/exp_crossmodel_desire.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[29]",
+   "faces_observed": [
+    "L1/L2: 变异版 exp_crossmodel_desire 经 as_import 注入(CE-21-c)后 s0 NOKEY 回退面 50 份 · import 是否成立 · 属性存在性 · js_divergence 同值",
+    "注入: 裸 sys.path 导入 · 不可写路径 · 毒化 call_model"
+   ],
+   "faces_blind": [
+    "blind::cce_knot_classify 子进程对 call_model 的消费(另一进程; 已由 v3-167 判过)",
+    "blind::真实模型"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "`import … re`(模块级未使用的 import)",
+   "locus": "scripts/exp_crossmodel_desire.py:18",
+   "verdict": "NO_CONSUMER",
+   "deletable": true,
+   "deletable_reason": "可删: AST 计数 `re` 在本文件 0 次使用(os 22 / sys 3 / json 4 / time 5 / math 4); 去掉后 import 成立、hasattr(mod,'re')=False、s0 回退面 50 份零差异、js_divergence 同值。只有 core sha 钉(test_cce_core_boundary)会红 —— 那是登记问题不是行为。",
+   "L1_changed": "s0 NOKEY 0/50",
+   "L2_changed": "s0 NOKEY 0/50",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_chain_conformance.py', 'test_cce_core_boundary.py', 'test_cce_gate_protocol_version.py', 'test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6 已跑: 去掉即注入(import_ok=True, has_attr_re=False); 荒谬替代无意义(名字不被引用)。",
+   "note": "填 R6 独立复核点名的 :18 零判决项。",
+   "evidence": "xm.XM_E2_unused_import_re_removed",
+   "id": "v3-339"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s0_archive50",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/exp_crossmodel_desire.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[30]",
+   "faces_observed": [
+    "L1/L2: 变异版 exp_crossmodel_desire 经 as_import 注入(CE-21-c)后 s0 NOKEY 回退面 50 份 · import 是否成立 · 属性存在性 · js_divergence 同值",
+    "注入: 裸 sys.path 导入 · 不可写路径 · 毒化 call_model"
+   ],
+   "faces_blind": [
+    "blind::cce_knot_classify 子进程对 call_model 的消费(另一进程; 已由 v3-167 判过)",
+    "blind::真实模型"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "`sys.path.insert(0, <scripts/>)`(让 `from calibration_framework import …` 在任何导入者下都找得到)",
+   "locus": "scripts/exp_crossmodel_desire.py:21",
+   "verdict": "UNREACHABLE",
+   "deletable": false,
+   "deletable_reason": "不可删: 保险丝 —— 裸 sys.path 注入证明去掉它 import 当场 ModuleNotFoundError(calibration_framework); 生产导入者恰好都先插了 scripts/ 才没暴露。",
+   "L1_changed": "s0 NOKEY 0/50",
+   "L2_changed": "s0 NOKEY 0/50",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_chain_conformance.py', 'test_cce_core_boundary.py', 'test_cce_gate_protocol_version.py', 'test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6 已跑(xm.XM_E3_injection_import_from_bare_syspath): 从不含 scripts/ 的 sys.path 导入 ⇒ 基线 IMPORT_OK, 臂 ModuleNotFoundError: No module named 'calibration_framework'。",
+   "note": "填 R6 独立复核自陈的漏项 ⑦。",
+   "evidence": "xm.XM_E3_syspath_insert_removed",
+   "id": "v3-340",
+   "unreachable_condition": "复活条件: 导入者的 sys.path 不含 scripts/ —— 生产链上不存在: cce_full_run.py:35 与 accuracy/*.py / reply_loop.py 都先 insert scripts/, cce_knot_classify 以脚本方式运行时 sys.path[0] 就是 scripts/。只有从仓外用 spec_from_file_location 之类裸导入时才活。"
+  },
+  {
+   "round": "v3-第三轮(主链编排段)",
+   "cluster": "r3_主链编排段",
+   "consumer_side": "P",
+   "status": "active",
+   "evidence_class": "direct",
+   "operating_point_ref": "★operating_point::OP_r3_s0_archive50",
+   "source_artifact": "tests/data/ablation_v3/r3_主链编排段.json",
+   "ablated_files": [
+    "scripts/exp_crossmodel_desire.py"
+   ],
+   "_ablated_files_source": "locus",
+   "_source_row": "r3_主链编排段[31]",
+   "faces_observed": [
+    "L1/L2: 变异版 exp_crossmodel_desire 经 as_import 注入(CE-21-c)后 s0 NOKEY 回退面 50 份 · import 是否成立 · 属性存在性 · js_divergence 同值",
+    "注入: 裸 sys.path 导入 · 不可写路径 · 毒化 call_model"
+   ],
+   "faces_blind": [
+    "blind::cce_knot_classify 子进程对 call_model 的消费(另一进程; 已由 v3-167 判过)",
+    "blind::真实模型"
+   ],
+   "★为什么本轮才有这一行": "生产主链 s0_context / s2_knots / s3_emotion_policy 与 reader_baseline∥s1 编排段在 v2/v3 两轮**零判决**(R2 完备性批评 §1 点名); s0 于 2026-09-23 接 Jev、编排段于同日并发化 —— 本轮是它们上线后的第一次消融。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本行的 L4 走磁盘副本(rsync 冻结快照 + 递归清 __pycache__ + python3 -B) ⇒ 源码文本闸与内存内闸同时可见, 无低报。已知读本文件源码文本的闸: tests/test_cce_stage_overlap.py(静态串) · tests/test_cce_s0_jev_shadow.py(串) · tests/test_cce_s2_label_qualification_wired.py(AST) · tests/test_cce_usable_routing.py(串) · tests/test_cce_ablation_verdicts_v3.py(行数) · tests/test_cce_core_boundary.py(core sha, 仅 exp_crossmodel_desire)。本臂在这些闸上的实际翻红: []",
+   "component": "`RESULTS = os.path.join(ROOT, \"results\")`",
+   "locus": "scripts/exp_crossmodel_desire.py:25",
+   "verdict": "NO_CONSUMER",
+   "deletable": false,
+   "deletable_reason": "不可删: 读数面零消费者, 但它是 CAL(:26)与 import 期 makedirs(:27, v3-183)的基, 也是 run_full/write_report(v3-180/181, UNREACHABLE)的输出目录 —— 删它要连着那三行一起判, 本行单独不可删。",
+   "L1_changed": "s0 NOKEY 0/50(改名后 import 成立, 副作用目录在 VSE_ROOT=scratch 下被创建=True)",
+   "L2_changed": "s0 NOKEY 0/50",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_chain_conformance.py', 'test_cce_core_boundary.py', 'test_cce_gate_protocol_version.py', 'test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "injection_test": "M6 已跑: 改名 = 注入(读数面 0 差异); 荒谬不可写路径 ⇒ import 期 OSError ⇒ 整条链在 import 就死(v3-183 makedirs 的面) —— 那是 makedirs 那一行的面(v3-183), 不是本行的读数消费面。",
+   "note": "填 R6 独立复核点名的 :25 零判决项。",
+   "evidence": "xm.XM_E4_results_dir_renamed",
+   "id": "v3-341"
+  }
+ ]
+}
