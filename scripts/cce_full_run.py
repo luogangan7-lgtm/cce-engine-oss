@@ -20,6 +20,7 @@
          -> s7_ruler(P3双锚) -> s8_pairwise_bet(需--ref-post)
 """
 import os, sys, json, time, argparse, subprocess, hashlib
+from concurrent.futures import ThreadPoolExecutor
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 import io
@@ -103,11 +104,41 @@ def reader_baseline(ctx):
     body = open(rf, encoding="utf-8").read().strip()
     if not body:
         raise RuntimeError("run/reader.txt 为空")
-    d = run_knot_classify(rf, ctx["context"], ctx["k"], f"{ctx['outdir']}/reader_baseline.json")
+    out = f"{ctx['outdir']}/reader_baseline.json"; context = ctx["context"]   # ★ 快照: s0 之后会往 ctx["context"] 追加【情境】
+    if ctx.get("_overlap"):
+        # 2026-09-23 owner「把两次 knot_classify 并发化」: 读者基线与 s1 是两条互不依赖的子进程
+        # (reader_cce 在链上**没有下游消费者**), 于是这里只启动, 到 s1_readout 跑完再收(DEFER_UNTIL)。
+        # 输入与串行逐字相同: 同 reader 文件、同 s0 之前的 context、同 k。失败仍记在 reader_baseline 名下。
+        t0 = time.time()
+        fut = _DEFER_EX.submit(run_knot_classify, rf, context, ctx["k"], out)
+        ctx.setdefault("_deferred", {})["reader_baseline"] = (fut, t0, body)
+        return {"file": "reader_baseline.json", "reader_chars": len(body), "deferred_until": DEFER_UNTIL["reader_baseline"]}
+    d = run_knot_classify(rf, context, ctx["k"], out)
     ctx["reader_cce"] = d
+    return _reader_out(d, body)
+
+
+def _reader_out(d, body):
     return {"file": "reader_baseline.json", "reader_chars": len(body),
             "tops": d["stage1"]["tops"], "within_js": d["stage1"]["within_js"],
             "knots": [[k["key"], k["weight"]] for k in d["stage2"]["knots"]]}
+
+
+# 后台段 → 在哪一段跑完后收回。只有 reader_baseline 一项: 它与 s1_readout 同为 knot_classify 子进程且互不依赖。
+DEFER_UNTIL = {"reader_baseline": "s1_readout"}
+_DEFER_EX = ThreadPoolExecutor(max_workers=1)
+
+
+def _join_deferred(ctx, name):
+    """收回后台段: 成功 ⇒ MANIFEST[name] 换成与串行**同形**的产出(+ 真实耗时 + overlapped_with); 失败 ⇒ FAIL 并抛出。"""
+    fut, t0, body = ctx["_deferred"].pop(name)
+    try:
+        d = fut.result()
+    except Exception as e:
+        MANIFEST[name] = {"status": "FAIL", "sec": round(time.time() - t0, 1), "error": f"{type(e).__name__}: {e}"[:300]}
+        raise
+    ctx["reader_cce"] = d
+    MANIFEST[name] = {"status": "OK", "sec": round(time.time() - t0, 1), "overlapped_with": DEFER_UNTIL[name], **_reader_out(d, body)}
 
 
 @stage("s0_context")
@@ -556,12 +587,27 @@ def main():
             raise SystemExit("submission metadata text_sha256 does not match exact input")
         meta["submission"] = submission_meta
     failed = None
+    ctx["_overlap"] = os.environ.get("CCE_SERIAL_STAGES") != "1"   # CCE_SERIAL_STAGES=1 ⇒ 逐段串行(A/B 对照与排障用)
     for fn in CHAINS[a.mode]:
         try:
             fn(ctx)
         except Exception:
             failed = fn.stage_name
             break
+        for dn, until in DEFER_UNTIL.items():
+            if fn.stage_name == until and dn in ctx.get("_deferred", {}):
+                try:
+                    _join_deferred(ctx, dn)
+                except Exception:
+                    failed = dn
+        if failed:
+            break
+    # 兜底: 提前退出也要把挂起的后台段收回来(不留悬线程); 它在链序上更早, 失败就记它
+    for dn in list(ctx.get("_deferred", {})):
+        try:
+            _join_deferred(ctx, dn)
+        except Exception:
+            failed = dn
     meta["finished"] = time.strftime("%Y-%m-%d %H:%M:%S")
     meta["stages"] = MANIFEST
     meta["complete"] = failed is None

@@ -1323,6 +1323,39 @@
     "不得说 s0 更准 —— 依据只有稳定性与纪律。",
     "不得说全链提速 —— s0 只是 1 次调用, 大头在两次 knot_classify。"
    ]
+  },
+  {
+   "date": "2026-09-23",
+   "event": "REPLY_CHAIN_READER_BASELINE_OVERLAPS_S1",
+   "file": "scripts/cce_full_run.py",
+   "to_sha": "f8af5b3e8512aaeb",
+   "reason": "owner「把两次 knot_classify 并发化」。reply 链 reader_baseline 与 s1_readout 是两条互不依赖的 knot_classify 子进程(reader_cce 无下游消费者) ⇒ reader 段只启动、s1 跑完再收(DEFER_UNTIL); 输入与串行逐字相同(同 reader 文件、s0 之前的 context 快照、同 k); manifest.chain 与 stages 键序不变; 后台段失败仍记 failed_at=reader_baseline; 提前退出也兜底收回; CCE_SERIAL_STAGES=1 逐段串行。**核心分类器 cce_knot_classify.py 一字未动**(core_files sha 不变)。",
+   "behavior_evidence": [
+    "tests/test_cce_stage_overlap.py",
+    "tests/test_cce_stage_overlap_bench.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 这次仪器确实没变(core_files 逐一同 sha), 变的是编排: 由闸证 ①墙钟真重叠 ②产出同形同值 ③reader 绑定 s0 之前 context ④后台失败归名 ⑤s0 失败也收回后台段 ⑥串行开关 ⑦无后台段的链不受影响。变异 6/6 抓到。",
+   "★★★A/B 实测(同文本各 1 次真实 reply 链, n=1)": {
+    "串行 wall/reader/s1": [
+     166.9,
+     70.2,
+     95.8
+    ],
+    "重叠 wall/reader/s1": [
+     62.3,
+     62.1,
+     61.1
+    ],
+    "节省秒": 104.6,
+    "★可归因于重叠(≤理论上限 min(reader,s1))": 70.2,
+    "★超出上限=单次延迟波动": 34.4,
+    "限流": "两臂 INFRA_FAILED 0/0, k_ok 3/3"
+   },
+   "route": "**编排变更(非 core_files, instrument_generation 不变)** + 调用: 2 次本地 reply 链(≈32 MiniMax + 2 Jev)。★ 这是本地基准不是生产运行。★ 生产 cce-submit 实测 2–7 min/run(items 已 matrix 并行 8), 「20 分钟」那次是 G-K 精度闸(5 模型×81 条), 与本改动无关。",
+   "★不得据此说": [
+    "不得说「全链快 63%」—— 可归因的只有 ≤70 s(≈42%), 其余是延迟波动。",
+    "不得说 outbound_post 变快 —— 它没有 reader 段, 零影响。"
+   ]
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",

@@ -1,0 +1,145 @@
+{
+ "block": "STAGE_OVERLAP_BENCH",
+ "date": "2026-09-23",
+ "★性质": "本地基准, 同文本各跑 1 次; n=1 ⇒ 只报观察值, 不报置信区间",
+ "★调用账": "两臂各 1 次 reply 链(≈16 MiniMax + 1 Jev)",
+ "arms": [
+  {
+   "arm": "serial",
+   "rc": 0,
+   "wall_sec": 166.9,
+   "complete": true,
+   "failed_at": null,
+   "stage_sec": {
+    "reader_baseline": 70.2,
+    "s0_context": 0.6,
+    "s1_readout": 95.8,
+    "s2_knots": 0.0,
+    "s3_emotion_policy": 0.1,
+    "s4_guard": 0.1,
+    "qualified_readout": 0.0
+   },
+   "s0_backend": "jev",
+   "reader": {
+    "k_ok": 3,
+    "k_requested": 3,
+    "operational": {
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "attempts_total": 3,
+    "INFRA_FAILED": 0,
+    "PARSE_FAILED": 0,
+    "s2_draws": null
+   },
+   "s1": {
+    "k_ok": 3,
+    "k_requested": 3,
+    "operational": {
+     "n_attempts": 4,
+     "n_draws": 3,
+     "first_attempt_success": 2,
+     "first_attempt_success_rate": 0.6667,
+     "n_infra_failed": 0,
+     "n_parse_failed": 1,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "attempts_total": 4,
+    "INFRA_FAILED": 0,
+    "PARSE_FAILED": 1,
+    "s2_draws": null
+   },
+   "stderr_tail": ""
+  },
+  {
+   "arm": "overlap",
+   "rc": 0,
+   "wall_sec": 62.3,
+   "complete": true,
+   "failed_at": null,
+   "stage_sec": {
+    "reader_baseline": 62.1,
+    "s0_context": 1.0,
+    "s1_readout": 61.1,
+    "s2_knots": 0.0,
+    "s3_emotion_policy": 0.1,
+    "s4_guard": 0.1,
+    "qualified_readout": 0.0
+   },
+   "s0_backend": "jev",
+   "reader": {
+    "k_ok": 3,
+    "k_requested": 3,
+    "operational": {
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "attempts_total": 3,
+    "INFRA_FAILED": 0,
+    "PARSE_FAILED": 0,
+    "s2_draws": null
+   },
+   "s1": {
+    "k_ok": 3,
+    "k_requested": 3,
+    "operational": {
+     "n_attempts": 3,
+     "n_draws": 3,
+     "first_attempt_success": 3,
+     "first_attempt_success_rate": 1.0,
+     "n_infra_failed": 0,
+     "n_parse_failed": 0,
+     "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+     "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+    },
+    "attempts_total": 3,
+    "INFRA_FAILED": 0,
+    "PARSE_FAILED": 0,
+    "s2_draws": null
+   },
+   "stderr_tail": ""
+  }
+ ],
+ "★节省": {
+  "wall_sec 串行→重叠": [
+   166.9,
+   62.3
+  ],
+  "节省秒": 104.6,
+  "节省比": 0.627,
+  "理论上限(=min(reader, s1) 串行秒)": 70.2,
+  "★可归因于重叠的节省(≤理论上限)": 70.2,
+  "★超出上限的部分=单次调用延迟波动, 不归功于重叠": 34.4
+ },
+ "★限流": {
+  "serial": {
+   "reader INFRA_FAILED": 0,
+   "s1 INFRA_FAILED": 0,
+   "reader k_ok": 3,
+   "s1 k_ok": 3
+  },
+  "overlap": {
+   "reader INFRA_FAILED": 0,
+   "s1 INFRA_FAILED": 0,
+   "reader k_ok": 3,
+   "s1 k_ok": 3
+  }
+ },
+ "★怎么读": [
+  "重叠臂 INFRA_FAILED 若高于串行臂 ⇒ 10 路并发撞限流, 节省被重试吃掉, 要限并发。",
+  "n=1: 两臂差异含抽样波动(单次 s1 就有 64–161 s 的历史跨度), 只能说方向, 不能说精确倍数。"
+ ]
+}

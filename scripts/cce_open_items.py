@@ -706,6 +706,11 @@ def items() -> list[dict]:
             out.append({"类": DECIDED, "项": "s0 情境面 Jev 影子臂已跑(MiniMax 42 + Jev 42): 一致率 5–31/42, MiniMax 情绪余温**零未知**。★ 2026-09-23 owner 两次裁定: ①s0 六面**无人类金标可言**, 「人填 10 条金标」前置**撤回** ②「那就接线吧」⇒ **已接线**(scripts/cce_s0_jev.py, 有 TYPESAFE_API_KEY 走 Jev, 否则回退 MiniMax 并写 read_backend; tests/test_cce_s0_wiring.py 变异 5/5)",
                 "证据": "逐面 一致/MiniMax未知/Jev未知: " + " · ".join("%s %s/%d/%d" % (k, v["一致"], v["MiniMax 未知/非法"], v["Jev 未知"]) for k, v in _S["★★★逐面"].items())
                         + "。★ 无金标 ⇒ 不判优劣; MiniMax 在「读不出就填未知, 严禁猜」下 42 条零未知这件事不需要金标。★ 剩一件 owner 侧动作: GitHub 仓库 secrets 加 **TYPESAFE_API_KEY**, 没加之前线上链走 minimax_fallback 并写进产物。★ 全链提速点不在 s0: 在 reader_baseline + s1 + s2 两次 knot_classify(生成式, Jev 接不了)。"})
+        _ob = os.path.join(ROOT, "results/stage_overlap_bench.json")
+        if os.path.exists(_ob):
+            _B = _j("results/stage_overlap_bench.json"); _sv = _B["★节省"]; _a, _b = _B["arms"]
+            out.append({"类": DECIDED, "项": "reply 链 reader_baseline ∥ s1_readout 已并发化(owner 2026-09-23): 核心分类器一字未动, 只改编排; 串行 %.0fs → 重叠 %.0fs(n=1)" % (_a["wall_sec"], _b["wall_sec"]),
+                "证据": "可归因于重叠的节省 ≤ 理论上限 min(reader,s1) = %.0fs; 超出部分 %.0fs 是单次延迟波动。两臂 INFRA_FAILED 0/0, k_ok 3/3。闸 tests/test_cce_stage_overlap.py 变异 6/6。★ 生产 cce-submit 实测 2–7 min/run(items 已 matrix 并行), 「20 分钟」是 G-K 精度闸(5 模型×81 条), 不是单条链。★ outbound_post 无 reader 段, 零影响。" % (_sv["★可归因于重叠的节省(≤理论上限)"], _sv["★超出上限的部分=单次调用延迟波动, 不归功于重叠"])})
         _rt = os.path.join(ROOT, "results/s0_retest.json")
         if os.path.exists(_rt):
             _R = _j("results/s0_retest.json"); _P = _R["★★★逐面逐臂"]; _T = _R["★★★情绪余温结构约束"]
