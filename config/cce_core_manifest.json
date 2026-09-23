@@ -1194,6 +1194,79 @@
     "MiniMax": 0,
     "MiniMax 累计": 310
    }
+  },
+  {
+   "date": "2026-09-23",
+   "event": "POSSESSION_ARTIFACT_JEV_INVENTORY_S0_SHADOW",
+   "file": "probes/s0_jev_shadow.py",
+   "to_sha": "fed14a3b93728402",
+   "reason": "三件: ①possession 三轮负增益是打分伪影(零调用现证) ②全链判断点盘点(AST 现算调用点) ③s0 的 Jev 影子臂(MiniMax 42 + Jev 42, 描述性)。",
+   "behavior_evidence": [
+    "tests/test_cce_possession_gain_artifact.py",
+    "tests/test_cce_jev_fit_inventory.py",
+    "tests/test_cce_s0_jev_shadow.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 三份产物都是现算比对; possession 的等价性由闸真调 allow_label 证; s0 影子臂的提示词由闸核生产 s0 的 f-string 字面片段。变异 4/4 · 2 · 4/4。",
+   "route": "**度量面变更 + 调用: MiniMax 42(累计 352) + Jev 42(80k tok ≈ $0.003)**。生产 s0 **未接线**(闸断言 cce_full_run 无 typesafe/s0_jev)。改动件无一在 core_files/parser_plane。",
+   "★★★①possession 伪影": {
+    "判据层现证": "OWNED 与 EXPERIENCED 在两档 allow_label 结局逐字相同(合同 Q 是析取)",
+    "金标": "B 支 64/68 记 OWNED, 其中约一半句子只说 wear/use 没说 own",
+    "三轮重算(合同等价类口径)": {
+     "MiniMax r5(v3)": "58/68(净 -6) → 66/68(净 +2)",
+     "MiniMax r6(v4)": "53/68(净 -11) → 66/68(净 +2)",
+     "Jev r6-jev(v4)": "40/68(净 -24) → 68/68(净 +4)"
+    },
+    "★结论": "越按定义字面读越亏(Jev 把含拥有词 28 条几乎全填 OWNED、只含使用词 28 条填 EXPERIENCED —— 最对的填法, 槽位分最低)。r5/r6/r6-jev 的数**不回改**; 等价类写进打分是下一轮预注册的事。"
+   },
+   "★★★②盘点": {
+    "LLM 调用点(AST)": {
+     "reader_baseline": [
+      "run_knot_classify"
+     ],
+     "s0": [
+      "call_model"
+     ],
+     "s1": [
+      "run_knot_classify"
+     ]
+    },
+    "★结论": {
+     "生产链里唯一的 Choice 形状 LLM 点": "s0_context(1 次调用)。",
+     "生产链的 LLM 时间在哪": "reader_baseline + s1 + s2 —— 两次完整 knot_classify, 都是生成式, Jev 接不了。",
+     "度量层里已证 Jev 能接的": "判据层里的分类槽位(speaker/polarity/time/citation), 便宜且全对。",
+     "★替换 s0 的前提": "无金标 ⇒ 先做 Jev vs MiniMax 一致性(shadow), 不一致的面人工看; 生产接线是核心文件改动, 要 owner 点头。"
+    }
+   },
+   "★★★③s0 影子臂(描述性, 无金标, 不判优劣)": {
+    "逐面 一致/42 · MiniMax未知 · Jev未知": {
+     "进程位置": "17/42 · 0 · 5",
+     "触发事件": "19/42 · 0 · 15",
+     "关系位置": "20/42 · 0 · 15",
+     "身体状态": "20/42 · 12 · 31",
+     "资源状态": "31/42 · 31 · 23",
+     "情绪余温": "5/42 · 0 · 25"
+    },
+    "★最显眼的一行": "情绪余温: MiniMax 42 条**零未知**(负向 16/正向 15/中性 11) —— 这批是 Reddit 首帖, 按定义多数应是「首轮无余温/未知」; Jev 未知 25 + 首轮无余温 5。生产纪律是「读不出就填未知, 严禁猜」。**谁对没金标, 但 MiniMax 的未知率 0 与纪律相悖这件事不需要金标。**",
+    "★下一步": "人工看 10 条分歧样本定金标 → 才谈接线; 接线是核心文件改动, owner 点头。"
+   },
+   "新增件": [
+    "probes/possession_gain_artifact.py",
+    "probes/jev_fit_inventory.py",
+    "probes/s0_jev_shadow.py",
+    "tests/test_cce_possession_gain_artifact.py",
+    "tests/test_cce_jev_fit_inventory.py",
+    "tests/test_cce_s0_jev_shadow.py",
+    "results/possession_gain_artifact.json",
+    "results/jev_fit_inventory.json",
+    "results/s0_jev_shadow.json",
+    "results/s0_jev_shadow_partial.jsonl"
+   ],
+   "预算": {
+    "MiniMax 本轮": 42,
+    "MiniMax 累计": 352,
+    "Jev 本轮": 42,
+    "Jev input_tokens": 80384
+   }
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",

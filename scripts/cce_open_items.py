@@ -694,6 +694,18 @@ def items() -> list[dict]:
                         "★ Jev 独有: 鉴别格上 P(RESTATES) 均值 %s vs 多数类 %s(差 44 倍), 2 格 ≥0.8 —— 分得出方向但 argmax 过不了; 降阈值是看过数据再定, 不许, 要用得另立预注册。"
                         "★ 不得说 Jev 比 MiniMax 好/差; 不得外推到中文(官方 CJK 不同等)。成本 ≈$0.006。"
                         % (_MJ["B 臂鉴别格"], _MJ["最佳浅层规则鉴别格"], _MJ["★★★净增益(鉴别格对数 − 多数类格错数)"]["B 臂"], _PJ["均值"], _PJ["多数类上均值"])})
+        _pa = os.path.join(ROOT, "results/possession_gain_artifact.json")
+        if os.path.exists(_pa):
+            _PA = _j("results/possession_gain_artifact.json")
+            out.append({"类": DECIDED, "项": "possession 三轮「负增益」是**打分伪影**: 合同 Q 是析取, 判据层对 OWNED/EXPERIENCED 结局相同(现证), 金标却一律记 OWNED",
+                "证据": "等价类口径重算: " + " · ".join("%s %s→%s" % (k, v["槽位级原打分"], v["★合同等价类口径(OWNED≡EXPERIENCED)"]) for k, v in _PA["★★★三轮对照"].items())
+                        + "。★ r5/r6/r6-jev 的数不回改; 等价类写进打分是下一轮预注册的事。★ ONE_NEGATED/BOTH_NEGATED 仍没测(金标只有 2 例)。"})
+        _sh = os.path.join(ROOT, "results/s0_jev_shadow.json")
+        if os.path.exists(_sh):
+            _S = _j("results/s0_jev_shadow.json")
+            out.append({"类": BLOCKED, "项": "s0 情境面 Jev 影子臂已跑(MiniMax 42 + Jev 42): 一致率 5–31/42, MiniMax 情绪余温**零未知** —— 接不接线卡在 **owner 裁定**(需先人工定 10 条分歧样本的金标)",
+                "证据": "逐面 一致/MiniMax未知/Jev未知: " + " · ".join("%s %s/%d/%d" % (k, v["一致"], v["MiniMax 未知/非法"], v["Jev 未知"]) for k, v in _S["★★★逐面"].items())
+                        + "。★ 无金标 ⇒ 不判优劣; MiniMax 在「读不出就填未知, 严禁猜」下 42 条零未知这件事不需要金标。★ 卡在两件外部事: **人类评分者**给 10 条分歧样本定金标 + **owner 裁定**接不接线(核心文件改动)。★ 适配器 s0_jev_fill() 已可用但**未接线**。★ 全链提速点不在 s0: 在 reader_baseline + s1 + s2 两次 knot_classify(生成式, Jev 接不了)。"})
         _v4 = os.path.join(ROOT, "results/contract_pairs_v4_check.json")
         if os.path.exists(_v4):
             _C = _j("results/contract_pairs_v4_check.json")

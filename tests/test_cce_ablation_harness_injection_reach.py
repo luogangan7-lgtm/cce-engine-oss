@@ -119,7 +119,8 @@ FROZEN_SHA8 = {
         # ★ 2026-09-23 第二次: 追加 CONTRACT_PAIRS_V4_...。摘掉那条重算 = 4237ab5d33b71818, 与上一钉逐字节相同。
         # ★ 2026-09-23 第三次: 追加 R6_...。摘掉那条重算 = 1aae065acd0461da, 与上一钉逐字节相同。
         # ★ 2026-09-23 第四次: 追加 R6_JEV_ARM_...。摘掉那条重算 = 564d17240095c7ef, 与上一钉逐字节相同。
-    "config/cce_core_manifest.json": "b2c25b30865bfea3",
+        # ★ 2026-09-23 第五次: 追加 POSSESSION_ARTIFACT_JEV_INVENTORY_S0_SHADOW。摘掉那条重算 = b2c25b30865bfea3, 与上一钉逐字节相同。
+    "config/cce_core_manifest.json": "3b01a12c8711249a",
     "accuracy/run_gates.py": "b758e6676a94acf3",
 }
 

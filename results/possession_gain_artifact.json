@@ -1,0 +1,130 @@
+{
+ "block": "POSSESSION_GAIN_ARTIFACT",
+ "date": "2026-09-23",
+ "★零调用": "只读三轮已有产物与仓内金标, 不发调用、不改任何产物。",
+ "★★★判据层现证: OWNED 与 EXPERIENCED 结局相同": {
+  "只用合同明文": {
+   "OWNED": [
+    true,
+    {
+     "输出新信息增量": "SUPPORTS",
+     "谈论对象是自己已拥有或已经历的": "SUPPORTS"
+    }
+   ],
+   "EXPERIENCED": [
+    true,
+    {
+     "输出新信息增量": "SUPPORTS",
+     "谈论对象是自己已拥有或已经历的": "SUPPORTS"
+    }
+   ],
+   "★两值结局相同": true
+  },
+  "明文+解释": {
+   "OWNED": [
+    true,
+    {
+     "输出新信息增量": "SUPPORTS",
+     "谈论对象是自己已拥有或已经历的": "SUPPORTS"
+    }
+   ],
+   "EXPERIENCED": [
+    true,
+    {
+     "输出新信息增量": "SUPPORTS",
+     "谈论对象是自己已拥有或已经历的": "SUPPORTS"
+    }
+   ],
+   "★两值结局相同": true
+  }
+ },
+ "★★★金标怎么记的": {
+  "B 支金标分布": {
+   "OWNED": 64,
+   "BOTH_NEGATED": 2,
+   "UNSPECIFIED": 2
+  },
+  "★按句子词法 × 金标": {
+   "只含使用词 / 金标=OWNED": 33,
+   "只含使用词 / 金标=UNSPECIFIED": 1,
+   "含拥有词 / 金标=BOTH_NEGATED": 2,
+   "含拥有词 / 金标=OWNED": 31,
+   "含拥有词 / 金标=UNSPECIFIED": 1
+  },
+  "★读法": "「只含使用词」(I've worn / I use / I've had …)的句子也被记成 OWNED —— 金标没有区分「拥有」与「用过」, 因为合同的 Q 对两者不分。"
+ },
+ "★★★三轮对照": {
+  "MiniMax r5(v3)": {
+   "n": 68,
+   "槽位级原打分": "58/68",
+   "零基线(全填 OWNED)": "64/68",
+   "原口径净增益": -6,
+   "★合同等价类口径(OWNED≡EXPERIENCED)": "66/68",
+   "★等价类口径净增益": 2,
+   "混淆(金标→模型)": {
+    "OWNED→OWNED": 54,
+    "OWNED→EXPERIENCED": 8,
+    "BOTH_NEGATED→BOTH_NEGATED": 2,
+    "UNSPECIFIED→UNSPECIFIED": 2,
+    "OWNED→UNSPECIFIED": 2
+   },
+   "★按 B 句词法(仅 v4 轮)": "r5 跑在 v3 文本上, 不比"
+  },
+  "MiniMax r6(v4)": {
+   "n": 68,
+   "槽位级原打分": "53/68",
+   "零基线(全填 OWNED)": "64/68",
+   "原口径净增益": -11,
+   "★合同等价类口径(OWNED≡EXPERIENCED)": "66/68",
+   "★等价类口径净增益": 2,
+   "混淆(金标→模型)": {
+    "OWNED→OWNED": 50,
+    "OWNED→EXPERIENCED": 12,
+    "BOTH_NEGATED→BOTH_NEGATED": 2,
+    "OWNED→UNSPECIFIED": 2,
+    "UNSPECIFIED→ONE_NEGATED": 1,
+    "UNSPECIFIED→UNSPECIFIED": 1
+   },
+   "★按 B 句词法(仅 v4 轮)": {
+    "只含使用词→EXPERIENCED": 12,
+    "只含使用词→OWNED": 19,
+    "只含使用词→UNSPECIFIED": 3,
+    "含拥有词→BOTH_NEGATED": 2,
+    "含拥有词→ONE_NEGATED": 1,
+    "含拥有词→OWNED": 31
+   }
+  },
+  "Jev r6-jev(v4)": {
+   "n": 68,
+   "槽位级原打分": "40/68",
+   "零基线(全填 OWNED)": "64/68",
+   "原口径净增益": -24,
+   "★合同等价类口径(OWNED≡EXPERIENCED)": "68/68",
+   "★等价类口径净增益": 4,
+   "混淆(金标→模型)": {
+    "OWNED→OWNED": 36,
+    "OWNED→EXPERIENCED": 28,
+    "BOTH_NEGATED→BOTH_NEGATED": 2,
+    "UNSPECIFIED→UNSPECIFIED": 2
+   },
+   "★按 B 句词法(仅 v4 轮)": {
+    "只含使用词→EXPERIENCED": 28,
+    "只含使用词→OWNED": 5,
+    "只含使用词→UNSPECIFIED": 1,
+    "含拥有词→BOTH_NEGATED": 2,
+    "含拥有词→OWNED": 31,
+    "含拥有词→UNSPECIFIED": 1
+   }
+  }
+ },
+ "★★★结论": {
+  "①负增益是打分伪影": "槽位级打分把 OWNED/EXPERIENCED 当两个答案, 金标却按合同析取一律记 OWNED ⇒ 模型按定义字面读「wear/use」为 EXPERIENCED 就丢分。判据层对两者给同一结局(上面现证), 端到端 68/68 可用两轮都没受影响。",
+  "②越字面越亏": "MiniMax r5 −6 → r6 −11 → Jev −24: Jev 把「含拥有词」28 条几乎全填 OWNED、「只含使用词」28 条填 EXPERIENCED —— 那是**最符合槽位定义**的填法, 却是三者里槽位分最低的。",
+  "③按合同等价类重算": "见三轮对照的「★等价类口径净增益」—— 伪影消失后 possession 不再是负的。",
+  "④不改冻结产物": "r5/r6/r6-jev 的槽位级数**保持原样**(它们按当时冻结的打分算的); 本文件只提供等价类口径的**附带读数**。要把等价类写进打分, 是下一轮预注册的事。"
+ },
+ "★不得据此说": [
+  "不得说三个模型 possession 都对 —— ONE_NEGATED/BOTH_NEGATED 那 4 格没测(金标里只有 2+0 例)。",
+  "不得回头改 r5/r6/r6-jev 的槽位级数。"
+ ]
+}
