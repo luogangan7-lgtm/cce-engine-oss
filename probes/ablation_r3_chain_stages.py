@@ -13,8 +13,9 @@
       **L3 哈希/ID 显式剔除**; 凡判无差异必跑荒谬值注入臂; L4 在 rsync 冻结快照上真写磁盘 + 递归清 __pycache__ + python3 -B
       (绝不 symlink), 并以空操作臂减去伪红。
 零 API: 全程 socket 绊线; s0 的 Jev / MiniMax 调用全部桩掉(桩只回放存量 s0_context.json 的读出面, **不落语料原文**, 产物只有统计量与指针)。
-用法: python3 probes/ablation_r3_chain_stages.py            # L1/L2/注入, 写 tests/data/ablation_v3/<cluster>.json
-      python3 probes/ablation_r3_chain_stages.py --l4      # L4 农场(慢), 写 scratch/l4_results.json
+用法: python3 probes/ablation_r3_chain_stages.py            # L1/L2/注入, 写 scratch/l12_results.json(收口后进 tests/data/ablation_v3/<cluster>.json)
+      python3 probes/ablation_r3_chain_stages.py --l4      # L4 农场(慢): 有 __main__ 的测试文件脚本跑, 无 __main__ 的走 pytest, 写 scratch/farm/l4_results.json
+      python3 probes/ablation_r3_chain_stages.py --l4-pytest-only   # 只补跑无 __main__ 的 106 个 pytest 文件
 """
 import argparse, collections, contextlib, copy, datetime, glob, hashlib, importlib.util, io, json, os, pathlib, re, shutil, subprocess, sys, tempfile, time, types
 
@@ -682,19 +683,27 @@ def strip_L(obs, prefix):
 
 
 # ═══════════════════════════ L4 农场(rsync 冻结快照, 绝不 symlink) ═══════════════
-def l4_farm(arms=None, workers=8):
+def l4_farm(arms=None, workers=8, pytest_only=False):
     farm = SCRATCH / "farm"; snap = farm / "repo"; farm.mkdir(parents=True, exist_ok=True)
     if not snap.exists():
         subprocess.run(["rsync", "-a", "--delete", "--exclude", ".git", "--exclude", "__pycache__", "--exclude", "probes/ablation_r3_chain_stages.py", str(ROOT) + "/", str(snap) + "/"], check=True)
     pristine = {f: (snap / f).read_text(encoding="utf-8") for f in (TARGET, XM)}
     tests = sorted(p.name for p in (snap / "tests").glob("test_*.py"))
+    # ★ 127/225 个测试文件带 `def test_`(pytest 风格): `python3 -B tests/test_x.py` 对其中没有 __main__ 跑测试的文件是**空跑**(0 断言执行) ——
+    #   第一版农场只用脚本方式, 把 test_cce_stage_overlap / test_cce_s0_wiring 这类真正守本文件行为的闸漏掉了。
+    #   有 `def test_` 的一律 `python3 -B -m pytest -p no:cacheprovider` 单文件跑(仍在磁盘副本上, 仍清 pyc); 模块级断言式的文件脚本跑。
+    #   pytest_only=True ⇒ 只补跑 def test_ 那 127 个。
+    no_main = {t for t in tests if re.search(r"^def test_", (snap / "tests" / t).read_text(encoding="utf-8"), re.M)}
+    if pytest_only:
+        tests = sorted(no_main)
 
     def clean_pyc():
         for p in snap.rglob("__pycache__"):
             shutil.rmtree(p, ignore_errors=True)
 
     def run_one(t):
-        p = subprocess.run([sys.executable, "-B", str(snap / "tests" / t)], capture_output=True, text=True, cwd=snap, timeout=900,
+        cmd = [sys.executable, "-B", "-m", "pytest", "-q", "-p", "no:cacheprovider", str(snap / "tests" / t)] if t in no_main else [sys.executable, "-B", str(snap / "tests" / t)]
+        p = subprocess.run(cmd, capture_output=True, text=True, cwd=snap, timeout=900,
                            env=dict(os.environ, MINIMAX_API_KEY=FAKE_KEY, TYPESAFE_API_KEY="", PYTHONDONTWRITEBYTECODE="1"))
         return t, p.returncode, (p.stdout + p.stderr)[-600:]
 
@@ -706,13 +715,13 @@ def l4_farm(arms=None, workers=8):
                 if rc:
                     red[t] = out
         real = {}
-        for t in red:                                  # 串行复验两次, 只留真红
-            if all(run_one(t)[1] for _ in range(2)):
+        for t in red:                                  # 串行复验一次, 只留真红
+            if run_one(t)[1]:
                 real[t] = red[t]
         return real
 
-    results = {"n_tests": len(tests), "arms": {}}
-    out_p = farm / "l4_results.json"
+    results = {"n_tests": len(tests), "runner": "pytest-per-file(no __main__ files)" if pytest_only else "python3 -B script (files with __main__) + pytest-per-file (files without)", "arms": {}}
+    out_p = farm / ("l4_pytest_results.json" if pytest_only else "l4_results.json")
     for name in (arms or list(ARMS)):
         f, old, new = ARMS[name]
         src = pristine[f]; assert src.count(old) == 1, name
@@ -732,11 +741,11 @@ def l4_farm(arms=None, workers=8):
 
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(); ap.add_argument("--l4", action="store_true"); ap.add_argument("--arms", nargs="*"); ap.add_argument("--out", default=str(SCRATCH / "l12_results.json"))
+    ap = argparse.ArgumentParser(); ap.add_argument("--l4", action="store_true"); ap.add_argument("--l4-pytest-only", action="store_true"); ap.add_argument("--arms", nargs="*"); ap.add_argument("--out", default=str(SCRATCH / "l12_results.json"))
     a = ap.parse_args()
     SCRATCH.mkdir(parents=True, exist_ok=True)
-    if a.l4:
-        l4_farm(a.arms)
+    if a.l4 or a.l4_pytest_only:
+        l4_farm(a.arms, pytest_only=a.l4_pytest_only)
     else:
         r = main_l12()
         pathlib.Path(a.out).write_text(json.dumps(r, ensure_ascii=False, indent=1), encoding="utf-8")

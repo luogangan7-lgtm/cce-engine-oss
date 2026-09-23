@@ -3235,19 +3235,63 @@
   "★不得据此说": "不得说 exp_crossmodel_desire「测透了」: 28+4 条判决仍全在存量回放 + 桩化工况下; call_model 的线上请求面只有 v3-空白轮 的 F9 记录型桩证据。"
  },
  "L4": {
-  "farm": "rsync 冻结快照(排除 .git/__pycache__/本探针) → 每臂改磁盘副本 → 递归清 __pycache__ → 全量 tests/test_*.py 并行 python3 -B → 红的串行复验两次 → 还原",
+  "farm": "rsync 冻结快照(排除 .git/__pycache__/本探针) → 每臂改磁盘副本 → 递归清 __pycache__ → 全量 tests/test_*.py 并行(有 def test_ 的 127 个 `python3 -B -m pytest` 单文件, 其余 98 个 `python3 -B` 脚本跑) → 红的串行复验 → 还原",
   "n_tests": 225,
+  "★补跑说明": "第一版农场全部脚本跑, 与 probes/dev_runsuite.py 同一个盲点: 有 def test_ 而无 __main__ 跑测试的文件被空跑(0 断言, 恒绿) —— test_cce_stage_overlap / test_cce_s0_wiring 这类守本文件行为的闸整批漏掉; 已用 pytest 补跑 127 个文件并把红集并入(见 ★pytest_supplement), dev_runsuite.py 同步修。",
+  "★pytest_supplement": {
+   "n_files": 127,
+   "arms": [
+    "NOOP_full_run",
+    "NOOP_xm",
+    "OV_O1_lazy_context_no_snapshot",
+    "OV_O2_fallback_join_removed",
+    "OV_O3_failure_attributed_to_trigger_stage",
+    "OV_O4_overlap_off_by_default",
+    "OV_O5_defer_target_s2",
+    "OV_O5i_defer_target_absurd",
+    "OV_O6_join_drops_reader_out",
+    "OV_O6i_reader_manifest_absurd_999",
+    "OV_O7_reader_cce_absurd",
+    "S0_A12_backend_called_even_if_nothing_to_read",
+    "S0_A1_jev_precedence_off",
+    "S0_A2_fallback_mislabeled_as_jev",
+    "S0_A2i_read_backend_absurd_999",
+    "S0_A3_read_overrides_declared",
+    "S0_A4_illegal_value_not_mapped_to_unknown",
+    "S0_A5_miss_guard_removed",
+    "S0_A6_fill_zero_guard_removed",
+    "S0_A7_context_append_removed",
+    "S0_A8_body_not_truncated",
+    "S0_A9_readable_filter_removed",
+    "S2_B1_taxo_pin_literal_1_3_0",
+    "S2_B2_taxo_guard_removed",
+    "S2_B3_top1_is_not_False",
+    "S2_B4_withheld_reason_collapsed",
+    "S2_B5_playbook_cut_10",
+    "S2_B6_unscored_guidance_removed",
+    "S2_B7_label_qualification_removed",
+    "S2_B8_verbatim_check_removed",
+    "S3_C1_top3",
+    "S3_C2_labels_reversed",
+    "XM_E2_unused_import_re_removed",
+    "XM_E3_syspath_insert_removed",
+    "XM_E4_results_dir_renamed"
+   ],
+   "runner": "pytest-per-file(no __main__ files)"
+  },
   "noop_baseline_reds": {
    "scripts/cce_full_run.py": [
     "test_cce_k1_cost_curve.py",
-    "test_cce_open_items.py"
+    "test_cce_open_items.py",
+    "test_cce_suspend_fix_confirmation.py"
    ],
    "scripts/exp_crossmodel_desire.py": [
     "test_cce_chain_conformance.py",
     "test_cce_core_boundary.py",
     "test_cce_gate_protocol_version.py",
     "test_cce_k1_cost_curve.py",
-    "test_cce_open_items.py"
+    "test_cce_open_items.py",
+    "test_cce_suspend_fix_confirmation.py"
    ]
   },
   "★空操作臂的红是什么": "快照无 .git ⇒ 查冻结 commit 的闸(test_cce_k1_cost_curve / test_cce_open_items 等)恒红, 与被测件无关, 逐臂减去。",
@@ -3256,268 +3300,334 @@
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_s0_wiring.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
-    "net_new": [],
-    "sec": 86.5
+    "net_new": [
+     "test_cce_s0_wiring.py"
+    ],
+    "sec": 111.9
    },
    "S0_A2_fallback_mislabeled_as_jev": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_s0_wiring.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
-    "net_new": [],
-    "sec": 95.7
+    "net_new": [
+     "test_cce_s0_wiring.py"
+    ],
+    "sec": 116.0
    },
    "S0_A3_read_overrides_declared": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [],
-    "sec": 80.6
+    "sec": 100.8
    },
    "S0_A4_illegal_value_not_mapped_to_unknown": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [],
-    "sec": 83.3
+    "sec": 103.4
    },
    "S0_A5_miss_guard_removed": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [],
-    "sec": 82.7
+    "sec": 102.7
    },
    "S0_A6_fill_zero_guard_removed": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [],
-    "sec": 81.1
+    "sec": 101.1
    },
    "S0_A7_context_append_removed": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_ablation_verdicts_v3.py",
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [
      "test_cce_ablation_verdicts_v3.py"
     ],
-    "sec": 83.6
+    "sec": 103.69999999999999
    },
    "S0_A8_body_not_truncated": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
      "test_cce_open_items.py",
-     "test_cce_s0_jev_shadow.py"
+     "test_cce_s0_jev_shadow.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [
      "test_cce_s0_jev_shadow.py"
     ],
-    "sec": 82.1
+    "sec": 102.19999999999999
    },
    "S0_A9_readable_filter_removed": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_s0_wiring.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
-    "net_new": [],
-    "sec": 81.6
+    "net_new": [
+     "test_cce_s0_wiring.py"
+    ],
+    "sec": 100.0
    },
    "S0_A12_backend_called_even_if_nothing_to_read": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [],
-    "sec": 133.5
+    "sec": 153.6
    },
    "S2_B1_taxo_pin_literal_1_3_0": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_s2_label_qualification_wired.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
-    "net_new": [],
-    "sec": 138.5
+    "net_new": [
+     "test_cce_s2_label_qualification_wired.py"
+    ],
+    "sec": 158.8
    },
    "S2_B2_taxo_guard_removed": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [],
-    "sec": 123.7
+    "sec": 143.8
    },
    "S2_B3_top1_is_not_False": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [],
-    "sec": 89.1
+    "sec": 109.3
    },
    "S2_B4_withheld_reason_collapsed": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_ablation_verdicts_v3.py",
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [
      "test_cce_ablation_verdicts_v3.py"
     ],
-    "sec": 80.2
+    "sec": 100.30000000000001
    },
    "S2_B5_playbook_cut_10": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [],
-    "sec": 87.1
+    "sec": 105.6
    },
    "S2_B6_unscored_guidance_removed": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_ablation_verdicts_v3.py",
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [
      "test_cce_ablation_verdicts_v3.py"
     ],
-    "sec": 78.7
+    "sec": 98.0
    },
    "S2_B7_label_qualification_removed": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_s2_label_qualification_wired.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
-    "net_new": [],
-    "sec": 77.7
+    "net_new": [
+     "test_cce_s2_label_qualification_wired.py"
+    ],
+    "sec": 96.4
    },
    "S2_B8_verbatim_check_removed": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_s2_label_qualification_wired.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
-    "net_new": [],
-    "sec": 80.1
+    "net_new": [
+     "test_cce_s2_label_qualification_wired.py"
+    ],
+    "sec": 100.5
    },
    "S3_C1_top3": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [],
-    "sec": 84.6
+    "sec": 104.8
    },
    "S3_C2_labels_reversed": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [],
-    "sec": 75.8
+    "sec": 96.0
    },
    "OV_O1_lazy_context_no_snapshot": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_stage_overlap.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
-    "net_new": [],
-    "sec": 76.1
+    "net_new": [
+     "test_cce_stage_overlap.py"
+    ],
+    "sec": 100.8
    },
    "OV_O2_fallback_join_removed": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_ablation_verdicts_v3.py",
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_stage_overlap.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [
-     "test_cce_ablation_verdicts_v3.py"
+     "test_cce_ablation_verdicts_v3.py",
+     "test_cce_stage_overlap.py"
     ],
-    "sec": 72.6
+    "sec": 97.0
    },
    "OV_O3_failure_attributed_to_trigger_stage": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_stage_overlap.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
-    "net_new": [],
-    "sec": 71.2
+    "net_new": [
+     "test_cce_stage_overlap.py"
+    ],
+    "sec": 95.30000000000001
    },
    "OV_O4_overlap_off_by_default": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_stage_overlap.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
-    "net_new": [],
-    "sec": 75.3
+    "net_new": [
+     "test_cce_stage_overlap.py"
+    ],
+    "sec": 99.1
    },
    "OV_O5_defer_target_s2": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_stage_overlap.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
-    "net_new": [],
-    "sec": 70.4
+    "net_new": [
+     "test_cce_stage_overlap.py"
+    ],
+    "sec": 95.0
    },
    "OV_O5i_defer_target_absurd": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_stage_overlap.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
-    "net_new": [],
-    "sec": 77.2
+    "net_new": [
+     "test_cce_stage_overlap.py"
+    ],
+    "sec": 101.6
    },
    "OV_O6_join_drops_reader_out": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_stage_overlap.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
-    "net_new": [],
-    "sec": 76.3
+    "net_new": [
+     "test_cce_stage_overlap.py"
+    ],
+    "sec": 98.69999999999999
    },
    "OV_O7_reader_cce_absurd": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [],
-    "sec": 75.7
+    "sec": 95.80000000000001
    },
    "XM_E2_unused_import_re_removed": {
     "file": "scripts/exp_crossmodel_desire.py",
@@ -3526,10 +3636,11 @@
      "test_cce_core_boundary.py",
      "test_cce_gate_protocol_version.py",
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [],
-    "sec": 117.5
+    "sec": 137.6
    },
    "XM_E3_syspath_insert_removed": {
     "file": "scripts/exp_crossmodel_desire.py",
@@ -3538,10 +3649,11 @@
      "test_cce_core_boundary.py",
      "test_cce_gate_protocol_version.py",
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [],
-    "sec": 110.2
+    "sec": 130.3
    },
    "XM_E4_results_dir_renamed": {
     "file": "scripts/exp_crossmodel_desire.py",
@@ -3550,19 +3662,21 @@
      "test_cce_core_boundary.py",
      "test_cce_gate_protocol_version.py",
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [],
-    "sec": 114.6
+    "sec": 134.7
    },
    "NOOP_full_run": {
     "file": "scripts/cce_full_run.py",
     "reds": [
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [],
-    "sec": 75.5
+    "sec": 95.5
    },
    "NOOP_xm": {
     "file": "scripts/exp_crossmodel_desire.py",
@@ -3571,10 +3685,11 @@
      "test_cce_core_boundary.py",
      "test_cce_gate_protocol_version.py",
      "test_cce_k1_cost_curve.py",
-     "test_cce_open_items.py"
+     "test_cce_open_items.py",
+     "test_cce_suspend_fix_confirmation.py"
     ],
     "net_new": [],
-    "sec": 101.4
+    "sec": 121.5
    },
    "S0_A2i_read_backend_absurd_999": {
     "file": "scripts/cce_full_run.py",
@@ -3599,13 +3714,6 @@
  "★acceptance_gaps_found": {
   "★这是什么": "承重(L2 / L1_ONLY)或保险丝(UNREACHABLE)行里, 源码臂在全量测试上**零行为闸翻红**(只剩钉/哈希/行数闸或什么都没有)的位点 —— 改了会翻生产行为/记录, 但没有任何闸会红。",
   "位点": [
-   {
-    "id": "v3-310",
-    "verdict": "LOAD_BEARING_L1_ONLY",
-    "component": "有 TYPESAFE_API_KEY 走 Jev、否则回退 MiniMax(`if jr is not None`)",
-    "arm": "S0_A1_jev_precedence_off",
-    "reds_net": []
-   },
    {
     "id": "v3-312",
     "verdict": "UNREACHABLE",
@@ -3653,24 +3761,10 @@
     ]
    },
    {
-    "id": "v3-318",
-    "verdict": "LOAD_BEARING_L1_ONLY",
-    "component": "只把 readable_from_text ∈ {True, partial} 的面交给后端",
-    "arm": "S0_A9_readable_filter_removed",
-    "reds_net": []
-   },
-   {
     "id": "v3-320",
     "verdict": "LOAD_BEARING_L1_ONLY",
     "component": "need_read 为空 ⇒ 不调后端, read_backend=\"none\"",
     "arm": "S0_A12_backend_called_even_if_nothing_to_read",
-    "reds_net": []
-   },
-   {
-    "id": "v3-322",
-    "verdict": "LOAD_BEARING_L2",
-    "component": "分类学版本钉 PINNED_TAXO 默认 \"1.3.1\"(CCE_TAXO_VERSION 可覆盖)",
-    "arm": "S2_B1_taxo_pin_literal_1_3_0",
     "reds_net": []
    },
    {
@@ -3701,43 +3795,6 @@
     "verdict": "UNREACHABLE",
     "component": "playbook_primary 截断 [:120]",
     "arm": "S2_B5_playbook_cut_10",
-    "reds_net": []
-   },
-   {
-    "id": "v3-332",
-    "verdict": "LOAD_BEARING_L1_ONLY",
-    "component": "reader_baseline 的 context 在 submit 时绑定快照(s0 追加【情境】之前)",
-    "arm": "OV_O1_lazy_context_no_snapshot",
-    "reds_net": []
-   },
-   {
-    "id": "v3-333",
-    "verdict": "LOAD_BEARING_L1_ONLY",
-    "component": "提前退出时的兜底收回(`for dn in list(ctx.get(\"_deferred\"))`)",
-    "arm": "OV_O2_fallback_join_removed",
-    "reds_net": [
-     "test_cce_ablation_verdicts_v3.py"
-    ]
-   },
-   {
-    "id": "v3-334",
-    "verdict": "LOAD_BEARING_L2",
-    "component": "后台段失败归名 `failed = dn`(记 reader_baseline, 不记触发收回的 s1_readout)",
-    "arm": "OV_O3_failure_attributed_to_trigger_stage",
-    "reds_net": []
-   },
-   {
-    "id": "v3-335",
-    "verdict": "LOAD_BEARING_L1_ONLY",
-    "component": "CCE_SERIAL_STAGES!=\"1\" ⇒ 默认重叠(=1 逐段串行)",
-    "arm": "OV_O4_overlap_off_by_default",
-    "reds_net": []
-   },
-   {
-    "id": "v3-336",
-    "verdict": "LOAD_BEARING_L1_ONLY",
-    "component": "DEFER_UNTIL = {reader_baseline: s1_readout}(后台段在哪一段之后收回)",
-    "arm": "OV_O5_defer_target_s2",
     "reds_net": []
    },
    {
@@ -3792,7 +3849,7 @@
     "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
     "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
     "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
-    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py(127 个带 def test_ 的走 pytest 单文件, 98 个模块级断言式脚本跑), 减空操作臂"
    ],
    "faces_blind": [
     "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
@@ -3808,7 +3865,7 @@
    "deletable_reason": "不可删: 它决定 20/50 份(需要读出的那些)走哪个外部后端 —— owner 2026-09-23 按 results/s0_retest.json 的稳定性证据(Jev κ 1.0/.88 vs MiniMax .38–.58)点头的路由; 删掉即回到 MiniMax。",
    "L1_changed": "KEY: 20/50(read_backend jev→minimax_fallback(None), 后端调用次数 20→40: Jev 仍被调一次再回退); NOKEY: 0/50(无 key 时本分支本就不走)",
    "L2_changed": "决策面(facets/source/fill/raise)0/50 —— 桩让两后端回放同一读出面; 变的只有 read_backend 标签与调用路由 ⇒ 记 L1_ONLY。★ 两后端真实读出不同这件事(κ 差)本装置结构上看不见。",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_s0_wiring.py'] | 其中行为闸 ['test_cce_s0_wiring.py'] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "已有 L1 差异 ⇒ M6 不要求。",
    "note": "★ 30/50 全声明的 case 两臂都零调用 —— 路由只对需要读出的 case 存在。",
    "evidence": "arms.S0_A1_jev_precedence_off",
@@ -3831,7 +3888,7 @@
     "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
     "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
     "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
-    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py(127 个带 def test_ 的走 pytest 单文件, 98 个模块级断言式脚本跑), 减空操作臂"
    ],
    "faces_blind": [
     "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
@@ -3847,7 +3904,7 @@
    "deletable_reason": "不可删: P 侧零读者但这是 owner 2026-09-23 的明示纪律「回退必须写进产物(区分执行了与有产出)」, 且 G 侧 tests/test_cce_s0_wiring.py 三处断言钉它(变异 5/5)。删它 = 线上走了 MiniMax 却读成 Jev, 正是 A2 臂造出的形状。",
    "L1_changed": "NOKEY: 20/50(标签 minimax_fallback(NO_TYPESAFE_API_KEY)→jev); KEY: 0/50",
    "L2_changed": "s0 自身决策 0/50; 下游 s1/s2/s3/qualified 结构上不读它(A2i 注入: 标签=999 跑完整 reply 链 rc=0 complete=True usable_keys 不变)",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_s0_wiring.py'] | 其中行为闸 ['test_cce_s0_wiring.py'] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6 已跑(arms.S0_A2i_read_backend_absurd_999): read_backend 置 999, 整条 reply 链(NOKEY 场景) L2 场景变化 []; grep --include=*.py 读者: ['scripts/cce_full_run.py', 'scripts/cce_open_items.py'](除本文件与报告文本 cce_open_items.py 外为零)",
    "note": "★ 消费者是**人**(manifest / PR 摘要 .github/summarize.py 逐段打印要点)与 G 侧闸, 不是生产判决代码。",
    "evidence": "arms.S0_A2_fallback_mislabeled_as_jev",
@@ -3870,7 +3927,7 @@
     "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
     "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
     "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
-    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py(127 个带 def test_ 的走 pytest 单文件, 98 个模块级断言式脚本跑), 减空操作臂"
    ],
    "faces_blind": [
     "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
@@ -3886,7 +3943,7 @@
    "deletable_reason": "不可删: 它是「我们自己产内容时情境是已知入参, 不该让模型猜」这条生产纪律的实现; 注入臂证明一旦翻转, 4/50 份的声明值会被后端答案覆盖。",
    "L1_changed": "KEY 0/50 · NOKEY 0/50(存量回放里后端从不返回被声明的面: s0 只把 need_read 的面交给后端)",
    "L2_changed": "0/50",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6 已跑(injection_arms.A3_over_answer): 让后端**多答**(把已声明的面也答了)。Jev 路径 KEY 仍 0/50 —— scripts/cce_s0_jev.py:45 `{k: ans[k]['choice'] for k in qs}` 只取问过的面, 适配器结构上不会多答; MiniMax 路径 NOKEY: A3 臂 L2 4/50(恰是同时有声明又有待读面的 4 份), 表现为 miss 防呆 RuntimeError {'OK': 46, 'RuntimeError': 4}; A3+A5 双拆 ⇒ L2 4/50(同样那 4 份: 声明面被读出覆盖且不再报错)。",
    "note": "★ 精度守卫与 miss 防呆是一对: 精度翻转会被防呆当场抓住(4/4), 只有两者同时坏才静默。",
    "evidence": "arms.S0_A3_read_overrides_declared",
@@ -3910,7 +3967,7 @@
     "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
     "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
     "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
-    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py(127 个带 def test_ 的走 pytest 单文件, 98 个模块级断言式脚本跑), 减空操作臂"
    ],
    "faces_blind": [
     "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
@@ -3926,7 +3983,7 @@
    "deletable_reason": "不可删: 保险丝 —— 注入臂里 20/50 份的非法值会原样进 facets 并把 fill_rate 抬高(用一个分类学外的值冒充「读出」)。",
    "L1_changed": "KEY 0/50 · NOKEY 0/50",
    "L2_changed": "0/50",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6 已跑(injection_arms.A4_illegal_value): 桩对每份第一个读出面返回「★非法值★」⇒ 基线归未知(非法值进入 facets 0/50), 臂保留 20/50; L1 20/50 · L2 20/50(fill_rate 变)。",
    "note": "★ 语料循环性: 存量 s0_context.json 只存过了本守卫之后的值 ⇒ 回放永远合法, 本工况下它必然「不动」; 判活只能靠注入。",
    "evidence": "arms.S0_A4_illegal_value_not_mapped_to_unknown",
@@ -3950,7 +4007,7 @@
     "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
     "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
     "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
-    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py(127 个带 def test_ 的走 pytest 单文件, 98 个模块级断言式脚本跑), 减空操作臂"
    ],
    "faces_blind": [
     "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
@@ -3966,7 +4023,7 @@
    "deletable_reason": "不可删: 保险丝 —— 它同时抓两种断裂: 声明含分类学外的面名(注入 50/50 抓住)与 精度翻转(A3 注入 4/4 抓住)。",
    "L1_changed": "KEY 0/50 · NOKEY 0/50",
    "L2_changed": "0/50",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6 已跑(injection_arms.A5_stray_decl_key): 每份声明加一个分类学外的面名 ⇒ 基线 raise 50/50, 臂 raise 0/50, L2 50/50。",
    "note": "★ 上游闸: .github/prepare.py:58 在 cce_full_run 之前已拒绝分类学外的面名 ⇒ cce-submit 路径上它是第二道; 本地 CLI 直呼 cce_full_run.py 时是唯一一道。",
    "evidence": "arms.S0_A5_miss_guard_removed",
@@ -3990,7 +4047,7 @@
     "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
     "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
     "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
-    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py(127 个带 def test_ 的走 pytest 单文件, 98 个模块级断言式脚本跑), 减空操作臂"
    ],
    "faces_blind": [
     "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
@@ -4006,7 +4063,7 @@
    "deletable_reason": "不可删: 保险丝 —— 拆掉后 fill_rate=0.0 的运行照样进 s1(注入 50/50), 违反「缺必要输入时不硬给结论」。",
    "L1_changed": "KEY 0/50 · NOKEY 0/50(存量最低 fill 0.111)",
    "L2_changed": "0/50",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6 已跑(injection_arms.A6_empty_decl_all_unknown): 空声明 + 后端九面全未知 ⇒ 基线 raise 50/50, 臂 raise 0/50 且 fill 直方图 {'0.0': 50}。",
    "note": "存量 fill 直方图见工况; 全声明 30/50。",
    "evidence": "arms.S0_A6_fill_zero_guard_removed",
@@ -4030,7 +4087,7 @@
     "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
     "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
     "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
-    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py(127 个带 def test_ 的走 pytest 单文件, 98 个模块级断言式脚本跑), 减空操作臂"
    ],
    "faces_blind": [
     "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
@@ -4046,7 +4103,7 @@
    "deletable_reason": "不可删: 这是情境层唯一到达 s1 的通道 —— 拆掉后 s0 的产物照写, 但 s1 的 prompt 语境 50/50 份回到无情境; 2026-08-09/10 的 148 次受控调用实测情境显著改变下游(情绪 .36–.78 / 行动 .43–.78)。",
    "L1_changed": "KEY 50/50 · NOKEY 50/50(context 串; 所有 case 至少有一个已知面)",
    "L2_changed": "s0 自身决策 0/50; 下游 s1 的判决(真实模型读 prompt)本装置盲 ⇒ 只能记 L1_ONLY, 不得据此说「不影响判决」。G 侧: tests/test_cce_stage_overlap.py:61 断言 s1 收到的 context 以 【情境】 开头。",
-   "L4_net_new_reds": "净新增 1 条: ['test_cce_ablation_verdicts_v3.py'] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 ['test_cce_ablation_verdicts_v3.py'] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_ablation_verdicts_v3.py'] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 ['test_cce_ablation_verdicts_v3.py'] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "已有 L1 差异 ⇒ M6 不要求。",
    "note": "★ reader_baseline 在重叠模式下拿的是追加**之前**的快照(见 v3-332)。",
    "evidence": "arms.S0_A7_context_append_removed",
@@ -4069,7 +4126,7 @@
     "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
     "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
     "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
-    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py(127 个带 def test_ 的走 pytest 单文件, 98 个模块级断言式脚本跑), 减空操作臂"
    ],
    "faces_blind": [
     "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
@@ -4085,7 +4142,7 @@
    "deletable_reason": "不可删: 它是送给外部后端的输入上限 —— 52 条真实原文里 9 条超 2000(最长 11479), 拆掉后这 9 条送出 3845/11479 字符。语义上截断是否伤读出未测, 但改它必须重做 s0_retest 的稳定性证据(那 42 条是在 [:2000] 下测的)。",
    "L1_changed": "OP_text52 后端字节数面: KEY 9/52 · NOKEY 9/52(超 2000 的 9 条: 基线 2000, 臂 [3845, 3845, 3845, 3845, 3845, 3845, 3845, 3845, 11479]); OP_s0_archive50 决策面 0/50",
    "L2_changed": "0/50 —— 桩不看正文内容; 真实后端读长文本的差异盲。",
-   "L4_net_new_reds": "净新增 1 条: ['test_cce_s0_jev_shadow.py'] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 ['test_cce_s0_jev_shadow.py'] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_s0_jev_shadow.py'] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 ['test_cce_s0_jev_shadow.py'] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "已有 L1 差异 ⇒ M6 不要求。",
    "note": "两个后端(Jev state / MiniMax prompt 的【内容】段)都吃同一个截断后的 body。",
    "evidence": "arms.S0_A8_body_not_truncated(len_KEY/len_NOKEY)",
@@ -4108,7 +4165,7 @@
     "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
     "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
     "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
-    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py(127 个带 def test_ 的走 pytest 单文件, 98 个模块级断言式脚本跑), 减空操作臂"
    ],
    "faces_blind": [
     "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
@@ -4124,7 +4181,7 @@
    "deletable_reason": "不可删: 它把「影响大但拿不到」的三面(社会在场/场景类型/信息环境, readable=False)挡在提示词外 —— 拆掉后 20/50 份的请求从 4/6 面变 5/9 面; 桩答未知所以决策不变, 真实模型会不会猜是本装置看不见的。",
    "L1_changed": "KEY 20/50 · NOKEY 20/50(问了几面: 基线 {4,6} → 臂 {5,9})",
    "L2_changed": "0/50(桩对未登记的面一律答未知)",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_s0_wiring.py'] | 其中行为闸 ['test_cce_s0_wiring.py'] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "已有 L1 差异 ⇒ M6 不要求。",
    "note": "★ 与 config/context_taxonomy.json 的 readable_from_text 字段是一对: 那个字段的消费者只有这一行。",
    "evidence": "arms.S0_A9_readable_filter_removed",
@@ -4148,7 +4205,7 @@
     "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
     "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
     "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
-    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py(127 个带 def test_ 的走 pytest 单文件, 98 个模块级断言式脚本跑), 减空操作臂"
    ],
    "faces_blind": [
     "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
@@ -4187,7 +4244,7 @@
     "L1: ctx_layer(facets/source/fill_rate/read_backend) · 追加后的 context 串 · 后端桩收到的请求(字节数/问了哪些面/走了哪个后端) · s0_context.json 落盘 sha · stage 返回体",
     "L2: raise/不 raise · 每面来源标签 · read_backend · fill_rate · 置信提示",
     "两个场景 KEY(TYPESAFE_API_KEY=假值 ⇒ Jev 桩) / NOKEY(空 ⇒ MiniMax 桩), 各 50 份存量 s0_context.json 回放(桩只回放存量读出面, 不落原文)",
-    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py, 减空操作臂"
+    "L4: 冻结快照磁盘副本上全量 225 个 tests/test_*.py(127 个带 def test_ 的走 pytest 单文件, 98 个模块级断言式脚本跑), 减空操作臂"
    ],
    "faces_blind": [
     "blind::两个后端的真实语义读出(κ / 准确率) —— 桩回放存量读出面, 两后端答案逐字相同; 后端差异只有 results/s0_retest.json 的稳定性证据(无金标)",
@@ -4203,7 +4260,7 @@
    "deletable_reason": "不可删: 存量 30/50 份全声明 —— 它省掉这 30 次外部调用(成本面), 并让 read_backend=none 如实说「没读出」。",
    "L1_changed": "KEY 30/50 · NOKEY 30/50(后端调用 20→50 次, read_backend none→jev/minimax)",
    "L2_changed": "facets/source/fill 0/50(问空题得空答); 变的是 read_backend 标签与调用次数。",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "已有 L1 差异 ⇒ M6 不要求。",
    "note": "",
    "evidence": "arms.S0_A12_backend_called_even_if_nothing_to_read",
@@ -4278,7 +4335,7 @@
    "deletable_reason": "不可删: 钉值与 config/knot_taxonomy.json.version 一致时整链才走得通; 改一位(1.3.0)⇒ 79/79 份 s2 RuntimeError, 链停在 s2_knots。",
    "L1_changed": "79/79",
    "L2_changed": "79/79(全部 raise: {'RuntimeError': 79})",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_s2_label_qualification_wired.py'] | 其中行为闸 ['test_cce_s2_label_qualification_wired.py'] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "已有 L2 差异 ⇒ M6 不要求。",
    "note": "★ G 侧零闸: tests/ 里没有任何测试提到 CCE_TAXO_VERSION / PINNED_TAXO —— 换版时只能靠线上红。",
    "evidence": "arms.S2_B1_taxo_pin_literal_1_3_0",
@@ -4316,7 +4373,7 @@
    "deletable_reason": "不可删: 保险丝 —— 拆掉后分类学悄悄换版不再拦(注入: 环境钉 9.9.9 时基线 79/79 raise, 臂 0/79)。",
    "L1_changed": "0/79",
    "L2_changed": "0/79(本工况 version==钉)",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6 已跑(injection_arms.B2_env_pin_absurd): CCE_TAXO_VERSION=9.9.9 ⇒ 基线 raise 79/79, 臂 raise 0/79, L2 79/79。",
    "note": "G 侧零闸(同 v3-322)。",
    "evidence": "arms.S2_B2_taxo_guard_removed",
@@ -4355,7 +4412,7 @@
    "deletable_reason": "不可删: 松回 `is not False` 会把 31/79 份「不可判(None: 可投票 draw<2)」当成通过 ⇒ 出口闸 usable_keys 多出 s2.playbook_primary 31/79 —— 正是「查不了当查过了」。",
    "L1_changed": "31/79(s2 返回体)",
    "L2_changed": "playbook 发出 13/79 → 44/79; 出口闸 usable 31/79 · withheld 31/79",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "已有 L2 差异 ⇒ M6 不要求。",
    "note": "存量 top1_stable: None 31 / False 35 / True 13 —— None 那 31 份全是 2026-09-06 前的老 s1_readout(无 sampling 块)。",
    "evidence": "arms.S2_B3_top1_is_not_False",
@@ -4393,7 +4450,7 @@
    "deletable_reason": "不可删: 「测了不稳」与「压根测不了」不是一回事(代码注释的原话); 合并后 31/79 份的出口闸 withheld 台账文本把不可判写成不稳。",
    "L1_changed": "31/79(理由文本, 31 份 None case)",
    "L2_changed": "usable/withheld **成员** 0/79; withheld['s2.playbook_primary'] 的**文本** 31/79(出口闸逐字转抄 playbook_withheld_reason)",
-   "L4_net_new_reds": "净新增 1 条: ['test_cce_ablation_verdicts_v3.py'] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 ['test_cce_ablation_verdicts_v3.py'] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_ablation_verdicts_v3.py'] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 ['test_cce_ablation_verdicts_v3.py'] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6 已跑(injection_arms.B4_withheld_reason_999): 理由置 \"999\" ⇒ 出口闸 withheld 文本变 66/79, 成员不变 ⇒ 消费者是台账文本。",
    "note": "",
    "evidence": "arms.S2_B4_withheld_reason_collapsed",
@@ -4431,7 +4488,7 @@
    "deletable_reason": "不可删: 上限型保险丝(UNREACHABLE 一律不拆); 现分类学最长 playbook 49 字(audit), 远低于 120。",
    "L1_changed": "0/79(改 120→10 才动: 13/79, 只影响发出的 13 份)",
    "L2_changed": "0/79",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6 已跑: 荒谬值 [:10] 臂 = arms.S2_B5_playbook_cut_10, L1 13/79 ⇒ 截断逻辑接着, 只是 120 在本分类学上够不着。",
    "note": "playbook 长度表: {'pain_seek': 23, 'injustice': 37, 'belong': 38, 'reward': 31, 'display': 26, 'itch': 38, 'suspend': 45, 'inertia': 33, 'audit': 49}",
    "evidence": "arms.S2_B5_playbook_cut_10",
@@ -4470,7 +4527,7 @@
    "deletable_reason": "不可删: owner 2026-09-05 A1/A2 决定「移出打分是对的, 移出交付是错的」—— 消费者是写稿的人, 不是代码; 一致性闸曾因它被搬走判红。",
    "L1_changed": "1/79(存量只有 1 份 top1=audit 且 top1_stable=True; belong 那份不稳)",
    "L2_changed": "0/79",
-   "L4_net_new_reds": "净新增 1 条: ['test_cce_ablation_verdicts_v3.py'] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 ['test_cce_ablation_verdicts_v3.py'] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_ablation_verdicts_v3.py'] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 ['test_cce_ablation_verdicts_v3.py'] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6 已跑(injection_arms.B6_unscored_guidance_999): 字段置 999 ⇒ 出口闸 usable/withheld 0/79。",
    "note": "分类学里只有 audit(cross_turn_strategy) 与 belong(composition_note) 两结带这类条目。",
    "evidence": "arms.S2_B6_unscored_guidance_removed",
@@ -4508,7 +4565,7 @@
    "deletable_reason": "不可删: 2026-09-23 授权代定(manifest refactor_log #44)「资格层第一次有生产调用方」; G 侧 tests/test_cce_s2_label_qualification_wired.py 钉形状/恒候选/逐字核两向/AST 调用方(变异 3/3)。P 侧零读者是设计: 它是 fail-closed 的诊断字段, 不改判决。",
    "L1_changed": "79/79(整个字段消失)",
    "L2_changed": "出口闸 usable/withheld 0/79; 79/79 存量 state=UNCONFIRMED_CANDIDATE, citable False",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_s2_label_qualification_wired.py'] | 其中行为闸 ['test_cce_s2_label_qualification_wired.py'] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6 已跑(injection_arms.B7_label_qualification_999): 字段置 999 ⇒ 出口闸 0/79。★ 附: 恒候选的机制实测 —— 把 evidence_quote 包成 EvidenceSpan 再传 required_conjuncts=[P]: {'UNCONFIRMED_CANDIDATE → ERR:ValueError → -': 53, 'UNCONFIRMED_CANDIDATE → UNCONFIRMED_CANDIDATE → CITED_SEMANTICS_UNVERIFIED': 26} ⇒ 状态能升到 ③′ 的前提正是 s2 协议没给的「支撑哪一支 + 关于哪个对象」。",
    "note": "★ 顺带的读数: 66 份有原文里 evidence_quote 逐字在原文的只有 26 份 —— 模型给的引文 40/66 不是逐字的(见 v3-329)。",
    "evidence": "arms.S2_B7_label_qualification_removed",
@@ -4546,7 +4603,7 @@
    "deletable_reason": "不可删: G 侧 tests/test_cce_s2_label_qualification_wired.py 钉「逐字核真假两向」; 拆成 bool(quote) 后 53/79 份把不逐字的引文报成逐字 —— 那是「逐字≠支持」之外再加一层假。",
    "L1_changed": "53/79(标志翻转: 13 份无原文 + 40 份有原文但引文不逐字)",
    "L2_changed": "出口闸 0/79",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_s2_label_qualification_wired.py'] | 其中行为闸 ['test_cce_s2_label_qualification_wired.py'] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6: 与 v3-328 同一注入(整字段置 999 ⇒ 出口闸 0/79)。",
    "note": "基线 verbatim True 26/79(有原文 66)。",
    "evidence": "arms.S2_B8_verbatim_check_removed",
@@ -4584,7 +4641,7 @@
    "deletable_reason": "不可删: 段名 s3_emotion_policy 被 config/cce_submission_contract_v1.json 的 profile stages 与 tests/test_cce_submission.py / cce_workflow_manifest 的 chain 断言钉死; 产物是 manifest 里给人看的情绪分布(PR 摘要逐段打印)。P 侧代码零读者是它的设计(纪律: 情绪层不出 top, 只报分布)。",
    "L1_changed": "79/79(top4→top3)",
    "L2_changed": "出口闸 usable/withheld 0/79; qualified() 源码不读 s3 段",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6 已跑(injection_arms.C1_emotion_distribution_999 / C3_policy_string_999): 分布置 999 ⇒ 出口闸 0/79; policy 串置 999 ⇒ 0/79。",
    "note": "回放复现存档 s3 分布 59/59(s1_readout 61 份里有 s3 段的)。全仓 grep emotion_distribution: 生产代码零读者。",
    "evidence": "arms.S3_C1_top3",
@@ -4622,7 +4679,7 @@
    "deletable_reason": "不可删: 反转绑定后 79/79 份的情绪标签全错但没有任何代码会发现 —— 这正是「没消费者」的危险面: 该加闸不该删。",
    "L1_changed": "79/79",
    "L2_changed": "0/79",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6: 同 v3-330 的 999 注入(0/79)。",
    "note": "★ 验收缺口: 没有闸核 EMOTIONS 的顺序与 stage1 layers.emotion_vec 的顺序同源(两者分别来自 exp_v4_causal_chain 与 cce_knot_classify 的 prompt)。",
    "evidence": "arms.S3_C2_labels_reversed",
@@ -4660,7 +4717,7 @@
    "deletable_reason": "不可删: 它保证重叠模式下读者用的是与串行**逐字相同**的语境(「同一把尺」); 晚启动调度下拆掉它, 读者 prompt 混入我方草稿的情境。G 侧 tests/test_cce_stage_overlap.py:90 静态守。",
    "L1_changed": "场景 ['reply_overlap_late_thread']: 后台段收到的 context 由 \"C0\" 变成 \"C0 【情境】{…}\"; 真线程池场景 0(线程即刻启动, 竞态没被赢)",
    "L2_changed": "0/7(rc/complete/failed_at/usable 全同 —— 读者读数 reader_cce 在链上零消费者, 见 v3-338)",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_stage_overlap.py'] | 其中行为闸 ['test_cce_stage_overlap.py'] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "已有 L1 差异 ⇒ M6 不要求。",
    "note": "★ 差异只在确定性晚启动调度下可见 —— 真线程池里它是竞态, 行为测试抓不住, 所以仓里用静态串断言守。",
    "evidence": "arms.OV_O1_lazy_context_no_snapshot",
@@ -4698,7 +4755,7 @@
    "deletable_reason": "不可删: s0 失败时它把后台 reader 段收回成真产出; 拆掉后 manifest 里 reader_baseline 停在占位 {deferred_until} 且线程悬着(进程退出才 join)。rc/failed_at/complete 虽同, 记录已经是假的。",
    "L1_changed": "场景 ['reply_fail_s0']: reader_baseline 条目键集 [file,knots,overlapped_with,…] → [deferred_until,file,reader_chars,status]",
    "L2_changed": "rc=1 / failed_at=s0_context / complete=false 全同; 变的是 manifest.stages 记录形状 ⇒ 按本表口径记 L1(记录面), 不记判决面。G 侧 tests/test_cce_stage_overlap.py:83 钉。",
-   "L4_net_new_reds": "净新增 1 条: ['test_cce_ablation_verdicts_v3.py'] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 ['test_cce_ablation_verdicts_v3.py'] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 2 条: ['test_cce_ablation_verdicts_v3.py', 'test_cce_stage_overlap.py'] | 其中行为闸 ['test_cce_stage_overlap.py'] · 钉sha/哈希/行数重言闸 ['test_cce_ablation_verdicts_v3.py'] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "已有 L1 差异 ⇒ M6 不要求。",
    "note": "cce_workflow_manifest.py:58 只读 stages.s1_readout.status, 不读 reader_baseline ⇒ P 侧零判决消费者。",
    "evidence": "arms.OV_O2_fallback_join_removed",
@@ -4736,7 +4793,7 @@
    "deletable_reason": "不可删: failed_at 是 workflow manifest 的判决字段(scripts/cce_workflow_manifest.py:61,70 与 .github/summarize.py:12 直接消费); 归错名会把读者原文的问题报成我方草稿的 s1 问题。",
    "L1_changed": "0/7",
    "L2_changed": "场景 ['reply_fail_reader']: failed_at reader_baseline → s1_readout",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_stage_overlap.py'] | 其中行为闸 ['test_cce_stage_overlap.py'] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "已有 L2 差异 ⇒ M6 不要求。",
    "note": "",
    "evidence": "arms.OV_O3_failure_attributed_to_trigger_stage",
@@ -4774,7 +4831,7 @@
    "deletable_reason": "不可删: 它是 owner 2026-09-23「把两次 knot_classify 并发化」的开关; 反转后 reply 链回到串行(桩下墙钟 0.057→0.109 s; 真实 n=1 读数在 cce_open_items), manifest 少 overlapped_with。",
    "L1_changed": "场景 ['reply_fail_reader', 'reply_fail_s0', 'reply_overlap', 'reply_overlap_late_thread', 'reply_overlap_nokey', 'reply_serial']: 墙钟 + overlapped_with 标签 + 是否真的重叠",
    "L2_changed": "rc/complete/failed_at/usable 全同(串行与重叠产出同形同值正是本功能的验收条件 ①②)",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_stage_overlap.py'] | 其中行为闸 ['test_cce_stage_overlap.py'] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "已有 L1 差异 ⇒ M6 不要求。",
    "note": "outbound_post 链无后台段, 不受影响(场景 outbound_post 0 差异)。",
    "evidence": "arms.OV_O4_overlap_off_by_default",
@@ -4812,7 +4869,7 @@
    "deletable_reason": "不可删: 目标段决定后台失败多早中止主链 —— 改成 s2_knots 或不存在的段名后, reader 失败时 s2…qualified 白跑一遍再报错(reply_fail_reader 场景多执行的段进了 manifest)。G 侧静态钉字面。",
    "L1_changed": "场景 ['reply_fail_s0', 'reply_overlap', 'reply_overlap_late_thread', 'reply_overlap_nokey'](overlapped_with 标签值)",
    "L2_changed": "rc/failed_at/complete 全同; 场景 ['reply_fail_reader'] 里已执行的段集合变(s2/s3/s4/qualified 在后台失败被发现前跑完)",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_stage_overlap.py'] | 其中行为闸 ['test_cce_stage_overlap.py'] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6 已跑(arms.OV_O5i_defer_target_absurd): 目标改成 NO_SUCH_STAGE ⇒ 循环内永不收回, 兜底收回兜住 ⇒ 与 s2 臂同形(L1 ['reply_fail_s0', 'reply_overlap', 'reply_overlap_late_thread', 'reply_overlap_nokey'] · L2 ['reply_fail_reader'])。",
    "note": "",
    "evidence": "arms.OV_O5_defer_target_s2",
@@ -4850,7 +4907,7 @@
    "deletable_reason": "不可删: G 侧 tests/test_cce_stage_overlap.py:57 钉「与串行同形同值」; 且这些字段是 reply 链里读者测量唯一落到 manifest 的地方(给人看)。P 侧零读者是现状不是设计 —— 读者读数本该进出口闸(见 v3-338)。",
    "L1_changed": "场景 ['reply_fail_s0', 'reply_overlap', 'reply_overlap_late_thread', 'reply_overlap_nokey'](条目只剩 status/overlapped_with)",
    "L2_changed": "rc/complete/failed_at/usable 全同(['reply_fail_s0', 'reply_overlap', 'reply_overlap_late_thread', 'reply_overlap_nokey'])",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 1 条: ['test_cce_stage_overlap.py'] | 其中行为闸 ['test_cce_stage_overlap.py'] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6 已跑(arms.OV_O6i_reader_manifest_absurd_999): tops/within_js/knots/reader_chars/file 全置 999 ⇒ L2 场景变化 无。",
    "note": "",
    "evidence": "arms.OV_O6_join_drops_reader_out",
@@ -4888,7 +4945,7 @@
    "deletable_reason": "可删: 全仓唯一写入点, 零读取点(grep --include=*.py scripts/.github/accuracy/probes/tests 读者 = ['scripts/cce_full_run.py']; 置 999 跑 7 个场景 L1/L2 零差异)。删它不动任何闸。若将来读者读数要进出口闸, 应经 MANIFEST 而不是 ctx 私键 —— 那是另一条改动, 不是留着这行的理由。",
    "L1_changed": "0/7",
    "L2_changed": "0/7",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6 已跑(arms.OV_O7_reader_cce_absurd): 置 999 ⇒ 7 场景 L1 0 · L2 0。",
    "note": "★ 与 v3-332/337 合读: 读者基线整段在链上没有判决消费者 —— reply profile 「量读者」这件事目前只到 manifest 为止。",
    "evidence": "arms.OV_O7_reader_cce_absurd",
@@ -4924,7 +4981,7 @@
    "deletable_reason": "可删: AST 计数 `re` 在本文件 0 次使用(os 22 / sys 3 / json 4 / time 5 / math 4); 去掉后 import 成立、hasattr(mod,'re')=False、s0 回退面 50 份零差异、js_divergence 同值。只有 core sha 钉(test_cce_core_boundary)会红 —— 那是登记问题不是行为。",
    "L1_changed": "s0 NOKEY 0/50",
    "L2_changed": "s0 NOKEY 0/50",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_chain_conformance.py', 'test_cce_core_boundary.py', 'test_cce_gate_protocol_version.py', 'test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_chain_conformance.py', 'test_cce_core_boundary.py', 'test_cce_gate_protocol_version.py', 'test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6 已跑: 去掉即注入(import_ok=True, has_attr_re=False); 荒谬替代无意义(名字不被引用)。",
    "note": "填 R6 独立复核点名的 :18 零判决项。",
    "evidence": "xm.XM_E2_unused_import_re_removed",
@@ -4960,7 +5017,7 @@
    "deletable_reason": "不可删: 保险丝 —— 裸 sys.path 注入证明去掉它 import 当场 ModuleNotFoundError(calibration_framework); 生产导入者恰好都先插了 scripts/ 才没暴露。",
    "L1_changed": "s0 NOKEY 0/50",
    "L2_changed": "s0 NOKEY 0/50",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_chain_conformance.py', 'test_cce_core_boundary.py', 'test_cce_gate_protocol_version.py', 'test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_chain_conformance.py', 'test_cce_core_boundary.py', 'test_cce_gate_protocol_version.py', 'test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6 已跑(xm.XM_E3_injection_import_from_bare_syspath): 从不含 scripts/ 的 sys.path 导入 ⇒ 基线 IMPORT_OK, 臂 ModuleNotFoundError: No module named 'calibration_framework'。",
    "note": "填 R6 独立复核自陈的漏项 ⑦。",
    "evidence": "xm.XM_E3_syspath_insert_removed",
@@ -4997,7 +5054,7 @@
    "deletable_reason": "不可删: 读数面零消费者, 但它是 CAL(:26)与 import 期 makedirs(:27, v3-183)的基, 也是 run_full/write_report(v3-180/181, UNREACHABLE)的输出目录 —— 删它要连着那三行一起判, 本行单独不可删。",
    "L1_changed": "s0 NOKEY 0/50(改名后 import 成立, 副作用目录在 VSE_ROOT=scratch 下被创建=True)",
    "L2_changed": "s0 NOKEY 0/50",
-   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_chain_conformance.py', 'test_cce_core_boundary.py', 'test_cce_gate_protocol_version.py', 'test_cce_k1_cost_curve.py', 'test_cce_open_items.py'] = 快照无 .git 所致, 已减去; 全量 225 个测试, 磁盘副本 python3 -B)",
+   "L4_net_new_reds": "净新增 0 条: [] | 其中行为闸 [] · 钉sha/哈希/行数重言闸 [] (空操作臂基线红 ['test_cce_chain_conformance.py', 'test_cce_core_boundary.py', 'test_cce_gate_protocol_version.py', 'test_cce_k1_cost_curve.py', 'test_cce_open_items.py', 'test_cce_suspend_fix_confirmation.py'] = 快照无 .git / 存量数据期望所致, 已减去; 全量 225 个测试: def test_ 文件走 pytest, 其余脚本跑, 磁盘副本 python3 -B)",
    "injection_test": "M6 已跑: 改名 = 注入(读数面 0 差异); 荒谬不可写路径 ⇒ import 期 OSError ⇒ 整条链在 import 就死(v3-183 makedirs 的面) —— 那是 makedirs 那一行的面(v3-183), 不是本行的读数消费面。",
    "note": "填 R6 独立复核点名的 :25 零判决项。",
    "evidence": "xm.XM_E4_results_dir_renamed",

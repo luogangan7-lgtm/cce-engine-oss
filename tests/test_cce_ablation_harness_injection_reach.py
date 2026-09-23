@@ -128,7 +128,7 @@ FROZEN_SHA8 = {
         # ★ 2026-09-23 第十一次: 追加 SLOT_FILLING_SCORE_POLICY_V2_POSSESSION_EQUIVALENCE_PREREG。摘掉那条重算 = 901ad57baf5c15fe, 与上一钉逐字节相同。
         # ★ 2026-09-23 第十二次: 追加 FIVE_KINDS_ANNEX_D_CANDIDATE_AND_S2_LABEL_QUALIFICATION_WIRED。摘掉那条重算 = a4e3455aaf509c7a, 与上一钉逐字节相同。
         # ★ 2026-09-23 第十三次: 追加 ABLATION_V3_ROUND3_CHAIN_STAGES_S0_S2_S3_OVERLAP_XM_JUDGED(消融第三轮 32 条判决登记)。摘掉那条重算 = 44c06d8db21d43c0, 与上一钉逐字节相同。
-    "config/cce_core_manifest.json": "0309ffd8ca8e53cf",
+    "config/cce_core_manifest.json": "0fdc0d07dc206b75",
     "accuracy/run_gates.py": "b758e6676a94acf3",
 }
 

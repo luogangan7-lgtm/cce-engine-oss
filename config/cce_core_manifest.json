@@ -1507,11 +1507,12 @@
    "date": "2026-09-23",
    "event": "ABLATION_V3_ROUND3_CHAIN_STAGES_S0_S2_S3_OVERLAP_XM_JUDGED",
    "file": "tests/data/ablation_v3/r3_主链编排段.json",
-   "to_sha": "732357da3d86a0a9",
+   "to_sha": "9037bffa43646ffa",
    "also": {
-    "probes/ablation_r3_chain_stages.py": "bc64417a367ecc52"
+    "probes/ablation_r3_chain_stages.py": "b2411825f8e9e121",
+    "probes/dev_runsuite.py": "02a447f558eb9556"
    },
-   "reason": "消融审计 v3 第三轮: 生产主链两轮零判决的编排段 —— s0_context(接 Jev 后)/ s2_knots(taxo 钉 · is True · 两种扣发理由 · unscored_guidance · label_qualification)/ s3_emotion_policy / reader_baseline∥s1 重叠编排 / exp_crossmodel_desire 的生产消费面 —— 32 条判决进 tests/data/ablation_verdicts_v3.json(v3-310..341): {'LOAD_BEARING_L1_ONLY': 10, 'NO_CONSUMER': 11, 'UNREACHABLE': 7, 'LOAD_BEARING_L2': 4}。零 API(绊线 []), 阳性对照过, L4 走 rsync 冻结快照磁盘副本减空操作臂。**未改任何生产代码**; core_files 六个 pin 与 parser_plane 逐字未动, instrument_generation 不变。",
+   "reason": "消融审计 v3 第三轮: 生产主链两轮零判决的编排段 —— s0_context(接 Jev 后)/ s2_knots(taxo 钉 · is True · 两种扣发理由 · unscored_guidance · label_qualification)/ s3_emotion_policy / reader_baseline∥s1 重叠编排 / exp_crossmodel_desire 的生产消费面 —— 32 条判决进 tests/data/ablation_verdicts_v3.json(v3-310..341): {'LOAD_BEARING_L1_ONLY': 10, 'NO_CONSUMER': 11, 'UNREACHABLE': 7, 'LOAD_BEARING_L2': 4}。零 API(绊线 []), 阳性对照过, L4 走 rsync 冻结快照磁盘副本减空操作臂。**未改任何生产代码**; core_files 六个 pin 与 parser_plane 逐字未动, instrument_generation 不变。 ★ 顺带修了 probes/dev_runsuite.py: 有 `def test_` 的 127 个文件此前被 `python3 -B` 空跑(0 断言, 恒绿), 改走 pytest; L4 农场同样补跑。",
    "behavior_evidence": [
     "tests/test_cce_ablation_verdicts_v3.py",
     "tests/test_cce_ablation_verdict_schema.py",
