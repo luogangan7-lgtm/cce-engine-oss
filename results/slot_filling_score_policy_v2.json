@@ -1,0 +1,163 @@
+{
+ "block": "SLOT_FILLING_SCORE_POLICY_V2",
+ "date": "2026-09-23",
+ "★零调用": true,
+ "★预注册 sha": "72236c128c74afb4",
+ "★判据源 sha(cce_claim_frame.py)": "54413b38b4303348",
+ "★★★等价类(由判据层现算, 不手写)": {
+  "OWNED": "OWNED",
+  "EXPERIENCED": "OWNED",
+  "ONE_NEGATED": "ONE_NEGATED",
+  "BOTH_NEGATED": "BOTH_NEGATED",
+  "UNSPECIFIED": "ONE_NEGATED"
+ },
+ "★每个取值的两档结局": {
+  "OWNED": [
+   [
+    true,
+    {
+     "谈论对象是自己已拥有或已经历的": "SUPPORTS",
+     "输出新信息增量": "SUPPORTS"
+    }
+   ],
+   [
+    true,
+    {
+     "谈论对象是自己已拥有或已经历的": "SUPPORTS",
+     "输出新信息增量": "SUPPORTS"
+    }
+   ]
+  ],
+  "EXPERIENCED": [
+   [
+    true,
+    {
+     "谈论对象是自己已拥有或已经历的": "SUPPORTS",
+     "输出新信息增量": "SUPPORTS"
+    }
+   ],
+   [
+    true,
+    {
+     "谈论对象是自己已拥有或已经历的": "SUPPORTS",
+     "输出新信息增量": "SUPPORTS"
+    }
+   ]
+  ],
+  "ONE_NEGATED": [
+   [
+    false,
+    {
+     "谈论对象是自己已拥有或已经历的": "UNDERDETERMINED",
+     "输出新信息增量": "SUPPORTS"
+    }
+   ],
+   [
+    false,
+    {
+     "谈论对象是自己已拥有或已经历的": "UNDERDETERMINED",
+     "输出新信息增量": "SUPPORTS"
+    }
+   ]
+  ],
+  "BOTH_NEGATED": [
+   [
+    false,
+    {
+     "谈论对象是自己已拥有或已经历的": "REFUTES",
+     "输出新信息增量": "SUPPORTS"
+    }
+   ],
+   [
+    false,
+    {
+     "谈论对象是自己已拥有或已经历的": "REFUTES",
+     "输出新信息增量": "SUPPORTS"
+    }
+   ]
+  ],
+  "UNSPECIFIED": [
+   [
+    false,
+    {
+     "谈论对象是自己已拥有或已经历的": "UNDERDETERMINED",
+     "输出新信息增量": "SUPPORTS"
+    }
+   ],
+   [
+    false,
+    {
+     "谈论对象是自己已拥有或已经历的": "UNDERDETERMINED",
+     "输出新信息增量": "SUPPORTS"
+    }
+   ]
+  ]
+ },
+ "★★★三轮对照(可比不可合, 冻结产物未改)": {
+  "MiniMax r5(v3)": {
+   "n": 68,
+   "v1 槽位级": "58/68",
+   "v1 零基线(全 OWNED)": "64/68",
+   "v1 净增益": -6,
+   "v2 等价类": "66/68",
+   "v2 零基线(全 OWNED, 按类)": "64/68",
+   "v2 净增益": 2,
+   "v2 可得增益": 4,
+   "金标按类": {
+    "BOTH_NEGATED": 2,
+    "OWNED": 64,
+    "ONE_NEGATED": 2
+   },
+   "★测不出的类(金标 < 6)": [
+    "BOTH_NEGATED",
+    "ONE_NEGATED"
+   ],
+   "★产物 sha256(未改)": "a8e77cb538b683d89c2997dccc4a33689899e332fd6a3db9496bf010eaad2058"
+  },
+  "MiniMax r6(v4)": {
+   "n": 68,
+   "v1 槽位级": "53/68",
+   "v1 零基线(全 OWNED)": "64/68",
+   "v1 净增益": -11,
+   "v2 等价类": "66/68",
+   "v2 零基线(全 OWNED, 按类)": "64/68",
+   "v2 净增益": 2,
+   "v2 可得增益": 4,
+   "金标按类": {
+    "BOTH_NEGATED": 2,
+    "OWNED": 64,
+    "ONE_NEGATED": 2
+   },
+   "★测不出的类(金标 < 6)": [
+    "BOTH_NEGATED",
+    "ONE_NEGATED"
+   ],
+   "★产物 sha256(未改)": "3fdf52e783e46eab10e445ad885268eab00b616fba7b2a37b33c8ffbcfc083e1"
+  },
+  "Jev r6-jev(v4)": {
+   "n": 68,
+   "v1 槽位级": "40/68",
+   "v1 零基线(全 OWNED)": "64/68",
+   "v1 净增益": -24,
+   "v2 等价类": "68/68",
+   "v2 零基线(全 OWNED, 按类)": "64/68",
+   "v2 净增益": 4,
+   "v2 可得增益": 4,
+   "金标按类": {
+    "BOTH_NEGATED": 2,
+    "OWNED": 64,
+    "ONE_NEGATED": 2
+   },
+   "★测不出的类(金标 < 6)": [
+    "BOTH_NEGATED",
+    "ONE_NEGATED"
+   ],
+   "★产物 sha256(未改)": "a540660ef9e4b8b213b381f3e8eb0a9664338a9440fe046acd9e8817c0225bc1"
+  }
+ },
+ "★怎么读": [
+  "v2 是 r7 起的正式口径; 三轮的 v1 数保留原样。",
+  "「测不出的类」= 金标里该类样本太少, 该类的对错不得引用为能力证据。",
+  "等价类若变(合同改), 本产物作废重算。"
+ ]
+}

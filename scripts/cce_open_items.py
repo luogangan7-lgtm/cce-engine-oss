@@ -704,7 +704,7 @@ def items() -> list[dict]:
             _PA = _j("results/possession_gain_artifact.json")
             out.append({"类": DECIDED, "项": "possession 三轮「负增益」是**打分伪影**: 合同 Q 是析取, 判据层对 OWNED/EXPERIENCED 结局相同(现证), 金标却一律记 OWNED",
                 "证据": "等价类口径重算: " + " · ".join("%s %s→%s" % (k, v["槽位级原打分"], v["★合同等价类口径(OWNED≡EXPERIENCED)"]) for k, v in _PA["★★★三轮对照"].items())
-                        + "。★ r5/r6/r6-jev 的数不回改; 等价类写进打分是下一轮预注册的事。★ ONE_NEGATED/BOTH_NEGATED 仍没测(金标只有 2 例)。"})
+                        + "。★ r5/r6/r6-jev 的数不回改。★ 2026-09-23 **已预注册为 r7 起的打分策略 v2**(tests/data/slot_filling_score_policy_v2_prereg.json; 等价类由判据层现算: {OWNED,EXPERIENCED}·{ONE_NEGATED,UNSPECIFIED}·{BOTH_NEGATED}); 三轮 v2 附带读数 " + (" · ".join("%s %s(净 %+d)" % (k, v["v2 等价类"], v["v2 净增益"]) for k, v in _j("results/slot_filling_score_policy_v2.json")["★★★三轮对照(可比不可合, 冻结产物未改)"].items()) if os.path.exists(os.path.join(ROOT, "results/slot_filling_score_policy_v2.json")) else "(未生成)") + "。★ ONE_NEGATED/BOTH_NEGATED 类金标 <6 ⇒ 测不出, 补金标要另立预注册。"})
         _sh = os.path.join(ROOT, "results/s0_jev_shadow.json")
         if os.path.exists(_sh):
             _S = _j("results/s0_jev_shadow.json")

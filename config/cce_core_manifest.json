@@ -1457,6 +1457,30 @@
     "不得把 DISJOINT 6 说成「验证器守得住语义错误」。",
     "过机械层 ≠ 合格: is_citable_as_confirmed 仍恒 False。"
    ]
+  },
+  {
+   "date": "2026-09-23",
+   "event": "SLOT_FILLING_SCORE_POLICY_V2_POSSESSION_EQUIVALENCE_PREREG",
+   "file": "probes/slot_filling_score_policy_v2.py",
+   "to_sha": "c61bc4a703e08a01",
+   "also": {
+    "tests/data/slot_filling_score_policy_v2_prereg.json": "72236c128c74afb4"
+   },
+   "reason": "possession 三轮负增益是打分伪影(#37 已证)。把合同等价类写进打分: r7 起 possession 格按「判据层现算的等价类」计分; 等价类禁止手写, 由 cce_claim_frame.allow_label 现算 ⇒ 三类 {OWNED,EXPERIENCED}·{ONE_NEGATED,UNSPECIFIED}·{BOTH_NEGATED}(第二类是现算出来的事实, 不是选择)。",
+   "behavior_evidence": [
+    "tests/test_cce_slot_filling_score_policy_v2.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 这是度量层打分策略, 不在仪器里; 行为由闸守: 类由 CF 现算且记判据源 sha(源变则类重算)· same_class 真闸 · 三轮重算由产物现算一致且与 #37 的等价类口径数逐轮相同 · 冻结产物 sha 未改 · 测不出的类必须标出。",
+   "route": "**度量面 · 零调用 · 预注册(r7 起生效)**; r5/r6/r6-jev 数不回改, v2 附带读数可比不可合。",
+   "★★★三轮 v1→v2": {
+    "MiniMax r5(v3)": "58/68(净 -6) → 66/68(净 +2)",
+    "MiniMax r6(v4)": "53/68(净 -11) → 66/68(净 +2)",
+    "Jev r6-jev(v4)": "40/68(净 -24) → 68/68(净 +4)"
+   },
+   "★不得据此说": [
+    "不得说三个模型 possession 都对 —— ONE_NEGATED/BOTH_NEGATED 类金标 <6, 测不出。",
+    "不得把 v2 与 v1 数合并。"
+   ]
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",
