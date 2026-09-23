@@ -24,8 +24,9 @@ def test_可读面必须从配置现算_且题目每面带未知():
     want = [f["key"] for f in taxo["facets"] if f.get("readable_from_text") in (True, "partial")]
     assert [f["key"] for f in x.READABLE] == want
     for k, q in x.jev_questions().items(): assert set(q["criteria"]) & {"未知", "未提及"}, "★ %s 没有未知选项 ⇒ 逼模型猜" % k
-def test_适配器未接线_且不改核心文件():
-    src = (ROOT / "scripts/cce_full_run.py").read_text(encoding="utf-8"); assert "s0_jev" not in src and "typesafe" not in src.lower(), "★★★ 生产 s0 被改了 —— 需 owner 点头"
+def test_适配器已接线_owner_20260923点头_且生产不import探针():
+    # ★ 2026-09-23 owner「那就接线吧」: 生产 s0 经 scripts/cce_s0_jev.py 走 Jev, 无 key/失败回退 MiniMax(tests/test_cce_s0_wiring.py)。
+    src = (ROOT / "scripts/cce_full_run.py").read_text(encoding="utf-8"); assert "from cce_s0_jev import s0_jev_read" in src and "probes" not in src
     ps = P.read_text(encoding="utf-8"); assert "apikey_" not in ps and "e.read()" not in ps
 def test_结果必须能从rows重算_且不落原文():
     if not R.exists(): return

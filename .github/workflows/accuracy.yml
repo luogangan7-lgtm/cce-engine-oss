@@ -36,6 +36,7 @@ jobs:
       - name: 跑 G-K 验收
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
         run: |
           mkdir -p accuracy/out
           python accuracy/run_gates.py 2>&1 | tail -40

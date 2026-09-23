@@ -182,6 +182,7 @@ jobs:
       - name: Run profile-frozen CCE chain
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
           CCE_ALIGN_THETA: ${{ vars.CCE_ALIGN_THETA || '0.35' }}
         run: |
           python3 scripts/cce_full_run.py \
@@ -200,6 +201,7 @@ jobs:
         env:
           CCE_ALIGN_THETA: ${{ vars.CCE_ALIGN_THETA || '0.35' }}
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
         run: |
           python3 scripts/reply_loop.py --reader run/reader.txt --draft run/input.txt \
             --context "$(cat run/context)" --out run/out/reply_alignment.json
@@ -247,6 +249,7 @@ jobs:
         continue-on-error: true
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
           CCE_ALIGN_THETA: ${{ vars.CCE_ALIGN_THETA || '0.35' }}
         run: |
           python3 scripts/cce_full_run.py --mode "$(cat run/mode)" --text-file run/input.txt \

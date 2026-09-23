@@ -1302,6 +1302,27 @@
     "不得说 Jev 更准 —— 无真值。",
     "不得据此接生产 —— 核心文件改动, 要 owner 点头。"
    ]
+  },
+  {
+   "date": "2026-09-23",
+   "event": "S0_JEV_WIRED_INTO_PRODUCTION_OWNER_NOD",
+   "file": "scripts/cce_s0_jev.py",
+   "to_sha": "0280528bfcd7d49c",
+   "also": {
+    "scripts/cce_full_run.py": "c62751b2be9660d1",
+    ".github/workflows": "MINIMAX_API_KEY 旁边一律加 TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}(5 处)"
+   },
+   "reason": "owner 2026-09-23「那就接线吧」。生产 s0 读出后端: 有 TYPESAFE_API_KEY 走 Jev 逐面 Choice; 无 key/调用失败 回退 MiniMax 原提示词(逐字未动), 且 ctx_layer.read_backend 写明 jev / minimax_fallback(<err>)。已声明 > 读出 > 未知 的顺序不变。",
+   "behavior_evidence": [
+    "tests/test_cce_s0_wiring.py",
+    "tests/test_cce_s0_jev_shadow.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 而且 instrument_hash 只覆盖 s1/s2 提示词, s0 本来就不在它视野里; 所以这次接线**不递增 instrument_generation**, 行为由闸守: 题目集 sha 与重测证据逐字相同 · 有 key 走 Jev · 无 key/失败回退且标名 · 回退提示词 sha 与影子轮一致 · 已声明不被覆盖 · 生产模块无仓外路径。变异 5/5 抓到(第 6 个是等价变异: need_read 已排除已声明面)。一次真实调用冒烟: status OK · 1.0s · backend jev · 读出 4 面/未知 5 面。",
+   "route": "**生产接线(非 core_files, instrument_generation 不变)** + 调用: Jev 1 次冒烟。★ GitHub 侧还需 owner 在仓库 secrets 加 TYPESAFE_API_KEY, 没加之前线上链自动走 minimax_fallback(NO_TYPESAFE_API_KEY) 并写进产物。",
+   "★不得据此说": [
+    "不得说 s0 更准 —— 依据只有稳定性与纪律。",
+    "不得说全链提速 —— s0 只是 1 次调用, 大头在两次 knot_classify。"
+   ]
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",

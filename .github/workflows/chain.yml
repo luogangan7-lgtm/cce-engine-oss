@@ -15,7 +15,7 @@ jobs:
       - name: 配置↔代码一致性自检(前置闸)
         run: python3 scripts/consistency_check.py
       - name: 五层顺序组合校准
-        env: {MINIMAX_API_KEY: "${{ secrets.MINIMAX_API_KEY }}"}
+        env: {MINIMAX_API_KEY: "${{ secrets.MINIMAX_API_KEY }}", TYPESAFE_API_KEY: "${{ secrets.TYPESAFE_API_KEY }}"}
         run: python3 accuracy/order_calibration.py --n ${{ inputs.n }}
       - uses: actions/upload-artifact@v4
         if: always()

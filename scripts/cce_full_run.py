@@ -128,16 +128,24 @@ def s0(ctx):
             if os.path.exists(ctx["context_decl"]) else json.loads(ctx["context_decl"])
     need_read = [f for f in CTX_FACETS
                  if f["key"] not in decl and f.get("readable_from_text") in (True, "partial")]
-    read = {}
+    read, backend = {}, "none"
     if need_read:
-        from exp_crossmodel_desire import call_model
-        from exp_v4_full_validation import extract_json_robust
         body = open(ctx["text_file"], encoding="utf-8").read()[:2000]
-        spec = "\n".join(f"  {f['key']}: {f['values']}" for f in need_read)
-        p = (f"逐面读出这段内容体现的读者情境。**读不出来就填\"未知\", 严禁猜**。\n"
-             f"{spec}\n\n【内容】\n{body}\n\n只输出JSON: {{\"面名\":\"选中值\"}}")
-        c, _ = call_model("M3", p, temperature=0.0)
-        read = extract_json_robust(c, log_note="s0_ctx") or {}
+        # 2026-09-23 owner 点头: 读出后端优先 Jev(逐面 Choice, 重测 κ 1.0/.88 vs MiniMax .38–.58, 见 results/s0_retest.json)。
+        # 无 TYPESAFE_API_KEY 或调用失败 ⇒ 回退 MiniMax, **回退必须写进产物**(区分「执行了」与「有产出」)。
+        from cce_s0_jev import s0_jev_read
+        jr, _probs, jerr = s0_jev_read(body, need_read)
+        if jr is not None:
+            read, backend = jr, "jev"
+        else:
+            from exp_crossmodel_desire import call_model
+            from exp_v4_full_validation import extract_json_robust
+            spec = "\n".join(f"  {f['key']}: {f['values']}" for f in need_read)
+            p = (f"逐面读出这段内容体现的读者情境。**读不出来就填\"未知\", 严禁猜**。\n"
+                 f"{spec}\n\n【内容】\n{body}\n\n只输出JSON: {{\"面名\":\"选中值\"}}")
+            c, _ = call_model("M3", p, temperature=0.0)
+            read = extract_json_robust(c, log_note="s0_ctx") or {}
+            backend = "minimax_fallback(%s)" % jerr
     merged, src = {}, {}
     for f in CTX_FACETS:
         k = f["key"]
@@ -153,7 +161,7 @@ def s0(ctx):
         raise RuntimeError(f"情境声明未生效: {miss} —— 传参链路断了, 拒绝用读出值冒充声明值")
     known = [k for k, v in src.items() if v != "未知(走先验)"]
     fill = round(len(known) / len(CTX_FACETS), 3)
-    ctx["ctx_layer"] = {"facets": merged, "source": src, "fill_rate": fill}
+    ctx["ctx_layer"] = {"facets": merged, "source": src, "fill_rate": fill, "read_backend": backend}
     # 情境并入下游语境串, 让 s1/s5 看到
     ctx["context"] = ctx["context"] + " 【情境】" + json.dumps(
         {k: v for k, v in merged.items() if v != "未知"}, ensure_ascii=False)
@@ -161,7 +169,7 @@ def s0(ctx):
               ensure_ascii=False, indent=1)
     if fill == 0:
         raise RuntimeError("情境九面全未知且无声明 —— 引擎拒答: 缺必要输入时不硬给结论")
-    return {"file": "s0_context.json", "fill_rate": fill,
+    return {"file": "s0_context.json", "fill_rate": fill, "read_backend": backend,
             "已声明": [k for k, v in src.items() if v == "已声明"],
             "读出": [k for k, v in src.items() if v == "读出"],
             "未知": [k for k, v in src.items() if v == "未知(走先验)"],

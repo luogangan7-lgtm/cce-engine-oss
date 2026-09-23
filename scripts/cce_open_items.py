@@ -703,16 +703,16 @@ def items() -> list[dict]:
         _sh = os.path.join(ROOT, "results/s0_jev_shadow.json")
         if os.path.exists(_sh):
             _S = _j("results/s0_jev_shadow.json")
-            out.append({"类": BLOCKED, "项": "s0 情境面 Jev 影子臂已跑(MiniMax 42 + Jev 42): 一致率 5–31/42, MiniMax 情绪余温**零未知** —— 接不接线卡在 **owner 裁定**(★ 2026-09-23 owner 已裁: s0 六面**无人类金标可言**, 「人填 10 条金标」前置**撤回**; 见下条无金标重测)",
+            out.append({"类": DECIDED, "项": "s0 情境面 Jev 影子臂已跑(MiniMax 42 + Jev 42): 一致率 5–31/42, MiniMax 情绪余温**零未知**。★ 2026-09-23 owner 两次裁定: ①s0 六面**无人类金标可言**, 「人填 10 条金标」前置**撤回** ②「那就接线吧」⇒ **已接线**(scripts/cce_s0_jev.py, 有 TYPESAFE_API_KEY 走 Jev, 否则回退 MiniMax 并写 read_backend; tests/test_cce_s0_wiring.py 变异 5/5)",
                 "证据": "逐面 一致/MiniMax未知/Jev未知: " + " · ".join("%s %s/%d/%d" % (k, v["一致"], v["MiniMax 未知/非法"], v["Jev 未知"]) for k, v in _S["★★★逐面"].items())
-                        + "。★ 无金标 ⇒ 不判优劣; MiniMax 在「读不出就填未知, 严禁猜」下 42 条零未知这件事不需要金标。★ 只剩一件外部事: **owner 裁定**接不接线(核心文件改动)。★ 适配器 s0_jev_fill() 已可用但**未接线**。★ 全链提速点不在 s0: 在 reader_baseline + s1 + s2 两次 knot_classify(生成式, Jev 接不了)。"})
+                        + "。★ 无金标 ⇒ 不判优劣; MiniMax 在「读不出就填未知, 严禁猜」下 42 条零未知这件事不需要金标。★ 剩一件 owner 侧动作: GitHub 仓库 secrets 加 **TYPESAFE_API_KEY**, 没加之前线上链走 minimax_fallback 并写进产物。★ 全链提速点不在 s0: 在 reader_baseline + s1 + s2 两次 knot_classify(生成式, Jev 接不了)。"})
         _rt = os.path.join(ROOT, "results/s0_retest.json")
         if os.path.exists(_rt):
             _R = _j("results/s0_retest.json"); _P = _R["★★★逐面逐臂"]; _T = _R["★★★情绪余温结构约束"]
             out.append({"类": DECIDED, "项": "s0 两臂**无金标**重测(owner 裁定后, MiniMax 42 + Jev 42 再读一轮): Jev 四面 κ=1.0、两面 ≈0.88; MiniMax 六面 κ 0.38–0.58 ⇒ MiniMax 任一面两轮平均准确率**上界** 0.85–0.90(对任何真值成立)",
                 "证据": "逐面 κ mm/jev: " + " · ".join("%s %s/%s" % (k, _P["mm"][k]["kappa"], _P["jev"][k]["kappa"]) for k in _P["mm"])
                         + "。情绪余温结构违反(冷读却填 正/负/中性) 轮1/轮2: MiniMax %d/%d · Jev %d/%d" % tuple(_T[a][r]["违反结构约束(填了 正向/负向/中性)"] for a in ("mm", "jev") for r in ("轮1", "轮2"))
-                        + "。★ 只比稳定性与纪律, 不比准确率(无真值); κ 高可能是稳定的同一偏见。★ 接不接线仍是 owner 裁定(核心文件改动)。"})
+                        + "。★ 只比稳定性与纪律, 不比准确率(无真值); κ 高可能是稳定的同一偏见。★ 据此 owner 已点头接线(见上条)。"})
         _v4 = os.path.join(ROOT, "results/contract_pairs_v4_check.json")
         if os.path.exists(_v4):
             _C = _j("results/contract_pairs_v4_check.json")
