@@ -124,7 +124,8 @@ FROZEN_SHA8 = {
         # ★ 2026-09-23 第七次: 追加 S0_JEV_WIRED_INTO_PRODUCTION_OWNER_NOD。摘掉那条重算 = f97efbdf66cc19a3, 与上一钉逐字节相同。
         # ★ 2026-09-23 第八次: 追加 REPLY_CHAIN_READER_BASELINE_OVERLAPS_S1。摘掉那条重算 = a6b894f1e0deda23, 与上一钉逐字节相同。
         # ★ 2026-09-23 第九次: 追加 SAMPLING_REDUCTION_PREREG_STEP1_H0_STOP。摘掉那条重算 = 54911191632e3128, 与上一钉逐字节相同。
-    "config/cce_core_manifest.json": "913cae2d2009d813",
+        # ★ 2026-09-23 第十次: 追加 P2_BINDING_V2_WITNESS_INTERSECTION_DELEGATED_RULING。摘掉那条重算 = 913cae2d2009d813, 与上一钉逐字节相同。
+    "config/cce_core_manifest.json": "901ad57baf5c15fe",
     "accuracy/run_gates.py": "b758e6676a94acf3",
 }
 

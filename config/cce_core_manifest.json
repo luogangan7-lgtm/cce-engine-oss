@@ -1415,6 +1415,48 @@
     "不得说「减 K/n 没用」—— 只能说「在本延迟分布下, 期望节省 < 10 s, 不值得换仪器」; 换更快模型后延迟分布变了要重测。",
     "不得把第一步叫优化结果。"
    ]
+  },
+  {
+   "date": "2026-09-23",
+   "event": "P2_BINDING_V2_WITNESS_INTERSECTION_DELEGATED_RULING",
+   "file": "scripts/cce_label_qualification.py",
+   "to_sha": "359ce2529695da00",
+   "also": {
+    "P2_FAIL_FAMILIES_DECIDED_2026-09-23.md": "04416b29d384a04b",
+    "probes/p2_policy_v2_rescore.py": "c195cc9892464d96"
+   },
+   "reason": "P2_FAIL 三族处置 —— **授权代定**(owner 常设「按你的想法来做」; 裁定文件与 P1_P4 同款可撤头)。SET_MISMATCH 8 ⇒ P2 由 v1「全体对象恰好一个」改 v2「各支对象集合取交集」(合同是 ∃x, v1 比合同严); SUBSTRING 2 维持 fail-closed 单独计数; DISJOINT 6 维持拒。",
+   "behavior_evidence": [
+    "tests/test_cce_p2_fail_families_decided.py",
+    "tests/test_cce_label_qualification.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 本模块不在仪器里(资格协议), 哈希本来就不覆盖它; 行为由闸守: 多余证据不拦、不能替见证承担增量检查、DISJOINT 仍拦、子串不归并、版本号、r2 产物 sha 未改、v2 重算由 rows 现算(12→20)。变异 4/4 抓到(M2 第一版漏, 补反向用例后抓到)。",
+   "route": "**第五条路(资格协议, 非仪器): 预注册式裁定文件 + 与旧口径读数「可比不可合」** —— r2 的 12/42 保留, v2 的 20/42 另立文件; 零调用。★ 裁定可被 owner 一句话推翻, 推翻即整体作废重来。",
+   "★★★读数": {
+    "v1": {
+     "P2_FAIL": 16,
+     "MALFORMED": 6,
+     "None": 8,
+     "PASS_MECHANICAL": 12
+    },
+    "v2": {
+     "P2_FAIL": 8,
+     "MALFORMED": 6,
+     "None": 8,
+     "PASS_MECHANICAL": 20
+    },
+    "三族去向": {
+     "DISJOINT→P2_FAIL": 6,
+     "SET_MISMATCH→PASS_MECHANICAL": 8,
+     "SUBSTRING→P2_FAIL": 2
+    }
+   },
+   "★不得据此说": [
+    "不得说「资格层通过率提高」—— 提高的是判据的合同贴合度。",
+    "不得把 20/42 与旧数合并。",
+    "不得把 DISJOINT 6 说成「验证器守得住语义错误」。",
+    "过机械层 ≠ 合格: is_citable_as_confirmed 仍恒 False。"
+   ]
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",

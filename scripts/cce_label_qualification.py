@@ -170,15 +170,27 @@ def qualify(knot: str, text: str, evidence=None, required_conjuncts=None,
                         "这些支撑片段**没有指名它是关于哪个对象的**: %s ⇒ 不得升格。"
                         "★ P2 要求 `∃x[P(x) ∧ Q(x)]` —— 指不出对象就无从判断两支是否落在同一个 x 上。"
                         % sorted(set(anon)))
-        objs = sorted({e.about for e in used})
-        if len(objs) > 1:
+        # ── P2 v2 (2026-09-23 授权代定, 见 P2_FAIL_FAMILIES_DECIDED_2026-09-23.md): ──
+        #   合同是 `∃x[P(x) ∧ Q(x)]` —— 一个**存在**量词。v1 要求「所有证据的对象集合只有一个元素」,
+        #   比合同严: 只要某支多给了一条指向别的东西的证据, 整张证书就被拦(真实语料 16 张 P2_FAIL 里 8 张是这样)。
+        #   v2: **各支各自的对象集合取交集** —— 交集非空 ⇒ 存在见证 x; 交集外的证据是**多余**(记账, 不算数, 不拦)。
+        #   ★ 仍然**不做**别名归并、**不认**子串/部件⊂整机: 「the Oticon」与「Oticon More」在这里还是两个对象 ⇒ fail-closed 选漏判。
+        by_c = {c: sorted({e.about for e in used if e.supports == c}) for c in req}
+        witness = set(by_c[req[0]]).intersection(*[set(v) for v in by_c.values()])
+        if not witness:
             return _out(CANDIDATE, knot, ev, req,
-                        "两个必要条件落在**不同对象**上: %r ⇒ 不得升格。"
+                        "两个必要条件落在**不同对象**上(各支对象集合无交集): %r ⇒ 不得升格。"
                         "★★★ `∃x[P(x) ∧ Q(x)]` 与 `(∃x P(x)) ∧ (∃y Q(y))` **不等价** —— "
                         "「说了个型号」＋「用过别的东西」不能凑成一个 display。"
                         "★ 本模块**不做**别名归并(「the Oticon」与「Oticon More」在这里是两个对象): "
-                        "归并需要读文本, 不归并会漏判、乱归并会误判 ⇒ **fail-closed 选漏判**。" % objs)
-        # ── 增量这一支的额外要求(库内教训: 对象相关的事实 ≠ 关于对象的信息增量) ──
+                        "归并需要读文本, 不归并会漏判、乱归并会误判 ⇒ **fail-closed 选漏判**。" % by_c,
+                        p2={"binding": P2_BINDING, "per_conjunct_objects": by_c, "witness": []})
+        surplus = [e for e in used if e.about not in witness]
+        used = [e for e in used if e.about in witness]
+        p2 = {"binding": P2_BINDING, "per_conjunct_objects": by_c, "witness": sorted(witness),
+              "surplus_dropped": [e.as_dict() for e in surplus],
+              "★surplus 怎么读": "交集之外的证据**不参与**资格判定(既不加分也不拦) —— 它指向别的对象, 与见证 x 无关。"}
+        # ── 增量这一支的额外要求(库内教训: 对象相关的事实 ≠ 关于对象的信息增量) —— 只看见证 x 上的片段 ──
         for e in used:
             if not _is_increment_conjunct(e.supports):
                 continue
@@ -202,8 +214,15 @@ def qualify(knot: str, text: str, evidence=None, required_conjuncts=None,
             "在它存在之前, 没有任何读数有资格进 ④ —— 不许用这个参数绕过去。")
     return _out(ceiling, knot, ev, req,
                 "每个必要条件都有**可指名原文片段**的正面证据支撑"
-                + ("; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
-                   if require_same_object else "; ★ **本次未检查对象绑定**(require_same_object=False)。"))
+                + ("; 且它们**落在同一个对象**上(P2 见证 x 存在), 增量支已指名合同枚举的种类且超出对象标识本身。"
+                   if require_same_object else "; ★ **本次未检查对象绑定**(require_same_object=False)。"),
+                p2=(p2 if require_same_object else {"binding": "unchecked"}))
+
+
+# P2 绑定方式的版本号 —— 改它 = 改资格协议(不是仪器), 走 route 5: 预注册 + 与旧版读数「可比不可合」。
+#   v1 "all_objects_equal"(2026-09-14): 所有证据的对象集合必须恰好一个元素。
+#   v2 "witness_intersection"(2026-09-23 授权代定): 各支对象集合取交集, 非空即存在见证; 多余证据记账不拦。
+P2_BINDING = "witness_intersection"
 
 
 def _is_increment_conjunct(name: str) -> bool:
@@ -211,13 +230,14 @@ def _is_increment_conjunct(name: str) -> bool:
     return "增量" in name
 
 
-def _out(state, knot, ev, req, why):
+def _out(state, knot, ev, req, why, p2=None):
     assert state in _STATES
     return {
         "block": "LABEL_QUALIFICATION",
         "knot": knot,
         "state": state,
         "why": why,
+        "P2": p2,
         "evidence": [e.as_dict() for e in ev],
         "required_conjuncts": req,
         "★这一档是什么": {

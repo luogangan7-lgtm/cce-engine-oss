@@ -739,9 +739,11 @@ def items() -> list[dict]:
         if os.path.exists(_an):
             _A = _j("results/p2_fail_anatomy.json")
             _rel = _A["★★★ 关系分布"]
-            out.append({"类": BLOCKED,
-                "项": "P2_FAIL %d 张已拆成三族, 三族修法完全不同 —— 卡在 **owner 裁定**走哪条"
-                      % _A["P2_FAIL 条数"],
+            _v2 = os.path.join(ROOT, "results/p2_policy_v2_rescore.json"); _R2 = _j("results/p2_policy_v2_rescore.json") if os.path.exists(_v2) else None
+            out.append({"类": DECIDED if _R2 else BLOCKED,
+                "项": ("P2_FAIL %d 张已拆成三族 —— ★ 2026-09-23 **授权代定**(P2_FAIL_FAMILIES_DECIDED_2026-09-23.md, owner 一句话可作废): SET_MISMATCH→P2 v2 见证交集 · SUBSTRING 维持 fail-closed · DISJOINT 维持拒; r2 不改 v1 %s, v2 重算 %s(可比不可合)"
+                       % (_A["P2_FAIL 条数"], _R2["★过机械资格层"]["v1"], _R2["★过机械资格层"]["v2"])) if _R2 else
+                      ("P2_FAIL %d 张已拆成三族, 三族修法完全不同 —— 卡在 **owner 裁定**走哪条" % _A["P2_FAIL 条数"]),
                 "证据": "★★★ 零调用 sha 反查(0 歧义 0 失败): **SET_MISMATCH %d**(两支有共同对象, A 支多给证据指到无关的东西 "
                         "—— r2 记的「多给反而被拦」, r3 判为运气, 现在真实语料上有样本量; 多出对象与共同对象 %r) / "
                         "**SUBSTRING %d**(粒度: 部件/方面 vs 整机) / **DISJOINT %d**(真·不同对象)。"
