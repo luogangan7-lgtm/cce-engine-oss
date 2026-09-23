@@ -126,7 +126,8 @@ FROZEN_SHA8 = {
         # ★ 2026-09-23 第九次: 追加 SAMPLING_REDUCTION_PREREG_STEP1_H0_STOP。摘掉那条重算 = 54911191632e3128, 与上一钉逐字节相同。
         # ★ 2026-09-23 第十次: 追加 P2_BINDING_V2_WITNESS_INTERSECTION_DELEGATED_RULING。摘掉那条重算 = 913cae2d2009d813, 与上一钉逐字节相同。
         # ★ 2026-09-23 第十一次: 追加 SLOT_FILLING_SCORE_POLICY_V2_POSSESSION_EQUIVALENCE_PREREG。摘掉那条重算 = 901ad57baf5c15fe, 与上一钉逐字节相同。
-    "config/cce_core_manifest.json": "a4e3455aaf509c7a",
+        # ★ 2026-09-23 第十二次: 追加 FIVE_KINDS_ANNEX_D_CANDIDATE_AND_S2_LABEL_QUALIFICATION_WIRED。摘掉那条重算 = a4e3455aaf509c7a, 与上一钉逐字节相同。
+    "config/cce_core_manifest.json": "44c06d8db21d43c0",
     "accuracy/run_gates.py": "b758e6676a94acf3",
 }
 

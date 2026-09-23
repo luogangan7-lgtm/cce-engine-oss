@@ -316,7 +316,26 @@ def s2(ctx):
                 None if top1_stable is True else
                 (f"top1 一致性**不可判**(可投票 draw < 2, 一个观测点上观察不到一致性): "
                  f"{samp.get('top1_draws')}" if top1_stable is None else
-                 f"top1 不稳: {samp.get('top1_draws')}"))}
+                 f"top1 不稳: {samp.get('top1_draws')}")),
+            # ★ 2026-09-23 (授权代定): 资格层(cce_label_qualification)第一次有了**生产调用方**。
+            #   证据片段的产出方 = s2 模型给的 evidence_quote(本来就在产出里, 此前无人核它是否逐字在原文)。
+            #   但 s2 协议不产出「片段支撑哪一支 + 关于哪个对象」⇒ 资格层**只能**给 ③ 候选, 永不升格 ——
+            #   这是 fail-closed 的诊断字段, **不改任何判决**; 想升格得走 r2 式引用证书协议(另立)。
+            "label_qualification": _s2_label_qualification(ctx, knots)}
+
+
+def _s2_label_qualification(ctx, knots):
+    """top-1 结的合同层资格: 状态恒为候选(协议缺口), 附带 evidence_quote 逐字核。"""
+    from cce_label_qualification import qualify, is_citable_as_confirmed
+    if not knots:
+        return None
+    text = open(ctx["text_file"], encoding="utf-8").read()
+    quote = (knots[0].get("evidence_quote") or "").strip()
+    q = qualify(knots[0]["key"], text, evidence=None, required_conjuncts=None)
+    return {"knot": knots[0]["key"], "state": q["state"], "citable_as_confirmed": is_citable_as_confirmed(q),
+            "evidence_quote_verbatim": bool(quote) and quote in text,
+            "why": q["why"],
+            "★协议缺口": "s2 只产出 evidence_quote, 没有「支撑哪一支」与「关于哪个对象」⇒ 资格层无法升格; 本字段是诊断, 不改判决。"}
 
 
 
