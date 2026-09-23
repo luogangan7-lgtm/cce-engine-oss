@@ -711,6 +711,11 @@ def items() -> list[dict]:
             _B = _j("results/stage_overlap_bench.json"); _sv = _B["★节省"]; _a, _b = _B["arms"]
             out.append({"类": DECIDED, "项": "reply 链 reader_baseline ∥ s1_readout 已并发化(owner 2026-09-23): 核心分类器一字未动, 只改编排; 串行 %.0fs → 重叠 %.0fs(n=1)" % (_a["wall_sec"], _b["wall_sec"]),
                 "证据": "可归因于重叠的节省 ≤ 理论上限 min(reader,s1) = %.0fs; 超出部分 %.0fs 是单次延迟波动。两臂 INFRA_FAILED 0/0, k_ok 3/3。闸 tests/test_cce_stage_overlap.py 变异 6/6。★ 生产 cce-submit 实测 2–7 min/run(items 已 matrix 并行), 「20 分钟」是 G-K 精度闸(5 模型×81 条), 不是单条链。★ outbound_post 无 reader 段, 零影响。" % (_sv["★可归因于重叠的节省(≤理论上限)"], _sv["★超出上限的部分=单次调用延迟波动, 不归功于重叠"])})
+        _dl = os.path.join(ROOT, "results/draw_latency.json")
+        if os.path.exists(_dl):
+            _D = _j("results/draw_latency.json"); _E = _D["★★★评估(按预注册规则现算)"]
+            out.append({"类": DECIDED, "项": "K/n 减少预注册(tests/data/sampling_reduction_prereg.json) 第一步已测 ⇒ **H0 STOP**: 期望节省 " + " · ".join("%s %.1fs(%.0f%%)" % (k, v["期望节省秒"], 100 * (v["节省比"] or 0)) for k, v in _E["候选"].items()) + ", 均 < 门(10 s 且 15%%); 不换仪器",
+                "证据": "结构事实: s1 K 个 draw 与 s2 n 个 draw 各自一个并发波, 减 K/n 只砍尾部序统计量。s1 中位 %.0fs / s2 中位 %.0fs, E[T(3,5)]=%.0fs。★ 三候选 90%% 区间都跨 10 s 门(INCONCLUSIVE 标), 按预注册仍按点估计判 STOP。★ 再快只能换更快的生成模型; 换了模型延迟分布变, 本预注册要重跑第一步。★ 第二步(换代+K1+资格层, ≤250 次/候选)未启动。" % (_D["样本"]["s1 中位/最大"][0], _D["样本"]["s2 中位/最大"][0], _E["当前 E[T(3,5)]"])})
         _rt = os.path.join(ROOT, "results/s0_retest.json")
         if os.path.exists(_rt):
             _R = _j("results/s0_retest.json"); _P = _R["★★★逐面逐臂"]; _T = _R["★★★情绪余温结构约束"]

@@ -1356,6 +1356,65 @@
     "不得说「全链快 63%」—— 可归因的只有 ≤70 s(≈42%), 其余是延迟波动。",
     "不得说 outbound_post 变快 —— 它没有 reader 段, 零影响。"
    ]
+  },
+  {
+   "date": "2026-09-23",
+   "event": "SAMPLING_REDUCTION_PREREG_STEP1_H0_STOP",
+   "file": "probes/draw_latency_probe.py",
+   "to_sha": "c2e3cefaf10a2134",
+   "also": {
+    "tests/data/sampling_reduction_prereg.json": "0712595a4029e588",
+    "probes/sampling_reduction_prereg.py": "c2b94180e3d1a3bc"
+   },
+   "reason": "owner「把 K/n 减少的预注册做了」。改 K/n = 改 sampling_policy = 换仪器(库 2026-08-19 已定), 故先预注册判决线(≥10 s 且 ≥15%)再测。第一步零仪器变更: 生产 prompt 各 10 次调用量单次延迟分布, bootstrap E[max of N] 算各候选期望节省。",
+   "behavior_evidence": [
+    "tests/test_cce_sampling_reduction_prereg.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 这次仪器确实没变(零仪器变更, KNOT_N/k 默认未动, 闸现算 instrument_hash 与预注册相符); 变的是「要不要换仪器」这个决定, 它由预注册 sha(测量前冻结, 产物记录)与 evaluate() 纯函数现算把守; 评估器在常数延迟上必须 0 收益、长尾上必须触发(闸)。",
+   "★★★第一步结果(n=10/10, 5 路并发, 生产 prompt)": {
+    "s1 中位/最大": [
+     32.58,
+     41.79
+    ],
+    "s2 中位/最大": [
+     24.509999999999998,
+     34.3
+    ],
+    "E[T(3,5)]": 68.17,
+    "候选 期望节省秒/节省比/90%区间": {
+     "A": [
+      1.76,
+      0.0258,
+      [
+       -7.92,
+       14.35
+      ]
+     ],
+     "B": [
+      1.37,
+      0.0201,
+      [
+       -7.92,
+       12.24
+      ]
+     ],
+     "C": [
+      2.95,
+      0.0433,
+      [
+       -7.92,
+       15.92
+      ]
+     ]
+    },
+    "结论": "H0: 没有候选同时过 10 s 与 15% ⇒ STOP —— 时间在单次调用延迟, 不在抽样次数; K/n 减少不值得换仪器",
+    "★INCONCLUSIVE 标": "三个候选区间都跨 10 s 门 —— 按预注册仍按点估计判 STOP, 但结论句必须带此标"
+   },
+   "route": "**度量面 + 调用: 20 次 MiniMax(另 10 次因 s2 prompt 构造错误作废, 已如实记账)**。零仪器变更; 第二步(换代 + K1 40 + 资格 210 次/候选)**未启动**。",
+   "★不得据此说": [
+    "不得说「减 K/n 没用」—— 只能说「在本延迟分布下, 期望节省 < 10 s, 不值得换仪器」; 换更快模型后延迟分布变了要重测。",
+    "不得把第一步叫优化结果。"
+   ]
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",
