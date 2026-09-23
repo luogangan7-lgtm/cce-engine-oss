@@ -1134,6 +1134,66 @@
     "合计": 310,
     "失败": 0
    }
+  },
+  {
+   "date": "2026-09-23",
+   "event": "R6_JEV_ARM_SYSTEM_ONE_MODEL_SAME_ITEMS_NEGATIVE",
+   "file": "probes/slot_filling_run_r6_jev.py",
+   "to_sha": "b72369b0be770d34",
+   "reason": "在 r6 同一批 items/金标/打分/judge 上, 把填槽模型换成 TypeSafe Jev(System One, 不生成文本)。",
+   "behavior_evidence": [
+    "tests/test_cce_slot_filling_r6_jev.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 题目措辞/选项映射/概率读出都在新执行器里, 不改任何生产哈希。闸: 题目集 sha 钉住 · 选项集 == LEGAL 现算派生 · 干跑金标达成 · 结果从 rows 重新打分重新 judge 逐键比对 · 变异 6/6。",
+   "route": "**度量面变更 + 计量付费调用 68 次(Jev, ≈$0.006)**。MiniMax 0 次。改动件无一在 core_files/parser_plane。r5/r6 文件未改。",
+   "★★★读数": {
+    "模型": "jev-1.13.0",
+    "执行": "68/68 零失败",
+    "账本": {
+     "请求数(含重试)": 68,
+     "重试次数": 0,
+     "input_tokens": 113526,
+     "output_tokens": 39095,
+     "硬上限": {
+      "请求": 200,
+      "input_tokens": 300000
+     }
+    },
+    "predicate 鉴别格": "2/24(浅层规则 4/24, 门 ≥8/24, 净增益 2 ≤ 阈值 3) ⇒ **未达成**, D6 触发",
+    "鉴别格上 Jev 填的值": "OF_DECLARED_KIND 21 / RESTATES 2 / NOT 1 —— 与 MiniMax r6(21/1/2)几乎同一张脸",
+    "逐槽位 Jev vs 零基线": {
+     "speaker": "68/68 vs 66/68",
+     "polarity": "136/136 vs 134/136",
+     "time": "68/68 vs 66/68",
+     "citation": "68/68 vs 66/68",
+     "possession": "40/68 vs 64/68",
+     "predicate": "44/68 vs 42/68"
+    },
+    "★possession 第三次负增益": "Jev 40/68 < 零基线 64/68(−24; MiniMax r5 −6, r6 −11) —— **换模型家族仍是负的** ⇒ 问题在 possession 这一格的题面/金标, 不在模型。",
+    "★★★Jev 独有的读数(argmax 之外)": "鉴别格上 P(RESTATES) 均值 0.1379, 多数类格上 0.0031(差 44 倍); 分布里 2 格 ≥0.8、2 格 0.4、其余 ≤0.2。⇒ 它**分得出方向**, 但 24 格里只有 2 格过半 —— 校准过的概率把「读到一点」和「没读到」区分开了, 这是生成式模型给不了的读数。"
+   },
+   "★★★怎么读": {
+    "①与 MiniMax 同一结局": "两个模型家族、两种形态(生成式 / System One)、同一批 v4 items ⇒ 都填不出 RESTATES 鉴别格。**问题在判据/材料, 不在模型家族** —— 这是本轮买到的最硬的一句。",
+    "②不得说 Jev 比 MiniMax 好/差": "提示语言与形态不同, 只能比结论与方向; 2/24 与 1/24 分不开。",
+    "③概率读数是新线索不是结论": "若把阈值降到 0.4 会多认 2 格 —— 但那是看过数据再定阈值, 不许; 要用得另立预注册。",
+    "④不得外推到中文材料": "官方明写 CJK 不同等; 本轮 items 是英文。"
+   },
+   "新增件": [
+    "probes/slot_filling_run_r6_jev.py",
+    "probes/slot_filling_prereg_r6_jev.py",
+    "tests/data/slot_filling_prereg_r6_jev.json",
+    "tests/test_cce_slot_filling_r6_jev.py",
+    "results/slot_filling_r6_jev.json",
+    "results/slot_filling_r6_jev_partial.jsonl"
+   ],
+   "复用未重写": "items/score/tally/judge/run_ref/GOLD/LEGAL 全部经 slot_filling_run_r6.patched() 取自 r5 执行器; 主判据/门/功效/降级/准入逐键继承 r6 预注册(闸断言相等)。",
+   "★密钥": "TYPESAFE_API_KEY 只在 /Volumes/data/viral-skill-eval/.env(600); 源码/产物/日志零出现(闸扫)。",
+   "预算": {
+    "Jev 请求": 68,
+    "Jev input_tokens": 113526,
+    "MiniMax": 0,
+    "MiniMax 累计": 310
+   }
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",

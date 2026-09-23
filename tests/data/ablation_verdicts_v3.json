@@ -71,8 +71,8 @@
    ],
    "note": "生产面 = 这三个目录下全部 *.py 递归 + config/ 顶层 *.json。tests/ 与 archive/ 不计入分母(它们是语料与守卫, 不是被消融的生产代码)。"
   },
-  "scope_files": 228,
-  "scope_lines": 45682,
+  "scope_files": 230,
+  "scope_lines": 45994,
   "touched_files_union": [
    "accuracy/run_gates.py",
    "config/cce_core_manifest.json",
@@ -112,9 +112,9 @@
    "tests/test_cce_structural_gate.py"
   ],
   "n_touched_files": 28,
-  "file_level_pct": 12.28,
-  "lines_in_touched_files": 11449,
-  "line_level_pct_GENEROUS_UPPER_BOUND": 25.06,
+  "file_level_pct": 12.17,
+  "lines_in_touched_files": 11509,
+  "line_level_pct_GENEROUS_UPPER_BOUND": 25.02,
   "by_round": {
    "v2_only_files": [
     "config/need_taxonomy.json",
@@ -167,7 +167,7 @@
    "config/cce_archive_index.json": 755,
    "config/cce_capability_registry_v1.json": 196,
    "config/cce_chain_conformance.json": 287,
-   "config/cce_core_manifest.json": 1142,
+   "config/cce_core_manifest.json": 1202,
    "config/cce_doc_reconciliation.json": 382,
    "config/cce_eval_benchmarks_v1.json": 201,
    "config/cce_foundation_contract_v1.json": 41,
@@ -297,9 +297,11 @@
    "probes/shallow_rule_on_real_certs.py": 173,
    "probes/slot_fillability_audit.py": 111,
    "probes/slot_filling_prereg_r6.py": 141,
+   "probes/slot_filling_prereg_r6_jev.py": 36,
    "probes/slot_filling_run_r4.py": 338,
    "probes/slot_filling_run_r5.py": 669,
    "probes/slot_filling_run_r6.py": 104,
+   "probes/slot_filling_run_r6_jev.py": 205,
    "probes/suspend_factorial_adjudicate.py": 104,
    "probes/suspend_factorial_challenge.py": 108,
    "probes/suspend_fix_adjudicate.py": 171,
@@ -341,7 +343,7 @@
    "scripts/cce_mechanism.py": 121,
    "scripts/cce_media_declaration.py": 153,
    "scripts/cce_necessary_condition_reach.py": 165,
-   "scripts/cce_open_items.py": 824,
+   "scripts/cce_open_items.py": 835,
    "scripts/cce_outbound_guard.py": 435,
    "scripts/cce_platform_adapter.py": 64,
    "scripts/cce_population.py": 459,
@@ -822,8 +824,8 @@
    }
   ],
   "③_合计": {
-   "n_files_never_touched": 200,
-   "lines_never_touched": 34233,
+   "n_files_never_touched": 202,
+   "lines_never_touched": 34485,
    "★为什么变了": [
     "2026-09-11 收口后 26596→26622: scripts/cce_open_items.py(从未触及)由 612 涨到 638 行 —— 把写死的「只覆盖 17.3%」改成现算所致。**本闸自己抓到的第二处连带**。",
     "2026-09-12 parser_plane 收口: 169→166 文件 / 26622→26301 行。减少的三件是 parser_plane 的 cce_case_assemble(144) · cce_event_assemble(125) · cce_platform_adapter(64) = 333 行; 同时 config/ontology_legacy_exceptions_v1.json 因补登 P1 豁免多了 12 行(它从未被触及, 故净变化 = -333+12 = -321)。",
@@ -1583,7 +1585,7 @@
  "★frozen_files_sha256": {
   "scripts/cce_knot_classify.py": "0a740ba16e80dc54af920ce9536be50ae26590e0946064db062981b5ca75a9a5",
   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
-  "config/cce_core_manifest.json": "564d17240095c7efa2ddc157ac828908faa82ecbf838181b6f21a688be7d87ab",
+  "config/cce_core_manifest.json": "b2c25b30865bfea38b8df2723613d26c5fcff5f9b01d3a9e5ac06e71e02e23c8",
   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
  },
  "★frozen_files_verdict": "第一轮开工前与收工后各算一次, 逐一相同。**第二轮(2026-09-11)出过一起事故并已还原**: 19:40:25 scripts/cce_knot_classify.py 被 L4 农场经 symlink 写穿真仓, 追加两行(空行 + `# refactor log reverse test`), sha f2cef2f99c949a75… → ad6503a8db0e871d…, 仓自己的 CORE_BOUNDARY 闸当场转红。造成它的 agent 已逐字节剥掉后缀 b'\\n# refactor log reverse test\\n' 并与并行 agent 的 pristine 副本逐行 diff 确认, `python3 scripts/cce_core_boundary.py` 重跑 = CORE_BOUNDARY_PASS。★ 收口时我自己第三次重算四个冻结件 sha256, 与 ★frozen_files_sha256 逐一相同(见 ★frozen_files_recheck_this_round)。★ 因此: 若某个产物的 file_integrity 报 sha_after=ad6503a8…, 那是事故窗口内的读数, **已失效**; 一律按 f2cef2f99c949a75… 比对。根因与修法见 ★claims_exceeding_evidence 的 CE-17(L4 农场必须实拷贝, 禁止 symlink)。",
@@ -21792,6 +21794,15 @@
    "★为什么允许更新": "追加一条 R6_SLOT_FILLING_ON_V4_NEGATIVE_REPLICATED。",
    "★★★这句话不是我说了算, 是现算的": "摘掉那一条重算 sha = 1aae065acd0461da, 与旧钉逐字节相同。",
    "★这条哈希本来防什么": "防未经记录的改动, 不是禁止一切改动。"
+  },
+  {
+   "date": "2026-09-23",
+   "file": "config/cce_core_manifest.json",
+   "from": "564d17240095c7ef",
+   "to": "b2c25b30865bfea3",
+   "★为什么允许更新": "追加一条 R6_JEV_ARM_...。",
+   "★★★这句话不是我说了算, 是现算的": "摘掉那一条重算 sha = 564d17240095c7ef, 与旧钉逐字节相同。",
+   "★这条哈希本来防什么": "防未经记录的改动。"
   }
  ]
 }

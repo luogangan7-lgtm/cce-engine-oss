@@ -683,6 +683,17 @@ def items() -> list[dict]:
                         "★ possession 再次负增益(53/68 < 零基线 64/68, r5 −6 本轮 −11)。"
                         % (_M6["B 臂鉴别格"], _M6["最佳浅层规则鉴别格"], _M6["★★★净增益(鉴别格对数 − 多数类格错数)"]["B 臂"],
                            _M6["★★★净增益(鉴别格对数 − 多数类格错数)"]["冻结的阈值"], _M6["单侧 p(二项, 事前可算)"])})
+        _rj = os.path.join(ROOT, "results/slot_filling_r6_jev.json")
+        if os.path.exists(_rj):
+            _J = _j("results/slot_filling_r6_jev.json"); _MJ = _J["★★★主判据: B 臂鉴别格 vs 最佳浅层规则"]; _PJ = _J["★★★Jev 在鉴别格上给 RESTATES 的概率"]
+            out.append({"类": DECIDED,
+                "项": "r6-jev(2026-09-23, Jev 68 请求): 换成 System One 模型, predicate 鉴别格 %s, **同样未达成** ⇒ 问题在判据/材料不在模型家族" % _MJ["B 臂鉴别格"],
+                "证据": "★★★ 同一批 r6 items/金标/打分/judge, 填槽模型换成 TypeSafe Jev(jev-1.13.0, 不生成文本, 每槽位一道 Choice)。"
+                        "鉴别格 %s vs 浅层规则 %s, 门 ≥8/24, 净增益 %s ≤ 3 ⇒ 未达成, D6。鉴别格上填 OF_DECLARED 21 / RESTATES 2 / NOT 1, 与 MiniMax r6 几乎同一张脸。"
+                        "★ possession 第三次负增益(Jev 40/68 < 零基线 64/68; MiniMax −6/−11) ⇒ 这一格的题面/金标有问题, 与模型家族无关, **待查**。"
+                        "★ Jev 独有: 鉴别格上 P(RESTATES) 均值 %s vs 多数类 %s(差 44 倍), 2 格 ≥0.8 —— 分得出方向但 argmax 过不了; 降阈值是看过数据再定, 不许, 要用得另立预注册。"
+                        "★ 不得说 Jev 比 MiniMax 好/差; 不得外推到中文(官方 CJK 不同等)。成本 ≈$0.006。"
+                        % (_MJ["B 臂鉴别格"], _MJ["最佳浅层规则鉴别格"], _MJ["★★★净增益(鉴别格对数 − 多数类格错数)"]["B 臂"], _PJ["均值"], _PJ["多数类上均值"])})
         _v4 = os.path.join(ROOT, "results/contract_pairs_v4_check.json")
         if os.path.exists(_v4):
             _C = _j("results/contract_pairs_v4_check.json")

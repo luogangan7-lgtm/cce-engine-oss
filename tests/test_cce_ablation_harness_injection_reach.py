@@ -118,7 +118,8 @@ FROZEN_SHA8 = {
         # ★ 2026-09-23: 追加 P2_FAIL_ANATOMY_THREE_FAMILIES。摘掉那条重算 = 8685b4c321fd588d, 与上一钉逐字节相同。
         # ★ 2026-09-23 第二次: 追加 CONTRACT_PAIRS_V4_...。摘掉那条重算 = 4237ab5d33b71818, 与上一钉逐字节相同。
         # ★ 2026-09-23 第三次: 追加 R6_...。摘掉那条重算 = 1aae065acd0461da, 与上一钉逐字节相同。
-    "config/cce_core_manifest.json": "564d17240095c7ef",
+        # ★ 2026-09-23 第四次: 追加 R6_JEV_ARM_...。摘掉那条重算 = 564d17240095c7ef, 与上一钉逐字节相同。
+    "config/cce_core_manifest.json": "b2c25b30865bfea3",
     "accuracy/run_gates.py": "b758e6676a94acf3",
 }
 
