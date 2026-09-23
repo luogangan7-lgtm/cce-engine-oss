@@ -43,25 +43,25 @@
  },
  "★★判据": "**主判据 = prompt 构造器源码里取了哪个键**(AST/正则现算)。字面子串法降为交叉核对 —— 它答的是「这个字段的文字出现了吗」, 而**文字会重叠**: `changelog_1_3_0` 逐字引用决策树原文、`cost_tier` 的「高成本」也在 behavior 里, 两者都被子串法误判为到达。",
  "★★★两种判法不一致的字段(不静默择一, 摆出来)": {
-  "extra_appraisal_slots": {
-   "源码读取(主判据)": "NEITHER",
-   "字面子串(交叉核对)": "BOTH"
-  },
-  "changelog_1_3_0": {
-   "源码读取(主判据)": "NEITHER",
-   "字面子串(交叉核对)": "BOTH"
-  },
   "knots[].cost_tier": {
    "源码读取(主判据)": "NEITHER",
    "字面子串(交叉核对)": "GATE_ONLY"
   },
-  "annotation_protocol": {
-   "源码读取(主判据)": "GATE_ONLY",
+  "extra_appraisal_slots": {
+   "源码读取(主判据)": "NEITHER",
    "字面子串(交叉核对)": "BOTH"
   },
   "version": {
    "源码读取(主判据)": "PROD_ONLY",
    "字面子串(交叉核对)": "NEITHER"
+  },
+  "changelog_1_3_0": {
+   "源码读取(主判据)": "NEITHER",
+   "字面子串(交叉核对)": "BOTH"
+  },
+  "annotation_protocol": {
+   "源码读取(主判据)": "GATE_ONLY",
+   "字面子串(交叉核对)": "BOTH"
   }
  },
  "buckets": {
