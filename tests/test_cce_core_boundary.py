@@ -66,6 +66,16 @@ for e in log:
         assert os.path.exists(os.path.join(ROOT, t)), f"行为证据 {t} 不存在"
     assert "不足以" in e["★evidence_is_required_because"], \
         "★ 必须写明「仪器哈希没变不足以证明行为没变」, 否则下次就会拿哈希当证据"
+    # ★★ 2026-09-09: GATE_PROTOCOL_CHANGE 是**行为确实变了**的换代, 义务比纯重构更重
+    if e.get("event") == "GATE_PROTOCOL_CHANGE":
+        for k in ("from_gate_version", "to_gate_version", "from_gate_hash", "to_gate_hash",
+                  "★哪一半行为变了", "★哪一半没变", "★★★可比性边界"):
+            assert e.get(k), f"★★ GATE_PROTOCOL_CHANGE 条目缺 {k}"
+        assert e["to_gate_version"] == e["from_gate_version"] + 1, "★ 闸版本必须逐代递增"
+        _blob = json.dumps(e, ensure_ascii=False)      # ★ 键与值都要查(那句话写在键名里)
+        assert "不是纯重构" in _blob and "行为**确实变了**" in _blob, \
+            "★★★ 必须写明**不是纯重构、行为确实变了** —— 不得冒充行为不变的 refactor"
+        assert "可比不可合" in e["★★★可比性边界"], "★ 可比性边界必须写明「可比不可合」"
 
 # 反向: refactor_log 条目缺行为证据 -> 红(用一个真实漂移来触发)
 core_file = "scripts/cce_knot_classify.py"

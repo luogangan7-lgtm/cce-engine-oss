@@ -1,0 +1,76 @@
+{
+ "block": "AGGREGATION_SEMANTICS_CORRECTION_2026-09-08",
+ "★source": "网页 ChatGPT Pro, 思考 17m36s, 联网(scikit-learn soft/hard voting · AERA-APA-NCME Standards · Kane 效度论证 · VariErr NLI · CheckList · spectrum effect · 概化理论 · selective classification)",
+ "★★★the_wording_error_i_kept_making": {
+  "★what_i_said": "我从头到尾说「**五员共识 argmax**」。",
+  "★★what_it_actually_is": "★★★ 那是**软聚合主类**(soft voting: 先汇总九维权重再取 argmax), **不是**多数票主类(hard voting: 先各自取 argmax 再投票)。二者是**不同的运算**, 不必相同。\n⇒ GPT 原话: 「**可以叫「软聚合主类为 suspend」, 不能叫「五员共识为 suspend」。**」",
+  "★measured_scale_of_the_problem": {
+   "软聚合≠多数票": "**3/81 = 3.7%**",
+   "★软聚合主类得票<=半数": "**8/81 = 9.9%** ← 更相关的数",
+   "多数票本身平局": "1 条",
+   "逐类冲突率": {
+    "itch": "0/8",
+    "display": "0/32",
+    "reward": "0/12",
+    "audit": "0/5",
+    "pain_seek": "2/19",
+    "suspend": "1/5"
+   },
+   "★suspend 最高": "1/5 = **20%**"
+  },
+  "★★so_the_error_is_precision_not_distortion": "★ 冲突面 3.7% ⇒ 「共识」这个说法**误导但没有大幅扭曲结论**。★★ 但它在 **suspend 那条上恰好发生了**(p1au1ez: 软聚合判 suspend 得 2/5 票, 而 pain_seek 得 3/5) —— 也就是我用来论证「suspend 崩了」的那 5 条里, **有一条的「共识」本身就是可疑的**。",
+  "★the_conflicts": [
+   {
+    "id": "p17brv9",
+    "soft": "pain_seek",
+    "hard": "display",
+    "soft_votes": 2,
+    "hard_votes": 2,
+    "n": 5,
+    "soft_w": 0.46
+   },
+   {
+    "id": "p1au1ez",
+    "soft": "suspend",
+    "hard": "pain_seek",
+    "soft_votes": 2,
+    "hard_votes": 3,
+    "n": 5,
+    "soft_w": 0.46
+   },
+   {
+    "id": "p1ebz4e",
+    "soft": "pain_seek",
+    "hard": "display",
+    "soft_votes": 2,
+    "hard_votes": 3,
+    "n": 5,
+    "soft_w": 0.47
+   }
+  ]
+ },
+ "★★the_required_reporting_from_now_on": {
+  "★rule": "★★ 每条主类断言必须同时报: `pooled_top1` · `majority_top1` · `top1_votes` · `aggregation_conflict`。**二者冲突时, 主类断言记 UNRESOLVED, 不在两者之间临时挑一个。**",
+  "★★applies_to_all_classes": "★★★ **这条规则作用于全部类别, 不只 suspend** —— 临时为了解决 suspend 的分歧而改用多数票, 就是用结果选规则。",
+  "★soft_aggregation_still_frozen": "★ 软聚合仍可作为**冻结的数值输出**; 它只是**不再被赋予「多数人同意」的含义**。",
+  "★★a_deeper_question_it_raises": "★★ 九类权重**究竟是什么**? 若是「文本中各成分的相对占比/强度」, 汇总后取最大是一个**合成读数**, **不是**投票者相信该标签正确的**概率**。要按概率置信度解释, 必须另外提供**校准证据** —— **权重和为 1 不能证明校准**(soft voting 的常见推荐正以「分类器概率经过良好校准」为前提)。",
+  "★not_five_independent_experts": "★ 也**不要把五个同家族模型当成五名已证明独立的专家**。2026 年一项比较家族内与跨模型采样的研究发现: 模型集合虽能生成类似人类的标签分布, 仍呈现**自身特有的判断与分歧模式**。⇒ 保留模型来源, 不把池化结果当人类共识。"
+ },
+ "★★★what_gpt_corrected_about_my_suspend_conclusion": {
+  "①_inter_vs_intra": "★★★ 「五员没有全票一致」是 **inter-annotator agreement** 问题, **不等于**已经测到了**同一个标注者的重测不稳定**(intra-annotator)。**后者才直接回答「同一标注者是否随重复改变判断」, 而我根本没测。**",
+  "②_not_a_recall": "★ 我的 0/5 是「**被软聚合选为 suspend 的五条, 外部模型主类均不同**」, **不是**以独立真值计算的 suspend **召回率**。Fisher 说明分歧**集中在这一组**, **不能判定哪一方正确**, 更不能单独决定合并到哪个类。",
+  "③_the_downstream_case_proves_less_than_i_said": "★★★ 那次改稿**同时改了三件事**: 悬置姿态 · 问句→陈述句 · 素材供给; 而且**仍由同一仪器判通过**。⇒ **不知道改善来自哪一项**, 也**不能证明「suspend 判阻挡并归零」是正确政策**。\n★ Kane 的效度论证: **某种分数解释成立, 不自动证明用它作某种决策成立。**\n⇒ 该案例只能保留为「**极端正例上的可重复识别 + 真实工作流中的可行性案例**」, **不得**升级为「自然评论上的 suspend 已验证」或「suspend 有权一票否决」。"
+ },
+ "★★the_right_framework": {
+  "★name": "**条件性测量精度**(conditional measurement precision), **不是**给类别贴永久的「低可靠」标签",
+  "★analogy": "诊断测量里的 **spectrum effect**: 测量表现随被测对象构成而变化; **变化本身不是偏倚**, 拿一种构成上的结果**不加区分地外推**才是。",
+  "★analysis_design": "**文本/题干 × 证据条件 × 模型家族 × 重复测量** —— 概化理论适合处理; 现阶段先用这种交叉设计**分层报告**即可。",
+  "★★signal_strength_must_be_decomposed": "★ 我说的「信号强度」要拆成: **文本证据的明确程度 · 悬置在文本中的突出程度 · 与其他类线索的混杂程度**。★★ 它们**都不必等同于作者内心「犹豫有多强」** —— 一个人可能非常犹豫却只写「续航多少」; 也可能不强烈犹豫却清楚写出「还没决定, 等实测再说」。\n★★★ **不能用仪器自己的 suspend 分数定义强弱, 再证明高分文本更可靠。**",
+  "★four_way_diagnosis": {
+   "文本没提供悬置证据, 模型靠质询/收藏猜出来": "**必要条件执行失败**",
+   "文本有明确证据、独立专家能稳定识别, 模型做不到": "**标注器的测量能力限制**",
+   "专家认为两个标签及理由都符合定义、无法由定义裁决": "**类别边界/判定层级欠规定**",
+   "只在明确表达上成立, 隐含表达无法可靠判断": "可建「明确表达范围内」的测量, **但不能宣称修复了对所有潜在悬置状态的测量**"
+  }
+ }
+}

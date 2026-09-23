@@ -1,0 +1,275 @@
+{
+ "block": "EXTRACTOR_COUNTEREXAMPLE_TEMPLATES",
+ "★★★frozen_before_measurement": "16 条文本与逐格推导在任何模型调用之前写定。",
+ "★合同原文(逐字, 出自 config/knot_taxonomy.json knots[4].hard_discriminant)": "输出**新信息增量**(具体型号/数据/使用细节/纠错/结构化经验)且谈论对象是**自己已拥有或已经历**的。无质询句;若出现对某方真实性/资历的质询→audit;若谈的是期望中未得之物→itch。",
+ "★★★机械自检覆盖什么": "只覆盖**声明与文本的一致性**(片段逐字在、对象声明齐、条数与结构互异)。**它不验证上面任何一条推导** —— 2026-09-13 的零调用反例已经证明逐字核对验不了语义关系。推导的正确性由写出来给人看这一条担保, 不由脚本担保。",
+ "templates": [
+  {
+   "id": "POS-1",
+   "arm": "正证据对照",
+   "结构": "平铺自述",
+   "text": "I've had the Oticon More 1 since last spring. Battery runs about 14 hours for me with maybe two hours of streaming in there.",
+   "about": "Oticon More 1",
+   "span_P": "Battery runs about 14 hours for me",
+   "span_Q": "I've had the Oticon More 1 since last spring",
+   "推导": {
+    "P": "成立 —— 「Oticon More 1」落**具体型号**, 「about 14 hours」落**数据** ⇒ 枚举第1、2类。",
+    "Q": "成立 —— 自报**已拥有**(since last spring)。",
+    "同一对象": "P 与 Q 都指向 Oticon More 1。",
+    "无质询": "未对任何人的真实性/资历提出质疑。",
+    "非itch": "该物已在手, 不是期望中未得之物。",
+    "预期": "**应当**存在合法完整证书。"
+   }
+  },
+  {
+   "id": "POS-2",
+   "arm": "正证据对照",
+   "结构": "纠正一个流传说法(非针对人)",
+   "text": "A common mix-up: the Phonak Audeo Lumity doesn't need a Roger receiver for TV audio. Mine pair straight to the TV Connector, I set that up myself the week I got them.",
+   "about": "Phonak Audeo Lumity",
+   "span_P": "doesn't need a Roger receiver for TV audio",
+   "span_Q": "the week I got them",
+   "推导": {
+    "P": "成立 —— 「doesn't need a Roger receiver」落**纠错**, 「pair straight to the TV Connector」落**使用细节**。",
+    "Q": "成立 —— 「Mine」+「the week I got them」自报**已拥有**。",
+    "同一对象": "两者都指 Phonak Audeo Lumity。",
+    "无质询": "★ 刻意把纠错对象写成流传说法(A common mix-up)而非某个人的陈述 —— 合同写「若出现对某方真实性/资历的质询→audit」, 指向**人**才触发, 指向**说法**不触发。",
+    "非itch": "已在手。",
+    "预期": "**应当**存在合法完整证书。"
+   }
+  },
+  {
+   "id": "POS-3",
+   "arm": "正证据对照",
+   "结构": "清单式结构化经验",
+   "text": "Three things I learned the hard way with my Signia Pure Charge&Go AX: wax guards go every four weeks not eight, the charger needs a dry cloth before the aids go back in, and the Bluetooth handoff between laptop and phone has to be started from the phone side.",
+   "about": "Signia Pure Charge&Go AX",
+   "span_P": "wax guards go every four weeks not eight",
+   "span_Q": "my Signia Pure Charge&Go AX",
+   "推导": {
+    "P": "成立 —— 三条并列落**结构化经验**, 「every four weeks not eight」兼落**纠错**与**数据**, 「started from the phone side」落**使用细节**。",
+    "Q": "成立 —— 物主代词 my。",
+    "同一对象": "同一副机器。",
+    "无质询": "无。",
+    "非itch": "已在手。",
+    "预期": "**应当**存在合法完整证书。"
+   }
+  },
+  {
+   "id": "POS-4",
+   "arm": "正证据对照",
+   "结构": "借用机 —— 走 Q 的**已经历**那一支",
+   "text": "I wore a loaner pair of ReSound Nexia for the two weeks mine were in for repair. Speech in the car was noticeably better, though the app kept dropping the left side until I turned off battery optimisation.",
+   "about": "ReSound Nexia",
+   "span_P": "until I turned off battery optimisation",
+   "span_Q": "I wore a loaner pair of ReSound Nexia for the two weeks",
+   "推导": {
+    "P": "成立 —— 「ReSound Nexia」落**具体型号**, 「turned off battery optimisation」落**使用细节**。",
+    "Q": "成立, 且走的是**已经历**那一支 —— 不拥有(loaner)但**戴过两周**。",
+    "★为什么要这一条": "Q 是**析取**(已拥有 **或** 已经历)。四条正证据若全是「已拥有」, 这轮就从没测过另一支。",
+    "同一对象": "同一型号。",
+    "无质询": "无。",
+    "非itch": "不是未得之物 —— 已实际佩戴过。",
+    "预期": "**应当**存在合法完整证书。"
+   }
+  },
+  {
+   "id": "NEGP-1",
+   "arm": "缺P阴性",
+   "结构": "一句自述",
+   "text": "I've been wearing hearing aids for a good while now.",
+   "about": "hearing aids",
+   "span_P": null,
+   "span_Q": "I've been wearing hearing aids for a good while now",
+   "推导": {
+    "Q": "成立 —— 自报**已经历/已拥有**。",
+    "P": "**不**成立 —— 逐类核: 具体型号✗(只说 hearing aids) · 数据✗(「a good while」是模糊时段不是数值) · 使用细节✗ · 纠错✗ · 结构化经验✗。",
+    "★闭列": "判别式括号内五类是**闭列**, 五类全不沾 ⇒ P 不成立 ⇒ 合取式不成立。",
+    "无其他合格对象": "全文只有一个对象。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "NEGP-2",
+   "arm": "缺P阴性",
+   "结构": "共情式跟帖",
+   "text": "Same here. I've got a pair myself, so I know where you're coming from.",
+   "about": "a pair",
+   "span_P": null,
+   "span_Q": "I've got a pair myself",
+   "推导": {
+    "Q": "成立 —— 「I've got a pair myself」自报**已拥有**。",
+    "P": "**不**成立 —— 五类逐一核过皆✗; 「so I know where you're coming from」是立场表态不是信息增量。",
+    "★刻意避开的坑": "初稿曾写「I just leave them in and forget about them」, **那可能被读成使用细节** ⇒ 该格就不干净了。已换掉。",
+    "无其他合格对象": "仅一个对象。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "NEGP-3",
+   "arm": "缺P阴性",
+   "结构": "设问 + 附带自述",
+   "text": "Is anyone else finding this thread hard to follow? I wear aids too and half of this is over my head.",
+   "about": "aids",
+   "span_P": null,
+   "span_Q": "I wear aids too",
+   "推导": {
+    "Q": "成立 —— 「I wear aids too」。",
+    "P": "**不**成立 —— 五类皆✗。",
+    "无质询": "「Is anyone else finding this thread hard to follow?」问的是**自己跟不跟得上**, 不指向任何人的真实性或资历 ⇒ 不触发 audit 那一支。",
+    "无其他合格对象": "仅一个对象。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "NEGP-4",
+   "arm": "缺P阴性",
+   "结构": "经历声明, 零细节",
+   "text": "I've been through the whole fitting process before, so none of this is new to me.",
+   "about": "the whole fitting process",
+   "span_P": null,
+   "span_Q": "I've been through the whole fitting process before",
+   "推导": {
+    "Q": "成立 —— 自报**已经历**。",
+    "P": "**不**成立 —— 「the whole fitting process」只点名一个过程, **不给出**该过程的任何细节、数值或型号 ⇒ 五类皆✗。",
+    "★这一条测什么": "它是**最容易被误升格**的一格 —— 说话人确实在谈亲身经历, 但**没输出任何增量**。如果抽取器把「谈了自己的经历」本身当成 P, 这里就会漏。",
+    "无其他合格对象": "无其他对象。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "NEGQ-1",
+   "arm": "否定Q阴性",
+   "结构": "规格书转述",
+   "text": "I have never owned or tried the Oticon Intent, but the spec sheet lists 20 hours on a full charge and it needs the newer charger, not the More one.",
+   "about": "Oticon Intent",
+   "span_P": "the spec sheet lists 20 hours on a full charge",
+   "span_negQ": "I have never owned or tried the Oticon Intent",
+   "推导": {
+    "P": "成立 —— 具体型号 + 数据(20 hours) + 纠错(needs the newer charger, not the More one)。",
+    "Q": "**被明确否定** —— 「never **owned** or **tried**」: 拥有✗ 经历✗, **两支都否定**。",
+    "★析取要两支都否": "Q = 已拥有 **或** 已经历。只否一支不成立否定 —— 这是我 2026-09-11 栽过的坑, 写在这里免得再犯。",
+    "非itch": "★ 刻意**不**写欲求词 —— 初稿是「and I still want one」, 那会把它变成 itch, 于是测的就成了路由而不是 Q。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "NEGQ-2",
+   "arm": "否定Q阴性",
+   "结构": "转述验配师, 否定夹在破折号里",
+   "text": "Going by what my audiologist told me - I've not worn them and never owned a pair - the Widex Moment Sheer needs its own app, the older Widex app won't pick it up.",
+   "about": "Widex Moment Sheer",
+   "span_P": "the older Widex app won't pick it up",
+   "span_negQ": "I've not worn them and never owned a pair",
+   "推导": {
+    "P": "成立 —— 具体型号 + 纠错/使用细节。",
+    "Q": "**被明确否定**, 两支齐 —— 「not **worn**」否经历, 「never **owned**」否拥有。",
+    "★这一条测什么": "否定被夹在破折号里, **不在句首** —— 若抽取器只看句子开头的姿态词, 这里会漏。",
+    "无质询": "转述来源是自己的验配师, 未质疑任何人。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "NEGQ-3",
+   "arm": "否定Q阴性",
+   "结构": "先划来源边界, 再给信息(跨句辖域)",
+   "text": "Everything I know about the Starkey Genesis AI comes from reading, not from wearing them - I've never had a set and never had one in my ear. The R model is the rechargeable one; the non-R takes 312 batteries.",
+   "about": "Starkey Genesis AI",
+   "span_P": "the non-R takes 312 batteries",
+   "span_negQ": "I've never had a set and never had one in my ear",
+   "推导": {
+    "P": "成立 —— 具体型号 + 纠错(R vs non-R) + 数据(312)。",
+    "Q": "**被明确否定**, 两支齐 —— 「never had a set」否拥有, 「never had one in my ear」否经历。",
+    "★这一条测什么": "**否定与 P 相距最远** —— 否定在第一句, P 在第二句。跨句辖域。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "NEGQ-4",
+   "arm": "否定Q阴性",
+   "结构": "冒号清单, 否定作前置限定",
+   "text": "Notes from the demo video, not from use - I don't own these and have never tried them: the Jabra Enhance Select 500 pairs to two devices at once, and the dome sizes are the same as the older 300.",
+   "about": "Jabra Enhance Select 500",
+   "span_P": "pairs to two devices at once",
+   "span_negQ": "I don't own these and have never tried them",
+   "推导": {
+    "P": "成立 —— 具体型号 + 使用细节 + 纠错(dome sizes same as the older 300)。",
+    "Q": "**被明确否定**, 两支齐 —— 「don't own」+「never tried」。",
+    "★这一条测什么": "否定是**冒号之前的前置限定**, 后面整串信息都在它辖域内。若抽取器逐句独立判, 后半句读起来完全像 display。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "MIS-1",
+   "arm": "对象错配阴性",
+   "结构": "他人的机器 + 自己的模糊机器",
+   "text": "My brother's Phonak Audeo Sphere gets 16 hours on a charge with streaming. I wear something far simpler myself.",
+   "about_P": "Phonak Audeo Sphere",
+   "about_Q": "something far simpler",
+   "span_P": "gets 16 hours on a charge with streaming",
+   "span_Q": "I wear something far simpler myself",
+   "推导": {
+    "P(a)": "成立 —— a=Phonak Audeo Sphere, 具体型号 + 数据。",
+    "Q(a)": "**不**成立 —— 是 **brother's**, 非自己拥有或经历。",
+    "Q(b)": "成立 —— b=「something far simpler」, 自己在戴。",
+    "P(b)": "**不**成立 —— b 上五类皆✗(无型号、无数值、无细节)。",
+    "★双向都要核": "合取式要求 ∃x[P(x)∧Q(x)] **同一个 x**。(∃x P)∧(∃y Q) 不蕴含它。**必须同时核 Q(a) 与 P(b) 都不成立**, 否则该格根本不成立。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "MIS-2",
+   "arm": "对象错配阴性",
+   "结构": "诊所展示机 + 自己的旧机",
+   "text": "The Unitron Moxi Blu on display at the clinic runs on the same chip as the Phonak Paradise and has tap control on the left aid only. Mine are a much older pair.",
+   "about_P": "Unitron Moxi Blu",
+   "about_Q": "Mine (a much older pair)",
+   "span_P": "has tap control on the left aid only",
+   "span_Q": "Mine are a much older pair",
+   "推导": {
+    "P(a)": "成立 —— 具体型号 + 使用细节 + 纠错。",
+    "Q(a)": "**不**成立 —— 「on display at the clinic」, 既非拥有也非经历。",
+    "Q(b)": "成立 —— 「Mine」。",
+    "P(b)": "**不**成立 —— 「a much older pair」无型号无数值无细节。★ 初稿写「I've had for years」, 「for years」有被读成**数据**的风险, 已删。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "MIS-3",
+   "arm": "对象错配阴性",
+   "结构": "配偶的机器 + 自己的长期佩戴(两半紧挨)",
+   "text": "My wife's ReSound Omnia 9 needed a firmware update before the TV streamer would hold a connection. I've worn aids myself for a long time but nothing like hers.",
+   "about_P": "ReSound Omnia 9",
+   "about_Q": "aids (mine)",
+   "span_P": "needed a firmware update before the TV streamer would hold a connection",
+   "span_Q": "I've worn aids myself for a long time",
+   "推导": {
+    "P(a)": "成立 —— 具体型号 + 使用细节/纠错。",
+    "Q(a)": "**不**成立 —— wife's。",
+    "Q(b)": "成立, 且是**强**的 —— 「I've worn aids myself for a long time」。",
+    "P(b)": "**不**成立 —— b 上无型号无数值无细节; 「for a long time」是模糊时段。",
+    "★这一条测什么": "Q(b) 写得**很显眼**, P(a) 也**很显眼**, 两者紧挨。这是最容易把两半拼成一张证书的一格。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "MIS-4",
+   "arm": "对象错配阴性",
+   "结构": "设问 + 参数对比 + 自述旧机",
+   "text": "Has anyone compared these? The Oticon Real 1 is listed at 21 hours and the Real 3 at the same, which surprised me. What I actually wear is an old pair from before all this.",
+   "about_P": "Oticon Real 1 / Real 3",
+   "about_Q": "an old pair from before all this",
+   "span_P": "listed at 21 hours",
+   "span_Q": "What I actually wear is an old pair from before all this",
+   "推导": {
+    "P(a)": "成立 —— 具体型号 + 数据。",
+    "Q(a)": "**不**成立 —— 「is listed at」是查到的参数, 非拥有非经历。",
+    "Q(b)": "成立 —— 「What I actually wear」。",
+    "P(b)": "**不**成立 —— 「an old pair from before all this」五类皆✗。",
+    "无质询": "「Has anyone compared these?」是征询对比, 不指向任何人的真实性或资历。",
+    "预期": "**不得**升格。"
+   }
+  }
+ ],
+ "★★★缺P阴性依赖的读法前提": "**「括号内五类是闭列(枚举)而非示例」是读法, 不是字面。**\n★ 文本内依据: 分类学的斜杠括号有两种用法 —— ①**引语式**(knots[3]「thanks/that helps/问题解决了」· knots[8]「你是AI吧/你是托吧/凭什么信你」· knots[5][7] 的『』)显然是示例, 不可能穷尽; ②**类名式**(knots[0]「症状/场景/已试步骤」· knots[1]「厂商/验配师/平台」· knots[4] 本条)读作定义性分解。两类在文本上**可分**(是不是加引号的说话)。\n★★★ **但合同没有一句话说「仅限这五类」** ⇒ **推翻条件**: owner 或后续合同版本声明该括号为示例 ⇒ P 的外延变开 ⇒ 「五类皆不沾 ⇒ P 不成立」立刻失效 ⇒ **缺P阴性这 4 条自动作废**, 不需再实测, **也不得**拿已跑过的读数去救。\n★ 2026-09-14 更正: 我先前跟 owner 说「五类是闭列」时说得太平, 没说这是读法。这里补上。"
+}

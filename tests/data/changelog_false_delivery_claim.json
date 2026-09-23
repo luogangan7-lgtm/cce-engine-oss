@@ -1,0 +1,27 @@
+{
+ "block": "CHANGELOG_FALSE_DELIVERY_CLAIM",
+ "★zero_api": "读 taxonomy + 全仓 grep + git 历史, 零调用。",
+ "★被质疑的原文": "config/knot_taxonomy.json 的 changelog_1_3_1_b (2026-08-09): 「将**生产 prompt 中实际使用的**决策树/负例措辞升为配置真值(decision_tree_prompt / knots[].negative_examples_prompt), **prompt 改为从配置组装**。」",
+ "★★★证据": {
+  "全仓谁读这两个键": "只有 accuracy/run_gates.py(**验收闸**) + probes/ + tests/。**生产 scripts/cce_knot_classify.py 一处都没有。**",
+  "git -S 全历史搜索": "`git log -S decision_tree_prompt -- scripts/cce_knot_classify.py` **返回空** ⇒ 生产脚本**从未**出现过这个键。",
+  "引入该 changelog 的提交": "5e1e6bf 「治病根: 单一真值原则 + 配置↔代码一致性自检挂进所有工作流」",
+  "那次提交改了什么": "accuracy/run_gates.py(闸) + config/knot_taxonomy.json + workflows + rlA/rlB 素材 —— **没有碰 scripts/cce_knot_classify.py**"
+ },
+ "★★★结论": "该 changelog 把**验收闸的 prompt** 写成了「**生产 prompt**」。生产从未使用过决策树与负例。这是**冻结记录中的一条不实陈述**。",
+ "★★这是同族第三例": [
+  "① 代码里已记的: INSTRUMENT_LINEAGE gen2 原文声称「把 s1 prompt 与 abstention 策略纳入指纹」—— **它从来没有纳入**, 那次改的是外壳哈希, 且该假声明被 gen3/gen4 一路继承",
+  "② 我自己 2026-09-09 把 GATE_ONLY 的修改记成「生产未换代, 很好」—— 实为**修复错层**",
+  "③ 本条: changelog_1_3_1_b 把闸的 prompt 称作生产 prompt"
+ ],
+ "★共同形状": "**声称某材料到达了某台仪器, 而实际没有** —— 且三次都写进了会被后续引用的冻结记录里。⇒ 这正是 `cce_rule_delivery_completeness` 要挡的形态: **声称不算证据, 出站请求才算。**",
+ "★★★它对「补送算实现纠错还是判据修订」的影响": {
+  "★如果 changelog 是真的": "那生产**本应**收到这些条款, 补送 = **恢复由原计划唯一确定的正确执行** = 实现纠错。",
+  "★★实际是假的": "⇒ **不能**用这条 changelog 去论证「原计划要求送达」。它反而说明: 「哪些字段必须送进生产 prompt」这条规则**在此前根本不存在**。",
+  "★但这不自动等于判据修订": "已提交 web GPT 第七轮裁定 —— 它的预备判词提示我可能把「**输出会变**」误当成「**判据变了**」。"
+ },
+ "★不产生的东西": [
+  "不产生「那次提交是有意误述」的指控 —— 更可能是「生产 prompt」被用来泛指「跑在生产上的那套提示词」, 而当时闸也在生产工作流里跑",
+  "不产生「决策树该不该进生产」的答案 —— 那有独立性代价(见 cce_stage2_candidate.INDEPENDENCE_COST), 归 owner"
+ ]
+}

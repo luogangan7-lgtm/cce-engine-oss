@@ -1,0 +1,82 @@
+{
+ "unit": "parser_plane / scripts/cce_case_assemble.py (144 行) — 产物 /Volumes/data/cce-engine/tests/data/ablation_v3/parser_cce_case_assemble.json (213822 B, 36 条判决全量)",
+ "checked": 21,
+ "overturned": [
+  {
+   "component": "parser_plane 反例① 「删 4 行纯注释 ⇒ test_cce_ablation_verdicts_v3::check_coverage 翻红, 行数 144 被钉死」——作为「parser_plane 不可自由增删改」的证据",
+   "was": "四类反例之一, 写进 ★parser_plane_claim.counterexamples[0] 与 verdicts 里一整条独立判决行",
+   "now": "不是关于 parser_plane 的证据。这是一道**全仓行数冻结**, 对 core / parser / 中立文件 / 消融装置自身**完全无差别**, 因此无法区分任何分层",
+   "why": "check_coverage(tests/test_cce_ablation_verdicts_v3.py:88-104) 最后一句是 `assert got[\"per_file_lines\"] == want[\"per_file_lines\"]`, 而 per_file_lines 由 recompute_scope 覆盖 scope_rule 的**全部 194 个**生产文件(scripts/ probes/ accuracy/ 递归 .py + config/ 顶层 .json), 不是只覆盖 25 个 touched_files。我在不改任何文件的前提下 monkeypatch nlines 做了四臂对照: 对 scripts/cce_case_assemble.py(parser_plane)、scripts/cce_ksep.py(**core_files 成员**)、scripts/cce_align_v2.py(两者皆非)、probes/ablation_harness_v3.py(消融装置自身)各减 4 行, **四臂全部报同一条 RED**(★coverage.scope_lines 档案 36937 vs 现算 36933)。⇒ 该闸对 core 的约束与对 parser 的约束一字不差, 拿它证明「这一层不能自由改」是把全仓属性记在本件头上。另实证: scripts/cce_case_assemble.py **不在** touched_files_union(25 个)里, 所以连「消融覆盖率分母」的措辞也只在 scope_lines 这一层成立, 与它是否被消融无关"
+  },
+  {
+   "component": "limits 第 9 条: 「副本基线因此是 163 绿 / 1 红, 不是 164 绿」",
+   "was": "声明零 API 下唯一恒红的是 tests/test_cce_audio_prosody.py",
+   "now": "对**交付后的仓**为假 —— 现在至少 4 红, 且新增的 3 红是本单元自己的产物造成的",
+   "why": "我在 /Volumes/data/cce-engine **活仓**上直接跑 scripts/check_ontology_migration.py: **P1_FAIL**, 原因 `unclassified_occurrence 2: tests/data/ablation_v3/parser_cce_case_assemble.json:3323 segment_id / :3327 individual_id [EVIDENCE 里的 object key 必须登记]`。连带 tests/test_ontology_migration.py(:38 `assert gate() == 0`)与 tests/test_cce_chain_conformance.py 一起红。根因: 产物 ref_counts 把 `segment_id` / `individual_id` 当成 **JSON object key** 写进了 tests/data/ 面, 而该面的 surface_scan_mode 是 json_keys_only ⇒ 未登记旧名。判决性实验: 我把这一个文件移出副本后重跑, 这 3 道闸**全部转绿**, 其余不变 ⇒ 该产物是唯一原因。★ 讽刺之处: 本单元 A1 判决讲的正是 stale_registry_entry 机制, 而 config/ontology_legacy_exceptions_v1.json:248 已有完全同族的先例登记(tests/data/ablation_v3/空白_structural_gate.json / segment / UNRELATED_HOMONYM), 补两条 entry 即可清零, 但没补"
+  }
+ ],
+ "downgraded": [
+  {
+   "component": "verdicts 行「★ 本文件的行数 144 —— 被消融台账当覆盖率分母钉死」的判决词",
+   "was": "LOAD_BEARING_L2",
+   "now": "应为元闸观测记录, 不入生产判决词表(或至多 INCONCLUSIVE)",
+   "why": "M2/M5 的 L2 指判决面。该行自己写着「这里的『判决』是消融台账元闸的绿/红, **不是**生产判决面」——已自认不是 L2, 却仍占用 LOAD_BEARING_L2 这个词, 并计入 verdict_tally 的 21。下游只读 tally 的人会把一条与行为无关的行数闸当成承重件"
+  },
+  {
+   "component": "A1 行的 L4_source_text_gates_invisible_to_memory_ablation: 「3 条全是磁盘源码闸 ⇒ 纯内存消融这一臂 L4 会被低报为 0」",
+   "was": "A1 在纯内存消融下 L4 = 0",
+   "now": "为假 —— 纯内存消融下 A1 的 L4 ≥ 1",
+   "why": "tests/test_ontology_migration.py:81-83 的反向4 是 `from cce_case_assemble import MODEL_FORBIDDEN_KEYS` 后的**内存内断言**(`assert sentinel in MODEL_FORBIDDEN_KEYS`)。纯内存消融时磁盘未变 ⇒ :38 的 subprocess gate() 照常返回 0 ⇒ 执行流走到 :81 才断。该 agent 自己在 A2 行写对了(「★ 这条是内存可见的」), A1 行写反了。判决本身(LOAD_BEARING_L2)不受影响"
+  },
+  {
+   "component": "E3 / E5 / F1 / F2 四行的判决词",
+   "was": "LOAD_BEARING_L2",
+   "now": "本工况下更准确的词是 UNREACHABLE + 复活条件(承重性仅由注入臂支撑)",
+   "why": "这四行在自述工况(15 例面板)上的 L1/L2 都是 **0/16**, 全部承重证据来自人为注入臂。该 agent 自己的 M8 写着「NO_CONSUMER 必须区分真死与本工况未触发, 后者是 UNREACHABLE 并写明复活条件」, 而这四行确实都写了 unreachable_condition 却仍挂 LOAD_BEARING_L2 —— 两头都要。我复跑确认了注入臂**全部为真**(E3: 注入 subject_refs/contexts 后 contract_ok True→False; F1: 契约不过的 case 由 REJECTED→ADMITTED; F2: 两条 request 时静默取第一条 ADMITTED), 所以是**措辞降级不是结论推翻**, 但 M7 要求工况随判决同行, 0/16 的工况不该被 L2 这个词盖住"
+  },
+  {
+   "component": "zero_api 小节的绊线计数",
+   "was": "attempts_recorded 215 / ★honest_note 说「被触发 100 次」/ targets 说「100/100 指向 127.0.0.1:7897」+「另有 20 行是同一次尝试」; 交付摘要又写成「215/215」",
+   "now": "三处数字互不相符, 算不平(100 + 20 ≠ 215)",
+   "why": "同一小节内 215 / 100 / 20 三个数没有对账关系, 摘要里的「215/215 全部指向」与产物里的「100/100」直接矛盾。零 API 的**性质**结论我不推翻(全部指向本机代理、全部被拒、零字节出机器, 且来源单一为 tests/test_cce_audio_prosody.py), 但计数口径必须重述。我自己这一轮的所有进程(base 探针 + 15 臂 × (1 探针 + 4 闸))绊线全部 tripped==[]"
+  },
+  {
+   "component": "ref_counts 的 coarse 计数",
+   "was": "按声明口径(640 文件 / 6 目录 / 7 后缀 / 词边界)可复现",
+   "now": "strict 全可复现, coarse 有 4/10 对不上",
+   "why": "我按 _scan 声明的完全相同口径(6 目录 7 后缀, 我数到 642 文件)用词边界正则重算, 并排除该 agent 自己的两份 parser 产物: strict **10/10 逐个精确相符**(1/1/7/2/1/8/4/4/15/1); coarse 6/10 相符, 4 个偏低 —— request_id 16→9(差 44%)、subject_ref 26→24、evidence_refs 111→107、pre_state_snapshot_ref 30→27。coarse 本来就被 M4 声明为词碰撞统计, 不影响任何判决, 但「可复算」这一点对 coarse 不成立"
+  }
+ ],
+ "confirmed": [
+  "A1(删 MODEL_FORBIDDEN_KEYS:33 的 segment_id/individual_id)= LOAD_BEARING_L2, deletable=false —— 我在整仓副本上实跑: check_ontology_migration **P1_FAIL**, 原文 `stale_registry_entry ... scripts/cce_case_assemble.py segment_id`; tests/test_ontology_migration.py RED; 同时我的独立泄漏判官实证 list 内 segment_id 由 REJECTED 变 ADMITTED。config/ontology_legacy_exceptions_v1.json 确有两条按 path+token 精确登记在本件上的 DENYLIST_SENTINEL entry(我逐字读过)",
+  "A2(删 :31 的 mode_id/population_field_id/evidence_unit_id)= LOAD_BEARING_L2 —— 实跑复现 tests/test_ontology_migration.py RED, 断言原文逐字相符: 「反向4 失败: 黑名单缺 canonical v2 名 mode_id」; 且 check_ontology_migration **保持 GREEN**(它只管旧名), 与该 agent 所述一致",
+  "A4(删 :29 的 subject_card/subject_cards/population_id)—— 闸缺口成立: population_id 泄漏由 REJECTED 变 ADMITTED, 而 L4 净新增**只有行数闸**。我另行全仓实扫: `population_id` 在 tests/ 下**零命中**, 在 scripts/config 只有 cce_population.py:244/250/373 + 本件:29 + cce_subject_system_contract_v1.json:272 ⇒ 确无任何验收闸点名它",
+  "B1(删 _forbidden_model_keys 的 list 递归分支 :41-42)—— 本轮最值钱的闸缺口, 我独立复现: 数组元素内的 segment_id 由 REJECTED 变 ADMITTED, 而 tests/test_cce_contract.py **仍然绿**, L4 净新增只有行数闸。test_cce_contract.py:60-67 的反向探针确实只把身份键放进 dict(context_snapshots[0]), 全仓无任何断言把身份键放进 list 元素",
+  "C2(pre_state 退出 request 身份)造成**真实碰撞** —— 我用同一个 case 的两条不同 pre_state 构造 transition 请求: 基线 id_a=req:content:demo-001:e07e72d0d2 / id_b=...:38a2f8e062(不同), 消融后**两者同为 f7dfee05c7**(COLLISION=true), 而四道闸**一道不红**。闸缺口机制也核实: test_cce_contract.py:79 的 `transition_request['id'] != request['id']` 两侧用的是 content_id 不同的两个 case(adapter-test vs demo-001), 前缀就不同 ⇒ 结构上抓不到身份碰撞",
+  "E6(删 :77-78 的 elif pre_state_snapshot_ref: raise)是本件唯一无下游兜底的闸 —— 我实跑确认: 非 transition 模式携带 pre_state_snapshot_ref 时, 基线抛 ValueError, 消融后 **ADMITTED 且 contract_ok 仍为 true**, 调用方传的 ref 被 silently_dropped=true。机制我读码核实: scripts/cce_contract.py:226-228 是 `pre_ref = request.get(...)` 再 `elif pre_ref: _err(...)` —— 字段被丢掉后契约无从判",
+  "F7(删最终 fail-closed :119-121)= LOAD_BEARING_L2 —— 我用**独立来源**的泄漏判官(名单只取自 config/ontology_legacy_exceptions_v1.json 的 token_map + 四份 contract 里点名的键, 全程不读 MODEL_FORBIDDEN_KEYS, N2 独立性)实证 3/3 泄漏由 REJECTED 变 ADMITTED(subject_ref / population_id / 数组内 segment_id), tests/test_cce_contract.py RED, 断言原文「nested subject identity must not enter CCE model input」",
+  "E3(删 out.pop(subject_refs/contexts))= 保险丝而非死代码 —— 注入臂复现: 基线剥得干净(survived=false, contract ok), 消融后两键幸存且 **contract_ok True→False**, 错误文本与 cce_contract.py:207-209 的 case 层检查逐字对应",
+  "F1(删投影前 validate_case)与 F2(删「恰好一条 cce_request」)—— 两条注入臂我都复现: F1 使契约不过的 case(half-open 违规)由 REJECTED 变 ADMITTED 并产出 kind=cce.measurement_input.v1; F2 在两条 request 时由 REJECTED 变**静默取第一条**(picked=req:content:video-parse:adapter-test:2737b605ae)。两臂 L4 净新增都只有行数闸",
+  "本面死/活对照(M1-★)真实有效, 我独立重做过 —— 死对照 D2(模块 docstring 首行改写)与 D3(build_model_input 内部 docstring 改写)均**保行数**, 11 条 L1/L2 探针 0 差异、四道闸 0 红; 活对照 V1(kind 改成 vABLATED)L1 有差异且 tests/test_cce_contract.py RED。⇒ 判据不是重言, 且装置在 parser 面确实接上了。该 agent 如实报告了自己原选的 D1 不合格并换成 D2/D3, 这一点我核实为真",
+  "affects_collected_draws = 否 —— 我专门尝试推翻并失败。① scripts/cce_knot_classify.py 顶层 import 实扫: 只有 cce_structural_gate / exp_v4_full_validation / exp_v4_causal_chain / exp_crossmodel_desire, 无本件; ② 我从记忆库里找到一条**跨轮反证候选**(兄弟产物 parser_cce_event_assemble.json 声称 cce_full_run --mode media_ingest 会走到 cce_case_assemble.py:56), 逐条核实后**不成立**: scripts/cce_full_run.py:513 的 media_ingest 流水线是 [media_validate, foundation_adapt, event_assemble, qualified], **没有 case_assemble 这一段**, 兄弟产物那句是它自己探针里的调用, 不是 CLI 通路; ③ .github/ 全目录对 case_assemble / foundation_prepare / measurement_input **零命中**",
+  "main()/CLI = UNREACHABLE 且 deletable=false —— 零调用点我独立复算: 全仓(scripts probes accuracy tests .github config docs examples)对 `cce_foundation_prepare` 只有 2 处(tests/test_cce_contract.py:15 import fingerprint + config/cce_chain_conformance.json:60 声明); `cce.measurement_input.v1` 只有 4 处(1 定义 + 1 测试断言 + 1 契约 + 1 docs), **零读者**。chain_stages[4].implemented_in[0] 确为 cce_foundation_prepare.py, 删它会让链路符合性表对不上 —— 该 agent 拒绝由 UNREACHABLE 推 deletable 的理由站得住",
+  "文件完整性 —— 四个冻结件我自己重算 sha256, 与钉住值逐字相同(f2cef2f99c949a75… / 56a1c1977bf8d18c… / 9d9e122966b753f8… / b758e6676a94acf3…); scripts/cce_case_assemble.py 仍为 b6972a972ff703b2…; tests/data/ablation_verdicts_v3.json 仍为 f8055f784e8ed843…(R5 未动)。scripts/cce_core_boundary.py 的机制我读码核实: :39-50 只对 manifest['core_files'] 的 6 个文件现算 sha, 对 parser_plane 只在 :143-147 做一次互斥检查 ⇒ 「前半句(不影响本闸)为真」成立, 本件确实不在任何哈希钉里",
+  "M7 的 market 更正为真 —— 该 agent 指出 probes/ablation_harness_v3.py:283 自述「仓内无 market 字段(已实扫 scripts/ config/ accuracy/)」是假的。我独立实扫确认其逐项数字**精确命中**: scripts/cce_outbound_guard.py 22 行 · probes/operating_point_adjudication.py 20 · scripts/cce_strategy_gate.py 3 · config/outbound_guard_registry_v1.json 2 · config/platform_adapter_registry_v1.json 1 · scripts/cce_open_items.py 1 · accuracy/data/*.json 9; 且 market 在 cce_case_assemble / cce_event_assemble / cce_foundation_prepare 三件里**命中 0** ⇒ 对本件无条件作用, 该装置缺陷确实存在且尚未修"
+ ],
+ "enumeration_gaps": [
+  "我自己的 F6 臂(把 evidence_refs 从 baseline_state 白名单剔除)**写坏了** —— 我的替换文本造成 SyntaxError(closing parenthesis mismatch), 该臂作废。⇒ F6 的「L4 净新增 0 / 契约仍 ok」这条我**没有独立验证**, 只按 tests/test_cce_contract.py:81 只断言 dimensions 这一点做了读码推断。这是我的装置缺陷, 不是被核对象的",
+  "21 条判决行里我实跑复现了 14 条所涉的臂(A1 A2 A4 B1 C2 D1线数 D2 D3 V1 E3 E6 F1 F2 F7), 另有 7 条只做读码核实未实跑: E1/E2/E5 三道 fail-fast、E4(prediction_time, 已读 cce_contract.py:217-218 确认钉死)、F3(deepcopy 别名隔离)、F5(baseline 白名单)、G1/G2b/G3(main 三件, 已读 cce_contract.py:213 确认 measurement_adapter 只 _require 存在、无取值白名单)。A3/A5/B2/B3/C1/C3/C4/C5/F4 同样未实跑",
+  "该 agent 的「独立判官 39 个名 vs 模块 13 个, 严格超集」我**无法完整复核** —— 判官代码在它的 scratchpad 里, 未随产物落盘。我另建了一个同源思路但更窄的判官(11 名), 能证明 A1/A4/B1/F7 的泄漏结论, 但不能证实「39 名且严格超集」这句。按我自己的名单构造, 从四份 contract 文本里抓不到 population_field_id, 所以「严格超集」至少需要它另有出处",
+  "我没有跑全量 164 测试, 只跑了 4 道相关闸(test_cce_ablation_verdicts_v3 / test_cce_contract / test_ontology_migration / check_ontology_migration)+ 11 条自建 L1/L2 探针。因此该 agent 报的 L4「净新增」逐条数字我只在这 4 道上对账, 其余 160 个测试未复核",
+  "组合臂(COMBO_F5_plus_F7 / COMBO_G1_plus_G2b)我一条都没复跑; 该 agent 自己也承认只做了 2 组、未穷举两两组合"
+ ],
+ "harness_faults_found": [
+  "★★★ 交付即破闸: 产物 tests/data/ablation_v3/parser_cce_case_assemble.json 自身把 `segment_id` / `individual_id` 写成 JSON object key(:3323 / :3327, 在 ref_counts 里), 而 tests/data/ 面的 surface_scan_mode 是 json_keys_only ⇒ scripts/check_ontology_migration.py 现在在**活仓**上报 P1_FAIL, 连带 tests/test_ontology_migration.py 与 tests/test_cce_chain_conformance.py 红。判决性实验: 把这一个文件移出副本 ⇒ 三道闸全绿。修法已有先例: config/ontology_legacy_exceptions_v1.json:248 就为同族的 空白_structural_gate.json 登记过 UNRELATED_HOMONYM, 补两条 entry 即可",
+  "★ 兄弟产物 tests/data/ablation_v3/parser_cce_event_assemble.json 里有一句**误导性归因**: 它写「A02/A03/A06 ⇒ cce_full_run --mode media_ingest … scripts/cce_case_assemble.py:56 直接抛 ValueError」, 读起来像 media_ingest 生产链会走到本件。实扫 scripts/cce_full_run.py:513 的 media_ingest = [media_validate, foundation_adapt, event_assemble, qualified], **无 case_assemble 段**, 且 cce_full_run 只 import cce_foundation_adapter(:365)与 cce_event_assemble(:379)。这句该改成「该 agent 自己的探针里调 build_request 时抛」, 否则下一轮会有人据此认为本件在生产链上",
+  "probes/ablation_harness_v3.py:283 的 operating_point() 仍硬编码「market: N/A —— 仓内无 market 字段(已实扫 scripts/ config/ accuracy/)」, 而这三个目录里实测命中 market 的行就有 45+(cce_outbound_guard 22 / operating_point_adjudication 20 / cce_strategy_gate 3 / 两份 config registry 3)。被核 agent 已指出, 但**装置本身没改**, 下一个复用它的 agent 会继续把这句假话抄进自己的工况栏",
+  "tests/test_ontology_migration.py 的反向5 会往活仓写 scripts/_ontology_reverse_probe.py 再靠 finally 清理(它自己 :86-95 的注释里记录过 SIGKILL 导致地雷留仓、P1 闸对所有人恒红的事故)。任何在活仓上跑这个测试的复核 agent 都有同样风险 —— 我全程只在 scratchpad 副本上跑它, 活仓只跑只读的 check_ontology_migration.py, 并已确认活仓无残骸"
+ ],
+ "parser_plane_claim_recheck": "结论(note_holds=false)**维持**, 但证据要换掉一条。【前半「不影响本闸」为真 —— 我复核成立】scripts/cce_core_boundary.py:39-50 只对 manifest['core_files'] 六件现算 sha256, 对 parser_plane 只在 :143-147 做 Core/Parser 互斥检查; 我确认 config/cce_core_manifest.json:16-22 的 core_files 六件不含本件, 本件在 :24-29 的 parser_plane 里。改本件该闸不红, 我没找到反例。【后半「可自由增删改」为假 —— 维持, 但只靠反例②③④】我实跑复现: ② 删 :33 两个 legacy sentinel ⇒ check_ontology_migration 报 stale_registry_entry(config/ontology_legacy_exceptions_v1.json 有两条按 path+token **精确钉在本件上**的 entry)⇒ P1_FAIL + test_ontology_migration 红; ③ 删 :31 canonical v2 三名 ⇒ test_ontology_migration:81-85 反向4 红(断言原文「黑名单缺 canonical v2 名 mode_id」); ④ 删 :119-121 最终 fail-closed 或 :41-42 的 list 递归 ⇒ 身份键**真的进入** cce.measurement_input.v1(独立来源判官实证), 而 config/cce_foundation_contract_v2.json:10/61 与 config/cce_subject_window_contract_v1.json:49 把这条写成硬闸、这 5 行是它唯一的执行体。这三条都**指名道姓落在本件上**, 与分层无关的全仓约束不是一回事, 所以「这一层可以随便动」确实不成立。【反例① 必须删】见 overturned[0]: 行数闸是全仓 194 个生产文件的行数冻结, 对 core 与对 parser 一字不差, 拿它当 parser_plane 的反例是把全仓属性记在本件头上 —— 我用四臂对照(parser / core / 中立 / 装置自身)证明四者报同一条 RED。【affects_collected_draws=否 维持】我专门用记忆库里的跨轮反证候选去推翻, 核实后不成立(见 confirmed 第 11 条)。⇒ 建议的改写方向与该 agent 给的一致: 本层不进 core_files 哈希钉, 但它承载 P1 本体闸的 denylist sentinel 与 CCE 匿名投影硬闸的执行体, 改动前必须过 test_cce_contract / test_ontology_migration / check_ontology_migration 三道。★ 另加一句我这轮实证的: parser_plane 的 NO_CONSUMER / UNREACHABLE **更不能**推 deletable —— 本件整条生产路径(cce_foundation_prepare CLI)全仓零调用点, 它守的是「身份不得进 CCE 模型输入」, 而当前没有任何 CCE adapter 在消费这个投影, 这是 M8 说的典型「平时永远不动的保险丝」, 不是死代码。",
+ "notes": "默认立场是「它是错的」, 尽力推翻后的实情: **判决本身基本立得住, 出事的是交付物和一条反例的归因。**\n\n我实际跑了什么: ① 在 /Volumes/data/cce-engine **活仓只做只读操作**(sha256 重算、grep、读码、跑只读的 check_ontology_migration.py, 以及一次不落盘的 monkeypatch nlines 四臂对照); ② 整仓 rsync 副本到 /private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/recheck_72497/repo, 排除 .git 与 __pycache__, 全程 python3 -B + PYTHONDONTWRITEBYTECODE=1 且每臂前后清 __pycache__(M3-④); ③ 先验副本基线(M3-⑤)—— **基线一上来就是红的**, 追下去发现是被核 agent 自己的产物, 这就是 overturned[1] 与 harness_faults_found[0]; 移出该产物后基线四道闸全绿, 才开始做臂; ④ 15 臂(NULL + 14 个消融)× (11 条自建 L1/L2 探针 + 4 道闸), 每臂用行号锚定并事前打印被删/被换的原文核对, 每臂跑完把被测文件写回原文, 最后断言与 PRISTINE 逐字节相同; ⑤ R1: 自写 tripwire_run.py 在每个进程里换掉 socket.connect / connect_ex / create_connection 三个入口, 每次运行末尾打印 __TRIPWIRE__ —— **本轮全部 tripped==[]**, 一次网络请求都没发, 从未 export 真 key(只设 ZERO_API_BOUNDARY_SENTINEL)。\n\n专盯清单逐条结果:\n1 重言 —— 没有。它的 L1/L2 判据不碰 instrument_hash / gate_protocol_hash, 我的 D2/D3 死对照(保行数的 docstring 改写)在 11 条探针与 4 道闸上全部 0 差异, 活对照 V1 有差异 ⇒ 判据非重言, 装置在 parser 面接上了。\n2 伪阳性 —— 没有。我自己重做了本面死对照(两条纯散文改写), 没出差异。\n3 扫描面盲区 —— 三条 NO_CONSUMER 我自己在 scripts/ probes/ accuracy/ tests/ .github/ config/ 全面 grep 过; docstring 的唯一去处确为 :126 argparse description=__doc__。\n4 缺注入臂 / 注入跑在看不见消费者的面上 —— 无差异族都跑了注入, 且注入臂我逐条复现为真(E3/F1/F2/E6)。\n5 faces_blind —— 标得很完整, 而且我查了它**有没有列了 blind 又拿那一面支撑无差异**: 没有, 生产判决面与 CLI 面它一律只标 blind 不引用。\n6 M8 保险丝被判成装饰 —— 没有中招, 反而是过度小心(E3/E5/F1/F2 该叫 UNREACHABLE 却叫了 LOAD_BEARING_L2, 见 downgraded)。\n7 N2 同义反复 —— 没有。E4 的判官在 cce_contract.py(另一个文件), 泄漏判官的名单取自 config 而非模块常量; 我另起炉灶做了一个独立判官验证同一结论。\n8 M3-④/⑤ —— 它自称清了 pyc、副本基线绿, 我按提示「先怀疑这两条」检查过它报的每一条「漏」: A4(population_id 无闸)、B1(list 递归无闸)、C2(request_id 无闸)、E6(无下游兜底)四条**全部在我自己的干净副本上复现**, 不是 pyc 或假红。\n9 deletable 未由 verdict 推导(36 行全 false, 但每行理由独立且我抽查的都站得住); 四个冻结件 sha256 我自己重算, 全部相同。\n10 parser_plane_claim 单独复核 —— 见 parser_plane_claim_recheck 字段。\n\n最该先修的一件(不归我做, R5 归收口 agent): 给 config/ontology_legacy_exceptions_v1.json 补两条 entry(path=tests/data/ablation_v3/parser_cce_case_assemble.json, token=segment_id / individual_id, class=UNRELATED_HOMONYM, 理由照 :248 的先例写「消融产物 ref_counts 里记的是符号引用计数, 不是本体使用」), 否则仓里 P1 闸恒红且红的原因看不出来是消融产物。\n\n我的临时脚本全在 /private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/recheck_72497/ (tripwire_run.py · probe.py · drive.py · arms.json · base.json · repo/ · quarantine/)。活仓一字未改, 未碰 tests/data/ablation_verdicts_v3.json, 未读 /Volumes/data/cce-identified-vault。",
+ "★这份产物的来源": "2026-09-12 由主线从工作流 journal (wf_f6a2c9a2-3ab) 取出补落盘 —— 该复核 agent 当时**只把结论返回给收口 agent, 没有写产物文件**, 于是证据链在磁盘上缺了一环(v3 里的引用没断, 因为结论已被折进判决行)。★ 内容逐字未改, 只加本说明键。"
+}

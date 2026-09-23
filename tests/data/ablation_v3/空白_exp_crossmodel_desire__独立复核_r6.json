@@ -1,0 +1,387 @@
+{
+ "block": "ABLATION_V3_INDEPENDENT_RECHECK_r6",
+ "unit": "空白_exp_crossmodel_desire",
+ "role": "独立复核者(默认立场: 待核判决是错的)",
+ "recheck_of": "tests/data/ablation_v3/空白_exp_crossmodel_desire.json",
+ "constraints_honored": {
+  "R1_zero_api": "两个探针进程各自装 socket.socket.connect 绊线; 全程 tripped==[]。未 export 任何真 key, 五个 *_API_KEY 均设哨兵值后才 import。",
+  "R2_repo_untouched": "全部变异为**运行时模块属性**改写(KC._S1_BASE_TEMPS[i] / XM.MODELS[...]), 用后立即还原; 未做任何磁盘写。跑前跑后逐一取 sha256 相同。",
+  "R3_no_identified_vault": "未读 /Volumes/data/cce-identified-vault。",
+  "R4_scratch": "/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/recheck_xm_184/",
+  "R5_verdicts_file": "tests/data/ablation_verdicts_v3.json 只读, sha256 进出相同 85aee4a840eca7b8…"
+ },
+ "file_integrity": {
+  "before": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "scripts/exp_crossmodel_desire.py": "0e0e9d64b48fbade281f907c3a13daef85c43ce537de86afb12bee88e04f76cc",
+   "scripts/cce_k1_status.py": "5f0df2624754c865c49eee39b5e4e81b9883da4bfc93a81d3d82d51f58e6f117",
+   "scripts/cce_ksep.py": "ffd5d26a7e0cb29b6fd13a83a9c27955316a9e4f653709b99abddfc9f59063f4"
+  },
+  "after": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "scripts/exp_crossmodel_desire.py": "0e0e9d64b48fbade281f907c3a13daef85c43ce537de86afb12bee88e04f76cc",
+   "scripts/cce_k1_status.py": "5f0df2624754c865c49eee39b5e4e81b9883da4bfc93a81d3d82d51f58e6f117",
+   "scripts/cce_ksep.py": "ffd5d26a7e0cb29b6fd13a83a9c27955316a9e4f653709b99abddfc9f59063f4"
+  },
+  "identical": true,
+  "note": "另含 cce_k1_status.py / cce_ksep.py 两个本轮触碰到的文件, 同样进出一致。"
+ },
+ "tripwire": {
+  "probe1": [],
+  "probe2": []
+ },
+ "★核心发现": {
+  "title": "CE-3 那一面的判官**没有过 M1 验收** —— 它对死常量与承重常量给出**逐字相同**的判决",
+  "claim": "待核产物把 m3_model / m3_base 判成 LOAD_BEARING_L2, 全部 L2 证据是同一条级联: instrument_hash 变 ⇒ same_physical_instrument False ⇒ verdict_path_for None ⇒ layer_status.top1 不可用 ⇒ 出口闸扣发。我把**待核产物自己的死常量对照臂**(_S1_BASE_TEMPS[5:7], k∈{3,5} 下永不取用)放到**同一面**上跑, 它把这条级联**全部翻转**, 与 m3_model 臂无法区分。",
+  "root_cause": "_INSTRUMENT_FIELDS 含 sampling_policy, 而 sampling_policy.s1_temps = **整张 7 档温度表**(cce_knot_classify.py:626), 死档在表内。SCOPE_WIDENINGS 的 to_instrument 是硬编码的 'd4cce4c745f3f991'(cce_knot_classify.py:521) ⇒ 只要 instrument_hash 变成任何别的值, 继承通道必然查不到 ⇒ verdict_path_for 必然 None。⇒ F2/F3 是 instrument_hash 的**纯函数**, 即 M2 明令零证据力的 L3 往下游走一跳。",
+  "harness_corroboration": "probes/ablation_harness_v3.py:438 `l3_instrument_hash` 的 docstring 自己写着「★ 只为**证明 L3 是重言**而提供, **绝不作为判据**」; 而它的 observe_all 只有 {stage1, reach, stage2} 三面。⇒ 待核产物新建的 F1/F2/F3 三面**从未**被死常量臂验收过, 正是 M1 要求先验收判官的那一步被跳过。",
+  "measured_table": {
+   "columns": [
+    "arm",
+    "instrument_hash",
+    "same_physical_instrument_vs_PROD",
+    "calibration_transfers(合成标定)",
+    "calibration_changed",
+    "verdict_path_for",
+    "layer_status.top1.usable",
+    "L1 temps_used@k=3",
+    "L1 temps_used@k=5"
+   ],
+   "rows": [
+    [
+     "BASELINE",
+     "d4cce4c745f3f991",
+     true,
+     true,
+     [],
+     "k1_reliability_verdict.json",
+     true,
+     [
+      0.0,
+      0.3,
+      0.6
+     ],
+     [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15
+     ]
+    ],
+    [
+     "dead_temp_5_absurd",
+     "1dd1d66c8e9754f2",
+     false,
+     true,
+     [],
+     null,
+     false,
+     [
+      0.0,
+      0.3,
+      0.6
+     ],
+     [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15
+     ]
+    ],
+    [
+     "dead_temp_6_absurd",
+     "fc4b1ab6ea3e7b95",
+     false,
+     true,
+     [],
+     null,
+     false,
+     [
+      0.0,
+      0.3,
+      0.6
+     ],
+     [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15
+     ]
+    ],
+    [
+     "dead_temp_swap_5_6",
+     "9837e0a3f37a066e",
+     false,
+     true,
+     [],
+     null,
+     false,
+     [
+      0.0,
+      0.3,
+      0.6
+     ],
+     [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15
+     ]
+    ],
+    [
+     "m3_model_absurd",
+     "8ed986350835f720",
+     false,
+     false,
+     [
+      "model"
+     ],
+     null,
+     false,
+     [
+      0.0,
+      0.3,
+      0.6
+     ],
+     [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15
+     ]
+    ],
+    [
+     "m3_base_absurd",
+     "0b0d088915493130",
+     false,
+     false,
+     [
+      "endpoint"
+     ],
+     null,
+     false,
+     [
+      0.0,
+      0.3,
+      0.6
+     ],
+     [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15
+     ]
+    ],
+    [
+     "ctl_m3_max_tokens_10",
+     "d4cce4c745f3f991",
+     true,
+     true,
+     [],
+     "k1_reliability_verdict.json",
+     true,
+     [
+      0.0,
+      0.3,
+      0.6
+     ],
+     [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15
+     ]
+    ],
+    [
+     "ctl_m3_key_env",
+     "d4cce4c745f3f991",
+     true,
+     true,
+     [],
+     "k1_reliability_verdict.json",
+     true,
+     [
+      0.0,
+      0.3,
+      0.6
+     ],
+     [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15
+     ]
+    ],
+    [
+     "ctl_xm_DESIRES_absurd",
+     "d4cce4c745f3f991",
+     true,
+     true,
+     [],
+     "k1_reliability_verdict.json",
+     true,
+     [
+      0.0,
+      0.3,
+      0.6
+     ],
+     [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15
+     ]
+    ],
+    [
+     "ctl_noop",
+     "d4cce4c745f3f991",
+     true,
+     true,
+     [],
+     "k1_reliability_verdict.json",
+     true,
+     [
+      0.0,
+      0.3,
+      0.6
+     ],
+     [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15
+     ]
+    ]
+   ]
+  },
+  "★唯一幸存的判别信号": "calibration_transfers 的 **changed 字段**(不是它的 transfers 布尔): m3_model 给 ['model'] · m3_base 给 ['endpoint'] · 死常量给 []。理由是它比的是 depends_on **具名字段**, 不是哈希; 而 PAIR1 的 depends_on 里**没有** sampling_policy.s1_temps。",
+  "★另一处失真": "待核产物写「calibration_transfers True→False」。仓内**唯一真实的生产标定** cce_ksep.PAIR1_NULL_CALIBRATION_STATISTIC 在**基线上就已经是 False**(changed=['s1_prompt_sha256'], 它测于 gen1 d73764202b732e98)。⇒ 那个 True→False 只能来自一份 snapshot==当前 spec 的**合成标定**(本复核也构造了一份, 结果一致), 产物没有披露这一点。用 PAIR1 跑, 三个臂的 transfers 全是 False, 布尔面**完全不动**。",
+  "阴性对照(证明这一面不是「什么都会翻」)": "ctl_m3_max_tokens_10 / ctl_m3_key_env / ctl_xm_DESIRES_absurd / ctl_noop 四臂在 F1/F2 上**一个字不变** ⇒ 该面不是恒真, 它精确地是「凡进 _INSTRUMENT_FIELDS 的都翻, 含死的」。"
+ },
+ "★L4 同样不判别": {
+  "measured": {
+   "baseline": {
+    "ok": true,
+    "errors": []
+   },
+   "dead_temp_5_absurd": {
+    "ok": false,
+    "errors": [
+     "现算 instrument_hash = 1dd1d66c8e9754f2 != 清单钉的 d4cce4c745f3f991 —— 仪器变了(可能是 env 换了模型/端点), 必须换代"
+    ]
+   },
+   "dead_temp_swap_5_6": {
+    "ok": false,
+    "errors": [
+     "现算 instrument_hash = 9837e0a3f37a066e != 清单钉的 d4cce4c745f3f991 —— 仪器变了(可能是 env 换了模型/端点), 必须换代"
+    ]
+   },
+   "m3_model_absurd": {
+    "ok": false,
+    "errors": [
+     "现算 instrument_hash = 8ed986350835f720 != 清单钉的 d4cce4c745f3f991 —— 仪器变了(可能是 env 换了模型/端点), 必须换代"
+    ]
+   },
+   "ctl_m3_max_tokens_10": {
+    "ok": true,
+    "errors": []
+   },
+   "ctl_noop_after_restore": {
+    "ok": true,
+    "errors": []
+   }
+  },
+  "reading": "待核产物给 m3_model/m3_base 记的「净新增 4 条红」里, 至少 3 条是**现算/写死 instrument_hash 的断言**: tests/test_cce_core_boundary.py:34 · tests/test_cce_draw_ledger.py:86,102 · tests/test_cce_playbook_atoms_a1a2.py:104-107(全部经 instrument_id(TAXO,k=3,knot_n=5,s1_pairing='round_robin_over_3_s1_draws') 比 d4cce4c745f3f991)。实测: 死常量 swap 臂让 cce_core_boundary.check() 报出**同一句**错误(只是哈希值不同) ⇒ 这 4 条红对「改的是活常量还是死常量」**零分辨力**。",
+  "同时更正": "产物写的『实测那 4 条红来自现算仪器哈希断言, 不是 sha 钉』这句**是对的**, 但它被当成了加强证据; 实际它恰恰说明这些红是重言的下游。"
+ },
+ "逐条复核": "见 verdicts_recheck",
+ "verdicts_recheck": [
+  {
+   "component": "MODELS['M3']['model']",
+   "status": "DOWNGRADED",
+   "was": "LOAD_BEARING_L2(证据: F1 same_physical + F2 verdict_path_for + F3 withheld 三面级联)",
+   "now": "LOAD_BEARING_L2(证据缩到两项: ① calibration_transfers.changed=['model'] ② F9 线上 payload.model)。F1.same_physical / F2 / F3 三面**实测为 instrument_hash 的重言**, 死常量同样全翻 ⇒ 按 M2 记零证据力, 须在产物里标 TAUTOLOGY 而不是当作三面独立佐证。",
+   "verdict_word_unchanged": true
+  },
+  {
+   "component": "MODELS['M3']['base']",
+   "status": "DOWNGRADED",
+   "was": "同上",
+   "now": "同上, 判别信号是 calibration_transfers.changed=['endpoint']。"
+  },
+  {
+   "component": "js_divergence(p,q)",
+   "status": "CONFIRMED",
+   "why": "实查链路成立且**不经 instrument_hash**: exp_crossmodel_desire:350 是全仓唯一定义 → exp_v4_full_validation:35-38 再导出 → cce_knot_classify:50 → :247 算 within_js → cce_full_run.py:219-222 `over = {l: v for l,v in js.items() if v > WITHIN_JS_MAX[l]}` 逐 top 扣发(WITHIN_JS_MAX={desire .120, need .161, emotion .157, action .125}, _LAYER_OF_TOP 四条)。js_divergence **不在** _INSTRUMENT_FIELDS ⇒ 它的出口闸双向翻转是本簇**唯一**非重言的 L2。L4 那一条红也核实: tests/test_cce_js_metric_definition.py 里只有 test_the_two_implementations_agree_bit_for_bit 调生产实现, 另两条只调 run_gates.js_div。"
+  },
+  {
+   "component": "call_model() 整体",
+   "status": "CONFIRMED",
+   "why": "cce_knot_classify.py:53 直接 import 且 KC.call_model is XM.call_model=True; 另有 cce_full_run:133 · distill_subjects:102 · simulate_subjects:17 · probes 4 个 · accuracy 多个。tests/test_cce_module_boundary.py 实读: 循环 `if f.name.startswith('exp_'): continue` 跳过 exp_*, 且只 `assert (SCRIPTS/f'{m}.py').exists()` 不查符号 ⇒ 产物说的「删掉 call_model 本体它不会红」成立。"
+  },
+  {
+   "component": "第 22 行再导出 extract_json_robust",
+   "status": "CONFIRMED_WITH_CORRECTIONS",
+   "corrections": [
+    "产物拿 `KC.extract_json_robust is XM.extract_json_robust == True` 当证据 —— 这条**不具证据力**: 实测 KC / XM / calibration_framework 三者是**同一个函数对象**(三向 is 全 True), 无论走哪条导入路径都会相同。真正成立的理由是**导入链**: exp_v4_full_validation.py:35-38 `from exp_crossmodel_desire import (..., extract_json_robust, ...)` ⇒ 删掉第 22 行是 ImportError, 整链死。",
+    "产物写『scripts/calibration_framework.py 本身不在 config/cce_core_manifest.json:core_files 里』—— **这句是假的**。实读 core_files 六项含 'scripts/calibration_framework.py': '9a8651c6d407ef50'。"
+   ]
+  },
+  {
+   "component": "MODELS['M3']['max_tokens']=12000 判 UNREACHABLE",
+   "status": "CONFIRMED",
+   "why": "实测 import cce_knot_classify 之后 XM.MODELS['M3']['max_tokens']==8000(源码字面量 12000)。覆写点核实: exp_v4_full_validation.py:61-62 与 exp_v4_causal_chain.py:57-58 各一句 `for _mk in MODELS: MODELS[_mk]['max_tokens'] = 8000`, MODELS 以引用导出。复活条件(只 import exp_crossmodel_desire 的 probes/phase2_*)成立。"
+  },
+  {
+   "component": "MODELS['KimiK3']['unavailable'] 判 UNREACHABLE(G 侧保险丝)",
+   "status": "CONFIRMED",
+   "why": "tests/test_cce_stimulus_blinding.py:36-38 的析取第二项实测恒真: probes/phase2_generate_stimuli.py:43 GENERATORS={'G1':'Qwen3.8','G2':'GLM5.2'} · :52 VERIFIER_OF={'G1':'GLM5.2','G2':'Qwen3.8'}, KimiK3 不在其中。M8 的睡眠保险丝, 判 UNREACHABLE + 复活条件正确, 不是装饰。"
+  },
+  {
+   "component": "非 M3 的 8 个 MODELS 条目 判 UNREACHABLE",
+   "status": "CONFIRMED_WITH_GAP",
+   "why": "MEASUREMENT_MODEL 默认 'M3'(cce_knot_classify.py:63), instrument_id 只读 MODELS['M3'] ⇒ 生产面不动。产物自陈 5 条未逐条做臂, 属已披露漏项。另: test_cce_stimulus_blinding 只断言**不同名**, 换成 ABSURD-999 仍不同名 ⇒ 闸确实看不见, 核实无误。"
+  },
+  {
+   "component": "文件头注释块 + 模块 docstring 判 NO_CONSUMER",
+   "status": "CONFIRMED",
+   "why": "全仓扫 scripts/ probes/ accuracy/ tests/ .github/ config/: '名字骗人' 只命中 exp_crossmodel_desire.py:2 / exp_v4_causal_chain.py:2 / exp_v4_full_validation.py:2 三个文件自身; 无任何测试读本文件源码文本(仅 4 个测试文件提到本模块, 全是 import 面)。tests/test_cce_module_boundary.py 的 glob 明确跳过 exp_*。"
+  },
+  {
+   "component": "deletable=True 的五组(normalize_dist / top_k / TAXONOMY+build_prompt / analyze+write_report / run_full+run_smoke)",
+   "status": "CAVEAT",
+   "why": "技术上无外部 import(核实: exp_v4_* 的顶层只取 call_model, build_cases, MODELS, extract_json_robust, js_divergence, cosine 六个; KC.build_prompt is V4.build_prompt 而**不是** XM.build_prompt, 实测 is 判别为 False/True 两向都核过)。但删任一处都改整文件 sha ⇒ cce_core_boundary 报「静默换仪器」, 必须同时走 refactor_log + 改 pin。产物在 L4 行披露了这点却仍写 deletable=True 而未在 deletable_reason 里带上这道手续 —— 建议在合并时补一句程序前提, 不构成推翻。"
+  },
+  {
+   "component": "穷举完整性",
+   "status": "MINOR_GAP",
+   "why": "AST 逐条对账 24 个模块级节点: 未被任何判决覆盖的是 ① 第 18 行 `import os,sys,json,time,math,re` ② 第 25 行 `RESULTS`(与 ROOT/CAL 同族但未单列)。第 21 行 sys.path.insert 产物已自陈为漏项⑦。另: 多条函数 locus 行号有 2–14 行偏移(js_divergence 实为 :350 而产物写 349-359; normalize_dist 实为 :323 而产物写 331-352, 后者的区间甚至盖住了 js_divergence 的定义行; build_cases 实为 :187 产物写 166; analyze :432 产物写 430; write_report :554; call_model :116 产物写 114)。MODELS 子键的行号(:37/:38/:39/:40/:41)全部正确。"
+  },
+  {
+   "component": "工况 market 陈述",
+   "status": "CONFIRMED",
+   "why": "实扫 scripts/ probes/ accuracy/ config/ 得 61 处命中, CCE_MARKET 见 scripts/cce_strategy_gate.py:140 默认 'intl'。产物已按 M7 更正, 无误。"
+  }
+ ],
+ "enumeration_gaps_found_in_recheck": [
+  "本轮**未**独立复现: F3 出口闸 withheld 的具体计数(2→5 / 2→1)与 F8 真实 _stage2_draw 的 22 份重放 —— 只核实了它们的代码路径与常量(WITHIN_JS_MAX / _LAYER_OF_TOP), 未跑语料重放。标 blind::出口闸计数未独立复现。",
+  "本轮未跑 pytest ⇒ 未独立复现「净新增 4 条红 / 1 条红 / 0 条红」的完整集合; 只对其中 3 条红逐条查明是 instrument_hash 断言, 并实跑 cce_core_boundary.check() 证明死常量同样转红。",
+  "未复核 tests/data/ablation_verdicts_v3.json 的既有 160 条判决去重(与待核产物同一限制)。"
+ ]
+}

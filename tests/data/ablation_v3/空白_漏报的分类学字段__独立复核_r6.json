@@ -1,0 +1,144 @@
+{
+ "block": "ABLATION_V3_空白_漏报的分类学字段__独立复核_r6",
+ "unit": "空白_漏报的分类学字段",
+ "reviewer": "独立复核 r6(默认立场: 被核判决是错的)",
+ "generated_at": "2026-09-11T21:28:30",
+ "被核对象": "tests/data/ablation_v3/空白_漏报的分类学字段.json (generated_at 2026-09-11T21:09:22, 20 条判决)",
+ "★我的装置与被核者不共用注入路径": {
+  "差别": "我 patch `builtins.open`, 让**任何**模块在 import 期读 config/knot_taxonomy.json 时拿到内存变异副本。",
+  "为什么": "run_gates.py:20 · cce_align_v2.py:20 · consistency_check.py:22 · cce_full_run.py:238 都在**自己再读一份 TAXO**。只把变异字典传给 cce_knot_classify 的注入**结构上到不了它们** —— 这正是上一轮 hard_discriminant 被误判 NO_CONSUMER 的根因。",
+  "灵敏度自证": "cost_tier::mutate ⇒ run_gates.COST_TIER 九项全变(装置确实到达 G 侧); family::mutate ⇒ cce_align_v2.FAMILY 变(确实到达 C 侧)。",
+  "临时脚本": "/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/recheck_2683/{rig,e1..e8}.py"
+ },
+ "R1_零API": {
+  "进程级绊线 tripped": [],
+  "断言": "TRIPPED==[] 通过",
+  "未 export 真 key": "MINIMAX_API_KEY=OFFLINE-FAKE-KEY-NOT-A-SECRET"
+ },
+ "R2_文件完整性": {
+  "unchanged": true,
+  "sha_before": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "sha_after": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "说明": "跑前跑后逐一断言相同; 变异只在内存。四个冻结件与任务书钉死的前缀逐字相同。"
+ },
+ "R5": "未改 tests/data/ablation_verdicts_v3.json。本文件是我自己的产物。",
+ "M1_判官验收(在我自己的装置上重做)": {
+  "确定性": "同输入两次完整观测逐字节相同 = True",
+  "空操作臂(温度行加 # noop)": "7 个面全同, changed=[]",
+  "死常量臂 _S1_BASE_TEMPS[5:7] → 999.0/-999.0": {
+   "changed": [
+    "instrument_hash"
+   ],
+   "不变": [
+    "L1(stage1+reach+22份stage2重放)",
+    "L2",
+    "caveats_n=3",
+    "calibration_transfers=True",
+    "k=3/k=5 的 temps_used"
+   ],
+   "k=7 复活": "temps_used = [0.0,0.3,0.6,0.9,0.15,999.0,-999.0](基线 [...,0.45,0.75])",
+   "判定": "UNREACHABLE 复现; 且**只**点亮 instrument_hash ⇒ M2「L3 是重言」独立复现"
+  },
+  "液性臂 _S1_BASE_TEMPS[0] 0.0→0.99": {
+   "changed": [
+    "L1",
+    "L2",
+    "instrument_hash",
+    "temps_k3",
+    "temps_k5"
+   ],
+   "判定": "L1 确实改变 ⇒ 装置接上"
+  },
+  "stage2 面液性臂(改内存副本里真被消费的 knot 键)": {
+   "阳性 knots[].family 推动/阻挡对调": "22 份重放的 L1 数值 sha 130c4889f1a5eeab → 6a6e52d288de27c1(经 cce_knot_classify.py:921 fam_of → derived_layers)",
+   "阴性 knots[].evidence_level 九结注入 999.0": "S2 L1/交付载荷/C 面/cce_full_run/consistency_check **全部不动**",
+   "判定": "该面既能亮也能不亮, 非重言"
+  },
+  "CE3 面②(扣发路径)独立验证": "verdict_path_for('d4cce4c745f3f991') / layer_status() / knot_readout_usable('top1') 在我跑的**每一个**分类学臂上逐字相同 ⇒ 被核者标的 observed-but-uninformative **成立**, 不是托词"
+ },
+ "★我复现到的生产工况": {
+  "instrument_hash": "d4cce4c745f3f991(与任务书钉死的生产仪器逐字相同)",
+  "s2_prompt_sha256": "b8d0f60d66d10f12",
+  "ontology_version": "1.3.1",
+  "gate_protocol_hash": "dbdff13f9da155bc",
+  "GATE_PROTOCOL_VERSION": 2,
+  "语料": "archive/*/*.json 里 draw_ledger 非空的 22 份, corpus_sha 8226cd11ee4593a0…",
+  "基线 caveats": 3
+ },
+ "逐条结论": {
+  "CONFIRMED(15)": [
+   "taxo['status'] @P = LOAD_BEARING_L2 —— caveats 3→2 三臂全翻; delete ⇒ :1135 KeyError('status'); absurd ⇒ TypeError; 22 份重放 L1 数值逐值不变。逐项复现。",
+   "taxo['status'] @G = NO_CONSUMER —— run_gates 6 处 'status' 逐行核过全是 base_resp.status_code / 字面量 / QUAL_REPORT.status; 注入 999.0 与整键删除两臂 gate_protocol_hash 恒 dbdff13f9da155bc、四块材料 sha 全同、import 正常。★我另补一面: status 在 consistency_check.DESCRIPTIVE 里 ⇒ 删掉它一致性闸仍 PASS(exit 0) ⇒ **真死**成立。",
+   "taxo['version'] @P = LOAD_BEARING_L2 —— cce_full_run s2 抛 RuntimeError('taxonomy版本漂移: 9.9.9-SENTINEL != 1.3.1') 逐字复现; s2_prompt_sha256 b8d0f60d66d10f12→ab3f81e57d5fce90; instrument_hash 变; delete ⇒ 三处 KeyError。",
+   "levers_not_knots @P = LOAD_BEARING_L2 —— delete ⇒ KeyError; 注入非 dict ⇒ AttributeError(\"'str' object has no attribute 'keys'\"); mutate ⇒ s2 prompt sha 变。三臂三种可分辨后果。",
+   "levers_not_knots @G = NO_CONSUMER —— 全面 grep: accuracy/ 零命中; 三臂 G 面逐字节不变。",
+   "knots[].cost_tier @P = NO_CONSUMER —— mutate/absurd 两臂 P 面(s2 prompt · 22 份重放 L1 · 交付载荷 · caveats · instrument)与 C 面、cce_full_run **逐字节不变**; grep 证实 cce_knot_classify / cce_align_v2 全文零出现 ⇒ 真死。",
+   "knots[].playbook @P = LOAD_BEARING_L2 —— mutate ⇒ 交付载荷 sha 0162ca6a5805e4cf→f450c668a5f056d8 而 L1 数值不变; delete ⇒ _stage2_aggregate KeyError('playbook'); absurd ⇒ cce_full_run TypeError('float' object is not subscriptable)。★ manifest 的不变性声明同时复现: mutate 臂 instrument_hash 与 s2_prompt_sha256 一字未变。",
+   "knots[].playbook @G = NO_CONSUMER(+accuracy/ 平面 UNREACHABLE 注记) —— delete 臂 run_gates import 正常、G 面不变; 且 t2_ablation/t2_rewrite **实测 import 即抛** FileNotFoundError(accuracy/data/hearingaids_others_20260809.json) ⇒ 该注记成立。",
+   "knots[].playbook @C = LOAD_BEARING_L2 —— ★★ 我独立算出的 PLAYBOOK 表 sha 与被核者**逐位相同**: 基线 c7bc4b12540317eb · delete d221725cdf33c463 · absurd 92d567048a2814e8; delete 不抛异常、只让 DISSOLVE prompt 的 playbook 槽变空 ⇒ 「静默失效」复现。",
+   "knots[].key @P = LOAD_BEARING_L2 —— mutate ⇒ _stage2_aggregate StopIteration(存量 draw 的旧键在新 taxo 里找不到)。",
+   "knots[].key @G = LOAD_BEARING_L2 —— delete ⇒ run_gates import KeyError('key')。",
+   "knots[].key @C = LOAD_BEARING_L2 —— delete ⇒ cce_align_v2 import KeyError('key'); mutate ⇒ FAMILY/PLAYBOOK/DISCR 三表 sha 全变。",
+   "knots[].name @P = LOAD_BEARING_L2 —— 交付载荷 sha 变、L1 数值不变; delete ⇒ KeyError('name')。",
+   "knots[].name @G = LOAD_BEARING_L2 —— gate_protocol_hash dbdff13f9da155bc → 34f31187b86e69fc(我的哨兵串; 被核者用自己的串得 f0b89146d6397903, 方向与量级一致); delete ⇒ import KeyError('name')。★ 该哈希在本簇里**双向可分辨**(name 翻它, status/version/levers/playbook/family/cost_tier 六点不翻)⇒ 不是重言, 此点复现。",
+   "knots[].name @C = NO_CONSUMER —— mutate 与 delete 两臂 C 面(FAMILY/PLAYBOOK/DISCR/DISSOLVE 实例/score) **逐字节不变**, 而同一装置抓得到 key/family/playbook 的变化 ⇒ 装置在 C 侧通电。",
+   "knots[].family @P = LOAD_BEARING_L2 —— 22 份重放 L1 数值 sha 翻动; delete ⇒ derived_layers KeyError('family')。",
+   "knots[].family @G = NO_CONSUMER —— delete 臂 run_gates import 正常; 注入臂 G 面不变。"
+  ],
+  "DOWNGRADED(3)": [
+   {
+    "component": "taxo['version'] @G(验收闸 run_gates 本体)",
+    "was": "NO_CONSUMER(并声称「G 那 1 处是 accuracy/run_oos.py:69, 产物盖章非闸输入」)",
+    "now": "NO_CONSUMER@run_gates 本体成立, 但**枚举错**: 该行漏掉了仓内最硬的 version 闸消费者, 且它既不在 faces_observed 也不在 faces_blind",
+    "why": "scripts/consistency_check.py:24 `VER = TAXO[\"version\"]` 是真消费者, 并在 **16 个 workflow 的 16 个步骤**里被跑(含 .github/workflows/cce-submit.yml:167 出站前)。我实测: version::mutate ⇒ exit **1** FAIL(ERROR C2 annotation_protocol.version=1.3.1 与 taxonomy.version=9.9.9-SENTINEL 不一致); version::absurd ⇒ exit 1 FAIL; version::delete ⇒ import KeyError('version') 整台闸崩。⇒ 「version 在闸侧无消费者」这句作为仓级陈述是假的。"
+   },
+   {
+    "component": "knots[].cost_tier @G",
+    "was": "LOAD_BEARING_L2, 理由「tier_of 九项全变 ⇒ G-K2 换了一把尺子」",
+    "now": "LOAD_BEARING_L2 **只由 delete 臂支撑**(run_gates import KeyError('cost_tier') ⇒ 整台闸产不出任何判决); mutate/absurd 两臂在**本工况**是 LOAD_BEARING_L1_ONLY",
+    "why": "expected_ordinal 只在 run_gates.py:673-690 的 `if not SKIP_GK2` 分支里被调用, 而本工况(被核者自己的 loader 也 setdefault CCE_SKIP_GK2=1, 且零 API)走 :665 的 SKIP 分支 ⇒ gk2['pass'] 与 overall_pass 恒 None, **与 cost_tier 无关**。那道真正的判决面(gk2['pass'] / overall_pass)在该行的 faces_observed 与 faces_blind 里**都没出现**。★ 头条反例本身**独立复现且成立**: mutate ⇒ COST_TIER 9/9 变、tier_of 9/9 变、expected_ordinal 1.7778→1.1111, 而 gate_protocol_hash 恒 dbdff13f9da155bc、四块材料逐块 sha 全同。复活条件: CCE_SKIP_GK2 未设 + G-K2 解冻(N>=150 复测) + 有 API。"
+   },
+   {
+    "component": "knots[].family @C",
+    "was": "LOAD_BEARING_L2, 头条证据「四个 alignment_score 互不相同: 0.32 / 0.12 / 0.0 / 0.44 ⇒ 强可分辨」",
+    "now": "LOAD_BEARING_L2 **成立**, 但那条头条证据**不可复现, 不得再用**",
+    "why": "四个值互不相同是**他们那组探针输入**的性质, 不是字段的性质。我用另一组同样任意的输入(aud 九结均权, post 取前四结 0.5, detect=False, mode=post)测得: 基线 **0.2222** · 推动/阻挡对调 0.0 · 注入 999.0 → 0.0 · **整键删除 0.2222 —— 与基线逐位相同**。删除臂靠 `.get('family','推动')` 兜底, 分数变不变取决于有权重的那几个结原本是不是推动族。真正稳健的可分辨面是**每个结的 mode 标签**: 基线 {共鸣, 拆除} → delete **只剩 {共鸣}** → absurd **只剩 {拆除}**。判决词保留, 判据换成 mode 翻转。"
+   }
+  ],
+  "OVERTURNED(0)": "没有一条判决词被推翻。我尽力了: 20 条里 15 条逐项复现, 3 条降级(理由/枚举/证据行), 另有下列枚举缺口与数字更正。"
+ },
+ "★枚举缺口(逐条, 都是漏列不是判错)": [
+  "taxo['version']: 漏 scripts/consistency_check.py:24(16 个 workflow 步骤在跑, 实测会判红) —— 见 DOWNGRADED 第 1 条。",
+  "levers_not_knots: 漏两个真消费者 probes/frozen_s1.py:46 `LEVERS = \"、\".join(TAXO[\"levers_not_knots\"].keys())` 与 probes/fieldset_arm_b.py:55(均在 import 期自读 config)。不改 @P/@G 判决, 但 locus 不全。",
+  "knots[].playbook: 被核者报「真取用点共 5 个」, 另漏 scripts/reply_batch.py:57 `a[\"stage2\"].get(\"playbook_primary\") or a[\"stage2\"].get(\"playbook\")` —— 生产回复批处理直接消费下发的 playbook。",
+  "knots[].cost_tier @G: 漏 gk2['pass'] / overall_pass 这一**闸判决面**(既未观测也未标 blind)。"
+ ],
+ "★数字更正": [
+  "「四块材料 4457 字节」→ 4457 是**字符数**; UTF-8 **字节数是 6573**。逐块: KNOT_BRIEF 1847 / DECISION_TREE 310 / NEGATIVE_EXAMPLES 696 / DIST_TMPL 1604 字符。",
+  "limits ②「12 个 changelog_*」→ 实际 **11** 个(config/knot_taxonomy.json 里以 changelog_ 开头的顶层键)。",
+  "limits ③ 悬着的猜测「evidence_level 在 consistency_check.DESCRIPTIVE 名单里, 删掉**可能**翻一致性闸」→ **实测: 不会**。DESCRIPTIVE 字段在 C1 里被 `fields - DESCRIPTIVE` 直接跳过; 删掉 evidence_level 后 consistency_check 仍 PASS(0 error / 2 warn, exit 0)。此问已答, 不必留到下一轮。"
+ ],
+ "★装置缺陷(留给下一轮)": [
+  "probes/ablation_harness_v3.py 的 load() **不 patch 配置读取** ⇒ 任何在 import 期自读 config/knot_taxonomy.json 的模块(run_gates:20 · cce_align_v2:20 · consistency_check:22 · cce_full_run:238)对「只改传进去的 taxo 字典」这类注入**结构上是瞎的**。这正是上一轮 hard_discriminant 被误判 NO_CONSUMER 的机制。被核者显然绕过了它(他们的 G/C 读数确实在动), 但共享装置仍带着这个坑。修法一行: 在 load() 里包一层 builtins.open 替换。",
+  "probes/ablation_harness_v3.py 的 operating_point() 仍硬编码「market: N/A —— 仓内无 market 字段(已实扫)」这句假话(被核者已如实标出未使用它)。凡直接调用该函数生成的产物都会继承这句假陈述。"
+ ],
+ "★我没覆盖的面(不默认「不变」)": [
+  "blind::真实模型语义 / 重复稳定性 / 线上工况(零 API)",
+  "blind::cce_align_v2.score(detect=True) 的数值效应",
+  "blind::accuracy/run_oos.py 本体(未加载)",
+  "blind::accuracy/t2_ablation.py 与 t2_rewrite.py 的运行时行为(import 即抛, 已实测)",
+  "blind::L4 全量 pytest —— 本轮我**没有重跑农场**, 被核者报的 L4 净新增数字我**未复核**, 只复核了 L1/L2/闸材料/import 与 consistency_check 这些可在内存内观测的面",
+  "blind::.github/ workflow 的运行时行为(只做文本与 import 级核对)",
+  "blind::其它 k / 其它 market / 其它 profile"
+ ]
+}

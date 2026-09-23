@@ -1,0 +1,256 @@
+{
+ "block": "ABLATION_V3_POSITIVE_CONTROL",
+ "methodology": "M1 先验收判官再用判官 · M2 L3(instrument_hash)是重言零证据力 · M3 按 tag 索引重放(不用共享迭代器)且扫描面含 accuracy/ · M4 引用计数报粗计与严计两个数 · M5 判决词表 LOAD_BEARING_L2 / LOAD_BEARING_L1_ONLY / UNREACHABLE / NO_CONSUMER / COULD_NOT_RUN / CIRCULAR / INCONCLUSIVE, deletable 是独立字段不由 verdict 推导 · M6 凡判无差异必跑荒谬值注入臂 · M7 工况(market/profile/k分布/语料sha/时点)随判决同行 · M8 存量消融天然把保险丝判成装饰: NO_CONSUMER 必须区分真死与本工况未触发",
+ "evidence_scope": "本装置能支持的结论**仅限**: 在**存量语料重放 + 内存内源码变异**这一工况下, 某常量/字段是否改变数值输出(L1)与判决面(L2)。它**不能**证明: 真实模型的语义判断准确率 · 重复稳定性 · 线上工况下的行为 · 该常量在**其它 k / 其它 market / 其它 profile** 下是否承重。",
+ "observable_note": "★ 只用 L1(数值输出改变) 与 L2(判决改变)。**明确排除 L3 = instrument_hash**: 它覆盖 ontology_version / s1_prompt_sha256 / s2_prompt_sha256 / model / endpoint / sampling_policy, 改**任何**被覆盖的常量它都会变, **包括改一个永不取用的死常量** ⇒ 用它判必然 100% 承重, 是重言。",
+ "replay_note": "★ 按 **tag** 索引, **不是**共享迭代器。`_stage2_aggregate` 用 ThreadPoolExecutor(5) 并发调 `_stage2_draw(prompt, taxo, f'd{i}')`; 若 stub 写成 `it=iter(draws); next(it)`, 线程抢迭代器 ⇒ draw 与序号随机错配 ⇒ **纯文档字段也会被判成 L1 变化**(上一轮 changelog_* 被判 1/8~5/8 随机数)。",
+ "scan_surface": {
+  "dirs": [
+   "scripts",
+   "probes",
+   "accuracy",
+   "tests",
+   ".github",
+   "config"
+  ],
+  "suffixes": [
+   ".py",
+   ".json",
+   ".yml",
+   ".yaml",
+   ".md",
+   ".txt",
+   ".sh"
+  ],
+  "blind_spot_note": "扫描面**不含**仓外任何目录, 也不含 .git/ 与 __pycache__/。它是**词碰撞统计**, 不是调用图: 动态 getattr / 字符串拼出来的键 / 经 JSON 传给外部工具的字段, 本扫描**看不见**。"
+ },
+ "operating_point": {
+  "market": "N/A —— 仓内无 market 字段(已实扫 scripts/ config/ accuracy/)。存量语料只按 archive/<run_id> 归档, 无市场维度 ⇒ 本判决**不能**外推到任何按市场分层的工况。",
+  "profile": [
+   "{\"stage1\": \"exp_v4_full_validation(frozen, M3)\", \"stage2\": \"knot_taxonomy v1.3.1 (M3)\", \"taxonomy_status\": \"v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注\"}"
+  ],
+  "n_archive_files": 22,
+  "k_distribution": {
+   "3": 20,
+   "5": 2
+  },
+  "n_draws_per_file": {
+   "5": 22
+  },
+  "s1_temperature_distribution": {
+   "0.0": 22,
+   "0.15": 2,
+   "0.3": 22,
+   "0.6": 22,
+   "0.9": 2
+  },
+  "corpus_sha256": "8226cd11ee4593a08ed356aa1085acce3c9aea2f287ae0ae544ee2e48c355ac7",
+  "decided_at": "2026-09-11T20:21:17",
+  "drift_rule": "以上任一项变化 ⇒ 基于本工况的判决当场失效, 必须重跑。",
+  "M8_structural_bias": "只在存量数据上做的消融**天然把所有保险丝判成装饰** —— 保险丝的定义就是「平时永远不动」。故 NO_CONSUMER 必须区分「真死」与「在本存量工况下没被触发」(后者应判 UNREACHABLE 并写明复活条件)。",
+  "ks_observed": [
+   3,
+   5
+  ]
+ },
+ "arms": {
+  "dead_swap": {
+   "source_sha16": "1b2576c142043fd9",
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L1_sha": "5926b316460ef9ad",
+   "L2_sha": "f516ef742f694781",
+   "temps_used": {
+    "3": [
+     0.0,
+     0.3,
+     0.6
+    ],
+    "5": [
+     0.0,
+     0.3,
+     0.6,
+     0.9,
+     0.15
+    ]
+   },
+   "n_unreachable_archived_draws": 0,
+   "unreachable_share": 0.0,
+   "L3_instrument_hash": "3ef00a7695baf73f",
+   "L3_changed_TAUTOLOGY_NOT_EVIDENCE": true
+  },
+  "dead_absurd": {
+   "source_sha16": "711020dd4689b118",
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L1_sha": "5926b316460ef9ad",
+   "L2_sha": "f516ef742f694781",
+   "temps_used": {
+    "3": [
+     0.0,
+     0.3,
+     0.6
+    ],
+    "5": [
+     0.0,
+     0.3,
+     0.6,
+     0.9,
+     0.15
+    ]
+   },
+   "n_unreachable_archived_draws": 0,
+   "unreachable_share": 0.0,
+   "L3_instrument_hash": "85df9e22eca91949",
+   "L3_changed_TAUTOLOGY_NOT_EVIDENCE": true
+  },
+  "liquid": {
+   "source_sha16": "d4ae184ddba4d36e",
+   "L1_changed": true,
+   "L1_surfaces_changed": {
+    "stage1": true,
+    "reach": true,
+    "stage2": false
+   },
+   "L2_surfaces_changed": {
+    "stage1": true,
+    "stage2": false
+   },
+   "L2_changed": true,
+   "L1_sha": "9ea4701a0cd3287c",
+   "L2_sha": "eef85610860e5d9c",
+   "temps_used": {
+    "3": [
+     0.99,
+     0.3,
+     0.6
+    ],
+    "5": [
+     0.99,
+     0.3,
+     0.6,
+     0.9,
+     0.15
+    ]
+   },
+   "n_unreachable_archived_draws": 22,
+   "unreachable_share": 0.3143,
+   "L3_instrument_hash": "18504aa813356893",
+   "L3_changed_TAUTOLOGY_NOT_EVIDENCE": true
+  },
+  "noop": {
+   "source_sha16": "208c8d6bac6da4e3",
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L1_sha": "5926b316460ef9ad",
+   "L2_sha": "f516ef742f694781",
+   "temps_used": {
+    "3": [
+     0.0,
+     0.3,
+     0.6
+    ],
+    "5": [
+     0.0,
+     0.3,
+     0.6,
+     0.9,
+     0.15
+    ]
+   },
+   "n_unreachable_archived_draws": 0,
+   "unreachable_share": 0.0,
+   "L3_instrument_hash": "77966bb8bd703ad9",
+   "L3_changed_TAUTOLOGY_NOT_EVIDENCE": false
+  }
+ },
+ "checks": {
+  "determinism_same_module_twice": true,
+  "determinism_fresh_reload": true,
+  "baseline_replay_reproduces_archived_intensity": "22/22",
+  "tags_indexed_not_iterator": true,
+  "dead_constant_revives_at_k": {
+   "k": 7,
+   "base_temps": [
+    0.0,
+    0.3,
+    0.6,
+    0.9,
+    0.15,
+    0.45,
+    0.75
+   ],
+   "dead_arm_temps": [
+    0.0,
+    0.3,
+    0.6,
+    0.9,
+    0.15,
+    999.0,
+    -999.0
+   ],
+   "L1_changed_at_this_k": true
+  },
+  "tripwire_tripped": []
+ },
+ "passed": true,
+ "tripwire_scope": "覆盖: 本进程内**经 socket.socket.connect 新建**的连接(含 urllib/requests/http.client)。 **不覆盖**: ① 进入本上下文**之前已建立**的连接 ② 不走 socket 的传输(共享内存 / 本机文件 / unix pipe 以外的自带通道) ③ **子进程**(subprocess / os.system 另起进程, 有自己的 socket 模块) ④ **C 扩展自带的网络栈**(不经 Python socket 对象) ⑤ 本进程外的任何东西。 ⇒ 证据只能说「**本进程内经 socket 新建的连接被拦截, 且整段运行中一次都没被触发**」, **不能**说「全进程所有网络出口都已关闭」。",
+ "file_integrity": {
+  "before": {
+   "/Volumes/data/cce-engine/scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "/Volumes/data/cce-engine/config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "/Volumes/data/cce-engine/config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "/Volumes/data/cce-engine/accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "after": {
+   "/Volumes/data/cce-engine/scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "/Volumes/data/cce-engine/config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "/Volumes/data/cce-engine/config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "/Volumes/data/cce-engine/accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "identical": true
+ },
+ "gates": {
+  "dead_swap_not_load_bearing": true,
+  "dead_absurd_injection_still_no_diff": true,
+  "liquid_L1_changed": true,
+  "liquid_changed_broadly": true,
+  "noop_no_diff": true,
+  "determinism": true,
+  "tags_indexed": true,
+  "tripwire_never_tripped": true,
+  "repo_files_untouched": true,
+  "L3_is_tautology_confirmed": true,
+  "dead_constant_is_UNREACHABLE_not_NO_CONSUMER": true
+ },
+ "failed_gates": [],
+ "judge_verdict_on_dead_constant": "UNREACHABLE(本工况 k≤5 下第 6/7 档永不取用; k≥6 即复活 —— 实证见 checks.dead_constant_revives_at_k)。M5 词表下**不是** NO_CONSUMER, 更**不是**承重。",
+ "decided_at": "2026-09-11T20:21:18"
+}

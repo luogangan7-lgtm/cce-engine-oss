@@ -1,0 +1,354 @@
+{
+ "kind": "cce.ablation.independent_recheck",
+ "unit": "parser_plane / EVENT — scripts/cce_event_assemble.py",
+ "reviewer_role": "independent adversarial recheck of tests/data/ablation_v3/parser_cce_event_assemble.json",
+ "decided_at": "2026-09-12",
+ "R1_zero_network": "in-process socket.socket.connect tripwire on every observer run, asserted tripped==[]; suite subprocesses run with proxy vars unset and no_proxy=*; fake API keys only.",
+ "R2_file_integrity": {
+  "scripts/cce_event_assemble.py": "dfd53cb628ad5dbe3b3aee720ab2172a2d56d66705a16fe4641fc488ac69e70a (before == after)",
+  "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+  "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+  "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+  "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+  "tests/data/ablation_verdicts_v3.json": "f8055f784e8ed8436b76e1feef53449956bc530162747c2f03d04a552ee25d44 (R5: read only)",
+  "method": "all mutation done in tmp dirs on sys.path, or in an rsync copy farm; repo file never edited"
+ },
+ "method": {
+  "L1_corpus": "the FULL declared media fixture: 275 real parse artifacts (/Volumes/data/viral-skill-eval/results/video_parse), adapted with cce_foundation_adapter.adapt, 24116 events, contract ok 275/275. This closes the gap the reviewed artifact itself declared (its L1 used 7 synthetic products).",
+  "L1_corpus_secondary": "2 archived production observation cases (archive/33743931309, archive/33840200869) + 5 hand-built edge products (partial-overlap / touching / duration-clamped / non-dict time / id-collision)",
+  "L2_faces": "contract validate_case ok+errors; cce_case_assemble.build_request; iron-law-3 admission probes (3 violating + 2 legal); full-chain via tests/test_cce_media_ingest_production.py (the local 275-artifact replay really runs here)",
+  "L4": "163 tests/test_*.py (test_cce_audio_prosody.py excluded from arms only; it was green at baseline, 57 s, local wav cache present), SERIAL, one full rsync --delete restore + recursive __pycache__ purge + python3 -B per arm",
+  "L3": "excluded (M2). Independently reconfirmed that this file cannot move instrument_hash: cce_core_boundary hashes only manifest core_files (6 files, this one absent) and recomputes instrument_id from cce_knot_classify; core_boundary.py even asserts core_files and parser_plane are disjoint."
+ },
+ "own_face_controls": {
+  "live": "C2 layer->atomic_CTRL: contract ok true->false on both archived production cases; L4 net-new = 4 (test_cce_contract / test_cce_image_chain_ci / test_cce_media_chain_history / test_cce_media_ingest_production) — byte-for-byte the same four the reviewed artifact reports.",
+  "dead": "C1b equal-line comment swap: 0 diff on all 275 real artifacts, 0 diff on every L2 face, L4 net-new = 0.",
+  "line_gate_control": "C0 add one comment line: L4 net-new = 1 (test_cce_ablation_verdicts_v3.py per_file_lines recompute). So any line-count change in this file trips one bookkeeping gate."
+ },
+ "baseline": {
+  "copy_baseline_red": [
+   "test_cce_chain_conformance.py",
+   "test_ontology_migration.py"
+  ],
+  "note": "NOT reproducible against the reviewed artifact's stated baseline ('163 green / 1 red = audio_prosody'). Here audio_prosody is GREEN and two other tests are RED, deterministically. Root cause found and it is NOT the unit under review: scripts/check_ontology_migration.py reports P1_FAIL on `tests/data/ablation_v3/parser_cce_case_assemble.json:3323/:3327` (two unregistered legacy ontology object keys) — a SIBLING ablation agent's artifact, written 20:00, i.e. the ablation products are themselves moving the gate surface. test_cce_chain_conformance.py is red only as a cascade of that. Verified on the LIVE repo too, not just the copy.",
+  "consequence": "the reviewed artifact diagnosed this same chain_conformance red as parallel-execution flakiness ('single serial run is green, rc=0'). As of now it is deterministic, not flaky, and the cause is a concurrently written ablation artifact."
+ },
+ "arms_L4_serial": {
+  "BASE": {
+   "nlines": 125,
+   "red": [
+    "test_cce_chain_conformance.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": []
+  },
+  "C0_noop_add_comment": {
+   "nlines": 126,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_chain_conformance.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": [
+    "test_cce_ablation_verdicts_v3.py"
+   ]
+  },
+  "C1_DELETE_dead_comment": {
+   "nlines": 123,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_chain_conformance.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": [
+    "test_cce_ablation_verdicts_v3.py"
+   ]
+  },
+  "C1b_swap_dead_comment": {
+   "nlines": 125,
+   "red": [
+    "test_cce_chain_conformance.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": []
+  },
+  "C2_live_layer": {
+   "nlines": 125,
+   "red": [
+    "test_cce_chain_conformance.py",
+    "test_cce_contract.py",
+    "test_cce_image_chain_ci.py",
+    "test_cce_media_chain_history.py",
+    "test_cce_media_ingest_production.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": [
+    "test_cce_contract.py",
+    "test_cce_image_chain_ci.py",
+    "test_cce_media_chain_history.py",
+    "test_cce_media_ingest_production.py"
+   ]
+  },
+  "A17_assertion_observed": {
+   "nlines": 125,
+   "red": [
+    "test_cce_chain_conformance.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": []
+  },
+  "A18_DELETE_composite": {
+   "nlines": 103,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_chain_conformance.py",
+    "test_cce_confidence_basis.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_confidence_basis.py"
+   ]
+  },
+  "A27_provenance_producer": {
+   "nlines": 125,
+   "red": [
+    "test_cce_chain_conformance.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": []
+  },
+  "A24_eid_prefix": {
+   "nlines": 125,
+   "red": [
+    "test_cce_chain_conformance.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": []
+  },
+  "A16_basis_measured": {
+   "nlines": 125,
+   "red": [
+    "test_cce_chain_conformance.py",
+    "test_cce_confidence_basis.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": [
+    "test_cce_confidence_basis.py"
+   ]
+  },
+  "A15_conf_09": {
+   "nlines": 125,
+   "red": [
+    "test_cce_chain_conformance.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": []
+  },
+  "A11_DELETE_raise_block": {
+   "nlines": 119,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_chain_conformance.py",
+    "test_cce_ontology_iron_laws.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_ontology_iron_laws.py"
+   ]
+  },
+  "A10_state_keys_empty": {
+   "nlines": 125,
+   "red": [
+    "test_cce_chain_conformance.py",
+    "test_cce_ontology_iron_laws.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": [
+    "test_cce_ontology_iron_laws.py"
+   ]
+  },
+  "A19_DELETE_relations": {
+   "nlines": 124,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_chain_conformance.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": [
+    "test_cce_ablation_verdicts_v3.py"
+   ]
+  },
+  "A21_DELETE_main_guard": {
+   "nlines": 123,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_chain_conformance.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": [
+    "test_cce_ablation_verdicts_v3.py"
+   ]
+  },
+  "A22_docstring_first_line": {
+   "nlines": 125,
+   "red": [
+    "test_cce_chain_conformance.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": []
+  },
+  "A01_version": {
+   "nlines": 125,
+   "red": [
+    "test_cce_chain_conformance.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": []
+  },
+  "A02_atomic_visual": {
+   "nlines": 125,
+   "red": [
+    "test_cce_chain_conformance.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": []
+  },
+  "A26_member_refs_empty": {
+   "nlines": 125,
+   "red": [
+    "test_cce_chain_conformance.py",
+    "test_cce_contract.py",
+    "test_cce_image_chain_ci.py",
+    "test_cce_media_chain_history.py",
+    "test_cce_media_ingest_production.py",
+    "test_ontology_migration.py"
+   ],
+   "net_new": [
+    "test_cce_contract.py",
+    "test_cce_image_chain_ci.py",
+    "test_cce_media_chain_history.py",
+    "test_cce_media_ingest_production.py"
+   ]
+  }
+ },
+ "L1_over_275_real_artifacts": {
+  "BASE": {
+   "events": 24116,
+   "contract_ok": 275,
+   "by_type": {
+    "visual_frame_observed": 8078,
+    "on_screen_text_observed": 6963,
+    "cross_modal_synchronization": 6390,
+    "shot_boundary": 2141,
+    "speech_observed": 275,
+    "audio_tags_observed": 269
+   }
+  },
+  "A09_intersection_max_min_swapped": "0 / 275 differ",
+  "A08_strict_lt_to_le": "0 / 275 differ",
+  "A07_overlaps_isinstance_guard_removed": "0 / 275 differ",
+  "A13_atomic_dedup_removed": "0 / 275 differ",
+  "A14_time_half_of_line70_removed": "0 / 275 differ",
+  "A12_deepcopy_removed": "275 / 275 differ, and the difference is EXCLUSIVELY 'the caller's input object was mutated in place'; the returned events are byte-identical in all 275",
+  "C1_dead_comment_deleted": "0 / 275 differ",
+  "A18_composite_block_deleted": "252 / 275 differ; 6390 of 24116 events (26.5%) disappear; contract stays ok 275/275"
+ },
+ "★overturned_or_downgraded": [
+  {
+   "target": "verdict row 22 + headline #2 (cross-modal composite block, :88-105)",
+   "reviewed_claim": "L4 serial-confirmed net new = 0; 'source-text gate rows: []'; headline: 'delete the whole cross-modal composite block ... not a single test turns red'",
+   "measured": "Deleting EXACTLY their locus (lines 88-105, `for visual in visuals:` .. `existing.add(eid)`) turns tests/test_cce_confidence_basis.py RED: that test hard-asserts count('\"confidence_basis\": \"definitional\"') == 2 on the source text, and the composite dict holds the second one, so the count drops to 1. A full-suite delete of 84-105 gives net new = 2 (test_cce_confidence_basis.py + the line-count gate).",
+   "what_is_actually_true": "A LINE-COUNT-PRESERVING behavioural neutralisation (`for visual in visuals:` -> `for visual in []:`) does reproduce net new = 0. So the substantive finding (suppressing every cross-modal composite event trips no behavioural gate) stands; the arm description and the headline sentence do not.",
+   "severity": "the headline is the most-quoted sentence in the artifact and it is false as written"
+  },
+  {
+   "target": "verdict row 27, deletable = true (the two English comment lines :84-85)",
+   "reviewed_claim": "deletable: true, justified by an equal-line substitution arm",
+   "measured": "the deletion itself was never run. Running it: file 125 -> 123 lines, L4 net new = 1 (tests/test_cce_ablation_verdicts_v3.py per_file_lines recompute). Their own A07/A13/A19/A21 rows record exactly this gate for 1-2 line deletions.",
+   "what_is_actually_true": "deletable = true only in the sense 'no behavioural consumer' (0/275 L1 diff, 0 L2 diff, injection-verified). As measured, deleting them turns one gate red until the ablation ledger's own line record is updated. deletable was inferred from a substitution arm, not measured on a deletion."
+  },
+  {
+   "target": "verdict rows 2-5 (single ATOMIC_TYPES keys), LOAD_BEARING_L2",
+   "reviewed_claim": "L2 changed (contract counts shrink; build_request raises 'no events available' on the visual-only / ocr-only / audio-only products)",
+   "measured": "On the full 275-artifact real corpus, removing the visual key drops events 24116 -> 9648 (-60%) and the contract stays ok on 275/275; the media_ingest full-chain replay stays green; L4 net new = 0. Emptying the whole table drops events to 2141 (-91%), contract still ok 275/275, 29 artifacts produce zero events. Zero of the 275 real artifacts are single-modality, so the products that make build_request raise have no real instance in the repo's own declared fixture set. And build_request is not on CHAINS['media_ingest'] (media_validate -> foundation_adapt -> event_assemble -> qualified_readout) — it is only reached from cce_foundation_prepare (s0, text chains) and tests/test_cce_contract.py.",
+   "what_is_actually_true": "on this operating point these rows are LOAD_BEARING_L1_ONLY with a very large L1 magnitude; their L2 evidence is synthetic-corpus-only and runs through an off-chain face. Verdict word should be downgraded or the L2 evidence explicitly labelled 'synthetic single-modality products, off the media_ingest chain'."
+  },
+  {
+   "target": "verdict rows 25 and 26 (main() contract guard, module docstring), NO_CONSUMER",
+   "reviewed_claim": "NO_CONSUMER, but both rows carry an `unreachable_condition` field",
+   "measured": "main() really is never entered: I instrumented main() to write a marker file and ran all 163 tests — the marker was never created (a positive test, stronger than their absence-of-difference injection). Broad scan agrees: no CLI invocation of scripts/cce_event_assemble.py anywhere in scripts/ probes/ accuracy/ tests/ .github/ config/ docs/ skills/.",
+   "what_is_actually_true": "the facts are right, the verdict word is not. By the artifact's own M5/M8 vocabulary, a locus that comes with a revival condition ('someone wires the CLI into production or CI') is UNREACHABLE, not NO_CONSUMER. Row 27 is the only true NO_CONSUMER in this unit."
+  },
+  {
+   "target": "unreachable_condition of rows 8 and 9 (strict `<`, and intersection's max/min)",
+   "reviewed_claim": "revival needs the PARSER to stop emitting 1 ms point windows and start emitting real-duration windows (scene duration)",
+   "measured": "Real-duration windows already exist in production today: cce_foundation_adapter.adapt gives speech_transcript and audio_tags time={'start':0.0,'end':duration} directly, bypassing timepoint(). The only thing keeping intersection() degenerate is the hard-coded pairing at :86-87 (visual x on_screen_text, both 1 ms point windows). Changing ONE line at :87 to pair visual x speech — a change parser_plane_note explicitly licenses — makes the max/min swap change output on 253 of 275 real artifacts, with the contract still ok on 275/275.",
+   "what_is_actually_true": "verdict word UNREACHABLE is confirmed at this operating point (0/275 diff, measured on real data, not just 7 synthetic products), but the stated revival condition is materially wrong: it blames the parser when the controlling locus is one line inside this very file, and that line is not among the 27."
+  }
+ ],
+ "★enumeration_gaps": {
+  "reviewed_claim": "'27 个位点之外没有第 28 个语义位点' (limits section)",
+  "found": "false — at least 6 further semantic loci, two of which are L2-silent AND large",
+  "loci": [
+   {
+    "locus": ":86-87 visuals/texts modality-pair filter",
+    "measured": "controls rows 8 and 9; pairing visual x speech instead of visual x on_screen_text changes 253/275 artifacts under the max/min swap, contract ok 275/275",
+    "why_it_matters": "it is the revival switch for two UNREACHABLE verdicts and it is inside the file being ablated"
+   },
+   {
+    "locus": ":77 atomic event \"time\": obs[\"time\"]",
+    "measured": "dropping the field: events 24116 -> 17726 (every one of the 6390 cross-modal composites vanishes, -26.5%), contract ok 275/275, and FULL SUITE net new = 0",
+    "why_it_matters": "cce_contract._require does not list 'time' for events, so a quarter of the production event plane can be deleted with every gate green — the same failure class the artifact set out to hunt, at a locus it never enumerated"
+   },
+   {
+    "locus": ":66 events = out.setdefault(\"events\", [])",
+    "measured": "changing to out.get(\"events\") or [] : 29/275 artifacts silently produce ZERO events (21087 vs 24116 total), contract ok 275/275",
+    "why_it_matters": "classic refactor-equivalent slip; empties the event plane for the artifacts that have no shot_boundary, contract-legal"
+   },
+   {
+    "locus": ":97 composite \"assertion\": \"derived\"",
+    "measured": "-> \"observed\": 252/275 differ, contract ok 275/275",
+    "why_it_matters": "same semantic-degradation class as their row 17, but row 17 only covers the ATOMIC assertion at :76"
+   },
+   {
+    "locus": ":77 atomic \"evidence_refs\": [obs[\"id\"]]",
+    "measured": "emptying it: contract red on 275/275",
+    "why_it_matters": "row 20 enumerates member_refs only; the atomic evidence_refs is a separate required field"
+   },
+   {
+    "locus": ":92 composite event-id derivation",
+    "measured": "changing split index: 252/275 differ, total events 24116 -> 24131 (dedup collisions shift), contract ok 275/275",
+    "why_it_matters": "id namespace + dedup interact; not enumerated"
+   }
+  ]
+ },
+ "★confirmed": [
+  "parser_plane_claim, literal reading is FALSE — independently reproduced and strengthened. C2 (layer -> a value the contract does not accept) turns the contract red on both archived production cases and turns 4 behavioural tests red including the media_ingest full-chain replay; A26 (member_refs emptied) turns the same 4 red. Beyond their counterexamples: deleting the composite block removes 6390/24116 real production events with the contract green, and a one-line pairing change silently rewrites 253/275 artifacts' composite intervals.",
+  "parser_plane_claim, narrow reading is TRUE — independently reconfirmed by reading cce_core_boundary.py: it hashes only manifest core_files (6 files, this one absent), recomputes instrument_id from cce_knot_classify, and line 143 asserts core_files and parser_plane are disjoint. No arm can move it.",
+  "row 17 (assertion derived -> observed): L1 changes, contract ok, FULL SUITE net new = 0. Reproduced exactly.",
+  "row 15 (confidence 1.0 -> 0.9): net new = 0. Reason verified by reading the gate: tests/test_cce_confidence_basis.py:63 iterates re.finditer(r'\"confidence\":\\s*1\\.0'); lowering the value removes the match so the loop body never runs — the gate is BYPASSED, not triggered. cce_contract only demands a basis when confidence == 1.0.",
+  "row 16 (confidence_basis definitional -> measured): net new = 1, exactly tests/test_cce_confidence_basis.py (a pure source-text count gate). Reproduced.",
+  "rows 10 and 11 (_STATE_KEYS / the iron-law-3 raise block): emptying _STATE_KEYS flips all three violating probes (knots / state / mass) from rejected to admitted while both legal probes (observed / inferred) stay admitted — no false positive. Deleting the raise block turns tests/test_cce_ontology_iron_laws.py red. Their N3 requirement is genuinely met.",
+  "the 'fake gate' finding: config/cce_doc_reconciliation.json iron law 3 declares evidence string '铁律 3: Event != State' in this file; the string occurs TWICE (the :50 comment and the :61 raise message) and scripts/cce_doc_reconcile.py:50 only does `ev not in open(file).read()`. Deleting the entire raise block leaves the comment, and tests/test_cce_doc_reconcile.py calls check(run_tests=False) so it never runs the declared test — measured: doc_reconcile stays GREEN under A11. Iron law 2's evidence string is just 'events' (11 occurrences).",
+  "instrument defect: probes/ablation_harness_v3.py:283 hard-codes \"market: N/A — 仓内无 market 字段(已实扫 scripts/ config/ accuracy/)\". False. Recounted independently: 72 occurrences on 10 files (their per-file numbers 22/3/3/2/1 are grep -c LINE counts labelled as 处/occurrences — the substantive claim is right, the unit is not).",
+  "instrument defect: config/cce_chain_conformance.json stage n=6 EVENT declares tested_by=[tests/test_cce_end_to_end.py]; that file imports only cce_end_to_end / cce_population / cce_window_chain — zero contact with cce_event_assemble. Confirmed by reading.",
+  "N2 finding on tests/test_cce_media_chain_history.py: line 38 asserts 'cross_modal_synchronization' in ART['event_types'] where ART is the ARCHIVED tests/data/media_chain_on_history.json; the live half (line 57, run(limit=20)) only checks chain_error / contract_fail. Expectation frozen, actual never looked at. Confirmed by reading.",
+  "reference counts: grep -rnw over scripts/ probes/ accuracy/ tests/ .github/ config/ (excluding the defining file and tests/data/ablation_v3/) gives 0 for ASSEMBLER_VERSION, 0 for ATOMIC_TYPES, 0 for _STATE_KEYS. Their M4 counterexample holds.",
+  "rows 1 / 19 / 21 / 23 / 24 / 26 L4 figures reproduced: A01 version 0 net new; A24 eid prefix 0; A27 provenance 0; A19 relations deleted -> line gate only; A21 main guard deleted -> line gate only; A22 docstring first line replaced -> 0.",
+  "faces_blind honesty: cce_k1_status.knot_readout_usable reads only KNOT_READOUT_ALLOWLIST and top1_usable(instrument_hash) — structurally unreachable from this file, correctly reported as observed-and-unmoved rather than blind. The outbound guard is likewise off-chain (s4_guard only in reply / outbound_post)."
+ ],
+ "★minor_factual_slips": [
+  "row 19 deletable_reason says the two archived products' '39+1 events all start with evt:assembled:'. Actually archive/33743931309 has 39 events = 38 evt:assembled: + 1 evt:shot-cut: (the adapter's, provenance null). 39 of 40 carry the prefix.",
+  "the 'market' counts are line counts presented as occurrence counts (61 vs 72).",
+  "tests/test_cce_confidence_basis.py's docstring cites cce_event_assemble:57 and :78; the live lines are :78/:79 and :100/:101. Harmless prose drift, no gate reads it."
+ ],
+ "limits_of_this_recheck": [
+  "I did not re-run every one of their 40 arms; I ran 19 full-suite arms plus 14 L1/L2 arms over the 275-artifact real corpus, chosen to attack the claims with the most weight.",
+  "GitHub Actions still not really run; the production verdict here is cce_full_run's exit code + manifest.complete via tests/test_cce_media_ingest_production.py, whose 275-artifact replay DOES execute on this machine.",
+  "My L4 baseline differs from theirs (see baseline.note); I account net-new against MY baseline, so the two ledgers' net-new columns are comparable only after subtracting the two deterministic baseline reds.",
+  "test_cce_audio_prosody.py was excluded from arm runs (not from the baseline). It is green here because /Volumes/data/viral-skill-eval/assets/audio_cache exists locally; it is insensitive to this file either way.",
+  "A06 (whole ATOMIC_TYPES table emptied) was measured at L1/L2 over 275 artifacts but NOT at full-suite L4; only A02 (one key) has a measured L4 of 0."
+ ]
+}

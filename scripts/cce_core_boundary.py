@@ -69,6 +69,57 @@ def check(manifest_path: str = MANIFEST) -> tuple[bool, list[str], dict]:
                                   "仪器变了(可能是 env 换了模型/端点), 必须换代")
         except Exception as exc:
             errors.append(f"无法现算仪器哈希: {type(exc).__name__}: {exc}")
+    # ★★★ 2026-09-09: 闸(G)有**自己的版本** —— 只钉 instrument_hash 抓不到「静默换闸」。
+    #   实测缺陷: 改 knots[].negative_examples_prompt 会改**验收闸标注者的 prompt**,
+    #   而 instrument_hash **一字不变**(它只覆盖生产 s1/s2)。⇒ 若只有一个版本号,
+    #   这类改动就成了「一面说生产没换代, 一面把发证的那台仪器换了」。
+    gexp = man.get("gate_protocol_expected")
+    if not gexp:
+        errors.append("清单缺 gate_protocol_expected —— 只钉生产仪器抓不到**静默换闸**")
+    else:
+        try:
+            sys.path.insert(0, os.path.join(ROOT, "accuracy"))
+            os.environ.setdefault("MINIMAX_API_KEY", "ZERO_API_BOUNDARY_SENTINEL")
+            import run_gates as _rg
+            live_gh = _rg.gate_protocol_hash()
+            if live_gh != gexp["hash"]:
+                if _rg.GATE_PROTOCOL_VERSION == gexp["version"]:
+                    errors.append(
+                        f"现算闸协议哈希 {live_gh} != 清单钉的 {gexp['hash']}, 而 "
+                        f"gate_protocol_version 仍是 {gexp['version']} —— **静默换闸**。"
+                        "改闸 prompt 必须走 GATE_PROTOCOL_CHANGE: 递增 gate_protocol_version、"
+                        "更新本 hash、并在 refactor_log 记一条事件类型为 GATE_PROTOCOL_CHANGE 的条目。")
+                else:
+                    gc = [e for e in man.get("refactor_log", [])
+                          if e.get("event") == "GATE_PROTOCOL_CHANGE"
+                          and e.get("to_gate_hash") == live_gh]
+                    if not gc:
+                        errors.append(
+                            f"闸协议已换代({gexp['version']} → {_rg.GATE_PROTOCOL_VERSION}) 但 "
+                            "refactor_log 里没有对应的 GATE_PROTOCOL_CHANGE 条目 —— "
+                            "**换代必须留痕, 且不得冒充行为不变的 refactor**")
+            elif _rg.GATE_PROTOCOL_VERSION != gexp["version"]:
+                # ★★★ 2026-09-09 更正(网页版 GPT 指出, 我已接受): 本条原来写成
+                #   「材料没变时不许跳版本」—— **写窄了**。判据、聚合方式、资格筛选、
+                #   缺失/重试规则**即使不改 prompt 材料**, 也可能构成**合法且必要的**协议修订。
+                #   ⇒ 该禁的是「**无协议变化的跳号**」, 不是「无材料变化的协议换版」。
+                gc = [e for e in man.get("refactor_log", [])
+                      if e.get("event") == "GATE_PROTOCOL_CHANGE"
+                      and e.get("to_gate_version") == _rg.GATE_PROTOCOL_VERSION]
+                if not gc:
+                    errors.append(
+                        f"gate_protocol_version 现为 {_rg.GATE_PROTOCOL_VERSION} 而清单钉 {gexp['version']}, "
+                        "且 refactor_log 里**没有对应的 GATE_PROTOCOL_CHANGE 条目** —— "
+                        "**无协议变化的跳号**。★ 注: 材料没变也可以合法换版(改判据/聚合/资格筛选/"
+                        "缺失重试规则都算协议修订), 但必须留痕并写明**改的是协议的哪一部分**。")
+                elif not gc[0].get("★协议改的是哪一部分"):
+                    errors.append(
+                        f"闸协议换到 v{_rg.GATE_PROTOCOL_VERSION} 但材料哈希未变, "
+                        "而 refactor_log 条目没写「★协议改的是哪一部分」—— "
+                        "材料没变的换版**必须**指名道姓说清改的是判据/聚合/资格筛选/缺失规则里的哪一项")
+        except Exception as exc:
+            errors.append(f"无法现算闸协议哈希: {type(exc).__name__}: {exc}")
+
     # 纯重构(行为不变)走 refactor_log: 必须写明 from/to sha 与**行为证据**。
     # ★ 键必须是 (文件, from_sha, to_sha) 的**完整转移**, 不能只匹配 to_sha ——
     #   只匹配 to_sha 时, 把 pin 改成任意垃圾值也会被这条路豁免(既有反向测试抓到的)。
@@ -94,7 +145,8 @@ def check(manifest_path: str = MANIFEST) -> tuple[bool, list[str], dict]:
         errors.append(f"同一文件同时被声明为 Core 与 Parser: {overlap}")
     return (not errors), errors, {"core_n": len(pinned), "drifted": sorted(drifted),
                                   "parser_n": len(man.get("parser_plane", [])),
-                                  "instrument_generation": man["instrument_generation"]}
+                                  "instrument_generation": man["instrument_generation"],
+                                  "gate_protocol_version": (gexp or {}).get("version")}
 
 
 def main() -> int:
@@ -102,8 +154,9 @@ def main() -> int:
     print("=" * 60)
     print("铁律 20 闸: 新增 Parser 不得修改 CCE Core")
     print("=" * 60)
-    print(f"Core 文件 {info['core_n']} 个 · Parser 层 {info['parser_n']} 个 · "
-          f"instrument_generation = {info['instrument_generation']}")
+    print(f"Core 文件 {info['core_n']} 个 · Parser 层 {info['parser_n']} 个")
+    print(f"★ instrument_generation = {info['instrument_generation']} (**只指生产 P**) · "
+          f"gate_protocol_version = {info['gate_protocol_version']} (**验收闸 G, 独立版本**)")
     for e in errors:
         print("  ✗ " + e)
     print("CORE_BOUNDARY_PASS" if ok else "CORE_BOUNDARY_FAIL")

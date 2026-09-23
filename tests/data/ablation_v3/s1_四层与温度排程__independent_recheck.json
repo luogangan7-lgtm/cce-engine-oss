@@ -1,0 +1,125 @@
+{
+ "block": "ABLATION_V3_INDEPENDENT_RECHECK",
+ "cluster": "s1_四层与温度排程",
+ "role": "独立复核者(默认立场: 判决是错的, 直到验不出错)",
+ "decided_at": "2026-09-11",
+ "constraints": {
+  "R1_tripwire_tripped": [],
+  "R1_scope": "本进程内 socket.socket.connect 新建连接; 不覆盖子进程",
+  "R2_frozen_sha_identical": true,
+  "R2_sha": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "R3_offrepo_vault_referenced": false,
+  "R4_scratch": "/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/s1_recheck_50739/"
+ },
+ "M1_judge_acceptance_of_THEIR_device": {
+  "note": "用他自己的 probes/ablation_harness_v3.py 的 load/observe_all/_split_L1_L2, 我自己出对照臂",
+  "corpus_reproduced": {
+   "n": 22,
+   "corpus_sha16": "8226cd11ee4593a0",
+   "matches_their_claim": true
+  },
+  "determinism_same_module_twice": true,
+  "determinism_fresh_exec": true,
+  "null_control_changelog_prose": {
+   "L1": false,
+   "L2": false,
+   "L3": false
+  },
+  "null_control_pure_comment": {
+   "L1": false,
+   "L2": false,
+   "L3": false
+  },
+  "dead_constant_5_7_to_999": {
+   "L1": false,
+   "L2": false,
+   "L3_tautology": true
+  },
+  "liquidity_slot0_0.0_to_0.99": {
+   "L1": true,
+   "L2": true
+  },
+  "verdict": "PASS —— 未复现错法#1(重言)与错法#2(伪差异/共享迭代器)。装置本身是干净的。"
+ },
+ "M1_judge_acceptance_of_MY_NEW_face": {
+  "face": "_s1_scope_widening_holds() / calibration_transfers() / cce_k1_status.verdict_path_for()",
+  "dead_constant_arm": "逐项不变 ⇒ 非重言(对照: instrument_hash 在同一臂会变)",
+  "noop_arm": "逐项不变 ⇒ 无伪阳性",
+  "temperature_liquidity_arm": "逐项不变 ⇒ 面是选择性的, 不是「任何改动都红」",
+  "absurd_injection_arm": "三项全翻 ⇒ 接得上",
+  "passed": true
+ },
+ "overturned": [
+  {
+   "component": "_stage1_template() 返回完整 prompt(仪器指纹覆盖面)",
+   "was": "NO_CONSUMER",
+   "now": "LOAD_BEARING_L2",
+   "false_claim": "「它唯一的消费者是 instrument_id() 的 s1_prompt_sha256 ⇒ instrument_hash = L3 面」",
+   "real_consumers_of_the_RETURN_VALUE": [
+    "scripts/cce_knot_classify.py:508 _s1_scope_widening_holds() —— 子串谓词, 不是哈希比较",
+    "scripts/cce_knot_classify.py:523 注册为 SCOPE_WIDENINGS[...]['verify']",
+    "scripts/cce_knot_classify.py:448 same_instrument()",
+    "scripts/cce_knot_classify.py:480 calibration_transfers()",
+    "scripts/cce_k1_status.py:93 _inherited_verdict_name() <- verdict_path_for() ⇒ top1 发/扣发",
+    "probes/taxonomy_field_reach_ledger.py:107 prod += CK._stage1_template() —— 消费**内容**"
+   ],
+   "measured": {
+    "arm": "M6 注入 _stage1_template -> \"ABSURD-999\"(他自己跑过的同一臂)",
+    "verify()": "True -> False",
+    "calibration_transfers": "True -> False",
+    "verdict_path_for('d4cce4c745f3f991')": "k1_reliability_verdict.json -> None ⇒ **top1 扣发**"
+   },
+   "why_it_was_missed": "他的 L2 面只含 stage1 的 flow(measurement_status/k_*)与 tops; 仪器身份/标定继承判决面不在观测面内 ⇒ 与他自己标注的 blind::stage2_replay 同类, 但这一处未标注。",
+   "why_not_tautology": "E3 臂把模板从 4403 字换成 238 字外壳(sha 变), verify() 仍为 True; 只有 ABSURD 臂才 False ⇒ verify() 是内容谓词, 不是 instrument_hash 的马甲。",
+   "load_bearing_precondition": "生产仪器 d4cce4c745f3f991 **不在** VERDICT_BY_INSTRUMENT({565470cf26c16d01, 0e9ca1d4e7a2f180}) ⇒ 它的 K1 判定**只能**经这条模板自证继承。",
+   "deletable": false,
+   "deletable_unchanged": "原判 deletable=false 正确, 但理由错了(不是「为治理而存在」, 是**生产扣发路径**)。"
+  }
+ ],
+ "downgraded": [
+  {
+   "component": "tops 的全零向量守卫(_top 里 sum(vec) > 0)",
+   "field": "L4_net_new_reds",
+   "was": "0 条 —— 没有任何测试守住这条",
+   "now": "0 条(实测) + ≥1 条本方法**结构上看不见**的钉源码闸",
+   "evidence": "tests/test_cce_abstention.py:123 `assert \"全零守卫\" in k_src2 and \"sum(vec) > 0\" in k_src2`(k_src2 于 :109 从磁盘读 scripts/cce_knot_classify.py)。把 P6 消融套到源码文本上, 该断言实测转 False。",
+   "verdict_unchanged": "LOAD_BEARING_L2 本身站得住"
+  },
+  {
+   "component": "E1 个体反推指令 / E2 弃权指令",
+   "field": "L4_net_new_reds",
+   "was": "7 − 4 = 3 条 prompt 钉红",
+   "now": "低计 —— 同一文件另有 4 条钉源码文本的断言本方法看不见",
+   "evidence": "tests/test_cce_abstention.py 磁盘钉 '这是一个个体，不是群体' / '若它**不是个人表达**' / '不要为它构造一个人' / 'no_inferable_subject'",
+   "verdict_unchanged": "INCONCLUSIVE 本身站得住(离线判不了 prompt→读数)"
+  },
+  {
+   "component": "operating_point.market",
+   "field": "market",
+   "was": "N/A —— 仓内无 market 字段(已实扫 scripts/ config/ accuracy/)",
+   "now": "陈述失实; 结论仍成立",
+   "evidence": "scripts/cce_strategy_gate.py:100,113,140(market='intl' / CCE_MARKET) 与 scripts/cce_outbound_guard.py:25,29。market 是出站闸维度, 不是 s1 测量维度 ⇒「s1 读数无市场分层」的结论不变, 但「实扫过、仓内没有」是错的。"
+  }
+ ],
+ "method_defects_no_verdict_flip": [
+  "重言集按**文件**粒度相减: tests/test_cce_playbook_atoms_a1a2.py 同时含 :106 的 instrument_hash 断言(重言)与 :128-133 用 _stage1_template() 内容的断言(非重言)。本簇各臂未实际造成假阴性, 但粒度不安全。",
+  "prompt_pinned_set 把 tests/test_cce_fingerprint_coverage.py 整体折价成「只证明治理生效」; 该文件 :124 `assert KC.SCOPE_WIDENINGS[key]['verify']()` 钉的是**判决谓词**, 不是治理 —— 正是被推翻的那条。",
+  "覆盖缺口: stage1 的 structural_gate==SG_ABSTAIN **零调用弃权早返回**(scripts/cce_knot_classify.py:152-166)在本簇 locus 内, 22/22 全 MEASURE ⇒ 0 触发, 但**没有任何 component/arm/verdict 覆盖它**。典型 M8 保险丝, 本轮漏判。"
+ ],
+ "confirmed": [
+  "file_integrity: 我自己重算四个冻结件 sha256, 与 sha_before / sha_after 逐一相同。",
+  "positive_control(死常量 UNREACHABLE + 液性 + 确定性 + noop): 我在他的装置上独立复跑, 全部复现。",
+  "T4 自适应扩档 UNREACHABLE: len(_S1_BASE_TEMPS)==7, temps=_base[:k] ⇒ k<=7 不执行; --k 为 type=int 且**无上界** ⇒ k>=8 可由 CLI 触达。复活条件写对了, 且正确地没判成 NO_CONSUMER(M8)。",
+  "L2_avg_to_first 的「0 条测试守住 tops 是 K 次聚合」: 属实。tests/test_cce_aggregation_semantics.py 不 import cce_knot_classify, 其断言是 s2 软聚合主类, 与 s1 avg-vs-首抽无关。**本报告最有价值的一条, 站得住。**",
+  "K1_ignore_k 的「0 条测试守住 k_requested 与实际档数一致」: 属实。k_requested 在 tests/ 只出现在桩字典里, 无一致性断言。",
+  "T1 的 1 条行为红: tests/test_cce_measurement_system.py:237 `assert len({d['from_temperature'] ...}) == 3` 是运行期断言, 确实会红。",
+  "T3 顺序判 LOAD_BEARING_L1_ONLY: 数学上正确 —— avg 与 within_js 对顺序不变, single_draw 与 round_robin 配对对顺序敏感。",
+  "deletable 是独立字段: NO_CONSUMER 那条也给了 deletable=false 并写了独立理由, 未从 verdict 推导。",
+  "CIRCULAR 自觉标注(tops_evidence_is_CIRCULAR)与 blind::stage2_replay 自曝, 是本轮方法学的真实进步。"
+ ]
+}

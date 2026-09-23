@@ -1,0 +1,152 @@
+{
+ "block": "CE3_EXIT_AND_ACCEPTANCE_GATES__INDEPENDENT_RECHECK",
+ "unit": "CE3_出口闸与验收闸",
+ "reviewer": "独立对抗复核 agent (rev_11563)",
+ "decided_at": "2026-09-11T20:04:12",
+ "被核产物": "tests/data/ablation_v3/CE3_出口闸与验收闸.json",
+ "结论一句话": "2 条判决全部 confirmed（v3-072 UNREACHABLE · v3-128 NO_CONSUMER）；推翻不了。1 条辅助数字 downgraded（L4 基线红 1 条 = 假的，干净树里全绿；液性臂净新增真值 3 不是 2）。本轮另发现并修复一起冻结件事故（由我自己的 symlink 农场造成，已还原并核 sha）。",
+ "★★★事故（必须先读）": {
+  "事实": "2026-09-11 19:40:25 仓内冻结件 scripts/cce_knot_classify.py 被追加两行 (空行 + `# refactor log reverse test`)，sha 由 f2cef2f99c949a75… 变成 ad6503a8db0e871d…，仓自己的 CORE_BOUNDARY 闸当场转红。",
+  "根因（我的，不是被核 agent 的）": "我第一版 L4 农场用 **symlink 镜像**：mirror/scripts/cce_knot_classify.py 是指向真仓的符号链接。tests/test_cce_chain_conformance.py 会以子进程跑 config/cce_chain_conformance.json:211 的 gate_command（含 `python3 tests/test_cce_core_boundary.py`），而 tests/test_cce_core_boundary.py:83-87 会**对 scripts/cce_knot_classify.py 追加一行再还原**；它用 os.path.abspath(__file__) 推 ROOT ⇒ 在镜像里 ROOT=镜像，但 open(abs_core,'a') 沿 symlink 写穿到**真仓**。该轮该测试中途失败 ⇒ 还原没跑完 ⇒ 痕迹留在真仓。",
+  "已处置": "备份受损件到 scratchpad/rev_11563/DAMAGED_cce_knot_classify.py.bak；逐字节剥掉后缀 b'\\n# refactor log reverse test\\n'；写回后现算 sha = f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b（= 冻结值，逐位相同）；`python3 scripts/cce_core_boundary.py` 重跑 = CORE_BOUNDARY_PASS。另与并行 agent 的 pristine 农场副本 scratchpad/CE3_gates_92379/mirror/scripts/cce_knot_classify.py (sha f2cef2f99c949a75…) 逐行 diff，确认**差异只有那两行**。",
+  "可迁移教训（写给所有做 L4 农场的 agent）": "① 农场必须**实拷贝**，禁止 symlink —— symlink 会让**会写文件的测试**（test_cce_core_boundary 的反向臂）写穿到真仓；② 同一原因还会**低报净新增**：104/161 个 tests/test_*.py 用 Path(__file__).resolve() 推 ROOT，symlink 被 resolve 解回真仓 ⇒ 消融对它们结构上不可见。我实测：同一条注入臂，symlink 农场净新增 **3**，实拷贝农场净新增 **4**（差的那条正是 test_cce_measurement_system）。"
+ },
+ "我实际跑了什么": {
+  "工具": "自己写的 rev.py / arms.py / arms2.py / gate128.py / fpc.py / l4.py / l4b.py / pc.py，位于 scratchpad/rev_11563/；复用 probes/ablation_harness_v3.load() 做内存内 exec + 绊线。",
+  "零 API": "进程内 socket.socket.connect 绊线 + 每个 L4 子进程自带绊线；全部 tripped=[]。只设假 key MINIMAX_API_KEY=OFFLINE-FAKE-KEY-NOT-A-SECRET，绝不 export 真 key。",
+  "仓内未改": "除上面那起事故（已还原）外，被测文件一字未改；ablation_verdicts_v3.json sha 进出一致。"
+ },
+ "逐条核对": [
+  {
+   "item": "① 观测面真的覆盖 CE-3 四面吗？自己 import cce_k1_status 跑一遍",
+   "verdict": "CONFIRMED",
+   "how": "我自建 F1/F2a/F2b/F3/F4 五个面，不用它的代码。现算 live instrument：k=3 → **d4cce4c745f3f991**、k=5 → **c4419c3e53aa2fa9**（生产形式 instrument_id(taxo,k,knot_n=KNOT_N,s1_pairing=f'round_robin_over_{k}_s1_draws')，见 cce_knot_classify.py:753/770）。verdict_path_for('d4cce4c745f3f991') = tests/data/phase2/k1_reliability_verdict.json；layer_status → top1 usable=True / intensity usable=False；knot_readout_usable 七种形式 = top1:True，intensity/weight/band3/rank_rho/top2_set/bogus 全 False；weight_usable=False。verdict_path_for('c4419c3e53aa2fa9') = None。F3 出口闸 68 行重放：**top1 放行 59/68 · withheld 2/68** —— 与它报的逐位相同。"
+  },
+  {
+   "item": "语料与工况可复现吗",
+   "verdict": "CONFIRMED",
+   "how": "按它公布的行选择规则（archive/*/*.json 顶层同时有 mode(str) 与 stages(dict)）独立重建 = **68 行**，mode 分布 reply 48 · response 16 · media_ingest 2 · outbound_post 2（与它一致）；逐行 relpath+sha256 串接再取 sha256 = **b824a9ad179d0526579321319000d8cdf443dfb4f3c81de0a73fe77ec45193f2**，与它公布的值逐位相同。k 由 mode 推（cce_full_run.py:538 `5 if mode in {post,outbound_post} else 3`）⇒ k=3 共 66 · k=5 共 2，一致。"
+  },
+  {
+   "item": "② faces_blind 有没有把没测的面写成「不变」",
+   "verdict": "CONFIRMED（且我把它标 blind 的两条**关掉了**，方向是加强不是削弱）",
+   "how": "它把「docs/ · skills/ · run/ · archive/ 的引用」标成 blind。我做了**全仓**扫描（不限 SCAN_DIRS）：词边界 `GATE_PROTOCOL`（排除 _VERSION/_CHANGE）全仓 18 处，其中 **17 处在 tests/data 的消融台账自身**，真实代码只有 **accuracy/run_gates.py:171 的赋值行本身**；docs/ skills/ run/ archive/ .github/ **零命中**。词边界 `_same` 全仓：真实代码只有 scripts/cce_k1_status.py 的 162/165/167/168 四行，其余全在台账里。`same_physical_instrument` 全仓：定义 cce_knot_classify.py:430、**唯一生产调用方** cce_k1_status.py:165、外加 config/cce_core_manifest.json:153 的 refactor_log 散文。⇒ 两条 blind 都可以关掉。"
+  },
+  {
+   "item": "★ 它没写出来的一条更强论证（我补的）",
+   "verdict": "STRENGTHENS",
+   "how": "它是靠枚举 9 台仪器说守卫不开火。其实**结构上**就不可能开火：三份判定文件的 instrument_hash 分别是 565470cf26c16d01 / 0e9ca1d4e7a2f180 / 565470cf26c16d01，恰好就是 VERDICT_BY_INSTRUMENT 登记的那两台；而唯一的继承边 (565470cf26c16d01 → d4cce4c745f3f991, verify()=True) 也让 same_physical_instrument 返回 True。⇒ **凡是能从 verdict_path_for 拿到路径的仪器，_same 必为 True** ⇒ 守卫在生产调用形式下对**任何**instrument_hash 都不可达，不只是对它枚举的那 9 台。这让 UNREACHABLE 比它自己论证的更稳。"
+  },
+  {
+   "item": "③ 有没有把 P 与 G 混成一条判决",
+   "verdict": "CONFIRMED（没混），但 G 侧报了三个**结构上惰性**的面",
+   "how": "两条判决 consumer_side 分别是 P / G，各自独立。但 v3-128 的 L1_changed 写「F1 全同 · F2 全同 · F3 出口闸 68 行逐行相同」作为证据 —— 我实测 cce_full_run / cce_k1_status / cce_knot_classify / cce_preparation_bridge / exp_crossmodel_desire **没有任何一个 import run_gates**（grep -c 全为 0）⇒ 这三个面对 run_gates 的消融**结构上不可能变**，零证据力。真正承证据的是闸面板面 + 抛异常哨兵 + 静态词边界扫描，这三样它都做了且我都复现了。⇒ 判决不受影响，但那三行应标 inert 而不是当作「四面一致」。"
+  },
+  {
+   "item": "④ NO_CONSUMER 的注入臂是否跑在能看见消费者的面上",
+   "verdict": "CONFIRMED",
+   "how": "我自建闸面板面独立重跑三条臂（清空 / XXDEADXX / 抛异常哨兵对象）：GATE_PROTOCOL_VERSION=2 · gate_protocol_hash()=**dbdff13f9da155bc** · stamp_params 落盘 payload · MODELS · RUN_PARAMS · cce_core_boundary.check() —— **逐项零差异**，哨兵**一次都没被触发**。同一装置的液性臂 GATE_PROTOCOL_VERSION 2→99：payload sha 变、core_boundary ok True→False(1 error) ⇒ **面确实接上了**。另实测 stamp_params 落盘 payload 里**没有** ★covers/★does_not_cover/★★why_separate 任何一个键（我把 payload 的键名过了一遍，命中 0）⇒ 它「该接线不是该删」的实证成立。全仓无 getattr/vars/dir 形式读 run_gates 的动态消费者（grep 零命中）。"
+  },
+  {
+   "item": "⑤ 引用扫描是否含 accuracy/ 与 .github/ —— 我自己全面 grep",
+   "verdict": "CONFIRMED（我的扫描面比它更宽，结论相同）",
+   "how": "见上「② faces_blind」。它的 SCAN_DIRS = scripts/ probes/ accuracy/ tests/ .github/ config/；我扫**整个仓**（含 docs/ skills/ run/ archive/ corpus/ results/ K2 M1 M2 M3d T1…）。粗计数字与它不同（我 18 / 它 12）纯粹是扫描面与后缀过滤不同，**去掉消融台账后两边都是：GATE_PROTOCOL 1 处（自赋值）、_same 4 处（全在 cce_k1_status.py 内）**。"
+  },
+  {
+   "item": "⑥ 拿肯定不承重的东西过它的装置，会不会出伪阳性",
+   "verdict": "CONFIRMED — 没有伪阳性，且装置有判别力",
+   "how": "P 侧装置（F1-F4）四条阴性对照全部 IDENTICAL：FPC1 改 cce_k1_status 模块 docstring · FPC2 改 verdict_path_for 整段 docstring · FPC3 改 cce_knot_classify.same_physical_instrument 里一整段注释 · FPC4 把 KNOT_READOUT_EXCLUDED['band3'] 的理由串换成 XXDEADXX。G 侧装置（闸面板）阴性对照（run_gates 里一句纯注释）同样 IDENTICAL。判别力对照：把 KNOT_READOUT_ALLOWLIST={'top1'} 清空 ⇒ F2 **立刻翻**（真阳性）。⇒ 装置不是「什么都判不变」，也不是「什么都判变」。"
+  },
+  {
+   "item": "⑦ 四个冻结件 sha256 自己重算",
+   "verdict": "CONFIRMED（但期间出过事故，见上）",
+   "how": "现值：cce_knot_classify.py f2cef2f99c949a75… · knot_taxonomy.json 56a1c1977bf8d18c… · cce_core_manifest.json 9d9e122966b753f8… · run_gates.py b758e6676a94acf3… —— 四条与任务书要求值逐位相同。另核 cce_k1_status.py 5f0df2624754c865… · cce_full_run.py 5e41ede1fcde2745… · ablation_verdicts_v3.json **85aee4a840eca7b8…（与它报的一致，我没动它，R5 遵守）**。"
+  },
+  {
+   "item": "阳性对照 11/11 是真的吗",
+   "verdict": "CONFIRMED",
+   "how": "我独立重跑 probes/ablation_harness_v3.positive_control()：passed=True · failed_gates=[] · 11 个 gate 全 true（含 dead_swap_not_load_bearing · dead_absurd_injection_still_no_diff · liquid_L1_changed · L3_is_tautology_confirmed · dead_constant_is_UNREACHABLE_not_NO_CONSUMER）· tripwire=[] · file_integrity identical=True · corpus_sha=8226cd11ee4593a0…（= 它报的 OP_archive22 值）· k 分布 {3:20,5:2}。★ 顺带实证它那条更正：harness 的 operating_point() 里那句「仓内无 market 字段(已实扫)」**至今还写在 probes/ablation_harness_v3.py:288 的返回值里**，是假的。"
+  },
+  {
+   "item": "M6 五条注入臂 + 两条新复活条件，逐臂重跑",
+   "verdict": "CONFIRMED — 20 条臂里我跑的 13 条，出口闸数字**逐条逐位吻合**",
+   "how": "base 59/2 · A0_noop 59/2 · V072_guard_off 59/2（68 行 rows_sha 与 base 逐位相同）· V072_inj_always_fire **0/61** · guard 抛异常 **0 放行 / 59 行 layer_status 直接 RAISED 不被吞** · same_physical_instrument 抛异常 **0/61**（except 退回裸 == ⇒ 守卫开火）· 同臂关守卫 **回到 59/68** · 直接登记 d4cce4c745f3f991 **59/68**（top1 计数不变；★ 它写「纯登记无行为变化」略松 —— 未登记仪器的扣发理由串里 sorted(VERDICT_BY_INSTRUMENT) 会跟着变，rows_sha 变了，但判决面不变）· 自证破裂 verify()=False **0/61**，开/关守卫都 0/61 ⇒ 守卫确是**第二道门** · ★ 登记+自证破裂：守卫在 **0/68**，守卫关 **59/68 错误放行** ⇒ 它的复活条件⑤成立 · 液性臂 LIQ_tmpl_absurd：live i3 变成 3cdf37b226d9b54f、verdict_path→None、**0/68**，四面全翻。确定性：base 连观测两次逐字节相同（rows_sha bcf3800b2de34632，还原冻结件前后各跑一次仍相同）。"
+  },
+  {
+   "item": "L4（v3-072）净新增 0、破坏性臂 4",
+   "verdict": "CONFIRMED（用**实拷贝**农场复现；symlink 农场会给出错误的 3）",
+   "how": "命中集 26 个 tests/test_*.py（静态提到 cce_k1_status / cce_full_run / reply_loop / cce_align_v2 / cce_production_status / cce_doc_reconcile 之一）。实拷贝农场 × 4 臂：基线红 **0** · A0_noop 净新增 **0** · V072_guard_off 净新增 **0** · V072_inj_always_fire 净新增 **4** = test_cce_k1_k5_instrument / test_cce_k1_readout_forms / test_cce_measurement_system / test_cce_usable_routing —— **与它点名的四条一字不差**。"
+  },
+  {
+   "item": "L4（v3-128）净新增 0、液性臂 2",
+   "verdict": "DOWNGRADED（判决不受影响，但两个数字是错的）",
+   "how": "命中集 32 个（run_gates 的传递性 import 闭包 + core_boundary/doc_reconcile/criterion_cast）。实拷贝农场：**基线红 0** —— 它报的「基线红 1 条 tests/test_cce_chain_conformance.py，本就红」**在干净树里是假的**：该文件 base/A0/V128_dict_emptied/V128_sentinel_raise 四臂 rc 全 0，只有液性臂下才红。它之所以看到「本就红」，最可能就是农场里 test_cce_core_boundary 的追加/还原没闭环（与我踩的同一个坑）。V128_dict_emptied 与 V128_sentinel_raise 的原始新增都只有 tests/test_cce_criterion_cast.py，而那条钉的是 run_gates.py **整文件 sha256**（tests/test_cce_criterion_cast.py:187，criterion_cast.json 的 sources_sha256 六个文件里含 accuracy/run_gates.py、**不含** cce_k1_status.py）⇒ 对任何字节改动都翻红、零判别力，按对照减掉后 **净新增 = 0**（它这条对）。但液性臂 LIQ_gate_version 的净新增真值是 **3**（test_cce_chain_conformance + test_cce_core_boundary + test_cce_gate_protocol_version），不是它报的 2 —— 少的那条正是被它错当成基线红的 chain_conformance。"
+  },
+  {
+   "item": "L4「钉源码文本、内存内消融看不见」的那条闸（v3-072）",
+   "verdict": "CONFIRMED",
+   "how": "全仓找**按路径读 scripts/cce_k1_status.py 源码文本**的地方，只有一处：config/cce_doc_reconciliation.json 的 iron_laws/24 {kind:GATE, file:scripts/cce_k1_status.py, evidence:'intensity', test:tests/test_cce_usable_routing.py}，由 scripts/cce_doc_reconcile.py:50 `ev not in open(file).read()` 执行。`if not _same:` → `if False:` 不会删掉 'intensity' ⇒ 该闸不转红（我的实拷贝农场里它确实全程绿）。另核：config/cce_core_manifest.json 的 core_files 六个文件**不含** cce_k1_status.py，也不含 run_gates.py。★ 小瑕疵：它把入口测试写成 tests/test_cce_doc_reconcile.py 与 tests/test_cce_docs_index.py，而 config 里该条 GATE 自己登记的 test 是 tests/test_cce_usable_routing.py —— 不影响结论。"
+  },
+  {
+   "item": "工况声明（market / 语料 / k / profile）",
+   "verdict": "CONFIRMED",
+   "how": "`grep -rnE '\\bmarket\\b' scripts config accuracy` = **33** 处（与它一致）；CCE_MARKET 只在 scripts/cce_strategy_gate.py:140 `os.environ.get('CCE_MARKET','intl')`；它点名的 7 个代码行 strategy_gate 100/113/140 与 outbound_guard 286/309/343/361 **逐行核实存在**。三个 locus（cce_k1_status.py / run_gates.py / cce_full_run.py）内 market 出现 **0** 次（grep -c 实测）。★ 补一条它没提的：那 33 处还散在 scripts/cce_open_items.py:328 与 accuracy/data/ 的三份语料里，它的文件枚举只列了两个脚本（总数对，枚举不全）。"
+  },
+  {
+   "item": "R3 —— 有没有读仓外识别层",
+   "verdict": "CONFIRMED",
+   "how": "grep 它的产物：'cce-identified-vault' 命中 **0**。我自己全程也没读该路径。"
+  }
+ ],
+ "两条判决的最终裁定": [
+  {
+   "v3_id": "v3-072",
+   "verdict_was": "UNREACHABLE",
+   "verdict_now": "UNREACHABLE",
+   "deletable_was": false,
+   "deletable_now": false,
+   "why": "生产面（F1/F2a/F3 68 行逐行/F4）在 guard_off 下**零差异**，我独立复现；五条复活条件里我实跑了④⑤两条新的，都实测「关掉守卫 = 59/68 行生产 top1 被错误放行」。我还补了一条更强的结构性论证（见上 STRENGTHENS 条）。推翻不了。"
+  },
+  {
+   "v3_id": "v3-128",
+   "verdict_was": "NO_CONSUMER",
+   "verdict_now": "NO_CONSUMER",
+   "deletable_was": false,
+   "deletable_now": false,
+   "why": "全仓词边界扫描：真实代码里 `GATE_PROTOCOL` 只出现在它自己的赋值行；抛异常哨兵整轮零触发；闸面板三臂零差异而液性臂动。M8 要求区分「真死」与「本工况未触发」—— 这里可以判真死，因为**没有任何代码路径提到这个名字**，不存在能唤醒它的 k / market / profile。deletable=false 的理由（stamp_params payload 里没有它 ⇒ 该接线不是该删）我实测 payload 键名命中 0，成立。"
+  }
+ ],
+ "我没覆盖的（blind）": [
+  "blind::真实模型调用 —— 全程零 API，读数全来自存量 manifest 与确定性桩",
+  "blind::k∉{3,5} · market≠intl · profile 之外的工况",
+  "blind::run_gates.main() 的完整落盘路径（需真实调用）；静态上已被「文件内词边界引用=1」封死",
+  "blind::.github/ workflow 的真实 CI 行为（只做文本扫描与本地子进程复跑）",
+  "blind::161 个 tests/test_*.py 里命中集之外的那些（KS 26 / RG 32）—— 静态判定，动态 getattr/拼名消费者看不见",
+  "blind::绊线不覆盖 C 扩展自带网络栈 · 非 socket 传输 · 进入上下文前已建立的连接"
+ ],
+ "file_integrity": {
+  "after_my_run": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "scripts/cce_k1_status.py": "5f0df2624754c865c49eee39b5e4e81b9883da4bfc93a81d3d82d51f58e6f117",
+   "scripts/cce_full_run.py": "5e41ede1fcde2745cb09803fa789979abcfc6db2c95ae2309adb50f2a79c966a",
+   "tests/data/ablation_verdicts_v3.json": "85aee4a840eca7b89db00075a6d159dff5236eeb58bec2fc4bcb2a42e25cdf78"
+  },
+  "expected": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75…",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c…",
+   "config/cce_core_manifest.json": "9d9e122966b753f8…",
+   "accuracy/run_gates.py": "b758e6676a94acf3…"
+  },
+  "identical_to_frozen": true,
+  "note": "★ 期间出过一起事故并已还原，见 ★★★事故 一节。"
+ },
+ "tripwire": {
+  "in_process": [],
+  "l4_subprocesses": [],
+  "note": "全部 tripped=[]"
+ },
+ "scratchpad": "/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/rev_11563/"
+}

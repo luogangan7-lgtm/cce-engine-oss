@@ -1,0 +1,4462 @@
+{
+ "block": "ABLATION_V3_UNIT",
+ "unit": "空白_n改写与删除建议注入臂",
+ "decided_at": "2026-09-11T20:56:05",
+ "★读法": "两件事: ① scripts/cce_knot_classify.py:942 `n = n or KNOT_N` 的静默改写 (承重? 还是使 `if not draws: raise` 变死码? 两个都答) ② v2 两条 deletable=true 的大块删除建议补注入臂。P(生产)与 G(验收闸)分开出判决, 不合并。",
+ "★方法": {
+  "零API": "进程内 socket.socket.connect 绊线, 全程 tripped=[]; 每个 pytest 子进程也由 shim/sitecustomize.py 自带绊线。绝不 export 真 key, 只设 MINIMAX_API_KEY=OFFLINE-FAKE-KEY-NOT-A-SECRET。",
+  "仓内未改": "只做内存内源码字符串替换后 exec; L4 用文件虚拟化 shim(拦 open/read_text/read_bytes + meta_path), 磁盘零写入。",
+  "观测面": {
+   "F_own.stage1/reach/stage2": "本簇自有面: 22 份存量 draw_ledger 按 tag 重放 _stage2_aggregate + stage1 排程 + 可达性",
+   "F_n": "★ 本轮新建: `n` 的 8 种调用形状(None/0/False/-1/1/5/10/全失败), 专门把静默改写放大成可观测量",
+   "F_instrument": "CE-3 面①: instrument_id / same_physical_instrument / calibration_transfers(含 knot_n=0)",
+   "F_k1": "CE-3 面②: verdict_path_for(d4cce4c745f3f991) / layer_status / knot_readout_usable 七形式 / weight_usable",
+   "F_exit": "CE-3 面③: cce_full_run.qualified() 在 68 行存量 manifest 上重放, 记 usable/withheld 集合"
+  },
+  "判据": "只用 L1(数值)/L2(判决)/L4(翻红, 带空操作对照)。L3=instrument_hash 全程不作判据(M2)。"
+ },
+ "operating_point": {
+  "market": "未设置 CCE_MARKET(本轮全程默认缺省)。★ 更正: 仓内 market **确实存在** —— scripts/cce_strategy_gate.py:100/113/140(含 os.environ.get('CCE_MARKET','intl')) 与 scripts/cce_outbound_guard.py:286/309/343/361(默认 'cn'), .py 词边界命中 44 处。本轮观测面**不含** cce_strategy_gate / cce_outbound_guard ⇒ market 维度未进入任何一条判决, 判决不得外推到按 market 分层的工况。★ probes/ablation_harness_v3.py:288 的 operating_point() 里仍写着「仓内无 market 字段(已实扫)」—— 那句是假的, 本产物不沿用。",
+  "profile": [
+   "{\"stage1\": \"exp_v4_full_validation(frozen, M3)\", \"stage2\": \"knot_taxonomy v1.3.1 (M3)\", \"taxonomy_status\": \"v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注\"}"
+  ],
+  "n_archive_files": 22,
+  "k_distribution": {
+   "3": 20,
+   "5": 2
+  },
+  "n_draws_per_file": {
+   "5": 22
+  },
+  "s1_temperature_distribution": {
+   "0.0": 22,
+   "0.15": 2,
+   "0.3": 22,
+   "0.6": 22,
+   "0.9": 2
+  },
+  "corpus_sha256": "8226cd11ee4593a08ed356aa1085acce3c9aea2f287ae0ae544ee2e48c355ac7",
+  "decided_at": "2026-09-11T20:56:05",
+  "drift_rule": "以上任一项变化 ⇒ 基于本工况的判决当场失效, 必须重跑。",
+  "M8_structural_bias": "只在存量数据上做的消融**天然把所有保险丝判成装饰** —— 保险丝的定义就是「平时永远不动」。故 NO_CONSUMER 必须区分「真死」与「在本存量工况下没被触发」(后者应判 UNREACHABLE 并写明复活条件)。",
+  "profile_note": "F_exit 的 68 行按 mode 分层: reply 48 · response 16 · media_ingest 2 · outbound_post 2。",
+  "n_replayed": {
+   "stage2_replay_files": 22,
+   "exit_gate_rows": 68,
+   "pytest_items_base": 409
+  }
+ },
+ "positive_control": {
+  "harness": "probes/ablation_harness_v3.positive_control()",
+  "passed": true,
+  "failed_gates": [],
+  "gates": {
+   "dead_swap_not_load_bearing": true,
+   "dead_absurd_injection_still_no_diff": true,
+   "liquid_L1_changed": true,
+   "liquid_changed_broadly": true,
+   "noop_no_diff": true,
+   "determinism": true,
+   "tags_indexed": true,
+   "tripwire_never_tripped": true,
+   "repo_files_untouched": true,
+   "L3_is_tautology_confirmed": true,
+   "dead_constant_is_UNREACHABLE_not_NO_CONSUMER": true
+  },
+  "checks": {
+   "determinism_same_module_twice": true,
+   "determinism_fresh_reload": true,
+   "baseline_replay_reproduces_archived_intensity": "22/22",
+   "tags_indexed_not_iterator": true,
+   "dead_constant_revives_at_k": {
+    "k": 7,
+    "base_temps": [
+     0.0,
+     0.3,
+     0.6,
+     0.9,
+     0.15,
+     0.45,
+     0.75
+    ],
+    "dead_arm_temps": [
+     0.0,
+     0.3,
+     0.6,
+     0.9,
+     0.15,
+     999.0,
+     -999.0
+    ],
+    "L1_changed_at_this_k": true
+   },
+   "tripwire_tripped": []
+  },
+  "dead_constant_verdict": "UNREACHABLE(本工况 k≤5 下第 6/7 档永不取用; k≥6 即复活 —— 实证见 checks.dead_constant_revives_at_k)。M5 词表下**不是** NO_CONSUMER, 更**不是**承重。",
+  "★stage2面另一条(M1 补充)": {
+   "为什么必须": "温度表不喂 stage2, 而本簇①落在 _stage2_aggregate(stage2) ⇒ 必须另跑 stage2 面液性臂。",
+   "液性臂": "S2_POSCTL_liquid_taxo_reward_family —— 内存副本里把**真被消费的** knot 键 `reward`(存量 81 次出现) 的 family 由 推动 翻成 阻挡",
+   "结果": {
+    "F_own.stage2_changed": true,
+    "F_instrument_changed": true,
+    "F_exit": {
+     "n_rows": 68,
+     "top1_usable": 0,
+     "top1_withheld": 61,
+     "rows_sha": "9957a4d67781d968"
+    }
+   },
+   "死对照臂": {
+    "臂": "S2_DEAD_taxo_unconsumed_key(追加一个存量里从不出现的 knot 键 NEVER_DRAWN_999)",
+    "changed": {
+     "F_own.stage1": false,
+     "F_own.reach": false,
+     "F_own.stage2": false,
+     "F_n": false,
+     "F_instrument": true,
+     "F_k1": false,
+     "F_exit": false
+    }
+   },
+   "结论": "stage2 面确实接上且有分辨力(活键翻→变, 死键加→stage2 不变)。"
+  },
+  "★②臂的注入通道对照": {
+   "B8_POSCTL_poison_live_full": {
+    "LOAD_FAILED": "RuntimeError: POISON-TOUCHED:DESIRES"
+   },
+   "B9_POSCTL_poison_live_chain": {
+    "LOAD_FAILED": "RuntimeError: POISON-TOUCHED:EMOTIONS"
+   },
+   "读法": "毒化**被生产 import 的**符号 ⇒ cce_knot_classify 载入期立刻 RuntimeError POISON-TOUCHED ⇒ 注入通道确实接上; 因此 B1~B7 的「毒未被碰」是阴性结果, 不是断线。"
+  },
+  "determinism_ok": true,
+  "tripwire_tripped": [],
+  "tripwire_scope": "覆盖: 本进程内**经 socket.socket.connect 新建**的连接(含 urllib/requests/http.client)。 **不覆盖**: ① 进入本上下文**之前已建立**的连接 ② 不走 socket 的传输(共享内存 / 本机文件 / unix pipe 以外的自带通道) ③ **子进程**(subprocess / os.system 另起进程, 有自己的 socket 模块) ④ **C 扩展自带的网络栈**(不经 Python socket 对象) ⑤ 本进程外的任何东西。 ⇒ 证据只能说「**本进程内经 socket 新建的连接被拦截, 且整段运行中一次都没被触发**」, **不能**说「全进程所有网络出口都已关闭」。"
+ },
+ "arms_raw": {
+  "A0_noop": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": false,
+    "F_instrument": false,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 5 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "d4cce4c745f3f991",
+    "live_k5_hash": "c4419c3e53aa2fa9",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": true,
+     "changed": []
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "d4cce4c745f3f991",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "0ddf3f6389114d10",
+    "exp_v4_full_validation": "f934b56b01b6b6b2",
+    "cce_knot_classify": "a72258139b8d3ce0",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "A1_fix_is_none": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": true,
+    "F_instrument": false,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 5 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "d4cce4c745f3f991",
+    "live_k5_hash": "c4419c3e53aa2fa9",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": true,
+     "changed": []
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "d4cce4c745f3f991",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "0ddf3f6389114d10",
+    "exp_v4_full_validation": "f934b56b01b6b6b2",
+    "cce_knot_classify": "e93a2abbcbcb3b36",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "A2_always_KNOT_N": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": true,
+    "F_instrument": false,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 5 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "d4cce4c745f3f991",
+    "live_k5_hash": "c4419c3e53aa2fa9",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": true,
+     "changed": []
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "d4cce4c745f3f991",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "0ddf3f6389114d10",
+    "exp_v4_full_validation": "f934b56b01b6b6b2",
+    "cce_knot_classify": "b81b6a126a3bcf30",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "A3_no_default": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": true,
+    "F_instrument": false,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": "TypeError: '<' not supported between instances of 'NoneType' and 'int'",
+     "n_calls": 0
+    },
+    "n_0_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "TypeError: '<' not supported between instances of 'NoneType' and 'int'",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "d4cce4c745f3f991",
+    "live_k5_hash": "c4419c3e53aa2fa9",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": true,
+     "changed": []
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "d4cce4c745f3f991",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "0ddf3f6389114d10",
+    "exp_v4_full_validation": "f934b56b01b6b6b2",
+    "cce_knot_classify": "e97dc8be06fe92bd",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "A4_absurd_999": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": true,
+    "F_instrument": false,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": "KeyError: \"★ 重放 stub 收到未登记的 tag='d5'; 已登记 ['d0', 'd1', 'd2', 'd3', 'd4']\"",
+     "n_calls": 14
+    },
+    "n_0_explicit": {
+     "exc": "KeyError: \"★ 重放 stub 收到未登记的 tag='d5'; 已登记 ['d0', 'd1', 'd2', 'd3', 'd4']\"",
+     "n_calls": 15
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": "KeyError: \"★ 重放 stub 收到未登记的 tag='d5'; 已登记 ['d0', 'd1', 'd2', 'd3', 'd4']\"",
+     "n_calls": 15
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 999 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "d4cce4c745f3f991",
+    "live_k5_hash": "c4419c3e53aa2fa9",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": true,
+     "changed": []
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "d4cce4c745f3f991",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "0ddf3f6389114d10",
+    "exp_v4_full_validation": "f934b56b01b6b6b2",
+    "cce_knot_classify": "b5aa48ea1e8be3b6",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "A5_default_1": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": true,
+    "F_instrument": false,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 1 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "d4cce4c745f3f991",
+    "live_k5_hash": "c4419c3e53aa2fa9",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": true,
+     "changed": []
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "d4cce4c745f3f991",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "0ddf3f6389114d10",
+    "exp_v4_full_validation": "f934b56b01b6b6b2",
+    "cce_knot_classify": "18899d843c6f3594",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "A6_spec_fix_is_none": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": false,
+    "F_instrument": true,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 5 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "d4cce4c745f3f991",
+    "live_k5_hash": "c4419c3e53aa2fa9",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": false,
+     "changed": [
+      "sampling_policy.s2_n"
+     ]
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "3979ecc1b9e8013d",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "0ddf3f6389114d10",
+    "exp_v4_full_validation": "f934b56b01b6b6b2",
+    "cce_knot_classify": "7cd4de3eadf8cc88",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "A6b_spec_absurd": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": false,
+    "F_instrument": true,
+    "F_k1": true,
+    "F_exit": true
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 0,
+    "top1_withheld": 61,
+    "rows_sha": "9957a4d67781d968"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 5 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "bb86fc7bf90ef416",
+    "live_k5_hash": "280a1629d9ba8353",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 999,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": false,
+     "changed": [
+      "sampling_policy.s2_n"
+     ]
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "bb86fc7bf90ef416",
+     "bb86fc7bf90ef416"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": null,
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": false
+     }
+    },
+    "knot_readout_usable": {
+     "top1": false,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "0ddf3f6389114d10",
+    "exp_v4_full_validation": "f934b56b01b6b6b2",
+    "cce_knot_classify": "5dc572fcfae28912",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "A7_gate_removed": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": true,
+    "F_instrument": false,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": null,
+     "n_calls": 0,
+     "n_requested_reported": 5,
+     "n_ok": 0,
+     "L2_status": "abstain",
+     "L1_intensity_sha": "44136fa355b3678a",
+     "L2_top1_mode": null
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "d4cce4c745f3f991",
+    "live_k5_hash": "c4419c3e53aa2fa9",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": true,
+     "changed": []
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "d4cce4c745f3f991",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "0ddf3f6389114d10",
+    "exp_v4_full_validation": "f934b56b01b6b6b2",
+    "cce_knot_classify": "f1a9568d1b76af13",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "A8_gate_absurd_msg": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": true,
+    "F_instrument": false,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: ABSURD-999",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "d4cce4c745f3f991",
+    "live_k5_hash": "c4419c3e53aa2fa9",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": true,
+     "changed": []
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "d4cce4c745f3f991",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "0ddf3f6389114d10",
+    "exp_v4_full_validation": "f934b56b01b6b6b2",
+    "cce_knot_classify": "633c03ce6f2c1db3",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "A9_env_CCE_KNOT_N_0": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": true,
+    "F_instrument": true,
+    "F_k1": true,
+    "F_exit": true
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 0,
+    "top1_withheld": 61,
+    "rows_sha": "9957a4d67781d968"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "n_0_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "3979ecc1b9e8013d",
+    "live_k5_hash": "54b628d572f7b02c",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 0,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": false,
+     "changed": [
+      "sampling_policy.s2_n"
+     ]
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "3979ecc1b9e8013d",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": null,
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": false
+     }
+    },
+    "knot_readout_usable": {
+     "top1": false,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "0ddf3f6389114d10",
+    "exp_v4_full_validation": "f934b56b01b6b6b2",
+    "cce_knot_classify": "f2cef2f99c949a75",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "A10_env_CCE_KNOT_N_1": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": true,
+    "F_instrument": true,
+    "F_k1": true,
+    "F_exit": true
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 0,
+    "top1_withheld": 61,
+    "rows_sha": "9957a4d67781d968"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 1 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "ee2e64518cef2ec1",
+    "live_k5_hash": "b69a558526151f19",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 1,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": false,
+     "changed": [
+      "sampling_policy.s2_n"
+     ]
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "ee2e64518cef2ec1",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": null,
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": false
+     }
+    },
+    "knot_readout_usable": {
+     "top1": false,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "0ddf3f6389114d10",
+    "exp_v4_full_validation": "f934b56b01b6b6b2",
+    "cce_knot_classify": "f2cef2f99c949a75",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "S2_POSCTL_liquid_taxo_reward_family": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": true,
+    "F_n": false,
+    "F_instrument": true,
+    "F_k1": true,
+    "F_exit": true
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 0,
+    "top1_withheld": 61,
+    "rows_sha": "9957a4d67781d968"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 5 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "c7aee45ced2fcd6a",
+    "live_k5_hash": "bbc541364ee4e79a",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": true,
+     "changed": []
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "c7aee45ced2fcd6a",
+     "c7aee45ced2fcd6a"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": null,
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": false
+     }
+    },
+    "knot_readout_usable": {
+     "top1": false,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "0ddf3f6389114d10",
+    "exp_v4_full_validation": "f934b56b01b6b6b2",
+    "cce_knot_classify": "f2cef2f99c949a75",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "S2_DEAD_taxo_unconsumed_key": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": false,
+    "F_instrument": true,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 5 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "instrument_exc": "KeyError: 'signature'"
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "0ddf3f6389114d10",
+    "exp_v4_full_validation": "f934b56b01b6b6b2",
+    "cce_knot_classify": "f2cef2f99c949a75",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "B0_noop": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": false,
+    "F_instrument": false,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 5 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "d4cce4c745f3f991",
+    "live_k5_hash": "c4419c3e53aa2fa9",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": true,
+     "changed": []
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "d4cce4c745f3f991",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "0ddf3f6389114d10",
+    "exp_v4_full_validation": "20cade71b2d64cb3",
+    "cce_knot_classify": "f2cef2f99c949a75",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "B1_del_full": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": false,
+    "F_instrument": false,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 5 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "d4cce4c745f3f991",
+    "live_k5_hash": "c4419c3e53aa2fa9",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": true,
+     "changed": []
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "d4cce4c745f3f991",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "0ddf3f6389114d10",
+    "exp_v4_full_validation": "fdf3e3b453054021",
+    "cce_knot_classify": "f2cef2f99c949a75",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "B2_poison_full": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": false,
+    "F_instrument": false,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 5 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "d4cce4c745f3f991",
+    "live_k5_hash": "c4419c3e53aa2fa9",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": true,
+     "changed": []
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "d4cce4c745f3f991",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "0ddf3f6389114d10",
+    "exp_v4_full_validation": "3bb7cf09cd5c6fef",
+    "cce_knot_classify": "f2cef2f99c949a75",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "B3_absurd_full": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": false,
+    "F_instrument": false,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 5 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "d4cce4c745f3f991",
+    "live_k5_hash": "c4419c3e53aa2fa9",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": true,
+     "changed": []
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "d4cce4c745f3f991",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "0ddf3f6389114d10",
+    "exp_v4_full_validation": "57d777dfe255d2f2",
+    "cce_knot_classify": "f2cef2f99c949a75",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "B4_del_chain_v2set": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": false,
+    "F_instrument": false,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 5 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "d4cce4c745f3f991",
+    "live_k5_hash": "c4419c3e53aa2fa9",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": true,
+     "changed": []
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "d4cce4c745f3f991",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "574a32467277940e",
+    "exp_v4_full_validation": "f934b56b01b6b6b2",
+    "cce_knot_classify": "f2cef2f99c949a75",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "B4b_del_chain_all": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": false,
+    "F_instrument": false,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 5 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "d4cce4c745f3f991",
+    "live_k5_hash": "c4419c3e53aa2fa9",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": true,
+     "changed": []
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "d4cce4c745f3f991",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "58a29d6294d2cfc8",
+    "exp_v4_full_validation": "f934b56b01b6b6b2",
+    "cce_knot_classify": "f2cef2f99c949a75",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "B5_poison_chain": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": false,
+    "F_instrument": false,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 5 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "d4cce4c745f3f991",
+    "live_k5_hash": "c4419c3e53aa2fa9",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": true,
+     "changed": []
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "d4cce4c745f3f991",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "c1dd3f3c68341e31",
+    "exp_v4_full_validation": "f934b56b01b6b6b2",
+    "cce_knot_classify": "f2cef2f99c949a75",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "B6_absurd_chain": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": false,
+    "F_instrument": false,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 5 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "d4cce4c745f3f991",
+    "live_k5_hash": "c4419c3e53aa2fa9",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": true,
+     "changed": []
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "d4cce4c745f3f991",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "7e17430d718cb28a",
+    "exp_v4_full_validation": "f934b56b01b6b6b2",
+    "cce_knot_classify": "f2cef2f99c949a75",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "B7_both_del": {
+   "changed": {
+    "F_own.stage1": false,
+    "F_own.reach": false,
+    "F_own.stage2": false,
+    "F_n": false,
+    "F_instrument": false,
+    "F_k1": false,
+    "F_exit": false
+   },
+   "poison_touched": [],
+   "F_exit_summary": {
+    "n_rows": 68,
+    "top1_usable": 61,
+    "top1_withheld": 0,
+    "rows_sha": "a9857f12e6daeb52"
+   },
+   "F_n": {
+    "n_None_production_shape": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_0_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_5_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_1_explicit": {
+     "exc": null,
+     "n_calls": 1,
+     "n_requested_reported": 1,
+     "n_ok": 1,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "eacea9d396cf7f19",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_10_explicit": {
+     "exc": null,
+     "n_calls": 10,
+     "n_requested_reported": 10,
+     "n_ok": 10,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_False_explicit": {
+     "exc": null,
+     "n_calls": 5,
+     "n_requested_reported": 5,
+     "n_ok": 5,
+     "L2_status": "qualified",
+     "L1_intensity_sha": "bc7dfd998a0a84b8",
+     "L2_top1_mode": "pain_seek"
+    },
+    "n_neg1_explicit": {
+     "exc": "ValueError: max_workers must be greater than 0",
+     "n_calls": 0
+    },
+    "all_draws_fail_n_None": {
+     "exc": "RuntimeError: stage2 5 次抽样全部失败(raw 已存)",
+     "n_calls": 0
+    }
+   },
+   "F_instrument": {
+    "live_k3_hash": "d4cce4c745f3f991",
+    "live_k5_hash": "c4419c3e53aa2fa9",
+    "spec_k3_sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s1_scope_widening_holds": true,
+    "same_physical_instrument_565_to_d4": true,
+    "same_physical_instrument_565_to_bogus": false,
+    "same_physical_instrument_self": true,
+    "calibration_transfers": {
+     "transfers": true,
+     "changed": [
+      "s1_prompt_sha256"
+     ],
+     "exempt": [
+      "s1_prompt_sha256"
+     ]
+    },
+    "calibration_transfers_knot_n0": {
+     "transfers": true,
+     "changed": []
+    },
+    "instrument_hash_knot_n0_vs_5": [
+     "d4cce4c745f3f991",
+     "d4cce4c745f3f991"
+    ]
+   },
+   "F_k1": {
+    "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+    "verdict_path_for_k5live": null,
+    "layer_status": {
+     "intensity": {
+      "usable": false
+     },
+     "top1": {
+      "usable": true
+     }
+    },
+    "knot_readout_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "bogus": false
+    },
+    "weight_usable": false
+   },
+   "src_sha16": {
+    "exp_v4_causal_chain": "58a29d6294d2cfc8",
+    "exp_v4_full_validation": "fdf3e3b453054021",
+    "cce_knot_classify": "f2cef2f99c949a75",
+    "cce_k1_status": "5f0df2624754c865",
+    "cce_full_run": "5e41ede1fcde2745"
+   }
+  },
+  "B8_POSCTL_poison_live_full": {
+   "LOAD_FAILED": "RuntimeError: POISON-TOUCHED:DESIRES"
+  },
+  "B9_POSCTL_poison_live_chain": {
+   "LOAD_FAILED": "RuntimeError: POISON-TOUCHED:EMOTIONS"
+  }
+ },
+ "base_faces": {
+  "face_shas": {
+   "F_own.stage1": "9c241f2093596461",
+   "F_own.reach": "460062b4e10397c6",
+   "F_own.stage2": "d7ccb9eb528ecdf6",
+   "F_n": "00eee689498fb7df",
+   "F_instrument": "debaece9848b1800",
+   "F_k1": "c0c0616a1e38f01b",
+   "F_exit": "5cac116348355868"
+  },
+  "F_n": {
+   "n_None_production_shape": {
+    "exc": null,
+    "n_calls": 5,
+    "n_requested_reported": 5,
+    "n_ok": 5,
+    "L2_status": "qualified",
+    "L1_intensity_sha": "bc7dfd998a0a84b8",
+    "L2_top1_mode": "pain_seek"
+   },
+   "n_0_explicit": {
+    "exc": null,
+    "n_calls": 5,
+    "n_requested_reported": 5,
+    "n_ok": 5,
+    "L2_status": "qualified",
+    "L1_intensity_sha": "bc7dfd998a0a84b8",
+    "L2_top1_mode": "pain_seek"
+   },
+   "n_5_explicit": {
+    "exc": null,
+    "n_calls": 5,
+    "n_requested_reported": 5,
+    "n_ok": 5,
+    "L2_status": "qualified",
+    "L1_intensity_sha": "bc7dfd998a0a84b8",
+    "L2_top1_mode": "pain_seek"
+   },
+   "n_1_explicit": {
+    "exc": null,
+    "n_calls": 1,
+    "n_requested_reported": 1,
+    "n_ok": 1,
+    "L2_status": "qualified",
+    "L1_intensity_sha": "eacea9d396cf7f19",
+    "L2_top1_mode": "pain_seek"
+   },
+   "n_10_explicit": {
+    "exc": null,
+    "n_calls": 10,
+    "n_requested_reported": 10,
+    "n_ok": 10,
+    "L2_status": "qualified",
+    "L1_intensity_sha": "bc7dfd998a0a84b8",
+    "L2_top1_mode": "pain_seek"
+   },
+   "n_False_explicit": {
+    "exc": null,
+    "n_calls": 5,
+    "n_requested_reported": 5,
+    "n_ok": 5,
+    "L2_status": "qualified",
+    "L1_intensity_sha": "bc7dfd998a0a84b8",
+    "L2_top1_mode": "pain_seek"
+   },
+   "n_neg1_explicit": {
+    "exc": "ValueError: max_workers must be greater than 0",
+    "n_calls": 0
+   },
+   "all_draws_fail_n_None": {
+    "exc": "RuntimeError: stage2 5 次抽样全部失败(raw 已存)",
+    "n_calls": 0
+   }
+  },
+  "F_instrument": {
+   "live_k3_hash": "d4cce4c745f3f991",
+   "live_k5_hash": "c4419c3e53aa2fa9",
+   "spec_k3_sampling_policy": {
+    "s1_k": 3,
+    "s1_temps": [
+     0.0,
+     0.3,
+     0.6,
+     0.9,
+     0.15,
+     0.45,
+     0.75
+    ],
+    "s2_n": 5,
+    "s1_pairing": "round_robin_over_3_s1_draws"
+   },
+   "s1_prompt_sha256": "61fe230f5c588c1f",
+   "s1_scope_widening_holds": true,
+   "same_physical_instrument_565_to_d4": true,
+   "same_physical_instrument_565_to_bogus": false,
+   "same_physical_instrument_self": true,
+   "calibration_transfers": {
+    "transfers": true,
+    "changed": [
+     "s1_prompt_sha256"
+    ],
+    "exempt": [
+     "s1_prompt_sha256"
+    ]
+   },
+   "calibration_transfers_knot_n0": {
+    "transfers": true,
+    "changed": []
+   },
+   "instrument_hash_knot_n0_vs_5": [
+    "d4cce4c745f3f991",
+    "d4cce4c745f3f991"
+   ]
+  },
+  "F_k1": {
+   "verdict_path_for_live": "tests/data/phase2/k1_reliability_verdict.json",
+   "verdict_path_for_k5live": null,
+   "layer_status": {
+    "intensity": {
+     "usable": false
+    },
+    "top1": {
+     "usable": true
+    }
+   },
+   "knot_readout_usable": {
+    "top1": true,
+    "intensity": false,
+    "weight": false,
+    "band3": false,
+    "rank_rho": false,
+    "top2_set": false,
+    "bogus": false
+   },
+   "weight_usable": false
+  },
+  "F_exit_summary": {
+   "n_rows": 68,
+   "top1_usable": 61,
+   "top1_withheld": 0,
+   "rows_sha": "a9857f12e6daeb52"
+  }
+ },
+ "L4": {
+  "how": "shim/sitecustomize.py 虚拟化目标文件的 import 与**文本读取**, 磁盘零写入; 每个臂都配空操作对照臂(只加一行注释)。★ tests/test_cce_audio_prosody.py 被 --ignore —— 它在 collection 期就发起 dl.fbaipublicfiles.com 下载, 被绊线拦住; 排除它是为了守 R1, 代价记在 limits。",
+  "net": {
+   "base_red": [
+    "tests/test_cce_chain_conformance.py",
+    "tests/test_cce_suspend_fix_confirmation.py::test_the_attempt_ledger_reports_attempts_not_just_successes"
+   ],
+   "base2_red": [
+    "tests/test_cce_suspend_fix_confirmation.py::test_the_attempt_ledger_reports_attempts_not_just_successes"
+   ],
+   "arms": {
+    "L4_A1_fix_is_none": {
+     "n_red": 4,
+     "vs_base_net_new": [
+      "tests/test_cce_ablation_verdicts_v3.py",
+      "tests/test_cce_core_boundary.py"
+     ],
+     "control_arm": "L4_noop_ck",
+     "net_new_over_control": [],
+     "healed_vs_control": [],
+     "summary": [
+      "1 failed, 408 passed, 25 warnings, 3 errors in 60.45s (0:01:00)"
+     ],
+     "tripwire": []
+    },
+    "L4_A3_no_default": {
+     "n_red": 5,
+     "vs_base_net_new": [
+      "tests/test_cce_ablation_verdicts_v3.py",
+      "tests/test_cce_core_boundary.py",
+      "tests/test_cce_measurement_system.py"
+     ],
+     "control_arm": "L4_noop_ck",
+     "net_new_over_control": [
+      "tests/test_cce_measurement_system.py"
+     ],
+     "healed_vs_control": [],
+     "summary": [
+      "1 failed, 408 passed, 25 warnings, 4 errors in 56.01s"
+     ],
+     "tripwire": []
+    },
+    "L4_A6_spec_fix": {
+     "n_red": 4,
+     "vs_base_net_new": [
+      "tests/test_cce_ablation_verdicts_v3.py",
+      "tests/test_cce_core_boundary.py"
+     ],
+     "control_arm": "L4_noop_ck",
+     "net_new_over_control": [],
+     "healed_vs_control": [],
+     "summary": [
+      "1 failed, 408 passed, 25 warnings, 3 errors in 65.14s (0:01:05)"
+     ],
+     "tripwire": []
+    },
+    "L4_A7_gate_removed": {
+     "n_red": 5,
+     "vs_base_net_new": [
+      "tests/test_cce_ablation_verdicts_v3.py",
+      "tests/test_cce_core_boundary.py",
+      "tests/test_cce_knot_stability.py"
+     ],
+     "control_arm": "L4_noop_ck",
+     "net_new_over_control": [
+      "tests/test_cce_knot_stability.py"
+     ],
+     "healed_vs_control": [],
+     "summary": [
+      "1 failed, 408 passed, 25 warnings, 4 errors in 58.66s"
+     ],
+     "tripwire": []
+    },
+    "L4_B1_del_full": {
+     "n_red": 6,
+     "vs_base_net_new": [
+      "tests/test_cce_ablation_verdicts_v3.py",
+      "tests/test_cce_core_boundary.py",
+      "tests/test_cce_criterion_cast.py::test_artifact_is_regenerable_and_current",
+      "tests/test_cce_criterion_cast.py::test_literal_pins_still_present_in_repo"
+     ],
+     "control_arm": "L4_noop_full",
+     "net_new_over_control": [
+      "tests/test_cce_criterion_cast.py::test_literal_pins_still_present_in_repo"
+     ],
+     "healed_vs_control": [],
+     "summary": [
+      "3 failed, 406 passed, 25 warnings, 3 errors in 61.61s (0:01:01)"
+     ],
+     "tripwire": []
+    },
+    "L4_B4_del_chain_v2set": {
+     "n_red": 2,
+     "vs_base_net_new": [
+      "tests/test_cce_ablation_verdicts_v3.py"
+     ],
+     "control_arm": "L4_noop_chain",
+     "net_new_over_control": [],
+     "healed_vs_control": [
+      "tests/test_ontology_migration.py"
+     ],
+     "summary": [
+      "1 failed, 408 passed, 25 warnings, 1 error in 84.86s (0:01:24)"
+     ],
+     "tripwire": []
+    },
+    "L4_B4b_del_chain_all": {
+     "n_red": 2,
+     "vs_base_net_new": [
+      "tests/test_cce_ablation_verdicts_v3.py"
+     ],
+     "control_arm": "L4_noop_chain",
+     "net_new_over_control": [],
+     "healed_vs_control": [
+      "tests/test_ontology_migration.py"
+     ],
+     "summary": [
+      "1 failed, 408 passed, 25 warnings, 1 error in 95.00s (0:01:35)"
+     ],
+     "tripwire": []
+    },
+    "L4_B7_both_del": {
+     "n_red": 6,
+     "vs_base_net_new": [
+      "tests/test_cce_ablation_verdicts_v3.py",
+      "tests/test_cce_core_boundary.py",
+      "tests/test_cce_criterion_cast.py::test_artifact_is_regenerable_and_current",
+      "tests/test_cce_criterion_cast.py::test_literal_pins_still_present_in_repo"
+     ],
+     "control_arm": "L4_base",
+     "net_new_over_control": [
+      "tests/test_cce_ablation_verdicts_v3.py",
+      "tests/test_cce_core_boundary.py",
+      "tests/test_cce_criterion_cast.py::test_artifact_is_regenerable_and_current",
+      "tests/test_cce_criterion_cast.py::test_literal_pins_still_present_in_repo"
+     ],
+     "healed_vs_control": [],
+     "summary": [
+      "3 failed, 406 passed, 25 warnings, 3 errors in 66.13s (0:01:06)"
+     ],
+     "tripwire": []
+    },
+    "L4_base2": {
+     "n_red": 1,
+     "vs_base_net_new": [],
+     "control_arm": "L4_base",
+     "net_new_over_control": [],
+     "healed_vs_control": [
+      "tests/test_cce_chain_conformance.py"
+     ],
+     "summary": [
+      "1 failed, 408 passed, 25 warnings in 95.57s (0:01:35)"
+     ],
+     "tripwire": []
+    },
+    "L4_noop_chain": {
+     "n_red": 3,
+     "vs_base_net_new": [
+      "tests/test_cce_ablation_verdicts_v3.py",
+      "tests/test_ontology_migration.py"
+     ],
+     "control_arm": "L4_base",
+     "net_new_over_control": [
+      "tests/test_cce_ablation_verdicts_v3.py",
+      "tests/test_ontology_migration.py"
+     ],
+     "healed_vs_control": [
+      "tests/test_cce_chain_conformance.py"
+     ],
+     "summary": [
+      "1 failed, 408 passed, 25 warnings, 2 errors in 86.45s (0:01:26)"
+     ],
+     "tripwire": []
+    },
+    "L4_noop_ck": {
+     "n_red": 4,
+     "vs_base_net_new": [
+      "tests/test_cce_ablation_verdicts_v3.py",
+      "tests/test_cce_core_boundary.py"
+     ],
+     "control_arm": "L4_base",
+     "net_new_over_control": [
+      "tests/test_cce_ablation_verdicts_v3.py",
+      "tests/test_cce_core_boundary.py"
+     ],
+     "healed_vs_control": [],
+     "summary": [
+      "1 failed, 408 passed, 25 warnings, 3 errors in 60.99s (0:01:00)"
+     ],
+     "tripwire": []
+    },
+    "L4_noop_full": {
+     "n_red": 5,
+     "vs_base_net_new": [
+      "tests/test_cce_ablation_verdicts_v3.py",
+      "tests/test_cce_core_boundary.py",
+      "tests/test_cce_criterion_cast.py::test_artifact_is_regenerable_and_current"
+     ],
+     "control_arm": "L4_base",
+     "net_new_over_control": [
+      "tests/test_cce_ablation_verdicts_v3.py",
+      "tests/test_cce_core_boundary.py",
+      "tests/test_cce_criterion_cast.py::test_artifact_is_regenerable_and_current"
+     ],
+     "healed_vs_control": [],
+     "summary": [
+      "2 failed, 407 passed, 25 warnings, 3 errors in 65.10s (0:01:05)"
+     ],
+     "tripwire": []
+    }
+   }
+  },
+  "raw_summaries": {
+   "L4_A1_fix_is_none": [
+    "1 failed, 408 passed, 25 warnings, 3 errors in 60.45s (0:01:00)"
+   ],
+   "L4_A3_no_default": [
+    "1 failed, 408 passed, 25 warnings, 4 errors in 56.01s"
+   ],
+   "L4_A6_spec_fix": [
+    "1 failed, 408 passed, 25 warnings, 3 errors in 65.14s (0:01:05)"
+   ],
+   "L4_A7_gate_removed": [
+    "1 failed, 408 passed, 25 warnings, 4 errors in 58.66s"
+   ],
+   "L4_B1_del_full": [
+    "3 failed, 406 passed, 25 warnings, 3 errors in 61.61s (0:01:01)"
+   ],
+   "L4_B4_del_chain_v2set": [
+    "1 failed, 408 passed, 25 warnings, 1 error in 84.86s (0:01:24)"
+   ],
+   "L4_B4b_del_chain_all": [
+    "1 failed, 408 passed, 25 warnings, 1 error in 95.00s (0:01:35)"
+   ],
+   "L4_B7_both_del": [
+    "3 failed, 406 passed, 25 warnings, 3 errors in 66.13s (0:01:06)"
+   ],
+   "L4_base": [
+    "1 failed, 408 passed, 25 warnings, 1 error in 58.42s"
+   ],
+   "L4_base2": [
+    "1 failed, 408 passed, 25 warnings in 95.57s (0:01:35)"
+   ],
+   "L4_noop_chain": [
+    "1 failed, 408 passed, 25 warnings, 2 errors in 86.45s (0:01:26)"
+   ],
+   "L4_noop_ck": [
+    "1 failed, 408 passed, 25 warnings, 3 errors in 60.99s (0:01:00)"
+   ],
+   "L4_noop_full": [
+    "2 failed, 407 passed, 25 warnings, 3 errors in 65.10s (0:01:05)"
+   ]
+  }
+ },
+ "M3-③_源码文本闸(与实测L4分开报)": {
+  "说明": "上一轮的内存内 import 注入**看不见**从磁盘读源码/文件哈希的闸。本轮把消融**同时套到源码文本上**逐条重算。本轮的 L4 因为用了文件虚拟化 shim, 这些闸**已经能被看见**; 下表是它们的逐条判定, 用来对账。",
+  "source_text_readers(行级启发式)": {
+   "scripts/cce_knot_classify.py": [
+    "probes/taxonomy_field_reach_ledger.py:163",
+    "scripts/cce_necessary_condition_reach.py:16",
+    "tests/test_cce_abstention.py:109",
+    "tests/test_cce_abstention.py:96",
+    "tests/test_cce_attempt_ledger.py:73",
+    "tests/test_cce_gen8_shipping.py:36",
+    "tests/test_cce_operational_ledger_key.py:76",
+    "tests/test_cce_rule_delivery_completeness.py:27",
+    "tests/test_cce_stage2_candidate.py:20",
+    "tests/test_cce_structural_gate.py:108",
+    "tests/test_cce_tiebreak_determinism.py:66",
+    "tests/test_cce_withholding_and_labels.py:134"
+   ],
+   "scripts/exp_v4_full_validation.py": [],
+   "scripts/exp_v4_causal_chain.py": []
+  },
+  "★启发式的漏报": "exp_v4_* 两个文件的 source_text_readers 扫出 0, 但真实的磁盘级消费者有两个且都是**间接**的: ① config/cce_core_manifest.json core_files 逐文件 sha(由 scripts/cce_core_boundary.sha256_of 遍历) ② scripts/cce_criterion_cast.py LITERAL_PINS 以**相对路径为键**。行级正则扫不到 ⇒ 该启发式低报。",
+  "逐臂": [
+   {
+    "arm": "A0_noop_ck",
+    "file": "scripts/cce_knot_classify.py",
+    "core_files_pinned": "f2cef2f99c949a75",
+    "sha_disk16": "f2cef2f99c949a75",
+    "sha_mutated16": "a72258139b8d3ce0",
+    "core_boundary_gate_flips_to_FAIL": true,
+    "literal_pins_checked": [],
+    "literal_pins_lost": [],
+    "criterion_cast_literal_pin_flips_to_FAIL": false,
+    "criterion_cast_locus_pins": []
+   },
+   {
+    "arm": "A1_fix_is_none",
+    "file": "scripts/cce_knot_classify.py",
+    "core_files_pinned": "f2cef2f99c949a75",
+    "sha_disk16": "f2cef2f99c949a75",
+    "sha_mutated16": "e93a2abbcbcb3b36",
+    "core_boundary_gate_flips_to_FAIL": true,
+    "literal_pins_checked": [],
+    "literal_pins_lost": [],
+    "criterion_cast_literal_pin_flips_to_FAIL": false,
+    "criterion_cast_locus_pins": []
+   },
+   {
+    "arm": "A6_spec_fix",
+    "file": "scripts/cce_knot_classify.py",
+    "core_files_pinned": "f2cef2f99c949a75",
+    "sha_disk16": "f2cef2f99c949a75",
+    "sha_mutated16": "7cd4de3eadf8cc88",
+    "core_boundary_gate_flips_to_FAIL": true,
+    "literal_pins_checked": [],
+    "literal_pins_lost": [],
+    "criterion_cast_literal_pin_flips_to_FAIL": false,
+    "criterion_cast_locus_pins": []
+   },
+   {
+    "arm": "A7_gate_removed",
+    "file": "scripts/cce_knot_classify.py",
+    "core_files_pinned": "f2cef2f99c949a75",
+    "sha_disk16": "f2cef2f99c949a75",
+    "sha_mutated16": "f1a9568d1b76af13",
+    "core_boundary_gate_flips_to_FAIL": true,
+    "literal_pins_checked": [],
+    "literal_pins_lost": [],
+    "criterion_cast_literal_pin_flips_to_FAIL": false,
+    "criterion_cast_locus_pins": []
+   },
+   {
+    "arm": "A8_gate_absurd_msg",
+    "file": "scripts/cce_knot_classify.py",
+    "core_files_pinned": "f2cef2f99c949a75",
+    "sha_disk16": "f2cef2f99c949a75",
+    "sha_mutated16": "633c03ce6f2c1db3",
+    "core_boundary_gate_flips_to_FAIL": true,
+    "literal_pins_checked": [],
+    "literal_pins_lost": [],
+    "criterion_cast_literal_pin_flips_to_FAIL": false,
+    "criterion_cast_locus_pins": []
+   },
+   {
+    "arm": "B1_del_full",
+    "file": "scripts/exp_v4_full_validation.py",
+    "core_files_pinned": "f934b56b01b6b6b2",
+    "sha_disk16": "f934b56b01b6b6b2",
+    "sha_mutated16": "fdf3e3b453054021",
+    "core_boundary_gate_flips_to_FAIL": true,
+    "literal_pins_checked": [
+     "ta >= 0.7 and (js is not None and js <= 0.30)"
+    ],
+    "literal_pins_lost": [
+     "ta >= 0.7 and (js is not None and js <= 0.30)"
+    ],
+    "criterion_cast_literal_pin_flips_to_FAIL": true,
+    "criterion_cast_locus_pins": [
+     {
+      "locus": "scripts/exp_v4_full_validation.py:741",
+      "orig_line": "if ta is not None and ta >= 0.7 and (js is not None and js <= 0.30):",
+      "line_after_ablation": "<文件已短于该行号>",
+      "locus_still_points_at_same_code": false
+     }
+    ]
+   },
+   {
+    "arm": "B4_del_chain_v2set",
+    "file": "scripts/exp_v4_causal_chain.py",
+    "core_files_pinned": null,
+    "sha_disk16": "0ddf3f6389114d10",
+    "sha_mutated16": "574a32467277940e",
+    "core_boundary_gate_flips_to_FAIL": false,
+    "literal_pins_checked": [],
+    "literal_pins_lost": [],
+    "criterion_cast_literal_pin_flips_to_FAIL": false,
+    "criterion_cast_locus_pins": []
+   },
+   {
+    "arm": "B4b_del_chain_all",
+    "file": "scripts/exp_v4_causal_chain.py",
+    "core_files_pinned": null,
+    "sha_disk16": "0ddf3f6389114d10",
+    "sha_mutated16": "58a29d6294d2cfc8",
+    "core_boundary_gate_flips_to_FAIL": false,
+    "literal_pins_checked": [],
+    "literal_pins_lost": [],
+    "criterion_cast_literal_pin_flips_to_FAIL": false,
+    "criterion_cast_locus_pins": []
+   }
+  ]
+ },
+ "file_integrity": {
+  "before": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "after": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "after_all_work": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "identical": true
+ },
+ "verdicts": [
+  {
+   "id": "v-blank-01",
+   "consumer_side": "P",
+   "component": "scripts/cce_knot_classify.py:942 `n = n or KNOT_N` —— **默认值机制本身**(n 缺省时回落到 KNOT_N)",
+   "locus": "scripts/cce_knot_classify.py:942 (_stage2_aggregate)",
+   "verdict": "LOAD_BEARING_L2",
+   "changed": false,
+   "deletable": false,
+   "deletable_reason": "不可删: 生产入口 scripts/cce_knot_classify.py:769 `_stage2_aggregate(prompts, taxo)` **不传 n**, 默认值一旦拿掉, 该调用当场 TypeError, 整个 s2 读数产不出。",
+   "ref_count_coarse": 53,
+   "ref_count_strict": 32,
+   "faces_observed": [
+    "F_own.stage1",
+    "F_own.reach",
+    "F_own.stage2",
+    "F_n(调用形状面)",
+    "F_instrument(CE-3①仪器身份/标定继承)",
+    "F_k1(CE-3②扣发路径)",
+    "F_exit(CE-3③出口闸68行)",
+    "L4_全量套件"
+   ],
+   "faces_blind": [
+    "blind::活链端到端(cce_full_run.main 真跑 s1→s2→qualified) —— 需真实模型调用, R1 禁止; 本轮出口闸是拿 68 份**存量 manifest** 重放 qualified(), 不是活链",
+    "blind::回复链(cce_align_v2 / reply_loop / reply_batch) —— 本轮未载入",
+    "blind::出站闸(cce_strategy_gate / cce_outbound_guard)与 market 维度 —— 本轮未载入, CCE_MARKET 未设",
+    "blind::CLI 路径(python3 exp_v4_*.py / scripts 直接执行) —— 会发起真实调用, R1 禁止",
+    "blind::git 历史与仓外工具的消费 —— 扫描面只含 scripts/ probes/ accuracy/ tests/ .github/ config/",
+    "blind::F_own.stage2 对**默认值**结构上不敏感 —— 重放装置 observe_stage2 恒传显式 n=len(ledger), 永远走不到默认分支; 所以 A3 臂下 F_own.stage2 的「不变」是先验保证的, 零证据力"
+   ],
+   "injection_test": "A3_no_default(把整条默认删成 `n = n`) / A4_absurd_999(默认改 999) / A5_default_1(默认改 1) 三臂。",
+   "evidence": "arms.json:arms.A3_no_default/A5_default_1/A4_absurd_999 · base_faces.F_n · l4src/L4_A3_no_default/pytest.txt · pins.json:arms[A0_noop_ck]",
+   "L1_changed": "true。A3_no_default(默认整条删掉): **生产调用形状** `_stage2_aggregate(prompts, taxo)`(cce_knot_classify.py:769 的写法) 由正常返回变成 `TypeError: '<' not supported between instances of 'NoneType' and 'int'`, 一次抽样都没发出(n_calls=0)。A5_default_1(默认改 1): 同一份存量 draw_ledger 上 L1 intensity sha bc7dfd998a0a84b8 → eacea9d396cf7f19, 抽样数 5 → 1。",
+   "L2_changed": "true(以「判决面消失」的形式)。A3 下生产形状抛异常 ⇒ measurement_status / top1_mode / sampling 全部产不出; A5 下 L2 仍是 qualified/pain_seek 不变 ⇒ **改默认值的大小只动 L1, 拿掉默认值才动 L2**。★ 诚实边界: 「s2 抛异常 ⇒ 出口闸 withheld」这一步我**没有活跑**(见 faces_blind 第 1 条), 我喂出口闸的是存量 manifest。",
+   "L4_measured": "L4_A3_no_default: 净新增(对照 L4_noop_ck) = 1 条 ['tests/test_cce_measurement_system.py']; 全量 ['1 failed, 408 passed, 25 warnings, 4 errors in 56.01s'] —— 净新增那条是 tests/test_cce_measurement_system.py (TypeError: '<' not supported between NoneType and int)。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮的 L4 用文件虚拟化 shim, 钉源码文本的闸**已经能看见**。逐条重算(见 M3-③ 段 A0_noop_ck/A1/A3 行): cce_knot_classify.py 在 config/cce_core_manifest.json core_files 里被钉 f2cef2f99c949a75, **任何一个字节的改动**(含只加一行注释的空操作臂)都会把 core_boundary 与 test_cce_ablation_verdicts_v3 翻红 ⇒ 这两条是**空操作对照就有的底噪**, 不计入净新增。另有 12 处从磁盘读该文件源码的断言(test_cce_abstention:96/109 等), 经逐条比对**没有一条钉住** `n or KNOT_N` / `if not draws` / `s2_n` 这三处文本 ⇒ 对本簇的消融**结构上看不见**, L4 不会因它们低报。"
+  },
+  {
+   "id": "v-blank-02",
+   "consumer_side": "P",
+   "component": "scripts/cce_knot_classify.py:942 同一行的 **`or` 语义** —— 显式 n=0/False/0.0/\"\" 被静默改写成 KNOT_N(=5)",
+   "locus": "scripts/cce_knot_classify.py:942 (_stage2_aggregate)",
+   "verdict": "UNREACHABLE",
+   "changed": false,
+   "deletable": false,
+   "deletable_reason": "不可删: 它不是可删件, 是**该改成 `n = KNOT_N if n is None else n` 的缺陷**。删掉 `or KNOT_N` 等于删默认值(见 v-blank-01, 生产当场炸)。",
+   "unreachable_condition": "复活条件(两条, 都具体): ① **任一调用方传入 falsy-非-None 的 n** —— 仓内把长度直接当 n 传的地方实扫 6 处: probes/ablation_harness_v3.py:393(消融装置自己) · probes/knot_taxonomy_ablation.py:150 · tests/test_cce_abstention.py:30 · tests/test_cce_draw_ledger.py:44 · tests/test_cce_knot_stability.py:45(它自己也写 `n=n or len(draws)`, 同型改写) · tests/test_cce_support_publication.py:57; 只要那个列表为空(len==0)就命中, 届时**不会**报错也**不会**走资格闸, 而是静默改抽 5 次, 并且 sampling.n_requested 会**上报 5**(实测 base F_n.n_0_explicit.n_requested_reported=5) —— 台账主动记下一个从未被请求过的数字。② `CCE_KNOT_N=0`(.github/workflows/probe.yml:10 明写这个环境变量可传) —— 此时 KNOT_N 也是 0, `0 or 0` 仍是 0, 生产形状直接 `ValueError: max_workers must be greater than 0`(见 v-blank-04)。⇒ 本工况 22 份存量语料的 draw_ledger 长度全为 5, 一次都没触发。",
+   "ref_count_coarse": 39,
+   "ref_count_strict": 39,
+   "faces_observed": [
+    "F_own.stage1",
+    "F_own.reach",
+    "F_own.stage2",
+    "F_n(调用形状面)",
+    "F_instrument(CE-3①仪器身份/标定继承)",
+    "F_k1(CE-3②扣发路径)",
+    "F_exit(CE-3③出口闸68行)",
+    "L4_全量套件"
+   ],
+   "faces_blind": [
+    "blind::活链端到端(cce_full_run.main 真跑 s1→s2→qualified) —— 需真实模型调用, R1 禁止; 本轮出口闸是拿 68 份**存量 manifest** 重放 qualified(), 不是活链",
+    "blind::回复链(cce_align_v2 / reply_loop / reply_batch) —— 本轮未载入",
+    "blind::出站闸(cce_strategy_gate / cce_outbound_guard)与 market 维度 —— 本轮未载入, CCE_MARKET 未设",
+    "blind::CLI 路径(python3 exp_v4_*.py / scripts 直接执行) —— 会发起真实调用, R1 禁止",
+    "blind::git 历史与仓外工具的消费 —— 扫描面只含 scripts/ probes/ accuracy/ tests/ .github/ config/"
+   ],
+   "injection_test": "M6 三条注入臂全跑, 生产六面**仍然**零差异: A2_always_KNOT_N(彻底无视显式 n) · A4_absurd_999(默认改 999) · A5_default_1(默认改 1)。★ 这三条只动 F_n, 证明「无差异」不是因为面断线 —— 同一批面在 S2_POSCTL_liquid_taxo_reward_family / A6b_spec_absurd / A9_env_CCE_KNOT_N_0 下都大幅翻动。",
+   "evidence": "arms.json:arms.A1_fix_is_none/A2_always_KNOT_N/A4_absurd_999/A5_default_1 · base_faces.F_n · l4src/L4_A1_fix_is_none/",
+   "L1_changed": "false(生产六面)。A1_fix_is_none(`n = KNOT_N if n is None else n`)下 F_own.stage1 / F_own.reach / F_own.stage2 / F_instrument / F_k1 / F_exit **逐位不变**(face sha 全同, 出口闸 68 行 rows_sha a9857f12e6daeb52 不变, top1 放行 61/68 不变)。**唯一**变的是我为这条判决专门建的 F_n 面: 显式 n=0 由 「静默按 5 抽」(5 次调用, sampling.n_requested 报 5) 变成 `ValueError: max_workers must be greater than 0`; n=False 同形。",
+   "L2_changed": "false(生产六面)。出口闸 usable/withheld 集合逐行相同。",
+   "L4_measured": "L4_A1_fix_is_none: 净新增(对照 L4_noop_ck) = 0 条 []; 全量 ['1 failed, 408 passed, 25 warnings, 3 errors in 60.45s (0:01:00)'] ⇒ 把 `or` 改成 `is None` 在全量套件上**零代价**。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮的 L4 用文件虚拟化 shim, 钉源码文本的闸**已经能看见**。逐条重算(见 M3-③ 段 A0_noop_ck/A1/A3 行): cce_knot_classify.py 在 config/cce_core_manifest.json core_files 里被钉 f2cef2f99c949a75, **任何一个字节的改动**(含只加一行注释的空操作臂)都会把 core_boundary 与 test_cce_ablation_verdicts_v3 翻红 ⇒ 这两条是**空操作对照就有的底噪**, 不计入净新增。另有 12 处从磁盘读该文件源码的断言(test_cce_abstention:96/109 等), 经逐条比对**没有一条钉住** `n or KNOT_N` / `if not draws` / `s2_n` 这三处文本 ⇒ 对本簇的消融**结构上看不见**, L4 不会因它们低报。"
+  },
+  {
+   "id": "v-blank-03",
+   "consumer_side": "P",
+   "component": "scripts/cce_knot_classify.py:626 `\"s2_n\": knot_n or KNOT_N` —— **同型静默改写, 落在 CE-3 的仪器身份/标定继承面**",
+   "locus": "scripts/cce_knot_classify.py:626 (instrument_id → spec.sampling_policy.s2_n)",
+   "verdict": "UNREACHABLE",
+   "changed": false,
+   "deletable": false,
+   "deletable_reason": "不可删: 去掉默认回落会让所有传 knot_n=None 的调用(如 harness l3_instrument_hash 的 instrument_id(taxo,k))换出另一台仪器。应改成 `is None`。",
+   "unreachable_condition": "复活条件: **任一调用方显式传 knot_n=0/False**。本工况下三处生产调用(cce_knot_classify.py:753/770 与 probes/*.py)全部传 knot_n=KNOT_N(=5), harness 的 l3_instrument_hash 传 None(此时 `or` 与 `is None` 等价) ⇒ 未触发。★ M8: 这是「本工况未触发」不是「真死」——它是一条**保险丝反向**的缺陷: 平时不动, 一动就悄悄放行。",
+   "faces_observed": [
+    "F_own.stage1",
+    "F_own.reach",
+    "F_own.stage2",
+    "F_n(调用形状面)",
+    "F_instrument(CE-3①仪器身份/标定继承)",
+    "F_k1(CE-3②扣发路径)",
+    "F_exit(CE-3③出口闸68行)",
+    "L4_全量套件"
+   ],
+   "faces_blind": [
+    "blind::活链端到端(cce_full_run.main 真跑 s1→s2→qualified) —— 需真实模型调用, R1 禁止; 本轮出口闸是拿 68 份**存量 manifest** 重放 qualified(), 不是活链",
+    "blind::回复链(cce_align_v2 / reply_loop / reply_batch) —— 本轮未载入",
+    "blind::出站闸(cce_strategy_gate / cce_outbound_guard)与 market 维度 —— 本轮未载入, CCE_MARKET 未设",
+    "blind::CLI 路径(python3 exp_v4_*.py / scripts 直接执行) —— 会发起真实调用, R1 禁止",
+    "blind::git 历史与仓外工具的消费 —— 扫描面只含 scripts/ probes/ accuracy/ tests/ .github/ config/"
+   ],
+   "injection_test": "M6: A6b_spec_absurd(`\"s2_n\": 999`) —— 生产活仪器 d4cce4c745f3f991 → bb86fc7bf90ef416, 掉出 VERDICT_BY_INSTRUMENT ⇒ 出口闸 top1 放行 61/68 → 0/68, withheld 61/68。⇒ 这条链路确实接上, A6 的「生产面零差异」是真阴性不是断线。",
+   "evidence": "arms.json:arms.A6_spec_fix_is_none/A6b_spec_absurd · base_faces.F_instrument.calibration_transfers_knot_n0 · pins.json:arms[A6_spec_fix]",
+   "L1_changed": "false(生产六面)。A6_spec_fix_is_none 下 F_own.* / F_k1 / F_exit 全同, 只有 F_instrument 变。**变的正是 CE-3 面①**: `instrument_id(taxo, k=3, knot_n=0)` 基线报 d4cce4c745f3f991 —— **与生产仪器 d4cce4c745f3f991 同哈希**; 改成 `is None` 后报 3979ecc1b9e8013d(两台仪器终于分得开)。",
+   "L2_changed": "true(标定继承面)。`calibration_transfers(depends_on=['sampling_policy.s2_n'], snapshot={s2_n:5}, knot_n=0)`: 基线 {\"transfers\": true, \"changed\": []} ⇒ **一个 0 抽样的仪器被判定可以继承 5 抽样的标定**; 修正后 {\"transfers\": false, \"changed\": [\"sampling_policy.s2_n\"]} ⇒ 正确拒绝。★ 这就是 CE-3 说的那一面: 上一轮的观测面里没有「仪器身份/标定继承」, 于是这种缺陷全程隐形。",
+   "L4_measured": "L4_A6_spec_fix: 净新增(对照 L4_noop_ck) = 0 条 []; 全量 ['1 failed, 408 passed, 25 warnings, 3 errors in 65.14s (0:01:05)']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮的 L4 用文件虚拟化 shim, 钉源码文本的闸**已经能看见**。逐条重算(见 M3-③ 段 A0_noop_ck/A1/A3 行): cce_knot_classify.py 在 config/cce_core_manifest.json core_files 里被钉 f2cef2f99c949a75, **任何一个字节的改动**(含只加一行注释的空操作臂)都会把 core_boundary 与 test_cce_ablation_verdicts_v3 翻红 ⇒ 这两条是**空操作对照就有的底噪**, 不计入净新增。另有 12 处从磁盘读该文件源码的断言(test_cce_abstention:96/109 等), 经逐条比对**没有一条钉住** `n or KNOT_N` / `if not draws` / `s2_n` 这三处文本 ⇒ 对本簇的消融**结构上看不见**, L4 不会因它们低报。"
+  },
+  {
+   "id": "v-blank-04",
+   "consumer_side": "P",
+   "component": "scripts/cce_knot_classify.py:812 `KNOT_N = int(os.environ.get(\"CCE_KNOT_N\", \"5\"))` —— 被 :942/:626 两处 `or` 回落到的那个常量(顺带捞到)",
+   "locus": "scripts/cce_knot_classify.py:812",
+   "verdict": "LOAD_BEARING_L2",
+   "changed": false,
+   "deletable": false,
+   "deletable_reason": "不可删: 它同时进生产抽样数与仪器 spec; 任何非 5 的取值都让活仪器掉出 VERDICT_BY_INSTRUMENT ⇒ 生产 top1 全面扣发。",
+   "ref_count_coarse": 53,
+   "ref_count_strict": 32,
+   "faces_observed": [
+    "F_own.stage1",
+    "F_own.reach",
+    "F_own.stage2",
+    "F_n(调用形状面)",
+    "F_instrument(CE-3①仪器身份/标定继承)",
+    "F_k1(CE-3②扣发路径)",
+    "F_exit(CE-3③出口闸68行)",
+    "L4_全量套件"
+   ],
+   "faces_blind": [
+    "blind::活链端到端(cce_full_run.main 真跑 s1→s2→qualified) —— 需真实模型调用, R1 禁止; 本轮出口闸是拿 68 份**存量 manifest** 重放 qualified(), 不是活链",
+    "blind::回复链(cce_align_v2 / reply_loop / reply_batch) —— 本轮未载入",
+    "blind::出站闸(cce_strategy_gate / cce_outbound_guard)与 market 维度 —— 本轮未载入, CCE_MARKET 未设",
+    "blind::CLI 路径(python3 exp_v4_*.py / scripts 直接执行) —— 会发起真实调用, R1 禁止",
+    "blind::git 历史与仓外工具的消费 —— 扫描面只含 scripts/ probes/ accuracy/ tests/ .github/ config/"
+   ],
+   "injection_test": "环境臂 A9(=0) / A10(=1) 本身就是注入臂; 空操作对照 A0_noop 七面零差异。",
+   "evidence": "arms.json:arms.A9_env_CCE_KNOT_N_0/A10_env_CCE_KNOT_N_1",
+   "L1_changed": "true。A10_env_CCE_KNOT_N_1: 生产形状抽样数 5→1, L1 intensity sha bc7dfd998a0a84b8 → eacea9d396cf7f19; A9_env_CCE_KNOT_N_0: 生产形状直接 `ValueError: max_workers must be greater than 0`。",
+   "L2_changed": "true(CE-3 面②③)。CCE_KNOT_N=1 时活仪器 d4cce4c745f3f991 → ee2e64518cef2ec1, verdict_path_for → None, knot_readout_usable.top1 True → False, 出口闸 top1 放行 61/68 → 0/68 (withheld 61/68)。CCE_KNOT_N=0 同形。",
+   "L4_measured": "未单独跑(该臂是环境变量不是源码变异, 本轮 L4 只覆盖源码臂)。标 INCONCLUSIVE 的部分已写进 limits。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "不适用: 该臂不改源码, 磁盘 sha 不变 ⇒ 所有文件哈希钉/文本钉全绿。★ 这本身就是一条发现: **换 CCE_KNOT_N 就换仪器、就让生产 top1 全面扣发, 而一个文件哈希钉都不会响** (tests/test_cce_core_boundary.py:33 的注释已识别这类洞, 并为此加了「现算仪器哈希」断言)。"
+  },
+  {
+   "id": "v-blank-05",
+   "consumer_side": "P",
+   "v3_id": "v3-046",
+   "verdict_before": "UNREACHABLE",
+   "component": "scripts/cce_knot_classify.py:943-944 资格闸 `if not draws: raise RuntimeError(...)` —— 生产面重测",
+   "locus": "scripts/cce_knot_classify.py:943-944",
+   "verdict": "UNREACHABLE",
+   "changed": false,
+   "deletable": false,
+   "deletable_reason": "不可删: 本工况不触发, 但复活条件是活的(n 次抽样每次 3 重试全失败), 且 G 侧有显式断言(见 v-blank-06)。",
+   "unreachable_condition": "复活条件: **n 次 `_stage2_draw` 全部失败**(每次内部已重试 3 遍, 见 cce_knot_classify.py:862-885)。我用 `_stage2_draw` 恒返 None 的注入臂直接实证了这条路走得通(基线即抛 RuntimeError)。★★ 关键否定: **n=0 这条路永远到不了这道闸** —— 基线下 n=0 被 `or` 吞成 5; 就算把 `or` 改成 `is None`(A1) 或整条默认删掉(A3), n=0 也先死在 `ThreadPoolExecutor(max_workers=min(5, n))` 的 `ValueError: max_workers must be greater than 0`。基线 n=-1 同样 `ValueError: max_workers must be greater than 0`。⇒ **`n = n or KNOT_N` 不是这道闸不可达的原因**, 拿掉它也不能让这道闸活起来。",
+   "faces_observed": [
+    "F_own.stage1",
+    "F_own.reach",
+    "F_own.stage2",
+    "F_n(调用形状面)",
+    "F_instrument(CE-3①仪器身份/标定继承)",
+    "F_k1(CE-3②扣发路径)",
+    "F_exit(CE-3③出口闸68行)",
+    "L4_全量套件"
+   ],
+   "faces_blind": [
+    "blind::活链端到端(cce_full_run.main 真跑 s1→s2→qualified) —— 需真实模型调用, R1 禁止; 本轮出口闸是拿 68 份**存量 manifest** 重放 qualified(), 不是活链",
+    "blind::回复链(cce_align_v2 / reply_loop / reply_batch) —— 本轮未载入",
+    "blind::出站闸(cce_strategy_gate / cce_outbound_guard)与 market 维度 —— 本轮未载入, CCE_MARKET 未设",
+    "blind::CLI 路径(python3 exp_v4_*.py / scripts 直接执行) —— 会发起真实调用, R1 禁止",
+    "blind::git 历史与仓外工具的消费 —— 扫描面只含 scripts/ probes/ accuracy/ tests/ .github/ config/"
+   ],
+   "injection_test": "M6 两条: A7_gate_removed(闸失效) / A8_gate_absurd_msg(文案荒谬值) + `_stage2_draw` 恒返 None 的全失败注入。",
+   "evidence": "arms.json:arms.A7_gate_removed/A8_gate_absurd_msg · base_faces.F_n.all_draws_fail_n_None · l4src/L4_A7_gate_removed/",
+   "L1_changed": "0/22(存量面)。22 份存量 draw_ledger 每份都有 ≥1 次成功抽样 ⇒ `draws` 恒非空 ⇒ 该闸本工况 0 次触发。A8_gate_absurd_msg(只把异常文案换成 ABSURD-999): 七面全零差异 ⇒ 判据非重言。",
+   "L2_changed": "false(存量面)。A7_gate_removed 把 `if not draws` 改成 `if False` 后, 存量 22 份的 F_own.stage2 / F_exit 逐位不变。**但**在「全部抽样失败」这条路上 L1 与 L2 都变: 基线 `RuntimeError: stage2 5 次抽样全部失败(raw 已存)` → A7 下不再抛, 改为返回 measurement_status='abstain'、intensity 空(sha 44136fa355b3678a)。⇒ **这道闸不是死码, 是本工况没被触发的保险丝**(M8)。",
+   "L4_measured": "L4_A7_gate_removed: 净新增(对照 L4_noop_ck) = 1 条 ['tests/test_cce_knot_stability.py']; 全量 ['1 failed, 408 passed, 25 warnings, 4 errors in 58.66s']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮的 L4 用文件虚拟化 shim, 钉源码文本的闸**已经能看见**。逐条重算(见 M3-③ 段 A0_noop_ck/A1/A3 行): cce_knot_classify.py 在 config/cce_core_manifest.json core_files 里被钉 f2cef2f99c949a75, **任何一个字节的改动**(含只加一行注释的空操作臂)都会把 core_boundary 与 test_cce_ablation_verdicts_v3 翻红 ⇒ 这两条是**空操作对照就有的底噪**, 不计入净新增。另有 12 处从磁盘读该文件源码的断言(test_cce_abstention:96/109 等), 经逐条比对**没有一条钉住** `n or KNOT_N` / `if not draws` / `s2_n` 这三处文本 ⇒ 对本簇的消融**结构上看不见**, L4 不会因它们低报。"
+  },
+  {
+   "id": "v-blank-06",
+   "consumer_side": "G",
+   "v3_id": "v3-046",
+   "verdict_before": "UNREACHABLE",
+   "component": "同上资格闸 `if not draws: raise` —— **验收闸侧**(v3-046 只出了 P 侧一行, G 侧此前无行)",
+   "locus": "tests/test_cce_knot_stability.py(断言「全部抽样失败时必须抛错」) ← scripts/cce_knot_classify.py:943-944",
+   "verdict": "LOAD_BEARING_L2",
+   "changed": true,
+   "deletable": false,
+   "deletable_reason": "不可删: 移除该闸 ⇒ tests/test_cce_knot_stability.py 当场红(净新增 1 条, 空操作对照 0 条)。",
+   "faces_observed": [
+    "F_own.stage1",
+    "F_own.reach",
+    "F_own.stage2",
+    "F_n(调用形状面)",
+    "F_instrument(CE-3①仪器身份/标定继承)",
+    "F_k1(CE-3②扣发路径)",
+    "F_exit(CE-3③出口闸68行)",
+    "L4_全量套件"
+   ],
+   "faces_blind": [
+    "blind::活链端到端(cce_full_run.main 真跑 s1→s2→qualified) —— 需真实模型调用, R1 禁止; 本轮出口闸是拿 68 份**存量 manifest** 重放 qualified(), 不是活链",
+    "blind::回复链(cce_align_v2 / reply_loop / reply_batch) —— 本轮未载入",
+    "blind::出站闸(cce_strategy_gate / cce_outbound_guard)与 market 维度 —— 本轮未载入, CCE_MARKET 未设",
+    "blind::CLI 路径(python3 exp_v4_*.py / scripts 直接执行) —— 会发起真实调用, R1 禁止",
+    "blind::git 历史与仓外工具的消费 —— 扫描面只含 scripts/ probes/ accuracy/ tests/ .github/ config/"
+   ],
+   "injection_test": "同 v-blank-05。",
+   "evidence": "l4src/L4_A7_gate_removed/pytest.txt vs l4src/L4_noop_ck/pytest.txt",
+   "L1_changed": "n/a(G 侧, 判据是闸的绿红)。",
+   "L2_changed": "true。A7_gate_removed 下 tests/test_cce_knot_stability.py 报 `AssertionError: 全部抽样失败时必须抛错` ⇒ 该闸有一条**活的验收闸消费者**。",
+   "L4_measured": "L4_A7_gate_removed: 净新增(对照 L4_noop_ck) = 1 条 ['tests/test_cce_knot_stability.py']; 全量 ['1 failed, 408 passed, 25 warnings, 4 errors in 58.66s'] ★ 对照 L4_A1_fix_is_none 净新增 0 条 ⇒ 这 1 条确实归因于拆闸, 不是碰核心文件的底噪。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "该闸的消费者是**行为断言**(调用后必须抛)不是源码文本钉 ⇒ 纯内存 import 注入也看得见它。真正被源码文本钉住、对纯内存注入不可见的是 core_boundary 与 test_cce_ablation_verdicts_v3 那两条底噪(空操作对照已扣除)。"
+  },
+  {
+   "id": "v-blank-07",
+   "consumer_side": "P",
+   "v3_id": "v2-028",
+   "verdict_before": "NO_CONSUMER",
+   "component": "scripts/exp_v4_full_validation.py 的 23 个「从被 import 的入口不可达」顶层符号(本轮实算 534 行, v2 报 582 行/24 符号)",
+   "locus": "scripts/exp_v4_full_validation.py (CAL/RESULTS/STAB_*/_acc/_cmts/_dump_incremental/_load/analyze_*/build_full_cases/coherence_check/emo_valence/load_existing_ok/mean_pairwise_js/per_class_freq/run_full/run_smoke/run_stability/top_consistency/write_report + __main__)",
+   "verdict": "NO_CONSUMER",
+   "changed": false,
+   "deletable": true,
+   "deletable_reason": "P 侧可删(deletable=true 仅就**生产行为**而言): 23 个符号在整条生产路径上一次都没被访问(poison 未触发), 删/毒/荒谬三臂七面零差异。**但 G 侧另有代价, 见 v-blank-08 —— 合起来看, 真删之前必须先满足那两条前置条件。** 另有两项非判决性损失须写进 refactor_log: (a) `__main__` CLI 能力(python3 exp_v4_full_validation.py smoke/全量); (b) 导入期副作用 [\"os.makedirs(CAL, exist_ok=True)\"] 随之消失。",
+   "faces_observed": [
+    "F_own.stage1",
+    "F_own.reach",
+    "F_own.stage2",
+    "F_n(调用形状面)",
+    "F_instrument(CE-3①仪器身份/标定继承)",
+    "F_k1(CE-3②扣发路径)",
+    "F_exit(CE-3③出口闸68行)",
+    "L4_全量套件"
+   ],
+   "faces_blind": [
+    "blind::活链端到端(cce_full_run.main 真跑 s1→s2→qualified) —— 需真实模型调用, R1 禁止; 本轮出口闸是拿 68 份**存量 manifest** 重放 qualified(), 不是活链",
+    "blind::回复链(cce_align_v2 / reply_loop / reply_batch) —— 本轮未载入",
+    "blind::出站闸(cce_strategy_gate / cce_outbound_guard)与 market 维度 —— 本轮未载入, CCE_MARKET 未设",
+    "blind::CLI 路径(python3 exp_v4_*.py / scripts 直接执行) —— 会发起真实调用, R1 禁止",
+    "blind::git 历史与仓外工具的消费 —— 扫描面只含 scripts/ probes/ accuracy/ tests/ .github/ config/"
+   ],
+   "injection_test": "M6 四条都跑: delete / poison / absurd / 以及**注入通道对照**。★ 最强的一条是 poison: 整条生产路径跑完, `_POISON_TOUCHED` = [] —— 这 23 个符号**一次都没被访问过**(不是「访问了但结果一样」)。★ 对照臂 B8_POSCTL_poison_live_full: 同样的毒换到**被 import 的 7 个活符号**(call_parse/extract_json_robust/DESIRES/NEED_KEYS/top_label/js_divergence/build_prompt)上, cce_knot_classify 载入期立刻 `RuntimeError: POISON-TOUCHED:DESIRES` ⇒ 注入通道确实接上。",
+   "evidence": "arms.json:arms.B1_del_full/B2_poison_full/B3_absurd_full/B8_POSCTL_poison_live_full · pins.json:arms[B1_del_full] · l4src/L4_B1_del_full/ vs l4src/L4_noop_full/",
+   "L1_changed": "false。三条臂——B1_del_full(内存内真删 534 行 / 23 个顶层符号 + __main__)、B2_poison_full(把这 23 个符号换成「任何触碰即抛 RuntimeError 并记名」的 _Poison)、B3_absurd_full(换成 \"ABSURD-999\" / 恒返 ABSURD-999 的函数)——七个面(stage1/reach/stage2/F_n/仪器身份/K1 扣发/出口闸 68 行)**逐位不变**, 出口闸 rows_sha 恒为 a9857f12e6daeb52(top1 放行 61/68)。",
+   "L2_changed": "false。判决面(measurement_status / top1_mode / knot_order / usable-withheld 集合)全同。",
+   "L4_measured": "L4_B1_del_full: 净新增(对照 L4_noop_full) = 1 条 ['tests/test_cce_criterion_cast.py::test_literal_pins_still_present_in_repo']; 全量 ['3 failed, 406 passed, 25 warnings, 3 errors in 61.61s (0:01:01)'] ★ 净新增的那一条是 tests/test_cce_criterion_cast.py::test_literal_pins_still_present_in_repo —— 它是 **G 侧**消费者, 见 v-blank-08。P 侧(行为)净新增 0。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "★ 本条是 M3-③ 的正例: 若只做**内存内 import 注入**(上一轮的做法), 这块 534 行会被判成毫无代价可删 —— 因为它真正的消费者**全部在磁盘文本层**: ① core_files 文件哈希 ② criterion_cast 的判据字面量。本轮把消融同时套到源码文本上逐条重算(见 M3-③ 段 B1_del_full 行): core_boundary 钉 f934b56b01b6b6b2 → fdf3e3b453054021(转 FAIL); LITERAL_PINS 丢失 ['ta >= 0.7 and (js is not None and js <= 0.30)']; locus 钉 scripts/exp_v4_full_validation.py:741 → 「<文件已短于该行号>」。三条预测与 L4 实测逐条吻合。",
+   "ref_count_coarse": 175,
+   "ref_count_strict": 0
+  },
+  {
+   "id": "v-blank-08",
+   "consumer_side": "G",
+   "v3_id": "v2-028",
+   "verdict_before": "NO_CONSUMER",
+   "component": "同一块 534 行 —— **验收闸侧**。v2-028 的 deletable=true 只承认 core_boundary 一条代价, **漏了 cce_criterion_cast 的判据字面量钉**",
+   "locus": "config/cce_core_manifest.json core_files['scripts/exp_v4_full_validation.py'] · scripts/cce_criterion_cast.py:344 locus 钉 + :357 LITERAL_PINS · tests/test_cce_criterion_cast.py::test_literal_pins_still_present_in_repo",
+   "verdict": "LOAD_BEARING_L2",
+   "changed": true,
+   "deletable": false,
+   "deletable_reason": "★★ **不可直接删 —— 这是对 v2-028 `deletable=true` 的实质限定。** v2-028 的理由写的是「唯一由绿转红的是 core_boundary —— 而那是**文件哈希钉**, 不是行为」。本轮实测: **还有第二条, 而它不是文件哈希钉** —— cce_criterion_cast 的 LITERAL_PINS 钉的是**判据文本本身**, 而那条现行判据(v4_layer_reproducible: ta>=0.7 且 js<=0.30)的仓内**唯一文本出处**就在要删的 write_report 里。删了它, criterion_cast.json 按其自己的规则**作废, 必须重铸**。⇒ 前置条件两条(缺一不许删): (1) 先把该判据迁出并重铸 criterion_cast 表(含 locus 行号钉); (2) 走 refactor_log 更新 core_files 哈希并附行为证据。",
+   "faces_observed": [
+    "F_own.stage1",
+    "F_own.reach",
+    "F_own.stage2",
+    "F_n(调用形状面)",
+    "F_instrument(CE-3①仪器身份/标定继承)",
+    "F_k1(CE-3②扣发路径)",
+    "F_exit(CE-3③出口闸68行)",
+    "L4_全量套件"
+   ],
+   "faces_blind": [
+    "blind::活链端到端(cce_full_run.main 真跑 s1→s2→qualified) —— 需真实模型调用, R1 禁止; 本轮出口闸是拿 68 份**存量 manifest** 重放 qualified(), 不是活链",
+    "blind::回复链(cce_align_v2 / reply_loop / reply_batch) —— 本轮未载入",
+    "blind::出站闸(cce_strategy_gate / cce_outbound_guard)与 market 维度 —— 本轮未载入, CCE_MARKET 未设",
+    "blind::CLI 路径(python3 exp_v4_*.py / scripts 直接执行) —— 会发起真实调用, R1 禁止",
+    "blind::git 历史与仓外工具的消费 —— 扫描面只含 scripts/ probes/ accuracy/ tests/ .github/ config/"
+   ],
+   "injection_test": "G 侧的注入检验就是把删除臂套到**源码文本**上再重算每一条钉(pins.py), 并用空操作对照臂(noop_full)把「碰这个文件本身」的底噪扣掉。",
+   "evidence": "pins.json:arms[B1_del_full] · l4src/L4_B1_del_full/pytest.txt(FAILED test_literal_pins_still_present_in_repo) vs l4src/L4_noop_full/pytest.txt",
+   "L1_changed": "n/a(G 侧)。",
+   "L2_changed": "true, 三条闸: ① core_boundary —— config/cce_core_manifest.json 钉 f934b56b01b6b6b2, 删后 fdf3e3b453054021 ⇒ FAIL; ② tests/test_cce_criterion_cast.py::test_literal_pins_still_present_in_repo —— LITERAL_PINS 钉的判据字面量 `ta >= 0.7 and (js is not None and js <= 0.30)` **就长在被删的 write_report 里**(scripts/exp_v4_full_validation.py:741), 删掉即丢 ⇒ 红; ③ scripts/cce_criterion_cast.py:344 的 `locus=\"scripts/exp_v4_full_validation.py:741\"` 指针失效(文件已短于该行号)。",
+   "L4_measured": "L4_B1_del_full: 净新增(对照 L4_noop_full) = 1 条 ['tests/test_cce_criterion_cast.py::test_literal_pins_still_present_in_repo']; 全量 ['3 failed, 406 passed, 25 warnings, 3 errors in 61.61s (0:01:01)'] ★★ 空操作对照 L4_noop_full(只在文件尾加一行 `# noop`)已经带来 3 条底噪红(test_cce_core_boundary · test_cce_ablation_verdicts_v3 · test_cce_criterion_cast::test_artifact_is_regenerable_and_current) —— **扣掉底噪后, 真删这 534 行的净代价正好是 1 条: test_literal_pins_still_present_in_repo。**",
+   "L4_source_text_gates_invisible_to_memory_ablation": "★ 本条是 M3-③ 的正例: 若只做**内存内 import 注入**(上一轮的做法), 这块 534 行会被判成毫无代价可删 —— 因为它真正的消费者**全部在磁盘文本层**: ① core_files 文件哈希 ② criterion_cast 的判据字面量。本轮把消融同时套到源码文本上逐条重算(见 M3-③ 段 B1_del_full 行): core_boundary 钉 f934b56b01b6b6b2 → fdf3e3b453054021(转 FAIL); LITERAL_PINS 丢失 ['ta >= 0.7 and (js is not None and js <= 0.30)']; locus 钉 scripts/exp_v4_full_validation.py:741 → 「<文件已短于该行号>」。三条预测与 L4 实测逐条吻合。"
+  },
+  {
+   "id": "v-blank-09",
+   "consumer_side": "P",
+   "v3_id": "v2-029",
+   "verdict_before": "NO_CONSUMER",
+   "component": "scripts/exp_v4_causal_chain.py 的从未被 import 块 —— v2 的 15 符号臂(本轮实算 327 行)与我的 18 符号全集臂(342 行)",
+   "locus": "scripts/exp_v4_causal_chain.py (build_v4_prompt/run_full/run_smoke/norm_layer/parse_v4/top_label/coherence_autocheck/mean_pairwise_js/per_class_freq/top_consistency/call_and_parse/PILOT_CASES/STABILITY_CASE/STABILITY_N/__main__ + 我另加 CAL/RESULTS/TAXONOMY/build_taxonomy_text)",
+   "verdict": "NO_CONSUMER",
+   "changed": false,
+   "deletable": true,
+   "deletable_reason": "P 侧可删。★ 保留 v2-029 已写明的两条前置条件并实测确认仍成立: (a) PILOT_CASES / STABILITY_CASE 若是唯一副本先另存 fixture —— 实扫全仓, 这两个名字在 scripts/ probes/ accuracy/ tests/(非 tests/data 台账) 里**没有第二处定义或引用**; (b) `__main__` CLI 是能力损失, 要写进 refactor_log。另: 导入期副作用 os.makedirs(CAL, exist_ok=True) 随之消失。★ M4 提醒: 该块里 top_label / norm_layer / parse_v4 / mean_pairwise_js / per_class_freq / run_full / run_smoke 这些名字在**别的文件里也存在**(exp_v4_full_validation 与 exp_crossmodel_desire), 粗计 248 次里绝大多数是词碰撞 —— 严计 11 次且经 AST 逐条核实, 无一是对本文件的 import。",
+   "faces_observed": [
+    "F_own.stage1",
+    "F_own.reach",
+    "F_own.stage2",
+    "F_n(调用形状面)",
+    "F_instrument(CE-3①仪器身份/标定继承)",
+    "F_k1(CE-3②扣发路径)",
+    "F_exit(CE-3③出口闸68行)",
+    "L4_全量套件"
+   ],
+   "faces_blind": [
+    "blind::活链端到端(cce_full_run.main 真跑 s1→s2→qualified) —— 需真实模型调用, R1 禁止; 本轮出口闸是拿 68 份**存量 manifest** 重放 qualified(), 不是活链",
+    "blind::回复链(cce_align_v2 / reply_loop / reply_batch) —— 本轮未载入",
+    "blind::出站闸(cce_strategy_gate / cce_outbound_guard)与 market 维度 —— 本轮未载入, CCE_MARKET 未设",
+    "blind::CLI 路径(python3 exp_v4_*.py / scripts 直接执行) —— 会发起真实调用, R1 禁止",
+    "blind::git 历史与仓外工具的消费 —— 扫描面只含 scripts/ probes/ accuracy/ tests/ .github/ config/"
+   ],
+   "injection_test": "M6 全跑。poison 臂 `_POISON_TOUCHED` = [](一次未触碰)。★ 对照臂 B9_POSCTL_poison_live_chain: 毒化被 import 的 EMOTIONS/ACTIONS ⇒ `RuntimeError: POISON-TOUCHED:EMOTIONS` ⇒ 通道接上。",
+   "evidence": "arms.json:arms.B4_del_chain_v2set/B4b_del_chain_all/B5_poison_chain/B6_absurd_chain/B7_both_del/B9_POSCTL_poison_live_chain · pins.json:arms[B4_del_chain_v2set,B4b_del_chain_all]",
+   "L1_changed": "false。B4_del_chain_v2set(v2 那 15 个符号 + __main__, 实算 327 行) · B4b_del_chain_all(我的 18 符号全集, 342 行) · B5_poison_chain · B6_absurd_chain · B7_both_del(与 full_validation 同时删) —— 五条臂七面**逐位不变**。",
+   "L2_changed": "false。出口闸 68 行 usable/withheld 逐行相同。",
+   "L4_measured": "L4_B4_del_chain_v2set: 净新增(对照 L4_noop_chain) = 0 条 []; 全量 ['1 failed, 408 passed, 25 warnings, 1 error in 84.86s (0:01:24)'] ｜ L4_B4b_del_chain_all: 净新增(对照 L4_noop_chain) = 0 条 []; 全量 ['1 failed, 408 passed, 25 warnings, 1 error in 95.00s (0:01:35)'] ｜ L4_B7_both_del: 净新增(对照 L4_base) = 4 条 ['tests/test_cce_ablation_verdicts_v3.py', 'tests/test_cce_core_boundary.py', 'tests/test_cce_criterion_cast.py::test_artifact_is_regenerable_and_current', 'tests/test_cce_criterion_cast.py::test_literal_pins_still_present_in_repo']; 全量 ['3 failed, 406 passed, 25 warnings, 3 errors in 66.13s (0:01:06)']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "逐条重算(M3-③ 段 B4/B4b 行): 该文件**不在** config/cce_core_manifest.json 的 core_files 里(core_files 只有 [\"config/knot_taxonomy.json\", \"scripts/calibration_framework.py\", \"scripts/cce_knot_classify.py\", \"scripts/cce_ksep.py\", \"scripts/exp_crossmodel_desire.py\", \"scripts/exp_v4_full_validation.py\"]), 也不在 cce_criterion_cast.LITERAL_PINS / locus 钉里 ⇒ **磁盘文本层没有钉它的闸**。这与 exp_v4_full_validation 形成明显不对称。",
+   "ref_count_coarse": 248,
+   "ref_count_strict": 11
+  },
+  {
+   "id": "v-blank-10",
+   "consumer_side": "G",
+   "v3_id": "v2-029",
+   "verdict_before": "NO_CONSUMER",
+   "component": "同一块(causal_chain) —— **验收闸侧**",
+   "locus": "config/cce_core_manifest.json core_files(**不含**该文件) · scripts/cce_criterion_cast.py LITERAL_PINS(**不含**该文件) · 全量套件",
+   "verdict": "NO_CONSUMER",
+   "changed": false,
+   "deletable": true,
+   "deletable_reason": "G 侧可删: 该文件不在 core_files(所以不会像 exp_v4_full_validation 那样被文件哈希钉拦), 也不在 criterion_cast 的字面量/locus 钉里; 扣掉空操作对照后净新增 0 条。★ 仍须走 refactor_log 记 `__main__` CLI 能力损失, 并先把 PILOT_CASES / STABILITY_CASE 另存 fixture。",
+   "faces_observed": [
+    "F_own.stage1",
+    "F_own.reach",
+    "F_own.stage2",
+    "F_n(调用形状面)",
+    "F_instrument(CE-3①仪器身份/标定继承)",
+    "F_k1(CE-3②扣发路径)",
+    "F_exit(CE-3③出口闸68行)",
+    "L4_全量套件"
+   ],
+   "faces_blind": [
+    "blind::活链端到端(cce_full_run.main 真跑 s1→s2→qualified) —— 需真实模型调用, R1 禁止; 本轮出口闸是拿 68 份**存量 manifest** 重放 qualified(), 不是活链",
+    "blind::回复链(cce_align_v2 / reply_loop / reply_batch) —— 本轮未载入",
+    "blind::出站闸(cce_strategy_gate / cce_outbound_guard)与 market 维度 —— 本轮未载入, CCE_MARKET 未设",
+    "blind::CLI 路径(python3 exp_v4_*.py / scripts 直接执行) —— 会发起真实调用, R1 禁止",
+    "blind::git 历史与仓外工具的消费 —— 扫描面只含 scripts/ probes/ accuracy/ tests/ .github/ config/"
+   ],
+   "injection_test": "把删除臂套到源码文本上逐条重算所有文件哈希钉/字面量钉/locus 钉: 该文件一条都没有。空操作对照 L4_noop_chain 已跑。",
+   "evidence": "pins.json:arms[B4_del_chain_v2set,B4b_del_chain_all] · l4src/L4_B4_del_chain_v2set/ vs l4src/L4_noop_chain/",
+   "L1_changed": "n/a(G 侧)。",
+   "L2_changed": "false(扣除空操作对照后)。删除臂相对 L4_noop_chain 的净新增 = [] (v2 的 15 符号臂) / [] (18 符号全集臂)。源码文本层没有任何钉指向该文件(不在 core_files, 不在 LITERAL_PINS/locus)。",
+   "L4_measured": "L4_B4_del_chain_v2set: 净新增(对照 L4_noop_chain) = 0 条 []; 全量 ['1 failed, 408 passed, 25 warnings, 1 error in 84.86s (0:01:24)'] ｜ L4_B4b_del_chain_all: 净新增(对照 L4_noop_chain) = 0 条 []; 全量 ['1 failed, 408 passed, 25 warnings, 1 error in 95.00s (0:01:35)']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "逐条重算(M3-③ 段 B4/B4b 行): 该文件**不在** config/cce_core_manifest.json 的 core_files 里(core_files 只有 [\"config/knot_taxonomy.json\", \"scripts/calibration_framework.py\", \"scripts/cce_knot_classify.py\", \"scripts/cce_ksep.py\", \"scripts/exp_crossmodel_desire.py\", \"scripts/exp_v4_full_validation.py\"]), 也不在 cce_criterion_cast.LITERAL_PINS / locus 钉里 ⇒ **磁盘文本层没有钉它的闸**。这与 exp_v4_full_validation 形成明显不对称。"
+  }
+ ],
+ "limits": [
+  "【穷举缺口·①】本轮把 `n` 这个参数从 :942 一路追到 :626/:812, 但**没有**单独消融 `ThreadPoolExecutor(max_workers=min(5, n))` 里那个字面量 5(它决定并发上限, 也是 n=0 报 ValueError 的实际现场), 也没有消融 `prompts[i % len(prompts)]` 的轮转规则。两者都在同一函数内、都与 n 耦合, 应单列判决。",
+  "【穷举缺口·①】`sampling.n_requested` 这个**上报字段**本身(:966 区域)没有单独臂: 它在 n=0 被吞时报 5 而不是 0, 即台账会**主动记下一个没被请求过的数字**。本轮只在 F_n 里观察到该现象, 未出独立判决。",
+  "【穷举缺口·②】exp_v4_full_validation 我用「从被 import 的 7 个入口做 AST 可达性闭包」定义死集(23 符号/534 行), v2 报的是 24 符号/582 行 —— 两者符号集一致(我把 ROOT 排除了, 因为它被顶层 `with open(...)` 用到), 行数口径不同。exp_v4_causal_chain 我跑了 v2 的 15 符号(327 行)与我的 18 符号(342 行)两套, 都零差异; **两套都没覆盖到的**是文件头部 import 与 docstring, 未单列。",
+  "【工况】只在 22 份存量 archive draw_ledger(k 分布 {3:20, 5:2}, 每份 n=5)与 68 行存量 manifest 上测。**没有一份存量数据的 draw_ledger 长度为 0**, 因此 n=0 这条路在存量面上结构性不可观测 —— v-blank-02 的 UNREACHABLE 是 M8 意义上的「本工况未触发」, 不是「真死」。",
+  "【工况】market 维度未进入判决(CCE_MARKET 未设, 出站闸未载入)。★ 更正上一轮六个产物里那句「仓内无 market 字段(已实扫)」—— 那句是假的: 仓内 .py 词边界命中 44 处, 含 CCE_MARKET 环境变量。probes/ablation_harness_v3.py:288 的 operating_point() 返回值里**至今还写着那句假话**, 本产物不沿用。",
+  "【L4 的三处不确定】(a) tests/test_cce_audio_prosody.py 被 --ignore —— 它在 collection 期就向 dl.fbaipublicfiles.com 发下载请求, 被绊线拦住; 排除它是为了守 R1, 代价是这一条线的 L4 未覆盖。(b) **基线本身不稳, 已实测**: 同一份未变异的仓跑两遍 —— L4_base = 1 failed + 1 error(tests/test_cce_chain_conformance.py), L4_base2 = 1 failed + **0 error**。唯一稳定的既有红是 tests/test_cce_suspend_fix_confirmation.py::test_the_attempt_ledger_reports_attempts_not_just_successes。tests/test_cce_chain_conformance.py 与 tests/test_ontology_migration.py 属于**仓库扫描类**闸, 会随「这一轮碰了哪个文件」以及并发跑的其它进程翻动(实测 noop_chain 臂里 chain_conformance 反而由红转绿)。⇒ 绝对净新增数字对这两条不可靠; 所有判决都改用**同类空操作对照臂**做差, 并**同时给出原始红名单**, 不只给数字。(c) 第一轮 L4_A6_spec_fix 被 SIGTERM 杀掉(returncode -15 —— 套件内有测试会**自起嵌套 pytest**, 实测见到 `-m pytest tests/test_cce_abstention.py ...` 这样的子进程), 已单独重跑成功, 产物用的是重跑结果。(d) 仓内 tests/test_cce_core_boundary.py:86/137 会临时 append 到 scripts/cce_knot_classify.py 再在 finally 还原; 多个 pytest 并发时这是一个真实的竞争窗口。本轮每次收尾都核了四个冻结件 sha256, 全程相同, 且没有残留 .coreguard_bak。",
+  "【L4 的方法边界】本轮 L4 用 shim 虚拟化文件读取, 所以**钉源码文本的闸也能看见消融** —— 这比上一轮的纯内存 import 注入更严。但 shim 只拦 builtins.open / Path.read_text / Path.read_bytes 与 import; **不拦** os.open / io.open 的底层调用 / subprocess 里用 `git show` 取文件 / C 扩展直接读盘。若某条闸走这些路, 它对本轮 L4 仍然不可见。",
+  "【已知副作用·须披露】(a) 我跑了一次 `python3 probes/ablation_harness_v3.py`(它的 __main__ 按设计会写 tests/data/ablation_v3/_positive_control.json), 因此那个文件被重写了一遍 —— 内容除 decided_at 外与原本一致, gates 11/11 全绿。(b) 仓内测试 tests/test_cce_core_boundary.py:86/137 会**临时 append 到 scripts/cce_knot_classify.py 再在 finally 里还原** —— 这是套件自身行为, 不是我的写入; 四个冻结件跑前跑后 sha256 已逐一核对相同(见 file_integrity)。",
+  "【没做】没有真删任何文件(按指令); 没有改 tests/data/ablation_verdicts_v3.json(只读); 没有读 /Volumes/data/cce-identified-vault(全程 0 次)。",
+  "【判决词表的取舍】v-blank-03 的 `\"s2_n\": knot_n or KNOT_N` 我判 UNREACHABLE 而不是 LOAD_BEARING —— 因为**生产调用形状下它与正确写法等价**; 但它的后果(0 抽样仪器与生产仪器同哈希、标定被错判可搬)是实测到的, 属于「保险丝反向」的缺陷: 平时不响, 一响就是悄悄放行。若评审认为「潜在放行」本身就该记承重, 这条可改判, 证据两读都够。"
+ ]
+}

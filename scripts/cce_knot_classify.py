@@ -522,6 +522,31 @@ SCOPE_WIDENINGS = {
         "to_instrument": "d4cce4c745f3f991",
         "verify": _s1_scope_widening_holds,
     },
+    # ★★★ 2026-09-13 补登记: **同一次 gen4→6 口径扩大在 k=5 上的那条边**。
+    #   为什么之前没有: 上面那条是 2026-09-06 为了让 cce_k1_status 继承 gen4 判定才建的,
+    #   当时**只建了 k=3 的边, 漏了 k=5 的兄弟** —— 而 k 进 sampling_policy, 所以两个 k
+    #   是两台不同仪器、两条不同的边。后果: outbound_post 结层**零可用读数**, 而
+    #   K1_TOP1_ON_K5 那 40 条读数**早在 2026-09-04 就采过并判过 TOP1_USABLE**。
+    #   ⇒ 「同一逻辑多份实现, 修了一份漏了其余」的**第四次**(库内前三次有记录)。
+    #
+    #   ★ 它**不引入任何新的信任假设**: verify 就是上面那条边**已在生产依赖**的同一个函数,
+    #     内容是 `_stage1_case(...) in _stage1_template()`, **与 k 完全无关** ⇒ 两条边**同真同假**。
+    #     若这条不合法, 上面那条(已在生产)同样不合法。只登记一条不是谨慎, 是不一致。
+    #   ★ 结构性证据(tests/test_cce_k5_widening_edge.py 现算, 且先自证能复现两个现值):
+    #     把 s1_prompt_sha256 换回旧口径 eadcdcdac46a5180 ⇒ k=3→565470cf26c16d01 ·
+    #     k=5→0e9ca1d4e7a2f180, **两台都在 VERDICT_BY_INSTRUMENT 里**。
+    #   ★ 影响面**恰好一项**: k=5 的 top-1 放行。intensity/weight 在**两台上都仍扣发**
+    #     (K1-v2 判 INSTRUMENT_WIDE_FAIL), 与 k1_top1_k5_verdict.json 的
+    #     ★intensity_weight_unchanged 一致。
+    #   ★ **不是换代**: SCOPE_WIDENINGS 不在 _INSTRUMENT_FIELDS 里 ⇒ 两台 instrument_hash
+    #     皆未变, 既有标定全部仍有效。
+    ("s1_prompt_sha256@k5", "eadcdcdac46a5180", "61fe230f5c588c1f"): {
+        "gen": "4→6",
+        "what": "同上, 但这一条是 **k=5(outbound_post)** 那台仪器上的边",
+        "from_instrument": "0e9ca1d4e7a2f180",
+        "to_instrument": "c4419c3e53aa2fa9",
+        "verify": _s1_scope_widening_holds,
+    },
 }
 
 
@@ -1091,7 +1116,7 @@ def _stage2_aggregate(prompt, taxo, n=None):
 
 # ── 铁律 23: 九结是 candidate ontology ────────────────────────────────
 UNVERIFIED_MARKERS = ("未跑", "未验")
-CANDIDATE_CAVEAT = "结分类学 v1: G-K1 已通过(2026-09-07, 资格考生效); **G-K3 未跑 · G-K2 不可判 · 重复性与外部效度未验** —— 引用须带「未验」"
+CANDIDATE_CAVEAT = "结分类学 v1: G-K1 两项指标达标但**面板从未被有效认证**(v2 三态下五人全 UNRESOLVED); **belong 在评论上是单元错配非死类** · G-K3 原判已撤销(重言) · G-K2 不可判 · **外部效度未被证伪但远未确立** · **类空间塌陷是仪器性质** —— 引用须带「未验」"
 BASE_CAVEATS = [
     "全占比: knots 是带权组合,禁把单个 top 当断言",
     "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准",

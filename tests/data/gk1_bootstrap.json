@@ -1,0 +1,100 @@
+{
+ "block": "GK1_BOOTSTRAP_ON_RUN2",
+ "B": 10000,
+ "seed": 20260907,
+ "n_items": 81,
+ "★run1_panel": [
+  "MiniMax-M2",
+  "MiniMax-M2.5",
+  "MiniMax-M3",
+  "MiniMax-Text-01"
+ ],
+ "★run2_panel": [
+  "MiniMax-M3",
+  "MiniMax-M2.5",
+  "MiniMax-M2.7",
+  "MiniMax-M2",
+  "MiniMax-Text-01"
+ ],
+ "★panels_differ_because": "★★ 资格考不可复现: run1 判 M2.7 3/5 落榜 ⇒ 4 人; run2 判它 5/5 合格 ⇒ 5 人。该闸在真实能力 p∈[0.34,0.93] 区间内基本是抽签(详见 tests/data/qualification_exam_resolution.json)。⇒ **只有「限定到 run1 那 4 人」的那一套能与 run1 直接比。**",
+ "thresholds": {
+  "top2": ">=0.80",
+  "JS": "<=0.25"
+ },
+ "run2_5panel_as_run": {
+  "panel": [
+   "MiniMax-M3",
+   "MiniMax-M2.5",
+   "MiniMax-M2.7",
+   "MiniMax-M2",
+   "MiniMax-Text-01"
+  ],
+  "point": {
+   "top2": 0.9041,
+   "JS": 0.219
+  },
+  "bootstrap_95CI": {
+   "top2": {
+    "lo": 0.866,
+    "hi": 0.94,
+    "se": 0.019
+   },
+   "JS": {
+    "lo": 0.1789,
+    "hi": 0.2611,
+    "se": 0.0209
+   }
+  },
+  "★JS_CI_crosses_0.25": true,
+  "★top2_CI_crosses_0.80": false
+ },
+ "run2_restricted_to_run1_4panel": {
+  "panel": [
+   "MiniMax-M2",
+   "MiniMax-M2.5",
+   "MiniMax-M3",
+   "MiniMax-Text-01"
+  ],
+  "point": {
+   "top2": 0.8882,
+   "JS": 0.2339
+  },
+  "bootstrap_95CI": {
+   "top2": {
+    "lo": 0.8436,
+    "hi": 0.9312,
+    "se": 0.0224
+   },
+   "JS": {
+    "lo": 0.1902,
+    "hi": 0.2798,
+    "se": 0.0229
+   }
+  },
+  "★JS_CI_crosses_0.25": true,
+  "★top2_CI_crosses_0.80": false
+ },
+ "★A4_run_to_run_vs_sampling": {
+  "run1_point": {
+   "top2": 0.9042,
+   "JS": 0.2321
+  },
+  "run2_point": {
+   "top2": 0.8882,
+   "JS": 0.2339
+  },
+  "abs_diff": {
+   "top2": 0.016,
+   "JS": 0.0018
+  },
+  "bootstrap_SE": {
+   "top2": 0.0224,
+   "JS": 0.0229
+  },
+  "diff_over_SE": {
+   "top2": 0.71,
+   "JS": 0.08
+  },
+  "★reading": "★ 比值 >1 ⇒ 跨运行(模型)噪声**大于**抽样噪声 ⇒ **加样本量没用, 该加重复次数**; <1 ⇒ 反之。这两条路的成本差一个量级。"
+ }
+}

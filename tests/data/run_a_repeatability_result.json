@@ -1,0 +1,83 @@
+{
+ "block": "RUN_A_REPEATABILITY_RESULT_2026-09-07",
+ "★prereg": "tests/data/repeatability_and_external_validity_prereg.json (发起调用前冻结)",
+ "design": "同语料 81 条评论 · 同协议 · temp=0.0 · 第二次独立运行 · 405 次标注调用",
+ "★A3_FALSIFIED_and_it_judged_first": {
+  "predicted": "资格考结果与 run1 一致: M2.7 仍 3/5 落榜",
+  "observed": "★★ **5 人全部 5/5 合格, 含 M2.7**",
+  "★why_this_judged_first": "预注册原文: 「若 temp=0 下资格考结果都不可复现, 那么整轮验收的**任何**结论都不可引用 —— 这条比 A1/A2 更根本, **它先判**。」",
+  "★resolution": "该闸 5 个锚例、阈值 4/5, 在真实能力 p∈[0.34,0.93](**宽 0.59**)内基本是抽签。3/5 与 5/5 的 Wilson 区间**重叠 [0.566,0.882]** ⇒ 统计上不矛盾, 矛盾的是**拿它们做二值判决**。以 5%/5% 误判率区分「该落榜/该合格」需 **14~49 条锚例**, 现有 **5**。",
+  "★★but_it_did_not_invalidate_everything": "★ A4 显示**标注本身**跨运行很稳(JS 差仅 0.08×SE)。⇒ 不稳的是**资格考这道闸**, 不是标注。两件事分开了 —— 这比笼统说「整轮不可引用」准确。"
+ },
+ "★★A1_CONFIRMED_the_pass_is_not_a_binary_fact": {
+  "run1_4panel": {
+   "top2": 0.9042,
+   "JS": 0.2321,
+   "κ": 0.6178
+  },
+  "run2_5panel": {
+   "top2": 0.904,
+   "JS": 0.219,
+   "κ": 0.6438
+  },
+  "bootstrap_95CI": {
+   "run2_5panel_as_run": {
+    "top2": {
+     "lo": 0.866,
+     "hi": 0.94,
+     "se": 0.019
+    },
+    "JS": {
+     "lo": 0.1789,
+     "hi": 0.2611,
+     "se": 0.0209
+    }
+   },
+   "run2_restricted_to_run1_4panel": {
+    "top2": {
+     "lo": 0.8436,
+     "hi": 0.9312,
+     "se": 0.0224
+    },
+    "JS": {
+     "lo": 0.1902,
+     "hi": 0.2798,
+     "se": 0.0229
+    }
+   }
+  },
+  "★★bootstrap_failure_rate": {
+   "5panel": "JS 不过 **7.0%** · top2 不过 **0.0%** · 整体不过 **7.0%**",
+   "4panel_=run1": "JS 不过 **23.0%** · top2 不过 **0.0%** · 整体不过 **23.0%**",
+   "B": 10000,
+   "seed": 20260907
+  },
+  "★reading": "★★★ 用 run1 那个面板, **换 81 条同分布的别的评论重抽, G-K1 有 23% 概率不过**, 而且**全部来自 JS 那一项**(top2 一次都没失败)。⇒ 「G-K1 通过」**不是二值事实**, 必须带区间引用。"
+ },
+ "★★★the_exclusion_made_it_worse": {
+  "finding": "run1 剔除 M2.7 ⇒ 4 人面板, 自助失败率 **23%**; run2 保留它 ⇒ 5 人面板, 失败率 **7%**。JS 从 0.2339(4人) 改善到 0.2190(5人)。",
+  "★M2.7_was_the_best": "run2 逐标注者平均 JS: {\"MiniMax-M2.7\": 0.1968, \"MiniMax-M2\": 0.208, \"MiniMax-M2.5\": 0.2135, \"MiniMax-M3\": 0.2181, \"MiniMax-Text-01\": 0.2587}",
+  "★reading": "★★ **M2.7 是 run2 里 JS 最好的标注者(0.1968)** —— 而 run1 靠一次抽签把它当不合格剔掉了。⇒ 「剔除不合格标注者」这个动作, 这次实际上**损害了指标的稳健性**。★ 这不是说资格考该取消, 是说**一个分辨率不足的资格考比没有更坏**: 它以「质量控制」的名义引入了一个随机的、方向不定的扰动。"
+ },
+ "★★★belong_is_not_a_dead_class_a_rerun_refuted_it": {
+  "run1": "belong 连键都不在 top1_prevalence 里 ⇒ **0/308**",
+  "run2": "**belong = 2** 次逐标注者 top1 (M2.5 的 p1t8pi6 权重 0.600 · M2.7 的 p18je75 权重 0.550)",
+  "run2_consensus_argmax": "仍 0/81",
+  "run2_entered_someones_top2": "13/81",
+  "★reading": "★★★ **「belong 是死类」这个说法, 在同一份语料上重跑一次就被推翻了。** 它是**极低频且在重复测量间波动**, 不是不存在。★ 这正好印证了 0/78 的单侧 95% 上界 **3.77%** —— 排除不了 1%~3% 的真实 prevalence。我此前用 0/308 当分母(0.97%)是**把非独立观测当独立**, 人为收窄了区间。",
+  "★consequence_for_the_frozen_disposition_rule": "冻结规则的 **RETIRE 分支要求「在预定义异质覆盖样本中仍 0」** —— 而现在连原语料上重跑都不是 0 ⇒ **RETIRE 在本语料上已被排除**。剩下 RETAIN 与 MERGE 由 STUDY 2(判别效度)决定, 照表查。"
+ },
+ "A2_CONFIRMED": "top2 的自助 95%CI 下界 0.844(4人)/0.866(5人), **稳在 0.80 以上**, 10000 次一次没失败。",
+ "★A4_CONFIRMED_which_road_to_spend_on": {
+  "run_to_run_diff_over_sampling_SE": {
+   "top2": 0.71,
+   "JS": 0.08
+  },
+  "★reading": "跨运行差 top2 **0.71×SE** · JS **0.08×SE**, **都小于抽样 SE** ⇒ **主要噪声来自样本, 不是模型**。⇒ **加样本量有用, 加重复次数用处小** —— 这两条路的成本差一个量级, 现在有数据选了。"
+ },
+ "★still_unanswered": [
+  "跨模型家族(四名标注者全是 MiniMax 同族)",
+  "跨社区(仍是 r/HearingAids 一个版)",
+  "★ 资格考的修法(锚例提到 >=14 + 报区间) **尚未实施**, 只记录了。"
+ ]
+}

@@ -1,0 +1,34 @@
+{
+ "block": "STUDY2_BELONG_DISCRIMINANT_VALIDITY_RESULT_2026-09-07",
+ "★frozen_rule": "tests/data/belong_disposition_rule_prereg.json 的 ★★AMENDED_2026-09-07 —— **在本研究发起任何调用之前**修订并冻结。★ 脚本里的判决逻辑当时还是旧版, 已同步; 本文件的数字按**修订后**的规则算。",
+ "design": "理论驱动挑战集 + 阴性近似对照。候选来自 belong **自己定义**的表面标志; 阴性对照来自最近邻 display 的标志(带信息增量的自我暴露)。5 标注者 × 200 条 ≈ 1000 次调用。",
+ "★circularity_handled_by_splitting_not_deleting": {
+  "leaked_marker": "\\bonly (?:one|me)\\b —— 它在 belong 的 behavior 里(「『only me?』」), 进了 KNOT_BRIEF",
+  "ARM_CLEAN": "10/105 = 9.5%  ← **判据只看这一臂**",
+  "ARM_LEAKED": "1/6 = 16.7%",
+  "★the_worry_is_refuted": "★★ 担心的是「belong **只**在泄漏臂点火 ⇒ 仪器在对自己 brief 的字面做关键词匹配」。实测两臂**同量级**(9.5% vs 16.7%, 后者 n=6 极小) ⇒ **不是关键词匹配**。"
+ },
+ "★★results": {
+  "ARM_CLEAN_belong_argmax": "**10/105** = 9.5%",
+  "HARD_NEGATIVE_belong_argmax": "**1/89** = 1.1%",
+  "★ratio": "**8.5 倍** ⇒ 它不是对什么都点火",
+  "candidates_whose_argmax_is_display": "18/105 = 17.1%"
+ },
+ "★★★VERDICT": {
+  "verdict": "**RETAIN_as_core**",
+  "checks_one_by_one": {
+   "(i) k >= 7": "10 >= 7 ✅",
+   "(ii) Fisher 单侧 p < 0.05": "10/105 vs 1/89, p = **0.01024** ✅",
+   "(iii) >= 3 个不同作者": "**10 个**(每人各 1 条, **零聚类**) ✅"
+  },
+  "★null_model": "零模型 Binom(105, 2/78) 下拿到 k>=10 的概率 = **0.039%**。★ 对比旧条文「至少 1 条」在同一零模型下的 **93.5%** —— 那不是阈值, 是一次点名。",
+  "★★what_it_means": "★★★ **belong 是一个可操作、可判别的独立构念。不删、不合并。**\n· RETIRE 已被 Run B 排除(帖子上 prevalence 8.6%, 远高于 0.5% SESOI)\n· MERGE 被本研究排除(与最近邻 display 的判别 p=0.0102, 且候选里只有 17.1% 落到 display, 远低于 MERGE 要求的 2/3)\n· RETAIN 三条判据全中, 且零模型概率 0.039%"
+ },
+ "★the_real_conclusion_is_about_the_corpus_not_the_class": "★★★ 整条链的结论: **「belong 是死类」从头到尾是一个关于采样框的错误, 不是关于分类学的发现。**\n· 语料是**评论**, 而 belong 按分类学自己的定义活在**发帖**\n· 标注 prompt **逐字**说「给你一条评论」, 且告诉模型 display 是「**评论区**最高质量UGC主力」\n· belong 的 codebook **没有一个干净的可核对正例**(user_154 不在语料, user_73 是锚例作者)\n· 而我最初引用的 **0/308 分母用错了**(rater decisions 不是独立文本)\n⇒ 四条独立的缺陷**同向叠加**, 每一条都把 belong 往「不存在」推。",
+ "★what_this_still_does_NOT_answer": [
+  "★ 候选是**标志词**选的, 不是人工裁定的真正正例 ⇒ 候选集混有假阳性, 会**压低**命中率。⇒ 9.5% 是**下界**; 真实判别力只会更高, 不会更低。这个方向对 RETAIN 有利, 需明说。",
+  "★ 只对照了最近邻 display。与 reward/audit 的边界未测。",
+  "★ 仍是 MiniMax 同族 + r/HearingAids 单社区。",
+  "★★ 四条推 belong→display 的通道只动了第 2 条(单元标签, 已做成 CCE_UNIT_LABEL)。第 1/3/4 条(KNOT_BRIEF 注入 behavior · 决策树位次 · belong 自己的负例是显式改判指令)未动。"
+ ]
+}

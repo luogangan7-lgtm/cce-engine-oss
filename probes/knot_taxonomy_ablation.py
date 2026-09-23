@@ -50,6 +50,36 @@ _SRC = {p: p.read_text(encoding="utf-8", errors="ignore")
         for d in SRC_DIRS for p in (ROOT / d).glob("*.py")}
 
 
+# ★★ 声明式登记表 —— 它们**记录**某字段没有消费者, 本身不是消费者。
+#    只列 consistency_check 里的三张表; 新增同类表要在这里加, 否则计数会再次被自己骗。
+_REGISTRY_NAMES = {"TOPLEVEL_DOC_ONLY", "DESCRIPTIVE", "EXEMPT_BLOCKS"}
+_SRC_CLEAN = None
+
+
+def _srcs_without_registries():
+    """把登记表的源码行区间挖空后的 _SRC —— 见 code_refs 的 docstring 最后一段。"""
+    global _SRC_CLEAN
+    if _SRC_CLEAN is not None:
+        return _SRC_CLEAN
+    import ast as _ast
+    out = {}
+    for rel, src in _SRC.items():
+        try:
+            tree = _ast.parse(src)
+        except SyntaxError:
+            out[rel] = src
+            continue
+        drop = set()
+        for n in _ast.walk(tree):
+            if isinstance(n, _ast.Assign) and any(
+                    isinstance(t, _ast.Name) and t.id in _REGISTRY_NAMES for t in n.targets):
+                drop.update(range(n.lineno, (n.end_lineno or n.lineno) + 1))
+        out[rel] = "\n".join("" if i + 1 in drop else ln
+                              for i, ln in enumerate(src.split("\n"))) if drop else src
+    _SRC_CLEAN = out
+    return out
+
+
 def code_refs(field):
     """字段名的引用计数 —— 返回 (粗, 严) 两个数, **它们是一个区间的两端**。
 
@@ -59,11 +89,20 @@ def code_refs(field):
     ★ 严计: 只算**同一行里还出现 taxo/TAXO/knot/KNOT/meta_k** 的 ⇒ **会漏**跨行访问。
     ⇒ 判决用**粗计**(保守: 虚高只会把 NO_CONSUMER 推成 INCONCLUSIVE, 不会反过来),
       但两个数都落盘, 否则 INCONCLUSIVE 这一档读不出含义。
+
+    ★★★ 2026-09-07: **声明式登记表必须先剔掉**, 否则
+      **「声明它没有消费者」这个动作本身会被算成一个消费者**。
+      实测: 8 个 changelog 各拿 refs=1, 全部来自 consistency_check.py:52 的
+      `TOPLEVEL_DOC_ONLY` 那一行逐字列名 ⇒ 全被推成 INCONCLUSIVE ⇒
+      **阴性对照(纯文档必须判 NO_CONSUMER)长期是红的**, 而当时没有任何测试读它。
+      ★ 这不是给对照开后门, 是**系统性偏置**: 任何登记进 TOPLEVEL_DOC_ONLY /
+      DESCRIPTIVE 的字段, 都**永远拿不到 NO_CONSUMER** —— 越诚实地记录一个死字段,
+      它看起来越活。剔除范围由 AST 定(赋值节点的行区间), 不用正则。
     """
     pats = (f'"{field}"', f"'{field}'", f".{field}")
-    crude = sum(sum(s.count(p) for p in pats) for s in _SRC.values())
+    crude = sum(sum(s.count(p) for p in pats) for s in _srcs_without_registries().values())
     strict = 0
-    for s in _SRC.values():
+    for s in _srcs_without_registries().values():
         for ln in s.split("\n"):
             if any(p in ln for p in pats) and any(
                     t in ln for t in ("taxo", "TAXO", "knot", "KNOT", "meta_k")):
@@ -140,6 +179,28 @@ def ablate_knot_field(field, draws_by_base):
     return _measure(t, field, draws_by_base)
 
 
+
+# ══ ★★★ 2026-09-09: 闸侧材料的重建 ══════════════════════════════════════════
+#  **本探针原来只测生产 s2 的模板** —— `prompt_changed` 这个字段名不带限定,
+#  读起来像「没有任何 prompt 变化」, 实际只回答了「**生产** prompt 没变」。
+#  ★ 后果是具体的: `negative_examples_prompt` 因此被判 prompt_changed=false / INCONCLUSIVE,
+#    而 2026-09-09 实测它**确实改变验收闸的 prompt**, 并把读数从 45.0% 推到 12.5%。
+#  ⇒ 那条 INCONCLUSIVE 是**在一台看不见它的仪器上做出的判决**。
+#  ★ 引用扫描本来就含 accuracy/(所以 code_refs 数得到 run_gates), 漏的是**读数测量**这一侧。
+def gate_materials(taxo):
+    """从任意 taxo 重建**验收闸标注者实际看到的材料** —— 与 run_gates 的组装逐字同构。"""
+    import json as _j
+    brief = "\n".join(
+        f"- {k['key']}({k['name']}): 签名={_j.dumps(k['signature'], ensure_ascii=False)}; "
+        f"行为={k['behavior'][:70]}" for k in taxo["knots"])
+    _P = taxo["annotation_protocol"]
+    tree = "★判定顺序(决策树,逐级检查):\n" + "\n".join(_P["decision_tree_prompt"])
+    _NE = {k["key"]: k.get("negative_examples_prompt") for k in taxo["knots"]}
+    neg = "★何时不用(负例判据,与决策树同权重):\n" + "\n".join(
+        f"- {k} 不用于: {_NE[k]}" for k in _P["negative_examples_order"] if _NE.get(k))
+    return brief + "\x00" + tree + "\x00" + neg
+
+
 def _measure(t, field, draws_by_base):
     _crude, _strict = code_refs(field)
     r = {"field": field, "code_refs": _crude, "code_refs_strict": _strict,
@@ -147,8 +208,15 @@ def _measure(t, field, draws_by_base):
     kw = dict(k=3, knot_n=5, s1_pairing="round_robin_over_3_s1_draws")
     base_tpl = K._stage2_template(TAXO)
     base_ih = K.instrument_id(TAXO, **kw)["instrument_hash"]
+    base_gate = gate_materials(TAXO)
     try:
-        r["prompt_changed"] = K._stage2_template(t) != base_tpl
+        # ★ 字段名带上限定 —— 「prompt_changed」这个裸名字**误导过一次**
+        r["prod_s2_prompt_changed"] = K._stage2_template(t) != base_tpl
+        r["prompt_changed"] = r["prod_s2_prompt_changed"]   # 兼容旧读者, 语义同上(仅生产)
+        try:
+            r["★gate_prompt_changed"] = gate_materials(t) != base_gate
+        except Exception as e:
+            r["★gate_prompt_changed"] = f"GATE_BREAKS: {type(e).__name__}"
         r["l3_hash_changed"] = K.instrument_id(t, **kw)["instrument_hash"] != base_ih
     except Exception as e:
         r["prompt_changed"] = f"IMPORT_BREAKS: {type(e).__name__}"

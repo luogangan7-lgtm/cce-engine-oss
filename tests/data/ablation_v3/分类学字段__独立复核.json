@@ -1,0 +1,162 @@
+{
+ "block": "ABLATION_V3_CLUSTER_分类学字段__ADVERSARIAL_RECHECK",
+ "role": "独立复核者(默认立场: 判决是错的, 直到验不出错)",
+ "decided_at": "2026-09-11T17:37:56",
+ "target": "tests/data/ablation_v3/分类学字段.json 的 37 条判决",
+ "结论一句话": "37 条判决**一条都没被推翻, 一条都没被降级**。装置经我自己的死/液/伪红三重对照验收通过, 关键读数逐项复现。★ 真正的问题不在已出的判决里, 在**没出判决的地方**: 两台生产机器实际消费 16 个分类学字段, 本簇只消融了 10 个。",
+ "R1_零API": {
+  "绊线": "每个进程加载期装 socket.socket.connect 绊线并断言未触发",
+  "本轮全部进程 tripped": "[] (positive_control 进程 · 我自己的 P/G rig 进程 · farm 内 pytest 子进程另装 conftest.py 绊线)",
+  "★覆盖边界": "只覆盖本进程内经 socket 新建的连接; 不覆盖已建连接/非 socket 传输/C 扩展自带网络栈。"
+ },
+ "R2_文件完整性__我自己重算": {
+  "sha_now": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "与被核产物 sha_before/sha_after 逐一比对": "**全部一致**",
+  "判定": "file_integrity.unchanged = **真**。消融全程只做内存内源码/JSON 替换, 仓内四个冻结件一字未改(我在每个 rig 进出各取一次并断言相同)。"
+ },
+ "R3": "本复核新写的文件里不出现任何仓外识别层路径。",
+ "一_判官验收__我自己重跑": {
+  "①_阳性对照_死常量": {
+   "dead_swap": "L1=False L2=False",
+   "dead_absurd(999.0/-999.0)": "L1=False L2=False",
+   "判定": "判据**不是重言** —— 死常量没被判成承重。"
+  },
+  "②_液性对照_连通性": {
+   "liquid(_S1_BASE_TEMPS[0] 0.0→0.99)": "L1=True L2=True",
+   "判定": "装置**接上了**。"
+  },
+  "③_L3重言复现": "同一个死常量下 instrument_hash **会变**(三个臂全 True) ⇒ M2 说的重言形状在我进程里复现, 而本判据避开了它。",
+  "④_空操作臂": "L1=False L2=False L3=False",
+  "⑤_确定性": "positive_control 的 determinism_same_module_twice / determinism_fresh_reload 均 True; corpus_sha256=8226cd11ee4593a0… 与被核产物逐字一致。",
+  "⑥_伪差异专项(第2种错法)": {
+   "做法": "拿**肯定不承重**的纯文档字段 `changelog_1_1_0` 过同一套装置(mutate + 2000字荒谬值两臂)。",
+   "结果": "P_prompt_changed=False · P_payload_changed=False · P_caveats_changed=False · G 材料与 gate_protocol_hash 逐字不变。",
+   "判定": "**没有伪阳性**。M3-① 的共享迭代器缺陷在本装置上不存在(replay stub 按 tag 索引)。"
+  }
+ },
+ "二_逐条复核结果": {
+  "overturned": 0,
+  "downgraded": 0,
+  "confirmed": 37,
+  "我实际复现的关键读数": [
+   "P 侧 reach 逐项复现: signature / behavior / typical_codes / family 四个字段 mutate ⇒ P_prompt_sha 改变且哨兵实测出现在 _build_stage2_prompt 输出里; hard_discriminant / definition_of_knot / identity_criterion / negative_examples_prompt / decision_tree_prompt / negative_examples_order 六个字段 mutate ⇒ P_prompt 逐字节不变、哨兵不在 prompt 内。",
+   "G 侧复现: 基线 gate_protocol_hash=dbdff13f9da155bc, 与 config/cce_core_manifest.json 钉死值一致 ⇒ 我测的是同一台闸。negative_examples_order / decision_tree_prompt 的 delete 臂在 run_gates **import 期**抛 KeyError(闸整台起不来); hard_discriminant / typical_codes / family 三臂 G 材料与 gate_protocol_hash 一字未变。",
+   "★60/70 截断不对称**完全复现**: inertia.behavior 长 68; 只改 [60:] 那 8 个字 ⇒ P_prompt_changed=**False** / P_payload_changed=True / G_brief_changed=True / G_hash_changed=True; 改头部 [0:2] ⇒ 四项全 True。⇒ 「G 与 P 用同一份 behavior」在 inertia 上确实不成立。这条是本簇最硬的新发现, 站得住。",
+   "两个不存在的字段复现: `negative_examples` 与 `decision_tree` 在顶层 / knots[] / annotation_protocol 三处均不存在。不给不存在的字段编判决是对的。",
+   "L4 装置复现: 我的空操作臂红集 = {test_cce_ablation_verdict_schema, test_cce_chain_conformance, test_cce_core_boundary} —— 与被核产物**逐个文件名相同**; hard_discriminant 的**替换式**变异净新增 4 条 = {test_cce_contract_gap, test_cce_cross_family_reference, test_cce_necessary_condition_reach, test_cce_suspend_factorial} —— 与被核产物**逐个文件名相同**。",
+   "★L4 的一个方法学注记(我先踩后爬出来的): 本仓大量测试是**模块级 assert**, pytest 报成 ERROR 而非 FAILED。只收 -rf 会**系统性漏掉**这类红。必须用 -rEf。我第一次跑漏了, 更正后才与被核产物对上。",
+   "deletable 未被从 verdict 推导: 11 条 NO_CONSUMER 全部 deletable=false, 理由是「缺陷不是冗余, 该接线不该删」, 与 v2 的 audio.capabilities/prosody 先例同型。**没有推导错误。**",
+   "P/G 确实分开判: typical_codes(P=LB / G=NO_CONSUMER) · family(P=LB / G=NO_CONSUMER) · negative_examples_prompt(P=NO_CONSUMER / G=LB) 三处两台判决相反 ⇒ 没有把两个消费者混成一条。",
+   "M8 保险丝专项: 11 条 NO_CONSUMER 逐条问「它本来就不该动吗」 —— 没有一条是保险丝形状(全是**从未接线**的字段, 不是「平时不动的闸」) ⇒ 无一需要按 M8 降级成 UNREACHABLE。★ 但本仓真正的保险丝是 `status`, 而它**不在本簇判决里**(见下)。"
+  ]
+ },
+ "★三_我找到的真问题__覆盖缺口(不是判决错, 是判决没覆盖)": {
+  "说明": "我把两台机器**实际取用**的分类学字段做了一次完整普查(逐行读 accuracy/run_gates.py 与 scripts/cce_knot_classify.py 的字段访问点), 再与 37 条判决对表。",
+  "P 实际消费": "version(:701 prompt, :620 instrument_hash 的 ontology_version) · status(:1109 caveats) · levers_not_knots(:697) · knots[].{key,name,family,signature,typical_codes,behavior[:60],behavior 全串(:1034), playbook(:1034)}",
+  "G 实际消费": "knots[].{key,name,signature,behavior[:70],negative_examples_prompt,cost_tier(:275)} · annotation_protocol.{decision_tree_prompt,negative_examples_order}",
+  "覆盖率": "两台机器共消费 16 个字段, 本簇出了判决的是 10 个 ⇒ **6 个被消费的字段一条判决都没有**, 而 `limits` 的 11 条里**没有一条**声明这个缺口。",
+  "★逐个的实测(我自己跑的, 非推理)": [
+   {
+    "field": "taxo['version']",
+    "consumer": "@P prompt + instrument_hash",
+    "measured": "mutate ⇒ P_prompt 改变且哨兵进 prompt; delete ⇒ KeyError('version'); L4 净新增 **2** (test_cce_gate_prompt_version_label, test_cce_playbook_atoms_a1a2)",
+    "would_be": "LOAD_BEARING_L2 (存在性承重 + 仪器同一性承重)",
+    "状态": "★无判决"
+   },
+   {
+    "field": "taxo['status']",
+    "consumer": "@P scripts/cce_knot_classify.py:1109 caveats()",
+    "measured": "把 status 换成不含「未验/未跑」的干净串 ⇒ caveats 由 **3 条降到 2 条**, CANDIDATE_CAVEAT 从**每一份交付载荷里静默消失**; delete 臂同样掉到 2 条(走 .get 不抛异常)。L4: tests/test_cce_knot_caveat.py **ERROR** + tests/test_cce_qualification_premise_revised.py **FAILED**。",
+    "would_be": "LOAD_BEARING_L2 (交付载荷 + 两条闸)",
+    "★为什么最要紧": "这是本仓唯一的**保险丝**形状字段 —— 它的全部职责就是「只要 gate 没真过, 每份结果都必须挂『未验』」。M8 专门警告存量消融会把保险丝判成装饰, 而本簇**根本没测它**。所幸它有闸(test_cce_knot_caveat 双向断言), 所以是**被守住的保险丝**, 不是裸的。",
+    "状态": "★无判决"
+   },
+   {
+    "field": "levers_not_knots",
+    "consumer": "@P scripts/cce_knot_classify.py:697",
+    "measured": "mutate ⇒ P_prompt 改变 + 哨兵进 prompt; delete ⇒ KeyError; 2000字荒谬值 ⇒ AttributeError(\"'str' object has no attribute 'keys'\"); L4 净新增 1",
+    "would_be": "LOAD_BEARING_L2 (存在性承重)",
+    "状态": "★无判决"
+   },
+   {
+    "field": "knots[].playbook",
+    "consumer": "@P :1034 输出载荷 · @C scripts/cce_align_v2.py:21",
+    "measured": "mutate ⇒ P 载荷改变; delete ⇒ KeyError('playbook'); L4 净新增 **1** (test_cce_playbook_atoms_a1a2)",
+    "would_be": "LOAD_BEARING_L2",
+    "★注": "config/cce_core_manifest.json 的 how_to_change_core 把 knots[].playbook 明文写成「第五条换代路的**当前唯一实例**」—— 仓自己把它标成最需要小心的字段之一, 而本簇没测它。",
+    "状态": "★无判决"
+   },
+   {
+    "field": "knots[].cost_tier",
+    "consumer": "@G accuracy/run_gates.py:275 COST_TIER",
+    "measured": "mutate ⇒ COST_TIER 改变, **但 gate_protocol_hash 一字不变**(dbdff13f9da155bc), **且 56 个测试文件 L4 净新增 = 0**; delete ⇒ run_gates **import 期** KeyError('cost_tier'), 闸整台起不来",
+    "would_be": "LOAD_BEARING_L2(存在性) + ★一个**治理漏洞**",
+    "★为什么这条最尖": "本簇 G 侧全部 LOAD_BEARING_L2 的论证链条是「改闸材料 ⇒ 钉死的 gate_protocol_hash 变 ⇒ 必须走 GATE_PROTOCOL_CHANGE」。而 gate_protocol_hash() 只覆盖 KNOT_BRIEF+DECISION_TREE+NEGATIVE_EXAMPLES+DIST_TMPL —— **cost_tier 不在其中**。⇒ 同一个文件里就坐着一个反例: 一个被 G 取用、能改变 G-K2 预测档位的字段, 既不动那个钉死哈希, 也翻不红任何一条测试。**这正是仓内 manifest 自己说的「钉住了不动的东西, 漏掉了承重的东西」的又一个实例。**",
+    "状态": "★无判决"
+   },
+   {
+    "field": "knots[].key / knots[].name",
+    "consumer": "两台都取",
+    "measured": "delete ⇒ P 与 G **双双** KeyError; name 的 mutate ⇒ P_prompt/P_payload/G_brief/G_hash 四项全变",
+    "would_be": "LOAD_BEARING_L2",
+    "★注": "name 被本簇**当作液性对照用了**, 却没有因此得到一条自己的判决。",
+    "状态": "★无判决"
+   }
+  ]
+ },
+ "★四_另外两处内部不一致": [
+  {
+   "项": "knots[].family @C 缺行",
+   "说明": "产物里 `C_align_FAMILY_changed` 这一列出现 136 次, 产物自己写「C_align_FAMILY_changed 只在 family 的臂上为 True」—— 即**测了且为阳性**, 却没有出一条 `family @C` 判决; 同一台机器上 `hard_discriminant @C` 却出了判决。",
+   "为什么要紧": "scripts/cce_align_v2.py:20 `FAMILY` 决定推动族走**共鸣**、阻挡族走**拆除**, 是该算子的分岔点本身。按其已有读数应为 LOAD_BEARING_L2 @C。",
+   "性质": "漏报, 不是错判。"
+  },
+  {
+   "项": "C 机器覆盖不均",
+   "说明": "scripts/cce_stage2_candidate.py 读 ontology + typical_codes + signature + behavior + hard_discriminant + negative_examples_prompt + decision_tree + levers 八类, 但只有 definition_of_knot / identity_criterion 两条拿到 @C 行。",
+   "性质": "候选件未上线, 影响小于上面几条, 但同属覆盖不均。"
+  },
+  {
+   "项": "计数口径",
+   "说明": "产物 verdicts 数组确实是 37 条(tally 25+1+11=37); 任务里贴的 JSON 列了 39 条, 多出的两条 INCONCLUSIVE(negative_examples / decision_tree)在产物里位于独立顶层键 `★任务清单里两个字段在仓里不存在`, 不在 verdicts 内。内容无出入, 仅口径差异。"
+  }
+ ],
+ "★五_一处该补的理由(判决本身不动)": {
+  "项": "knots[].hard_discriminant @G = NO_CONSUMER",
+  "字段级": "**正确** —— 我三臂实测 G 材料与 gate_protocol_hash 逐字不变。",
+  "但理由不完整": "该字段的**内容**其实已有一份压缩副本进了闸: annotation_protocol.decision_tree_prompt 第 4 条「明确悬置决策(还没定/再看看+犹豫理由)? -> suspend; 明知该动而声明不动? -> inertia」几乎是 suspend 与 inertia 两条 hard_discriminant 的逐点压缩。仓内 scripts/cce_rule_delivery_completeness.py:119 已记过这件事。",
+  "对建议的影响": "产物给 @G 的处置是「不可删, 该接线」。但 config/knot_taxonomy.json 的 changelog_1_3_1_b 写死了**单一真值原则: 同一条规则只允许存在一处**, 且那次换版正是为删除人读副本。⇒ 把 hard_discriminant 接进 G 会与决策树第 4 条形成第二份副本, **这个代价没有被写进判决**。判决不变, 理由需补这一句。"
+ },
+ "六_limits 漏掉的不覆盖面": [
+  "★ 最大的一条: **字段覆盖率**。两台机器共消费 16 个分类学字段, 本簇覆盖 10 个。limits 的 11 条里没有任何一条说明这件事, 读者会把「37 条判决」误读成「分类学字段已被判完」。",
+  "★ `gate_protocol_hash` 的**覆盖边界**没有作为 limit 写出: 它只覆盖四块 prompt 材料, 不覆盖 COST_TIER 等其他被 G 取用的派生量 ⇒ 「G 侧改动必翻钉死哈希」这条论证**有反例**, 且反例就在同一个配置文件里。",
+  "★ L4 的红集抓取方式没写进 limits: 本仓大量测试是模块级 assert, 报成 ERROR 而非 FAILED。产物没写它用的是哪种收集方式; 我用 -rf 时漏掉了 test_cce_knot_caveat 这类, 换 -rEf 才对上。复现者不知道这一点会得到不同的数。",
+  "★ 已被产物正确声明、我核对无误的 limits: 不覆盖真实模型行为 · 不覆盖 κ · M6 对 prompt-only 字段无分辨力 · Poison 臂只跑 P 侧 · 无 market 维度 · L4 只跑 56/158 · L4 红集是全仓级不按消费者切分 · 引用计数是词碰撞 · 截断不对称只在 inertia 一个结上可测。这些都如实。"
+ ],
+ "七_我没能推翻的东西(如实说)": [
+  "我按五种错法逐条找过: ①重言 —— 死常量三臂判非承重, 不是重言; ②伪差异 —— 纯文档字段过装置零假阳性; ③扫描面盲区 —— 我自己在 scripts/ probes/ accuracy/ tests/ .github/ config/ 全面 grep 了每条 NO_CONSUMER, 没有找到被漏掉的消费者(hard_discriminant 的第三个消费者 cce_align_v2 产物**已经自己查出来并出了 @C 判决**); ④缺注入检验 —— 无差异族都有荒谬值臂, 且额外上了比荒谬值更强的 Poison 对象臂; ⑤存量偏倚 —— 11 条 NO_CONSUMER 无一是保险丝形状。",
+  "37 条判决**没有一条被我推翻或降级**。产物在方法学自觉上(自己标 ★G_NOT_EVIDENCE、自己声明 poison 臂 G 侧未跑、自己声明 farm_faithful_noop_equals_pristine=False)比前几轮明显更严。",
+  "我的全部产出是**覆盖缺口**与**两处漏报**, 不是判决错误。"
+ ],
+ "file_integrity": {
+  "sha_before": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "sha_after": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "unchanged": true,
+  "★": "本复核全程未写入 scripts/ config/ accuracy/; L4 在 scratchpad 的 rsync 农场里跑, 农场另装 conftest.py 绊线。"
+ }
+}

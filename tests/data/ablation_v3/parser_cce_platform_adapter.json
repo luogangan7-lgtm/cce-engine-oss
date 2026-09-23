@@ -1,0 +1,2001 @@
+{
+ "unit": "parser_plane · scripts/cce_platform_adapter.py",
+ "file": "scripts/cce_platform_adapter.py",
+ "n_lines": 64,
+ "n_defs": 3,
+ "chain_segment": "§48 第 2 段 CONTEXT",
+ "decided_at": "2026-09-12T20:19:21",
+ "workdir": "/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/padapter_37000",
+ "★parser_plane_claim": {
+  "claim_under_test": "config/cce_core_manifest.json 的 parser_plane_note: 「Parser/Ingest 层可自由增删改, 不影响本闸; 新增模态只许落在这一层。」",
+  "note_holds": false,
+  "verdict_one_line": "★ **这句话按字面为假**: 「增」成立, 「改」与「删」不成立 —— 本文件的判据会让**已采集的原始 draw 不可用**, 而那正是 manifest 自己给 Core 下的定义。",
+  "why": "manifest 的 Core 判据原文: 「Core = 改了它已采集的原始 draw 就不能用的文件; 与 instrument_hash 同源判据」。本轮用 archive/33748217410 这一份**真实的、已测量完的** subject_chain run(8 个 subject item 的 manifest.json + s1_readout.json)跑 cce_response_chain.ingest(CI 的 subject-aggregate job 跑的就是这一步), 基线成功: 8 条 response_measurement, activated_window PASS。然后逐个做**只落在 parser 层**的改动:\n  ① 增(注册表加一个新平台 newmodality) ⇒ ingest 仍 ok, 投料仍收 ⇒ note 在「增」上成立。\n  ② 改(把 reddit 的 adapter_version 从 1.0.0 升到 1.1.0 —— 协议变了就升版, 正是本层的正常动作) ⇒      ingest **失败**: ValueError: invalid response source: response_source.context.platform_adapter.version must equal '1.1.0'。\n  ③ 改(把 reddit community 的 space_pattern 从 {2,21} 收紧到 {2,8}) ⇒ ingest **失败**:      surface.id 'r/HearingAids' is invalid for reddit/community。\n  ④ 删(把本次重放真正用到的 reddit 适配器从注册表删掉) ⇒ ingest **失败**: platform is not backed by a registered platform adapter。\n     (删一个**没被这份 run 用到**的适配器 owned_site ⇒ 无影响。)\n  ⑤ 只改 .py(registry() 恒空) ⇒ ingest **失败**, 且三份干净投料全部从收翻成拒。\n⇒ 改/删 parser 层会让已采集的 draw 不能用 ⇒ 按 manifest 自己的判据, 这一件符合 Core 的定义。",
+  "affects_collected_draws": "会。已实测: archive/33748217410 的 8 份已测量 artifact 在 ②③④⑤ 四种 parser 层改动下全部无法再 ingest(ValueError 抛在 cce_response_chain.py:277-278)。",
+  "load_bearing_on_production_verdict_face": "有。至少 12 个符号在**生产准入判决面**上承重: ROOT · REGISTRY_PATH · registry() · adapter.id 匹配 · adapter.version 匹配 · adapter isinstance 守卫 · surface isinstance 守卫 · kind 查表 · observed_at 必填 · canonical 失败不产 · canonical['space'] · errors 列表。证据面是 cce_submission.validate_submission —— CI 的 prep job(cce-submit.yml:126)用它决定一份投料收不收; 拒 ⇒ prep 失败 ⇒ 整条链根本不跑。",
+  "counterexamples": [
+   "① MODIFY: 注册表把 reddit adapter_version 升到 1.1.0 ⇒ archive/33748217410 的 8 份已采集 artifact ingest 失败。",
+   "② MODIFY: 收紧 reddit community 的 space_pattern 到 ^r/[A-Za-z0-9_]{2,8}$ ⇒ 同上失败(surface.id 不再合法)。",
+   "③ DELETE: 从注册表删掉在用的 reddit 适配器 ⇒ 同上失败。",
+   "④ SOURCE: scripts/cce_platform_adapter.py 的 registry() 恒返回 {} ⇒ 同上失败 + 三份干净投料全部被拒。",
+   "⑤ 记账面的额外反例: tests/test_cce_ablation_verdicts_v3.py 现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对 ⇒ **往这个 parser 文件加一行注释就让 CI 红**(空操作对照臂实测翻红) ⇒ 「自由增删改」在记账面上也不成立。"
+  ],
+  "★the_narrow_reading_that_does_hold": "把「本闸」读成 scripts/cce_core_boundary.py(铁律 20 那道闸)时, 这句话**是真的**: core_boundary 只钉 config/cce_core_manifest.json 的 core_files 六个 sha, **不钉 parser_plane**; 实测本轮 27 个消融臂里, 没有任何一臂让 cce_core_boundary.py 翻红。⇒ 建议的修法不是删这句话, 而是把它从「可自由增删改」改成「**改 parser 层不会换代生产仪器(core_boundary 不红), 但会让已采集记录的再处理失败 —— adapter 版本/模式一旦变更, 旧记录必须一起迁移或标注为按旧适配器采集**」。",
+  "m8_bias_here": "M8 的存量偏倚在这一层**很强**: 54 例语料里只有 10 例是 REAL, 全部是 reddit(8)+owned_site(2), 只覆盖 registry 里 10 个平台中的 2 个、25 条 space_pattern 中的 2 条; 且真实记录全部是**合法**的。⇒ 凡是「污染输入才触发」的闸(adapter.id 匹配 / kind 查表 / observed_at 必填 …), 在纯存量重放上都会显得像装饰。本轮用**合成污染臂**把它们打亮, 并如实标注了哪些差异只出现在合成臂上。",
+  "asymmetry_note": "★ 本层与 core 的关系不对称: parser_plane 明说可自由增删改 ⇒ 这里的 NO_CONSUMER **更不能**直接推出 deletable —— 它可能只是「当前 profile(outbound_post/outbound_reply/subject_chain/media_ingest)不走那条模态」。本产物里 26 条判决只有 2 条给了 deletable=true, 且都附了迁移代价。"
+ },
+ "★ci_path_check_2026_09_12": {
+  "stale_table_corrected": "2026-09-01 的链路核对把 §48 第 2 段标成 CI ✗ / 测试 ✗ —— **两条都已过期**。",
+  "G_side_on_CI": ".github/workflows/cce-submit.yml:66-69 的 contract job 遍历 `ls tests/test_*.py` 全跑, 自然包含 tests/test_cce_platform_adapter.py; 且 PR 触发路径含 'scripts/cce_*' 与 'tests/test_cce_*' ⇒ 动这个文件必触发。",
+  "P_side_on_CI": [
+   "cce-submit.yml:126 prep job 跑 scripts/cce_submission.py —— 每一份真实投料都过 validate_platform_context; 拒 ⇒ prep 失败 ⇒ measure/subject-measure 全不跑。",
+   "cce-submit.yml:330 subject-aggregate job 跑 scripts/cce_response_chain.py ingest —— 对**已测量完的 artifact** 再过一次本适配器; 拒 ⇒ 抛 ValueError ⇒ job 红。"
+  ],
+  "gate_that_only_checks_existence": "scripts/cce_chain_conformance.py 只用 os.path.exists 检查 config/cce_chain_conformance.json 里声明的 implemented_in/tested_by 是否存在, **对文件内容零断言**; 它在本轮里翻红都是因为它 subprocess 跑了下游那些真红的测试。"
+ },
+ "positive_control": {
+  "passed": true,
+  "failed_gates": [],
+  "gates": {
+   "dead_swap_not_load_bearing": true,
+   "dead_absurd_injection_still_no_diff": true,
+   "liquid_L1_changed": true,
+   "liquid_changed_broadly": true,
+   "noop_no_diff": true,
+   "determinism": true,
+   "tags_indexed": true,
+   "tripwire_never_tripped": true,
+   "repo_files_untouched": true,
+   "L3_is_tautology_confirmed": true,
+   "dead_constant_is_UNREACHABLE_not_NO_CONSUMER": true
+  },
+  "shared_s1_plane": {
+   "dead_constant_verdict": "UNREACHABLE(本工况 k≤5 下第 6/7 档永不取用; k≥6 即复活 —— 实证见 checks.dead_constant_revives_at_k)。M5 词表下**不是** NO_CONSUMER, 更**不是**承重。",
+   "dead_swap_L1_L2_unchanged": true,
+   "dead_absurd_injection_still_no_diff": true,
+   "liquid_arm_L1_changed": true,
+   "liquid_arm_unreachable_draws": 22,
+   "determinism": true,
+   "L3_tautology_confirmed": true,
+   "baseline_replay_reproduces_archived_intensity": "22/22"
+  },
+  "★own_face_controls_M1": {
+   "why_needed": "上面那对死/活对照跑在 s1 面。本轮消融落在 parser/ingest 面 ⇒ 它们**证明不了我这一面接上了**。故按 M1 为本面另做一对。",
+   "own_face_dead_control": "CTRL_DEAD_docstring(把模块 docstring 整段换掉, 纯文档) ⇒ L1 0/54 · L2 判决 0/21 · L2 载荷 0/21 · L4 行为面净新增红 0。**必须无差异, 实测无差异。**(唯一翻红的是行数台账闸, 那是行数变化的机械后果, 空操作对照臂同样翻红 ⇒ 已作为对照扣除。)",
+   "own_face_live_control": "CTRL_LIVE_canonical_space_id_key(把 canonical.space 的 'id' 键改名 'space_id' —— 生产真读这个键) ⇒ L1 33/54 · L2 判决翻 2/21(D.dispatch 与 P.clean.subject_chain 双双 KeyError: 'id') · L4 行为面净新增红 6。**必须有差异, 实测有差异。**",
+   "conclusion": "两条都跑过 ⇒ 本面的判据既非重言(死对照无差异), 装置也确实接上了(活对照大面积差异)。"
+  },
+  "copy_baseline_green_M3_5": "★ L4 副本基线**三份独立副本各跑一遍全部 171 个闸, 全绿(red=[])**。唯一例外 tests/test_cce_audio_prosody.py 已**事前**排除: 它要从 dl.fbaipublicfiles.com 下载 demucs 模型, 被离线绊线拦死 ⇒ 基线即红, 与本件无关, 排除理由随产物同行。",
+  "pycache_cleared_M3_4": "每一轮(基线与每个臂)都先递归删掉副本里全部 __pycache__, 且子进程一律 python3 -B + PYTHONDONTWRITEBYTECODE=1 ⇒ 不存在保字节数变异被旧 .pyc 掩盖的通道。",
+  "determinism_own_face": "rig.arm('BASELINE') 连跑两次, L1 与 L2 的 sha 逐字相同(run2.py 里是硬断言, 不通过就不出判决)。",
+  "tripwire": {
+   "in_process_arms_tripped": [],
+   "l4_shard0_tripped": [],
+   "l4_shard1_tripped": [],
+   "l4_shard2_tripped": [],
+   "note": "L4 子进程的绊线经 PYTHONPATH 的 usercustomize.py 注入(**不是** sitecustomize —— sitecustomize 会遮掉 homebrew 自带的那份, 实测导致子进程 import 不到 requests/numpy, 副本基线假红。这正是 tests/data/ablation_v3/s2_聚合与判决面.json 记过的同一个坑, 共享装置里至今没有防线)。绊线文件只在发生连接尝试时才被创建 ⇒ 四个 log 文件全部**不存在** = 全程零连接尝试。"
+  }
+ },
+ "operating_point": {
+  "corpus_sha": "8226cd11ee4593a08ed356aa1085acce3c9aea2f287ae0ae544ee2e48c355ac7",
+  "k_distribution": "{\"3\": 20, \"5\": 2}",
+  "n_replayed": 22,
+  "market": "★ 更正共享装置的假话: probes/ablation_harness_v3.py 的 operating_point() 至今写着「仓内无 market 字段(已实扫)」—— **那句是假的**。本轮实扫 scripts/ config/ accuracy/ probes/ .github/ 命中 **61 行**; 关键位点 scripts/cce_strategy_gate.py:140 `market=os.environ.get(\"CCE_MARKET\", \"intl\")`, 以及 cce_outbound_guard.scan_draft(..., market=...) 里 `if market in (\"cn\",\"both\")` 决定走不走广告法层。本轮 **CCE_MARKET 未设 ⇒ 走默认 'intl'**; 本判决不外推到 market='cn'/'both'。",
+  "profile": "本件的工况不是 s1 的 k/温度, 而是**投料 profile**: 实测三个 profile 的干净样本全部走通 —— outbound_post / outbound_reply / subject_chain(examples/cce_submission_*_v1.json); 第四个 profile media_ingest **本轮未单独重放**(examples 里没有它的信封)。s1 侧阳性对照的工况是 k∈{3:20, 5:2}, 22 份 archive。",
+  "own_corpus": {
+   "L1_corpus": "54 例 = 10 REAL(从 archive/**/*.json 与 examples/*.json 穷举出的 (platform, platform_adapter, surface) 三元组去重; 其中 8 例合法、2 例 surface 是裸字符串) + 24 SYN_VALID(registry 每个平台每个 kind 一条合法样例) + 20 SYN_INVALID(逐条对应本文件的一条职责)。",
+   "L2_faces": [
+    "C.clean",
+    "C.taint.surface_as_adapter",
+    "D.dispatch",
+    "I.ingest_archived_run_33748217410",
+    "P.clean.outbound_post",
+    "P.clean.outbound_reply",
+    "P.clean.subject_chain",
+    "P.taint.adapter_id_drift",
+    "P.taint.adapter_missing_version",
+    "P.taint.adapter_not_dict",
+    "P.taint.adapter_version_drift",
+    "P.taint.observed_at_dropped",
+    "P.taint.observed_at_prose",
+    "P.taint.platform_not_str",
+    "P.taint.surface_as_adapter",
+    "P.taint.surface_id_bad",
+    "P.taint.surface_id_suffix_junk",
+    "P.taint.surface_kind_bad",
+    "P.taint.surface_kind_dropped",
+    "P.taint.surface_not_dict",
+    "P.taint.unregistered_platform"
+   ],
+   "L2_ingest_corpus": "archive/33748217410 的 8 份真实 subject-item artifact(manifest.json + s1_readout.json), 在 scratchpad 里按 rglob('manifest.json') 期望的目录形状物化。",
+   "L4_targets": "171 = 163 个 tests/test_*.py(排除 test_cce_audio_prosody.py) + 8 个仓内 gate 脚本。",
+   "L1_baseline_sha": "6255bc57089f2120",
+   "L2_baseline_sha": "6343b4e56744769f"
+  },
+  "env": "MINIMAX_API_KEY=OFFLINE-FAKE-KEY-NOT-A-SECRET(假值, 绝不 export 真 key) · CCE_SKIP_GK2=1 · CCE_MARKET/VSE_ROOT/CCE_MEASUREMENT_MODEL 未设 · 本机 CPython 3.14.6 (★ CI 固定 python-version 3.11, 版本差异见 limits)。",
+  "drift_rule": "以上任一项变化 ⇒ 本批判决当场失效, 必须重跑。"
+ },
+ "file_integrity": {
+  "unchanged": true,
+  "sha_before": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "scripts/cce_platform_adapter.py": "381ea8aebc020c24dd3858bae8a1a28f122f89a960915b9fd817b913ac7e7200",
+   "config/platform_adapter_registry_v1.json": "cfb1bc9341af36813f89f5ddcc42f51b78fe5acdbdec490fbb08b4ec32d5e669",
+   "tests/data/ablation_verdicts_v3.json": "f8055f784e8ed8436b76e1feef53449956bc530162747c2f03d04a552ee25d44"
+  },
+  "sha_after": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "scripts/cce_platform_adapter.py": "381ea8aebc020c24dd3858bae8a1a28f122f89a960915b9fd817b913ac7e7200",
+   "config/platform_adapter_registry_v1.json": "cfb1bc9341af36813f89f5ddcc42f51b78fe5acdbdec490fbb08b4ec32d5e669",
+   "tests/data/ablation_verdicts_v3.json": "f8055f784e8ed8436b76e1feef53449956bc530162747c2f03d04a552ee25d44"
+  },
+  "note": "四个冻结件 + 被测件 + 注册表 + ablation_verdicts_v3.json, 跑前跑后逐一相同。所有变异只发生在内存里(H.load 的 source_mutator)或 scratchpad 的三份副本上。tests/data/ablation_verdicts_v3.json 全程只读(mtime 仍是本轮开工前的 2026-09-12 18:48)。"
+ },
+ "verdicts": [
+  {
+   "component": "模块 docstring(本层边界的书面理由)",
+   "locus": "scripts/cce_platform_adapter.py:2-6",
+   "verdict": "NO_CONSUMER",
+   "consumer_side": "—(纯文档, 无运行时消费者)",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不删。① 它是本轮**自面死对照**, 实测 L1/L2/L4 行为面全 0 差异, 判据在本面上非重言; ② 删它会改行数 ⇒ tests/test_cce_ablation_verdicts_v3.py 翻红; ③ 它是「subreddit 不是 adapter」这条被否决方案的唯一书面出处。",
+   "evidence": "CTRL_DEAD_docstring: L1 0/54; L2判决翻 0/21 []; L2仅文案变 []; L4净新增红(扣空操作臂) []; L4源码文本台账闸 红; ★ 这是 M1 要求的**自面死对照**: 必须无差异, 实测无差异。",
+   "L1_changed": "0/54",
+   "L2_changed": "判决面 0/21 []",
+   "L4_measured": "行为面净新增红 0 个: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 翻红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 12,
+   "ref_count_strict": 1,
+   "ref_scan_surface": "符号 'cce_platform_adapter' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=12; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=1; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=6 严=0。两者都是**词碰撞统计, 不是调用图**。"
+  },
+  {
+   "component": "from __future__ import annotations",
+   "locus": "scripts/cce_platform_adapter.py:7",
+   "verdict": "NO_CONSUMER",
+   "consumer_side": "—(注解从不被求值)",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": true,
+   "deletable_reason": "可删。全部注解都是 3.9+ 运行时合法的内建泛型(dict[str,Any]/list[str]), 不靠 PEP 563 延迟求值; 仓内与 CI 无 mypy/pyright/ruff(实扫 requirements.txt requirements-media.txt .github/ 命中 0)。★ 但删它会改行数 ⇒ 行数台账闸翻红, 需同步更新 ablation_verdicts_v3.json。",
+   "evidence": "A02_future_annotations: L1 0/54; L2判决翻 0/21 []; L2仅文案变 []; L4净新增红(扣空操作臂) []; L4源码文本台账闸 红; 注入臂 INJ_A02(把四个注解全换成荒谬字符串 \"☠\") 同样 L1 0/54 · L2 0/21 · L4 净新增 0 ⇒ 确认注解从不被求值。",
+   "L1_changed": "0/54",
+   "L2_changed": "判决面 0/21 []",
+   "L4_measured": "行为面净新增红 0 个: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 翻红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 12,
+   "ref_count_strict": 1,
+   "ref_scan_surface": "符号 'cce_platform_adapter' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=12; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=1; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=6 严=0。两者都是**词碰撞统计, 不是调用图**。",
+   "injection_test": "INJ_A02_annotations_string: L1 0/54, L2 0/21, L4 净新增 0"
+  },
+  {
+   "component": "ROOT = Path(__file__).resolve().parents[1]",
+   "locus": "scripts/cce_platform_adapter.py:16",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "P(生产) + G(验收闸)",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不可删。它是注册表路径的唯一来源; parents[1]→[2] 让全部 21 个判决面同时崩(FileNotFoundError), 包括已采集 run 的 ingest。",
+   "evidence": "A03_ROOT_parents: L1 54/54; L2判决翻 21/21 ['C.clean', 'C.taint.surface_as_adapter', 'D.dispatch', 'I.ingest_archived_run_33748217410', 'P.clean.outbound_post', 'P.clean.outbound_reply', 'P.clean.subject_chain', 'P.taint.adapter_id_drift', 'P.taint.adapter_missing_version', 'P.taint.adapter_not_dict', 'P.taint.adapter_version_drift', 'P.taint.observed_at_dropped', 'P.taint.observed_at_prose', 'P.taint.platform_not_str', 'P.taint.surface_as_adapter', 'P.taint.surface_id_bad', 'P.taint.surface_id_suffix_junk', 'P.taint.surface_kind_bad', 'P.taint.surface_kind_dropped', 'P.taint.surface_not_dict', 'P.taint.unregistered_platform']; L2仅文案变 []; L4净新增红(扣空操作臂) ['scripts/cce_chain_conformance.py', 'tests/test_cce_chain_conformance.py', 'tests/test_cce_contract.py', 'tests/test_cce_end_to_end.py', 'tests/test_cce_media_ingest_envelope_loop.py', 'tests/test_cce_platform_adapter.py', 'tests/test_cce_response_chain.py', 'tests/test_cce_skill_contract.py', 'tests/test_cce_submission.py']; L4源码文本台账闸 绿; 实测报错原文: FileNotFoundError: '/Volumes/data/config/platform_adapter_registry_v1.json'。",
+   "L1_changed": "54/54",
+   "L2_changed": "判决面 21/21 ['C.clean', 'C.taint.surface_as_adapter', 'D.dispatch', 'I.ingest_archived_run_33748217410', 'P.clean.outbound_post', 'P.clean.outbound_reply', 'P.clean.subject_chain', 'P.taint.adapter_id_drift', 'P.taint.adapter_missing_version', 'P.taint.adapter_not_dict', 'P.taint.adapter_version_drift', 'P.taint.observed_at_dropped', 'P.taint.observed_at_prose', 'P.taint.platform_not_str', 'P.taint.surface_as_adapter', 'P.taint.surface_id_bad', 'P.taint.surface_id_suffix_junk', 'P.taint.surface_kind_bad', 'P.taint.surface_kind_dropped', 'P.taint.surface_not_dict', 'P.taint.unregistered_platform']",
+   "L4_measured": "行为面净新增红 9 个: ['scripts/cce_chain_conformance.py', 'tests/test_cce_chain_conformance.py', 'tests/test_cce_contract.py', 'tests/test_cce_end_to_end.py', 'tests/test_cce_media_ingest_envelope_loop.py', 'tests/test_cce_platform_adapter.py', 'tests/test_cce_response_chain.py', 'tests/test_cce_skill_contract.py', 'tests/test_cce_submission.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 2,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'REGISTRY_PATH' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=2; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=0; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=2 严=0。两者都是**词碰撞统计, 不是调用图**。"
+  },
+  {
+   "component": "REGISTRY_PATH 文件名",
+   "locus": "scripts/cce_platform_adapter.py:17",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "P + G",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不可删, 同上。",
+   "evidence": "A04_REGISTRY_PATH_name: L1 54/54; L2判决翻 21/21 ['C.clean', 'C.taint.surface_as_adapter', 'D.dispatch', 'I.ingest_archived_run_33748217410', 'P.clean.outbound_post', 'P.clean.outbound_reply', 'P.clean.subject_chain', 'P.taint.adapter_id_drift', 'P.taint.adapter_missing_version', 'P.taint.adapter_not_dict', 'P.taint.adapter_version_drift', 'P.taint.observed_at_dropped', 'P.taint.observed_at_prose', 'P.taint.platform_not_str', 'P.taint.surface_as_adapter', 'P.taint.surface_id_bad', 'P.taint.surface_id_suffix_junk', 'P.taint.surface_kind_bad', 'P.taint.surface_kind_dropped', 'P.taint.surface_not_dict', 'P.taint.unregistered_platform']; L2仅文案变 []; L4净新增红(扣空操作臂) ['scripts/cce_chain_conformance.py', 'tests/test_cce_chain_conformance.py', 'tests/test_cce_contract.py', 'tests/test_cce_end_to_end.py', 'tests/test_cce_media_ingest_envelope_loop.py', 'tests/test_cce_platform_adapter.py', 'tests/test_cce_response_chain.py', 'tests/test_cce_skill_contract.py', 'tests/test_cce_submission.py']; L4源码文本台账闸 绿",
+   "L1_changed": "54/54",
+   "L2_changed": "判决面 21/21 ['C.clean', 'C.taint.surface_as_adapter', 'D.dispatch', 'I.ingest_archived_run_33748217410', 'P.clean.outbound_post', 'P.clean.outbound_reply', 'P.clean.subject_chain', 'P.taint.adapter_id_drift', 'P.taint.adapter_missing_version', 'P.taint.adapter_not_dict', 'P.taint.adapter_version_drift', 'P.taint.observed_at_dropped', 'P.taint.observed_at_prose', 'P.taint.platform_not_str', 'P.taint.surface_as_adapter', 'P.taint.surface_id_bad', 'P.taint.surface_id_suffix_junk', 'P.taint.surface_kind_bad', 'P.taint.surface_kind_dropped', 'P.taint.surface_not_dict', 'P.taint.unregistered_platform']",
+   "L4_measured": "行为面净新增红 9 个: ['scripts/cce_chain_conformance.py', 'tests/test_cce_chain_conformance.py', 'tests/test_cce_contract.py', 'tests/test_cce_end_to_end.py', 'tests/test_cce_media_ingest_envelope_loop.py', 'tests/test_cce_platform_adapter.py', 'tests/test_cce_response_chain.py', 'tests/test_cce_skill_contract.py', 'tests/test_cce_submission.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 2,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'REGISTRY_PATH' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=2; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=0; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=2 严=0。两者都是**词碰撞统计, 不是调用图**。"
+  },
+  {
+   "component": "_instant 的 isinstance(value, str) 前置守卫",
+   "locus": "scripts/cce_platform_adapter.py:21-22",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "P + G",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不可删。去掉它, observed_at 缺席(None)时 None.replace 抛 AttributeError —— 把一次「带说明的拒收」变成一次未捕获异常, prep job 直接崩。",
+   "evidence": "A05_instant_str_guard: L1 2/54; L2判决翻 1/21 ['P.taint.observed_at_dropped']; L2仅文案变 []; L4净新增红(扣空操作臂) ['tests/test_cce_platform_adapter.py']; L4源码文本台账闸 红",
+   "L1_changed": "2/54",
+   "L2_changed": "判决面 1/21 ['P.taint.observed_at_dropped']",
+   "L4_measured": "行为面净新增红 1 个: ['tests/test_cce_platform_adapter.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 翻红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 15,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 '_instant' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=15; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=0; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=15 严=0。两者都是**词碰撞统计, 不是调用图**。"
+  },
+  {
+   "component": "value.replace(\"Z\", \"+00:00\") 的 Z 归一",
+   "locus": "scripts/cce_platform_adapter.py:24",
+   "verdict": "UNREACHABLE",
+   "consumer_side": "P + G(本工况下两侧都观察不到差异)",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不删。它是**可移植性保险丝**: 在本工况(CPython 3.14.6 实测 / CI 固定 3.11)下 datetime.fromisoformat 原生接受尾部 Z, 所以这一步是恒等变换; 换成拒绝 Z 的解释器它立刻承重。",
+   "evidence": "A06_instant_Z_normalize: L1 0/54; L2判决翻 0/21 []; L2仅文案变 []; L4净新增红(扣空操作臂) []; L4源码文本台账闸 绿; ★ 注入臂证明这一行**可达**: 把 Z 映射成垃圾串后 L1 42/54 · L2 判决翻 6/21(含已采集 run 的 ingest) · L4 净新增 9。⇒ 不是死代码, 是本工况下的恒等变换。",
+   "L1_changed": "0/54",
+   "L2_changed": "判决面 0/21 []",
+   "L4_measured": "行为面净新增红 0 个: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 15,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 '_instant' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=15; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=0; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=15 严=0。两者都是**词碰撞统计, 不是调用图**。",
+   "unreachable_condition": "复活条件 = 解释器的 datetime.fromisoformat 拒绝尾部 'Z'(CPython ≤3.10)。本机 3.14.6 实测接受, CI 固定 python-version 3.11 也接受 ⇒ 两处都不可达。★ ≤3.10 本轮**未实跑**(本机只有 3.9.6/3.12.13/3.14.6, 且 3.9/3.12 缺依赖), 该条是**未实证的复活条件**。",
+   "injection_test": "INJ_A06_Z_maps_to_junk: L1 42/54, L2判决翻 6/21, L4 净新增 9"
+  },
+  {
+   "component": "_instant 的 except ValueError -> False",
+   "locus": "scripts/cce_platform_adapter.py:26-27",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "consumer_side": "G(验收闸) —— P 侧被 cce_contract 的冗余校验兜住",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不删。P 侧判决不翻**不是因为它没用**, 而是因为 cce_contract._instant_is_valid 对同一个字段独立又验了一遍(冗余兜底); 一旦那条冗余消失, 这里立刻是唯一防线。G 侧(test ⑤)直接翻红。",
+   "evidence": "A07_instant_except_flip: L1 3/54; L2判决翻 0/21 []; L2仅文案变 ['P.taint.observed_at_prose']; L4净新增红(扣空操作臂) ['tests/test_cce_platform_adapter.py']; L4源码文本台账闸 绿; P 侧证据: observed_at='yesterday' 在消融后仍被拒, 但错误从 3 条降为 1 条 —— 剩下的那条是 cce_contract.py:87 `_instant_is_valid` 给的 'context.observed_at: must be ISO-8601', **不是** adapter 给的。",
+   "L1_changed": "3/54",
+   "L2_changed": "判决面 0/21 []",
+   "L4_measured": "行为面净新增红 1 个: ['tests/test_cce_platform_adapter.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 15,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 '_instant' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=15; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=0; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=15 严=0。两者都是**词碰撞统计, 不是调用图**。"
+  },
+  {
+   "component": "_instant 整体(时间合法性判据)",
+   "locus": "scripts/cce_platform_adapter.py:20-27",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "P + G",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不可删。恒 True 注入后 observed_at 缺席从「拒收」变成 KeyError 崩溃, 且 G 侧翻红。",
+   "evidence": "A08_instant_always_true: L1 5/54; L2判决翻 1/21 ['P.taint.observed_at_dropped']; L2仅文案变 ['P.taint.observed_at_prose']; L4净新增红(扣空操作臂) ['tests/test_cce_platform_adapter.py']; L4源码文本台账闸 红; ★ 这一臂本身就是 M6 要求的荒谬值注入臂(恒 True)。",
+   "L1_changed": "5/54",
+   "L2_changed": "判决面 1/21 ['P.taint.observed_at_dropped']",
+   "L4_measured": "行为面净新增红 1 个: ['tests/test_cce_platform_adapter.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 翻红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 15,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 '_instant' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=15; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=0; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=15 严=0。两者都是**词碰撞统计, 不是调用图**。"
+  },
+  {
+   "component": "registry() 的读盘与解析",
+   "locus": "scripts/cce_platform_adapter.py:30-31",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "P(生产) + G",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不可删。★★★ 这是本件最重的一条: registry() 恒空后, **archive/33748217410 这一份已采集、已测量的真实 run (8 个 subject item)无法再被 ingest**, 报 ValueError: invalid response source: response_source.context.platform is not backed by a registered platform adapter。同时三份干净投料全部从「收」翻成「拒」。",
+   "evidence": "A09_registry_empty: L1 51/54; L2判决翻 6/21 ['C.clean', 'D.dispatch', 'I.ingest_archived_run_33748217410', 'P.clean.outbound_post', 'P.clean.outbound_reply', 'P.clean.subject_chain']; L2仅文案变 ['P.taint.adapter_id_drift', 'P.taint.adapter_missing_version', 'P.taint.adapter_not_dict', 'P.taint.adapter_version_drift', 'P.taint.observed_at_dropped', 'P.taint.observed_at_prose', 'P.taint.surface_id_bad', 'P.taint.surface_id_suffix_junk', 'P.taint.surface_kind_bad', 'P.taint.surface_kind_dropped', 'P.taint.surface_not_dict']; L4净新增红(扣空操作臂) ['scripts/cce_chain_conformance.py', 'tests/test_cce_chain_conformance.py', 'tests/test_cce_contract.py', 'tests/test_cce_end_to_end.py', 'tests/test_cce_media_ingest_envelope_loop.py', 'tests/test_cce_platform_adapter.py', 'tests/test_cce_response_chain.py', 'tests/test_cce_skill_contract.py', 'tests/test_cce_submission.py']; L4源码文本台账闸 绿; ★ 这一臂本身就是 M6 的荒谬值注入臂(恒返回 {})。",
+   "L1_changed": "51/54",
+   "L2_changed": "判决面 6/21 ['C.clean', 'D.dispatch', 'I.ingest_archived_run_33748217410', 'P.clean.outbound_post', 'P.clean.outbound_reply', 'P.clean.subject_chain']",
+   "L4_measured": "行为面净新增红 9 个: ['scripts/cce_chain_conformance.py', 'tests/test_cce_chain_conformance.py', 'tests/test_cce_contract.py', 'tests/test_cce_end_to_end.py', 'tests/test_cce_media_ingest_envelope_loop.py', 'tests/test_cce_platform_adapter.py', 'tests/test_cce_response_chain.py', 'tests/test_cce_skill_contract.py', 'tests/test_cce_submission.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 31,
+   "ref_count_strict": 2,
+   "ref_scan_surface": "符号 'registry' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=31; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=2; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=30 严=1。两者都是**词碰撞统计, 不是调用图**。"
+  },
+  {
+   "component": "read_text(encoding=\"utf-8\") 的显式编码",
+   "locus": "scripts/cce_platform_adapter.py:31",
+   "verdict": "UNREACHABLE",
+   "consumer_side": "P + G(本工况下两侧都观察不到差异)",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不删。它是**环境保险丝**: 本机与 CI 的 locale 默认文本编码都是 utf-8(实测 locale.getpreferredencoding(False)='utf-8', LC_ALL=C 下仍是 utf-8), 所以显式不显式一样; 换到默认编码不是 UTF-8 的环境它立刻承重, 而注册表**含非 ASCII 字节**(实测), 会直接解码错。",
+   "evidence": "A10_registry_encoding: L1 0/54; L2判决翻 0/21 []; L2仅文案变 []; L4净新增红(扣空操作臂) []; L4源码文本台账闸 绿; ★ 注入臂证明这一行可达: 改成 encoding='utf-16' ⇒ L1 54/54 · L2 21/21 全翻 · L4 净新增 9。",
+   "L1_changed": "0/54",
+   "L2_changed": "判决面 0/21 []",
+   "L4_measured": "行为面净新增红 0 个: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 2,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'REGISTRY_PATH' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=2; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=0; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=2 严=0。两者都是**词碰撞统计, 不是调用图**。",
+   "unreachable_condition": "复活条件 = 进程默认文本编码非 UTF-8(典型: Windows cp1252, 或把 PYTHONUTF8 关掉的旧 POSIX 环境)。本机与 ubuntu-latest CI 均为 UTF-8 ⇒ 不可达。**该复活条件本轮未在真实非 UTF-8 环境上实跑**。",
+   "injection_test": "INJ_A10_encoding_utf16: L1 54/54, L2 21/21, L4 净新增 9"
+  },
+  {
+   "component": "platform 必须在注册表里(含提前返回)",
+   "locus": "scripts/cce_platform_adapter.py:38-40",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "consumer_side": "P + G(两侧判决位都不翻, 只有错误文案变)",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不删。判决位没翻**不是**因为它没用: 去掉成员检查后 spec 退化成 {}, 于是 adapter.id/version 比 None、space_patterns 查不到 kind —— 下游三条闸把 ok 兜回 False。这是**深度防御的冗余**, 不是冗余到可删: 它是唯一给出「这个 platform 根本没注册」这句人可读诊断的地方, 也是「subreddit 冒充 adapter」这条被否决方案的**命名者**。",
+   "evidence": "A11_platform_membership: L1 2/54; L2判决翻 0/21 []; L2仅文案变 ['C.taint.surface_as_adapter', 'P.taint.surface_as_adapter', 'P.taint.unregistered_platform']; L4净新增红(扣空操作臂) []; L4源码文本台账闸 绿; 推理(不只经验): spec={} 时要放行必须同时满足 adapter.id is None 且 adapter.version is None 且 space_patterns.get(kind) is a str —— 而空 dict 的 .get 恒 None ⇒ 第三条不可能满足 ⇒ 结构上无法放行。消融后 'r/HearingAids 冒充 platform' 的错误文案从 'platform is not backed by a registered platform adapter' 变成 'platform_adapter.id must equal None' + 'surface.kind community is unsupported by r/HearingAids'。",
+   "L1_changed": "2/54",
+   "L2_changed": "判决面 0/21 []",
+   "L4_measured": "行为面净新增红 0 个: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 12,
+   "ref_count_strict": 1,
+   "ref_scan_surface": "符号 'cce_platform_adapter' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=12; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=1; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=6 严=0。两者都是**词碰撞统计, 不是调用图**。"
+  },
+  {
+   "component": "adapter.id 逐字匹配",
+   "locus": "scripts/cce_platform_adapter.py:45-46",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "P(生产准入) —— ★ G 侧零覆盖",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不可删。去掉它, platform_adapter.id='reddit_v2' 的投料被**收**(ok True, errors 空)。",
+   "evidence": "A12_adapter_id_match: L1 1/54; L2判决翻 1/21 ['P.taint.adapter_id_drift']; L2仅文案变 []; L4净新增红(扣空操作臂) []; L4源码文本台账闸 绿; ★★ 验收缺口: 171 个闸在这一臂上**净新增红 0** —— 整套测试没有一条喂 adapter.id 漂移。tests/test_cce_platform_adapter.py 的 ② 测的是 platform 未注册(走成员检查), ③ 测的是 version 漂移, **没有** id 漂移用例。⇒ 这条生产承重闸目前完全靠人工不犯错。",
+   "L1_changed": "1/54",
+   "L2_changed": "判决面 1/21 ['P.taint.adapter_id_drift']",
+   "L4_measured": "行为面净新增红 0 个: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 15,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'adapter_id' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=15; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=0; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=15 严=0。两者都是**词碰撞统计, 不是调用图**。"
+  },
+  {
+   "component": "adapter.version 逐字匹配",
+   "locus": "scripts/cce_platform_adapter.py:47-48",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "P + G",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不可删。★ 它同时是「注册表升版 ⇒ 已采集 draw 不可用」这条因果链的判据本身(见 parser_plane_claim)。",
+   "evidence": "A13_adapter_version_match: L1 2/54; L2判决翻 2/21 ['P.taint.adapter_missing_version', 'P.taint.adapter_version_drift']; L2仅文案变 []; L4净新增红(扣空操作臂) ['scripts/cce_chain_conformance.py', 'tests/test_cce_chain_conformance.py', 'tests/test_cce_platform_adapter.py', 'tests/test_cce_submission.py']; L4源码文本台账闸 绿; 消融后 version='9.9.9' 与 version 缺席两种投料都被收; L4 净新增红 4 (test_cce_platform_adapter · test_cce_submission · chain_conformance ×2)。",
+   "L1_changed": "2/54",
+   "L2_changed": "判决面 2/21 ['P.taint.adapter_missing_version', 'P.taint.adapter_version_drift']",
+   "L4_measured": "行为面净新增红 4 个: ['scripts/cce_chain_conformance.py', 'tests/test_cce_chain_conformance.py', 'tests/test_cce_platform_adapter.py', 'tests/test_cce_submission.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 19,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'adapter_version' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=19; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=0; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=19 严=0。两者都是**词碰撞统计, 不是调用图**。"
+  },
+  {
+   "component": "adapter 必须是对象(isinstance dict 守卫)",
+   "locus": "scripts/cce_platform_adapter.py:42-43",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "P(生产) —— ★ G 侧零覆盖",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不可删。去掉它, platform_adapter 传字符串时抛 AttributeError(str 没有 .get), 把拒收变成崩溃。",
+   "evidence": "A14_adapter_isdict: L1 1/54; L2判决翻 1/21 ['P.taint.adapter_not_dict']; L2仅文案变 []; L4净新增红(扣空操作臂) []; L4源码文本台账闸 绿; ★★ 验收缺口: 本臂与注入臂(守卫处直接 raise)在 171 个闸上**净新增红都是 0** —— 没有任何测试喂过非对象的 platform_adapter。",
+   "L1_changed": "1/54",
+   "L2_changed": "判决面 1/21 ['P.taint.adapter_not_dict']",
+   "L4_measured": "行为面净新增红 0 个: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 12,
+   "ref_count_strict": 1,
+   "ref_scan_surface": "符号 'cce_platform_adapter' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=12; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=1; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=6 严=0。两者都是**词碰撞统计, 不是调用图**。",
+   "injection_test": "INJ_A14_adapter_guard_raise(守卫处抛 RuntimeError): L2 判决翻 1/21(P.taint.adapter_not_dict), L4 净新增 0 ⇒ 确认 G 侧完全看不见这条分支。"
+  },
+  {
+   "component": "surface 必须是对象(isinstance dict 守卫 + 提前返回)",
+   "locus": "scripts/cce_platform_adapter.py:49-51",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "P + G",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不可删, 且**被真实存量数据触发**: 54 例语料里有 2 例 REAL(archive/32095782756 与 archive/33840200869 的 manifest)把 surface 存成裸字符串, 基线正是靠这条守卫给出 'context.surface must be an object'。",
+   "evidence": "A15_surface_isdict: L1 3/54; L2判决翻 1/21 ['P.taint.surface_not_dict']; L2仅文案变 []; L4净新增红(扣空操作臂) ['scripts/cce_chain_conformance.py', 'tests/test_cce_chain_conformance.py', 'tests/test_cce_submission.py']; L4源码文本台账闸 绿; L4 净新增红 3(test_cce_submission + chain_conformance ×2)。",
+   "L1_changed": "3/54",
+   "L2_changed": "判决面 1/21 ['P.taint.surface_not_dict']",
+   "L4_measured": "行为面净新增红 3 个: ['scripts/cce_chain_conformance.py', 'tests/test_cce_chain_conformance.py', 'tests/test_cce_submission.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 12,
+   "ref_count_strict": 1,
+   "ref_scan_surface": "符号 'cce_platform_adapter' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=12; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=1; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=6 严=0。两者都是**词碰撞统计, 不是调用图**。",
+   "injection_test": "INJ_A15_surface_guard_raise: L2 判决翻 1/21, L4 净新增 3 ⇒ 与消融臂同向。"
+  },
+  {
+   "component": "space_patterns[kind] 查表 + 「该平台不支持此 kind」判错",
+   "locus": "scripts/cce_platform_adapter.py:53-55",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "P + G",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不可删。退化成 accept-all 正则后, surface.kind='story' 与 kind 缺席两种投料都被收。",
+   "evidence": "A16_kind_fallback_accept_all: L1 2/54; L2判决翻 2/21 ['P.taint.surface_kind_bad', 'P.taint.surface_kind_dropped']; L2仅文案变 []; L4净新增红(扣空操作臂) ['tests/test_cce_platform_adapter.py']; L4源码文本台账闸 绿",
+   "L1_changed": "2/54",
+   "L2_changed": "判决面 2/21 ['P.taint.surface_kind_bad', 'P.taint.surface_kind_dropped']",
+   "L4_measured": "行为面净新增红 1 个: ['tests/test_cce_platform_adapter.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 9,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'space_patterns' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=9; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=0; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=9 严=0。两者都是**词碰撞统计, 不是调用图**。"
+  },
+  {
+   "component": "re.fullmatch(pattern, surface_id) 的全匹配语义",
+   "locus": "scripts/cce_platform_adapter.py:56",
+   "verdict": "UNREACHABLE",
+   "consumer_side": "P + G(本工况下两侧都观察不到差异)",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不删。它是**注册表侧的保险丝**: 当前 25/25 条 space_pattern 都自带 ^...$ 锚, 所以 fullmatch 与 match 等价; 只要有人写一条不锚的模式, fullmatch 就是唯一防线。",
+   "evidence": "A17_fullmatch_to_match: L1 0/54; L2判决翻 0/21 []; L2仅文案变 []; L4净新增红(扣空操作臂) []; L4源码文本台账闸 绿; ★ 复活条件已实证(见 resurrection.A17): 把注册表 community 模式改成不锚的 'r/[A-Za-z0-9_]{2,21}' 后, surface.id='r/HearingAids<script>' 在 fullmatch 下被拒、在 match 下被**放行** ⇒ differs=True。",
+   "L1_changed": "0/54",
+   "L2_changed": "判决面 0/21 []",
+   "L4_measured": "行为面净新增红 0 个: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 11,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'fullmatch' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=11; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=0; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=11 严=0。两者都是**词碰撞统计, 不是调用图**。",
+   "unreachable_condition": "复活条件 = config/platform_adapter_registry_v1.json 里出现任何一条缺 ^ 或 $ 的 space_pattern。实扫当前 25 条模式, 未锚定的 0 条。",
+   "injection_test": "INJ_A17_search(改成最弱的 re.search): 同样 L1 0/54 · L2 0/21 · L4 净新增 0 ⇒ 无差异被注入臂复现。"
+  },
+  {
+   "component": "observed_at 必填且须 ISO-8601",
+   "locus": "scripts/cce_platform_adapter.py:58-59",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "P + G",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不可删。去掉后 observed_at 缺席直接 KeyError(第 62 行 surface[\"observed_at\"] 无人兜), 把拒收变崩溃; 'yesterday' 这类则从 3 条错误降到 1 条(只剩 cce_contract 的冗余那条)。",
+   "evidence": "A18_observed_at_required: L1 5/54; L2判决翻 1/21 ['P.taint.observed_at_dropped']; L2仅文案变 ['P.taint.observed_at_prose']; L4净新增红(扣空操作臂) ['tests/test_cce_platform_adapter.py']; L4源码文本台账闸 红",
+   "L1_changed": "5/54",
+   "L2_changed": "判决面 1/21 ['P.taint.observed_at_dropped']",
+   "L4_measured": "行为面净新增红 1 个: ['tests/test_cce_platform_adapter.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 翻红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 77,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'observed_at' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=77; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=0; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=70 严=0。两者都是**词碰撞统计, 不是调用图**。"
+  },
+  {
+   "component": "canonical = None if errors(失败不产半成品)",
+   "locus": "scripts/cce_platform_adapter.py:60",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "P + G",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不可删。出错也产 canonical 之后, 三种污染投料从「带说明拒收」变成未捕获异常(TypeError: string indices must be integers / KeyError: 'observed_at'), 下游拿到半成品。",
+   "evidence": "A19_canonical_on_error: L1 15/54; L2判决翻 3/21 ['P.taint.adapter_missing_version', 'P.taint.adapter_not_dict', 'P.taint.observed_at_dropped']; L2仅文案变 []; L4净新增红(扣空操作臂) ['tests/test_cce_platform_adapter.py']; L4源码文本台账闸 绿",
+   "L1_changed": "15/54",
+   "L2_changed": "判决面 3/21 ['P.taint.adapter_missing_version', 'P.taint.adapter_not_dict', 'P.taint.observed_at_dropped']",
+   "L4_measured": "行为面净新增红 1 个: ['tests/test_cce_platform_adapter.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 131,
+   "ref_count_strict": 11,
+   "ref_scan_surface": "符号 'canonical' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=131; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=11; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=50 严=7。两者都是**词碰撞统计, 不是调用图**。"
+  },
+  {
+   "component": "canonical[\"platform\"][\"adapter\"] 这个键名",
+   "locus": "scripts/cce_platform_adapter.py:61",
+   "verdict": "NO_CONSUMER",
+   "consumer_side": "—(P 与 G 两侧都无人读)",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "**不建议删, 但它确实没有消费者**: 全仓无一处读 canonical['platform']['adapter'](cce_submission.py:229 只取 canonical['space']['id']; cce_response_chain.py:147 只取 canonical['space']; tests/test_cce_platform_adapter.py:39 读的是兄弟键 adapter_version)。★ 按 M5, NO_CONSUMER ≠ 该删; 何况 parser_plane 的 NO_CONSUMER 更可能只是「当前 profile 不走这条模态」。",
+   "evidence": "A20_canonical_platform_key: L1 33/54; L2判决翻 0/21 []; L2仅文案变 []; L4净新增红(扣空操作臂) []; L4源码文本台账闸 绿; 改键名后 L1 33/54 变, 但 L2 0/21 · L4 净新增 0。",
+   "L1_changed": "33/54",
+   "L2_changed": "判决面 0/21 []",
+   "L4_measured": "行为面净新增红 0 个: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 131,
+   "ref_count_strict": 11,
+   "ref_scan_surface": "符号 'canonical' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=131; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=11; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=50 严=7。两者都是**词碰撞统计, 不是调用图**。"
+  },
+  {
+   "component": "canonical[\"platform\"] 整块",
+   "locus": "scripts/cce_platform_adapter.py:61",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "consumer_side": "G(验收闸) —— P 侧 NO_CONSUMER",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不可删。P 侧确实无人读(整块删掉 L2 0/21), 但 G 侧 tests/test_cce_platform_adapter.py:39 断言 canonical['platform']['adapter_version'] == 注册表版本 ⇒ 删了验收闸翻红。",
+   "evidence": "INJ_A20_drop_platform_block: L1 33/54; L2判决翻 0/21 []; L2仅文案变 []; L4净新增红(扣空操作臂) ['tests/test_cce_platform_adapter.py']; L4源码文本台账闸 红; ★ 这是 M6 的注入臂: 整块删除后 L2 仍 0/21 ⇒ 「P 侧无消费者」被注入检验确认; L4 净新增 1。",
+   "L1_changed": "33/54",
+   "L2_changed": "判决面 0/21 []",
+   "L4_measured": "行为面净新增红 1 个: ['tests/test_cce_platform_adapter.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 翻红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 131,
+   "ref_count_strict": 11,
+   "ref_scan_surface": "符号 'canonical' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=131; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=11; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=50 严=7。两者都是**词碰撞统计, 不是调用图**。"
+  },
+  {
+   "component": "canonical[\"space\"] 整块(kind / id / observed_at)",
+   "locus": "scripts/cce_platform_adapter.py:62",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "P(生产) + G",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不可删。它是本文件**唯一真正被生产读走的输出**: cce_submission.py:229-232 用它拼 context_summary 与 meta.surface; cce_response_chain.py:147 用它拼出站 dispatch 的 context 串。",
+   "evidence": "CTRL_LIVE_canonical_space_id_key: L1 33/54; L2判决翻 2/21 ['D.dispatch', 'P.clean.subject_chain']; L2仅文案变 []; L4净新增红(扣空操作臂) ['scripts/cce_chain_conformance.py', 'tests/test_cce_chain_conformance.py', 'tests/test_cce_platform_adapter.py', 'tests/test_cce_response_chain.py', 'tests/test_cce_skill_contract.py', 'tests/test_cce_submission.py']; L4源码文本台账闸 绿; ★ 这是 M1 要求的**自面活对照**: 把 'id' 键改名为 'space_id' ⇒ L1 33/54 · L2 判决翻 2/21(D.dispatch 与 P.clean.subject_chain 双双 KeyError: 'id') · L4 净新增红 6。必须有差异, 实测有差异。",
+   "L1_changed": "33/54",
+   "L2_changed": "判决面 2/21 ['D.dispatch', 'P.clean.subject_chain']",
+   "L4_measured": "行为面净新增红 6 个: ['scripts/cce_chain_conformance.py', 'tests/test_cce_chain_conformance.py', 'tests/test_cce_platform_adapter.py', 'tests/test_cce_response_chain.py', 'tests/test_cce_skill_contract.py', 'tests/test_cce_submission.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 131,
+   "ref_count_strict": 11,
+   "ref_scan_surface": "符号 'canonical' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=131; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=11; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=50 严=7。两者都是**词碰撞统计, 不是调用图**。"
+  },
+  {
+   "component": "返回值的 ok 字段",
+   "locus": "scripts/cce_platform_adapter.py:64",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "consumer_side": "G(验收闸) —— P 侧 NO_CONSUMER",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不可删(验收闸读它), 但 **P 侧没有任何消费者**: cce_contract.py:95 只 extend errors; cce_submission.py:217/229 只读 errors 与 canonical; cce_response_chain.py:146 只读 canonical。ok 的信息与 errors 是否为空完全重复。",
+   "evidence": "A21_ok_always_true: L1 15/54; L2判决翻 0/21 []; L2仅文案变 []; L4净新增红(扣空操作臂) ['tests/test_cce_platform_adapter.py']; L4源码文本台账闸 绿; 双向注入都做了: ok 恒 True 与 ok 恒 False 在 L2 上**都是 0/21**(生产判决面完全不动), L4 各净新增 1(只有 tests/test_cce_platform_adapter.py)。",
+   "L1_changed": "15/54",
+   "L2_changed": "判决面 0/21 []",
+   "L4_measured": "行为面净新增红 1 个: ['tests/test_cce_platform_adapter.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 9,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'validate_platform_context' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=9; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=0; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=9 严=0。两者都是**词碰撞统计, 不是调用图**。",
+   "injection_test": "INJ_A21_ok_always_false: L1 33/54, L2 0/21, L4 净新增 1"
+  },
+  {
+   "component": "返回值的 errors 列表(8 处 append 的汇合点)",
+   "locus": "scripts/cce_platform_adapter.py:36,39,43,46,48,50,55,57,59,64",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "P(生产) + G",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "不可删。它是本文件对生产判决面的**唯一通道** —— 清空后 8 种污染投料全部被收。",
+   "evidence": "INJ_errors_emptied: L1 15/54; L2判决翻 8/21 ['P.taint.adapter_id_drift', 'P.taint.adapter_missing_version', 'P.taint.adapter_not_dict', 'P.taint.adapter_version_drift', 'P.taint.surface_id_bad', 'P.taint.surface_id_suffix_junk', 'P.taint.surface_kind_bad', 'P.taint.surface_kind_dropped']; L2仅文案变 ['P.taint.observed_at_dropped', 'P.taint.observed_at_prose']; L4净新增红(扣空操作臂) ['scripts/cce_chain_conformance.py', 'tests/test_cce_chain_conformance.py', 'tests/test_cce_platform_adapter.py', 'tests/test_cce_submission.py']; L4源码文本台账闸 绿; ★ M6 注入臂: errors 恒空 ⇒ L2 判决翻 8/21, L4 净新增红 4。",
+   "L1_changed": "15/54",
+   "L2_changed": "判决面 8/21 ['P.taint.adapter_id_drift', 'P.taint.adapter_missing_version', 'P.taint.adapter_not_dict', 'P.taint.adapter_version_drift', 'P.taint.surface_id_bad', 'P.taint.surface_id_suffix_junk', 'P.taint.surface_kind_bad', 'P.taint.surface_kind_dropped']",
+   "L4_measured": "行为面净新增红 4 个: ['scripts/cce_chain_conformance.py', 'tests/test_cce_chain_conformance.py', 'tests/test_cce_platform_adapter.py', 'tests/test_cce_submission.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 9,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'validate_platform_context' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=9; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=0; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=9 严=0。两者都是**词碰撞统计, 不是调用图**。"
+  },
+  {
+   "component": "path 参数的默认值 \"context\"",
+   "locus": "scripts/cce_platform_adapter.py:35",
+   "verdict": "NO_CONSUMER",
+   "consumer_side": "—(P 与 G 两侧都不依赖默认值)",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": true,
+   "deletable_reason": "默认值本身可改成任意串(参数不能删: 三个生产调用方都显式传 path)。三处生产调用全部显式传 path(cce_contract.py:95 传 path · cce_submission.py:216 传 path · cce_response_chain.py:147 传 'response_source.context') ⇒ 默认值只在直接调用时出现, 而 tests/test_cce_platform_adapter.py 虽然三参调用, 却只断言错误里含 'version'/'unsupported', 不断言前缀。",
+   "evidence": "A22_path_default: L1 21/54; L2判决翻 0/21 []; L2仅文案变 []; L4净新增红(扣空操作臂) []; L4源码文本台账闸 绿; L1 21/54 变(我的探针也三参调用), 但 L2 0/21 · L4 净新增 0。",
+   "L1_changed": "21/54",
+   "L2_changed": "判决面 0/21 []",
+   "L4_measured": "行为面净新增红 0 个: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 9,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'validate_platform_context' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=9; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=0; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=9 严=0。两者都是**词碰撞统计, 不是调用图**。",
+   "injection_test": "INJ_A22_path_absurd(默认值改成 '☠PWNED☠'): 同样 L2 0/21 · L4 净新增 0 ⇒ 无差异被注入臂确认。"
+  },
+  {
+   "component": "8 条错误文案的字面文本",
+   "locus": "scripts/cce_platform_adapter.py:39,43,46,48,50,55,57,59",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "consumer_side": "G(验收闸靠子串断言消费) —— P 侧只进 errors 载荷, 不改判决位",
+   "faces_observed": [
+    "L1(validate_platform_context 返回值, 54 例)",
+    "L2-P(cce_submission.validate_submission 准入判决)",
+    "L2-C(cce_contract.validate_case 契约判决)",
+    "L2-D(cce_response_chain.build_dispatch 出站 payload)",
+    "L2-I(cce_response_chain.ingest 已采集 artifact 再处理)",
+    "L4(磁盘副本 171 个闸: 163 测试 + 8 仓内 gate)"
+   ],
+   "faces_blind": [
+    "GitHub 托管的 CI 实跑面(workflow 的 job 图/secrets/matrix 只静态读 YAML, 本轮未实跑)",
+    "扫描面之外的任何消费者(仓外目录; 按 R3 未读 /Volumes/data/cce-identified-vault)",
+    "真实平台的线上协议行为(注册表写的是不是真的 Reddit/X 规则, 本装置一概测不到)"
+   ],
+   "deletable": false,
+   "deletable_reason": "单条文案改写不影响任何判决位, 但**整组改写会让验收闸翻红**(test ③ 断言 any('version' in e), test ④ 断言 any('unsupported' in e)) ⇒ 文案是验收闸的隐式契约, 不是自由散文。",
+   "evidence": "A23_error_message_text: L1 3/54; L2判决翻 0/21 []; L2仅文案变 ['C.taint.surface_as_adapter', 'P.taint.platform_not_str', 'P.taint.surface_as_adapter', 'P.taint.unregistered_platform']; L4净新增红(扣空操作臂) []; L4源码文本台账闸 绿; 单条改写: L2 判决 0/21 翻, 只有 4 个面的错误载荷变; L4 净新增 0。",
+   "L1_changed": "3/54",
+   "L2_changed": "判决面 0/21 []",
+   "L4_measured": "行为面净新增红 0 个: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "tests/test_cce_ablation_verdicts_v3.py 未红 —— 它从磁盘现数本文件行数并与 tests/data/ablation_verdicts_v3.json 的 per_file_lines(64) 逐字比对; 内存内注入结构上看不见它。其余源码文本扫描器(test_cce_module_boundary / test_cce_skill_contract / test_cce_incremental_persistence)对本文件内容无断言; scripts/cce_core_boundary.py **不钉** parser_plane 的 sha, 故本文件任何改动都不会让它翻红。",
+   "ref_count_coarse": 9,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'validate_platform_context' · 粗计=全扫描面(scripts probes accuracy tests .github config 下 .py .json .yml .yaml .md .txt .sh 的词边界字面匹配)=9; 严计(同行须含 taxo|knot|self|stage1|stage2|_S1_|gate)=0; ★ 去掉 tests/data/ablation*(其它 agent 正在并发写入)后 粗=9 严=0。两者都是**词碰撞统计, 不是调用图**。",
+   "injection_test": "INJ_A23_all_messages_absurd(8 条全换成同一个 '☠ABLATION☠'): L2 判决仍 0/21, 但 15 个面的载荷变, L4 净新增 1(tests/test_cce_platform_adapter.py)。"
+  }
+ ],
+ "ablation_point_coverage": {
+  "n_points": 26,
+  "n_arms_run": 36,
+  "lines_covered": "第 2-7, 16-17, 20-27, 30-31, 34-35, 37-64 行都至少被一个臂直接命中。",
+  "lines_NOT_separately_ablated": [
+   "第 1 行 shebang —— 未单独消融(删它只影响直接执行权限, 仓里三个消费者都是 import)。",
+   "第 9-13 行 5 条 import —— 未单独消融: 删任一条都是平凡致命变异, 零信息量; 其可达性已被 A03/A04(Path)· A06/A08(datetime)· A17(re)· A09/A10(json)间接证明。",
+   "第 36 行 `errors: list[str] = []` 与第 52 行 `kind, surface_id = surface.get(...)` 的解包 —— 未单独消融, 但被 INJ_errors_emptied 与 A15/A16 覆盖到语义上。",
+   "第 37 行 `.get(\"adapters\", {})` 的 {} 兜底 —— 未单独消融(A09 只把 registry() 整体打空)。"
+  ],
+  "arms_index": {
+   "CTRL_DEAD_docstring": {
+    "L1_changed": "0/54",
+    "L1_cases": [],
+    "L2_verdict_flipped": "0/21",
+    "L2_faces": [],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [],
+    "L4_source_text_ledger_gate_red": true
+   },
+   "CTRL_LIVE_canonical_space_id_key": {
+    "L1_changed": "33/54",
+    "L1_cases": [
+     "001|archive/32095782756/cce-item-0-32095782756__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "002|archive/32096357295/cce-item-0-32096357295__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "003|archive/32099546100/cce-item-0-32099546100__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "004|archive/33743931309/cce-item-0-33743931309__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "005|archive/33748217410/cce-subject-item-0-33748217410__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "007|archive/33840200869/cce-item-0-33840200869__manifest.json|[\"owned_site\", {\"id\": \"owned_site\", \"version\": \"1.0.0\"}, {\"id\": \"ci.local/synthetic-image\"",
+     "008|examples/cce_foundation_case_v1.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "009|examples/cce_submission_outbound_reply_v1.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit"
+    ],
+    "L2_verdict_flipped": "2/21",
+    "L2_faces": [
+     "D.dispatch",
+     "P.clean.subject_chain"
+    ],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [
+     "scripts/cce_chain_conformance.py",
+     "tests/test_cce_chain_conformance.py",
+     "tests/test_cce_platform_adapter.py",
+     "tests/test_cce_response_chain.py",
+     "tests/test_cce_skill_contract.py",
+     "tests/test_cce_submission.py"
+    ],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "A02_future_annotations": {
+    "L1_changed": "0/54",
+    "L1_cases": [],
+    "L2_verdict_flipped": "0/21",
+    "L2_faces": [],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [],
+    "L4_source_text_ledger_gate_red": true
+   },
+   "A03_ROOT_parents": {
+    "L1_changed": "54/54",
+    "L1_cases": [
+     "000|archive/32095782756/cce-item-0-32095782756__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, \"r/HearingAids\"]",
+     "001|archive/32095782756/cce-item-0-32095782756__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "002|archive/32096357295/cce-item-0-32096357295__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "003|archive/32099546100/cce-item-0-32099546100__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "004|archive/33743931309/cce-item-0-33743931309__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "005|archive/33748217410/cce-subject-item-0-33748217410__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "006|archive/33840200869/cce-item-0-33840200869__manifest.json|[\"owned_site\", {\"id\": \"owned_site\", \"version\": \"1.0.0\"}, \"ci.local/synthetic-image\"]",
+     "007|archive/33840200869/cce-item-0-33840200869__manifest.json|[\"owned_site\", {\"id\": \"owned_site\", \"version\": \"1.0.0\"}, {\"id\": \"ci.local/synthetic-image\""
+    ],
+    "L2_verdict_flipped": "21/21",
+    "L2_faces": [
+     "C.clean",
+     "C.taint.surface_as_adapter",
+     "D.dispatch",
+     "I.ingest_archived_run_33748217410",
+     "P.clean.outbound_post",
+     "P.clean.outbound_reply",
+     "P.clean.subject_chain",
+     "P.taint.adapter_id_drift",
+     "P.taint.adapter_missing_version",
+     "P.taint.adapter_not_dict",
+     "P.taint.adapter_version_drift",
+     "P.taint.observed_at_dropped",
+     "P.taint.observed_at_prose",
+     "P.taint.platform_not_str",
+     "P.taint.surface_as_adapter",
+     "P.taint.surface_id_bad",
+     "P.taint.surface_id_suffix_junk",
+     "P.taint.surface_kind_bad",
+     "P.taint.surface_kind_dropped",
+     "P.taint.surface_not_dict",
+     "P.taint.unregistered_platform"
+    ],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [
+     "scripts/cce_chain_conformance.py",
+     "tests/test_cce_chain_conformance.py",
+     "tests/test_cce_contract.py",
+     "tests/test_cce_end_to_end.py",
+     "tests/test_cce_media_ingest_envelope_loop.py",
+     "tests/test_cce_platform_adapter.py",
+     "tests/test_cce_response_chain.py",
+     "tests/test_cce_skill_contract.py",
+     "tests/test_cce_submission.py"
+    ],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "A04_REGISTRY_PATH_name": {
+    "L1_changed": "54/54",
+    "L1_cases": [
+     "000|archive/32095782756/cce-item-0-32095782756__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, \"r/HearingAids\"]",
+     "001|archive/32095782756/cce-item-0-32095782756__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "002|archive/32096357295/cce-item-0-32096357295__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "003|archive/32099546100/cce-item-0-32099546100__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "004|archive/33743931309/cce-item-0-33743931309__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "005|archive/33748217410/cce-subject-item-0-33748217410__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "006|archive/33840200869/cce-item-0-33840200869__manifest.json|[\"owned_site\", {\"id\": \"owned_site\", \"version\": \"1.0.0\"}, \"ci.local/synthetic-image\"]",
+     "007|archive/33840200869/cce-item-0-33840200869__manifest.json|[\"owned_site\", {\"id\": \"owned_site\", \"version\": \"1.0.0\"}, {\"id\": \"ci.local/synthetic-image\""
+    ],
+    "L2_verdict_flipped": "21/21",
+    "L2_faces": [
+     "C.clean",
+     "C.taint.surface_as_adapter",
+     "D.dispatch",
+     "I.ingest_archived_run_33748217410",
+     "P.clean.outbound_post",
+     "P.clean.outbound_reply",
+     "P.clean.subject_chain",
+     "P.taint.adapter_id_drift",
+     "P.taint.adapter_missing_version",
+     "P.taint.adapter_not_dict",
+     "P.taint.adapter_version_drift",
+     "P.taint.observed_at_dropped",
+     "P.taint.observed_at_prose",
+     "P.taint.platform_not_str",
+     "P.taint.surface_as_adapter",
+     "P.taint.surface_id_bad",
+     "P.taint.surface_id_suffix_junk",
+     "P.taint.surface_kind_bad",
+     "P.taint.surface_kind_dropped",
+     "P.taint.surface_not_dict",
+     "P.taint.unregistered_platform"
+    ],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [
+     "scripts/cce_chain_conformance.py",
+     "tests/test_cce_chain_conformance.py",
+     "tests/test_cce_contract.py",
+     "tests/test_cce_end_to_end.py",
+     "tests/test_cce_media_ingest_envelope_loop.py",
+     "tests/test_cce_platform_adapter.py",
+     "tests/test_cce_response_chain.py",
+     "tests/test_cce_skill_contract.py",
+     "tests/test_cce_submission.py"
+    ],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "A05_instant_str_guard": {
+    "L1_changed": "2/54",
+    "L1_cases": [
+     "048|synthetic/invalid:observed_at_missing|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "051|synthetic/invalid:observed_at_not_str|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit"
+    ],
+    "L2_verdict_flipped": "1/21",
+    "L2_faces": [
+     "P.taint.observed_at_dropped"
+    ],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [
+     "tests/test_cce_platform_adapter.py"
+    ],
+    "L4_source_text_ledger_gate_red": true
+   },
+   "A06_instant_Z_normalize": {
+    "L1_changed": "0/54",
+    "L1_cases": [],
+    "L2_verdict_flipped": "0/21",
+    "L2_faces": [],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "A07_instant_except_flip": {
+    "L1_changed": "3/54",
+    "L1_cases": [
+     "049|synthetic/invalid:observed_at_prose|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "050|synthetic/invalid:observed_at_impossible|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "053|synthetic/invalid:observed_at_zulu_lower|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit"
+    ],
+    "L2_verdict_flipped": "0/21",
+    "L2_faces": [],
+    "L2_payload_changed_only": [
+     "P.taint.observed_at_prose"
+    ],
+    "L4_behavioral_net_new_red": [
+     "tests/test_cce_platform_adapter.py"
+    ],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "A08_instant_always_true": {
+    "L1_changed": "5/54",
+    "L1_cases": [
+     "048|synthetic/invalid:observed_at_missing|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "049|synthetic/invalid:observed_at_prose|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "050|synthetic/invalid:observed_at_impossible|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "051|synthetic/invalid:observed_at_not_str|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "053|synthetic/invalid:observed_at_zulu_lower|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit"
+    ],
+    "L2_verdict_flipped": "1/21",
+    "L2_faces": [
+     "P.taint.observed_at_dropped"
+    ],
+    "L2_payload_changed_only": [
+     "P.taint.observed_at_prose"
+    ],
+    "L4_behavioral_net_new_red": [
+     "tests/test_cce_platform_adapter.py"
+    ],
+    "L4_source_text_ledger_gate_red": true
+   },
+   "A09_registry_empty": {
+    "L1_changed": "51/54",
+    "L1_cases": [
+     "000|archive/32095782756/cce-item-0-32095782756__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, \"r/HearingAids\"]",
+     "001|archive/32095782756/cce-item-0-32095782756__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "002|archive/32096357295/cce-item-0-32096357295__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "003|archive/32099546100/cce-item-0-32099546100__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "004|archive/33743931309/cce-item-0-33743931309__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "005|archive/33748217410/cce-subject-item-0-33748217410__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "006|archive/33840200869/cce-item-0-33840200869__manifest.json|[\"owned_site\", {\"id\": \"owned_site\", \"version\": \"1.0.0\"}, \"ci.local/synthetic-image\"]",
+     "007|archive/33840200869/cce-item-0-33840200869__manifest.json|[\"owned_site\", {\"id\": \"owned_site\", \"version\": \"1.0.0\"}, {\"id\": \"ci.local/synthetic-image\""
+    ],
+    "L2_verdict_flipped": "6/21",
+    "L2_faces": [
+     "C.clean",
+     "D.dispatch",
+     "I.ingest_archived_run_33748217410",
+     "P.clean.outbound_post",
+     "P.clean.outbound_reply",
+     "P.clean.subject_chain"
+    ],
+    "L2_payload_changed_only": [
+     "P.taint.adapter_id_drift",
+     "P.taint.adapter_missing_version",
+     "P.taint.adapter_not_dict",
+     "P.taint.adapter_version_drift",
+     "P.taint.observed_at_dropped",
+     "P.taint.observed_at_prose",
+     "P.taint.surface_id_bad",
+     "P.taint.surface_id_suffix_junk",
+     "P.taint.surface_kind_bad",
+     "P.taint.surface_kind_dropped",
+     "P.taint.surface_not_dict"
+    ],
+    "L4_behavioral_net_new_red": [
+     "scripts/cce_chain_conformance.py",
+     "tests/test_cce_chain_conformance.py",
+     "tests/test_cce_contract.py",
+     "tests/test_cce_end_to_end.py",
+     "tests/test_cce_media_ingest_envelope_loop.py",
+     "tests/test_cce_platform_adapter.py",
+     "tests/test_cce_response_chain.py",
+     "tests/test_cce_skill_contract.py",
+     "tests/test_cce_submission.py"
+    ],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "A10_registry_encoding": {
+    "L1_changed": "0/54",
+    "L1_cases": [],
+    "L2_verdict_flipped": "0/21",
+    "L2_faces": [],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "A11_platform_membership": {
+    "L1_changed": "2/54",
+    "L1_cases": [
+     "034|synthetic/invalid:surface_as_adapter_id|[\"r/HearingAids\", {\"id\": \"r/HearingAids\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"ki",
+     "035|synthetic/invalid:unregistered_platform|[\"tiktok\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit"
+    ],
+    "L2_verdict_flipped": "0/21",
+    "L2_faces": [],
+    "L2_payload_changed_only": [
+     "C.taint.surface_as_adapter",
+     "P.taint.surface_as_adapter",
+     "P.taint.unregistered_platform"
+    ],
+    "L4_behavioral_net_new_red": [],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "A12_adapter_id_match": {
+    "L1_changed": "1/54",
+    "L1_cases": [
+     "038|synthetic/invalid:adapter_id_mismatch|[\"reddit\", {\"id\": \"reddit_v2\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"commu"
+    ],
+    "L2_verdict_flipped": "1/21",
+    "L2_faces": [
+     "P.taint.adapter_id_drift"
+    ],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "A13_adapter_version_match": {
+    "L1_changed": "2/54",
+    "L1_cases": [
+     "039|synthetic/invalid:adapter_version_drift|[\"reddit\", {\"id\": \"reddit\", \"version\": \"9.9.9\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "040|synthetic/invalid:adapter_missing_version|[\"reddit\", {\"id\": \"reddit\"}, {\"id\": \"r/HearingAids\", \"kind\": \"community\", \"observed_at\": \""
+    ],
+    "L2_verdict_flipped": "2/21",
+    "L2_faces": [
+     "P.taint.adapter_missing_version",
+     "P.taint.adapter_version_drift"
+    ],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [
+     "scripts/cce_chain_conformance.py",
+     "tests/test_cce_chain_conformance.py",
+     "tests/test_cce_platform_adapter.py",
+     "tests/test_cce_submission.py"
+    ],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "A14_adapter_isdict": {
+    "L1_changed": "1/54",
+    "L1_cases": [
+     "037|synthetic/invalid:adapter_not_dict|[\"reddit\", \"reddit@1\", {\"id\": \"r/HearingAids\", \"kind\": \"community\", \"observed_at\": \"2026-0"
+    ],
+    "L2_verdict_flipped": "1/21",
+    "L2_faces": [
+     "P.taint.adapter_not_dict"
+    ],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "A15_surface_isdict": {
+    "L1_changed": "3/54",
+    "L1_cases": [
+     "000|archive/32095782756/cce-item-0-32095782756__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, \"r/HearingAids\"]",
+     "006|archive/33840200869/cce-item-0-33840200869__manifest.json|[\"owned_site\", {\"id\": \"owned_site\", \"version\": \"1.0.0\"}, \"ci.local/synthetic-image\"]",
+     "041|synthetic/invalid:surface_not_dict|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, \"r/HearingAids\"]"
+    ],
+    "L2_verdict_flipped": "1/21",
+    "L2_faces": [
+     "P.taint.surface_not_dict"
+    ],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [
+     "scripts/cce_chain_conformance.py",
+     "tests/test_cce_chain_conformance.py",
+     "tests/test_cce_submission.py"
+    ],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "A16_kind_fallback_accept_all": {
+    "L1_changed": "2/54",
+    "L1_cases": [
+     "042|synthetic/invalid:surface_kind_unsupported|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"x\", \"kind\": \"story\", \"observed_at",
+     "043|synthetic/invalid:surface_kind_missing|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"observed_at\": \"2"
+    ],
+    "L2_verdict_flipped": "2/21",
+    "L2_faces": [
+     "P.taint.surface_kind_bad",
+     "P.taint.surface_kind_dropped"
+    ],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [
+     "tests/test_cce_platform_adapter.py"
+    ],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "A17_fullmatch_to_match": {
+    "L1_changed": "0/54",
+    "L1_cases": [],
+    "L2_verdict_flipped": "0/21",
+    "L2_faces": [],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "A18_observed_at_required": {
+    "L1_changed": "5/54",
+    "L1_cases": [
+     "048|synthetic/invalid:observed_at_missing|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "049|synthetic/invalid:observed_at_prose|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "050|synthetic/invalid:observed_at_impossible|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "051|synthetic/invalid:observed_at_not_str|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "053|synthetic/invalid:observed_at_zulu_lower|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit"
+    ],
+    "L2_verdict_flipped": "1/21",
+    "L2_faces": [
+     "P.taint.observed_at_dropped"
+    ],
+    "L2_payload_changed_only": [
+     "P.taint.observed_at_prose"
+    ],
+    "L4_behavioral_net_new_red": [
+     "tests/test_cce_platform_adapter.py"
+    ],
+    "L4_source_text_ledger_gate_red": true
+   },
+   "A19_canonical_on_error": {
+    "L1_changed": "15/54",
+    "L1_cases": [
+     "037|synthetic/invalid:adapter_not_dict|[\"reddit\", \"reddit@1\", {\"id\": \"r/HearingAids\", \"kind\": \"community\", \"observed_at\": \"2026-0",
+     "038|synthetic/invalid:adapter_id_mismatch|[\"reddit\", {\"id\": \"reddit_v2\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"commu",
+     "039|synthetic/invalid:adapter_version_drift|[\"reddit\", {\"id\": \"reddit\", \"version\": \"9.9.9\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "040|synthetic/invalid:adapter_missing_version|[\"reddit\", {\"id\": \"reddit\"}, {\"id\": \"r/HearingAids\", \"kind\": \"community\", \"observed_at\": \"",
+     "042|synthetic/invalid:surface_kind_unsupported|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"x\", \"kind\": \"story\", \"observed_at",
+     "043|synthetic/invalid:surface_kind_missing|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"observed_at\": \"2",
+     "044|synthetic/invalid:surface_id_missing_prefix|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"HearingAids\", \"kind\": \"community\"",
+     "045|synthetic/invalid:surface_id_prefix_then_junk|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\\nEVIL\", \"kind\": \"co"
+    ],
+    "L2_verdict_flipped": "3/21",
+    "L2_faces": [
+     "P.taint.adapter_missing_version",
+     "P.taint.adapter_not_dict",
+     "P.taint.observed_at_dropped"
+    ],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [
+     "tests/test_cce_platform_adapter.py"
+    ],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "A20_canonical_platform_key": {
+    "L1_changed": "33/54",
+    "L1_cases": [
+     "001|archive/32095782756/cce-item-0-32095782756__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "002|archive/32096357295/cce-item-0-32096357295__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "003|archive/32099546100/cce-item-0-32099546100__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "004|archive/33743931309/cce-item-0-33743931309__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "005|archive/33748217410/cce-subject-item-0-33748217410__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "007|archive/33840200869/cce-item-0-33840200869__manifest.json|[\"owned_site\", {\"id\": \"owned_site\", \"version\": \"1.0.0\"}, {\"id\": \"ci.local/synthetic-image\"",
+     "008|examples/cce_foundation_case_v1.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "009|examples/cce_submission_outbound_reply_v1.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit"
+    ],
+    "L2_verdict_flipped": "0/21",
+    "L2_faces": [],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "A21_ok_always_true": {
+    "L1_changed": "15/54",
+    "L1_cases": [
+     "037|synthetic/invalid:adapter_not_dict|[\"reddit\", \"reddit@1\", {\"id\": \"r/HearingAids\", \"kind\": \"community\", \"observed_at\": \"2026-0",
+     "038|synthetic/invalid:adapter_id_mismatch|[\"reddit\", {\"id\": \"reddit_v2\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"commu",
+     "039|synthetic/invalid:adapter_version_drift|[\"reddit\", {\"id\": \"reddit\", \"version\": \"9.9.9\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "040|synthetic/invalid:adapter_missing_version|[\"reddit\", {\"id\": \"reddit\"}, {\"id\": \"r/HearingAids\", \"kind\": \"community\", \"observed_at\": \"",
+     "042|synthetic/invalid:surface_kind_unsupported|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"x\", \"kind\": \"story\", \"observed_at",
+     "043|synthetic/invalid:surface_kind_missing|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"observed_at\": \"2",
+     "044|synthetic/invalid:surface_id_missing_prefix|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"HearingAids\", \"kind\": \"community\"",
+     "045|synthetic/invalid:surface_id_prefix_then_junk|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\\nEVIL\", \"kind\": \"co"
+    ],
+    "L2_verdict_flipped": "0/21",
+    "L2_faces": [],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [
+     "tests/test_cce_platform_adapter.py"
+    ],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "A22_path_default": {
+    "L1_changed": "21/54",
+    "L1_cases": [
+     "000|archive/32095782756/cce-item-0-32095782756__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, \"r/HearingAids\"]",
+     "006|archive/33840200869/cce-item-0-33840200869__manifest.json|[\"owned_site\", {\"id\": \"owned_site\", \"version\": \"1.0.0\"}, \"ci.local/synthetic-image\"]",
+     "034|synthetic/invalid:surface_as_adapter_id|[\"r/HearingAids\", {\"id\": \"r/HearingAids\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"ki",
+     "035|synthetic/invalid:unregistered_platform|[\"tiktok\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "036|synthetic/invalid:platform_not_str|[7, {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"community\", \"ob",
+     "037|synthetic/invalid:adapter_not_dict|[\"reddit\", \"reddit@1\", {\"id\": \"r/HearingAids\", \"kind\": \"community\", \"observed_at\": \"2026-0",
+     "038|synthetic/invalid:adapter_id_mismatch|[\"reddit\", {\"id\": \"reddit_v2\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"commu",
+     "039|synthetic/invalid:adapter_version_drift|[\"reddit\", {\"id\": \"reddit\", \"version\": \"9.9.9\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit"
+    ],
+    "L2_verdict_flipped": "0/21",
+    "L2_faces": [],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "A23_error_message_text": {
+    "L1_changed": "3/54",
+    "L1_cases": [
+     "034|synthetic/invalid:surface_as_adapter_id|[\"r/HearingAids\", {\"id\": \"r/HearingAids\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"ki",
+     "035|synthetic/invalid:unregistered_platform|[\"tiktok\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "036|synthetic/invalid:platform_not_str|[7, {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"community\", \"ob"
+    ],
+    "L2_verdict_flipped": "0/21",
+    "L2_faces": [],
+    "L2_payload_changed_only": [
+     "C.taint.surface_as_adapter",
+     "P.taint.platform_not_str",
+     "P.taint.surface_as_adapter",
+     "P.taint.unregistered_platform"
+    ],
+    "L4_behavioral_net_new_red": [],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "INJ_A02_annotations_string": {
+    "L1_changed": "0/54",
+    "L1_cases": [],
+    "L2_verdict_flipped": "0/21",
+    "L2_faces": [],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "INJ_A06_Z_maps_to_junk": {
+    "L1_changed": "42/54",
+    "L1_cases": [
+     "001|archive/32095782756/cce-item-0-32095782756__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "002|archive/32096357295/cce-item-0-32096357295__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "003|archive/32099546100/cce-item-0-32099546100__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "004|archive/33743931309/cce-item-0-33743931309__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "005|archive/33748217410/cce-subject-item-0-33748217410__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "007|archive/33840200869/cce-item-0-33840200869__manifest.json|[\"owned_site\", {\"id\": \"owned_site\", \"version\": \"1.0.0\"}, {\"id\": \"ci.local/synthetic-image\"",
+     "008|examples/cce_foundation_case_v1.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "009|examples/cce_submission_outbound_reply_v1.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit"
+    ],
+    "L2_verdict_flipped": "6/21",
+    "L2_faces": [
+     "C.clean",
+     "D.dispatch",
+     "I.ingest_archived_run_33748217410",
+     "P.clean.outbound_post",
+     "P.clean.outbound_reply",
+     "P.clean.subject_chain"
+    ],
+    "L2_payload_changed_only": [
+     "P.taint.adapter_id_drift",
+     "P.taint.adapter_missing_version",
+     "P.taint.adapter_not_dict",
+     "P.taint.adapter_version_drift",
+     "P.taint.surface_id_bad",
+     "P.taint.surface_id_suffix_junk",
+     "P.taint.surface_kind_bad",
+     "P.taint.surface_kind_dropped"
+    ],
+    "L4_behavioral_net_new_red": [
+     "scripts/cce_chain_conformance.py",
+     "tests/test_cce_chain_conformance.py",
+     "tests/test_cce_contract.py",
+     "tests/test_cce_end_to_end.py",
+     "tests/test_cce_media_ingest_envelope_loop.py",
+     "tests/test_cce_platform_adapter.py",
+     "tests/test_cce_response_chain.py",
+     "tests/test_cce_skill_contract.py",
+     "tests/test_cce_submission.py"
+    ],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "INJ_A10_encoding_utf16": {
+    "L1_changed": "54/54",
+    "L1_cases": [
+     "000|archive/32095782756/cce-item-0-32095782756__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, \"r/HearingAids\"]",
+     "001|archive/32095782756/cce-item-0-32095782756__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "002|archive/32096357295/cce-item-0-32096357295__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "003|archive/32099546100/cce-item-0-32099546100__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "004|archive/33743931309/cce-item-0-33743931309__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "005|archive/33748217410/cce-subject-item-0-33748217410__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "006|archive/33840200869/cce-item-0-33840200869__manifest.json|[\"owned_site\", {\"id\": \"owned_site\", \"version\": \"1.0.0\"}, \"ci.local/synthetic-image\"]",
+     "007|archive/33840200869/cce-item-0-33840200869__manifest.json|[\"owned_site\", {\"id\": \"owned_site\", \"version\": \"1.0.0\"}, {\"id\": \"ci.local/synthetic-image\""
+    ],
+    "L2_verdict_flipped": "21/21",
+    "L2_faces": [
+     "C.clean",
+     "C.taint.surface_as_adapter",
+     "D.dispatch",
+     "I.ingest_archived_run_33748217410",
+     "P.clean.outbound_post",
+     "P.clean.outbound_reply",
+     "P.clean.subject_chain",
+     "P.taint.adapter_id_drift",
+     "P.taint.adapter_missing_version",
+     "P.taint.adapter_not_dict",
+     "P.taint.adapter_version_drift",
+     "P.taint.observed_at_dropped",
+     "P.taint.observed_at_prose",
+     "P.taint.platform_not_str",
+     "P.taint.surface_as_adapter",
+     "P.taint.surface_id_bad",
+     "P.taint.surface_id_suffix_junk",
+     "P.taint.surface_kind_bad",
+     "P.taint.surface_kind_dropped",
+     "P.taint.surface_not_dict",
+     "P.taint.unregistered_platform"
+    ],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [
+     "scripts/cce_chain_conformance.py",
+     "tests/test_cce_chain_conformance.py",
+     "tests/test_cce_contract.py",
+     "tests/test_cce_end_to_end.py",
+     "tests/test_cce_media_ingest_envelope_loop.py",
+     "tests/test_cce_platform_adapter.py",
+     "tests/test_cce_response_chain.py",
+     "tests/test_cce_skill_contract.py",
+     "tests/test_cce_submission.py"
+    ],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "INJ_A17_search": {
+    "L1_changed": "0/54",
+    "L1_cases": [],
+    "L2_verdict_flipped": "0/21",
+    "L2_faces": [],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "INJ_A20_drop_platform_block": {
+    "L1_changed": "33/54",
+    "L1_cases": [
+     "001|archive/32095782756/cce-item-0-32095782756__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "002|archive/32096357295/cce-item-0-32096357295__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "003|archive/32099546100/cce-item-0-32099546100__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "004|archive/33743931309/cce-item-0-33743931309__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "005|archive/33748217410/cce-subject-item-0-33748217410__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "007|archive/33840200869/cce-item-0-33840200869__manifest.json|[\"owned_site\", {\"id\": \"owned_site\", \"version\": \"1.0.0\"}, {\"id\": \"ci.local/synthetic-image\"",
+     "008|examples/cce_foundation_case_v1.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "009|examples/cce_submission_outbound_reply_v1.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit"
+    ],
+    "L2_verdict_flipped": "0/21",
+    "L2_faces": [],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [
+     "tests/test_cce_platform_adapter.py"
+    ],
+    "L4_source_text_ledger_gate_red": true
+   },
+   "INJ_A21_ok_always_false": {
+    "L1_changed": "33/54",
+    "L1_cases": [
+     "001|archive/32095782756/cce-item-0-32095782756__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "002|archive/32096357295/cce-item-0-32096357295__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "003|archive/32099546100/cce-item-0-32099546100__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "004|archive/33743931309/cce-item-0-33743931309__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "005|archive/33748217410/cce-subject-item-0-33748217410__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "007|archive/33840200869/cce-item-0-33840200869__manifest.json|[\"owned_site\", {\"id\": \"owned_site\", \"version\": \"1.0.0\"}, {\"id\": \"ci.local/synthetic-image\"",
+     "008|examples/cce_foundation_case_v1.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "009|examples/cce_submission_outbound_reply_v1.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit"
+    ],
+    "L2_verdict_flipped": "0/21",
+    "L2_faces": [],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [
+     "tests/test_cce_platform_adapter.py"
+    ],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "INJ_A22_path_absurd": {
+    "L1_changed": "21/54",
+    "L1_cases": [
+     "000|archive/32095782756/cce-item-0-32095782756__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, \"r/HearingAids\"]",
+     "006|archive/33840200869/cce-item-0-33840200869__manifest.json|[\"owned_site\", {\"id\": \"owned_site\", \"version\": \"1.0.0\"}, \"ci.local/synthetic-image\"]",
+     "034|synthetic/invalid:surface_as_adapter_id|[\"r/HearingAids\", {\"id\": \"r/HearingAids\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"ki",
+     "035|synthetic/invalid:unregistered_platform|[\"tiktok\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "036|synthetic/invalid:platform_not_str|[7, {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"community\", \"ob",
+     "037|synthetic/invalid:adapter_not_dict|[\"reddit\", \"reddit@1\", {\"id\": \"r/HearingAids\", \"kind\": \"community\", \"observed_at\": \"2026-0",
+     "038|synthetic/invalid:adapter_id_mismatch|[\"reddit\", {\"id\": \"reddit_v2\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"commu",
+     "039|synthetic/invalid:adapter_version_drift|[\"reddit\", {\"id\": \"reddit\", \"version\": \"9.9.9\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit"
+    ],
+    "L2_verdict_flipped": "0/21",
+    "L2_faces": [],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "INJ_A14_adapter_guard_raise": {
+    "L1_changed": "1/54",
+    "L1_cases": [
+     "037|synthetic/invalid:adapter_not_dict|[\"reddit\", \"reddit@1\", {\"id\": \"r/HearingAids\", \"kind\": \"community\", \"observed_at\": \"2026-0"
+    ],
+    "L2_verdict_flipped": "1/21",
+    "L2_faces": [
+     "P.taint.adapter_not_dict"
+    ],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "INJ_A15_surface_guard_raise": {
+    "L1_changed": "3/54",
+    "L1_cases": [
+     "000|archive/32095782756/cce-item-0-32095782756__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, \"r/HearingAids\"]",
+     "006|archive/33840200869/cce-item-0-33840200869__manifest.json|[\"owned_site\", {\"id\": \"owned_site\", \"version\": \"1.0.0\"}, \"ci.local/synthetic-image\"]",
+     "041|synthetic/invalid:surface_not_dict|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, \"r/HearingAids\"]"
+    ],
+    "L2_verdict_flipped": "1/21",
+    "L2_faces": [
+     "P.taint.surface_not_dict"
+    ],
+    "L2_payload_changed_only": [],
+    "L4_behavioral_net_new_red": [
+     "scripts/cce_chain_conformance.py",
+     "tests/test_cce_chain_conformance.py",
+     "tests/test_cce_submission.py"
+    ],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "INJ_A23_all_messages_absurd": {
+    "L1_changed": "21/54",
+    "L1_cases": [
+     "000|archive/32095782756/cce-item-0-32095782756__manifest.json|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, \"r/HearingAids\"]",
+     "006|archive/33840200869/cce-item-0-33840200869__manifest.json|[\"owned_site\", {\"id\": \"owned_site\", \"version\": \"1.0.0\"}, \"ci.local/synthetic-image\"]",
+     "034|synthetic/invalid:surface_as_adapter_id|[\"r/HearingAids\", {\"id\": \"r/HearingAids\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"ki",
+     "035|synthetic/invalid:unregistered_platform|[\"tiktok\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "036|synthetic/invalid:platform_not_str|[7, {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"community\", \"ob",
+     "037|synthetic/invalid:adapter_not_dict|[\"reddit\", \"reddit@1\", {\"id\": \"r/HearingAids\", \"kind\": \"community\", \"observed_at\": \"2026-0",
+     "038|synthetic/invalid:adapter_id_mismatch|[\"reddit\", {\"id\": \"reddit_v2\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"commu",
+     "039|synthetic/invalid:adapter_version_drift|[\"reddit\", {\"id\": \"reddit\", \"version\": \"9.9.9\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit"
+    ],
+    "L2_verdict_flipped": "0/21",
+    "L2_faces": [],
+    "L2_payload_changed_only": [
+     "C.taint.surface_as_adapter",
+     "P.taint.adapter_id_drift",
+     "P.taint.adapter_missing_version",
+     "P.taint.adapter_not_dict",
+     "P.taint.adapter_version_drift",
+     "P.taint.observed_at_dropped",
+     "P.taint.observed_at_prose",
+     "P.taint.platform_not_str",
+     "P.taint.surface_as_adapter",
+     "P.taint.surface_id_bad",
+     "P.taint.surface_id_suffix_junk",
+     "P.taint.surface_kind_bad",
+     "P.taint.surface_kind_dropped",
+     "P.taint.surface_not_dict",
+     "P.taint.unregistered_platform"
+    ],
+    "L4_behavioral_net_new_red": [
+     "tests/test_cce_platform_adapter.py"
+    ],
+    "L4_source_text_ledger_gate_red": false
+   },
+   "INJ_errors_emptied": {
+    "L1_changed": "15/54",
+    "L1_cases": [
+     "037|synthetic/invalid:adapter_not_dict|[\"reddit\", \"reddit@1\", {\"id\": \"r/HearingAids\", \"kind\": \"community\", \"observed_at\": \"2026-0",
+     "038|synthetic/invalid:adapter_id_mismatch|[\"reddit\", {\"id\": \"reddit_v2\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"kind\": \"commu",
+     "039|synthetic/invalid:adapter_version_drift|[\"reddit\", {\"id\": \"reddit\", \"version\": \"9.9.9\"}, {\"id\": \"r/HearingAids\", \"kind\": \"communit",
+     "040|synthetic/invalid:adapter_missing_version|[\"reddit\", {\"id\": \"reddit\"}, {\"id\": \"r/HearingAids\", \"kind\": \"community\", \"observed_at\": \"",
+     "042|synthetic/invalid:surface_kind_unsupported|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"x\", \"kind\": \"story\", \"observed_at",
+     "043|synthetic/invalid:surface_kind_missing|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\", \"observed_at\": \"2",
+     "044|synthetic/invalid:surface_id_missing_prefix|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"HearingAids\", \"kind\": \"community\"",
+     "045|synthetic/invalid:surface_id_prefix_then_junk|[\"reddit\", {\"id\": \"reddit\", \"version\": \"1.0.0\"}, {\"id\": \"r/HearingAids\\nEVIL\", \"kind\": \"co"
+    ],
+    "L2_verdict_flipped": "8/21",
+    "L2_faces": [
+     "P.taint.adapter_id_drift",
+     "P.taint.adapter_missing_version",
+     "P.taint.adapter_not_dict",
+     "P.taint.adapter_version_drift",
+     "P.taint.surface_id_bad",
+     "P.taint.surface_id_suffix_junk",
+     "P.taint.surface_kind_bad",
+     "P.taint.surface_kind_dropped"
+    ],
+    "L2_payload_changed_only": [
+     "P.taint.observed_at_dropped",
+     "P.taint.observed_at_prose"
+    ],
+    "L4_behavioral_net_new_red": [
+     "scripts/cce_chain_conformance.py",
+     "tests/test_cce_chain_conformance.py",
+     "tests/test_cce_platform_adapter.py",
+     "tests/test_cce_submission.py"
+    ],
+    "L4_source_text_ledger_gate_red": false
+   }
+  }
+ },
+ "refs_M4": {
+  "per_symbol": {
+   "validate_platform_context": {
+    "coarse_full_surface": 9,
+    "strict_full_surface": 0,
+    "coarse_code_only": 9,
+    "strict_code_only": 0,
+    "top_files_code_only": [
+     [
+      "scripts/cce_contract.py",
+      2
+     ],
+     [
+      "scripts/cce_submission.py",
+      2
+     ],
+     [
+      "scripts/cce_response_chain.py",
+      2
+     ],
+     [
+      "tests/test_cce_platform_adapter.py",
+      2
+     ],
+     [
+      "scripts/cce_platform_adapter.py",
+      1
+     ]
+    ]
+   },
+   "registry": {
+    "coarse_full_surface": 31,
+    "strict_full_surface": 2,
+    "coarse_code_only": 30,
+    "strict_code_only": 1,
+    "top_files_code_only": [
+     [
+      "tests/test_cce_submission.py",
+      6
+     ],
+     [
+      "scripts/cce_registry_gate.py",
+      4
+     ],
+     [
+      "tests/test_cce_skill_contract.py",
+      3
+     ],
+     [
+      "tests/test_cce_registry_gate.py",
+      3
+     ],
+     [
+      "scripts/cce_platform_adapter.py",
+      2
+     ],
+     [
+      "tests/test_cce_platform_adapter.py",
+      2
+     ]
+    ]
+   },
+   "_instant": {
+    "coarse_full_surface": 15,
+    "strict_full_surface": 0,
+    "coarse_code_only": 15,
+    "strict_code_only": 0,
+    "top_files_code_only": [
+     [
+      "scripts/cce_window_chain.py",
+      10
+     ],
+     [
+      "scripts/cce_submission.py",
+      3
+     ],
+     [
+      "scripts/cce_platform_adapter.py",
+      2
+     ]
+    ]
+   },
+   "REGISTRY_PATH": {
+    "coarse_full_surface": 2,
+    "strict_full_surface": 0,
+    "coarse_code_only": 2,
+    "strict_code_only": 0,
+    "top_files_code_only": [
+     [
+      "scripts/cce_platform_adapter.py",
+      2
+     ]
+    ]
+   },
+   "canonical": {
+    "coarse_full_surface": 131,
+    "strict_full_surface": 11,
+    "coarse_code_only": 50,
+    "strict_code_only": 7,
+    "top_files_code_only": [
+     [
+      "scripts/cce_outbound_guard.py",
+      16
+     ],
+     [
+      "tests/test_cce_platform_adapter.py",
+      7
+     ],
+     [
+      "scripts/cce_platform_adapter.py",
+      5
+     ],
+     [
+      "config/desire_taxonomy.json",
+      5
+     ],
+     [
+      "probes/operating_point_adjudication.py",
+      4
+     ],
+     [
+      "scripts/exp_v4_causal_chain.py",
+      2
+     ]
+    ]
+   },
+   "space_patterns": {
+    "coarse_full_surface": 9,
+    "strict_full_surface": 0,
+    "coarse_code_only": 9,
+    "strict_code_only": 0,
+    "top_files_code_only": [
+     [
+      "config/platform_adapter_registry_v1.json",
+      8
+     ],
+     [
+      "scripts/cce_platform_adapter.py",
+      1
+     ]
+    ]
+   },
+   "adapter_id": {
+    "coarse_full_surface": 15,
+    "strict_full_surface": 0,
+    "coarse_code_only": 15,
+    "strict_code_only": 0,
+    "top_files_code_only": [
+     [
+      "config/platform_adapter_registry_v1.json",
+      8
+     ],
+     [
+      "tests/test_cce_platform_adapter.py",
+      5
+     ],
+     [
+      "scripts/cce_platform_adapter.py",
+      2
+     ]
+    ]
+   },
+   "adapter_version": {
+    "coarse_full_surface": 19,
+    "strict_full_surface": 0,
+    "coarse_code_only": 19,
+    "strict_code_only": 0,
+    "top_files_code_only": [
+     [
+      "config/platform_adapter_registry_v1.json",
+      8
+     ],
+     [
+      "tests/test_cce_platform_adapter.py",
+      6
+     ],
+     [
+      "scripts/cce_platform_adapter.py",
+      3
+     ],
+     [
+      "scripts/cce_foundation_adapter.py",
+      1
+     ],
+     [
+      "scripts/cce_subject_profile.py",
+      1
+     ]
+    ]
+   },
+   "fullmatch": {
+    "coarse_full_surface": 11,
+    "strict_full_surface": 0,
+    "coarse_code_only": 11,
+    "strict_code_only": 0,
+    "top_files_code_only": [
+     [
+      "scripts/cce_submission.py",
+      6
+     ],
+     [
+      "tests/test_cce_archive_plane.py",
+      3
+     ],
+     [
+      "scripts/cce_archive.py",
+      1
+     ],
+     [
+      "scripts/cce_platform_adapter.py",
+      1
+     ]
+    ]
+   },
+   "cce_platform_adapter": {
+    "coarse_full_surface": 12,
+    "strict_full_surface": 1,
+    "coarse_code_only": 6,
+    "strict_code_only": 0,
+    "top_files_code_only": [
+     [
+      "scripts/cce_contract.py",
+      1
+     ],
+     [
+      "scripts/cce_submission.py",
+      1
+     ],
+     [
+      "scripts/cce_response_chain.py",
+      1
+     ],
+     [
+      "tests/test_cce_platform_adapter.py",
+      1
+     ],
+     [
+      "config/cce_core_manifest.json",
+      1
+     ],
+     [
+      "config/cce_chain_conformance.json",
+      1
+     ]
+    ]
+   },
+   "observed_at": {
+    "coarse_full_surface": 77,
+    "strict_full_surface": 0,
+    "coarse_code_only": 70,
+    "strict_code_only": 0,
+    "top_files_code_only": [
+     [
+      "scripts/cce_window_chain.py",
+      11
+     ],
+     [
+      "scripts/cce_response_chain.py",
+      9
+     ],
+     [
+      "tests/test_cce_platform_adapter.py",
+      9
+     ],
+     [
+      "scripts/cce_submission.py",
+      8
+     ],
+     [
+      "scripts/cce_contract.py",
+      7
+     ],
+     [
+      "tests/test_cce_end_to_end.py",
+      5
+     ]
+    ]
+   }
+  },
+  "surface_note": "两个口径都报了: coarse_full_surface = M3-② 要求的全扫描面(scripts probes accuracy tests .github config × .py .json .yml .yaml .md .txt .sh, 词边界字面匹配); coarse_code_only = 同样的面但**去掉 tests/data/ablation***。★ 必须区分, 因为本轮进行中另外两个 agent 正在往 tests/data/ablation_v3/ 写产物 —— 同一个符号 'canonical' 在 19:0x 测得 54, 在 21:0x 测得 131, 差额全部来自那些新落盘的产物文件。⇒ 引用计数是**时点相关**的词碰撞统计, 不是调用图。",
+  "measured_at": "2026-09-12T20:19:21"
+ },
+ "★N1_modules_that_reread_source_at_import": {
+  "reread_the_registry_from_disk": "**零个**。实扫 scripts/ probes/ accuracy/ tests/ .github/ config/, 除 scripts/cce_platform_adapter.py 自己外, 无任何模块打开 config/platform_adapter_registry_v1.json(其余 3 处命中是 cce-submit.yml 的 paths 触发器、cce_submission_contract_v1.json 的散文、ablation_verdicts_v3.json 的行数台账)。⇒ registry() 是唯一闸门, 进程内注入到得了所有 in-process 消费者。",
+  "structurally_blind_to_memory_injection": [
+   "**全部 171 个 L4 目标**(163 测试 + 8 gate)—— 它们是子进程, 从磁盘读源码。本轮已改用**磁盘副本**消融覆盖。",
+   "tests/test_cce_ablation_verdicts_v3.py —— 从磁盘现数本文件**行数**; 内存内注入永远看不见它。实测: 只要行数变(空操作臂 +2 行也算)它就红; 只要行数不变(A03/A12/A17 这类等行数替换)它就绿。",
+   "tests/test_cce_skill_contract.py —— 用 importlib.util.spec_from_file_location 按路径加载模块, 绕过 sys.modules 注入。",
+   "scripts/cce_core_boundary.py —— 只钉 core_files 的 sha, **结构上看不见** parser_plane 的任何改动(本轮 27 臂零翻红)。",
+   "scripts/cce_chain_conformance.py —— 只 os.path.exists, 对内容零断言。"
+  ],
+  "how_handled": "★ 没有把任何一面只标 blind 就当无差异证据: L1/L2 用内存注入, L4 用**磁盘副本**重做了同样的 27 个臂, 两条线的结论互相对照。真正 blind 的只有 faces_blind 里那三项(GitHub 托管 CI 实跑 / 扫描面外 / 真实平台协议), 本产物**没有**用那三面支撑任何无差异结论。"
+ },
+ "★acceptance_gaps_found": [
+  "① adapter.id 逐字匹配(第 45-46 行): 生产承重(去掉后 id='reddit_v2' 的投料被收), 但 171 个闸**净新增红 0** —— tests/test_cce_platform_adapter.py 只测了 platform 未注册(②)与 version 漂移(③), 没有 id 漂移用例。",
+  "② adapter 必须是对象的守卫(第 42-43 行): 生产承重(去掉后非对象 adapter 抛 AttributeError 而非拒收), 消融臂与注入臂在 171 个闸上**净新增红都是 0** —— 没有任何测试喂过非对象的 platform_adapter。",
+  "③ 版本/模式变更的迁移语义**没有闸**: 注册表把 adapter_version 一升, 已采集记录立刻不可再 ingest, 而仓里没有任何检查会提醒这件事(core_boundary 不看 parser 层, chain_conformance 只看文件在不在)。"
+ ],
+ "★rig_defects_reported": [
+  "① probes/ablation_harness_v3.py 的 operating_point() 仍硬编码「market: N/A —— 仓内无 market 字段(已实扫)」。本轮第五次独立实测推翻: 61 行命中, 含 CCE_MARKET 环境变量。这句假话会被每一个复用本装置的 agent 逐字抄进产物。",
+  "② 同一文件的 load() 只替换被测模块源码, **不 patch 配置读取**。对本件恰好无害(registry() 是唯一闸门), 但对任何「配置被多个模块各自从磁盘读」的消融单元, 这仍是 tests/data/ablation_v3/空白_漏报的分类学字段__独立复核_r6.json 记过的同一个假阴性通道, 坑还在。",
+  "③ L4 子进程装绊线**不能用 sitecustomize.py**: homebrew 的 CPython 自带一份 sitecustomize 用来挂 /opt/homebrew/lib/pythonX.Y/site-packages, 被遮掉后子进程 import 不到 requests/numpy, 171 个闸里 37 个假红。本轮改用 usercustomize.py(homebrew 未占用)后基线全绿。此坑 tests/data/ablation_v3/s2_聚合与判决面.json 已记过一次, **装置里仍然没有防线**, 建议在 harness 里直接提供一个 l4_env() 助手。"
+ ],
+ "limits": [
+  "★ 本批判决只覆盖「存量重放 + 合成污染输入」这一工况。**真实模型语义、重复稳定性、线上行为一概不覆盖** —— 本件根本不调模型, 但它的判决会决定模型跑不跑。",
+  "★ 真实语料极薄: 10 例 REAL 三元组全部来自 reddit(8)与 owned_site(2), 只覆盖 registry 里 10 个平台中的 2 个、25 条 space_pattern 中的 2 条, 且全部合法。其余 8 个平台(quora/instagram/facebook/threads/x/hearingtracker_forum/…)的模式**从未被任何真实记录走过** ⇒ 关于它们的一切结论都建立在我手写的合成样例上。",
+  "★ 凡标注「L2 判决翻转只出现在 P.taint.* 合成污染臂上」的条目, 其承重性依赖「畸形投料会到达这道闸」这一前提。在纯存量(全合法)工况下这些闸确实零差异 —— 这正是 M8 说的「存量消融把保险丝判成装饰」。我没有把它们判成装饰, 但也没有真实的畸形投料样本来证明它们被触发过。",
+  "★ 解释器版本不一致: 本机 CPython 3.14.6, CI 固定 python-version 3.11。A06(fromisoformat 接受 Z)在两者上都成立, 但 A02/A10 这类与运行时语义相关的结论**只在 3.14.6 上实测**。≤3.10 与非 UTF-8 locale 两条复活条件**本轮未实跑**(本机 3.9.6/3.12.13 缺依赖, 无法跑闸)。",
+  "★ profile media_ingest 未单独重放(examples/ 里没有它的信封) ⇒ 该 profile 下的行为未覆盖。",
+  "★ 未在 GitHub 上实跑任何 workflow。CI 结论全部来自静态读 .github/workflows/cce-submit.yml, 未验证 secrets/matrix/并发在真实 runner 上的行为。",
+  "★ 第 1 行 shebang、第 9-13 行 import、第 36/37/52 行三处未单独设臂(理由见 ablation_point_coverage)。",
+  "★ 引用计数是**时点相关**的词碰撞统计: 本轮进行中另有 agent 在往 tests/data/ablation_v3/ 落盘, 同一符号两次测量相差 2.4 倍。任何跨产物的引用数比较必须先对齐时点与扫描面。",
+  "★ L4 副本是 2026-09-12 19:10 左右的快照; 此后仓内有并发改动(OPEN_QUESTIONS.md · config/mechanism_registry.json · tests/test_cce_profile_k_and_inheritance_guard.py · tests/data/ablation_v3/parser_cce_{case,event}_assemble.json 等)。L4 结论对应快照, 不对应此刻的工作树。",
+  "★ 未读 /Volumes/data/cce-identified-vault(R3), 未加任何降级分支; 若真有依赖落在那里, 本轮看不见。",
+  "★ deletable 全部按 M5 当独立字段判: 26 条里只有 2 条 true, 且都写了迁移代价。parser_plane 的 NO_CONSUMER **更不能**推出可删 —— 它可能只是当前 profile 不走那条模态。"
+ ]
+}

@@ -1,0 +1,1341 @@
+{
+ "block": "ABLATION_V3_CE3_RECHECK",
+ "unit": "CE3_出口闸与验收闸",
+ "rows_rechecked": [
+  "v3-072",
+  "v3-128"
+ ],
+ "decided_at": "2026-09-11T19:28:57",
+ "generated_by": "probes/ablation_harness_v3.py(复用) + scratchpad/CE3_gates_92379/{ce3_probe,l4_mirror,assemble}.py",
+ "★读法": "本产物只重测 v3-072 与 v3-128 两行, 且把观测面按 CE-3 要求扩到四面。**两行判决都没有翻转** —— 这本身是结论: 加宽观测面之后仍然 UNREACHABLE / NO_CONSUMER。翻转的是**证据强度与复活条件清单**: v3-072 新增两条实测复活条件, 在那两条下拆掉守卫会把**59/68 行的生产 top1 错误放行**。",
+ "positive_control": {
+  "source": "probes/ablation_harness_v3.positive_control() —— 本轮**在进程内重跑**, 未覆写共享的 _positive_control.json",
+  "passed": true,
+  "failed_gates": [],
+  "gates": {
+   "dead_swap_not_load_bearing": true,
+   "dead_absurd_injection_still_no_diff": true,
+   "liquid_L1_changed": true,
+   "liquid_changed_broadly": true,
+   "noop_no_diff": true,
+   "determinism": true,
+   "tags_indexed": true,
+   "tripwire_never_tripped": true,
+   "repo_files_untouched": true,
+   "L3_is_tautology_confirmed": true,
+   "dead_constant_is_UNREACHABLE_not_NO_CONSUMER": true
+  },
+  "judge_verdict_on_dead_constant": "UNREACHABLE(本工况 k≤5 下第 6/7 档永不取用; k≥6 即复活 —— 实证见 checks.dead_constant_revives_at_k)。M5 词表下**不是** NO_CONSUMER, 更**不是**承重。",
+  "determinism": {
+   "same_module_twice": true,
+   "fresh_reload": true,
+   "ce3_probe_base_observed_twice_bytewise_equal": true
+  },
+  "★本轮消融不落在 stage2/taxonomy, 但同形要求已满足 —— 我给**自己这四个面**各跑了液性臂": {
+   "F1+F2+F3+F4 的液性臂 = LIQ_tmpl_absurd(_stage1_template() → \"ABSURD-999\")": "生产出口闸 top1 放行 59/68 → **0/68**; F1 的 verify()/calibration_transfers 翻; F2 的 verdict_path_for(d4cce4c745f3f991) 由 k1_reliability_verdict.json → **None**; F4 路由矩阵四档全翻 ⇒ **CE-3 链路这四个面确实接上了**",
+   "闸面板(v3-128 那一面)的液性臂 = LIQ_gate_version(GATE_PROTOCOL_VERSION 2→99)": "stamp_params 落盘 payload sha 0d2e1a5d33b218c9 → ab5173f0fccdcf2a; cce_core_boundary.check() ok **True → False**(1 条 error) ⇒ **闸面板接上了**",
+   "L4 那一面的液性臂 = V072_inj_always_fire(守卫恒开火)": "源码文本镜像上净新增翻红 **4** 条(test_cce_k1_k5_instrument / test_cce_k1_readout_forms / test_cce_measurement_system / test_cce_usable_routing) ⇒ **L4 面接上了**"
+  },
+  "★为什么必须补这一段": "上一轮把 s1 模板判成 NO_CONSUMER 的根因是「注入检验跑在一个看不见消费者的面上」。所以本轮每一个用来出判决的面, 都必须先有一条能让它动的臂。"
+ },
+ "operating_point": {
+  "★两个工况, 不合并": "① OP_exit68 用于 F2/F3/F4 与两行判决; ② OP_archive22 只用于阳性对照(harness 自带语料)。",
+  "OP_exit68": {
+   "corpus_sha256": "b824a9ad179d0526579321319000d8cdf443dfb4f3c81de0a73fe77ec45193f2",
+   "n_rows": 68,
+   "★行选择规则(上一轮缺这条, 72 与复核的 75 无法核对)": "exit_gate_rows = 每个 `archive/*/*.json`, 其顶层是 dict 且同时有 `mode`(str) 与 `stages`(dict) —— 即**归档的 run manifest**。不做任何其它筛除。上一轮产物报 72 行但未公布选择规则, 独立复核收到 75 行, 无法核对 ⇒ 本轮改为公布规则 + 公布逐行 sha。",
+   "mode_distribution": {
+    "reply": 48,
+    "media_ingest": 2,
+    "outbound_post": 2,
+    "response": 16
+   },
+   "k_by_mode": {
+    "reply": 3,
+    "media_ingest": 3,
+    "outbound_post": 5,
+    "response": 3
+   },
+   "k_distribution": {
+    "3": 66,
+    "5": 2
+   },
+   "live_instrument": {
+    "k=3": "d4cce4c745f3f991",
+    "k=5": "c4419c3e53aa2fa9"
+   },
+   "registered_instruments": [
+    "565470cf26c16d01",
+    "0e9ca1d4e7a2f180"
+   ],
+   "profile": "reply / response / outbound_post / media_ingest 四档, 出口闸 qualified() 全档都过"
+  },
+  "OP_archive22": {
+   "corpus_sha256": "8226cd11ee4593a08ed356aa1085acce3c9aea2f287ae0ae544ee2e48c355ac7",
+   "n_archive_files": 22,
+   "k_distribution": {
+    "3": 20,
+    "5": 2
+   },
+   "s1_temperature_distribution": {
+    "0.0": 22,
+    "0.15": 2,
+    "0.3": 22,
+    "0.6": 22,
+    "0.9": 2
+   },
+   "profile": [
+    "{\"stage1\": \"exp_v4_full_validation(frozen, M3)\", \"stage2\": \"knot_taxonomy v1.3.1 (M3)\", \"taxonomy_status\": \"v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注\"}"
+   ]
+  },
+  "★★market —— 不抄上一轮那句假话": {
+   "上一轮六个产物 + _positive_control.json 逐字写的": "N/A —— 仓内无 market 字段(已实扫)",
+   "本轮实扫": "`grep -rnE '\\bmarket\\b' scripts config accuracy` = **33 处**。scripts/cce_strategy_gate.py:100/113/140(含 os.environ.get(\"CCE_MARKET\",\"intl\")) · scripts/cce_outbound_guard.py:286/309/343/361(`if market in (\"cn\",\"both\")` 决定走不走广告法层)。⇒ **仓内有 market 维度**, 上一轮那句是假的。",
+   "本轮用的值": "CCE_MARKET **未设** ⇒ 走代码默认 `intl`。",
+   "对本单元两行的实际影响": "scripts/cce_k1_status.py / accuracy/run_gates.py / scripts/cce_full_run.py 三个文件里 `market` 出现 **0 次**(实测 grep -c) ⇒ market 不是这两行的复活轴; 但**不得**再写「仓内没有 market」。"
+  },
+  "drift_rule": "以上任一项变化(含 VERDICT_BY_INSTRUMENT 表、SCOPE_WIDENINGS 表、语料 sha) ⇒ 本判决当场失效。"
+ },
+ "zero_api": {
+  "in_process_tripwire_tripped": [],
+  "positive_control_tripwire_tripped": [],
+  "subprocess_tripwire_tripped(L4 镜像, 每个子进程装 sitecustomize 绊线)": [],
+  "scope": "覆盖: 本进程内**经 socket.socket.connect 新建**的连接(含 urllib/requests/http.client)。 **不覆盖**: ① 进入本上下文**之前已建立**的连接 ② 不走 socket 的传输(共享内存 / 本机文件 / unix pipe 以外的自带通道) ③ **子进程**(subprocess / os.system 另起进程, 有自己的 socket 模块) ④ **C 扩展自带的网络栈**(不经 Python socket 对象) ⑤ 本进程外的任何东西。 ⇒ 证据只能说「**本进程内经 socket 新建的连接被拦截, 且整段运行中一次都没被触发**」, **不能**说「全进程所有网络出口都已关闭」。",
+  "★不覆盖": "子进程之外的任何东西 · 不走 socket 的传输 · C 扩展自带网络栈 · 进入上下文前已建立的连接。"
+ },
+ "file_integrity": {
+  "before": {
+   "/Volumes/data/cce-engine/scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "/Volumes/data/cce-engine/config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "/Volumes/data/cce-engine/config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "/Volumes/data/cce-engine/accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "/Volumes/data/cce-engine/scripts/cce_k1_status.py": "5f0df2624754c865c49eee39b5e4e81b9883da4bfc93a81d3d82d51f58e6f117",
+   "/Volumes/data/cce-engine/scripts/cce_full_run.py": "5e41ede1fcde2745cb09803fa789979abcfc6db2c95ae2309adb50f2a79c966a",
+   "/Volumes/data/cce-engine/scripts/cce_core_boundary.py": "a004688ded24af0d3ae916190ce569ce3e1364f56306eaa8a2e0a1f2c94621a0"
+  },
+  "after": {
+   "/Volumes/data/cce-engine/scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "/Volumes/data/cce-engine/config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "/Volumes/data/cce-engine/config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "/Volumes/data/cce-engine/accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "/Volumes/data/cce-engine/scripts/cce_k1_status.py": "5f0df2624754c865c49eee39b5e4e81b9883da4bfc93a81d3d82d51f58e6f117",
+   "/Volumes/data/cce-engine/scripts/cce_full_run.py": "5e41ede1fcde2745cb09803fa789979abcfc6db2c95ae2309adb50f2a79c966a",
+   "/Volumes/data/cce-engine/scripts/cce_core_boundary.py": "a004688ded24af0d3ae916190ce569ce3e1364f56306eaa8a2e0a1f2c94621a0"
+  },
+  "identical": true,
+  "frozen_after_L4_mirror_run": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "scripts/cce_k1_status.py": "5f0df2624754c865c49eee39b5e4e81b9883da4bfc93a81d3d82d51f58e6f117"
+  },
+  "★L4 怎样在不碰仓的前提下改源码文本": "整树复制到仓外 /private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/CE3_gates_92379/mirror, 只在副本上改那一个文件。"
+ },
+ "instrument_defects_found_this_round": [
+  {
+   "id": "D1",
+   "where": "本探针初版(已修)",
+   "what": "`cce_full_run.qualified` 被 `@stage(\"qualified_readout\")` 包着, wrapper **返回 None**, 结果写在 `MANIFEST[\"qualified_readout\"]` 里。直接读返回值 ⇒ 68 行**全部** TypeError, F3 出口闸面**整面失明**却不报错(每行只记一条 RAISED)。",
+   "how_caught": "基线 by_mode 全 0, 与「reply/response 档现在是放行 top1 的」矛盾。",
+   "fix": "读 fr.MANIFEST['qualified_readout'] 并断言 status==OK。"
+  },
+  {
+   "id": "D2",
+   "where": "本探针初版 + **仓内 probes/ablation_harness_v3.py:441**",
+   "what": "`instrument_id(taxo, k)` **不传 knot_n / s1_pairing** 得到 d6c4366c0e2294cd, **不是**生产仪器 d4cce4c745f3f991。生产形式见 cce_knot_classify.py:753/770 与 probes/*.py: `knot_n=KNOT_N(=5), s1_pairing=f\"round_robin_over_{k}_s1_draws\"`。",
+   "impact": "用错仪器去查 K1 判定 ⇒ 恒落到「未登记 ⇒ 拒发」, 于是**任何**消融都看不出差异 —— 正是 CE-3 说的「注入检验跑在看不见消费者的面上」的第二现场。harness 的 l3_instrument_hash 也漏了这两个参数(L3 本就是重言, 不改判决, 但该修)。",
+   "fix": "本探针统一走 INST_KW(k); 已实证复现 k=3→d4cce4c745f3f991 · k=5→c4419c3e53aa2fa9。"
+  },
+  {
+   "id": "D3",
+   "where": "本轮 L4 镜像装置初版(已修)",
+   "what": "把自己的 sitecustomize.py 放进 PYTHONPATH ⇒ **遮住**真正那份 ⇒ site-packages 没被加进来 ⇒ `python3 -m pytest` 直接 `No module named pytest` ⇒ 42 个脚本**全部假红**。",
+   "fix": "sitecustomize 里先 site.addsitedir(真实 site 目录) 再装绊线。"
+  },
+  {
+   "id": "D4",
+   "where": "本轮 L4 计分初版(已修)",
+   "what": "仓里大量 tests/*.py 是**脚本式**(只有顶层 assert, 没有 def test_*)。pytest 收不到用例 ⇒ **rc=5 \"no tests ran\"**, 而顶层断言在 collect 期已经跑过。把 rc!=0 当红 ⇒ 22 个脚本假红, 基线噪声吞掉全部信号 —— 实测破坏性臂 V072_inj_always_fire 的净新增被吞成 **0**(真值是 4)。",
+   "fix": "红 = rc not in (0,5); 顶层断言失败会给 collect error rc=2。"
+  },
+  {
+   "id": "D5",
+   "where": "**仓内 tests/test_cce_criterion_cast.py:187**(不是我的装置; 是一条零判别力的闸)",
+   "what": "它把 `accuracy/run_gates.py` 的**整文件 sha256** 钉进 tests/data/ablation_v3/criterion_cast.json。任何一个字节的改动 —— 包括只加一句 `# noop` 注释 —— 都会让它翻红(已实跑复现)。",
+   "impact": "① 它对**内存内**消融完全失明(M3-③ 正是这一类) ② 它对 noop 与真消融**同样翻红** ⇒ 在 L4 里零判别力, 必须由空操作对照臂减掉, 否则任何改 run_gates 的消融都会被读成「有 L4 后果」。",
+   "note": "上一轮 `验收闸自身.json` 的 scope_files(19 个)**不含**这个脚本 ⇒ 上一轮结构上看不见它。"
+  }
+ ],
+ "ce3_faces": {
+  "F1_identity": "cce_knot_classify.same_physical_instrument(15 组仪器对) · calibration_transfers(k=3/5, depends_on=['s1_prompt_sha256'], snapshot=gen4 旧口径) · SCOPE_WIDENINGS[...].verify() · instrument_id 现算 live hash",
+  "F2a_k1status_production_call_form": "verdict_path_for / layer_status / knot_readout_usable, **不传 path**(= 生产唯一调用形式, 见 cce_full_run.py:467 · cce_production_status.py:53 · reply_loop.py:108 · cce_align_v2.py:143), 9 台仪器 × 7 种读数形式 + weight/playbook_hit/playbook_mode 三个层闸",
+  "F2b_k1status_explicit_path_branch": "layer_status(path=K1_VERDICT / K1_VERDICT_K5, instrument_hash=X) —— ★ **合成组合**: 仓内没有任何调用方构造「path 与 instrument 不配对」的入参。把它与 F2a 分开报, 因为守卫在这条路上是**唯一**的门。",
+  "F3_exit_gate": "cce_full_run.qualified() 的 usable_keys / withheld(键 + 理由 sha), 68 行存量 run manifest 重放",
+  "F4_cluster_native": "① v3-072 簇: profile 路由矩阵(reply/response/outbound_post/media_ingest 四档的 k · live instrument · verdict_path · layer_usable · form_usable) ② v3-128 簇: 闸面板(GATE_PROTOCOL_VERSION · gate_protocol_hash() · stamp_params 落盘 payload · cce_core_boundary.check())",
+  "★被排除的面": "L3(instrument_hash) 按 M2 排除 —— 重言。★ 另排除一条**自观测**面: 我一度把 `_sha(rg.GATE_PROTOCOL)` 放进闸面板, 那等于直接读被消融对象本身, 与 L3 同类重言 —— 三个 v3-128 臂唯一翻的就是它, **不计入判据**(原始数据仍在 raw 里, 标了 TAUTOLOGY)。"
+ },
+ "raw": {
+  "arm_table": {
+   "base": {
+    "prod_exit_gate_top1_released": "59/68",
+    "prod_exit_gate_top1_withheld": "2/68",
+    "d4cce4c745f3f991_routed_verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": true
+    },
+    "faces_changed_vs_base": null
+   },
+   "A0_noop_ks": {
+    "prod_exit_gate_top1_released": "59/68",
+    "prod_exit_gate_top1_withheld": "2/68",
+    "d4cce4c745f3f991_routed_verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": true
+    },
+    "faces_changed_vs_base": {
+     "F1_identity": false,
+     "F2_k1status": false,
+     "F3_exitgate": false,
+     "F4_cluster": false
+    }
+   },
+   "A0_noop_rg": {
+    "prod_exit_gate_top1_released": "59/68",
+    "prod_exit_gate_top1_withheld": "2/68",
+    "d4cce4c745f3f991_routed_verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": true
+    },
+    "faces_changed_vs_base": {
+     "F1_identity": false,
+     "F2_k1status": false,
+     "F3_exitgate": false,
+     "F4_cluster": false
+    }
+   },
+   "V072_guard_off": {
+    "prod_exit_gate_top1_released": "59/68",
+    "prod_exit_gate_top1_withheld": "2/68",
+    "d4cce4c745f3f991_routed_verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": true
+    },
+    "faces_changed_vs_base": {
+     "F1_identity": false,
+     "F2_k1status": true,
+     "F3_exitgate": false,
+     "F4_cluster": false
+    }
+   },
+   "V072_inj_always_fire": {
+    "prod_exit_gate_top1_released": "0/68",
+    "prod_exit_gate_top1_withheld": "61/68",
+    "d4cce4c745f3f991_routed_verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": false
+    },
+    "faces_changed_vs_base": {
+     "F1_identity": false,
+     "F2_k1status": true,
+     "F3_exitgate": true,
+     "F4_cluster": true
+    }
+   },
+   "V072_inj_guard_raises": {
+    "prod_exit_gate_top1_released": "0/68",
+    "prod_exit_gate_top1_withheld": "2/68",
+    "d4cce4c745f3f991_routed_verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "d4cce4c745f3f991_layer_usable": "RAISED RuntimeError: ABL_GUARD_RAISE",
+    "faces_changed_vs_base": {
+     "F1_identity": false,
+     "F2_k1status": true,
+     "F3_exitgate": true,
+     "F4_cluster": true
+    }
+   },
+   "V072_inj_spi_raises": {
+    "prod_exit_gate_top1_released": "0/68",
+    "prod_exit_gate_top1_withheld": "61/68",
+    "d4cce4c745f3f991_routed_verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": false
+    },
+    "faces_changed_vs_base": {
+     "F1_identity": true,
+     "F2_k1status": true,
+     "F3_exitgate": true,
+     "F4_cluster": true
+    }
+   },
+   "V072_inj_spi_raises_plus_guard_off": {
+    "prod_exit_gate_top1_released": "59/68",
+    "prod_exit_gate_top1_withheld": "2/68",
+    "d4cce4c745f3f991_routed_verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": true
+    },
+    "faces_changed_vs_base": {
+     "F1_identity": true,
+     "F2_k1status": true,
+     "F3_exitgate": false,
+     "F4_cluster": false
+    }
+   },
+   "V072_reg_prod": {
+    "prod_exit_gate_top1_released": "59/68",
+    "prod_exit_gate_top1_withheld": "2/68",
+    "d4cce4c745f3f991_routed_verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": true
+    },
+    "faces_changed_vs_base": {
+     "F1_identity": false,
+     "F2_k1status": true,
+     "F3_exitgate": true,
+     "F4_cluster": false
+    }
+   },
+   "V072_reg_prod_tmpl_broken": {
+    "prod_exit_gate_top1_released": "0/68",
+    "prod_exit_gate_top1_withheld": "61/68",
+    "d4cce4c745f3f991_routed_verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": false
+    },
+    "faces_changed_vs_base": {
+     "F1_identity": true,
+     "F2_k1status": true,
+     "F3_exitgate": true,
+     "F4_cluster": true
+    }
+   },
+   "V072_reg_prod_tmpl_broken_guard_off": {
+    "prod_exit_gate_top1_released": "0/68",
+    "prod_exit_gate_top1_withheld": "61/68",
+    "d4cce4c745f3f991_routed_verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": true
+    },
+    "faces_changed_vs_base": {
+     "F1_identity": true,
+     "F2_k1status": true,
+     "F3_exitgate": true,
+     "F4_cluster": true
+    }
+   },
+   "V072_verify_false": {
+    "prod_exit_gate_top1_released": "0/68",
+    "prod_exit_gate_top1_withheld": "61/68",
+    "d4cce4c745f3f991_routed_verdict_path": null,
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": false
+    },
+    "faces_changed_vs_base": {
+     "F1_identity": true,
+     "F2_k1status": true,
+     "F3_exitgate": true,
+     "F4_cluster": true
+    }
+   },
+   "V072_verify_false_guard_off": {
+    "prod_exit_gate_top1_released": "0/68",
+    "prod_exit_gate_top1_withheld": "61/68",
+    "d4cce4c745f3f991_routed_verdict_path": null,
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": false
+    },
+    "faces_changed_vs_base": {
+     "F1_identity": true,
+     "F2_k1status": true,
+     "F3_exitgate": true,
+     "F4_cluster": true
+    }
+   },
+   "V072_reg_prod_verify_false": {
+    "prod_exit_gate_top1_released": "0/68",
+    "prod_exit_gate_top1_withheld": "61/68",
+    "d4cce4c745f3f991_routed_verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": false
+    },
+    "faces_changed_vs_base": {
+     "F1_identity": true,
+     "F2_k1status": true,
+     "F3_exitgate": true,
+     "F4_cluster": true
+    }
+   },
+   "V072_reg_prod_verify_false_guard_off": {
+    "prod_exit_gate_top1_released": "59/68",
+    "prod_exit_gate_top1_withheld": "2/68",
+    "d4cce4c745f3f991_routed_verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": true
+    },
+    "faces_changed_vs_base": {
+     "F1_identity": true,
+     "F2_k1status": true,
+     "F3_exitgate": true,
+     "F4_cluster": false
+    }
+   },
+   "LIQ_tmpl_absurd": {
+    "prod_exit_gate_top1_released": "0/68",
+    "prod_exit_gate_top1_withheld": "61/68",
+    "d4cce4c745f3f991_routed_verdict_path": null,
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": false
+    },
+    "faces_changed_vs_base": {
+     "F1_identity": true,
+     "F2_k1status": true,
+     "F3_exitgate": true,
+     "F4_cluster": true
+    }
+   },
+   "V128_dict_emptied": {
+    "prod_exit_gate_top1_released": "59/68",
+    "prod_exit_gate_top1_withheld": "2/68",
+    "d4cce4c745f3f991_routed_verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": true
+    },
+    "faces_changed_vs_base": {
+     "F1_identity": false,
+     "F2_k1status": false,
+     "F3_exitgate": false,
+     "F4_cluster": true
+    }
+   },
+   "V128_inj_absurd": {
+    "prod_exit_gate_top1_released": "59/68",
+    "prod_exit_gate_top1_withheld": "2/68",
+    "d4cce4c745f3f991_routed_verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": true
+    },
+    "faces_changed_vs_base": {
+     "F1_identity": false,
+     "F2_k1status": false,
+     "F3_exitgate": false,
+     "F4_cluster": true
+    }
+   },
+   "V128_inj_raises": {
+    "prod_exit_gate_top1_released": "59/68",
+    "prod_exit_gate_top1_withheld": "2/68",
+    "d4cce4c745f3f991_routed_verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": true
+    },
+    "faces_changed_vs_base": {
+     "F1_identity": false,
+     "F2_k1status": false,
+     "F3_exitgate": false,
+     "F4_cluster": true
+    }
+   },
+   "LIQ_gate_version": {
+    "prod_exit_gate_top1_released": "59/68",
+    "prod_exit_gate_top1_withheld": "2/68",
+    "d4cce4c745f3f991_routed_verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "d4cce4c745f3f991_layer_usable": {
+     "intensity": false,
+     "top1": true
+    },
+    "faces_changed_vs_base": {
+     "F1_identity": false,
+     "F2_k1status": false,
+     "F3_exitgate": false,
+     "F4_cluster": true
+    }
+   }
+  },
+  "★怎么读 arm_table": "`faces_changed_vs_base` 的 F2 若为 true, 必须再看 raw.per_arm_leaf_diff 分到 routed_no_path(生产形式) 还是 explicit_path_branch(合成组合) —— 两者性质完全不同。",
+  "per_arm_leaf_diff_buckets": {
+   "A0_noop_ks": {},
+   "A0_noop_rg": {},
+   "V072_guard_off": {
+    "/F2_k1status/explicit_path_branch": 13
+   },
+   "V072_inj_always_fire": {
+    "/F2_k1status/routed_no_path": 9,
+    "/F2_k1status/forms": 3,
+    "/F2_k1status/explicit_path_branch": 3,
+    "/F3_exitgate/rows": 1,
+    "/F3_exitgate/by_mode": 4,
+    "/F4_cluster/profile_routing_matrix": 6
+   },
+   "V072_inj_guard_raises": {
+    "/F2_k1status/routed_no_path": 6,
+    "/F2_k1status/forms": 3,
+    "/F2_k1status/explicit_path_branch": 16,
+    "/F3_exitgate/rows": 1,
+    "/F3_exitgate/by_mode": 2,
+    "/F4_cluster/profile_routing_matrix": 6
+   },
+   "V072_inj_spi_raises": {
+    "/F1_identity/same_physical_instrument": 15,
+    "/F2_k1status/routed_no_path": 3,
+    "/F2_k1status/forms": 1,
+    "/F2_k1status/explicit_path_branch": 1,
+    "/F3_exitgate/rows": 1,
+    "/F3_exitgate/by_mode": 4,
+    "/F4_cluster/profile_routing_matrix": 6
+   },
+   "V072_inj_spi_raises_plus_guard_off": {
+    "/F1_identity/same_physical_instrument": 15,
+    "/F2_k1status/explicit_path_branch": 13
+   },
+   "V072_reg_prod": {
+    "/F2_k1status/routed_no_path": 12,
+    "/F3_exitgate/rows": 1
+   },
+   "V072_reg_prod_tmpl_broken": {
+    "/F1_identity/same_physical_instrument": 2,
+    "/F1_identity/scope_widenings": 1,
+    "/F1_identity/calibration_transfers": 4,
+    "/F1_identity/live_instrument_hash_by_k": 2,
+    "/F2_k1status/routed_no_path": 15,
+    "/F2_k1status/forms": 1,
+    "/F2_k1status/explicit_path_branch": 1,
+    "/F3_exitgate/rows": 1,
+    "/F3_exitgate/by_mode": 4,
+    "/F4_cluster/profile_routing_matrix": 13,
+    "/F4_cluster/gate_panel": 3
+   },
+   "V072_reg_prod_tmpl_broken_guard_off": {
+    "/F1_identity/same_physical_instrument": 2,
+    "/F1_identity/scope_widenings": 1,
+    "/F1_identity/calibration_transfers": 4,
+    "/F1_identity/live_instrument_hash_by_k": 2,
+    "/F2_k1status/routed_no_path": 12,
+    "/F2_k1status/explicit_path_branch": 13,
+    "/F3_exitgate/rows": 1,
+    "/F3_exitgate/by_mode": 4,
+    "/F4_cluster/profile_routing_matrix": 13,
+    "/F4_cluster/gate_panel": 3
+   },
+   "V072_verify_false": {
+    "/F1_identity/same_physical_instrument": 2,
+    "/F1_identity/scope_widenings": 1,
+    "/F1_identity/calibration_transfers": 4,
+    "/F2_k1status/routed_no_path": 4,
+    "/F2_k1status/forms": 1,
+    "/F2_k1status/explicit_path_branch": 1,
+    "/F3_exitgate/rows": 1,
+    "/F3_exitgate/by_mode": 4,
+    "/F4_cluster/profile_routing_matrix": 9
+   },
+   "V072_verify_false_guard_off": {
+    "/F1_identity/same_physical_instrument": 2,
+    "/F1_identity/scope_widenings": 1,
+    "/F1_identity/calibration_transfers": 4,
+    "/F2_k1status/routed_no_path": 4,
+    "/F2_k1status/forms": 1,
+    "/F2_k1status/explicit_path_branch": 13,
+    "/F3_exitgate/rows": 1,
+    "/F3_exitgate/by_mode": 4,
+    "/F4_cluster/profile_routing_matrix": 9
+   },
+   "V072_reg_prod_verify_false": {
+    "/F1_identity/same_physical_instrument": 2,
+    "/F1_identity/scope_widenings": 1,
+    "/F1_identity/calibration_transfers": 4,
+    "/F2_k1status/routed_no_path": 15,
+    "/F2_k1status/forms": 1,
+    "/F2_k1status/explicit_path_branch": 1,
+    "/F3_exitgate/rows": 1,
+    "/F3_exitgate/by_mode": 4,
+    "/F4_cluster/profile_routing_matrix": 6
+   },
+   "V072_reg_prod_verify_false_guard_off": {
+    "/F1_identity/same_physical_instrument": 2,
+    "/F1_identity/scope_widenings": 1,
+    "/F1_identity/calibration_transfers": 4,
+    "/F2_k1status/routed_no_path": 12,
+    "/F2_k1status/explicit_path_branch": 13,
+    "/F3_exitgate/rows": 1
+   },
+   "LIQ_tmpl_absurd": {
+    "/F1_identity/same_physical_instrument": 2,
+    "/F1_identity/scope_widenings": 1,
+    "/F1_identity/calibration_transfers": 4,
+    "/F1_identity/live_instrument_hash_by_k": 2,
+    "/F2_k1status/routed_no_path": 4,
+    "/F2_k1status/forms": 1,
+    "/F2_k1status/explicit_path_branch": 1,
+    "/F3_exitgate/rows": 1,
+    "/F3_exitgate/by_mode": 4,
+    "/F4_cluster/profile_routing_matrix": 13,
+    "/F4_cluster/gate_panel": 3
+   },
+   "V128_dict_emptied": {
+    "/F4_cluster/gate_panel": 1
+   },
+   "V128_inj_absurd": {
+    "/F4_cluster/gate_panel": 1
+   },
+   "V128_inj_raises": {
+    "/F4_cluster/gate_panel": 1
+   },
+   "LIQ_gate_version": {
+    "/F4_cluster/gate_panel": 6
+   }
+  },
+  "gate_panel_base": {
+   "GATE_PROTOCOL_VERSION": 2,
+   "gate_protocol_hash": "dbdff13f9da155bc",
+   "GATE_PROTOCOL_repr_sha": "f4f9f3bba9308ac8",
+   "JS_THRESHOLD": "ABSENT",
+   "MODELS": [
+    "MiniMax-M3",
+    "MiniMax-M2.5",
+    "MiniMax-M2.7",
+    "MiniMax-M2",
+    "MiniMax-Text-01"
+   ],
+   "RUN_PARAMS_sha": "6098e4bebc75c188",
+   "stamp_params_files": [
+    "run_params.json"
+   ],
+   "stamp_params_payload_sha": "0d2e1a5d33b218c9",
+   "core_boundary": {
+    "ok": true,
+    "n_errors": 0,
+    "errors_sha": "4f53cda18c2baa0c"
+   }
+  },
+  "gate_panel_diffs_v128": {
+   "V128_dict_emptied": {
+    "GATE_PROTOCOL_repr_sha": [
+     "f4f9f3bba9308ac8",
+     "44136fa355b3678a"
+    ]
+   },
+   "V128_inj_absurd": {
+    "GATE_PROTOCOL_repr_sha": [
+     "f4f9f3bba9308ac8",
+     "19a60b87285e6b44"
+    ]
+   },
+   "V128_inj_raises": {
+    "GATE_PROTOCOL_repr_sha": [
+     "f4f9f3bba9308ac8",
+     "RAISED RuntimeError: ABL_GATE_PROTOCOL_TOUCHED"
+    ]
+   },
+   "LIQ_gate_version": {
+    "GATE_PROTOCOL_VERSION": [
+     2,
+     99
+    ],
+    "GATE_PROTOCOL_repr_sha": [
+     "f4f9f3bba9308ac8",
+     "8ba21bc31e156653"
+    ],
+    "stamp_params_payload_sha": [
+     "0d2e1a5d33b218c9",
+     "ab5173f0fccdcf2a"
+    ],
+    "core_boundary": [
+     {
+      "ok": true,
+      "n_errors": 0,
+      "errors_sha": "4f53cda18c2baa0c"
+     },
+     {
+      "ok": false,
+      "n_errors": 1,
+      "errors_sha": "9443ab8fefb87301"
+     }
+    ]
+   },
+   "A0_noop_rg": {}
+  },
+  "profile_routing_matrix_base": {
+   "media_ingest": {
+    "k": 3,
+    "live_instrument": "d4cce4c745f3f991",
+    "verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "layer_usable": {
+     "intensity": false,
+     "top1": true
+    },
+    "form_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "未登记形式": false
+    }
+   },
+   "outbound_post": {
+    "k": 5,
+    "live_instrument": "c4419c3e53aa2fa9",
+    "verdict_path": null,
+    "layer_usable": {
+     "intensity": false,
+     "top1": false
+    },
+    "form_usable": {
+     "top1": false,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "未登记形式": false
+    }
+   },
+   "reply": {
+    "k": 3,
+    "live_instrument": "d4cce4c745f3f991",
+    "verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "layer_usable": {
+     "intensity": false,
+     "top1": true
+    },
+    "form_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "未登记形式": false
+    }
+   },
+   "response": {
+    "k": 3,
+    "live_instrument": "d4cce4c745f3f991",
+    "verdict_path": "tests/data/phase2/k1_reliability_verdict.json",
+    "layer_usable": {
+     "intensity": false,
+     "top1": true
+    },
+    "form_usable": {
+     "top1": true,
+     "intensity": false,
+     "weight": false,
+     "band3": false,
+     "rank_rho": false,
+     "top2_set": false,
+     "未登记形式": false
+    }
+   }
+  },
+  "exit_gate_by_mode_base": {
+   "reply": {
+    "n": 48,
+    "top1_usable": 43,
+    "top1_withheld": 0
+   },
+   "media_ingest": {
+    "n": 2,
+    "top1_usable": 0,
+    "top1_withheld": 0
+   },
+   "outbound_post": {
+    "n": 2,
+    "top1_usable": 0,
+    "top1_withheld": 2
+   },
+   "response": {
+    "n": 16,
+    "top1_usable": 16,
+    "top1_withheld": 0
+   }
+  }
+ },
+ "ref_counts_M4": {
+  "★扫描面": {
+   "dirs": [
+    "scripts",
+    "probes",
+    "accuracy",
+    "tests",
+    ".github",
+    "config"
+   ],
+   "suffixes": [
+    ".py",
+    ".json",
+    ".yml",
+    ".yaml",
+    ".md",
+    ".txt",
+    ".sh"
+   ],
+   "★盲点": "不含 docs/ · skills/ · run/ · archive/ · .git/ · __pycache__/ · 仓外任何目录。它是**词碰撞统计**, 不是调用图。"
+  },
+  "GATE_PROTOCOL": {
+   "coarse": 12,
+   "strict": 1,
+   "breakdown": {
+    "accuracy/run_gates.py": 1,
+    "tests/data/ablation_v3/验收闸自身__independent_recheck.json": 4,
+    "tests/data/ablation_v3/验收闸自身.json": 4,
+    "tests/data/ablation_verdicts_v3.json": 3
+   },
+   "★去掉消融台账自身后": "coarse **1** / strict **0** —— 那 1 就是它自己的赋值行(accuracy/run_gates.py:171)。与上一轮报的 1/0 一致; 差在我把 tests/data/ 也算进了粗计。",
+   "★决定性的一条": "`accuracy/run_gates.py` 里 word-boundary `GATE_PROTOCOL` 只出现 **1 次**(赋值本身) ⇒ **run_gates 自己的任何运行路径(含没跑的 main())都不可能读它**。"
+  },
+  "_same": {
+   "coarse": 13,
+   "strict": 2,
+   "breakdown": {
+    "scripts/cce_k1_status.py": 4,
+    "tests/data/ablation_v3/出口闸与profile路由.json": 5,
+    "tests/data/ablation_verdicts_v3.json": 4
+   },
+   "★去掉台账后": "coarse 4 / strict 0, 全部在 cce_k1_status.py 内部(赋值 ×2 · except 回退 ×1 · `if not _same` ×1)"
+  },
+  "same_physical_instrument": {
+   "coarse": 6,
+   "strict": 1,
+   "breakdown": {
+    "scripts/cce_k1_status.py": 2,
+    "scripts/cce_knot_classify.py": 1,
+    "config/cce_core_manifest.json": 1,
+    "tests/data/ablation_v3/出口闸与profile路由.json": 2
+   }
+  }
+ },
+ "L4": {
+  "★方法(M3-③)": "内存内变异看不见**钉源码文本**的闸(M3-③)。本装置把同一条消融写到仓外镜像的源码文本上再跑闸 ⇒ 行为面与文本面**一起**可见, L4 不会被低报。",
+  "scan_surface": {
+   "KS_hit_tests": [
+    "tests/test_cce_ablation_verdict_schema.py",
+    "tests/test_cce_abstention.py",
+    "tests/test_cce_chain_conformance.py",
+    "tests/test_cce_core_boundary.py",
+    "tests/test_cce_doc_reconcile.py",
+    "tests/test_cce_docs_index.py",
+    "tests/test_cce_gate_protocol_version.py",
+    "tests/test_cce_image_chain_ci.py",
+    "tests/test_cce_k1_k5_instrument.py",
+    "tests/test_cce_k1_readout_forms.py",
+    "tests/test_cce_k1_v2.py",
+    "tests/test_cce_measurement_system.py",
+    "tests/test_cce_media_ingest_production.py",
+    "tests/test_cce_module_boundary.py",
+    "tests/test_cce_playbook_hit.py",
+    "tests/test_cce_playbook_mode.py",
+    "tests/test_cce_registry_gate.py",
+    "tests/test_cce_reply_alignment_withheld.py",
+    "tests/test_cce_retired_chain_removed.py",
+    "tests/test_cce_submission.py",
+    "tests/test_cce_usable_routing.py",
+    "tests/test_cce_withholding_and_labels.py",
+    "tests/test_cce_within_js_gate.py"
+   ],
+   "n_KS": 23,
+   "RG_hit_tests": [
+    "tests/test_cce_ablation_harness_v3.py",
+    "tests/test_cce_acceptance_gate_failopen.py",
+    "tests/test_cce_accuracy_offline.py",
+    "tests/test_cce_anchors_independent_of_corpus.py",
+    "tests/test_cce_chain_conformance.py",
+    "tests/test_cce_core_boundary.py",
+    "tests/test_cce_criterion_cast.py",
+    "tests/test_cce_doc_reconcile.py",
+    "tests/test_cce_docs_index.py",
+    "tests/test_cce_gate_prompt_version_label.py",
+    "tests/test_cce_gate_protocol_version.py",
+    "tests/test_cce_gk1_margin.py",
+    "tests/test_cce_gk3_not_a_tautology.py",
+    "tests/test_cce_incremental_persistence.py",
+    "tests/test_cce_internal_examples.py",
+    "tests/test_cce_js_metric_definition.py",
+    "tests/test_cce_only_bookmark_conflict.py",
+    "tests/test_cce_prompt_template_args.py",
+    "tests/test_cce_qualification_premise_revised.py",
+    "tests/test_cce_qualification_v2.py",
+    "tests/test_cce_repeatability.py",
+    "tests/test_cce_run_params_recorded.py",
+    "tests/test_cce_second_exclusion_channel.py",
+    "tests/test_cce_suspend_factorial.py"
+   ],
+   "n_RG": 24,
+   "n_all_test_files": 161,
+   "rule": "命中 = 文件文本里出现 模块名 / cce_core_boundary / cce_doc_reconcil —— 后两者是**读磁盘源码**的闸的入口(cce_doc_reconcile.py:50 拿 config/cce_doc_reconciliation.json 的 evidence 串去 grep scripts/cce_k1_status.py)。未命中脚本既不 import 也不读这两个文件的文本。"
+  },
+  "baseline_reds": [
+   "tests/test_cce_chain_conformance.py"
+  ],
+  "★基线噪声": "tests/test_cce_chain_conformance.py 基线本就红(与 v3 前几轮一致), 已从净新增里减掉。",
+  "★零判别力的闸(必须减掉)": "tests/test_cce_criterion_cast.py —— 见 instrument_defects_found_this_round.D5: 它钉 accuracy/run_gates.py 整文件 sha256, **空操作对照臂同样翻红**(已实跑复现), 在 pristine 镜像上 3/3 通过 ⇒ 不是 flaky, 是 sha 型闸。",
+  "per_arm": {
+   "BASE": {
+    "target_file": null,
+    "n_tests": 42,
+    "reds": [
+     "tests/test_cce_chain_conformance.py"
+    ],
+    "rc": {
+     "tests/test_cce_ablation_harness_v3.py": 0,
+     "tests/test_cce_ablation_verdict_schema.py": 0,
+     "tests/test_cce_abstention.py": 5,
+     "tests/test_cce_acceptance_gate_failopen.py": 0,
+     "tests/test_cce_accuracy_offline.py": 0,
+     "tests/test_cce_anchors_independent_of_corpus.py": 0,
+     "tests/test_cce_chain_conformance.py": 2,
+     "tests/test_cce_core_boundary.py": 5,
+     "tests/test_cce_criterion_cast.py": 0,
+     "tests/test_cce_doc_reconcile.py": 5,
+     "tests/test_cce_docs_index.py": 5,
+     "tests/test_cce_gate_prompt_version_label.py": 0,
+     "tests/test_cce_gate_protocol_version.py": 0,
+     "tests/test_cce_gk1_margin.py": 0,
+     "tests/test_cce_gk3_not_a_tautology.py": 0,
+     "tests/test_cce_image_chain_ci.py": 5,
+     "tests/test_cce_incremental_persistence.py": 0,
+     "tests/test_cce_internal_examples.py": 0,
+     "tests/test_cce_js_metric_definition.py": 0,
+     "tests/test_cce_k1_k5_instrument.py": 5,
+     "tests/test_cce_k1_readout_forms.py": 5,
+     "tests/test_cce_k1_v2.py": 5,
+     "tests/test_cce_measurement_system.py": 5,
+     "tests/test_cce_media_ingest_production.py": 5,
+     "tests/test_cce_module_boundary.py": 5,
+     "tests/test_cce_only_bookmark_conflict.py": 0,
+     "tests/test_cce_playbook_hit.py": 5,
+     "tests/test_cce_playbook_mode.py": 5,
+     "tests/test_cce_prompt_template_args.py": 0,
+     "tests/test_cce_qualification_premise_revised.py": 0,
+     "tests/test_cce_qualification_v2.py": 0,
+     "tests/test_cce_registry_gate.py": 5,
+     "tests/test_cce_repeatability.py": 0,
+     "tests/test_cce_reply_alignment_withheld.py": 5,
+     "tests/test_cce_retired_chain_removed.py": 5,
+     "tests/test_cce_run_params_recorded.py": 0,
+     "tests/test_cce_second_exclusion_channel.py": 0,
+     "tests/test_cce_submission.py": 5,
+     "tests/test_cce_suspend_factorial.py": 0,
+     "tests/test_cce_usable_routing.py": 5,
+     "tests/test_cce_withholding_and_labels.py": 0,
+     "tests/test_cce_within_js_gate.py": 5
+    },
+    "net_new_reds": [],
+    "n_net_new": 0
+   },
+   "A0_noop_ks": {
+    "target_file": "scripts/cce_k1_status.py",
+    "n_tests": 23,
+    "reds": [
+     "tests/test_cce_chain_conformance.py"
+    ],
+    "rc": {
+     "tests/test_cce_ablation_verdict_schema.py": 0,
+     "tests/test_cce_abstention.py": 5,
+     "tests/test_cce_chain_conformance.py": 2,
+     "tests/test_cce_core_boundary.py": 5,
+     "tests/test_cce_doc_reconcile.py": 5,
+     "tests/test_cce_docs_index.py": 5,
+     "tests/test_cce_gate_protocol_version.py": 0,
+     "tests/test_cce_image_chain_ci.py": 5,
+     "tests/test_cce_k1_k5_instrument.py": 5,
+     "tests/test_cce_k1_readout_forms.py": 5,
+     "tests/test_cce_k1_v2.py": 5,
+     "tests/test_cce_measurement_system.py": 5,
+     "tests/test_cce_media_ingest_production.py": 5,
+     "tests/test_cce_module_boundary.py": 5,
+     "tests/test_cce_playbook_hit.py": 5,
+     "tests/test_cce_playbook_mode.py": 5,
+     "tests/test_cce_registry_gate.py": 5,
+     "tests/test_cce_reply_alignment_withheld.py": 5,
+     "tests/test_cce_retired_chain_removed.py": 5,
+     "tests/test_cce_submission.py": 5,
+     "tests/test_cce_usable_routing.py": 5,
+     "tests/test_cce_withholding_and_labels.py": 0,
+     "tests/test_cce_within_js_gate.py": 5
+    },
+    "net_new_reds": [],
+    "n_net_new": 0
+   },
+   "V072_guard_off": {
+    "target_file": "scripts/cce_k1_status.py",
+    "n_tests": 23,
+    "reds": [
+     "tests/test_cce_chain_conformance.py"
+    ],
+    "rc": {
+     "tests/test_cce_ablation_verdict_schema.py": 0,
+     "tests/test_cce_abstention.py": 5,
+     "tests/test_cce_chain_conformance.py": 2,
+     "tests/test_cce_core_boundary.py": 5,
+     "tests/test_cce_doc_reconcile.py": 5,
+     "tests/test_cce_docs_index.py": 5,
+     "tests/test_cce_gate_protocol_version.py": 0,
+     "tests/test_cce_image_chain_ci.py": 5,
+     "tests/test_cce_k1_k5_instrument.py": 5,
+     "tests/test_cce_k1_readout_forms.py": 5,
+     "tests/test_cce_k1_v2.py": 5,
+     "tests/test_cce_measurement_system.py": 5,
+     "tests/test_cce_media_ingest_production.py": 5,
+     "tests/test_cce_module_boundary.py": 5,
+     "tests/test_cce_playbook_hit.py": 5,
+     "tests/test_cce_playbook_mode.py": 5,
+     "tests/test_cce_registry_gate.py": 5,
+     "tests/test_cce_reply_alignment_withheld.py": 5,
+     "tests/test_cce_retired_chain_removed.py": 5,
+     "tests/test_cce_submission.py": 5,
+     "tests/test_cce_usable_routing.py": 5,
+     "tests/test_cce_withholding_and_labels.py": 0,
+     "tests/test_cce_within_js_gate.py": 5
+    },
+    "net_new_reds": [],
+    "n_net_new": 0
+   },
+   "V072_inj_always_fire": {
+    "target_file": "scripts/cce_k1_status.py",
+    "n_tests": 23,
+    "reds": [
+     "tests/test_cce_chain_conformance.py",
+     "tests/test_cce_k1_k5_instrument.py",
+     "tests/test_cce_k1_readout_forms.py",
+     "tests/test_cce_measurement_system.py",
+     "tests/test_cce_usable_routing.py"
+    ],
+    "rc": {
+     "tests/test_cce_ablation_verdict_schema.py": 0,
+     "tests/test_cce_abstention.py": 5,
+     "tests/test_cce_chain_conformance.py": 2,
+     "tests/test_cce_core_boundary.py": 5,
+     "tests/test_cce_doc_reconcile.py": 5,
+     "tests/test_cce_docs_index.py": 5,
+     "tests/test_cce_gate_protocol_version.py": 0,
+     "tests/test_cce_image_chain_ci.py": 5,
+     "tests/test_cce_k1_k5_instrument.py": 2,
+     "tests/test_cce_k1_readout_forms.py": 2,
+     "tests/test_cce_k1_v2.py": 5,
+     "tests/test_cce_measurement_system.py": 2,
+     "tests/test_cce_media_ingest_production.py": 5,
+     "tests/test_cce_module_boundary.py": 5,
+     "tests/test_cce_playbook_hit.py": 5,
+     "tests/test_cce_playbook_mode.py": 5,
+     "tests/test_cce_registry_gate.py": 5,
+     "tests/test_cce_reply_alignment_withheld.py": 5,
+     "tests/test_cce_retired_chain_removed.py": 5,
+     "tests/test_cce_submission.py": 5,
+     "tests/test_cce_usable_routing.py": 2,
+     "tests/test_cce_withholding_and_labels.py": 0,
+     "tests/test_cce_within_js_gate.py": 5
+    },
+    "net_new_reds": [
+     "tests/test_cce_k1_k5_instrument.py",
+     "tests/test_cce_k1_readout_forms.py",
+     "tests/test_cce_measurement_system.py",
+     "tests/test_cce_usable_routing.py"
+    ],
+    "n_net_new": 4
+   },
+   "A0_noop_rg": {
+    "target_file": "accuracy/run_gates.py",
+    "n_tests": 24,
+    "reds": [
+     "tests/test_cce_chain_conformance.py",
+     "tests/test_cce_criterion_cast.py"
+    ],
+    "rc": {
+     "tests/test_cce_ablation_harness_v3.py": 0,
+     "tests/test_cce_acceptance_gate_failopen.py": 0,
+     "tests/test_cce_accuracy_offline.py": 0,
+     "tests/test_cce_anchors_independent_of_corpus.py": 0,
+     "tests/test_cce_chain_conformance.py": 2,
+     "tests/test_cce_core_boundary.py": 5,
+     "tests/test_cce_criterion_cast.py": 1,
+     "tests/test_cce_doc_reconcile.py": 5,
+     "tests/test_cce_docs_index.py": 5,
+     "tests/test_cce_gate_prompt_version_label.py": 0,
+     "tests/test_cce_gate_protocol_version.py": 0,
+     "tests/test_cce_gk1_margin.py": 0,
+     "tests/test_cce_gk3_not_a_tautology.py": 0,
+     "tests/test_cce_incremental_persistence.py": 0,
+     "tests/test_cce_internal_examples.py": 0,
+     "tests/test_cce_js_metric_definition.py": 0,
+     "tests/test_cce_only_bookmark_conflict.py": 0,
+     "tests/test_cce_prompt_template_args.py": 0,
+     "tests/test_cce_qualification_premise_revised.py": 0,
+     "tests/test_cce_qualification_v2.py": 0,
+     "tests/test_cce_repeatability.py": 0,
+     "tests/test_cce_run_params_recorded.py": 0,
+     "tests/test_cce_second_exclusion_channel.py": 0,
+     "tests/test_cce_suspend_factorial.py": 0
+    },
+    "net_new_reds": [
+     "tests/test_cce_criterion_cast.py"
+    ],
+    "n_net_new": 1
+   },
+   "V128_dict_emptied": {
+    "target_file": "accuracy/run_gates.py",
+    "n_tests": 24,
+    "reds": [
+     "tests/test_cce_chain_conformance.py",
+     "tests/test_cce_criterion_cast.py"
+    ],
+    "rc": {
+     "tests/test_cce_ablation_harness_v3.py": 0,
+     "tests/test_cce_acceptance_gate_failopen.py": 0,
+     "tests/test_cce_accuracy_offline.py": 0,
+     "tests/test_cce_anchors_independent_of_corpus.py": 0,
+     "tests/test_cce_chain_conformance.py": 2,
+     "tests/test_cce_core_boundary.py": 5,
+     "tests/test_cce_criterion_cast.py": 1,
+     "tests/test_cce_doc_reconcile.py": 5,
+     "tests/test_cce_docs_index.py": 5,
+     "tests/test_cce_gate_prompt_version_label.py": 0,
+     "tests/test_cce_gate_protocol_version.py": 0,
+     "tests/test_cce_gk1_margin.py": 0,
+     "tests/test_cce_gk3_not_a_tautology.py": 0,
+     "tests/test_cce_incremental_persistence.py": 0,
+     "tests/test_cce_internal_examples.py": 0,
+     "tests/test_cce_js_metric_definition.py": 0,
+     "tests/test_cce_only_bookmark_conflict.py": 0,
+     "tests/test_cce_prompt_template_args.py": 0,
+     "tests/test_cce_qualification_premise_revised.py": 0,
+     "tests/test_cce_qualification_v2.py": 0,
+     "tests/test_cce_repeatability.py": 0,
+     "tests/test_cce_run_params_recorded.py": 0,
+     "tests/test_cce_second_exclusion_channel.py": 0,
+     "tests/test_cce_suspend_factorial.py": 0
+    },
+    "net_new_reds": [
+     "tests/test_cce_criterion_cast.py"
+    ],
+    "n_net_new": 1
+   },
+   "V128_inj_raises": {
+    "target_file": "accuracy/run_gates.py",
+    "n_tests": 24,
+    "reds": [
+     "tests/test_cce_chain_conformance.py",
+     "tests/test_cce_criterion_cast.py"
+    ],
+    "rc": {
+     "tests/test_cce_ablation_harness_v3.py": 0,
+     "tests/test_cce_acceptance_gate_failopen.py": 0,
+     "tests/test_cce_accuracy_offline.py": 0,
+     "tests/test_cce_anchors_independent_of_corpus.py": 0,
+     "tests/test_cce_chain_conformance.py": 2,
+     "tests/test_cce_core_boundary.py": 5,
+     "tests/test_cce_criterion_cast.py": 1,
+     "tests/test_cce_doc_reconcile.py": 5,
+     "tests/test_cce_docs_index.py": 5,
+     "tests/test_cce_gate_prompt_version_label.py": 0,
+     "tests/test_cce_gate_protocol_version.py": 0,
+     "tests/test_cce_gk1_margin.py": 0,
+     "tests/test_cce_gk3_not_a_tautology.py": 0,
+     "tests/test_cce_incremental_persistence.py": 0,
+     "tests/test_cce_internal_examples.py": 0,
+     "tests/test_cce_js_metric_definition.py": 0,
+     "tests/test_cce_only_bookmark_conflict.py": 0,
+     "tests/test_cce_prompt_template_args.py": 0,
+     "tests/test_cce_qualification_premise_revised.py": 0,
+     "tests/test_cce_qualification_v2.py": 0,
+     "tests/test_cce_repeatability.py": 0,
+     "tests/test_cce_run_params_recorded.py": 0,
+     "tests/test_cce_second_exclusion_channel.py": 0,
+     "tests/test_cce_suspend_factorial.py": 0
+    },
+    "net_new_reds": [
+     "tests/test_cce_criterion_cast.py"
+    ],
+    "n_net_new": 1
+   },
+   "LIQ_gate_version": {
+    "target_file": "accuracy/run_gates.py",
+    "n_tests": 24,
+    "reds": [
+     "tests/test_cce_chain_conformance.py",
+     "tests/test_cce_core_boundary.py",
+     "tests/test_cce_criterion_cast.py",
+     "tests/test_cce_gate_protocol_version.py"
+    ],
+    "rc": {
+     "tests/test_cce_ablation_harness_v3.py": 0,
+     "tests/test_cce_acceptance_gate_failopen.py": 0,
+     "tests/test_cce_accuracy_offline.py": 0,
+     "tests/test_cce_anchors_independent_of_corpus.py": 0,
+     "tests/test_cce_chain_conformance.py": 2,
+     "tests/test_cce_core_boundary.py": 2,
+     "tests/test_cce_criterion_cast.py": 1,
+     "tests/test_cce_doc_reconcile.py": 5,
+     "tests/test_cce_docs_index.py": 5,
+     "tests/test_cce_gate_prompt_version_label.py": 0,
+     "tests/test_cce_gate_protocol_version.py": 1,
+     "tests/test_cce_gk1_margin.py": 0,
+     "tests/test_cce_gk3_not_a_tautology.py": 0,
+     "tests/test_cce_incremental_persistence.py": 0,
+     "tests/test_cce_internal_examples.py": 0,
+     "tests/test_cce_js_metric_definition.py": 0,
+     "tests/test_cce_only_bookmark_conflict.py": 0,
+     "tests/test_cce_prompt_template_args.py": 0,
+     "tests/test_cce_qualification_premise_revised.py": 0,
+     "tests/test_cce_qualification_v2.py": 0,
+     "tests/test_cce_repeatability.py": 0,
+     "tests/test_cce_run_params_recorded.py": 0,
+     "tests/test_cce_second_exclusion_channel.py": 0,
+     "tests/test_cce_suspend_factorial.py": 0
+    },
+    "net_new_reds": [
+     "tests/test_cce_core_boundary.py",
+     "tests/test_cce_criterion_cast.py",
+     "tests/test_cce_gate_protocol_version.py"
+    ],
+    "n_net_new": 3
+   }
+  },
+  "noop_rg_second_run_reds": [
+   "tests/test_cce_chain_conformance.py",
+   "tests/test_cce_criterion_cast.py"
+  ],
+  "M3C_pinned_substring_scan": {
+   "V072_guard_off": {
+    "target": "scripts/cce_k1_status.py",
+    "n_pinned_substrings_present_in_base": 10,
+    "n_flipped_to_False": 0,
+    "flipped": []
+   },
+   "V128_dict_emptied": {
+    "target": "accuracy/run_gates.py",
+    "n_pinned_substrings_present_in_base": 292,
+    "n_flipped_to_False": 3,
+    "flipped": [
+     {
+      "gate_file": "probes/ablation_harness_v3.py",
+      "line": 401,
+      "pinned_substring": "sampling"
+     },
+     {
+      "gate_file": "probes/ablation_harness_v3.py",
+      "line": 402,
+      "pinned_substring": "sampling"
+     },
+     {
+      "gate_file": "probes/knot_taxonomy_ablation.py",
+      "line": 164,
+      "pinned_substring": "sampling"
+     }
+    ]
+   }
+  },
+  "★M3C 扫描的口径": "对每个**从磁盘读被测文件**的脚本, 抽出它全部 ≥6 字的字符串字面量, 取其中是被测文件基线子串的那些(= 保守的「可能被钉住的串」上界), 看消融后是否不再是子串。这是**过估**: V128 报出的 3 个候选全是 'sampling' 一词, 而实跑镜像净新增为 0 ⇒ 没有任何闸真的断言它。"
+ },
+ "verdicts": [
+  {
+   "v3_id": "v3-072",
+   "component": "`if not _same` 跨仪器守卫(layer_status 里比对本次仪器与判定所属仪器)",
+   "locus": "scripts/cce_k1_status.py:162-173",
+   "consumer_side": "P",
+   "consumer_side_note": "它坐在**生产扣发路径**上(cce_full_run.qualified → layer_status)。仓内**没有任何验收闸钉住它这条分支** —— V072_inj_always_fire 翻的 4 条测试是「恒开火把全局打坏」, 不是「有闸在钉这条分支」。",
+   "verdict_before": "UNREACHABLE",
+   "verdict": "UNREACHABLE",
+   "changed": false,
+   "★判决为什么不变": "把观测面按 CE-3 扩到四面之后, **拆掉守卫在生产形式上仍然逐面不变**: 出口闸 top1 放行 59/68 → 59/68(0 行变) · 路由矩阵四档全同 · F2a routed_no_path 九台仪器逐项全同 · F1 全同 · L4 净新增 0。",
+   "L1_changed": "V072_guard_off: F3 出口闸 68 行**逐行相同**(top1 放行 59/68 不变, withheld 2/68 不变); F2a routed_no_path 9 台仪器 × (verdict_path + layer_usable + reason sha) **全同**; F1 全同; F4 路由矩阵四档全同。**唯一变的是 F2b 显式传 path 的合成组合(13 个叶子)**。",
+   "L2_changed": "同上 —— 生产判决面(usable/withheld 归属 · top1 放不放)0/68 变; F2b 合成组合上 8 台仪器的 top1 由 False → **True**(错误放行), 但仓内无调用方构造这种入参。",
+   "L4_measured": "源码文本镜像臂(23 个命中脚本): V072_guard_off 净新增翻红 **0**; 空操作对照 A0_noop_ks 净新增 **0**; 基线红 1 条(test_cce_chain_conformance.py, 本就红)。★ 装置接上的证据: 破坏性臂 V072_inj_always_fire 净新增 **4** 条(test_cce_k1_k5_instrument / test_cce_k1_readout_forms / test_cce_measurement_system / test_cce_usable_routing)。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "**存在 1 条, 已定位, 本轮消融不触碰它 ⇒ 不转 False**: scripts/cce_doc_reconcile.py:50 从磁盘读 scripts/cce_k1_status.py 并断言证据串 `\"intensity\"` 在其中(config/cce_doc_reconciliation.json 铁律 24, 入口测试 tests/test_cce_doc_reconcile.py / tests/test_cce_docs_index.py)。`if not _same:` → `if False:` 不删掉 \"intensity\" ⇒ 实跑镜像里这两条**保持绿**。另核: config/cce_core_manifest.json 的 core_files **不含** scripts/cce_k1_status.py; tests/data/ablation_v3/criterion_cast.json 的 sources_sha256 六个文件里也**不含**它 ⇒ 无整文件 sha 闸。⇒ **内存内 L4 与源码文本 L4 同为 0**(源码文本臂是内存内臂的超集, 超集为 0 则子集必为 0)。",
+   "injection_test": "M6 五条臂, 全部实跑(生产出口闸 top1 放行数, 基线 59/68):\n① V072_inj_always_fire(`if True:` 恒开火) → **0/68**, withheld 61 ⇒ 面确实经过这里\n② V072_inj_guard_raises(守卫处抛异常) → **0/68**, layer_status 直接 RAISED ⇒ 异常不被吞\n③ V072_inj_spi_raises(`same_physical_instrument` 抛异常) → **0/68** (except 分支退回裸 `==`, d4cce4c745f3f991 != 565470cf26c16d01 ⇒ 守卫开火)\n④ ③ + 关守卫 → **59/68 回到基线** ⇒ 在「身份判定出错」这一工况下, **守卫是唯一拦住错误放行的门**\n⑤ V072_reg_prod(把 d4cce4c745f3f991 直接登记进 VERDICT_BY_INSTRUMENT) → 59/68 不变(纯登记无行为变化)",
+   "unreachable_condition": "★ 上一轮列了三条, 本轮实测**再加两条**, 五条都有定向臂:\n① 调用方显式传 path(layer_status/intensity_usable/top1_usable 的 path 形参) —— 实测 F2b 面 8 台仪器 top1 False→True; 仓内**目前没有**调用方构造 path 与 instrument 不配对的入参。\n② VERDICT_BY_INSTRUMENT 误登记(把 A 台的判定挂到 B 台上)。\n③ 继承通道被放宽/自证失效。\n④ ★新: `cce_knot_classify.same_physical_instrument` **抛异常** ⇒ cce_k1_status.py:166-167 的 `except` 退回裸 `==` ⇒ 口径扩大对被判不同 ⇒ 守卫开火。实测: 守卫在 = 扣发 0/68; 守卫关 = **59/68 错误放行**。\n⑤ ★新(CE-3 正面): 生产仪器 d4cce4c745f3f991 被**直接登记**进 VERDICT_BY_INSTRUMENT(绕过继承通道) **且** `_s1_scope_widening_holds()` 自证破裂。这时 verdict_path_for 直接命中注册表、不再核自证, **守卫成为唯一核自证的门**。实测(V072_reg_prod_verify_false vs ..._guard_off): 守卫在 = **0/68**(全扣发); 守卫关 = **59/68 错误放行**。\n★ 对照臂证明这确实是「第二道门」而非「唯一的门」: V072_verify_false(自证破裂但**不**直接登记) —— 守卫开/关都 **0/68**, 因为 verdict_path_for 已经在第一道门把它挡住了(返回 None)。",
+   "deletable": false,
+   "deletable_reason": "★ deletable 是独立字段, 不由 verdict 推导。判 UNREACHABLE 但**不可删**: 五条复活条件里有**三条**(①④⑤)已用定向臂实证「关掉它 = 错误放行」, 其中 ④⑤ 是本轮新测, 代价是 **59/68 行生产 top1 被错误放行**。它是继承通道之后的第二道门, 删 = 把「自证破裂」与「身份判定出错」两种失败模式从扣发方向变成放行方向。",
+   "faces_observed": [
+    "F1::same_physical_instrument(15 组) / calibration_transfers(k=3,5) / SCOPE_WIDENINGS.verify / live instrument_id",
+    "F2a::verdict_path_for + layer_status + knot_readout_usable(生产调用形式, 不传 path), 9 台仪器 × 7 形式",
+    "F2b::layer_status 显式传 path 的合成组合(标注为合成, 仓内无调用方)",
+    "F2c::weight_usable / playbook_hit_usable / playbook_mode_usable 三个层闸",
+    "F3::cce_full_run.qualified() 出口闸 usable/withheld, 68 行存量 manifest",
+    "F4::profile 路由矩阵 4 档",
+    "L4::源码文本镜像, 23 个命中脚本(含读磁盘源码的 doc_reconcile 闸)"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判读 —— 全程零调用, 所有读数来自存量 manifest 与确定性桩",
+    "blind::k∉{3,5} 的工况(OP_exit68 里 k 只有 3/5; k≥6 时 s1 温度表第 6/7 档才复活, 与本行无关但工况不覆盖)",
+    "blind::market≠intl —— CCE_MARKET 未设走默认 intl; 本 locus 零 market 引用, 但**未实测**其它 market",
+    "blind::并发/多仪器共存的线上工况(单进程串行重放)",
+    "blind::docs/ · skills/ · run/ · archive/ 目录里的引用(M4 扫描面不含它们)",
+    "blind::.github/ workflow 的真实 CI 行为(只做文本扫描, 未实跑 workflow)",
+    "blind::子进程之外的网络出口 · 不走 socket 的传输 · C 扩展自带网络栈",
+    "blind::run_gates 的真实四员/五员运行(需要真实模型调用)",
+    "blind::把守卫**整段删除**(而非置 False)后的语法/静态检查后果 —— 本轮只做行为置换"
+   ],
+   "evidence": "arm_table(本产物 raw.arm_table)逐臂可核。关键三行: base 59/68 · V072_guard_off 59/68(逐行相同) · V072_reg_prod_verify_false 0/68 而 ..._guard_off 59/68。出口闸语料 sha256=b824a9ad179d0526…(68 行, 选择规则已公布)。阳性对照 11/11 通过, 死常量臂判 UNREACHABLE, 液性臂(LIQ_tmpl_absurd)把这四个面全部翻动 ⇒ 装置接上。仓内被测文件 sha256 进出一致, 绊线 tripped=[]。",
+   "ref_count_coarse": 13,
+   "ref_count_strict": 2
+  },
+  {
+   "v3_id": "v3-128",
+   "component": "GATE_PROTOCOL 文档 dict(★covers / ★does_not_cover / ★★why_separate)",
+   "locus": "accuracy/run_gates.py:171-176",
+   "consumer_side": "G",
+   "verdict_before": "NO_CONSUMER",
+   "verdict": "NO_CONSUMER",
+   "changed": false,
+   "★判决为什么不变": "观测面从「本簇闸面板」扩到 CE-3 的四面之后, 三条消融/注入臂在**每一面**都零差异; 而同一面的液性臂(GATE_PROTOCOL_VERSION 2→99)把 stamp_params payload 与 cce_core_boundary.check() 都翻了 ⇒ 不是「面没接上」, 是**真的没人读它**。",
+   "L1_changed": "false —— V128_dict_emptied / V128_inj_absurd / V128_inj_raises 三臂: F1 全同 · F2 全同 · F3 出口闸 68 行逐行相同 · F4 路由矩阵全同 · 闸面板里 gate_protocol_hash(dbdff13f9da155bc) · stamp_params payload sha(0d2e1a5d33b218c9) · MODELS · RUN_PARAMS sha **全部不变**。",
+   "L2_changed": "false —— cce_core_boundary.check() 三臂都是 ok=True / 0 errors(与基线同 errors_sha)。",
+   "★唯一翻动的那一项已按重言剔除": "我一度把 `_sha(rg.GATE_PROTOCOL)` 放进闸面板, 三臂唯一翻的就是它。那是**直接读被消融对象本身**, 与 L3 同类重言, 零证据力, 不计入判据。",
+   "L4_measured": "源码文本镜像臂(24 个命中脚本): V128_dict_emptied 原始净新增 1 条 (tests/test_cce_criterion_cast.py), 但**空操作对照 A0_noop_rg 翻的是同一条**, 再跑一次 noop 仍是同一条 ⇒ 归因于消融的净新增 = **0**。V128_inj_raises 同样 = **0**。★ 装置接上的证据: 液性臂 LIQ_gate_version 净新增 **2** 条(tests/test_cce_core_boundary.py + tests/test_cce_gate_protocol_version.py, criterion_cast 已按对照减掉)。",
+   "L4_source_text_gates_invisible_to_memory_ablation": "**存在 1 条, 已定位, 且它对本消融零判别力**: tests/test_cce_criterion_cast.py:187 `assert saved[\"sources_sha256\"] == fresh[\"sources_sha256\"]` —— 钉 accuracy/run_gates.py 的**整文件 sha256**(b758e6676a94acf3…)。内存内消融它**结构上看不见**; 但它对**任何**字节改动都翻红, 包括只加 `# noop` 注释(已实跑复现: pristine 镜像 3/3 绿, 加一句注释即红) ⇒ 它区分不出「删掉一个无人读的文档 dict」与「什么都没改」, 因此**不能**据它宣称 L4 有后果。★ 上一轮 `验收闸自身.json` 的 scope_files(19 个)不含这个脚本 ⇒ 上一轮结构上看不见它, 本轮把扫描面按「谁从磁盘读 run_gates.py」重算后才出现。另核: 其余 8 个读 run_gates.py 源码文本的测试(acceptance_gate_failopen / accuracy_offline / anchors_independent / gk3_not_a_tautology / gk1_margin / incremental_persistence / qualification_v2 / second_exclusion_channel)所钉的子串**没有一个**落在 171-176 行; 保守过估扫描只报出 'sampling' 一词(该词在 run_gates.py 里只出现在 ★does_not_cover 那一行), 而实跑净新增为 0 ⇒ 无人断言它。config/cce_core_manifest.json 的 core_files 也**不含** accuracy/run_gates.py。",
+   "injection_test": "M6 三条臂, 全部实跑: ① 清空(`GATE_PROTOCOL = {}`) ② 荒谬值(三个键的值全换 XXDEADXX) ③ **抛异常哨兵**(把 dict 换成一个 __getitem__/__iter__/get/keys/__repr__ 全部 raise 的对象) —— 三臂在 F1/F2/F3/F4(去掉自观测项后)**逐面零差异**, 且 ③ 的哨兵在整轮运行里**除了我自己那一行自观测之外一次都没被触发** ⇒ 进程内没有任何路径读它。★ 另有一条静态铁证: `accuracy/run_gates.py` 内 word-boundary `GATE_PROTOCOL` 只出现 **1 次**(就是赋值行本身) ⇒ 连没跑的 main() 也不可能读它。",
+   "unreachable_condition": null,
+   "★为什么是 NO_CONSUMER 而不是 UNREACHABLE(M8)": "M8 要求区分「真死」与「本工况未触发」。这里可以判真死, 因为证据不依赖工况: 同一文件内零读取(词边界计数 1 = 自己的赋值), 全仓去掉消融台账后 coarse=1/strict=0, 抛异常哨兵零触发。**不存在一个把它唤醒的 k / market / profile** —— 没有任何代码路径提到这个名字。",
+   "deletable": false,
+   "deletable_reason": "★ 「没有消费者」≠「该删」。它是仓内唯一把**闸的覆盖面/不覆盖面**写成**数据**的地方(★does_not_cover: 「生产 s1/s2 prompt、模型与端点不归它管」)。★ 本轮补了上一轮没给的那条实证: `stamp_params()` 落盘的 run_params.json payload 里**没有**这三个键(三臂 payload sha 逐一不变) ⇒ 「该做的是接线」这句话不是猜测, 是**接线确实还没做**的实测结论。与 v2 里 audio.capabilities / prosody 同形。",
+   "faces_observed": [
+    "F1::same_physical_instrument / calibration_transfers / SCOPE_WIDENINGS.verify / live instrument_id",
+    "F2::verdict_path_for + layer_status + knot_readout_usable(9 台仪器 × 7 形式) + 三个层闸",
+    "F3::cce_full_run.qualified() 出口闸 usable/withheld, 68 行",
+    "F4::闸面板 —— GATE_PROTOCOL_VERSION · gate_protocol_hash() · stamp_params 落盘 payload · MODELS · RUN_PARAMS · cce_core_boundary.check(); 外加 profile 路由矩阵 4 档",
+    "L4::源码文本镜像, 24 个命中脚本(含 9 个从磁盘读 run_gates.py 源码的闸)"
+   ],
+   "faces_blind": [
+    "blind::run_gates.main() 的完整落盘路径 —— 需要真实模型调用, 零 API 下跑不了。★ 但静态上已封死: 文件内 word-boundary 引用只有赋值那 1 次。",
+    "blind::accuracy/out/gates_result.json 的**人类读者**(文档/裁定用途) —— 消融装置看不见「人读没读」",
+    "blind::真实四员/五员标注运行的判读结果",
+    "blind::docs/ · skills/ · run/ · archive/ 目录里的引用(M4 扫描面不含它们)",
+    "blind::.github/ workflow 的真实 CI 行为(只做文本扫描)",
+    "blind::market≠intl / k∉{3,5} 的工况",
+    "blind::子进程之外的网络出口 · 不走 socket 的传输 · C 扩展自带网络栈"
+   ],
+   "evidence": "三条注入臂逐面零差异(raw.gate_panel_diffs_v128: 三臂唯一差异项 GATE_PROTOCOL_repr_sha 已按重言剔除); 液性臂 LIQ_gate_version 让 stamp_params payload sha 0d2e1a5d33b218c9→ab5173f0fccdcf2a 且 core_boundary ok True→False ⇒ 面接上了; L4 源码文本净新增(减空操作对照后)=0, 液性臂=2; 词边界引用 accuracy/run_gates.py 内 =1(自赋值)。绊线 tripped=[], 冻结件 sha 进出一致。",
+   "ref_count_coarse": 12,
+   "ref_count_strict": 1
+  }
+ ],
+ "limits": [
+  "本单元只重测 v3-072 与 v3-128 两行, **未**重测本簇其它判决, 也未合并到 ablation_verdicts_v3.json(按 R5 只写自己的产物)。",
+  "所有结论限于「存量语料重放 + 内存内/镜像内源码变异」工况; 不能证明真实模型的语义判断准确率或线上行为。",
+  "★ 出口闸行数 68 与上一轮报的 72、独立复核报的 75 都对不上。本轮公布了行选择规则与语料 sha, 但**没有**去复原上一轮那 72/75 是怎么来的 ⇒ 跨轮的 n/72 与 n/68 不可直接相比。",
+  "F2b(显式传 path)是**合成入参组合**, 仓内没有调用方构造它; 把它读成「生产上会发生的事」是过度外推。",
+  "L4 只跑了命中脚本(KS 23 / RG 24, 全仓 161), 未命中脚本既不 import 也不读这两个文件的文本 —— 这是静态判定, 若有动态 getattr/字符串拼名的消费者, 本扫描看不见。",
+  "tests/test_cce_chain_conformance.py 在基线本就红, 被当作噪声减掉; 未去查它为什么红。",
+  "绊线只覆盖本进程与镜像子进程的 socket.connect; 不覆盖 C 扩展自带网络栈与非 socket 传输。",
+  "★ 本轮未动仓内任何文件, 因此 D2(probes/ablation_harness_v3.py:441 的 instrument_id 漏参)与 D5(criterion_cast 的整文件 sha 闸)只是**报出来**, 没有修。"
+ ]
+}

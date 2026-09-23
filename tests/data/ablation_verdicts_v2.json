@@ -30,7 +30,7 @@
   "corpus_sha": {
    "tests/data/phase2/panel_checkpoint.jsonl": "d4907b3a1782a6be",
    "tests/data/phase2/stimuli_frozen.json": "42fb6f763604f0b4",
-   "config/knot_taxonomy.json": "128c028c24cd245a"
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c"
   },
   "★corpus_caveat": "存量语料是**合成的、单语种(0 条中文)、单主题(助听器)**, 由 GLM-5.2/Qwen-3.8 生成。⇒ 中文出站、agent_memory profile、v5 媒体批次、[[mech:]] 标记的覆盖率**都是 0**。",
   "★pollution_incident": "2026-09-06 第二轮审计期间, 并行 agent 把 run/guard_profile 从 daerdo 改成字面量 \"g\", 并把 tests/data/phase2/panel_analysis.json 改了 +948/−316 行 —— **那正是三条 ksep 判决的下游消费语料**。已 git checkout 还原; 受影响的三条判决(separation 枚举 / p 数值 / alpha)标为 needs_rerun。",
@@ -43,6 +43,56 @@
     "what_changed": "只改了 status / gate_record / 新增一条 changelog —— **三者都是自述字段**",
     "★why_verdicts_survive": "★ 这条闸**判得对**: 语料指纹变了就该红, 否则判决会挂在一份已经变了的语料上。本次之所以不作废 30 条判决, 是因为**改动落在已被实测为无消费者的字段上** —— 2026-09-07 的 knot_taxonomy 首次消融(tests/data/knot_taxonomy_ablation.json)显示: `status` 在 8 个 base 上 L1=0/8 · L2=0/8(判 INCONCLUSIVE, 粗计 165 处引用是**词碰撞**, 严计 5); `gate_record` 在 consistency_check 的 DESCRIPTIVE 豁免里、从不被核对; 新增的 changelog 键已登记为纯文档(实测 L1/L2 皆 0/8)。⇒ **有实测支撑, 不是「我觉得没影响」**。",
     "★what_would_have_invalidated_them": "若改的是 knots[].key/name/family/behavior/playbook/signature/typical_codes 或顶层 version/levers_not_knots —— 那 9 条实测为 LOAD_BEARING_L2, 改它们**必须**作废相关判决并重跑。"
+   }
+  ],
+  "★restamp_log": [
+   {
+    "date": "2026-09-07",
+    "changed": {
+     "config/knot_taxonomy.json": {
+      "from": "128c028c24cd245a",
+      "to": "3bc78d4762a00127"
+     }
+    },
+    "★what_changed_in_the_file": "只有**描述性文本**: `status` 正文(撤销 G-K3 原判并写明重定义)、新增顶层键 `changelog_2026_09_07_gk3_revoked`。**没有**改动任何进 prompt 的字段(signature / key / name / family / typical_codes 全未动)。",
+    "★why_the_old_verdicts_survive": "证据不是「我认为没影响」, 而是: ① `cce_core_boundary` 会**现算** instrument_hash 与清单比对, 本次它只报 pin 漂移, **没有报 instrument_expected 不符** ⇒ 仪器哈希未变; ② 消融已在改动后的文件上**重跑过一遍**(probes/knot_taxonomy_ablation.py, 零 API 存量重放), 阳性/阴性对照**双向通过**。",
+    "★what_this_restamp_does_NOT_claim": "★ 不主张「语料变了但结论照旧」是一条通则。下次若改动触及进 prompt 的字段, **必须重跑**, 不得援引本条。"
+   },
+   {
+    "date": "2026-09-07",
+    "changed": {
+     "config/knot_taxonomy.json": {
+      "from": "3bc78d4762a00127",
+      "to": "99e777fffd7e061b"
+     }
+    },
+    "★what_changed_in_the_file": "只有描述性文本(status/gate_record 的 M2.7 更正 + 一个新 changelog 键)。进 prompt 的字段全未动。",
+    "★why_the_old_verdicts_survive": "① cce_core_boundary 现算 instrument_hash 与清单比对, 只报 pin 漂移未报 instrument_expected 不符 ⇒ 仪器未变; ② 消融已在改动后的文件上重跑过(probes/knot_taxonomy_ablation.py, 零 API), 阳性/阴性对照双向通过。",
+    "★what_this_restamp_does_NOT_claim": "★ 下次若改动触及进 prompt 的字段, **必须重跑**, 不得援引本条。"
+   },
+   {
+    "date": "2026-09-07",
+    "changed": {
+     "config/knot_taxonomy.json": {
+      "from": "99e777fffd7e061b",
+      "to": "2b015316a4a4f3b4"
+     }
+    },
+    "★what_changed_in_the_file": "只有描述性文本(status 更正 + 一个新 changelog 键)。进 prompt 的字段全未动。",
+    "★why_the_old_verdicts_survive": "① cce_core_boundary 现算 instrument_hash 未报不符 ② 消融已在改动后的文件上重跑, 对照双向通过。",
+    "★what_this_restamp_does_NOT_claim": "★ 下次若改动触及进 prompt 的字段, **必须重跑**, 不得援引本条。"
+   },
+   {
+    "date": "2026-09-08",
+    "changed": {
+     "config/knot_taxonomy.json": {
+      "from": "2b015316a4a4f3b4",
+      "to": "2320eb3a8b5f3597"
+     }
+    },
+    "★what_changed_in_the_file": "只有描述性文本(status 修订 + 一个修订说明键)。进 prompt 的字段全未动。",
+    "★why_the_old_verdicts_survive": "cce_core_boundary 现算 instrument_hash 未报不符 ⇒ 仪器未变。",
+    "★what_this_restamp_does_NOT_claim": "★ 下次若改动触及进 prompt 的字段, **必须重跑**。"
    }
   ]
  },
@@ -526,5 +576,13 @@
  },
  "★deletable_count": 3,
  "★needs_rerun_count": 3,
- "★operating_point_adjudication_added": "★ 2026-09-06: 7 条 UNREACHABLE 全部在**各自工况**上跑过, 7 条已回写裁定。三条(adlaw_cn / 三张品类表 / p_floor 守卫)在它们的工况上判 **LOAD_BEARING_L2** ——**它们不是装饰, 是保险丝**。第四条(weight 那三个)确认根因就是扣发名单本身。★ 但**生产工况没变** ⇒ 它们在生产上**仍然不可达**, 判决表里的 UNREACHABLE **不改**。变的是: 现在有证据说「换到那个工况它会活」, 而不是只有「在这个工况看不出来」。"
+ "★operating_point_adjudication_added": "★ 2026-09-06: 7 条 UNREACHABLE 全部在**各自工况**上跑过, 7 条已回写裁定。三条(adlaw_cn / 三张品类表 / p_floor 守卫)在它们的工况上判 **LOAD_BEARING_L2** ——**它们不是装饰, 是保险丝**。第四条(weight 那三个)确认根因就是扣发名单本身。★ 但**生产工况没变** ⇒ 它们在生产上**仍然不可达**, 判决表里的 UNREACHABLE **不改**。变的是: 现在有证据说「换到那个工况它会活」, 而不是只有「在这个工况看不出来」。",
+ "★★★operating_point_adjudication_2026-09-09": {
+  "★漂移": "config/knot_taxonomy.json 2320eb3a8b5f3597 → 56a1c1977bf8d18c(GATE_PROTOCOL_CHANGE v1→v2)",
+  "★★闸判得对": "语料指纹变了就该红。**不许**只把 sha 改掉 —— 那等于宣称 30 条判决仍成立而不给理由。",
+  "★改动的精确范围": "**一个字段的字符串值**: knots[suspend].negative_examples_prompt。未增删任何字段, 未改任何消费关系。",
+  "★★逐条核对结果": "30 条判决里**提到 negative_examples 的 0 条、提到 suspend 的 0 条** —— 它们判的是「哪些代码/字段有没有消费者」, 而本次改动**不改变任何消费关系**。⇒ **30 条判决全部维持**, 但理由是**逐条核对过**, 不是「我觉得没影响」。",
+  "★★★但本次核对顺带查出一个真缺陷": "2026-09-07 的分类学消融把 `negative_examples_prompt` 判成 prompt_changed=false / INCONCLUSIVE ——**那是只测了生产 `_stage2_template`**。今天实测它**改变验收闸的 prompt 且改变读数**。⇒ 该条判决已更正为「生产上 INCONCLUSIVE, **验收闸上 LOAD_BEARING**」, 消融探针已加 `★gate_prompt_changed`。详见 tests/data/knot_taxonomy_ablation.json。",
+  "★仍未做": "**accuracy/ 目录本身的消融**(零 API 纪律把它结构性排除) —— 开放清单里那条仍成立。"
+ }
 }

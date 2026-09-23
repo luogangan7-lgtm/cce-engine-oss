@@ -1,0 +1,12 @@
+{
+ "block": "DESCRIPTIVE_EXEMPTION_VS_REACH_LEDGER",
+ "★zero_api": "consistency_check 的 DESCRIPTIVE / TOPLEVEL_DOC_ONLY 名单 × 字段到达台账, 现算求交。",
+ "★★the_finding": {
+  "knots[].name": "被列为 DESCRIPTIVE, 台账判 **BOTH** —— 闸与生产 prompt **都注入它**。",
+  "knots[].typical_codes": "被列为 DESCRIPTIVE, 台账判 **PROD_ONLY** —— 生产 s2 prompt 注入它, 且它进 `s2_prompt_sha256` ⇒ 改它**会换 instrument_hash**。"
+ },
+ "★★★why_this_matters_and_why_it_is_not_a_false_alarm": "★ 先说它**不是**什么: DESCRIPTIVE 的作用是把字段从「必须有代码消费者」这条检查里排除。这两个字段**确实有**消费者(prompt 构造器) ⇒ 排除它们**当前不会造成误红**。★★ 真正的风险在反方向: **若有人把 typical_codes 从生产 prompt 里拿掉**, 它就变成死字段, 而一致性闸**永远不会发现** —— 因为它被登记成「描述性的, 不用查」。⇒ 一个**驱动仪器**的字段被贴上「描述性」标签, 等于给它开了一条无人看守的退化通道。",
+ "★★this_is_the_fourth_time": "本仓已记录的同族: ① `annotation_protocol.gate_record` 与 `status` 互相矛盾并存数月 ② `TOPLEVEL_DOC_ONLY` 登记表被消融的引用计数当成消费者, 14 个死字段虚增成 INCONCLUSIVE ③ `internal_examples` 在豁免名单里, 于是七个例子里六个不在语料中无人发现。★ **本条是第四次。** 每一次的形状都一样: **名单里的东西没人再看它一眼。**",
+ "★what_i_am_not_doing": "★ **不改 DESCRIPTIVE 名单**。把这两个字段挪出去会让一致性闸要求它们「有代码消费者」——它们有, 但那个消费者是 prompt 构造器, 不是规则消费者; 挪出去会得到一条**语义不对的绿**。⇒ 正确做法是**加一条交叉闸**, 而不是动名单。",
+ "★gate": "tests/test_cce_descriptive_exemption_vs_reach.py —— 钉住交集恰为这两个, 新增任何一个都判红。"
+}

@@ -1,0 +1,221 @@
+{
+ "block": "SUSPEND_FACTORIAL_RESULT",
+ "★prereg": "suspend_factorial_prereg.json",
+ "n_readings": 204,
+ "n_parsed": 199,
+ "★synthetic_diagnostic": "★★ 合成题。**不并入自然语料 n**, **不继承分辨力结论**; 且造于看过 81 条结果**之后** ⇒ development, **非 confirmatory**。",
+ "MiniMax五员": {
+  "cells": {
+   "P_Q": {
+    "suspend": "27/30",
+    "rate": 0.9,
+    "wilson95": [
+     0.7438,
+     0.9654
+    ]
+   },
+   "P_noQ": {
+    "suspend": "30/30",
+    "rate": 1.0,
+    "wilson95": [
+     0.8865,
+     1.0
+    ]
+   },
+   "noP_Q": {
+    "suspend": "17/30",
+    "rate": 0.567,
+    "wilson95": [
+     0.392,
+     0.7262
+    ]
+   },
+   "noP_noQ": {
+    "suspend": "0/30",
+    "rate": 0.0,
+    "wilson95": [
+     0.0,
+     0.1135
+    ]
+   }
+  },
+  "F1_悬置是必要的": {
+   "有悬置": "57/60 = 95.0%",
+   "无悬置": "17/60 = 28.3%",
+   "fisher_p": 0.0,
+   "verdict": "PASS"
+  },
+  "F2_问句不该改变判定": {
+   "P_Q - P_noQ": -0.1,
+   "verdict": "PASS"
+  },
+  "F3_负例不许触发": {
+   "per_group": {
+    "仅收藏_无悬置表达": {
+     "suspend": "1/10",
+     "rate": 0.1,
+     "wilson95": [
+      0.0179,
+      0.4042
+     ]
+    },
+    "历史悬置_现已决定": {
+     "suspend": "1/10",
+     "rate": 0.1,
+     "wilson95": [
+      0.0179,
+      0.4042
+     ]
+    },
+    "已决定_延后执行": {
+     "suspend": "8/10",
+     "rate": 0.8,
+     "wilson95": [
+      0.4902,
+      0.9433
+     ]
+    },
+    "明确放弃": {
+     "suspend": "0/10",
+     "rate": 0.0,
+     "wilson95": [
+      0.0,
+      0.2775
+     ]
+    },
+    "纯向往_无决策语境": {
+     "suspend": "0/10",
+     "rate": 0.0,
+     "wilson95": [
+      0.0,
+      0.2775
+     ]
+    }
+   },
+   "verdict": "★★FAIL: ['已决定_延后执行']"
+  }
+ },
+ "GLM跨家族": {
+  "cells": {
+   "P_Q": {
+    "suspend": "6/6",
+    "rate": 1.0,
+    "wilson95": [
+     0.6097,
+     1.0
+    ]
+   },
+   "P_noQ": {
+    "suspend": "5/5",
+    "rate": 1.0,
+    "wilson95": [
+     0.5655,
+     1.0
+    ]
+   },
+   "noP_Q": {
+    "suspend": "1/5",
+    "rate": 0.2,
+    "wilson95": [
+     0.0362,
+     0.6245
+    ]
+   },
+   "noP_noQ": {
+    "suspend": "0/5",
+    "rate": 0.0,
+    "wilson95": [
+     0.0,
+     0.4345
+    ]
+   }
+  },
+  "F1_悬置是必要的": {
+   "有悬置": "11/11 = 100.0%",
+   "无悬置": "1/10 = 10.0%",
+   "fisher_p": 3e-05,
+   "verdict": "PASS"
+  },
+  "F2_问句不该改变判定": {
+   "P_Q - P_noQ": 0.0,
+   "verdict": "PASS"
+  },
+  "F3_负例不许触发": {
+   "per_group": {
+    "仅收藏_无悬置表达": {
+     "suspend": "0/2",
+     "rate": 0.0,
+     "wilson95": [
+      0.0,
+      0.6576
+     ]
+    },
+    "历史悬置_现已决定": {
+     "suspend": "2/2",
+     "rate": 1.0,
+     "wilson95": [
+      0.3424,
+      1.0
+     ]
+    },
+    "已决定_延后执行": {
+     "suspend": "0/1",
+     "rate": 0.0,
+     "wilson95": [
+      0.0,
+      0.7935
+     ]
+    },
+    "明确放弃": {
+     "suspend": "0/1",
+     "rate": 0.0,
+     "wilson95": [
+      0.0,
+      0.7935
+     ]
+    },
+    "纯向往_无决策语境": {
+     "suspend": "0/2",
+     "rate": 0.0,
+     "wilson95": [
+      0.0,
+      0.6576
+     ]
+    }
+   },
+   "verdict": "★★FAIL: ['历史悬置_现已决定']"
+  }
+ },
+ "F4_跨家族同向": {
+  "MiniMax": "PASS",
+  "GLM": "PASS",
+  "verdict": "PASS"
+ },
+ "★no_disposition": "★★ 本轮**不改判别式、不合并、不删类**。结果只填四分法的第一格。",
+ "★★★diagnosis": {
+  "★which_of_the_four_cells": "★★★ 四分法里 **第一格「必要条件执行失败」被排除**, 而失败落在一个**更具体的位置**。\n· **F1 通过(两个家族)**: 有悬置 95.0%/100% vs 无悬置 28.3%/10%, Fisher p≈0 / 3e-05 ⇒ **悬置命题确实是被当作必要条件在用的**, **不是**「靠质询/收藏猜出来」那种代理线索越权。\n· **F2 通过(两个家族)**: 问句 vs 陈述句之差 **−0.1 / 0.0** ⇒ **句式几乎不影响判定**。\n· **F3 失败**: 「决定已作出」方向。",
+  "★★★the_exact_defect": {
+   "★hard_discriminant 原文": "决策被**明确悬置**: 表达『还没定/再看看/**等XX再说**』, 附带犹豫理由。",
+   "★★the_ambiguity_is_built_in": "★★★ **「等XX再说」这个措辞本身包含两种不同的事**:\n  · 「还没决定, 等实测再说」= **决策悬置** ✓ 应判 suspend\n  · 「已经决定买 A, 等打折下单」= **决策已作出, 执行延后** ✗ 不该判 —— **但它也是「等XX再说」**\n⇒ **判别式把「决策未作出」与「执行延后」压进了同一个表述。**",
+   "★the_evidence": "`N_已决定_延后执行_0`(\"Already decided on the Phonak, just waiting for the Black Friday price to order.\") ⇒ **MiniMax 五员全票判 suspend, 权重 0.9~1.0**。★★ **不是模型不确定, 是高度确信地判错。**",
+   "★glm_fails_differently": "★ GLM 在这一格 **0/1**(通过), 却在「**历史悬置_现已决定**」上 **2/2 = 100%** 判 suspend(\"I was undecided for months, but I've now decided to go with the Phonak.\")。\n⇒ **两个家族都没能处理「决定已作出」, 但失败模式不同**: MiniMax 被**执行延后**骗, GLM 被**历史悬置短语**骗。★★ 两者恰好是 GPT 点名要加的那两个反例 —— **两个都命中了**。"
+  },
+  "★★what_this_changes": "★★★ suspend 的问题**比「构念坏了」小得多, 也具体得多**: 它**不是**无法测量, 而是**判别式的一个措辞歧义**让「决策已作出」的文本被吸进来。\n★ 这也**直接解释了自然评论上那 5 条为什么不稳**: 自然评论里「等XX」的表达很常见, 其中一部分是**执行延后**而非决策悬置 ⇒ 模型把它们都吸进 suspend, 而不同标注者对「这条到底属于哪种」的切分不同 ⇒ 内部散。",
+  "★★★a_prediction_of_mine_was_refuted": "★★★ 我提出过: 「那次改稿(v1 满篇问句读 suspend 0.7、v3 改陈述句读 display 0.92)**可能根本不是姿态变了, 是句式变了**」。\n**F2 证伪了它**: 问句/陈述句之差只有 **−0.1(MiniMax) / 0.0(GLM)**。⇒ 那次改稿的效果**来自悬置语义(和/或素材供给)**, **不是句式**。★ 这条预测是我写在预注册里的, 被自己的实验推翻。",
+  "★parse_rate": "199/204(GLM 5 条失败, 与此前 timeout/err 同型; MiniMax 0 失败)",
+  "★★still_no_disposition": "★★ **本轮仍不改判别式、不合并、不删类。** 修法(把「执行延后」与「历史悬置」写成显式排除)是**看到结果之后**才想到的 ⇒ 必须写进下一轮预注册, 由**未参与本轮**的题目确认。★ 本结果是 **SYNTHETIC_DIAGNOSTIC**, 不并入自然语料 n, 不作确认性证据。",
+  "★★★CORRECTION_2026-09-08_i_blamed_the_wrong_field": {
+   "★what_i_wrote": "「缺陷在 hard_discriminant 里『**等XX再说**』这处措辞歧义」。",
+   "★★why_it_is_wrong": "★★★ **`hard_discriminant` 不进 prompt。** `KNOT_BRIEF` 只注入 `key` / `name` / `signature` / `behavior[:70]`。\n⇒ **「等XX再说」那句话模型根本看不到** —— 它不可能是失败的原因。\n★★ 而这条我**昨天自己查过并写进了 G-K3 台账**(「KNOT_BRIEF 不注入 hard_discriminant, 由 test_cce_gk3_not_a_tautology 的断言钉住」), **写修法时却忘了**。⇒ 我差点去改一个**惰性字段**, 那会一个字都不改变模型行为。",
+   "★★★what_the_model_actually_sees": {
+    "decision_tree 第4步": "「明确悬置决策(**还没定/再看看**+犹豫理由)? -> suspend」 ← **没有「等XX再说」**",
+    "signature": "`time=\"未来(决策悬置)\"` · `coping=\"不确定\"` · `congruence=\"促进与威胁并存\"`",
+    "behavior[:70]": "「质询通道·中成本:连环规格质询/征证言/比价/**收藏不买**/明确不动」",
+    "negative_examples_prompt": "「suspend 不用于: 无决策语境的纯畅想(那是itch); 已明确放弃(那是inertia)」"
+   },
+   "★★★the_real_defect": "★★★ 对 \"Already decided on the Phonak, **just waiting for the Black Friday price** to order.\":\n  · 决策树问「还没定/**再看看**?」—— 「waiting for Black Friday」可被读成「再看看」\n  · signature 的 **`time=\"未来(决策悬置)\"`** 与「等打折」的未来指向**匹配**\n  · **negative_examples 里没有「已决定但延后执行」这一条** ← **真正的缺口**\n⇒ 缺陷是 **negative_examples 缺一条排除** + **signature 的 time 维度会吸引未来指向的文本**, **不是** hard_discriminant 的措辞。",
+   "★the_fix_moves_accordingly": "★ 修法必须落在**进 prompt 的地方**: `suspend.negative_examples_prompt`(已验证进 prompt)。改 `hard_discriminant` 只是文档更新, **对行为无效**。",
+   "★★the_general_lesson": "★★★ **修一个字段之前, 先确认它进不进 prompt。** 本仓已有两条同族记录: ①G-K3 台账里「hard_discriminant 从未进过标注 prompt」②消融实测「只改 status/changelog 不改变任何读数」。⇒ **「改了定义」不等于「改了仪器」** —— 这条今天第三次出现。"
+  }
+ }
+}

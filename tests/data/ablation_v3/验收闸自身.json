@@ -1,0 +1,1745 @@
+{
+ "block": "CCE_ABLATION_V3_CLUSTER_验收闸自身",
+ "cluster": "验收闸自身 · accuracy/run_gates.py",
+ "decided_at": "2026-09-11T16:48:25",
+ "★★★一句话": "**这道闸自己的两个数(top2≥0.80 / mean_JS≤0.25)是它唯一的判决开关, 而仓内没有任何测试读过 run_gates 里那两个数** —— 把它们整条拿掉(`pass: True`)、收到 0.24、收到 0.96, L4 净新增翻红**一律 0**。四份独立抄本(gate_v2_acceptance / gk1_margin / fieldset_arm_b / cross_family_reference)各自硬编了 0.25, 但它们比的是**存档产物**, 不是活着的常量。",
+ "★★方法与判据映射": "本轮判决词到判据面的映射(写在明处, 免得读者自己猜):\n· LOAD_BEARING_L2 = 在**某个判决面**上改变了判决。判决面有两类, 逐条注明是哪一类:\n   (a) 闸内判决面: gk1.pass / gk2.pass / overall_pass / ★pass_components /\n       annotator_qualification.status 与三态 / admit 面板 / core_panel / rc(扣发码)\n   (b) CI 判决面(L4): 测试套件**净新增**翻红(= 消融臂红集 − 空操作臂红集)\n· LOAD_BEARING_L1_ONLY = 只有数值读数改变, 上述两类判决面都没变\n· UNREACHABLE = 本工况下 L1/L2 逐面不变, 且**已实证**在什么条件下它会活\n· NO_CONSUMER = 扫描面内只有自身定义, 且注入荒谬值后 L1/L2/L4 仍逐面不变\n· CIRCULAR = 拿它当判据是自证\n· INCONCLUSIVE = 测了但分不开(必须写明卡在哪)",
+ "evidence_scope": "本簇全部证据 = **对这份闸实现的离线软件验证**。替换边界只在**传输结果**(urllib.request.urlopen), 构造/解析/断言/汇总逐字未改。★ 它**不能**证明真实模型的语义判断准确率、重复稳定性, 也不是任何一次真实运行的重现。",
+ "positive_control": {
+  "★注": "本 agent **在自己的进程内重跑了一次** probes/ablation_harness_v3.positive_control()。",
+  "passed": true,
+  "gates": {
+   "dead_swap_not_load_bearing": true,
+   "dead_absurd_injection_still_no_diff": true,
+   "liquid_L1_changed": true,
+   "liquid_changed_broadly": true,
+   "noop_no_diff": true,
+   "determinism": true,
+   "tags_indexed": true,
+   "tripwire_never_tripped": true,
+   "repo_files_untouched": true,
+   "L3_is_tautology_confirmed": true,
+   "dead_constant_is_UNREACHABLE_not_NO_CONSUMER": true
+  },
+  "dead_constant_verdict": "UNREACHABLE —— 死常量 _S1_BASE_TEMPS[5:7] 在 k∈{3,5} 下永不取用: swap 臂与 M6 荒谬值注入臂的 L1/L2 逐面不变(stage1/reach/stage2 全 False), noop 臂同样不变; 同一常量的 L3 instrument_hash **会变**(重言形状复现并避开); 复活条件已实证: k=7 时该两档被真实取用且 L1 改变。",
+  "liquid_arm": {
+   "L1_changed": true,
+   "L1_surfaces": {
+    "stage1": true,
+    "reach": true,
+    "stage2": false
+   }
+  },
+  "determinism": true,
+  "dead_constant_revives_at_k": {
+   "k": 7,
+   "base_temps": [
+    0.0,
+    0.3,
+    0.6,
+    0.9,
+    0.15,
+    0.45,
+    0.75
+   ],
+   "dead_arm_temps": [
+    0.0,
+    0.3,
+    0.6,
+    0.9,
+    0.15,
+    999.0,
+    -999.0
+   ],
+   "L1_changed_at_this_k": true
+  },
+  "★★被测面内的自带对照(共享装置不等于接到我这条路上)": {
+   "ctl_insurface_dead": {
+    "what": "GATE_PROTOCOL 纯文档字段(代码从不读) —— 判据必须判成非承重",
+    "L1_changed": false,
+    "L2_changed": false,
+    "L4_net_new": 0
+   },
+   "ctl_insurface_liquid": {
+    "what": "js_div 系数 0.5→1.7 —— 必须大面积改变",
+    "L1_changed": true,
+    "L1_fields": [
+     "pairwise",
+     "annotator_mean_JS",
+     "mean_JS",
+     "sd_JS",
+     "full_panel"
+    ],
+    "L2_changed": true,
+    "mean_JS": 0.8227,
+    "L4_net_new": [
+     "tests/test_cce_js_metric_definition.py::test_fixed_vectors_hit_the_expected_values",
+     "tests/test_cce_js_metric_definition.py::test_it_is_the_divergence_not_the_sqrt_distance",
+     "tests/test_cce_js_metric_definition.py::test_the_two_implementations_agree_bit_for_bit"
+    ]
+   },
+   "ctl_noop": {
+    "L1_changed": false,
+    "L2_changed": false,
+    "L4_reds": []
+   }
+  },
+  "harness_determinism_same_input_twice": {
+   "same_input_twice_L1_bytes_identical": true,
+   "same_input_twice_L2_bytes_identical": true,
+   "same_input_twice_prompt_identical": true
+  },
+  "tripwire_tripped_l1l2": [],
+  "tripwire_tripped_extras": [],
+  "tripwire_scope": "覆盖: 本进程内经 socket.socket.connect 新建的连接(含 urllib)。**不覆盖**: 已建立连接 · 不走 socket 的传输 · 子进程 · C 扩展自带网络栈。⇒ 只能说「本进程内经 socket 新建的连接被拦截且全程未触发」。"
+ },
+ "operating_point": {
+  "market": "N/A —— 本簇实扫 accuracy/ scripts/ config/ 无 market 字段; 验收语料是单一 r/HearingAids 评论集 ⇒ 判决**不得**外推到任何按市场分层的工况。",
+  "profile": {
+   "gate_protocol_version": 2,
+   "gate_protocol_hash": "dbdff13f9da155bc",
+   "CCE_BODY_CHARS": 700,
+   "CCE_UNIT_LABEL": "评论",
+   "CCE_SKIP_GK2": false,
+   "MODELS": [
+    "MiniMax-M3",
+    "MiniMax-M2.5",
+    "MiniMax-M2.7",
+    "MiniMax-M2",
+    "MiniMax-Text-01"
+   ],
+   "sample_n": 81
+  },
+  "★replay_panel": {
+   "★★这不是真实模型抽样": "条目级中心=真实记录(accuracy/out/gates_result.json G-K2 rows 的 per-item 共识 dist 与 facts, 2026-09-07 真实运行落盘); 标注者间离散=本装置合成, 由 sha256(model|id) 确定, ALPHA=0.2855 冻结。",
+   "ALPHA": 0.2855,
+   "为什么不用真实逐条标注": "run_gates 的逐条原始标注 raw_annotations.json **不在仓内** —— 它落在仓外的识别层保险库里(路径按 R3 不写入本文件)。本轮受「不许读仓外识别层」约束 ⇒ **去掉那条依赖**, 不加降级分支。这条限度在 limits 里。",
+   "标定结果": {
+    "本装置 mean_JS": 0.24195000000000003,
+    "记录的真实 mean_JS(2026-09-09 v2)": 0.2422,
+    "本装置 mean_top2": 0.9557,
+    "记录的真实 mean_top2(2026-09-09 v2)": 0.8812,
+    "★读法": "JS 面已标定到记录工况附近(0.24195 vs 0.2422, 差 0.00025); **top2 面没标定上**(0.9557 vs 0.8812) ⇒ top2 阈的翻转实验只在本装置工况上成立, 换算到记录工况要用下面的 flip 规则, 不能直接抄臂的结论。"
+   }
+  },
+  "n_replayed_calls_per_arm": 512,
+  "stub_breakdown": {
+   "qual": 25,
+   "annot": 405,
+   "fact": 81,
+   "diag": 1,
+   "unmatched": 0,
+   "dropped": 10
+  },
+  "corpus_sha256": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "accuracy/data/corpus.json": "b990e76698a30641c11a24881346b97911fd7a7869e016f38cafc54d244840df",
+   "accuracy/data/anchors.json": "3880b9a283c55d8997704c6549048b012bbd49fa8b0d2c0937f027d4c64583e3",
+   "accuracy/out/gates_result.json": "a5edeea700934ca25201cf84d09e3c76a8c890d366e7bd3ae5198396045876d3",
+   "probes/accuracy_offline_harness.py": "5cf827fed03138699f91f25a0d86d35a40e7e9a0598c79ae9050e9c0ce407b55",
+   "probes/ablation_harness_v3.py": "db00b095cf408a0018c537c0a719159b081f0427b32fc7018b3cf991d487e871"
+  },
+  "positive_control_corpus_sha256": "8226cd11ee4593a08ed356aa1085acce3c9aea2f287ae0ae544ee2e48c355ac7",
+  "positive_control_k_distribution": {
+   "3": 20,
+   "5": 2
+  },
+  "drift_rule": "以上任一项变化 ⇒ 基于本工况的判决当场失效, 必须重跑。这不是免责声明, 是判据的一部分。",
+  "M8_structural_bias": "只在存量/重放工况上做的消融**天然把所有保险丝判成装饰**。本簇实测到三个保险丝(离群规则 2SD · QUAL_P_LOW 0.70 · ANCHOR_CORPUS 解耦), 三个都**实证了复活条件**, 因此判 UNREACHABLE 而不是 NO_CONSUMER。"
+ },
+ "threshold_analysis": {
+  "n_core_pairs": 10,
+  "mean_JS_as_gate_computes_it": 0.24195000000000003,
+  "mean_top2_as_gate_computes_it": 0.9557,
+  "JS_flip_rule": "pass 当且仅当 mean_JS <= 阈 ⇒ 翻转点恰为 mean_JS 本身",
+  "TOP2_flip_rule": "pass 当且仅当 mean_top2 >= 阈 ⇒ 翻转点恰为 mean_top2 本身",
+  "recorded_real_operating_point": {
+   "source": "tests/data/gate_protocol_v2_acceptance_result.json (2026-09-09 真实运行)",
+   "mean_JS": 0.2422,
+   "threshold": 0.25,
+   "margin": 0.0078,
+   "mean_top2_hit": 0.8812,
+   "top2_threshold": 0.8,
+   "top2_margin": 0.0812
+  },
+  "★arms": {
+   "thr_JS_tighten_0.24": {
+    "gk1_pass": false,
+    "overall_pass": false,
+    "L1_changed": false,
+    "L2_changed": true,
+    "L2_fields": [
+     "gk1_pass",
+     "overall_pass",
+     "pass_components"
+    ],
+    "L4_net_new": 0
+   },
+   "thr_JS_tighten_0.2419": {
+    "gk1_pass": false,
+    "overall_pass": false,
+    "L1_changed": false,
+    "L2_changed": true,
+    "L2_fields": [
+     "gk1_pass",
+     "overall_pass",
+     "pass_components"
+    ],
+    "L4_net_new": null
+   },
+   "thr_JS_loosen_0.40": {
+    "gk1_pass": true,
+    "overall_pass": true,
+    "L1_changed": false,
+    "L2_changed": false,
+    "L2_fields": [],
+    "L4_net_new": 0
+   },
+   "thr_JS_absurd_0.0": {
+    "gk1_pass": false,
+    "overall_pass": false,
+    "L1_changed": false,
+    "L2_changed": true,
+    "L2_fields": [
+     "gk1_pass",
+     "overall_pass",
+     "pass_components"
+    ],
+    "L4_net_new": null
+   },
+   "thr_TOP2_tighten_0.96": {
+    "gk1_pass": false,
+    "overall_pass": false,
+    "L1_changed": false,
+    "L2_changed": true,
+    "L2_fields": [
+     "gk1_pass",
+     "overall_pass",
+     "pass_components"
+    ],
+    "L4_net_new": 0
+   },
+   "thr_TOP2_tighten_0.89": {
+    "gk1_pass": true,
+    "overall_pass": true,
+    "L1_changed": false,
+    "L2_changed": false,
+    "L2_fields": [],
+    "L4_net_new": null
+   },
+   "thr_TOP2_loosen_0.0": {
+    "gk1_pass": true,
+    "overall_pass": true,
+    "L1_changed": false,
+    "L2_changed": false,
+    "L2_fields": [],
+    "L4_net_new": null
+   },
+   "thr_BOTH_removed": {
+    "gk1_pass": true,
+    "overall_pass": true,
+    "L1_changed": false,
+    "L2_changed": false,
+    "L2_fields": [],
+    "L4_net_new": 0
+   }
+  },
+  "★★★没有任何测试读过活着的那两个数": {
+   "证据": "L4: thr_JS_tighten_0.24 / thr_JS_loosen_0.40 / thr_TOP2_tighten_0.96 / thr_BOTH_removed(把 pass 直接写成 True) 四臂的**净新增翻红均为 0**。",
+   "四份独立抄本": [
+    "tests/test_cce_gate_v2_acceptance.py:52  `assert k['mean_JS'] <= 0.25`",
+    "tests/test_cce_gk1_margin.py:50,57       `(0.25 - g['mean_JS']) / g['sd_JS']`",
+    "tests/test_cce_fieldset_arm_b.py:33      `THR = 0.25`",
+    "tests/test_cce_cross_family_reference.py:11,181  文档串里的 `阈<=0.25`"
+   ],
+   "★为什么它们不翻红": "四份都是拿**存档产物 JSON** 比一个**自己硬编的 0.25**; 没有一处读 run_gates 活着的常量 ⇒ 改活常量它们看不见。这正是本仓命名过的「两份实现悄悄漂移」, 只是这次漂的是**验收阈值本身**。",
+   "★★最小修法(不在本轮做, 只登记)": "把那两个数提成 run_gates 的具名常量(如 GK1_TOP2_MIN / GK1_JS_MAX), 并加一条测试断言存档产物里的判据字符串与活常量一致。"
+  },
+  "★PASS 不是二值事实(承接 2026-09-09 已留档的自我更正)": "闸的翻转条件就是 `mean_JS <= 阈` ⇒ **翻转点恰为 mean_JS 本身**。记录工况 0.2422 距 0.25 余量 0.0078 ⇒ 阈只要收 3.1% 相对量就翻判。★ 但 2026-09-09 已撤回「0.16 个跨对 SD」这个说法(跨对 SD 不是 mean_JS 的标准误, 十个模型对共享标注者不是独立测量单位), 本轮**不复活**那个说法, 只报可直接核验的点估余量。"
+ },
+ "material_reach_and_why_inconclusive": {
+  "base": {
+   "rendered_prompt_sha16": "0ae44f4004d664d5",
+   "rendered_prompt_len": 4533,
+   "KNOT_BRIEF_len": 1847,
+   "KNOT_BRIEF_sha16": "6077299064ce41ea",
+   "DECISION_TREE_len": 310,
+   "DECISION_TREE_sha16": "753a0dd9bdbf03ce",
+   "NEGATIVE_EXAMPLES_len": 696,
+   "NEGATIVE_EXAMPLES_sha16": "65aae637b9e02258",
+   "DIST_TMPL_len": 1604,
+   "DIST_TMPL_sha16": "b02e25c1c2ea7514",
+   "material_in_prompt": {
+    "KNOT_BRIEF": true,
+    "DECISION_TREE": true,
+    "NEGATIVE_EXAMPLES": true
+   }
+  },
+  "arms": {
+   "mat_KNOT_BRIEF_empty": {
+    "reach_changed": true,
+    "rendered_prompt_len": 2686,
+    "material_in_prompt": {
+     "KNOT_BRIEF": false,
+     "DECISION_TREE": true,
+     "NEGATIVE_EXAMPLES": true
+    },
+    "L2_changed": false,
+    "L1_changed": false
+   },
+   "mat_KNOT_BRIEF_absurd": {
+    "reach_changed": true,
+    "rendered_prompt_len": 2718,
+    "material_in_prompt": {
+     "KNOT_BRIEF": true,
+     "DECISION_TREE": true,
+     "NEGATIVE_EXAMPLES": true
+    },
+    "L2_changed": false,
+    "L1_changed": false
+   },
+   "mat_DECISION_TREE_empty": {
+    "reach_changed": true,
+    "rendered_prompt_len": 4223,
+    "material_in_prompt": {
+     "KNOT_BRIEF": true,
+     "DECISION_TREE": false,
+     "NEGATIVE_EXAMPLES": true
+    },
+    "L2_changed": false,
+    "L1_changed": false
+   },
+   "mat_DECISION_TREE_absurd": {
+    "reach_changed": true,
+    "rendered_prompt_len": 4247,
+    "material_in_prompt": {
+     "KNOT_BRIEF": true,
+     "DECISION_TREE": true,
+     "NEGATIVE_EXAMPLES": true
+    },
+    "L2_changed": false,
+    "L1_changed": false
+   },
+   "mat_NEGATIVE_EXAMPLES_empty": {
+    "reach_changed": true,
+    "rendered_prompt_len": 3837,
+    "material_in_prompt": {
+     "KNOT_BRIEF": true,
+     "DECISION_TREE": true,
+     "NEGATIVE_EXAMPLES": false
+    },
+    "L2_changed": false,
+    "L1_changed": false
+   },
+   "mat_NEGATIVE_EXAMPLES_absurd": {
+    "reach_changed": true,
+    "rendered_prompt_len": 3850,
+    "material_in_prompt": {
+     "KNOT_BRIEF": true,
+     "DECISION_TREE": true,
+     "NEGATIVE_EXAMPLES": true
+    },
+    "L2_changed": false,
+    "L1_changed": false
+   },
+   "mat_DIST_TMPL_drop_anchors": {
+    "reach_changed": true,
+    "rendered_prompt_len": 3157,
+    "material_in_prompt": {
+     "KNOT_BRIEF": true,
+     "DECISION_TREE": true,
+     "NEGATIVE_EXAMPLES": true
+    },
+    "L2_changed": false,
+    "L1_changed": false
+   },
+   "mat_DIST_TMPL_drop_role": {
+    "reach_changed": true,
+    "rendered_prompt_len": 4510,
+    "material_in_prompt": {
+     "KNOT_BRIEF": true,
+     "DECISION_TREE": true,
+     "NEGATIVE_EXAMPLES": true
+    },
+    "L2_changed": false,
+    "L1_changed": false
+   },
+   "mat_DIST_TMPL_drop_schema": {
+    "reach_changed": true,
+    "rendered_prompt_len": 4468,
+    "material_in_prompt": {
+     "KNOT_BRIEF": true,
+     "DECISION_TREE": true,
+     "NEGATIVE_EXAMPLES": true
+    },
+    "L2_changed": false,
+    "L1_changed": false
+   },
+   "ctl_noop": {
+    "reach_changed": false,
+    "rendered_prompt_len": 4533,
+    "material_in_prompt": {
+     "KNOT_BRIEF": true,
+     "DECISION_TREE": true,
+     "NEGATIVE_EXAMPLES": true
+    },
+    "L2_changed": false,
+    "L1_changed": false
+   }
+  },
+  "★★★为什么这四块判 INCONCLUSIVE 而不是 NO_CONSUMER": "它们的消费者是**远端模型的语义判断**, 不在离线替换边界之内。本装置的重放 stub 按**条目身份**返回固定分布, 对 prompt 内容不敏感 ⇒ 「L1/L2 不变」是**装置的构造性结果**, 不是测量结果。把它读成 NO_CONSUMER 就是上一轮把 negative_examples_prompt 判成零引用的同一个错误换了个形状。★ 能测到的只有三件事, 都已测: ①材料确实进了 prompt(逐块 in-prompt 布尔 + 渲染后字节数) ②清空/塞荒谬值都不会让闸崩(不复现 2026-09-07 那个 KeyError) ③L4 里谁会因此翻红。",
+  "★★L4 说明这些材料被什么守着": {
+   "mat_KNOT_BRIEF_empty": [
+    "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+    "tests/test_cce_only_bookmark_conflict.py::test_no_priority_rule_was_added_to_the_prompt",
+    "tests/test_cce_suspend_factorial.py::test_the_defect_is_an_omission_in_what_actually_reaches_the_prompt"
+   ],
+   "mat_DECISION_TREE_empty": [
+    "tests/test_cce_gate_prompt_version_label.py::test_the_content_really_is_synced_so_the_label_really_does_lie",
+    "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live"
+   ],
+   "mat_NEGATIVE_EXAMPLES_empty": [
+    "tests/test_cce_gate_prompt_version_label.py::test_the_content_really_is_synced_so_the_label_really_does_lie",
+    "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+    "tests/test_cce_suspend_factorial.py::test_the_defect_is_an_omission_in_what_actually_reaches_the_prompt"
+   ],
+   "mat_NEGATIVE_EXAMPLES_absurd": [
+    "tests/test_cce_gate_prompt_version_label.py::test_the_content_really_is_synced_so_the_label_really_does_lie",
+    "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+    "tests/test_cce_suspend_factorial.py::test_the_defect_is_an_omission_in_what_actually_reaches_the_prompt"
+   ],
+   "mat_DIST_TMPL_drop_anchors": [
+    "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live"
+   ],
+   "mat_DIST_TMPL_drop_role": [
+    "tests/test_cce_gate_prompt_version_label.py::test_the_label_is_frozen_and_still_stale",
+    "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live"
+   ]
+  },
+  "★★★那个守卫只认『变了』, 不认『变坏了』": "mat_NEGATIVE_EXAMPLES_empty(清空)与 mat_NEGATIVE_EXAMPLES_absurd(改成自相矛盾的「所有结都不许用」)**触发的是同一组红**, 首当其冲的 tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live 是**哈希钉子**: 按 gate_protocol_hash 的定义, 改任何一块被覆盖材料它都会变。⇒ 它守的是**版本漂移**, 不是**材料质量**。用它当「材料承重」的证据是重言(见 CIRCULAR 判决)。",
+  "★仓内已有的、本轮不据以下判的旁证": "tests/data/gate_vs_production_fieldset_result 一族记录了真实 API 下换字段集的效应(arm A 0.2163 vs arm B 0.3008)。★ 那是**别的仪器的读数**, 不是本轮离线证据, **不并入**本簇判决, 只作为「这四块很可能真的承重」的方向提示。"
+ },
+ "panel_aggregation": {
+  "arms": {
+   "panel_two_members": {
+    "L1_changed": true,
+    "L2_changed": true,
+    "L1_fields": [
+     "pairwise",
+     "annotator_mean_JS",
+     "mean_top2_hit",
+     "sd_top2_hit",
+     "mean_JS",
+     "sd_JS",
+     "mean_top1_kappa",
+     "sd_top1_kappa",
+     "mean_top1_raw_agreement",
+     "top1_prevalence",
+     "chance_agreement_Pe",
+     "full_panel",
+     "coverage",
+     "gk2_numbers",
+     "qual_hits"
+    ],
+    "L2_fields": [
+     "qual_states",
+     "admitted_panel",
+     "core_panel"
+    ],
+    "key_numbers": {
+     "mean_JS": 0.2445,
+     "mean_top2_hit": 0.962,
+     "mean_top1_kappa": 0.756,
+     "core_panel_n": 2,
+     "prompt_len": 4533
+    },
+    "key_verdicts": {
+     "gk1_pass": true,
+     "gk2_pass": true,
+     "overall_pass": true,
+     "qual_status": "OK",
+     "rc": null
+    },
+    "L4_net_new": 0
+   },
+   "panel_three_members": {
+    "L1_changed": true,
+    "L2_changed": true,
+    "L1_fields": [
+     "pairwise",
+     "annotator_mean_JS",
+     "mean_top2_hit",
+     "sd_top2_hit",
+     "mean_JS",
+     "sd_JS",
+     "mean_top1_kappa",
+     "sd_top1_kappa",
+     "mean_top1_raw_agreement",
+     "top1_prevalence",
+     "chance_agreement_Pe",
+     "full_panel",
+     "coverage",
+     "gk2_numbers",
+     "qual_hits"
+    ],
+    "L2_fields": [
+     "qual_states",
+     "admitted_panel",
+     "core_panel"
+    ],
+    "key_numbers": {
+     "mean_JS": 0.2476,
+     "mean_top2_hit": 0.9577,
+     "mean_top1_kappa": 0.7883,
+     "core_panel_n": 3,
+     "prompt_len": 4533
+    },
+    "key_verdicts": {
+     "gk1_pass": true,
+     "gk2_pass": true,
+     "overall_pass": true,
+     "qual_status": "OK",
+     "rc": null
+    },
+    "L4_net_new": null
+   },
+   "panel_one_member": {
+    "L1_changed": true,
+    "L2_changed": true,
+    "L1_fields": [
+     "pairwise",
+     "annotator_mean_JS",
+     "mean_top2_hit",
+     "sd_top2_hit",
+     "mean_JS",
+     "sd_JS",
+     "mean_top1_kappa",
+     "sd_top1_kappa",
+     "mean_top1_raw_agreement",
+     "top1_prevalence",
+     "chance_agreement_Pe",
+     "full_panel",
+     "coverage",
+     "sample_n",
+     "gk2_numbers",
+     "qual_hits"
+    ],
+    "L2_fields": [
+     "gk1_pass",
+     "gk2_pass",
+     "overall_pass",
+     "pass_components",
+     "qual_status",
+     "qual_states",
+     "admitted_panel",
+     "core_panel",
+     "outliers_excluded",
+     "withheld",
+     "rc"
+    ],
+    "key_numbers": {
+     "mean_JS": null,
+     "mean_top2_hit": null,
+     "mean_top1_kappa": null,
+     "core_panel_n": 0,
+     "prompt_len": null
+    },
+    "key_verdicts": {
+     "gk1_pass": null,
+     "gk2_pass": null,
+     "overall_pass": null,
+     "qual_status": "INSUFFICIENT_QUALIFIED_ANNOTATORS",
+     "rc": 2
+    },
+    "L4_net_new": null
+   },
+   "panel_outlier_rule_off": {
+    "L1_changed": false,
+    "L2_changed": false,
+    "L1_fields": [],
+    "L2_fields": [],
+    "key_numbers": {
+     "mean_JS": 0.242,
+     "mean_top2_hit": 0.9557,
+     "mean_top1_kappa": 0.7608,
+     "core_panel_n": 5,
+     "prompt_len": 4533
+    },
+    "key_verdicts": {
+     "gk1_pass": true,
+     "gk2_pass": true,
+     "overall_pass": true,
+     "qual_status": "OK",
+     "rc": null
+    },
+    "L4_net_new": 0
+   },
+   "panel_outlier_rule_harsh": {
+    "L1_changed": true,
+    "L2_changed": true,
+    "L1_fields": [
+     "mean_top2_hit",
+     "sd_top2_hit",
+     "mean_JS",
+     "sd_JS",
+     "mean_top1_kappa",
+     "sd_top1_kappa",
+     "mean_top1_raw_agreement",
+     "top1_prevalence",
+     "chance_agreement_Pe"
+    ],
+    "L2_fields": [
+     "core_panel",
+     "outliers_excluded"
+    ],
+    "key_numbers": {
+     "mean_JS": 0.2308,
+     "mean_top2_hit": 0.9747,
+     "mean_top1_kappa": 0.7923,
+     "core_panel_n": 3,
+     "prompt_len": 4533
+    },
+    "key_verdicts": {
+     "gk1_pass": true,
+     "gk2_pass": true,
+     "overall_pass": true,
+     "qual_status": "OK",
+     "rc": null
+    },
+    "L4_net_new": null
+   },
+   "panel_QUAL_P_LOW_absurd": {
+    "L1_changed": false,
+    "L2_changed": false,
+    "L1_fields": [],
+    "L2_fields": [],
+    "key_numbers": {
+     "mean_JS": 0.242,
+     "mean_top2_hit": 0.9557,
+     "mean_top1_kappa": 0.7608,
+     "core_panel_n": 5,
+     "prompt_len": 4533
+    },
+    "key_verdicts": {
+     "gk1_pass": true,
+     "gk2_pass": true,
+     "overall_pass": true,
+     "qual_status": "OK",
+     "rc": null
+    },
+    "L4_net_new": 6
+   },
+   "panel_QUAL_P_HIGH_low": {
+    "L1_changed": false,
+    "L2_changed": true,
+    "L1_fields": [],
+    "L2_fields": [
+     "qual_states"
+    ],
+    "key_numbers": {
+     "mean_JS": 0.242,
+     "mean_top2_hit": 0.9557,
+     "mean_top1_kappa": 0.7608,
+     "core_panel_n": 5,
+     "prompt_len": 4533
+    },
+    "key_verdicts": {
+     "gk1_pass": true,
+     "gk2_pass": true,
+     "overall_pass": true,
+     "qual_status": "OK",
+     "rc": null
+    },
+    "L4_net_new": 4
+   },
+   "panel_kappa_dead": {
+    "L1_changed": true,
+    "L2_changed": false,
+    "L1_fields": [
+     "pairwise",
+     "mean_top1_kappa",
+     "sd_top1_kappa",
+     "full_panel"
+    ],
+    "L2_fields": [],
+    "key_numbers": {
+     "mean_JS": 0.242,
+     "mean_top2_hit": 0.9557,
+     "mean_top1_kappa": null,
+     "core_panel_n": 5,
+     "prompt_len": 4533
+    },
+    "key_verdicts": {
+     "gk1_pass": true,
+     "gk2_pass": true,
+     "overall_pass": true,
+     "qual_status": "OK",
+     "rc": null
+    },
+    "L4_net_new": 0
+   },
+   "panel_kappa_absurd": {
+    "L1_changed": true,
+    "L2_changed": false,
+    "L1_fields": [
+     "pairwise",
+     "mean_top1_kappa",
+     "sd_top1_kappa",
+     "full_panel"
+    ],
+    "L2_fields": [],
+    "key_numbers": {
+     "mean_JS": 0.242,
+     "mean_top2_hit": 0.9557,
+     "mean_top1_kappa": 999.0,
+     "core_panel_n": 5,
+     "prompt_len": 4533
+    },
+    "key_verdicts": {
+     "gk1_pass": true,
+     "gk2_pass": true,
+     "overall_pass": true,
+     "qual_status": "OK",
+     "rc": null
+    },
+    "L4_net_new": null
+   }
+  },
+  "★★outlier_rule_是保险丝, 而且复活时它就是闸绿不绿的那一手": {
+   "operating_point": "重放面板里让 MiniMax-Text-01 的倾斜强度 ALPHA 0.2855→0.85",
+   "base_2SD": {
+    "outliers": [
+     "MiniMax-Text-01"
+    ],
+    "core": [
+     "MiniMax-M3",
+     "MiniMax-M2.5",
+     "MiniMax-M2.7",
+     "MiniMax-M2"
+    ],
+    "mean_JS": 0.246,
+    "gk1_pass": true,
+    "annotator_mean_JS": {
+     "MiniMax-M2.5": 0.3291,
+     "MiniMax-M3": 0.3362,
+     "MiniMax-M2": 0.3396,
+     "MiniMax-M2.7": 0.3411,
+     "MiniMax-Text-01": 0.6079
+    }
+   },
+   "ablated_99SD": {
+    "outliers": [],
+    "core": [
+     "MiniMax-M3",
+     "MiniMax-M2.5",
+     "MiniMax-M2.7",
+     "MiniMax-M2",
+     "MiniMax-Text-01"
+    ],
+    "mean_JS": 0.3908,
+    "gk1_pass": false
+   },
+   "L1_differs": true,
+   "L2_differs": true
+  },
+  "★★QUAL_P_LOW_是保险丝(复活点 = 某名标注者锚例命中 <=1/5)": {
+   "victim_hits_5_of_5": {
+    "base_QUAL_P_LOW_0.70": {
+     "states": {
+      "MiniMax-M3": "UNRESOLVED",
+      "MiniMax-M2.5": "UNRESOLVED",
+      "MiniMax-M2.7": "UNRESOLVED",
+      "MiniMax-M2": "UNRESOLVED",
+      "MiniMax-Text-01": "UNRESOLVED"
+     },
+     "status": "OK",
+     "panel": [
+      "MiniMax-M3",
+      "MiniMax-M2.5",
+      "MiniMax-M2.7",
+      "MiniMax-M2",
+      "MiniMax-Text-01"
+     ],
+     "rc": null,
+     "overall_pass": true
+    },
+    "ablated_QUAL_P_LOW_0.30": {
+     "states": {
+      "MiniMax-M3": "UNRESOLVED",
+      "MiniMax-M2.5": "UNRESOLVED",
+      "MiniMax-M2.7": "UNRESOLVED",
+      "MiniMax-M2": "UNRESOLVED",
+      "MiniMax-Text-01": "UNRESOLVED"
+     },
+     "status": "OK",
+     "panel": [
+      "MiniMax-M3",
+      "MiniMax-M2.5",
+      "MiniMax-M2.7",
+      "MiniMax-M2",
+      "MiniMax-Text-01"
+     ],
+     "rc": null
+    },
+    "L2_differs": false
+   },
+   "victim_hits_4_of_5": {
+    "base_QUAL_P_LOW_0.70": {
+     "states": {
+      "MiniMax-M3": "UNRESOLVED",
+      "MiniMax-M2.5": "UNRESOLVED",
+      "MiniMax-M2.7": "UNRESOLVED",
+      "MiniMax-M2": "UNRESOLVED",
+      "MiniMax-Text-01": "UNRESOLVED"
+     },
+     "status": "OK",
+     "panel": [
+      "MiniMax-M3",
+      "MiniMax-M2.5",
+      "MiniMax-M2.7",
+      "MiniMax-M2",
+      "MiniMax-Text-01"
+     ],
+     "rc": null,
+     "overall_pass": true
+    },
+    "ablated_QUAL_P_LOW_0.30": {
+     "states": {
+      "MiniMax-M3": "UNRESOLVED",
+      "MiniMax-M2.5": "UNRESOLVED",
+      "MiniMax-M2.7": "UNRESOLVED",
+      "MiniMax-M2": "UNRESOLVED",
+      "MiniMax-Text-01": "UNRESOLVED"
+     },
+     "status": "OK",
+     "panel": [
+      "MiniMax-M3",
+      "MiniMax-M2.5",
+      "MiniMax-M2.7",
+      "MiniMax-M2",
+      "MiniMax-Text-01"
+     ],
+     "rc": null
+    },
+    "L2_differs": false
+   },
+   "victim_hits_3_of_5": {
+    "base_QUAL_P_LOW_0.70": {
+     "states": {
+      "MiniMax-M3": "UNRESOLVED",
+      "MiniMax-M2.5": "UNRESOLVED",
+      "MiniMax-M2.7": "UNRESOLVED",
+      "MiniMax-M2": "UNRESOLVED",
+      "MiniMax-Text-01": "UNRESOLVED"
+     },
+     "status": "OK",
+     "panel": [
+      "MiniMax-M3",
+      "MiniMax-M2.5",
+      "MiniMax-M2.7",
+      "MiniMax-M2",
+      "MiniMax-Text-01"
+     ],
+     "rc": null,
+     "overall_pass": true
+    },
+    "ablated_QUAL_P_LOW_0.30": {
+     "states": {
+      "MiniMax-M3": "UNRESOLVED",
+      "MiniMax-M2.5": "UNRESOLVED",
+      "MiniMax-M2.7": "UNRESOLVED",
+      "MiniMax-M2": "UNRESOLVED",
+      "MiniMax-Text-01": "UNRESOLVED"
+     },
+     "status": "OK",
+     "panel": [
+      "MiniMax-M3",
+      "MiniMax-M2.5",
+      "MiniMax-M2.7",
+      "MiniMax-M2",
+      "MiniMax-Text-01"
+     ],
+     "rc": null
+    },
+    "L2_differs": false
+   },
+   "victim_hits_2_of_5": {
+    "base_QUAL_P_LOW_0.70": {
+     "states": {
+      "MiniMax-M3": "UNRESOLVED",
+      "MiniMax-M2.5": "UNRESOLVED",
+      "MiniMax-M2.7": "UNRESOLVED",
+      "MiniMax-M2": "UNRESOLVED",
+      "MiniMax-Text-01": "UNRESOLVED"
+     },
+     "status": "OK",
+     "panel": [
+      "MiniMax-M3",
+      "MiniMax-M2.5",
+      "MiniMax-M2.7",
+      "MiniMax-M2",
+      "MiniMax-Text-01"
+     ],
+     "rc": null,
+     "overall_pass": true
+    },
+    "ablated_QUAL_P_LOW_0.30": {
+     "states": {
+      "MiniMax-M3": "UNRESOLVED",
+      "MiniMax-M2.5": "UNRESOLVED",
+      "MiniMax-M2.7": "UNRESOLVED",
+      "MiniMax-M2": "UNRESOLVED",
+      "MiniMax-Text-01": "UNRESOLVED"
+     },
+     "status": "OK",
+     "panel": [
+      "MiniMax-M3",
+      "MiniMax-M2.5",
+      "MiniMax-M2.7",
+      "MiniMax-M2",
+      "MiniMax-Text-01"
+     ],
+     "rc": null
+    },
+    "L2_differs": false
+   },
+   "victim_hits_1_of_5": {
+    "base_QUAL_P_LOW_0.70": {
+     "states": {
+      "MiniMax-M3": "UNRESOLVED",
+      "MiniMax-M2.5": "UNRESOLVED",
+      "MiniMax-M2.7": "DISQUALIFIED",
+      "MiniMax-M2": "UNRESOLVED",
+      "MiniMax-Text-01": "UNRESOLVED"
+     },
+     "status": "OK",
+     "panel": [
+      "MiniMax-M3",
+      "MiniMax-M2.5",
+      "MiniMax-M2",
+      "MiniMax-Text-01"
+     ],
+     "rc": null,
+     "overall_pass": true
+    },
+    "ablated_QUAL_P_LOW_0.30": {
+     "states": {
+      "MiniMax-M3": "UNRESOLVED",
+      "MiniMax-M2.5": "UNRESOLVED",
+      "MiniMax-M2.7": "UNRESOLVED",
+      "MiniMax-M2": "UNRESOLVED",
+      "MiniMax-Text-01": "UNRESOLVED"
+     },
+     "status": "OK",
+     "panel": [
+      "MiniMax-M3",
+      "MiniMax-M2.5",
+      "MiniMax-M2.7",
+      "MiniMax-M2",
+      "MiniMax-Text-01"
+     ],
+     "rc": null
+    },
+    "L2_differs": true
+   },
+   "victim_hits_0_of_5": {
+    "base_QUAL_P_LOW_0.70": {
+     "states": {
+      "MiniMax-M3": "UNRESOLVED",
+      "MiniMax-M2.5": "UNRESOLVED",
+      "MiniMax-M2.7": "DISQUALIFIED",
+      "MiniMax-M2": "UNRESOLVED",
+      "MiniMax-Text-01": "UNRESOLVED"
+     },
+     "status": "OK",
+     "panel": [
+      "MiniMax-M3",
+      "MiniMax-M2.5",
+      "MiniMax-M2",
+      "MiniMax-Text-01"
+     ],
+     "rc": null,
+     "overall_pass": true
+    },
+    "ablated_QUAL_P_LOW_0.30": {
+     "states": {
+      "MiniMax-M3": "UNRESOLVED",
+      "MiniMax-M2.5": "UNRESOLVED",
+      "MiniMax-M2.7": "UNRESOLVED",
+      "MiniMax-M2": "UNRESOLVED",
+      "MiniMax-Text-01": "UNRESOLVED"
+     },
+     "status": "OK",
+     "panel": [
+      "MiniMax-M3",
+      "MiniMax-M2.5",
+      "MiniMax-M2.7",
+      "MiniMax-M2",
+      "MiniMax-Text-01"
+     ],
+     "rc": null
+    },
+    "L2_differs": true
+   }
+  }
+ },
+ "run_params_and_stamping": {
+  "arms": {
+   "prov_RUN_PARAMS_gutted": {
+    "L1_changed": false,
+    "L2_changed": false,
+    "L0_prov_changed_TAUTOLOGY_NOT_EVIDENCE": true,
+    "L0_fields": [
+     "run_params"
+    ],
+    "L4_net_new_reds": [
+     "tests/test_cce_run_params_recorded.py::test_corpus_path_is_recorded_even_though_ast_cannot_trace_it",
+     "tests/test_cce_run_params_recorded.py::test_every_env_var_that_reaches_a_prompt_is_recorded"
+    ]
+   },
+   "prov_stamp_params_noop": {
+    "L1_changed": false,
+    "L2_changed": false,
+    "L0_prov_changed_TAUTOLOGY_NOT_EVIDENCE": false,
+    "L0_fields": [],
+    "L4_net_new_reds": []
+   },
+   "prov_GATE_PROTOCOL_VERSION": {
+    "L1_changed": false,
+    "L2_changed": false,
+    "L0_prov_changed_TAUTOLOGY_NOT_EVIDENCE": true,
+    "L0_fields": [
+     "run_params",
+     "gate_protocol_version"
+    ],
+    "L4_net_new_reds": [
+     "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live"
+    ]
+   },
+   "prov_ANCHOR_CORPUS_recoupled": {
+    "L1_changed": false,
+    "L2_changed": false,
+    "L0_prov_changed_TAUTOLOGY_NOT_EVIDENCE": false,
+    "L0_fields": [],
+    "L4_net_new_reds": [
+     "tests/test_cce_anchors_independent_of_corpus.py::test_switching_corpus_does_not_break_the_exam"
+    ]
+   },
+   "prov_pred_fixed_dead": {
+    "L1_changed": true,
+    "L2_changed": false,
+    "L0_prov_changed_TAUTOLOGY_NOT_EVIDENCE": false,
+    "L0_fields": [],
+    "L4_net_new_reds": []
+   }
+  },
+  "extra_injections": {
+   "inj_ANCHOR_CORPUS_empty": {
+    "L1_changed": true,
+    "L2_changed": true,
+    "L1_fields": [
+     "pairwise",
+     "annotator_mean_JS",
+     "mean_top2_hit",
+     "sd_top2_hit",
+     "mean_JS",
+     "sd_JS",
+     "mean_top1_kappa",
+     "sd_top1_kappa",
+     "mean_top1_raw_agreement",
+     "top1_prevalence",
+     "chance_agreement_Pe",
+     "full_panel",
+     "coverage",
+     "sample_n",
+     "gk2_numbers",
+     "qual_hits"
+    ],
+    "L2_fields": [
+     "gk1_pass",
+     "gk2_pass",
+     "overall_pass",
+     "pass_components",
+     "qual_status",
+     "qual_states",
+     "admitted_panel",
+     "core_panel",
+     "outliers_excluded",
+     "withheld",
+     "rc"
+    ],
+    "rc": 2
+   },
+   "inj_pred_fixed_constant": {
+    "L1_changed": true,
+    "L2_changed": false,
+    "L1_fields": [
+     "gk2_numbers"
+    ],
+    "L2_fields": [],
+    "rc": null
+   },
+   "inj_RUN_PARAMS_absurd": {
+    "L1_changed": false,
+    "L2_changed": false,
+    "L1_fields": [],
+    "L2_fields": [],
+    "rc": null
+   },
+   "inj_stamp_params_raise": {
+    "L1_changed": false,
+    "L2_changed": false,
+    "L1_fields": [],
+    "L2_fields": [],
+    "rc": null
+   },
+   "inj_gate_protocol_hash_const": {
+    "L1_changed": false,
+    "L2_changed": false,
+    "L1_fields": [],
+    "L2_fields": [],
+    "rc": null
+   }
+  },
+  "★stamp_params_在_run_gates_内零消费者(实证)": "把 stamp_params 函数体第一行换成 `raise RuntimeError(...)`, 整轮 main() **照常跑完**, rc 与 L1/L2 逐面不变 ⇒ main() 从不调用它。它的 8 个真实调用方全在 probes/: suspend_fix_confirmation · belong_discriminant_validity · anchor_expansion_cross_family · suspend_factorial_challenge · fieldset_arm_b · cross_family_reference_81 · gate_decision_tree_candidate · belong_prevalence_scan。",
+  "★ANCHOR_CORPUS_解耦是保险丝, 复活时直接把整轮扣发": {
+   "operating_point": "CCE_CORPUS 指向「去掉 5 条锚例的语料」(私有工作目录, 不进仓)",
+   "base_decoupled": {
+    "status": "OK",
+    "rc": null,
+    "overall_pass": true,
+    "qual_hits": {
+     "MiniMax-M3": [
+      5,
+      5
+     ],
+     "MiniMax-M2.5": [
+      5,
+      5
+     ],
+     "MiniMax-M2.7": [
+      5,
+      5
+     ],
+     "MiniMax-M2": [
+      5,
+      5
+     ],
+     "MiniMax-Text-01": [
+      5,
+      5
+     ]
+    }
+   },
+   "ablated_recoupled": {
+    "status": "INSUFFICIENT_QUALIFIED_ANNOTATORS",
+    "rc": 2,
+    "overall_pass": null,
+    "qual_hits": {
+     "MiniMax-M3": [
+      0,
+      5
+     ],
+     "MiniMax-M2.5": [
+      0,
+      5
+     ],
+     "MiniMax-M2.7": [
+      0,
+      5
+     ],
+     "MiniMax-M2": [
+      0,
+      5
+     ],
+     "MiniMax-Text-01": [
+      0,
+      5
+     ]
+    },
+    "withheld": true
+   },
+   "L2_differs": true
+  }
+ },
+ "L4": {
+  "scope_files": [
+   "tests/test_cce_ablation_harness_v3.py",
+   "tests/test_cce_acceptance_gate_failopen.py",
+   "tests/test_cce_accuracy_offline.py",
+   "tests/test_cce_anchors_independent_of_corpus.py",
+   "tests/test_cce_gate_prompt_version_label.py",
+   "tests/test_cce_gate_protocol_version.py",
+   "tests/test_cce_gk1_margin.py",
+   "tests/test_cce_gk3_not_a_tautology.py",
+   "tests/test_cce_incremental_persistence.py",
+   "tests/test_cce_internal_examples.py",
+   "tests/test_cce_js_metric_definition.py",
+   "tests/test_cce_only_bookmark_conflict.py",
+   "tests/test_cce_prompt_template_args.py",
+   "tests/test_cce_qualification_premise_revised.py",
+   "tests/test_cce_qualification_v2.py",
+   "tests/test_cce_repeatability.py",
+   "tests/test_cce_run_params_recorded.py",
+   "tests/test_cce_second_exclusion_channel.py",
+   "tests/test_cce_suspend_factorial.py"
+  ],
+  "excluded": {
+   "tests/test_cce_chain_conformance.py": "其中的 `run_gates` 是 consistency_check.check() 的局部参数名, 非本模块(词碰撞)"
+  },
+  "unmutated_baseline": "108 passed, 2 warnings in 5.05s",
+  "noop_control_reds": [],
+  "per_arm": {
+   "ctl_insurface_dead": {
+    "n_reds": 0,
+    "net_new_reds": []
+   },
+   "ctl_insurface_liquid": {
+    "n_reds": 3,
+    "net_new_reds": [
+     "tests/test_cce_js_metric_definition.py::test_fixed_vectors_hit_the_expected_values",
+     "tests/test_cce_js_metric_definition.py::test_it_is_the_divergence_not_the_sqrt_distance",
+     "tests/test_cce_js_metric_definition.py::test_the_two_implementations_agree_bit_for_bit"
+    ]
+   },
+   "thr_JS_tighten_0.24": {
+    "n_reds": 0,
+    "net_new_reds": []
+   },
+   "thr_JS_loosen_0.40": {
+    "n_reds": 0,
+    "net_new_reds": []
+   },
+   "thr_TOP2_tighten_0.96": {
+    "n_reds": 0,
+    "net_new_reds": []
+   },
+   "thr_BOTH_removed": {
+    "n_reds": 0,
+    "net_new_reds": []
+   },
+   "mat_KNOT_BRIEF_empty": {
+    "n_reds": 3,
+    "net_new_reds": [
+     "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+     "tests/test_cce_only_bookmark_conflict.py::test_no_priority_rule_was_added_to_the_prompt",
+     "tests/test_cce_suspend_factorial.py::test_the_defect_is_an_omission_in_what_actually_reaches_the_prompt"
+    ]
+   },
+   "mat_DECISION_TREE_empty": {
+    "n_reds": 2,
+    "net_new_reds": [
+     "tests/test_cce_gate_prompt_version_label.py::test_the_content_really_is_synced_so_the_label_really_does_lie",
+     "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live"
+    ]
+   },
+   "mat_NEGATIVE_EXAMPLES_empty": {
+    "n_reds": 3,
+    "net_new_reds": [
+     "tests/test_cce_gate_prompt_version_label.py::test_the_content_really_is_synced_so_the_label_really_does_lie",
+     "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+     "tests/test_cce_suspend_factorial.py::test_the_defect_is_an_omission_in_what_actually_reaches_the_prompt"
+    ]
+   },
+   "mat_NEGATIVE_EXAMPLES_absurd": {
+    "n_reds": 3,
+    "net_new_reds": [
+     "tests/test_cce_gate_prompt_version_label.py::test_the_content_really_is_synced_so_the_label_really_does_lie",
+     "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+     "tests/test_cce_suspend_factorial.py::test_the_defect_is_an_omission_in_what_actually_reaches_the_prompt"
+    ]
+   },
+   "mat_DIST_TMPL_drop_anchors": {
+    "n_reds": 1,
+    "net_new_reds": [
+     "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live"
+    ]
+   },
+   "mat_DIST_TMPL_drop_role": {
+    "n_reds": 2,
+    "net_new_reds": [
+     "tests/test_cce_gate_prompt_version_label.py::test_the_label_is_frozen_and_still_stale",
+     "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live"
+    ]
+   },
+   "panel_two_members": {
+    "n_reds": 0,
+    "net_new_reds": []
+   },
+   "panel_outlier_rule_off": {
+    "n_reds": 0,
+    "net_new_reds": []
+   },
+   "panel_QUAL_P_LOW_absurd": {
+    "n_reds": 6,
+    "net_new_reds": [
+     "tests/test_cce_acceptance_gate_failopen.py::test_only_the_disqualified_are_dropped",
+     "tests/test_cce_accuracy_offline.py::test_all_five_failure_modes_pass_computed_now",
+     "tests/test_cce_qualification_premise_revised.py::test_v2_really_says_all_unresolved",
+     "tests/test_cce_qualification_v2.py::test_only_disqualified_is_excluded",
+     "tests/test_cce_qualification_v2.py::test_the_bands_are_asymmetric_and_that_is_deliberate",
+     "tests/test_cce_qualification_v2.py::test_unresolved_stays_in_the_primary_panel"
+    ]
+   },
+   "panel_QUAL_P_HIGH_low": {
+    "n_reds": 4,
+    "net_new_reds": [
+     "tests/test_cce_acceptance_gate_failopen.py::test_only_the_disqualified_are_dropped",
+     "tests/test_cce_qualification_premise_revised.py::test_v2_really_says_all_unresolved",
+     "tests/test_cce_qualification_v2.py::test_the_bands_are_asymmetric_and_that_is_deliberate",
+     "tests/test_cce_qualification_v2.py::test_unresolved_stays_in_the_primary_panel"
+    ]
+   },
+   "panel_kappa_dead": {
+    "n_reds": 0,
+    "net_new_reds": []
+   },
+   "prov_RUN_PARAMS_gutted": {
+    "n_reds": 2,
+    "net_new_reds": [
+     "tests/test_cce_run_params_recorded.py::test_corpus_path_is_recorded_even_though_ast_cannot_trace_it",
+     "tests/test_cce_run_params_recorded.py::test_every_env_var_that_reaches_a_prompt_is_recorded"
+    ]
+   },
+   "prov_stamp_params_noop": {
+    "n_reds": 0,
+    "net_new_reds": []
+   },
+   "prov_GATE_PROTOCOL_VERSION": {
+    "n_reds": 1,
+    "net_new_reds": [
+     "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live"
+    ]
+   },
+   "prov_ANCHOR_CORPUS_recoupled": {
+    "n_reds": 1,
+    "net_new_reds": [
+     "tests/test_cce_anchors_independent_of_corpus.py::test_switching_corpus_does_not_break_the_exam"
+    ]
+   },
+   "prov_pred_fixed_dead": {
+    "n_reds": 0,
+    "net_new_reds": []
+   }
+  },
+  "★装置补洞(诚实记一笔)": "v2 装置补洞: 除 `import run_gates` 外, 也拦 `accuracy_offline_harness` 并把同一变异链到它的 load() —— 否则走离线装置加载的测试在任何臂下都不翻红。",
+  "★★覆盖上限": "★ 本 L4 只覆盖「**经 import 拿到模块对象**」的断言。大量测试直接读 accuracy/run_gates.py 的**源码文本**做断言 —— 它们看到的是未变异的真文件, 因此在任何臂下都**不会翻红**。这是 L4 的覆盖上限, 不是「没有消费者」的证据。"
+ },
+ "ref_counts": {
+  "KNOT_BRIEF": {
+   "coarse": 47,
+   "strict": 6
+  },
+  "DECISION_TREE": {
+   "coarse": 26,
+   "strict": 3
+  },
+  "NEGATIVE_EXAMPLES": {
+   "coarse": 32,
+   "strict": 1
+  },
+  "DIST_TMPL": {
+   "coarse": 55,
+   "strict": 7
+  },
+  "RUN_PARAMS": {
+   "coarse": 24,
+   "strict": 14
+  },
+  "stamp_params": {
+   "coarse": 18,
+   "strict": 4
+  },
+  "GATE_PROTOCOL_VERSION": {
+   "coarse": 19,
+   "strict": 7
+  },
+  "gate_protocol_hash": {
+   "coarse": 22,
+   "strict": 22
+  },
+  "GATE_PROTOCOL": {
+   "coarse": 1,
+   "strict": 0
+  },
+  "QUAL_P_LOW": {
+   "coarse": 2,
+   "strict": 0
+  },
+  "QUAL_P_HIGH": {
+   "coarse": 2,
+   "strict": 0
+  },
+  "MODELS": {
+   "coarse": 114,
+   "strict": 5
+  },
+  "kappa": {
+   "coarse": 27,
+   "strict": 0
+  },
+  "predict_tier_fixed": {
+   "coarse": 2,
+   "strict": 0
+  },
+  "ANCHOR_CORPUS": {
+   "coarse": 15,
+   "strict": 0
+  },
+  "admit_annotators": {
+   "coarse": 33,
+   "strict": 1
+  },
+  "qualification_state": {
+   "coarse": 14,
+   "strict": 0
+  },
+  "js_div": {
+   "coarse": 14,
+   "strict": 1
+  }
+ },
+ "scan_surface": {
+  "dirs": [
+   "scripts",
+   "probes",
+   "accuracy",
+   "tests",
+   ".github",
+   "config"
+  ],
+  "suffixes": [
+   ".py",
+   ".json",
+   ".yml",
+   ".yaml",
+   ".md",
+   ".txt",
+   ".sh"
+  ],
+  "blind_spot_note": "扫描面**不含**仓外任何目录, 也不含 .git/ 与 __pycache__/。它是**词碰撞统计**, 不是调用图: 动态 getattr / 字符串拼出来的键 / 经 JSON 传给外部工具的字段, 本扫描**看不见**。"
+ },
+ "★词碰撞的现成实例": "tests/test_cce_chain_conformance.py 里的 `run_gates` 是 consistency_check.check() 的**局部参数名**, 不是本模块 —— 粗计会把它算成引用。已从 L4 扫描面剔除并写明理由。",
+ "file_integrity": {
+  "before": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "accuracy/data/corpus.json": "b990e76698a30641c11a24881346b97911fd7a7869e016f38cafc54d244840df",
+   "accuracy/data/anchors.json": "3880b9a283c55d8997704c6549048b012bbd49fa8b0d2c0937f027d4c64583e3",
+   "accuracy/out/gates_result.json": "a5edeea700934ca25201cf84d09e3c76a8c890d366e7bd3ae5198396045876d3",
+   "probes/accuracy_offline_harness.py": "5cf827fed03138699f91f25a0d86d35a40e7e9a0598c79ae9050e9c0ce407b55",
+   "probes/ablation_harness_v3.py": "db00b095cf408a0018c537c0a719159b081f0427b32fc7018b3cf991d487e871"
+  },
+  "after": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "accuracy/data/corpus.json": "b990e76698a30641c11a24881346b97911fd7a7869e016f38cafc54d244840df",
+   "accuracy/data/anchors.json": "3880b9a283c55d8997704c6549048b012bbd49fa8b0d2c0937f027d4c64583e3",
+   "accuracy/out/gates_result.json": "a5edeea700934ca25201cf84d09e3c76a8c890d366e7bd3ae5198396045876d3",
+   "probes/accuracy_offline_harness.py": "5cf827fed03138699f91f25a0d86d35a40e7e9a0598c79ae9050e9c0ce407b55",
+   "probes/ablation_harness_v3.py": "db00b095cf408a0018c537c0a719159b081f0427b32fc7018b3cf991d487e871"
+  },
+  "identical": true
+ },
+ "raw_artifacts_in_private_workdir": {
+  "l1l2.json": "34 臂的逐面 L1/L2 差异 + 每臂关键数值",
+  "extras.json": "保险丝复活实证 + 追加 M6 注入 + 阈值翻转点 + 引用计数",
+  "l4.json": "L4 红集(含空操作对照臂)",
+  "pc.json": "本进程内重跑的阳性对照全文",
+  "★note": "工作目录在私有 scratchpad, 不进仓。"
+ },
+ "verdicts": [
+  {
+   "component": "G-K1 判据阈值 mean_JS ≤ 0.25",
+   "locus": "accuracy/run_gates.py:658",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "false —— 阈值不改任何读数",
+   "L2_changed": "true(闸内判决面) —— gk1.pass True→False, overall_pass True→False, ★pass_components.G_K1 翻转",
+   "L4_net_new_reds": "0 —— 收紧到 0.24 / 放宽到 0.40 / 整条拿掉(pass:True) 三臂净新增翻红均为 0",
+   "ref_count_coarse": 78,
+   "ref_count_strict": 1,
+   "deletable": false,
+   "deletable_reason": "它是 G-K1 两个判决开关之一；删掉等于把闸改成恒绿(thr_BOTH_removed 臂实测 gk1.pass 恒 True)。",
+   "evidence": "本装置工况 mean_JS=0.24195(闸自己算的未取整值)。阈 0.25→0.24 与 →0.2419 两臂均把 gk1.pass True→False 且 overall_pass True→False；阈→0.40 与整条移除均不变(基线本就达标)。翻转规则是 `mean_JS <= 阈`，⇒ 翻转点恰为 mean_JS 本身。记录的真实工况 mean_JS=0.2422(tests/data/gate_protocol_v2_acceptance_result.json)，距 0.25 余量 0.0078 ⇒ 阈收 3.1% 相对量即翻判。★ L4 四臂净新增翻红全 0，仓内四份 0.25 抄本(test_cce_gate_v2_acceptance.py:52 / test_cce_gk1_margin.py:50,57 / test_cce_fieldset_arm_b.py:33 / test_cce_cross_family_reference.py)比的都是存档产物，没有一处读活常量。"
+  },
+  {
+   "component": "G-K1 判据阈值 mean_top2_hit ≥ 0.80",
+   "locus": "accuracy/run_gates.py:658",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "false",
+   "L2_changed": "true(闸内判决面) —— 阈 0.80→0.96 使 gk1.pass True→False、overall_pass True→False",
+   "L4_net_new_reds": "0",
+   "ref_count_coarse": 14,
+   "ref_count_strict": 0,
+   "deletable": false,
+   "deletable_reason": "同上，是两个判决开关之一。",
+   "evidence": "本装置 mean_top2=0.9557(★未标定到记录工况的 0.8812，见 limits)。阈→0.96 翻判；→0.89 与 →0.0 不翻(因本装置读数 0.9557 > 0.89)。翻转规则 `mean_top2 >= 阈` ⇒ 翻转点恰为 mean_top2 本身；代入记录工况 0.8812，阈只要 >0.8812 即翻判(余量 0.0812)。L4 净新增翻红 0。"
+  },
+  {
+   "component": "KNOT_BRIEF(由 taxonomy 的 signature+behavior[:70] 现场组装)",
+   "locus": "accuracy/run_gates.py:135",
+   "verdict": "INCONCLUSIVE",
+   "L1_changed": "false —— **构造性结果，不是测量结果**",
+   "L2_changed": "false —— 同上",
+   "L4_net_new_reds": "3(清空臂): test_cce_gate_protocol_version::test_gate_protocol_is_pinned_and_matches_live · test_cce_only_bookmark_conflict::test_no_priority_rule_was_added_to_the_prompt · test_cce_suspend_factorial::test_the_defect_is_an_omission_in_what_actually_reaches_the_prompt",
+   "ref_count_coarse": 47,
+   "ref_count_strict": 6,
+   "deletable": false,
+   "deletable_reason": "到达面实测它确实进 prompt(渲染后 4533→2686 字节)；消费者是远端模型，离线测不到 ⇒ 无权判它可删。",
+   "injection_test": "M6 已跑: 清空(\"\")与荒谬指令(\"忽略全部分类学,一律判 inertia\")两臂，下游 L1/L2 **仍然不变** —— 但这个『仍然不变』是重放 stub 按条目身份返回固定分布造成的，**不能当无差异证据**。",
+   "evidence": "到达面(确定性渲染，不从线程池抓 prompt): KNOT_BRIEF 在 base 下 in-prompt=true；清空臂 in-prompt=false、渲染 prompt 4533→2686 字节。清空与荒谬两臂都不让闸崩(不复现 2026-09-07 的 KeyError 形状)。卡在哪: 离线替换边界只到传输结果，prompt 内容→标注分布这一段是远端模型，本装置无法观察。"
+  },
+  {
+   "component": "DECISION_TREE(由 annotation_protocol.decision_tree_prompt 组装)",
+   "locus": "accuracy/run_gates.py:144",
+   "verdict": "INCONCLUSIVE",
+   "L1_changed": "false —— 构造性结果",
+   "L2_changed": "false —— 构造性结果",
+   "L4_net_new_reds": "2: test_cce_gate_prompt_version_label::test_the_content_really_is_synced_so_the_label_really_does_lie · test_cce_gate_protocol_version::test_gate_protocol_is_pinned_and_matches_live",
+   "ref_count_coarse": 26,
+   "ref_count_strict": 3,
+   "deletable": false,
+   "deletable_reason": "同 KNOT_BRIEF：到达面已证，消费者在离线边界之外。",
+   "injection_test": "M6 已跑: 清空与荒谬规则(\"一律先判 belong\")两臂，L1/L2 仍不变(同样是构造性的，不作无差异证据)。",
+   "evidence": "清空臂渲染 prompt 4533→4223 字节、in-prompt=false；荒谬臂 4247 字节、in-prompt=true。两臂都不崩。★ 2026-09-07 记录过 qualify() 因缺 decision_tree 占位符抛 KeyError 导致整闸跑不起来——本轮 qualify() 与正式标注两条路径在所有材料臂下都渲染成功，那个缺陷不再复现。"
+  },
+  {
+   "component": "NEGATIVE_EXAMPLES(由各结 negative_examples_prompt + protocol.negative_examples_order 组装)",
+   "locus": "accuracy/run_gates.py:147",
+   "verdict": "INCONCLUSIVE",
+   "L1_changed": "false —— 构造性结果",
+   "L2_changed": "false —— 构造性结果",
+   "L4_net_new_reds": "3(清空与荒谬两臂**同一组红**): gate_prompt_version_label · gate_protocol_version(哈希钉子) · suspend_factorial",
+   "ref_count_coarse": 32,
+   "ref_count_strict": 1,
+   "deletable": false,
+   "deletable_reason": "它是 GATE_PROTOCOL v1→v2 那次改动的全部内容；到达面已证。",
+   "injection_test": "M6 已跑: 清空与自相矛盾(\"所有结都不许用\")两臂 ⇒ 下游 L1/L2 仍不变(构造性)。★★ 关键观察: **清空臂与荒谬臂触发的是同一组翻红** ⇒ 守它的那些测试只认『变了』不认『变坏了』。",
+   "evidence": "清空臂 prompt 4533→3837 字节、in-prompt=false；荒谬臂 3850 字节。上一轮把 negative_examples_prompt 判成零引用 NO_CONSUMER 是错的(它在 accuracy/run_gates.py:145-148 被用)；本轮扫描面含 accuracy/，粗计 32/严计 1，不再复现那个盲区。"
+  },
+  {
+   "component": "DIST_TMPL(标注模板本体，含 5 段硬编码全一致锚例)",
+   "locus": "accuracy/run_gates.py:179",
+   "verdict": "INCONCLUSIVE",
+   "L1_changed": "false —— 构造性结果",
+   "L2_changed": "false —— 构造性结果",
+   "L4_net_new_reds": "删锚例块 1(哈希钉子) · 删角色设定句 2(哈希钉子 + gate_prompt_version_label::test_the_label_is_frozen_and_still_stale)",
+   "ref_count_coarse": 55,
+   "ref_count_strict": 7,
+   "deletable": false,
+   "deletable_reason": "它是 annot_dist 与 qualify 共用的唯一模板，删掉闸无法运行。",
+   "injection_test": "M6 已跑: 清空输出 schema 说明(\"只输出JSON: {}\")臂 ⇒ L1/L2 仍不变(构造性；真实工况下这会直接破坏 extract_json_robust 的解析率，本装置测不到)。",
+   "evidence": "三臂到达面: 删锚例块 4533→3157 字节、删角色句→4510、删 schema→4468。qualify() 与正式标注两条路径在三臂下都渲染成功。"
+  },
+  {
+   "component": "五员标注面板 MODELS 的聚合(两两对 → _agg → 主判)",
+   "locus": "accuracy/run_gates.py:113",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "true —— pairwise / annotator_mean_JS / mean_top2_hit / mean_JS / sd_* / mean_top1_kappa / top1_prevalence / chance_agreement_Pe / full_panel / coverage / gk2_numbers 逐项改变",
+   "L2_changed": "true —— 5→3/2 员改 qual_states+admitted_panel+core_panel；5→1 员整轮**扣发**(status INSUFFICIENT_QUALIFIED_ANNOTATORS, rc=2, overall_pass True→None)",
+   "L4_net_new_reds": "0(panel_two_members) —— 没有测试守面板成分",
+   "ref_count_coarse": 114,
+   "ref_count_strict": 5,
+   "deletable": false,
+   "deletable_reason": "两两一致性需要 >=2 名，少于此数学上无定义；闸对此有正确的扣发路径。",
+   "evidence": "5 员 mean_JS=0.2420 / top2=0.9557；3 员 0.2476/0.9577；2 员 0.2445/0.9620；1 员 → pw 为空 ⇒ admit_annotators 返回 INSUFFICIENT_QUALIFIED_ANNOTATORS，main() 走扣发分支 rc=2、产物换成 ★withheld 形状(连 out['gate'] 标题都换)。★ 即：面板缩到 1 时闸**不会假装通过**，这条 fail-closed 实测成立。"
+  },
+  {
+   "component": "离群标注者规则 med + 2*sd(盲规则, 2026-08-09 冻结)",
+   "locus": "accuracy/run_gates.py:622",
+   "verdict": "UNREACHABLE",
+   "L1_changed": "false(本工况) —— 2SD→99SD 逐面不变",
+   "L2_changed": "false(本工况) —— outliers_excluded 基线本来就是空集",
+   "L4_net_new_reds": "0",
+   "ref_count_coarse": 14,
+   "ref_count_strict": 0,
+   "deletable": false,
+   "deletable_reason": "复活工况下它就是闸绿不绿的那一手，删了闸会翻红(见 evidence)。",
+   "unreachable_condition": "当某名标注者与其余成员的平均 JS 超过面板中位数+2SD 时它才动。本工况五员平均 JS 全在 0.216~0.259，离散不足以触发。",
+   "injection_test": "M6: 2SD→99SD(等于关闭)下游逐面不变 ✓；反向 2SD→0.05SD 则 L1(9 个字段)与 L2(core_panel/outliers_excluded)都改变 ⇒ 消融面确实接上。",
+   "evidence": "复活实证(改**重放面板**不是改源码): 让 MiniMax-Text-01 的倾斜强度 ALPHA 0.2855→0.85，五员平均 JS 变成 {M2.5 0.3291, M3 0.3362, M2 0.3396, M2.7 0.3411, Text-01 0.6079}。此时 2SD 规则**剔除 Text-01** ⇒ mean_JS 0.246 ⇒ gk1.pass=True；关闭规则(99SD) ⇒ mean_JS 0.3908 ⇒ gk1.pass=**False**。★★ 即：在这条复活路径上，『闸是否通过』完全由这条离群规则决定。"
+  },
+  {
+   "component": "资格考 DISQUALIFY 端阈 QUAL_P_LOW = 0.70",
+   "locus": "accuracy/run_gates.py:427",
+   "verdict": "UNREACHABLE",
+   "L1_changed": "false(本工况)",
+   "L2_changed": "false(本工况) —— 五员全 5/5 时三态恒为 UNRESOLVED",
+   "L4_net_new_reds": "6 —— acceptance_gate_failopen::test_only_the_disqualified_are_dropped · accuracy_offline::test_all_five_failure_modes_pass_computed_now · qualification_premise_revised::test_v2_really_says_all_unresolved · qualification_v2 的三条。测试**直接调 qualification_state() 喂别的命中数**，因此覆盖到了工况够不着的区域。",
+   "ref_count_coarse": 2,
+   "ref_count_strict": 0,
+   "deletable": false,
+   "deletable_reason": "它是三态判决里唯一的 DISQUALIFY 端；删了就只剩 fail-open。",
+   "unreachable_condition": "当某名标注者锚例命中 <= 1/5 时才动(Wilson 95% 上界 <= 0.70)。本工况五员全 5/5 ⇒ 上界 1.0，永不触发。",
+   "injection_test": "M6: 0.70→0.999(荒谬收紧)在本工况下 L1/L2 逐面不变 ✓。",
+   "evidence": "复活实证(逐档扫): 让 MiniMax-M2.7 在 n 道锚例上答错。hits 5/4/3/2 of 5 ⇒ 阈 0.70 与阈 0.30 两臂 L2 **完全相同**(全 UNRESOLVED)；hits **1/5 与 0/5** ⇒ 阈 0.70 把它判 DISQUALIFIED，阈 0.30 仍判 UNRESOLVED，L2 分叉。⇒ 复活点 = 命中 <=1/5。"
+  },
+  {
+   "component": "资格考 QUALIFY 端阈 QUAL_P_HIGH = 0.90",
+   "locus": "accuracy/run_gates.py:427",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "false",
+   "L2_changed": "true —— 0.90→0.30 使五员三态 UNRESOLVED→QUALIFIED(qualified_only 从空集变成全员)",
+   "L4_net_new_reds": "4 —— acceptance_gate_failopen::test_only_the_disqualified_are_dropped · qualification_premise_revised::test_v2_really_says_all_unresolved · qualification_v2::test_the_bands_are_asymmetric_and_that_is_deliberate · qualification_v2::test_unresolved_stays_in_the_primary_panel",
+   "ref_count_coarse": 2,
+   "ref_count_strict": 0,
+   "deletable": false,
+   "deletable_reason": "它决定 qualified_only 这条 sensitivity 面板；且 L4 有四条测试守它。",
+   "evidence": "本工况五员全 5/5、Wilson 95% 下界 0.5655 < 0.90 ⇒ 全部 UNRESOLVED(与 2026-09-09 真实运行记录一致)。阈降到 0.30 后全部 QUALIFIED。★ 注意 admit 面板**不变**(UNRESOLVED 本来就留在 primary)，变的是三态标签与 qualified_only ⇒ 它承重在『能不能说这五员合格』这句话上，不在『谁进面板』上。"
+  },
+  {
+   "component": "kappa()(top1_kappa / mean_top1_kappa / mean_top1_raw_agreement)",
+   "locus": "accuracy/run_gates.py:374",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "L1_changed": "true —— pairwise.top1_kappa · mean_top1_kappa · sd_top1_kappa · full_panel.mean_top1_kappa 改变",
+   "L2_changed": "false",
+   "L4_net_new_reds": "0",
+   "ref_count_coarse": 27,
+   "ref_count_strict": 0,
+   "deletable": false,
+   "deletable_reason": "它是被显式声明的『参考项而非硬阈』(criteria 串与 kappa_note 都这么写)，删了会丢掉解释 Pe 偏斜的那条读法。判决面不消费它是**设计如此**，不是漏接线。",
+   "injection_test": "M6 已跑: kappa() 恒返 999.0 ⇒ L1 仍改变、L2 逐面**仍然不变**、L4 净新增 0 ✓。",
+   "evidence": "源码 criteria 字段逐字写着『主判(核心面板): top2命中≥0.8 且 平均JS≤0.25; κ与生判一致率为参考项』，pass 表达式里确实只有 t2s 与 jss。恒 None 臂与恒 999.0 臂的 L2 与基线逐字节相同。"
+  },
+  {
+   "component": "predict_tier_fixed → rows.pred_fixed / gk2.exact_acc_fixed_cuts(自称『仅作对照基线保留』)",
+   "locus": "accuracy/run_gates.py:298 与 accuracy/run_gates.py:695",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "L1_changed": "true —— gk2_numbers.exact_acc_fixed_cuts 改变(基线 0.568)",
+   "L2_changed": "false",
+   "L4_net_new_reds": "0",
+   "ref_count_coarse": 2,
+   "ref_count_strict": 0,
+   "deletable": false,
+   "deletable_reason": "它是留一法切点的固定切点对照口径；G-K2 的 note 明说两者『并列可比』。删掉会失去这条对照。",
+   "injection_test": "M6 已跑: pred_fixed 置 None 与恒定 \"high\" 两臂 ⇒ L1 的 gk2_numbers 改变、L2 逐面不变、L4 净新增 0 ✓。",
+   "evidence": "gk2.pass 的表达式只用 rho / spearman_p / macro_recall，不含 exact_acc_fixed_cuts。"
+  },
+  {
+   "component": "RUN_PARAMS(进 prompt 的环境参数记录)",
+   "locus": "accuracy/run_gates.py:67",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "false(数值读数面不变)",
+   "L2_changed": "false(闸内判决面不变)；**承重在 CI 判决面**",
+   "L4_net_new_reds": "2 —— test_cce_run_params_recorded::test_every_env_var_that_reaches_a_prompt_is_recorded · ::test_corpus_path_is_recorded_even_though_ast_cannot_trace_it",
+   "ref_count_coarse": 24,
+   "ref_count_strict": 14,
+   "deletable": false,
+   "deletable_reason": "它是『两次运行是否可比』的唯一事后依据；且有两条测试守它。",
+   "injection_test": "M6 已跑: 整块换成 {} 与把 ★why_recorded 换成 ABSURD 两臂 ⇒ L1/L2 逐面不变；整块换 {} 时 L4 净新增 2 条翻红。",
+   "evidence": "整块置空后 main() 仍在运行时回填 4 个键(run_gates_MODELS / annotators_actually_used / gate_protocol_version / gate_protocol_hash)，产物 run_params 从 9 键降到 4 键 ⇒ 记录面(L0)改变、读数与判决不变。★ 装置补洞: 守它的测试走 accuracy_offline_harness.load() 而不是 `import run_gates`，第一版垫片拦不到 ⇒ 当时报 0 条翻红。把变异链到 load() 后才出现这 2 条。**那个 0 是装置缺口，不是『没有消费者』** —— 这一笔按诚实要求记在这里。"
+  },
+  {
+   "component": "stamp_params()(给探针盖同一批参数的章)",
+   "locus": "accuracy/run_gates.py:81",
+   "verdict": "INCONCLUSIVE",
+   "L1_changed": "false",
+   "L2_changed": "false",
+   "L4_net_new_reds": "0(但见 evidence: 守它的断言读的是**源码文本**，本装置的内存内变异够不着)",
+   "ref_count_coarse": 18,
+   "ref_count_strict": 4,
+   "deletable": false,
+   "deletable_reason": "probes/ 里有 8 个真实调用方；删掉它们的产物会失去可比性留痕。",
+   "injection_test": "M6 已跑: 函数体第一行插 `raise RuntimeError(...)` ⇒ 整轮 main() **照常跑完**，rc 与 L1/L2 逐面不变 ⇒ 实证 main() 从不调用它。",
+   "evidence": "8 个调用方全在 probes/: suspend_fix_confirmation:81 · belong_discriminant_validity:159 · anchor_expansion_cross_family:90 · suspend_factorial_challenge:71 · fieldset_arm_b:98 · cross_family_reference_81:75 · gate_decision_tree_candidate:70 · belong_prevalence_scan:122。卡在哪: ①它承重的面是『产物可比性留痕』，不是 L1/L2 判决面，本轮判据没有为留痕面定义判决位；②tests/test_cce_run_params_recorded.py:177 的守卫是 `SRC[SRC.index(\"def stamp_params\"):]` 源码文本断言，内存内变异看不见 ⇒ L4 的 0 不能读成『没人守』。"
+  },
+  {
+   "component": "GATE_PROTOCOL_VERSION = 2(闸的独立版本号)",
+   "locus": "accuracy/run_gates.py:161",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "false",
+   "L2_changed": "false(闸内)；**承重在 CI 判决面**",
+   "L4_net_new_reds": "1 —— test_cce_gate_protocol_version::test_gate_protocol_is_pinned_and_matches_live",
+   "ref_count_coarse": 19,
+   "ref_count_strict": 7,
+   "deletable": false,
+   "deletable_reason": "它是『闸与生产是两台仪器』这条区分的唯一承载；有钉子测试守。",
+   "injection_test": "M6: 2→99 ⇒ L1/L2 逐面不变，只有产物 run_params.gate_protocol_version 与 CI 变。",
+   "evidence": "改成 99 后 out['run_params']['gate_protocol_version'] 跟着变，gk1/gk2/overall_pass 与面板逐字不变。"
+  },
+  {
+   "component": "gate_protocol_hash()(覆盖 KNOT_BRIEF+DECISION_TREE+NEGATIVE_EXAMPLES+DIST_TMPL)",
+   "locus": "accuracy/run_gates.py:164",
+   "verdict": "CIRCULAR",
+   "L1_changed": "false",
+   "L2_changed": "false",
+   "L4_net_new_reds": "它本身是**别人**翻红的原因: 9 个材料臂里有 9 个都让 test_gate_protocol_is_pinned_and_matches_live 翻红",
+   "ref_count_coarse": 22,
+   "ref_count_strict": 22,
+   "deletable": false,
+   "deletable_reason": "作为版本漂移探测器它是有用的；该删的是『拿它当材料承重的证据』这个用法。",
+   "injection_test": "M6 已跑: 让它恒返 \"ABSURDCONSTANT\" ⇒ L1/L2 逐面不变 ⇒ 它自己不进任何读数或判决。",
+   "evidence": "按定义它覆盖四块材料的全部字节 ⇒ **改任何一块(包括改成荒谬值)它都会变**。实测: NEGATIVE_EXAMPLES 清空臂与『所有结都不许用』荒谬臂触发的是**同一组翻红**，首条就是它的钉子测试。⇒ 用它论证『材料承重』是自证，与 M2 说的 instrument_hash 同形。它守的是版本漂移，不是材料质量。"
+  },
+  {
+   "component": "GATE_PROTOCOL 文档 dict(★covers / ★does_not_cover / ★★why_separate)",
+   "locus": "accuracy/run_gates.py:171",
+   "verdict": "NO_CONSUMER",
+   "L1_changed": "false",
+   "L2_changed": "false",
+   "L4_net_new_reds": "0",
+   "ref_count_coarse": 1,
+   "ref_count_strict": 0,
+   "deletable": false,
+   "deletable_reason": "★ 『没有消费者』≠『该删』。它是仓内唯一把闸的覆盖面/不覆盖面写成**数据**的地方(★does_not_cover: 『生产 s1/s2 prompt、模型与端点不归它管』)。该做的是**接线**(写进 gates_result.json 产物)，不是删 —— 与 v2 里 audio.capabilities / prosody 同形。",
+   "injection_test": "M6 已跑: 把 ★★why_separate 的正文换成 XXDEADXX ⇒ L1/L2/L4 逐面不变、绊线未触发。它同时是本簇**被测面内的死常量阳性对照**，判据判它非承重 ⇒ 判据非重言。",
+   "evidence": "词边界扫描(scripts/ probes/ accuracy/ tests/ .github/ config/，六类后缀)粗计=1、严计=0，那 1 就是它自己的赋值行。`GATE_PROTOCOL_VERSION` 与 `gate_protocol_hash` 因词边界不计入。"
+  },
+  {
+   "component": "ANCHOR_CORPUS 与 CCE_CORPUS 解耦(锚例考卷独立于被测语料)",
+   "locus": "accuracy/run_gates.py:33",
+   "verdict": "UNREACHABLE",
+   "L1_changed": "false(默认语料下)",
+   "L2_changed": "false(默认语料下)",
+   "L4_net_new_reds": "1 —— test_cce_anchors_independent_of_corpus::test_switching_corpus_does_not_break_the_exam",
+   "ref_count_coarse": 15,
+   "ref_count_strict": 0,
+   "deletable": false,
+   "deletable_reason": "复活工况下撤销它会直接扣发整轮；这条修法是对的。",
+   "unreachable_condition": "只有当 CCE_CORPUS 指向**不含那 5 条锚例**的语料(外部效度/换语料实验)时它才动。默认语料下 CORPUS 与 ANCHOR_CORPUS 逐字相同 ⇒ 撤销修法等价于空操作。",
+   "injection_test": "M6 已跑: ANCHOR_CORPUS = [] 荒谬注入 ⇒ L1 十六个字段、L2 十一个字段全变，rc 0→2 ⇒ 消融面确实接上。",
+   "evidence": "复活实证: 把 CCE_CORPUS 指向『corpus.json 去掉 5 条锚例』(文件建在私有工作目录，不进仓)。解耦版(现状): 五员 qual_hits 全 5/5、status OK、overall_pass True。撤销解耦(ANCHOR_CORPUS = CORPUS): 五员 qual_hits 全 **0/5** ⇒ 全部 DISQUALIFIED ⇒ status INSUFFICIENT_QUALIFIED_ANNOTATORS、rc=2、overall_pass None、整轮扣发。★ 与源码注释里记的那次实测缺陷逐项吻合。"
+  },
+  {
+   "component": "admit_annotators() 的扣发路径(NOT_EXAMINED / INSUFFICIENT ⇒ rc=2、不回退全员)",
+   "locus": "accuracy/run_gates.py:465",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "true(扣发时产物结构整体改变)",
+   "L2_changed": "true —— status / admit / withheld / rc / overall_pass 同时改变",
+   "L4_net_new_reds": "panel_QUAL_P_LOW_absurd 6 条、panel_QUAL_P_HIGH_low 4 条里各有 acceptance_gate_failopen::test_only_the_disqualified_are_dropped",
+   "ref_count_coarse": 33,
+   "ref_count_strict": 1,
+   "deletable": false,
+   "deletable_reason": "它是 fail-open 的唯一拦截点；本仓已在这一处栽过两次(passed or MODELS；of==0 归入 UNRESOLVED)。",
+   "evidence": "两条独立路径实测走通扣发: ①面板缩到 1 员 ⇒ INSUFFICIENT_QUALIFIED_ANNOTATORS、rc=2、out['gate'] 换成扣发形状、overall_pass None；②撤销 ANCHOR_CORPUS 解耦 + 外部语料 ⇒ 全员 0/5 DISQUALIFIED ⇒ 同一条扣发路径。两次都**没有**静默回退到全员，fail-closed 成立。"
+  }
+ ],
+ "limits": [
+  "① 证据范围只到**对这份闸实现的离线软件验证**。替换边界只在传输结果(urllib.request.urlopen)，构造/解析/断言/汇总逐字未改 ⇒ 本簇**不能**证明真实模型的语义判断准确率、重复稳定性，也不能证明 G-K1/G-K2 这两道闸『测得准』。",
+  "② **重放面板不是真实抽样。** run_gates 的逐条原始标注 raw_annotations.json 不在仓内(落在仓外识别层保险库，路径按 R3 不写入产物)，本轮**去掉了那条依赖**。本装置的条目级中心取自 accuracy/out/gates_result.json 里 G-K2 rows 的真实共识分布与真实 facts；**标注者间离散是合成的**(sha256(model|id) 确定，ALPHA=0.2855 冻结)。⇒ 任何『某个数是多少』的结论都只对本装置工况成立。",
+  "③ **只有 JS 面标定到了记录工况，top2 面没有。** 本装置 mean_JS=0.24195 vs 记录 0.2422(差 0.00025)，但 mean_top2=0.9557 vs 记录 0.8812。⇒ top2 阈的臂结论(0.89 不翻、0.96 翻)只对本装置成立；换算到记录工况必须用翻转规则 `mean_top2 >= 阈`，不能直接抄臂。",
+  "④ **KNOT_BRIEF / DECISION_TREE / NEGATIVE_EXAMPLES / DIST_TMPL 四块判 INCONCLUSIVE，不是 NO_CONSUMER。** 它们『L1/L2 不变』是重放 stub 按条目身份返回固定分布的**构造性结果**，不是测量结果。本簇只测到了到达面(进没进 prompt、渲染字节数、会不会崩)与 L4。",
+  "⑤ **L4 覆盖有上限。** 大量测试直接读 accuracy/run_gates.py 的**源码文本**做断言(例如 test_cce_run_params_recorded.py:177 的 `SRC[SRC.index(\"def stamp_params\"):]`)，内存内变异看不见它们 ⇒ 那些位置的『净新增翻红 0』**不是**『没人守』。L4 扫描面也只有 19 个引用 run_gates 的测试文件(全套 392 条里的 108 条)，且剔掉了 test_cce_chain_conformance.py(那里的 run_gates 是局部参数名，纯词碰撞；且单文件 collection 要 93s)。",
+  "⑥ **L4 装置本身有过一个缺口，已修并留痕。** 第一版垫片只拦 `import run_gates`，而 test_cce_run_params_recorded.py 走的是 accuracy_offline_harness.load() ⇒ RUN_PARAMS 清空臂当时报 0 条翻红。把变异链到 load() 后才出现真实的 2 条。同类缺口可能还有(任何绕过这两条加载路径的消费者)。",
+  "⑦ **没有 market 维度可分层。** 验收语料是单一 r/HearingAids 评论集(86 条，去 5 条锚例后 81 条)；仓内 accuracy/ scripts/ config/ 实扫无 market 字段 ⇒ 判决不得外推到任何按市场分层的工况。",
+  "⑧ **G-K2 一侧只做了软件面。** 本轮 CCE_SKIP_GK2=0 让 G-K2 真的跑了，但 facts 是回放的真实记录值；G-K2 自 2026-08-07 已被定性为不可判并冻结 N>=150 复测 ⇒ 本簇不对 G-K2 的方法有效性发表意见，只报它的代码路径行为。",
+  "⑨ **M8 结构性偏倚**: 只在存量/重放工况上做消融天然把保险丝判成装饰。本簇实测到三个保险丝(离群规则 2SD · QUAL_P_LOW 0.70 · ANCHOR_CORPUS 解耦)并逐个实证了复活条件，因此判 UNREACHABLE 而非 NO_CONSUMER；但**不能排除还有别的保险丝没被这批工况碰到**。",
+  "⑩ **本簇不覆盖**: G-K3(签名两两可分) · 混淆诊断块的内容质量(本装置固定返回) · call() 的重试/超时/错误处理路径(未构造失败响应) · extract_json_robust 的解析鲁棒性 · BODY_CHARS/UNIT_LABEL 作为被测变量的效应(只验证了它们被记录) · accuracy/ 目录其余 14 个文件 · .github/workflows/accuracy.yml 的 CI 行为。",
+  "⑪ **『PASS 不是二值事实』这句的合法版本**: 闸的翻转条件就是 `mean_JS <= 阈`，记录工况 0.2422 距 0.25 余量 0.0078 ⇒ 阈收 3.1% 相对量即翻判。★ 2026-09-09 已撤回『余量只有 0.16 个跨对 SD』与『35.5% = 闸有 35.5% 概率错误认证』两处统计误用，本轮**不复活**它们，只报可直接核验的点估余量。",
+  "⑫ 判决绑定工况(M7)。工况 = {gate_protocol v2 / hash dbdff13f9da155bc · BODY_CHARS 700 · UNIT_LABEL 评论 · SKIP_GK2 false · 五员 MiniMax 面板 · sample_n 81 · 每臂 431 次重放调用 · 被测文件 sha256 见产物}。任一项漂移 ⇒ 本批判决当场失效，必须重跑。",
+  "⑬ **离线装置不是零副作用**: 重放刻意产生的解析失败被 scripts/calibration_framework.py:68 的 JSON_FAIL_LOG 追加写进仓内 results/calibration/json_extract_failures.log(本轮 1404 条)。四个冻结件与本簇全部输入文件 sha256 跑前跑后逐一相同，但这条日志被写了；按硬边界(共享资源的破坏性操作先说影响面、等点头)本轮**只报告不回滚**。"
+ ],
+ "★★★装置的一个副作用(必须自报, 不是被发现)": {
+  "what": "本轮重放刻意让约 10/405 条标注返回不可解析文本(复现真实运行的覆盖缺口)。run_gates → exp_v4_full_validation.extract_json_robust → scripts/calibration_framework.py:68 的 JSON_FAIL_LOG 会把每条解析失败**追加写进仓内** results/calibration/json_extract_failures.log。",
+  "measured": "本轮共追加 1404 条 `gk1v2_*` 记录(标记 OFFLINE_REPLAY_NO_PARSE 出现 735 次)，时间戳 2026-09-11。该文件是**追加型诊断日志**，2026-09-07 那次真实运行也往里写。",
+  "★为什么没有回滚": "重写/截断一个多 agent 共享的追加日志是**破坏性操作**，且无法区分哪些行属于别的 agent。按硬边界(动共享资源先说影响面、等点头)，本轮**只报告不动手**。",
+  "★对 R2 的影响": "四个冻结生产件与本簇全部输入文件的 sha256 跑前跑后**逐一相同**(见 file_integrity)。该日志不在被测文件集内，但它证明**离线装置并非零副作用** —— 下一个做同类消融的人应先把 RESULTS_DIR 重定向到私有工作目录，或让重放 stub 不产生解析失败。"
+ }
+}

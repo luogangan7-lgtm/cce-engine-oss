@@ -50,16 +50,55 @@ def _format_calls(src, tmpl_name):
     return out
 
 
-def test_every_dist_tmpl_format_supplies_all_placeholders():
-    need = _placeholders_of("DIST_TMPL")
-    calls = _format_calls(SRC, "DIST_TMPL")
-    assert calls, "★ 一处 DIST_TMPL.format 都没找到 —— 检查解析是否失效"
-    missing = [(ln, sorted(need - got)) for ln, got in calls if need - got]
-    assert not missing, (
-        "★★ 这些 DIST_TMPL.format 漏填占位符, 运行时会 KeyError:\n  "
-        + "\n  ".join(f"{SRC_PATH.name}:{ln} 缺 {m}" for ln, m in missing)
-        + f"\n模板需要: {sorted(need)}"
-    )
+def _all_templates():
+    """★★ 2026-09-07: 原来只查 DIST_TMPL 一个 —— **这条闸有和它要抓的 bug 一样的盲点**。
+
+    当天给模板加 `{unit}` 占位符时, `FACT_TMPL.format(body=...)` 漏填 ⇒ 会 KeyError,
+    而本闸**绿着**。⇒ 改为**枚举模块里所有 `*_TMPL`**, 不许再手写名单。
+    """
+    import run_gates as RG
+    return sorted(n for n in dir(RG)
+                  if n.endswith("_TMPL") and isinstance(getattr(RG, n), str))
+
+
+def test_every_template_format_supplies_all_placeholders():
+    names = _all_templates()
+    assert len(names) >= 2, f"★ 只找到 {names} —— 模板枚举失效了"
+    bad = []
+    for nm in names:
+        need = _placeholders_of(nm)
+        for ln, got in _format_calls(SRC, nm):
+            if need - got:
+                bad.append(f"{SRC_PATH.name}:{ln} {nm}.format 缺 {sorted(need - got)} (需 {sorted(need)})")
+    assert not bad, "★★ 这些 .format 漏填占位符, 运行时会 KeyError:\n  " + "\n  ".join(bad)
+
+
+def test_every_template_actually_renders():
+    """★ 每个模板都真渲染一次, 不只 DIST_TMPL。零 API。"""
+    import run_gates as RG
+    import re as _re
+    for nm in _all_templates():
+        need = _placeholders_of(nm)
+        s = getattr(RG, nm).format(**{k: f"<{k}>" for k in need})
+        left = [m for m in _re.findall(r"\{(\w+)\}", s) if m in need]
+        assert not left, f"★ {nm} 渲染后仍有占位符: {left}"
+
+
+def test_unit_label_is_a_measured_variable_not_a_hardcode():
+    """★★★ 「给你一条评论」这句话曾经是**硬编**的 —— 而它对 belong 有方向明确的影响。"""
+    import run_gates as RG
+    assert "unit" in _placeholders_of("DIST_TMPL"), (
+        "★★★ DIST_TMPL 里的单元标签又被写死了。它不能硬编: prompt 说「给你一条**评论**」, "
+        "而 KNOT_BRIEF 同时说 display=「**评论区**最高质量UGC主力」、belong=「自我暴露式**发帖**」"
+        "⇒ 标一条评论时 belong 拿 0 **几乎是被 prompt 指示出来的**。"
+        "它必须是**被测变量**(CCE_UNIT_LABEL), 才能把这个效应量出来")
+    assert RG.UNIT_LABEL == os.environ.get("CCE_UNIT_LABEL", "评论"), "★ 默认值变了"
+    a = RG.DIST_TMPL.format(unit="评论", brief="b", decision_tree="d",
+                            negative_examples="n", body="x")
+    b = RG.DIST_TMPL.format(unit="帖子", brief="b", decision_tree="d",
+                            negative_examples="n", body="x")
+    assert a != b and "帖子" in b and "评论" not in b.replace("评论区", ""), \
+        "★ 换单元标签后 prompt 没有真的变"
 
 
 def test_qualify_uses_the_same_template_as_production():
@@ -96,7 +135,7 @@ def _reverse_checks():
     # ① 注入一处漏填的 format ⇒ 必须红
     g["SRC"] = saved + '\n_ = DIST_TMPL.format(brief="b", body="c")\n'
     try:
-        test_every_dist_tmpl_format_supplies_all_placeholders()
+        test_every_template_format_supplies_all_placeholders()
         raise SystemExit("★ 反向验证失败: 注入漏填的 format 后仍绿")
     except AssertionError:
         n += 1
@@ -115,11 +154,14 @@ def _reverse_checks():
 
 
 if __name__ == "__main__":
-    test_every_dist_tmpl_format_supplies_all_placeholders()
+    test_every_template_format_supplies_all_placeholders()
+    test_every_template_actually_renders()
+    test_unit_label_is_a_measured_variable_not_a_hardcode()
     test_qualify_uses_the_same_template_as_production()
     test_both_paths_actually_render()
     n = _reverse_checks()
     calls = _format_calls(SRC, "DIST_TMPL")
-    print(f"test_cce_prompt_template_args: OK ({len(calls)} 处 DIST_TMPL.format 全部填满 "
-          f"{sorted(_placeholders_of('DIST_TMPL'))} | 资格考与正式标注用同一套占位符 | "
-          f"真渲染无残留占位符 | {n} 条反向验证判红)")
+    print(f"test_cce_prompt_template_args: OK (★**全部 {len(_all_templates())} 个模板**"
+          f"{_all_templates()} 的 .format 都填满(此前只查 DIST_TMPL, 与它要抓的 bug 同盲点) | "
+          f"资格考与正式标注用同一套占位符 | 每个模板都真渲染 | "
+          f"★单元标签是**被测变量**不是硬编 | {n} 条反向验证判红)")

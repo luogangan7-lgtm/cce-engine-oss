@@ -1,0 +1,190 @@
+{
+ "unit": "CE3_分类学字段_G侧",
+ "role": "independent_recheck_round5",
+ "agent": "refuteG",
+ "when_utc": "2026-09-11T12:14:29Z",
+ "scratch": "/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/refuteG",
+ "zero_api": {
+  "in_process_tripwire_tripped": [],
+  "farm_pytest_runs": 7,
+  "farm_tripwire_hits": 0,
+  "scope": "socket.socket.connect 绊线; 不覆盖已建立连接/非socket传输/C扩展自带栈",
+  "real_key_never_exported": "MINIMAX_API_KEY=OFFLINE-FAKE-KEY-NOT-A-SECRET"
+ },
+ "file_integrity": {
+  "sha_before": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "sha_after": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "unchanged": true,
+  "note": "★ 被核产物写 scripts/cce_knot_classify.py 的 sha_after=ad6503a8…、unchanged=false。本轮(2026-09-11T12:12Z)实测该文件 = f2cef2f9…，与任务书冻结值逐字相同；四件全部相同。⇒ 那条事故记录在交付时点已失效(那行 `# refactor log reverse test` 现已不在文件里，tail -3 实查)。收口台账若按 sha_after 比对会误判。"
+ },
+ "judge_acceptance_M1": {
+  "dead_constant_arm": {
+   "arm": "_S1_BASE_TEMPS[5:7] -> 999.0/-999.0",
+   "P_prompt_sha": "same",
+   "s2_prompt_sha256": "same",
+   "instrument_hash": "d4cce4c745f3f991 -> 2d4409b1222624bb (与被核产物报的值逐字相同)",
+   "verdict_path_for(现算)": "-> None",
+   "top1_usable(现算)": "-> False",
+   "结论": "该臂经 sampling_policy.s1_temps 进 instrument_hash ⇒ instrument_hash→verdict_path→扣发 这条链对它同样点亮 ⇒ 该链非差分，M2 隔离正确"
+  },
+  "liquidity_arm_align": {
+   "arm": "hard_discriminant 注哨兵 -> cce_align_v2.DISSOLVE_PROMPT",
+   "sentinel_in_prompt": true,
+   "len": [
+    386,
+    404,
+    323
+   ],
+   "dead_control_changelog_changed": false
+  },
+  "determinism": "G面/P面/align面 各连跑两次，输出逐字节相同"
+ },
+ "verdicts_recheck": [
+  {
+   "v3_id": "v3-093",
+   "component": "knots[].hard_discriminant @P",
+   "was": "NO_CONSUMER",
+   "now": "LOAD_BEARING_L1_ONLY",
+   "result": "OVERTURNED",
+   "why": "漏掉一个活的生产消费者。scripts/cce_align_v2.py:22 `DISCR = {k[\"key\"]: k.get(\"hard_discriminant\",\"\")}` (模块级) → :87 `DISSOLVE_PROMPT.format(knot=…, discr=DISCR.get(knot,\"\"), …)` 在 dissolve_hit() 里 → `_call(p, temperature=t)` 真模型 → score() 的 dissolution 项 → θ 判决。score 被 scripts/reply_batch.py:22 与 scripts/reply_loop.py:20 以 `from cce_align_v2 import score as knot_align` 引入 ⇒ 生产回复链路。",
+   "measured": {
+    "mutate::sentinel_in_DISSOLVE_prompt": true,
+    "prompt_len_base_mut_del": [
+     386,
+     404,
+     323
+    ],
+    "delete::discr_becomes_empty": true,
+    "dead_control_changelog::prompt_changed": false,
+    "dissolve_hit_calls__call": true,
+    "score_calls_dissolve_hit": true,
+    "score_reply_mode_hits_every_knot": true
+   },
+   "root_cause_of_the_error": "注入臂(Poison/mutate/delete)只施加在传给 cce_knot_classify 的内存 taxo 字典上；cce_align_v2 在 import 时从 config 文件**自己**再读一份 TAXO ⇒ 该面结构上看不见内存注入。这正是 CE-3 说的那个形状的原样复发：注入跑在看不见消费者的面上，「注入后不变」被读成「没有消费者」。被核产物自己已把这一面写进 faces_blind(blind::C 面 … cce_align_v2 对齐链)，却仍按 NO_CONSUMER 出判 —— 违反它自己的 M6(没跑注入的无差异一律 INCONCLUSIVE)。",
+   "deletable": false,
+   "deletable_note": "delete 臂全仓净新增 21 条(本轮独立复现，逐条同)。但**没有一条来自 cce_align_v2** ⇒ 删掉它会静默把生产 DISSOLVE prompt 的 discr= 变成空串而零闸拦截。这是一条新发现的闸缺口。",
+   "faces_blind_add": [
+    "blind::cce_align_v2 的 hit 值与 θ=0.35 判决 —— 需真模型调用，零 API 下测不到(只能证明材料变了)"
+   ]
+  },
+  {
+   "v3_id": "v3-094",
+   "component": "knots[].hard_discriminant @G",
+   "was": "NO_CONSUMER",
+   "now": "NO_CONSUMER",
+   "result": "CONFIRMED",
+   "measured": {
+    "gate_protocol_hash": "dbdff13f9da155bc 恒定(mutate+delete)",
+    "materials_len": 4460,
+    "materials_sha_changed": false,
+    "COST_TIER_changed": false,
+    "ns_changed_names": [
+     "TAXO(输入本身)"
+    ],
+    "import_exception": null,
+    "TAXO_refs_in_run_gates": "实查 6 处 :20 :21 :137 :143 :145 :275，全部模块级；run_gates:777 的 hard_discriminant 是 GK3 探针输出 JSON 的键名，不读 TAXO"
+   },
+   "positive_control": "cost_tier mutate ⇒ COST_TIER 变而 gate_protocol_hash 一字不变；cost_tier delete ⇒ import 期 KeyError('cost_tier') —— 逐条复现，G 面确实看得见非哈希消费者",
+   "negative_controls": "changelog_1_1_0 / frozen_at / source / internal_examples 四个臂在 G 面零伪阳性"
+  },
+  {
+   "v3_id": "v3-099",
+   "component": "knots[].typical_codes @G",
+   "was": "NO_CONSUMER",
+   "now": "NO_CONSUMER",
+   "result": "CONFIRMED",
+   "measured": {
+    "G面 mutate+delete": "gate_protocol_hash/材料/COST_TIER/命名空间/import 全部不变",
+    "P面复核": "mutate ⇒ prompt_sha 0dc6459d17475b51→82bd2972c59ed517, 哨兵进 prompt, instrument_hash d4cce…→5bd4530022f43521, verdict_path→None, top1_usable→False —— 与被核产物一致，且归属标在 P 正确"
+   }
+  },
+  {
+   "v3_id": "v3-101",
+   "component": "knots[].family @G",
+   "was": "NO_CONSUMER",
+   "now": "NO_CONSUMER",
+   "result": "CONFIRMED",
+   "measured": {
+    "G面": "四臂全不变",
+    "accuracy/ 的 8 处 family": "全在 accuracy/data/*.json 语料里，无一处代码；compare/aggregate_core/t2_rewrite/t2_ablation/twoarm 只取 key/name/playbook/behavior[:60] —— 复核属实",
+    "P面": "mutate ⇒ prompt 变+哨兵进 prompt, instrument_hash→d71d69ec2594423e, top1_usable→False"
+   },
+   "under_reported": "★ 另有一个两轮都没观测的 P 面: cce_align_v2.py:21 `FAMILY = {k[\"key\"]: k.get(\"family\",\"推动\")}` 在 score() 里路由 共鸣 vs 拆除 —— 改 family 会把每个结从共鸣支切到 dissolve_hit 支(凭空产生真模型调用)。不改 @G 判决，但 @P 的后果被低估。"
+  },
+  {
+   "v3_id": "v3-103",
+   "component": "definition_of_knot @G",
+   "was": "NO_CONSUMER",
+   "now": "UNREACHABLE",
+   "result": "DOWNGRADED",
+   "why": "M8 判据用错。产物写「结构性缺席(两处消费代码里根本没有这个键)」—— 实查为假: scripts/cce_stage2_candidate.py:70 `head = (f\"【结的定义】{taxo['definition_of_knot']}…\")`，且该键落在 build() 的**默认开启**组件 'ontology' 里；probes/gen8_shipping_run.py:20 的**上线配置** COMPONENTS 含 'ontology'。⇒ 不是没有消费代码，是消费代码尚未接进生产 ⇒ 按 M5/M8 应判 UNREACHABLE。",
+   "revival_condition": "cce_stage2_candidate.build() 接入生产 stage2(gen7/gen8 候选代上线)，或 COMPONENTS 含 'ontology' 的任何一轮被宣布为生产仪器",
+   "deletable": false,
+   "deletable_correction": "产物报 delete 臂 11 条。本轮复现 11 条逐条相同，**但其中 1 条是量具伪阳性**: tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied 对**删除任意顶层键**都翻红 —— 实测 changelog_1_1_0 delete 净新增=1、frozen_at delete=1、source delete=1，全部就是这一条。⇒ 字段专属净新增是 **10**(stage2_candidate 5 + rule_delivery_completeness 5)，不是 11。"
+  },
+  {
+   "v3_id": "v3-106",
+   "component": "identity_criterion @G",
+   "was": "NO_CONSUMER",
+   "now": "UNREACHABLE",
+   "result": "DOWNGRADED",
+   "why": "同 v3-103。scripts/cce_stage2_candidate.py:71 `【同一性判据】{taxo['identity_criterion']}`，同在默认开启的 'ontology' 组件里。",
+   "revival_condition": "同 v3-103",
+   "deletable": false,
+   "deletable_correction": "同 v3-103: 11 → 10 字段专属"
+  },
+  {
+   "v3_id": "v3-091",
+   "component": "knots[inertia].behavior[60:] @P",
+   "was": "LOAD_BEARING_L1_ONLY",
+   "now": "LOAD_BEARING_L1_ONLY",
+   "result": "CONFIRMED_BUT_UNDER_REPORTING",
+   "measured": {
+    "inertia_behavior_len": 68,
+    "behavior[60:]": "开口即高质量个案",
+    "P::prompt_sha": "same(生产截[:60])",
+    "P::instrument_hash": "same(d4cce4c745f3f991)",
+    "P::verdict_path/top1": "same",
+    "G::gate_protocol_hash": "dbdff13f9da155bc → 723be1ef938f6312 (钉死值被破)",
+    "G::ns_changed": [
+     "KNOT_BRIEF"
+    ],
+    "G::behavior 头部对照臂": "→ e50ab0f5a703fcf5 且哨兵进材料 ⇒ 装置接上了"
+   },
+   "downgrade_reason": "@P 标签本身站得住，但这条消融在 G 上是 LOAD_BEARING_L2，而**本单元没有任何一行 verdict 承载这个事实**。产物只在 evidence 里建议收口时另立兄弟行 —— 按交付原样合并，这条 G 侧后果会在台账上消失。建议收口 agent 必须补 `knots[inertia].behavior[60:] @G = LOAD_BEARING_L2`。"
+  }
+ ],
+ "harness_faults": [
+  "F1 注入臂作用域 ≠ 观测面作用域: 内存注入只改传给 cce_knot_classify 的 taxo 字典，凡是 import 期自读 config 的模块(cce_align_v2 / run_gates / 另 40 余个)结构上看不见 ⇒ 「注入后不变」不可读作「没有消费者」。本轮的 v3-093 翻案就出自这里。",
+  "F2 noop 对照不够: 只做 json 往返，没做**删掉一个任意非承重顶层键**的对照 ⇒ deletable 的净新增被 test_the_ledger_is_recomputed_not_copied 这条通用探测器系统性 +1。",
+  "F3 死对照未在 L4 面验证: 产物把 knots[].internal_examples 当死对照(15 面不动)，但它在全仓 L4 上净新增 3 条(test_cce_internal_examples ×2 + 通用那 1 条)。",
+  "F4 引用计数无扫描面定义: 报了粗计/严计两个数却没写各自覆盖哪些目录，不可复核。本轮独立扫描(含 .github/): hard_discriminant 341/94 · typical_codes 149/41 · family 11284/92 · definition_of_knot 59/12 · identity_criterion 57/12。★ 但 M3-② 的担忧在本单元是空的: **.github/ 对这五个字段命中数全为 0**(已实扫 .github/prepare.py · summarize.py · 17 个 workflow)。",
+  "F5 pristine 基线漂了: 产物报 pristine 4 条红(audio_prosody / chain_conformance / suspend_fix_confirmation / ontology_migration)，本轮同一套农场跑出 2 条(ablation_verdict_schema::test_operating_point_is_still_true_right_now · suspend_fix_confirmation::…)。净新增数仍逐条对得上，但基线本身没被 sha 钉住。"
+ ],
+ "new_finding_not_in_scope": "闸缺口: 仓内 21 条测试断言 hard_discriminant **不**进 stage2 标注/生产 prompt，而它真正进的那一处(cce_align_v2 的 DISSOLVE prompt)**零测试覆盖** —— 删掉该字段，discr= 静默变空串，全仓 tests/ 没有一条会红。另: scripts/consistency_check.py 的 C1 闸把 hard_discriminant 排除在 DESCRIPTIVE 之外，即仓内自有的一致性闸**已经在断言它有代码消费者**，与 NO_CONSUMER 判决直接相斥。",
+ "operating_point": {
+  "market": "intl(默认; 四个观测面均不调 cce_strategy_gate / cce_outbound_guard, 未设 CCE_MARKET)",
+  "instrument": "instrument_id(TAXO,k=3,knot_n=5,s1_pairing='round_robin_over_3_s1_draws') = d4cce4c745f3f991 (本轮实算)",
+  "k_distribution": "未重放存量(本轮不做 22 份重放, 只做结构面+L4 面)",
+  "taxonomy_sha": "56a1c1977bf8d18c…",
+  "when": "2026-09-11T12:12Z"
+ },
+ "limits": [
+  "本轮不重放 22 份存量 stage2 读数 —— 只复核结构面(prompt/材料/哈希/命名空间/k1 路由)与全仓 L4 面。数值面(intensity/families/weight)照搬被核产物，未独立复算。",
+  "G 的 PASS/FAIL 本身(κ / Spearman ρ / 资格率)零 API 下未跑，与被核产物同 blind。",
+  "cce_align_v2 只证明到「材料变了/哨兵进了 prompt」，没证明真模型的 hit 会变、θ=0.35 会翻 —— 那需要真调用。",
+  "market=cn 分支未覆盖。k∉{3,5} 与非 gen6 profile 未覆盖。",
+  "未读 /Volumes/data/cce-identified-vault(R3)。probes/gen8_shipping_run.py 指向该路径的那行只按仓内源码文本核实，未访问。",
+  "本 agent 未改动 tests/data/ablation_verdicts_v3.json(sha 85aee4a840eca7b8… 只读)，也未改动四个冻结件。"
+ ]
+}

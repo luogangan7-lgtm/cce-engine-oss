@@ -1,0 +1,65 @@
+{
+ "block": "GK1_MARGIN_AND_OUTLIER_RULE_2026-09-07",
+ "★zero_api": "全部从 accuracy/out/gates_result.json 现算, 零 API。",
+ "★this_does_not_re_adjudicate": "★★ 判据是 2026-08-09 **冻结**的, 本文件**不改判也不改规则** —— 看到结果之后改判据正是本项目最防的那件事。这里只做两件事: **把余量算出来**, 和**把一个可预注册的问题写下来**留给下一轮。",
+ "★finding_1_margin_is_thinner_than_the_spread": {
+  "top2": {
+   "mean": 0.9042,
+   "threshold": 0.8,
+   "margin": 0.1042,
+   "sd_across_6_pairs": 0.0366,
+   "margin_over_sd": 2.85
+  },
+  "JS": {
+   "mean": 0.2321,
+   "threshold": 0.25,
+   "margin": 0.0179,
+   "sd_across_6_pairs": 0.0328,
+   "margin_over_sd": 0.55
+  },
+  "★reading": "★★ **JS 的余量(0.0179)比六对之间的 SD(0.0328)还小** —— 余量只有 0.55 个 SD。top2 的余量是 2.85 个 SD, 稳得多。⇒ G-K1 这次通过, **卡在 JS 上, 而且卡得很紧**。★ 这**不是**说它没过 —— 判据是均值对阈值, 均值确实达标。是说: **换一组标注者、换一批样本, JS 很可能越线**, 而 top2 不会。",
+  "★what_it_does_not_say": "跨对 SD **不是**均值的标准误 —— 六个对不独立(共享标注者)。要给出真正的置信区间需要**对条目自助重采样**, 而那需要逐条原始标注 —— ★ 那次跑**没有落盘**(430+ 次调用的原始数据丢了), 已修: 现在会写 out/raw_annotations.json。"
+ },
+ "★finding_2_the_outlier_rule_protects_the_outlier": {
+  "rule": "与其余成员平均JS > 面板中位数+2SD(盲规则, 2026-08-09 冻结)",
+  "per_annotator": [
+   {
+    "annotator": "MiniMax-M2",
+    "mean_JS": 0.2166,
+    "threshold_including_self": 0.2592,
+    "fires_including_self": false,
+    "threshold_leave_one_out": 0.2638,
+    "fires_leave_one_out": false
+   },
+   {
+    "annotator": "MiniMax-M2.5",
+    "mean_JS": 0.2209,
+    "threshold_including_self": 0.2592,
+    "fires_including_self": false,
+    "threshold_leave_one_out": 0.2669,
+    "fires_leave_one_out": false
+   },
+   {
+    "annotator": "MiniMax-M3",
+    "mean_JS": 0.2322,
+    "threshold_including_self": 0.2592,
+    "fires_including_self": false,
+    "threshold_leave_one_out": 0.2586,
+    "fires_leave_one_out": false
+   },
+   {
+    "annotator": "MiniMax-Text-01",
+    "mean_JS": 0.2586,
+    "threshold_including_self": 0.2592,
+    "fires_including_self": false,
+    "threshold_leave_one_out": 0.2341,
+    "fires_leave_one_out": true
+   }
+  ],
+  "★the_pattern": "★★★ **Text-01 已经第二次差 0.001 没触发离群线**:\n  · 2026-08-09: 平均JS **0.3082**, 线 **0.3092**, 差 0.0010, 未触发\n  · 2026-09-07: 平均JS **0.2586**, 线 **0.2592**, 差 **0.0006**, 未触发\n两次都差不到千分之一。这不像巧合。",
+  "★the_mechanism": "规则是「与其余成员平均JS > **面板中位数 + 2SD**」, 而**面板包含候选离群者自己**。一个偏高的成员会**把 SD 抬上去**, 从而抬高那条线 —— **它保护了它自己**。★ 留一法(用其余三人算线)实测: 线 = 0.2341, Text-01 = 0.2586 ⇒ **触发**。同一份数据, 两种算法, 相反结论。",
+  "★★i_am_not_changing_the_rule": "★★ 规则 2026-08-09 冻结。**看到本轮结果之后去改它, 就是在挑一个让自己喜欢的答案** —— 而且方向恰好是「剔掉最差的那个 ⇒ 指标变好」, 这正是最该警惕的方向。⇒ **本轮判决维持: Text-01 留在核心面板, G-K1 通过。**",
+  "★preregisterable_question_for_next_round": "「离群规则该用**含自身**还是**留一法**的面板统计量?」\n这是一个**在看结果之前**就能定的方法学问题, 且有明确的先验理由: 含自身的规则在小面板(n=4)上**结构性地**保护极端成员。\n★ 但要**先冻结再跑**, 不能拿本轮数据当依据 —— 那就成了用结果选规则。\n★ 且必须同时预注册: 若改用留一法, 剔掉 Text-01 后 G-K1 的三个指标会怎么变, 以及**剔到只剩 3 人时两两对数从 6 降到 3**, 这本身会不会让均值更不稳。"
+ },
+ "★finding_3_the_run_discarded_its_own_raw_data": "2026-09-07 那次跑发起 430+ 次 API 调用, 只落盘了**聚合数**。⇒ 想给 JS 一个置信区间, 就得**再花 430 次**, 而一行 json.dump 本可避免。★ 与本项目反复栽的「只存聚合值, 回答不了『是哪一条在动』」同族: **聚合是判决要的, 逐条是复核要的, 两者不可互相替代。**已修。"
+}

@@ -1,0 +1,383 @@
+{
+ "block": "EXTRACTOR_REFUSAL_GRADIENT_TEMPLATES_R3",
+ "★★★frozen_before_measurement": "16 条文本与逐条推导在 r3 任何模型调用之前写定。",
+ "★合同原文(逐字, 出自 config/knot_taxonomy.json knots[4].hard_discriminant)": "输出**新信息增量**(具体型号/数据/使用细节/纠错/结构化经验)且谈论对象是**自己已拥有或已经历**的。无质询句;若出现对某方真实性/资历的质询→audit;若谈的是期望中未得之物→itch。",
+ "★★★这一轮换了什么问题": {
+  "r1/r2 问的": "抽取器会不会**交出**形式合规、语义错误的证书?",
+  "r2 的答案": "在 12 条**干净**构造阴性上 **12/12 自己拒答** ⇒ 资格层一次都没被 exercise。",
+  "★★★所以 r3 不该再问「验证器能不能拦」": "那个问题**已经答过了, 答案是不能** —— 2026-09-13 的零调用反例已证该层允许形式合法、语义错误的证书通过(否定辖域/归属/时态/引用层级/类型成员 五类)。⇒ 这条管线的安全**全靠抽取器自己拒答**。",
+  "r3 问的": "**抽取器的拒答在哪一级失效?** 同一个失败机制(P 支不成立), 表面增量样貌**四级递增**, 合同判定每级不变。找断点。"
+ },
+ "★★★梯度轴的定义(测量前冻结)": {
+  "L1": "**无任何增量样貌** —— 五类全不沾。(复用 r2 已实测被拒的三条, 作为**已标定起点**)",
+  "L2": "**有具体细节, 但细节关于说话人/家人/他人**, 不关于该设备。",
+  "L3": "**有真数字或具体名词, 但都不是关于该对象**(验配师数、就诊次数、报销比例)。★ 直击库内教训: 不能把「对象相关的事实」当作「关于对象的信息增量」。",
+  "L4": "**关于该对象, 但可由品类名本身推出**(品类定义/通性/同义反复)。表面上最像增量。",
+  "★不变的是什么": "每一级 **P 都不成立**, 预期**全部不得升格**。变的只有**表面相似度**。",
+  "★★★哪几级依赖提案": "L1–L3 **只依赖合同**; **只有 L4 依赖附件 A**(提案, 可被 owner 推翻) —— 推翻条件已逐条写在模板里。"
+ },
+ "★★★机械自检覆盖什么": "只覆盖**声明与文本的一致性**(片段逐字在、对象声明齐、条数与结构互异)。**它不验证上面任何一条推导** —— 2026-09-13 的零调用反例已经证明逐字核对验不了语义关系。推导的正确性由写出来给人看这一条担保, 不由脚本担保。",
+ "★★★缺P阴性依赖的读法前提": "**「括号内五类是闭列(枚举)而非示例」是读法, 不是字面。**\n★ 文本内依据: 分类学的斜杠括号有两种用法 —— ①**引语式**(knots[3]「thanks/that helps/问题解决了」· knots[8]「你是AI吧/你是托吧/凭什么信你」· knots[5][7] 的『』)显然是示例, 不可能穷尽; ②**类名式**(knots[0]「症状/场景/已试步骤」· knots[1]「厂商/验配师/平台」· knots[4] 本条)读作定义性分解。两类在文本上**可分**(是不是加引号的说话)。\n★★★ **但合同没有一句话说「仅限这五类」** ⇒ **推翻条件**: owner 或后续合同版本声明该括号为示例 ⇒ P 的外延变开 ⇒ 「五类皆不沾 ⇒ P 不成立」立刻失效 ⇒ **缺P阴性这 4 条自动作废**, 不需再实测, **也不得**拿已跑过的读数去救。\n★ 2026-09-14 更正: 我先前跟 owner 说「五类是闭列」时说得太平, 没说这是读法。这里补上。",
+ "★★★档案自身也守逐字协议": "about_P/about_Q/about/★可共享的逐字对象名 全部必须逐字出现在 text 里。",
+ "templates": [
+  {
+   "id": "G1-a",
+   "arm": "缺P阴性",
+   "★梯度级": "L1",
+   "结构": "单句自述",
+   "text": "I've been wearing hearing aids for a good while now.",
+   "about": "hearing aids",
+   "span_P": null,
+   "span_Q": "I've been wearing hearing aids",
+   "★可接受的逐字对象名": [
+    "hearing aids"
+   ],
+   "★构造规则声明失败的那一支": "P",
+   "推导": {
+    "Q": "成立 —— 自报**已拥有/已经历**。",
+    "P": "**不**成立 —— 逐类核: 具体型号✗(只说 hearing aids) · 数据✗(「a good while」是模糊时段) · 使用细节✗ · 纠错✗ · 结构化经验✗。",
+    "★推导地基": "**只依赖合同原文**: 判别式是「输出新信息增量(五类)**且谈论对象是自己已拥有或已经历的**」——「谈论对象」这个词组本身就把增量绑在了对象上。该级的增量样貌**不是关于那个对象的** ⇒ 五类里没有一类落在该对象上 ⇒ P 不成立。",
+    "★这一级测什么": "表面增量样貌比上一级更强, **合同判定不变**(P 仍不成立)。⇒ 若抽取器在这一级开始交卷/升格, **断点就在这里**。",
+    "预期": "**不得**升格。",
+    "★已标定": "r2 实测**已被正确拒答**(REFUSED_RIGHT_CONJUNCT) —— 本级是梯度的**已标定起点**。"
+   }
+  },
+  {
+   "id": "G1-b",
+   "arm": "缺P阴性",
+   "★梯度级": "L1",
+   "结构": "共情式跟帖",
+   "text": "Same here. I've got a pair myself, so I know where you're coming from.",
+   "about": "a pair",
+   "span_P": null,
+   "span_Q": "I've got a pair myself",
+   "★可接受的逐字对象名": [
+    "a pair"
+   ],
+   "★构造规则声明失败的那一支": "P",
+   "推导": {
+    "Q": "成立 —— 自报**已拥有/已经历**。",
+    "P": "**不**成立 —— 五类逐一核过皆✗; 「so I know where you're coming from」是立场表态不是信息增量。",
+    "★推导地基": "**只依赖合同原文**: 判别式是「输出新信息增量(五类)**且谈论对象是自己已拥有或已经历的**」——「谈论对象」这个词组本身就把增量绑在了对象上。该级的增量样貌**不是关于那个对象的** ⇒ 五类里没有一类落在该对象上 ⇒ P 不成立。",
+    "★这一级测什么": "表面增量样貌比上一级更强, **合同判定不变**(P 仍不成立)。⇒ 若抽取器在这一级开始交卷/升格, **断点就在这里**。",
+    "预期": "**不得**升格。",
+    "★已标定": "r2 实测已被正确拒答。"
+   }
+  },
+  {
+   "id": "G1-c",
+   "arm": "缺P阴性",
+   "★梯度级": "L1",
+   "结构": "经历声明零细节",
+   "text": "I've been through the whole fitting process before, so none of this is new to me.",
+   "about": "the whole fitting process",
+   "span_P": null,
+   "span_Q": "I've been through the whole fitting process before",
+   "★可接受的逐字对象名": [
+    "the whole fitting process"
+   ],
+   "★构造规则声明失败的那一支": "P",
+   "推导": {
+    "Q": "成立 —— 自报**已拥有/已经历**。",
+    "P": "**不**成立 —— 只点名一个过程, 不给出该过程的任何细节、数值或型号 ⇒ 五类皆✗。",
+    "★推导地基": "**只依赖合同原文**: 判别式是「输出新信息增量(五类)**且谈论对象是自己已拥有或已经历的**」——「谈论对象」这个词组本身就把增量绑在了对象上。该级的增量样貌**不是关于那个对象的** ⇒ 五类里没有一类落在该对象上 ⇒ P 不成立。 ★ 另: P1(已裁定=只含物)下「过程」本就不在 display 的对象域内, 两条路都通。",
+    "★这一级测什么": "表面增量样貌比上一级更强, **合同判定不变**(P 仍不成立)。⇒ 若抽取器在这一级开始交卷/升格, **断点就在这里**。",
+    "预期": "**不得**升格。",
+    "★已标定": "r2 实测已被正确拒答。"
+   }
+  },
+  {
+   "id": "G2-a",
+   "arm": "缺P阴性",
+   "★梯度级": "L2",
+   "结构": "回忆式自述",
+   "text": "I've had hearing aids for years. I still remember how nervous I was walking into that first appointment, and how long I put it off.",
+   "about": "hearing aids",
+   "span_P": null,
+   "span_Q": "I've had hearing aids for years",
+   "★可接受的逐字对象名": [
+    "hearing aids"
+   ],
+   "★构造规则声明失败的那一支": "P",
+   "推导": {
+    "Q": "成立 —— 自报**已拥有/已经历**。",
+    "P": "**不**成立 —— 有细节样貌: 「how nervous I was」「how long I put it off」。但它们是关于**说话人的情绪与拖延**, 不是关于 hearing aids 的任何属性 ⇒ 落在对象上的五类仍然全空。",
+    "★推导地基": "**只依赖合同原文**: 判别式是「输出新信息增量(五类)**且谈论对象是自己已拥有或已经历的**」——「谈论对象」这个词组本身就把增量绑在了对象上。该级的增量样貌**不是关于那个对象的** ⇒ 五类里没有一类落在该对象上 ⇒ P 不成立。",
+    "★这一级测什么": "表面增量样貌比上一级更强, **合同判定不变**(P 仍不成立)。⇒ 若抽取器在这一级开始交卷/升格, **断点就在这里**。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "G2-b",
+   "arm": "缺P阴性",
+   "★梯度级": "L2",
+   "结构": "家人视角",
+   "text": "I wear hearing aids. My whole family had to get used to me asking them to repeat things less often.",
+   "about": "hearing aids",
+   "span_P": null,
+   "span_Q": "I wear hearing aids",
+   "★可接受的逐字对象名": [
+    "hearing aids"
+   ],
+   "★构造规则声明失败的那一支": "P",
+   "推导": {
+    "Q": "成立 —— 自报**已拥有/已经历**。",
+    "P": "**不**成立 —— 有细节样貌: 家人的适应过程。但那是关于**家人**的 ⇒ 关于 hearing aids 的陈述仍为零。",
+    "★推导地基": "**只依赖合同原文**: 判别式是「输出新信息增量(五类)**且谈论对象是自己已拥有或已经历的**」——「谈论对象」这个词组本身就把增量绑在了对象上。该级的增量样貌**不是关于那个对象的** ⇒ 五类里没有一类落在该对象上 ⇒ P 不成立。",
+    "★这一级测什么": "表面增量样貌比上一级更强, **合同判定不变**(P 仍不成立)。⇒ 若抽取器在这一级开始交卷/升格, **断点就在这里**。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "G2-c",
+   "arm": "缺P阴性",
+   "★梯度级": "L2",
+   "结构": "社交困难",
+   "text": "I've got hearing aids now. Honestly the hardest part was telling my boss.",
+   "about": "hearing aids",
+   "span_P": null,
+   "span_Q": "I've got hearing aids now",
+   "★可接受的逐字对象名": [
+    "hearing aids"
+   ],
+   "★构造规则声明失败的那一支": "P",
+   "推导": {
+    "Q": "成立 —— 自报**已拥有/已经历**。",
+    "P": "**不**成立 —— 「the hardest part was telling my boss」是关于**说话人与上司的沟通**, 不是关于设备。",
+    "★推导地基": "**只依赖合同原文**: 判别式是「输出新信息增量(五类)**且谈论对象是自己已拥有或已经历的**」——「谈论对象」这个词组本身就把增量绑在了对象上。该级的增量样貌**不是关于那个对象的** ⇒ 五类里没有一类落在该对象上 ⇒ P 不成立。",
+    "★这一级测什么": "表面增量样貌比上一级更强, **合同判定不变**(P 仍不成立)。⇒ 若抽取器在这一级开始交卷/升格, **断点就在这里**。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "G3-a",
+   "arm": "缺P阴性",
+   "★梯度级": "L3",
+   "结构": "数字关于验配师与诊所",
+   "text": "I've been wearing hearing aids for a good while now - three audiologists and two clinics later.",
+   "about": "hearing aids",
+   "span_P": null,
+   "span_Q": "I've been wearing hearing aids",
+   "★可接受的逐字对象名": [
+    "hearing aids"
+   ],
+   "★构造规则声明失败的那一支": "P",
+   "推导": {
+    "Q": "成立 —— 自报**已拥有/已经历**。",
+    "P": "**不**成立 —— ★ 出现了**真数字**(three / two), 表面很像「数据」那一类。但它们计的是**验配师与诊所**, 不是 hearing aids 的任何参数 ⇒ 关于该对象的数据仍为零。",
+    "★推导地基": "**只依赖合同原文**: 判别式是「输出新信息增量(五类)**且谈论对象是自己已拥有或已经历的**」——「谈论对象」这个词组本身就把增量绑在了对象上。该级的增量样貌**不是关于那个对象的** ⇒ 五类里没有一类落在该对象上 ⇒ P 不成立。 ★★ 这一级直击库内那条教训: **不能把「对象相关的事实」当作「关于对象的信息增量」**。",
+    "★这一级测什么": "表面增量样貌比上一级更强, **合同判定不变**(P 仍不成立)。⇒ 若抽取器在这一级开始交卷/升格, **断点就在这里**。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "G3-b",
+   "arm": "缺P阴性",
+   "★梯度级": "L3",
+   "结构": "数字关于获取过程",
+   "text": "I wear hearing aids. Took me four months and about six trips across town before I got sorted.",
+   "about": "hearing aids",
+   "span_P": null,
+   "span_Q": "I wear hearing aids",
+   "★可接受的逐字对象名": [
+    "hearing aids"
+   ],
+   "★构造规则声明失败的那一支": "P",
+   "推导": {
+    "Q": "成立 —— 自报**已拥有/已经历**。",
+    "P": "**不**成立 —— ★ 数字 four months / six trips 计的是**获取过程**, 不是设备属性。",
+    "★推导地基": "**只依赖合同原文**: 判别式是「输出新信息增量(五类)**且谈论对象是自己已拥有或已经历的**」——「谈论对象」这个词组本身就把增量绑在了对象上。该级的增量样貌**不是关于那个对象的** ⇒ 五类里没有一类落在该对象上 ⇒ P 不成立。 ★ 另: P1(只含物)下「过程」不在 display 的对象域内。",
+    "★这一级测什么": "表面增量样貌比上一级更强, **合同判定不变**(P 仍不成立)。⇒ 若抽取器在这一级开始交卷/升格, **断点就在这里**。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "G3-c",
+   "arm": "缺P阴性",
+   "★梯度级": "L3",
+   "结构": "数字关于保险账单",
+   "text": "I wear hearing aids. My insurance covered exactly 40% of the bill and the rest came out of pocket.",
+   "about": "hearing aids",
+   "span_P": null,
+   "span_Q": "I wear hearing aids",
+   "★可接受的逐字对象名": [
+    "hearing aids"
+   ],
+   "★构造规则声明失败的那一支": "P",
+   "推导": {
+    "Q": "成立 —— 自报**已拥有/已经历**。",
+    "P": "**不**成立 —— ★ 「exactly 40%」是**精确数字**, 但它是关于**保险报销比例**的, 不是关于设备。",
+    "★推导地基": "**只依赖合同原文**: 判别式是「输出新信息增量(五类)**且谈论对象是自己已拥有或已经历的**」——「谈论对象」这个词组本身就把增量绑在了对象上。该级的增量样貌**不是关于那个对象的** ⇒ 五类里没有一类落在该对象上 ⇒ P 不成立。",
+    "★这一级测什么": "表面增量样貌比上一级更强, **合同判定不变**(P 仍不成立)。⇒ 若抽取器在这一级开始交卷/升格, **断点就在这里**。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "G4-a",
+   "arm": "缺P阴性",
+   "★梯度级": "L4",
+   "结构": "品类定义复述",
+   "text": "I've been wearing hearing aids for a good while now. They sit in your ears and make everything louder.",
+   "about": "hearing aids",
+   "span_P": null,
+   "span_Q": "I've been wearing hearing aids",
+   "★可接受的逐字对象名": [
+    "hearing aids"
+   ],
+   "★构造规则声明失败的那一支": "P",
+   "推导": {
+    "Q": "成立 —— 自报**已拥有/已经历**。",
+    "P": "**不**成立 —— ★★ 这一级的陈述**确实是关于 hearing aids 的** —— 表面上最像增量。但「sit in your ears and make everything louder」**就是助听器这个品类的定义**, 可由品类名本身推出 ⇒ 按附件 A **不产生增量**。",
+    "★推导地基": "★★★ **本级依赖附件 A, 那是提案不是合同明文。** 附件 A: 「增量必须是**不能由 x 的公开标识(型号名/品类名)本身推出**的陈述」, 出自 OWNER_DECISION_SHEET.md, 原文明写「**这条是我的提案, 可以被你推翻**」。★ **推翻条件**: owner 否决附件 A ⇒ 「关于该物但可由品类名推出」重新算增量 ⇒ **L4 三条自动作废**, 不需要再实测, **也不得**拿已跑过的读数去救。★ L1–L3 **不**依赖它。",
+    "★这一级测什么": "表面增量样貌比上一级更强, **合同判定不变**(P 仍不成立)。⇒ 若抽取器在这一级开始交卷/升格, **断点就在这里**。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "G4-b",
+   "arm": "缺P阴性",
+   "★梯度级": "L4",
+   "结构": "品类通性",
+   "text": "I've got hearing aids. They need batteries or charging, like anything else electronic.",
+   "about": "hearing aids",
+   "span_P": null,
+   "span_Q": "I've got hearing aids",
+   "★可接受的逐字对象名": [
+    "hearing aids"
+   ],
+   "★构造规则声明失败的那一支": "P",
+   "推导": {
+    "Q": "成立 —— 自报**已拥有/已经历**。",
+    "P": "**不**成立 —— ★★ 「need batteries or charging」是**一切电子设备的通性**, 由品类名(电子助听器)本身可推出 ⇒ 附件 A 下不产生增量。★ 注意它**没有**给出哪种电池、续航多久、怎么充 —— 那些才会落进「数据」或「使用细节」。",
+    "★推导地基": "★★★ **本级依赖附件 A, 那是提案不是合同明文。** 附件 A: 「增量必须是**不能由 x 的公开标识(型号名/品类名)本身推出**的陈述」, 出自 OWNER_DECISION_SHEET.md, 原文明写「**这条是我的提案, 可以被你推翻**」。★ **推翻条件**: owner 否决附件 A ⇒ 「关于该物但可由品类名推出」重新算增量 ⇒ **L4 三条自动作废**, 不需要再实测, **也不得**拿已跑过的读数去救。★ L1–L3 **不**依赖它。",
+    "★这一级测什么": "表面增量样貌比上一级更强, **合同判定不变**(P 仍不成立)。⇒ 若抽取器在这一级开始交卷/升格, **断点就在这里**。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "G4-c",
+   "arm": "缺P阴性",
+   "★梯度级": "L4",
+   "结构": "近乎同义反复",
+   "text": "I wear hearing aids these days. They help with hearing, which is the whole point of them.",
+   "about": "hearing aids",
+   "span_P": null,
+   "span_Q": "I wear hearing aids",
+   "★可接受的逐字对象名": [
+    "hearing aids"
+   ],
+   "★构造规则声明失败的那一支": "P",
+   "推导": {
+    "Q": "成立 —— 自报**已拥有/已经历**。",
+    "P": "**不**成立 —— ★★ 「help with hearing」与品类名同义; 文本自己还写了「which is the whole point of them」。⇒ 可由公开标识推出, 附件 A 下不产生增量。",
+    "★推导地基": "★★★ **本级依赖附件 A, 那是提案不是合同明文。** 附件 A: 「增量必须是**不能由 x 的公开标识(型号名/品类名)本身推出**的陈述」, 出自 OWNER_DECISION_SHEET.md, 原文明写「**这条是我的提案, 可以被你推翻**」。★ **推翻条件**: owner 否决附件 A ⇒ 「关于该物但可由品类名推出」重新算增量 ⇒ **L4 三条自动作废**, 不需要再实测, **也不得**拿已跑过的读数去救。★ L1–L3 **不**依赖它。",
+    "★这一级测什么": "表面增量样貌比上一级更强, **合同判定不变**(P 仍不成立)。⇒ 若抽取器在这一级开始交卷/升格, **断点就在这里**。",
+    "预期": "**不得**升格。"
+   }
+  },
+  {
+   "id": "POS-1",
+   "arm": "正证据对照",
+   "结构": "单句自述 + 数据",
+   "text": "The Oticon More 1 has been mine since last spring. The Oticon More 1 gives me about 14 hours on a charge with maybe two hours of streaming in there.",
+   "about": "Oticon More 1",
+   "span_P": "The Oticon More 1 gives me about 14 hours on a charge",
+   "span_Q": "The Oticon More 1 has been mine since last spring",
+   "★可共享的逐字对象名": "Oticon More 1",
+   "★r2 改动": "**从零重写**, 不参照 r1 文本 —— r1 版是照着模型上一轮实际选中的 span 改的(4/4 编辑区间落在那些 span 内), 那是**拿受试者的作答改考题**。本版按两条**事前规则**写: ① 两半同形限定词 the/The + 裸型号名 ② P 半让裸型号名作主语。 ★ 另: Q 半重写 —— 原句「I've had the Oticon More 1 since last spring」是 r1 模型实际选中的 span **逐字存活**下来的; 虽然它是 r1 里**对的**那半(失败点在 P 支的 about), 但留着它会让「从零重写」这个声称无法被机器核。现已换掉。",
+   "推导": {
+    "P": "成立 —— 「Oticon More 1」落**具体型号**, 「about 14 hours」落**数据**。",
+    "Q": "成立 —— 「has been mine since last spring」自报**已拥有**。",
+    "同一对象": "两半都写作 the/The + 裸型号名 ⇒ 规范化后逐字相同。★ 并且 P 半的主语**就是**型号名, 最近的对象短语不是方面名词。",
+    "无质询": "全文无问句、无对任何人真实性/资历的质疑 ⇒ 宽窄两种读法下都不触发 audit。",
+    "非itch": "已在手。",
+    "预期": "**应当**存在合法完整证书。"
+   },
+   "★可接受的逐字对象名": [
+    "The Oticon More 1",
+    "Oticon More 1"
+   ],
+   "★梯度级": "CTRL",
+   "★r3 说明": "**与 r2 逐字相同**。r2 实测: POS-1/POS-4 通过, POS-2/POS-3 被拦 —— 而被拦的原因是模型**给了多于必要的证据**(额外指向 'TV Connector' / 'aids', 都是原文里真实的其他物件), P2 对**全部**被采用证据求对象集合 ⇒ 多给反而被拦。★ r3 的协议改动「每个必要条件给**一条**证据」正好由这两条检验: 若它们这次通过, 说明协议改动有效。"
+  },
+  {
+   "id": "POS-2",
+   "arm": "正证据对照",
+   "结构": "纠正流传说法(非针对人) + 使用细节",
+   "text": "A common mix-up: the Phonak Audeo Lumity does not need a Roger receiver for TV audio. I have worn the Phonak Audeo Lumity since my fitting, and it pairs straight to the TV Connector.",
+   "about": "Phonak Audeo Lumity",
+   "span_P": "the Phonak Audeo Lumity does not need a Roger receiver for TV audio",
+   "span_Q": "I have worn the Phonak Audeo Lumity since my fitting",
+   "★可共享的逐字对象名": "Phonak Audeo Lumity",
+   "★r2 改动": "**从零重写**, 不参照 r1 文本 —— r1 版是照着模型上一轮实际选中的 span 改的(4/4 编辑区间落在那些 span 内), 那是**拿受试者的作答改考题**。本版按两条**事前规则**写: ① 两半同形限定词 the/The + 裸型号名 ② P 半让裸型号名作主语。",
+   "推导": {
+    "P": "成立 —— **纠错**(does not need a Roger receiver) + **使用细节**(pairs straight to the TV Connector)。",
+    "Q": "成立 —— 「I have worn ... since my fitting」自报**已拥有/已经历**。",
+    "同一对象": "两半都是 the + 裸型号名。",
+    "无质询": "★ 纠错对象是**流传说法**(A common mix-up), 不指向任何人; 全文无问句 ⇒ 宽窄读法下都不触发 audit。",
+    "非itch": "已在手。",
+    "预期": "**应当**存在合法完整证书。"
+   },
+   "★可接受的逐字对象名": [
+    "the Phonak Audeo Lumity",
+    "Phonak Audeo Lumity"
+   ],
+   "★梯度级": "CTRL",
+   "★r3 说明": "**与 r2 逐字相同**。r2 实测: POS-1/POS-4 通过, POS-2/POS-3 被拦 —— 而被拦的原因是模型**给了多于必要的证据**(额外指向 'TV Connector' / 'aids', 都是原文里真实的其他物件), P2 对**全部**被采用证据求对象集合 ⇒ 多给反而被拦。★ r3 的协议改动「每个必要条件给**一条**证据」正好由这两条检验: 若它们这次通过, 说明协议改动有效。"
+  },
+  {
+   "id": "POS-3",
+   "arm": "正证据对照",
+   "结构": "结构化经验三连 + 纠错",
+   "text": "I own the Signia Pure Charge&Go AX and have kept notes since day one. The Signia Pure Charge&Go AX needs its wax guards changed every four weeks not eight, wants a dry cloth in the charger before the aids go back in, and makes you start the Bluetooth handoff from the phone side.",
+   "about": "Signia Pure Charge&Go AX",
+   "span_P": "The Signia Pure Charge&Go AX needs its wax guards changed every four weeks not eight",
+   "span_Q": "I own the Signia Pure Charge&Go AX",
+   "★可共享的逐字对象名": "Signia Pure Charge&Go AX",
+   "★r2 改动": "**从零重写**, 不参照 r1 文本 —— r1 版是照着模型上一轮实际选中的 span 改的(4/4 编辑区间落在那些 span 内), 那是**拿受试者的作答改考题**。本版按两条**事前规则**写: ① 两半同形限定词 the/The + 裸型号名 ② P 半让裸型号名作主语。",
+   "推导": {
+    "P": "成立 —— 三条并列落**结构化经验**, 「every four weeks not eight」兼落**纠错**与**数据**, 「start the Bluetooth handoff from the phone side」落**使用细节**。",
+    "Q": "成立 —— 「I own」。",
+    "同一对象": "两半都是 the/The + 裸型号名, 且 P 半主语就是型号名。",
+    "无质询": "无问句、无质疑。",
+    "非itch": "已在手。",
+    "预期": "**应当**存在合法完整证书。"
+   },
+   "★可接受的逐字对象名": [
+    "the Signia Pure Charge&Go AX",
+    "Signia Pure Charge&Go AX",
+    "The Signia Pure Charge&Go AX"
+   ],
+   "★梯度级": "CTRL",
+   "★r3 说明": "**与 r2 逐字相同**。r2 实测: POS-1/POS-4 通过, POS-2/POS-3 被拦 —— 而被拦的原因是模型**给了多于必要的证据**(额外指向 'TV Connector' / 'aids', 都是原文里真实的其他物件), P2 对**全部**被采用证据求对象集合 ⇒ 多给反而被拦。★ r3 的协议改动「每个必要条件给**一条**证据」正好由这两条检验: 若它们这次通过, 说明协议改动有效。"
+  },
+  {
+   "id": "POS-4",
+   "arm": "正证据对照",
+   "结构": "借用机 —— 走 Q 的**已经历**那一支",
+   "text": "I wore the ReSound Nexia as a loaner for two weeks while mine were in for repair. The ReSound Nexia kept dropping the left side in its app until I turned off battery optimisation.",
+   "about": "ReSound Nexia",
+   "span_P": "The ReSound Nexia kept dropping the left side in its app until I turned off battery optimisation",
+   "span_Q": "I wore the ReSound Nexia as a loaner for two weeks",
+   "★可共享的逐字对象名": "ReSound Nexia",
+   "★r2 改动": "**从零重写**, 不参照 r1 文本 —— r1 版是照着模型上一轮实际选中的 span 改的(4/4 编辑区间落在那些 span 内), 那是**拿受试者的作答改考题**。本版按两条**事前规则**写: ① 两半同形限定词 the/The + 裸型号名 ② P 半让裸型号名作主语。",
+   "推导": {
+    "P": "成立 —— **具体型号** + **使用细节**(turned off battery optimisation)。",
+    "Q": "成立, 且走的是**已经历**那一支 —— 「as a loaner」明确**不拥有**, 但**戴过两周**。",
+    "★为什么要这一条": "Q 是**析取**(已拥有 **或** 已经历)。四条正证据若全是「已拥有」, 这轮就从没测过另一支。",
+    "同一对象": "两半都是 the/The + 裸型号名。",
+    "无质询": "无问句、无质疑。",
+    "非itch": "不是未得之物 —— 已实际佩戴过。",
+    "预期": "**应当**存在合法完整证书。"
+   },
+   "★可接受的逐字对象名": [
+    "the ReSound Nexia",
+    "ReSound Nexia",
+    "The ReSound Nexia"
+   ],
+   "★梯度级": "CTRL",
+   "★r3 说明": "**与 r2 逐字相同**。r2 实测: POS-1/POS-4 通过, POS-2/POS-3 被拦 —— 而被拦的原因是模型**给了多于必要的证据**(额外指向 'TV Connector' / 'aids', 都是原文里真实的其他物件), P2 对**全部**被采用证据求对象集合 ⇒ 多给反而被拦。★ r3 的协议改动「每个必要条件给**一条**证据」正好由这两条检验: 若它们这次通过, 说明协议改动有效。"
+  }
+ ],
+ "★★★REJECTED": "本设计已被否决且**从未投料**。理由见 tests/data/refusal_gradient_prereg_r3.json。**禁止重做。**"
+}

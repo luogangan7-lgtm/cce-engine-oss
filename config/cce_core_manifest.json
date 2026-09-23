@@ -4,9 +4,18 @@
  "iron_rule": "20 · 新模态增加 Parser, 不应修改 CCE Core",
  "criterion": "Core = 改了它已采集的原始 draw 就不能用的文件; 与 instrument_hash 同源判据",
  "instrument_generation": 6,
+ "★★★instrument_generation_denotes": "**生产分类器 P —— 且仅指它。** 它与 instrument_hash 同源, 而后者只覆盖 ontology_version / s1_prompt_sha256 / s2_prompt_sha256 / model / endpoint / sampling_policy, **全是 P**。★★ 它**不**代表验收闸 G。★ 2026-09-09 之前这层关系是**隐含**的 —— 网页版 GPT-6 Pro 指出: 「不能一面把它叫『整体仪器代号』, 一面利用哈希未覆盖 G 来宣称没换代」。**故写成明文。** G 有自己的版本, 见 gate_protocol_expected。",
+ "gate_protocol_expected": {
+  "version": 2,
+  "hash": "dbdff13f9da155bc",
+  "★covers": "accuracy/run_gates 的 KNOT_BRIEF + DECISION_TREE + NEGATIVE_EXAMPLES + DIST_TMPL —— **标注者实际看到的全部材料**",
+  "★why": "闸与生产是**两台仪器**。改 knots[].negative_examples_prompt 会改闸的 prompt 而 **instrument_hash 一字不变** ⇒ 若只有一个版本号, 这类改动就成了**静默换闸**。",
+  "★how_to_change": "**第六条路 · GATE_PROTOCOL_CHANGE**(2026-09-09 提案, 未启用): ① 更新 pin ② **不递增 instrument_generation**(P 没变), 但**递增 gate_protocol_version** 并更新本 hash ③ refactor_log 追加一条, 事件类型写 **GATE_PROTOCOL_CHANGE** —— **不得冒充「行为不变的 refactor」** ④ 声明改动前后的 G 读数**可比不可合**, 旧 PASS 不自动继承适用范围 ⑤ 结论模板必带「本修法不改变生产分类器」 ⑥ **启用**新版 G 之前必须重跑一次完整验收闸并落盘(**登记候选 ≠ 启用**) ⑦ **全负例组回归** —— 实测「仅收藏」组在候选修法下从 30% 升到 50%(方向反了), 而原判据只覆盖 6 个负例组里的 2 个。★★ 本路**尚未写进 how_to_change_core, 尚未启用** —— 见 tests/data/proposed_route_6_prereg.json。",
+  "★status": "**v2 已启用**(2026-09-09)。第⑤条完整验收闸已重跑并落盘, G-K1 两项均达标。★ 与 v1 的读数**可比不可合**。★★ 余量极薄, 见 refactor_log 的代价一节。"
+ },
  "core_files": {
-  "config/knot_taxonomy.json": "128c028c24cd245a",
-  "scripts/cce_knot_classify.py": "cd3d9d7e1d3871ae",
+  "config/knot_taxonomy.json": "56a1c1977bf8d18c",
+  "scripts/cce_knot_classify.py": "0a740ba16e80dc54",
   "scripts/cce_ksep.py": "ffd5d26a7e0cb29b",
   "scripts/exp_crossmodel_desire.py": "0e0e9d64b48fbade",
   "scripts/exp_v4_full_validation.py": "f934b56b01b6b6b2",
@@ -181,6 +190,950 @@
    ],
    "★which_half_of_behavior_changed": "**变了**: 首条 caveat 的字面。**没变**: 它出不出现的判据(UNVERIFIED_MARKERS 未动)。",
    "★evidence_is_required_because": "★ 「instrument_hash 没变」**不足以**证明行为没变 —— 它由 taxonomy+参数现算, 与源码字节无关; 而本次行为**确实变了**(caveat 正文变了)。真证据: test_cce_knot_caveat 里 PRE_REFACTOR 那个冻结字面量**保留不删** —— 它是 2026-09-03 纯重构的证据(from_sha=cc7c1f8c8dcd67b5), 删了就没法再证明那次是纯的。现在它是**历史锚点**, 当前期望值另立 CURRENT, 且断言 CURRENT[1:] == PRE_REFACTOR[1:](基础 caveat 不许趁机改), 外加一条新断言: 首条 caveat 若既无「未跑」也无「未验」即判红 —— 防止改成反方向的谎言。"
+  },
+  {
+   "date": "2026-09-07",
+   "file": "config/knot_taxonomy.json",
+   "from_sha": "128c028c24cd245a",
+   "to_sha": "3bc78d4762a00127",
+   "route": "第四条路(纯描述性文本, 行为证据另附)",
+   "reason": "撤销 G-K3 原判(经对抗核验判**重言 YES_TAUTOLOGY**: 判红条件在作者意图上不可达, 且距离可被无成本刷高 —— 给任一格加括号后缀即可, 与消融判零证据力的 L3 哈希同型), 改写 `status` 并新增 `changelog_2026_09_07_gk3_revoked`。同时补上 G-K1 的两条边界: 余量薄(JS 只有 0.55 个跨对 SD)、对混淆**结构性盲**(退化面板拿 top2=1.0/JS=0.0 满分)。",
+   "instrument_hash_unchanged": true,
+   "behavior_evidence": [
+    "tests/test_cce_gk3_not_a_tautology.py",
+    "tests/test_cce_knot_caveat.py",
+    "tests/test_cce_ablation_verdict_schema.py"
+   ],
+   "★which_half_of_behavior_changed": "**变了**: status/changelog 的**描述性文本**。**没变**: 任何进 s1/s2 prompt 的字段(signature/key/name/family/typical_codes 全未动) ⇒ instrument_hash 现算仍与清单相符。",
+   "★evidence_is_required_because": "★「instrument_hash 没变」**不足以**证明行为没变 —— 它由 taxonomy+参数现算, 与源码字节无关。真证据: test_cce_gk3_not_a_tautology 用 **AST** 证明新台账的 PASS 分支**源码级不存在**, 并把「退化面板在 G-K1 下满分」这个反例现算; test_cce_knot_caveat 的 PRE_REFACTOR 冻结字面量**保留不删**(2026-09-03 纯重构的历史锚点), 当前期望值另立 CURRENT。"
+  },
+  {
+   "date": "2026-09-07",
+   "file": "scripts/cce_knot_classify.py",
+   "from_sha": "cd3d9d7e1d3871ae",
+   "to_sha": "d8fa72535765fbee",
+   "route": "第四条路(纯描述性文本, 行为证据另附)",
+   "reason": "CANDIDATE_CAVEAT 再次更正: 旧正文说「G-K3 未跑」——**不够**, 那让人以为九个类都在工作。新台账查出 **belong 在本语料上是死类**(共识 argmax 0/78, 逐标注者 top1 0/308, 激活仅 2/78)。★ 一条让人误以为分类学完好的 caveat, 与漏报同样有害。",
+   "instrument_hash_unchanged": true,
+   "behavior_evidence": [
+    "tests/test_cce_gk3_not_a_tautology.py",
+    "tests/test_cce_knot_caveat.py",
+    "tests/test_cce_ablation_verdict_schema.py"
+   ],
+   "★which_half_of_behavior_changed": "**变了**: 首条 caveat 的字面。**没变**: 它出不出现的判据(UNVERIFIED_MARKERS 未动), 以及任何读数计算。",
+   "★evidence_is_required_because": "★「instrument_hash 没变」**不足以**证明行为没变 —— 它由 taxonomy+参数现算, 与源码字节无关。真证据: test_cce_gk3_not_a_tautology 用 **AST** 证明新台账的 PASS 分支**源码级不存在**, 并把「退化面板在 G-K1 下满分」这个反例现算; test_cce_knot_caveat 的 PRE_REFACTOR 冻结字面量**保留不删**(2026-09-03 纯重构的历史锚点), 当前期望值另立 CURRENT。"
+  },
+  {
+   "date": "2026-09-07",
+   "file": "config/knot_taxonomy.json",
+   "from_sha": "3bc78d4762a00127",
+   "to_sha": "99e777fffd7e061b",
+   "route": "第四条路(纯描述性文本)",
+   "reason": "★★★ 更正三处把**一次掷硬币**写成**模型稳定属性**的自述。2026-09-07 晚同代码同数据重跑, M2.7 从 3/5 变成 5/5, 五人全合格 ⇒ **temp=0 下资格考不可复现**。该闸 5 个锚例、阈值 4/5, 在真实能力 p∈[0.34,0.93](宽 0.59)内基本是抽签; 3/5 与 5/5 的 Wilson 区间重叠 [0.566,0.882] ⇒ 统计上不矛盾, 矛盾的是拿它们做二值判决。★★ 而自助重采样显示: 剔除 M2.7 的 4 人面板失败率 **23%**, 保留它的 5 人面板 **7%** —— **那次剔除实际上损害了指标的稳健性**, 且 M2.7 是 run2 里 JS 最好的标注者(0.1968)。⇒ 「M2.7 不合格」必须标注为**单次抽样结果**。详见 tests/data/qualification_exam_resolution.json 与 tests/data/run_a_repeatability_result.json。",
+   "instrument_hash_unchanged": true,
+   "behavior_evidence": [
+    "tests/test_cce_knot_caveat.py",
+    "tests/test_cce_gk3_not_a_tautology.py",
+    "tests/test_cce_anchors_independent_of_corpus.py",
+    "tests/test_cce_ablation_verdict_schema.py"
+   ],
+   "★which_half_of_behavior_changed": "**变了**: status / gate_record 的描述性文本 + 新增 changelog_2026_09_07_qualification_is_a_coin_flip。**没变**: 任何进 s1/s2 prompt 的字段 ⇒ instrument_hash 现算仍与清单相符。",
+   "★evidence_is_required_because": "★ 「instrument_hash 没变」不足以证明行为没变。真证据: 本次改的是**自述**, 而自述的正确性由 tests/data/qualification_exam_resolution.json 里**现算的二项分布数字**支撑 —— P(合格|p) 曲线、Wilson 区间重叠、以及 10000 次自助的失败率 23% vs 7%。"
+  },
+  {
+   "date": "2026-09-07",
+   "file": "scripts/cce_knot_classify.py",
+   "from_sha": "d8fa72535765fbee",
+   "to_sha": "4569d100468b8e40",
+   "route": "第四条路(纯描述性文本)",
+   "reason": "★★★ 更正三处把**一次掷硬币**写成**模型稳定属性**的自述。2026-09-07 晚同代码同数据重跑, M2.7 从 3/5 变成 5/5, 五人全合格 ⇒ **temp=0 下资格考不可复现**。该闸 5 个锚例、阈值 4/5, 在真实能力 p∈[0.34,0.93](宽 0.59)内基本是抽签; 3/5 与 5/5 的 Wilson 区间重叠 [0.566,0.882] ⇒ 统计上不矛盾, 矛盾的是拿它们做二值判决。★★ 而自助重采样显示: 剔除 M2.7 的 4 人面板失败率 **23%**, 保留它的 5 人面板 **7%** —— **那次剔除实际上损害了指标的稳健性**, 且 M2.7 是 run2 里 JS 最好的标注者(0.1968)。⇒ 「M2.7 不合格」必须标注为**单次抽样结果**。详见 tests/data/qualification_exam_resolution.json 与 tests/data/run_a_repeatability_result.json。",
+   "instrument_hash_unchanged": true,
+   "behavior_evidence": [
+    "tests/test_cce_knot_caveat.py",
+    "tests/test_cce_gk3_not_a_tautology.py",
+    "tests/test_cce_anchors_independent_of_corpus.py",
+    "tests/test_cce_ablation_verdict_schema.py"
+   ],
+   "★which_half_of_behavior_changed": "**变了**: 首条 caveat 的字面(「资格考生效」→「**资格考不可复现**」)。**没变**: caveat 出不出现的判据(UNVERIFIED_MARKERS 未动), 以及任何读数计算。",
+   "★evidence_is_required_because": "★ 「instrument_hash 没变」不足以证明行为没变。真证据: 本次改的是**自述**, 而自述的正确性由 tests/data/qualification_exam_resolution.json 里**现算的二项分布数字**支撑 —— P(合格|p) 曲线、Wilson 区间重叠、以及 10000 次自助的失败率 23% vs 7%。"
+  },
+  {
+   "date": "2026-09-07",
+   "file": "config/knot_taxonomy.json",
+   "from_sha": "99e777fffd7e061b",
+   "to_sha": "2b015316a4a4f3b4",
+   "route": "第四条路(纯描述性文本)",
+   "reason": "★★★ 三件实验一次做完后的自述更正: ①重复性(资格考 temp=0 不可复现·「通过」不是二值事实·自助 23% 不过) ②外部效度(换帖子仍过但余量薄 7.4 倍·**类空间塌陷加剧**⇒塌陷是仪器性质不是语料性质) ③**belong 的死类判定撤销**(帖子上 7/81=8.6%, 判别效度 RETAIN_as_core, Fisher p=0.0102, 零模型 0.039%)。详见 tests/data/{run_a_repeatability_result,run_b_external_validity_result,study2_belong_discriminant}.json",
+   "instrument_hash_unchanged": true,
+   "behavior_evidence": [
+    "tests/test_cce_repeatability.py",
+    "tests/test_cce_belong_disposition.py",
+    "tests/test_cce_internal_examples.py",
+    "tests/test_cce_knot_caveat.py"
+   ],
+   "★which_half_of_behavior_changed": "**变了**: status 正文 + 新增 changelog_2026_09_07_repeatability_external_belong。**没变**: 任何进 s1/s2 prompt 的字段 ⇒ instrument_hash 现算仍与清单相符。",
+   "★evidence_is_required_because": "★ 「instrument_hash 没变」**不足以**证明行为没变 —— 它由 taxonomy+参数现算, 与源码字节无关; 而本次行为**确实变了**(自述的正文变了)。★ 本次改的是**自述**, 其正确性由三份实验产物里**测试时重算**的数字支撑: 自助失败率 23%/7%、Fisher p=0.01024、零模型 P(k>=10)=0.039%、belong 帖子 7/81 与评论 0/81 的区间不重叠。全部有反向验证。"
+  },
+  {
+   "date": "2026-09-07",
+   "file": "scripts/cce_knot_classify.py",
+   "from_sha": "4569d100468b8e40",
+   "to_sha": "52044ac682b4b890",
+   "route": "第四条路(纯描述性文本)",
+   "reason": "★★★ 三件实验一次做完后的自述更正: ①重复性(资格考 temp=0 不可复现·「通过」不是二值事实·自助 23% 不过) ②外部效度(换帖子仍过但余量薄 7.4 倍·**类空间塌陷加剧**⇒塌陷是仪器性质不是语料性质) ③**belong 的死类判定撤销**(帖子上 7/81=8.6%, 判别效度 RETAIN_as_core, Fisher p=0.0102, 零模型 0.039%)。详见 tests/data/{run_a_repeatability_result,run_b_external_validity_result,study2_belong_discriminant}.json",
+   "instrument_hash_unchanged": true,
+   "behavior_evidence": [
+    "tests/test_cce_repeatability.py",
+    "tests/test_cce_belong_disposition.py",
+    "tests/test_cce_internal_examples.py",
+    "tests/test_cce_knot_caveat.py"
+   ],
+   "★which_half_of_behavior_changed": "**变了**: 首条 caveat 的字面(去掉「belong 是死类」这句**已被实验推翻**的话, 补上重复性/外部效度的实测边界)。**没变**: caveat 出不出现的判据(UNVERIFIED_MARKERS 未动), 以及任何读数计算。",
+   "★evidence_is_required_because": "★ 「instrument_hash 没变」**不足以**证明行为没变 —— 它由 taxonomy+参数现算, 与源码字节无关; 而本次行为**确实变了**(自述的正文变了)。★ 本次改的是**自述**, 其正确性由三份实验产物里**测试时重算**的数字支撑: 自助失败率 23%/7%、Fisher p=0.01024、零模型 P(k>=10)=0.039%、belong 帖子 7/81 与评论 0/81 的区间不重叠。全部有反向验证。"
+  },
+  {
+   "date": "2026-09-08",
+   "file": "config/knot_taxonomy.json",
+   "from_sha": "2b015316a4a4f3b4",
+   "to_sha": "2320eb3a8b5f3597",
+   "route": "第四条路(纯描述性文本)",
+   "reason": "★★★ 按 2026-09-08 网页 GPT(Pro, 10m10s, 联网)的裁决**修订资格声明** —— 数字不改。旧 `overall_pass:True` 由三个必要条件构成, 其一是 `annotator_qualification:'OK'`; 而那个 OK 是 **v1 规则**产出的, v1 已实测为**抽签**(同卷四次 3/5、5/5、4/5、4/5)。按 v2 三态五人**全部 UNRESOLVED —— 从未有任何一个被有效认证**。⇒ 该 PASS 的「面板已通过有效资格认证」前提**不成立**。★ 但 top2=0.9042 / JS=0.2321 **不是假数字**, 仍是原数据原流程下的历史结果; 改的是**可引用性**: 不得再说「资格考生效下通过」, 且那次的 4 人面板是**一次抽签**剔除 M2.7 的结果(实测保留它的 5 人面板自助失败率 7.0% vs 4 人的 23.1%)。唯一允许的表述: 「在一个**未经有效资格认证**的 4 人面板上, G-K1 的两项指标达标」。",
+   "instrument_hash_unchanged": true,
+   "behavior_evidence": [
+    "tests/test_cce_qualification_premise_revised.py",
+    "tests/test_cce_qualification_v2.py",
+    "tests/test_cce_knot_caveat.py",
+    "tests/test_cce_decision_consistency.py"
+   ],
+   "★which_half_of_behavior_changed": "**变了**: status 正文 + 新增 ★qualification_premise_..._is_revised。**没变**: 任何进 prompt 的字段。",
+   "★evidence_is_required_because": "★ 「instrument_hash 没变」**不足以**证明行为没变 —— 本次行为**确实变了**(自述正文变了)。真证据: test_cce_qualification_premise_revised **现算**产物里的数字仍是 0.9042/0.2321 未被改动, **同时**断言 status/caveat 里不再出现「资格考生效」, 且交叉核对了 5 人面板 JS 优于 4 人。3 条反向验证判红。"
+  },
+  {
+   "date": "2026-09-08",
+   "file": "scripts/cce_knot_classify.py",
+   "from_sha": "52044ac682b4b890",
+   "to_sha": "f2cef2f99c949a75",
+   "route": "第四条路(纯描述性文本)",
+   "reason": "★★★ 按 2026-09-08 网页 GPT(Pro, 10m10s, 联网)的裁决**修订资格声明** —— 数字不改。旧 `overall_pass:True` 由三个必要条件构成, 其一是 `annotator_qualification:'OK'`; 而那个 OK 是 **v1 规则**产出的, v1 已实测为**抽签**(同卷四次 3/5、5/5、4/5、4/5)。按 v2 三态五人**全部 UNRESOLVED —— 从未有任何一个被有效认证**。⇒ 该 PASS 的「面板已通过有效资格认证」前提**不成立**。★ 但 top2=0.9042 / JS=0.2321 **不是假数字**, 仍是原数据原流程下的历史结果; 改的是**可引用性**: 不得再说「资格考生效下通过」, 且那次的 4 人面板是**一次抽签**剔除 M2.7 的结果(实测保留它的 5 人面板自助失败率 7.0% vs 4 人的 23.1%)。唯一允许的表述: 「在一个**未经有效资格认证**的 4 人面板上, G-K1 的两项指标达标」。",
+   "instrument_hash_unchanged": true,
+   "behavior_evidence": [
+    "tests/test_cce_qualification_premise_revised.py",
+    "tests/test_cce_qualification_v2.py",
+    "tests/test_cce_knot_caveat.py",
+    "tests/test_cce_decision_consistency.py"
+   ],
+   "★which_half_of_behavior_changed": "**变了**: 首条 caveat 的字面(「资格考生效」→「**面板从未被有效认证**」)。**没变**: caveat 出不出现的判据与任何读数计算。",
+   "★evidence_is_required_because": "★ 「instrument_hash 没变」**不足以**证明行为没变 —— 本次行为**确实变了**(自述正文变了)。真证据: test_cce_qualification_premise_revised **现算**产物里的数字仍是 0.9042/0.2321 未被改动, **同时**断言 status/caveat 里不再出现「资格考生效」, 且交叉核对了 5 人面板 JS 优于 4 人。3 条反向验证判红。"
+  },
+  {
+   "date": "2026-09-09",
+   "event": "GATE_PROTOCOL_CHANGE",
+   "file": "config/knot_taxonomy.json",
+   "from_sha": "2320eb3a8b5f3597",
+   "to_sha": "56a1c1977bf8d18c",
+   "from_gate_version": 1,
+   "to_gate_version": 2,
+   "from_gate_hash": "56eadd16bba9fc7e",
+   "to_gate_hash": "dbdff13f9da155bc",
+   "route": "**第六条路 · GATE_PROTOCOL_CHANGE** —— 验收闸协议的行为性修订(2026-09-09 网页版 GPT-6 Pro 裁定)",
+   "changed_field": "knots[suspend].negative_examples_prompt",
+   "reason": "suspend 把「决定已作出、延后的只是执行/购买时点」判成悬置。旁路 V0/V1 对照(22 题 × 6 标注者 × 2 臂, 268 次尝试/264 个设计单元)确证: 失败方向题级配对 **降 6 · 升 0 · 平 2**, 单侧精确符号检验 p=**0.01562**; 题级多数判 suspend 3/8 → **0/8**; C2(修法可能失败的方向: 压掉真悬置)**未失败**, 4 题全保持。",
+   "★哪一半行为变了": "**验收闸标注者的判读**。负例从配置现组装进闸 prompt ⇒ 闸协议哈希 56eadd16bba9fc7e → dbdff13f9da155bc",
+   "★哪一半没变": "**生产分类器**。现算 instrument_hash = d4cce4c745f3f991 —— **一字未变**(生产 s2 prompt 不读 negative_examples)。⇒ instrument_generation **不递增**; 生产既有标定**全部保持有效**。",
+   "★★不是纯重构": "行为**确实变了** —— 这是本次改动的目的。事件类型是 GATE_PROTOCOL_CHANGE, **不得**记成行为不变的 refactor。",
+   "★★★可比性边界": "改动前后的 G-K1 读数**可比不可合**: 允许**注明版本**的并列或配对比较; 未经桥接**不声称测量等价**、不合并求均值、**不自动继承** v1 那次 PASS 的适用范围。2026-09-07 的 G-K1 PASS 对 **v1 仍然成立**, 但它不是 v2 的合格证明。",
+   "★必须随结论同行的一句": "**本修法不改变生产分类器。** 生产 s2 看不到 negative_examples; 且 2026-09-09 实测生产在该缺陷上 **1/8**(NO_DEFECT), 本来就没有这个问题。",
+   "behavior_evidence": [
+    "tests/test_cce_suspend_fix_confirmation.py",
+    "tests/test_cce_gate_protocol_version.py",
+    "tests/test_cce_production_suspend_defect.py",
+    "tests/data/suspend_fix_confirmation_result.json"
+   ],
+   "★★全负例组回归(第⑦条)": "6 个负例组全覆盖, 数据即 V0/V1 那轮的 V1 臂(已现算确认: 应用后的 NEGATIVE_EXAMPLES 与旁路 V1 **逐字相同**)。★ 结果: **7 组方向正确、1 个负例组「仅收藏」从 30% 升到 50% 方向反转**。★★ **如实记, 不掩盖** —— 这是换代时已知的一处退化, 规模 2 题 × 5 模型里多 2 个判 suspend。",
+   "★evidence_is_required_because": "「instrument_hash 没变」**不足以**证明行为没变 —— 本条正是活例: instrument_hash 一字未变(d4cce4c745f3f991), 而**验收闸标注者的判读确实变了**(闸协议哈希 56eadd16bba9fc7e → dbdff13f9da155bc)。★★ 反过来同样成立: 「闸协议哈希变了」**不足以**证明生产也变了 —— 生产 s2 根本不读这个字段。⇒ 两个哈希各管一边, **哪一个都不能替另一个作证**, 必须各给行为证据。",
+   "★★★第⑤条已完成_启用": {
+    "状态": "**v2 已启用**(不再是候选)。",
+    "证据": "tests/data/gate_protocol_v2_acceptance_result.json · 原始读数 cce_runs/gate_v2_acceptance/",
+    "G-K1(判据一字未改)": "top2 0.9040→**0.8812** ≥0.80 ✅ · mean_JS 0.2190→**0.2422** ≤0.25 ✅",
+    "★★代价(必须随结论同行)": "**越 0.25 线的自助概率从 7.3% 涨到 35.5%**(近 5 倍); 点估计余量 0.031→**0.0078**, 只有 0.16 个跨对 SD(v1 的 0.55 个 SD 此前已被判为「薄」, v2 又薄 3.4 倍)。⇒ **PASS 不是二值事实**。引用「v2 通过」时必须带这一句。",
+    "★资格考": "五员**全部 5/5**, 但按三态判据**全部 UNRESOLVED**(5/5 的 Wilson 下界 0.566 < 0.90)。status=OK 的意思是「面板可用」**不是**「全部合格」; qualified_only 是**空集**。⇒ **不得**说「五员全部合格」。"
+   }
+  },
+  {
+   "date": "2026-09-13",
+   "event": "SCOPE_WIDENING_EDGE_REGISTERED",
+   "file": "scripts/cce_knot_classify.py",
+   "from_sha": "f2cef2f99c949a75",
+   "to_sha": "0a740ba16e80dc54",
+   "route": "**补登记既有口径扩大在另一台仪器上的那条边** —— 不是换代, 不是新标定, 不是放宽判据。",
+   "changed_field": "SCOPE_WIDENINGS 新增一条 ('s1_prompt_sha256@k5', 'eadcdcdac46a5180', '61fe230f5c588c1f')",
+   "reason": "2026-09-06 建 SCOPE_WIDENINGS 时只登记了 k=3 的边(565470cf26c16d01→d4cce4c745f3f991), **漏了同一次 gen4→6 口径扩大在 k=5 上的兄弟边**(0e9ca1d4e7a2f180→c4419c3e53aa2fa9)。而 k 进 sampling_policy ⇒ 两个 k 是两台仪器、两条边。后果: outbound_post 结层**零可用读数**, 而 K1_TOP1_ON_K5 的 40 条读数**早在 2026-09-04 就采过并判过 TOP1_USABLE**(判据测量前冻结于 k1_v2_k5_prereg.json)。⇒「同一逻辑多份实现, 修了一份漏了其余」的第四次。★ 结构性证据(现算, 且先自证能逐位复现两个现值): 把 s1_prompt_sha256 换回旧口径 eadcdcdac46a5180 后, k=3→565470cf26c16d01 · k=5→0e9ca1d4e7a2f180, **两台都在 VERDICT_BY_INSTRUMENT 里** ⇒ 同一次扩大。★ 不引入新的信任假设: verify 是 k=3 边**已在生产依赖**的同一个函数对象, 内容与 k 无关 ⇒ **两条边同真同假**。★ owner 2026-09-13 明确点头后执行(此前我按硬边界挂起未动)。",
+   "★哪一半行为变了": "**只有一项**: k=5(outbound_post)的结层 **top-1 由「未测·扣发」转为可用**。intensity/weight 在**两台上都仍扣发**(K1-v2 判 INSTRUMENT_WIDE_FAIL)。",
+   "★不是换代": "SCOPE_WIDENINGS 不在 _INSTRUMENT_FIELDS 里 ⇒ 两台 instrument_hash **皆未变** (d4cce4c745f3f991 / c4419c3e53aa2fa9) ⇒ **既有标定全部仍有效, 已采集 draw 全部仍可用**。",
+   "behavior_evidence": [
+    "tests/test_cce_k5_widening_edge.py",
+    "tests/test_cce_knot_stability.py",
+    "tests/test_cce_profile_k_and_inheritance_guard.py"
+   ],
+   "★回滚点": "/Volumes/data/cce-identified-vault/backups/20260913-070756-k5-widening-edge",
+   "★evidence_is_required_because": "★★★ **仪器哈希没变, 不足以证明行为没变。** 本条改动恰恰是一个反例: 两台 instrument_hash 一位都没变(d4cce4c745f3f991 / c4419c3e53aa2fa9), 而**行为确实变了** —— outbound_post 的结层 top-1 从扣发变成放行。⇒ 哈希未变只说明**已采集的 draw 仍可用**(那正是它被设计来回答的问题), **不说明**下游判决面没动。行为证据必须另给, 见 behavior_evidence 的三个测试: test_cce_k5_widening_edge(边在册 · 自证与 k=3 同一函数 · 影响面恰好一项 · 非换代) · test_cce_profile_k_and_inheritance_guard(逐 profile 的读数状态被现算钉住, 本次它当场判红并被人工确认) · test_cce_knot_stability(读数稳定性回归)。★ 我在写这条时原本只写了「不是换代: 哈希未变」—— **本闸判红逼我把这句补上, 它工作了。**",
+   "★哪一半没变": "s1/s2 prompt · 分类学 · 模型 · 端点 · 抽样策略 **一字未动** ⇒ 读数生成过程完全相同; intensity/weight 在两台上**仍然扣发**(放行靠 KNOT_READOUT_ALLOWLIST={'top1'} 白名单, 结构上不可能被这条边顺带解锁)。",
+   "★★★代价必须单独说": {
+    "① 这份标定是继承来的, 不是在当前仪器上重测的": "c4419c3e53aa2fa9 的 top-1 放行, 靠的是**前代 0e9ca1d4e7a2f180 上采的那 40 条读数**。自证只保证「新口径覆盖了旧口径覆盖过的部分」, **不保证**新口径新纳入的那 4165 字没有改变模型行为 —— 那一半只能靠 git 历史核, 运行时验不了(见 SCOPE_WIDENINGS 里 gen4→6 那条自己写的 (b))。",
+    "② top-1 骑在一批**其余层全军覆没**的读数上": "同一批 40 条读数上, intensity 0/5 · weight 0/5 ⇒ K1-v2 判 **INSTRUMENT_WIDE_FAIL**。**只有 top-1 达标**。这不是「这台仪器好」, 是「这台仪器在 top-1 这一层上稳」。",
+    "③ 单点失效面": "若 s1 模板将来被改得让旧口径子串消失, `_s1_scope_widening_holds()` 立刻翻 False ⇒ **两条边同时失效** ⇒ 生产与发帖档的 top-1 **一起**退回扣发。两条边共用同一个 verify ⇒ 这是**一个**单点, 不是两个。",
+    "④ 本次变更让一个旧观测面失去判别力": "登记之后「哪个 profile 能引用结层 top-1」**不再由 k 决定**(两台都可用) ⇒ tests/test_cce_profile_k_and_inheritance_guard 的灵敏度自证已改钉**仪器归属**这个面, 并在代码里写明了为什么换。",
+    "★这条代价该怎么读": "以上四条**都不推翻**这次登记的正当性(它与 k=3 那条边同真同假)。它们说明的是: **放行 top-1 ≠ 这台仪器已被充分标定。** 引用时须带这一句。"
+   }
+  },
+  {
+   "date": "2026-09-14",
+   "event": "CONTRACT_CHANGE_ANNEX_A_PROMOTED",
+   "route": "**合同层变更, 非仪器变更** —— 改的是判据层的依据档与两份决策文档, **没有一件在 core_files 或 parser_plane 里**。",
+   "★★★谁裁的": "**owner**。附件 A 原文写着「这条是我的提案, 可以被你推翻」, 2026-09-14 owner 裁定**升为合同**。",
+   "★★★依据不是读数": "促成提问的实测线索有三条(r3 的 MIS-4 · 回放显示合同明文拦不住它 · r4 显示模型填那一格与不读文本持平), 但**它们不构成依据** —— 依据是 owner 的决定。★ 若把读数写成依据, 那就是**用读数改合同**。",
+   "★升的是什么": "附件 A: 「增量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能由 x 的公开标识本身推出**」。",
+   "★★★没升的是什么": "「**五类各自的成立条件**」(纠错须纠正某说法 / 数据须有数值 / …) —— 那是**另一条**解释, **仍未升**, 判据层仍走 BY_INTERPRETATION。★ 我先前把两者笼统说成「附件 A」, **不够精确, 已更正**。",
+   "改了什么": [
+    "OWNER_DECISION_SHEET.md · OWNER_DECISION_ANNEX_definitions.md —— 记裁定 + 钉边界(原句以引述留痕)",
+    "scripts/cce_claim_frame.py —— predicate 的两个否定取值**拆开**: RESTATES_IDENTIFIER(附件A ⇒ **BY_CONTRACT**) vs NOT_OF_DECLARED_KIND(五类成立条件 ⇒ 仍 BY_INTERPRETATION)。★ 拆之前两条混在同一个取值里, **一升就会把没升的那条一起当成合同**。",
+    "tests/data/claim_frame_replay_annotations.json —— r1/NEGP-1 与 r3/MIS-4 的 predicate 改标 RESTATES_IDENTIFIER"
+   ],
+   "★★★instrument_hash": "**未变** —— 要改的文件**一件都不在 core_files/parser_plane 里**, 生产**不换代**。",
+   "behavior_evidence": {
+    "results/claim_frame_upper_bound.json": "**上界逐字不变** 4/10(只用合同明文) → 0/10(明文+解释), 对照 10/10 —— 因为最小对照五类里**没有一类依据附件 A**(那是一个**缺口**, 已登记)。",
+    "results/claim_frame_replay.json": "★★★ 真实证书回放: 「**只用合同明文**」阴性拦住 **1/3 → 3/3**; 对照误拦 **0/12 不变**。**r3/MIS-4(唯一一次真实的错误升格)现在合同明文就拦得住了**(之前是「仍放行」)。",
+    "tests/test_cce_annex_a_is_contract.py": "7 项闸, **重点守「没升的那条不许一起升」**。变异实测 9/9 全抓到(含把 NOT_OF_DECLARED_KIND 也升成合同 / 抹掉原句留痕 / 回滚点改成没路径 / 删掉 B·C 状态未变)。",
+    "tests/data/semantic_minimal_pairs.json": "★ 已登记「附件 A 在这套最小对照上**零覆盖**」—— 升了合同但那套测不到它, 该补一对, 本轮不补。"
+   },
+   "★evidence_is_required_because": "**仪器哈希没变不足以证明行为没变** —— 它只证明没碰生产仪器, 而本次变更本来就发生在**判据层**(不进 prompt)。实际影响必须由**行为证据**给出, 且两者都现算: 上界**逐字不变**(4/10 → 0/10) · 回放「只用合同明文」阴性拦住 **1/3 → 3/3**。★ 下次不许拿哈希当证据。",
+   "★哪一半没变": "**生产分类器一个字没动**。本次变更只作用于**判据层**(命题框架层), 而该层**一个字都不进 prompt** —— gen9 实测把合同文本塞进生产 s2 prompt 会让 display 由 1/80 涨到 40/80 且倒挂, 那条路已被排除。",
+   "★★★代价必须单独说": "附件 A 的代价在它被提出时就写着、owner 裁定时未被修改: **更严** —— 「说了个型号但没给任何该型号的具体信息」落进未决, **覆盖率下降**。现在这是**合同的代价**。★ 另: **最小对照对附件 A 零覆盖** —— 升了合同, 但那套测不到它, 该补一对(已登记, 本轮不补: 金标已冻结且已用于 r4)。",
+   "★回滚点": "scratchpad/backup-annexA-20260914-233803/ (改动前九个文件的逐字节副本)",
+   "file": "scripts/cce_claim_frame.py",
+   "from_sha": "6f0b8ccc6d300bc2",
+   "to_sha": "54413b38b4303348",
+   "★file 字段说明": "本条改了多个文件(见「改了什么」), file 记的是**主要改动件**。★ 它**不在 core_files 也不在 parser_plane** ⇒ 不会进 core_boundary 的漂移比对, 写在这里只为留痕与可回滚。",
+   "★全部改动件的 sha 转移": {
+    "scripts/cce_claim_frame.py": {
+     "from": "6f0b8ccc6d300bc2",
+     "to": "54413b38b4303348"
+    },
+    "OWNER_DECISION_SHEET.md": {
+     "from": "91df305372e91af8",
+     "to": "1594ab90954dbdb4"
+    },
+    "OWNER_DECISION_ANNEX_definitions.md": {
+     "from": "a77cb1bfbc9717c8",
+     "to": "38911a6c105b593c"
+    },
+    "tests/data/claim_frame_replay_annotations.json": {
+     "from": "10051523f2533c40",
+     "to": "48cb92b8484cfdd8"
+    },
+    "tests/data/semantic_minimal_pairs.json": {
+     "from": "ed71a1e6751ddb78",
+     "to": "c5d8184fe5a9a9d5"
+    }
+   },
+   "reason": "**owner 裁定**: 附件 A(「增量相对 x 成立 ⟺ 文本含关于 x 的陈述, 且该陈述不能由 x 的公开标识本身推出」) 由「我的提案, 可被推翻」**升为合同明文**。判据层据此把 predicate 的两个否定取值拆开, RESTATES_IDENTIFIER 迁到 BY_CONTRACT 档, NOT_OF_DECLARED_KIND(五类各自的成立条件)**仍为解释**。★ **依据是 owner 的决定, 不是读数** —— 三条实测线索只是促成提问, 不构成依据。★ **不碰生产**: 改动件一件都不在 core_files/parser_plane, instrument_hash 未变。",
+   "★behavior_evidence 原描述(改成路径键前)": {
+    "上界(最小对照)": "**逐字不变** 4/10 → 0/10, 对照 10/10 —— 因为最小对照五类里**没有一类依据附件 A**。",
+    "回放(真实证书)": "「只用合同明文」阴性拦住 **1/3 → 3/3**; 对照误拦 **0/12 不变**。",
+    "★★★头条": "**r3/MIS-4(唯一一次真实的错误升格)现在合同明文就拦得住了**(之前是「仍放行」)。"
+   }
+  },
+  {
+   "date": "2026-09-15",
+   "event": "ANNEX_A_MADE_OBSERVABLE",
+   "route": "**度量面变更, 非合同变更, 非仪器变更** —— 合同一个字没改(附件 A 2026-09-14 已升); 本次只是让**已经升了的那一条**在对照集上**可被观察到**。改动件无一在 core_files 或 parser_plane 里。",
+   "★为什么要有这一轮": "升合同那天同步登记了一个缺口: **五类语义关系最小对照里没有一类依据附件 A** ⇒ 合同多了一条, 上界读数 4/10 → 0/10 **逐字不变**, 度量面上**看不见它**。★ 一条看不见的合同条款, 与没有这条条款, 在读数上无法区分。",
+   "改了什么": [
+    "tests/data/semantic_minimal_pairs.json —— 新增 `contract_pairs`(ANX-1/ANX-2, **标识复述**), **与 pairs 那 10 对并列, 不合并**; 槽位标注**自带在对里**(frames 字段)。",
+    "probes/annex_a_coverage.py(新) + results/annex_a_coverage.json —— 零调用, 两档 + 现有资格层基线 + **镜像变异现跑**。",
+    "tests/test_cce_annex_a_coverage.py(新, 14 项) —— 头四项守的是**冻结件没被碰**。",
+    "scripts/cce_criterion_preflight.py —— 加**第三道**: 声明零基线臂的预注册必须带逐槽位零增益降级。",
+    "tests/test_cce_criterion_preflight.py —— +4 项(含「不误伤历史预注册」与「不回溯 r4」)。",
+    "probes/slot_filling_run_r4.py —— **只加注释登记**: r4 的 predicate 枚举里没有 RESTATES_IDENTIFIER。"
+   ],
+   "★★★没有动任何冻结件": "① tests/data/claim_frame_annotations.json **一个字节未变**(sha8 仍 5a018edd, r4 预注册钉的就是它); ② `pairs` 那 10 对**逐字未变**(规范化 sha16 cd9a06844cc6226d); ③ 上界探针**不读 contract_pairs** ⇒ 上界读数 **4/10 → 0/10 逐字不变**, r4 的三臂对照仍然可比。★ 三条都由 tests/test_cce_annex_a_coverage.py 的前三项**机械把住**, 不靠自觉。",
+   "behavior_evidence": {
+    "results/annex_a_coverage.json": "**现有资格层(形式验证)在这两对上 2/2 全漏**, 对照 2/2 有效 ⇒ 这两对确实是现有层的盲区。**新判据层两档都 0/2 漏**, 对照 2/2 ⇒ 附件 A 拦得住, 且**两档相同**(说明它确实被当成合同明文而非解释)。",
+    "tests/test_cce_annex_a_coverage.py": "14 项。**镜像变异 12/12 全抓到**, 其中最要紧的是「**把附件 A 降回解释档**」(模拟 owner 裁定被撤销) ⇒ 只用合同明文档 **0/2 → 2/2 漏**。★ 若这条抓不到, 这套对照测的就不是附件 A。★★ 另外两条补跑的精准变异(差异撑大但 span 仍逐字 / 保持 3 条但换掉「恒拦」)是为了验**弱断言本身**会响 —— 上一轮吃过亏: 文件见红不等于那一条断言见红。",
+    "scripts/cce_criterion_preflight.py": "新规则**能红也不误伤**: 只带端到端降级 ⇒ 拦; 补上逐槽位零增益 ⇒ 放行; 不含零基线臂的历史预注册 ⇒ 不触发(现有 4 份逐一验过)。变异 **4/4 全抓到**。",
+    "results/claim_frame_upper_bound.json": "**逐字不变** 4/10 → 0/10 —— 这是**故意的**: contract_pairs 单列就是为了不动它。"
+   },
+   "★evidence_is_required_because": "**「没动冻结件」这句话本身不足以证明读数没变** —— 它只说明文件没被改, 不说明读数的算法没绕道。所以上界读数由闸**现算比对**(4/10 → 0/10), 且用一条机械检查确认上界探针**源码里不出现 contract_pairs**。★ 同样地, 「变异全抓到」若是**手写进档案**的, 判据一变就悄悄过期 ⇒ 闸**自己重跑一遍变异**再比对。",
+   "★★★代价必须单独说": "① **ANX 两对的槽位标注仍是我做的** ⇒ 这份 0/2 是**能力上界**, 不是端到端表现; ② ★★ **r4 的提示词枚举里根本没有 RESTATES_IDENTIFIER** ⇒ **模型至今没有被测过能不能填出这一格**, 本节的 0/2 **不得**读成「模型能分辨复述与增量」; ③ **`pairs` 那 10 对上附件 A 依然零覆盖** —— 补在别处**不等于**那一套补上了, 原登记不撤销; ④ 判据层**仍未接进生产**(一个字不进 prompt)。",
+   "★回滚点": "scratchpad/backup-annexAcov-20260915-120418/ (改动前六个文件的逐字节副本)",
+   "file": "tests/data/semantic_minimal_pairs.json",
+   "from_sha": "c5d8184fe5a9a9d5",
+   "to_sha": "2cfd8f58cf63da98",
+   "★file 字段说明": "本条改了多个文件(见「改了什么」), file 记的是**主要改动件**。它**不在 core_files 也不在 parser_plane**。",
+   "★全部改动件的 sha 转移": {
+    "tests/data/semantic_minimal_pairs.json": {
+     "from": "c5d8184fe5a9a9d5",
+     "to": "2cfd8f58cf63da98"
+    },
+    "scripts/cce_criterion_preflight.py": {
+     "from": "5c30a46e89c315cb",
+     "to": "3120460cd0d8b17a"
+    },
+    "probes/slot_filling_run_r4.py": {
+     "from": "4e5f628875a50c96",
+     "to": "832b185e53cad3f6"
+    },
+    "tests/test_cce_criterion_preflight.py": {
+     "to": "9bb6337b1579fe70"
+    },
+    "probes/annex_a_coverage.py": {
+     "from": "(新建)",
+     "to": "见文件"
+    },
+    "tests/test_cce_annex_a_coverage.py": {
+     "from": "(新建)",
+     "to": "见文件"
+    }
+   },
+   "★★★instrument_hash": "**未变** —— 改动件一件都不在 core_files/parser_plane 里, 生产**不换代**。",
+   "reason": "让 2026-09-14 已升为合同的**附件 A** 在对照集上**可被观察到**。新增 contract_pairs(标识复述, 2 对)**并列于**五类语义关系而不合并 —— 合并要往 r4 按 sha8 钉死的冻结金标里加条目, **等于事后改已付费那一轮的基准**。★ 同时把 r4 暴露的「逐槽位零增益没人管」**制度化**进判据准入(第三道), 而**不回溯 r4 的读数**(测量后改判据 = 调结果)。★ 合同一个字没改, 生产一个字没动。"
+  },
+  {
+   "date": "2026-09-15",
+   "event": "R5_PREREG_REJECTED_AND_FOUR_REAL_DEFECTS_FIXED",
+   "route": "**度量面变更 + 一轮设计被否决**。零调用, 零投料。改动件无一在 core_files 或 parser_plane 里。",
+   "★★★发生了什么": "为 r5(「把已升为合同的附件 A 判据文字给模型看, predicate 还会不会与零基线持平」)写了预注册草案, 交给 **280 个零调用 agent** 做对抗评审(10 维度找缺陷 → 每条发现 3 视角尝试推翻): **90 条发现, 存活 72, 其中 BLOCKING 30** ⇒ **草案否决, 48 次预算未动**。",
+   "★★★决定性的否决理由": "**信号量只有 2 格**。金标 A 支 predicate 分布 **20 : 2 : 2**, 零基线填多数类就拿 **20/24**; 而附件 A 只定义 RESTATES_IDENTIFIER ⇒ 本轮处理能直接触及的只有 **2 格**, preflight 现算**最优单侧 p = 0.25, α=0.05 下事前即不可达**。★★ 更要命: **D6 判不动** —— 一个在 4 个鉴别格上全对、20 个多数类格上错 4 格的模型, 与完全不读文本的常数填充**拿同一个 20/24** ⇒ **假说为真时也会印出「零增益」**。⇒ 不是问题不该问, 是**这个问法买不到答案**。",
+   "★★★评审实跑出来的第二条(这条是我造数据的失误)": "一个零语义的纯正则填充器 + 一行 `'aid' in span.lower()` 能让草案 D1–D7 **七条降级全部沉默**, 并正好产出那一轮要买的路线结论。根因: 24 条 A 支片段里**只有 ANX 两条 neg 含 aid**, 其余全是实义动词句 ⇒ **表层正字法线索与目标信号完全共线**。",
+   "改了什么(四条真缺陷, 都独立于这个草案也成立)": [
+    "① probes/shallow_cue_arm.py(新) + tests/test_cce_shallow_cue_arm.py(8 项) —— **浅层线索臂**, 第三条零调用基线; 同时改 ANX 两对文本消共线(让同一条线索**也打中 pos**, 使净增益归零: 22/24 → 20/24 = 零基线)。",
+    "② tests/test_cce_executor_legal_enum.py(新, 4 项) —— 执行器打分侧枚举必须从判据层派生。r4 显式豁免, 但豁免**挂在一个可现算的事实上**(它的冻结金标里从未出现 RESTATES_IDENTIFIER)。",
+    "③ tests/test_cce_annex_a_coverage.py +2 项 —— ANX 金标**哈希钉死**; 正字法共线如实留在数据里。",
+    "④ scripts/cce_criterion_preflight.py + tests/test_cce_criterion_preflight.py(+3 项) —— 第三道的**兜底扫描 + 日期门**。",
+    "⑤ tests/data/slot_filling_prereg_r5_REJECTED.json + tests/test_cce_r5_prereg_rejected.py(7 项) —— 否决留档。"
+   ],
+   "★★★我自己的两条假声称(被评审抓到, 已更正不是抹掉)": {
+    "第五次假保证": "草案原文写「ANX 2 对的标注在 r5 之前已冻结且**已被闸把住**」—— **那句话当时是假的**。contract_pairs[*].frames 全仓没有任何哈希断言碰过。与 r4 记下的「改金标一格, 14 道闸一道没响」**同型**。",
+    "刚立的制度当天就是空转的": "2026-09-15 立的判据准入第三道只认 arms/downgrades 两个**英文键**, 而本仓真实预注册全用中文键 ⇒ **机器检查一次都没生效过**。"
+   },
+   "behavior_evidence": {
+    "results/shallow_cue_arm.json": "纯正则在 predicate **鉴别格 2/4**(零基线按构造 0/4)。消共线**前后现跑对比**: A 支合计 **22/24 → 20/24**, 恰好落回零基线。★ **鉴别格仍是 2/4** —— 共线**没消干净**, 已如实登记。",
+    "tests/test_cce_shallow_cue_arm.py": "8 项。★★★ 变异实测暴露「**断言太弱**」**第二次复发**: 查结果文件 ⇒ 改源码不重跑看不见; 改查源码子串 ⇒ 同一句话 docstring 里还有一份, 子串仍在。⇒ 根本修法: 探针把「计算+构造产物」抽成 build_result(), 闸**现算整份逐键比对**。复验「只改源码不重跑」4 种变异 **4/4 全抓到**。",
+    "tests/test_cce_executor_legal_enum.py": "4 项, 变异 4/4。★ 现算证明 r4 豁免的前提成立: 它的冻结金标里 predicate 只出现过 OWNERSHIP/OF_DECLARED_KIND/NOT_OF_DECLARED_KIND。",
+    "tests/test_cce_criterion_preflight.py": "11 项(+3), 变异 3/3。★ 兜底能红、历史四份预注册**不误伤**。★★ 其中一条变异**当场抓到我自己的失误**: 重排 REJECTED 文件的键时把顶层 date 丢了, 基线已红。",
+    "tests/test_cce_r5_prereg_rejected.py": "7 项, 变异 4/4。**重点守「不许把已修四条读成草案已可用」**。"
+   },
+   "★evidence_is_required_because": "**仪器哈希没变不足以证明行为没变** —— 它只证明没碰生产仪器, 而本次改动本来就全在度量面。★ 同样地, **「评审说否决」也不足以当证据** —— 90 条发现里有 **18 条被三视角推翻**。真正作数的是**现算与实跑**: 信号量 20:2:2 与最优单侧 p=0.25 由 scripts/cce_criterion_preflight.py **现算**; 纯正则填充器穿过七条降级由评审 agent **实跑**; 消共线前后 22/24 → 20/24 由 probes/shallow_cue_arm.py **现跑**(且闸会逐键比对, 手写的对不上)。★ 下次不许拿哈希当证据, 也不许拿 agent 的结论当证据。",
+   "★★★代价必须单独说": "① **48 次预算未动, 但那个问题也还没被回答** —— r4 的 predicate 零增益诊断(「不是模型判不出, 是没人告诉它判据」)**至今仍是未经检验的假说**; ② 浅层线索臂的**鉴别格仍 2/4**, 共线没消干净, 只是净增益归零; ③ 下一版 r5 的**前提**(扩充 ANX 类对照对把信号量提上去)**本轮未做**; ④ 判据层**仍未接进生产**。",
+   "★回滚点": "scratchpad/backup-r5review-151812/ (改动前七个文件的逐字节副本)",
+   "file": "probes/shallow_cue_arm.py",
+   "from_sha": "(新建)",
+   "to_sha": "b5e9a30e80fcb277",
+   "★file 字段说明": "本条改了多个文件(见「改了什么」), file 记的是**主要新增件**。它不在 core_files 也不在 parser_plane。",
+   "★全部改动件的 sha 转移": {
+    "tests/data/semantic_minimal_pairs.json": {
+     "from": "2cfd8f58cf63da98",
+     "to": "ff9233b462644a6e"
+    },
+    "scripts/cce_criterion_preflight.py": {
+     "from": "3120460cd0d8b17a",
+     "to": "7a181b541747d936"
+    },
+    "probes/shallow_cue_arm.py": {
+     "from": "(新建)",
+     "to": "b5e9a30e80fcb277"
+    },
+    "tests/test_cce_shallow_cue_arm.py": {
+     "from": "(新建)",
+     "to": "de7781b5d33491cd"
+    },
+    "tests/test_cce_executor_legal_enum.py": {
+     "from": "(新建)",
+     "to": "98bd4c9abfd8a348"
+    },
+    "tests/test_cce_r5_prereg_rejected.py": {
+     "from": "(新建)",
+     "to": "f5d3007c1bcd562f"
+    },
+    "tests/data/slot_filling_prereg_r5_REJECTED.json": {
+     "from": "(新建)",
+     "to": "dba5c23edbf7d188"
+    }
+   },
+   "★★★instrument_hash": "**未变** —— 改动件一件都不在 core_files/parser_plane 里, 生产**不换代**。",
+   "reason": "r5 预注册草案经 280-agent 零调用对抗评审后**否决**(30 条 BLOCKING), **48 次预算未动**。决定性理由是**信号量只有 2 格、最优单侧 p 事前即 0.25、且 D6 在假说为真时也会印出「零增益」** —— 这不是判据措辞问题, 修不了, 要先扩充对照对。同轮修掉评审发现的**四条独立于该草案也成立的真缺陷**, 并更正**我自己的两条假声称**。"
+  },
+  {
+   "date": "2026-09-15",
+   "event": "R5V2_BLOCKED_ON_CORPUS_AND_REALITY_ANCHOR_ESTABLISHED",
+   "route": "**度量面变更 + 第二轮投料被否决**。零调用, 零投料。改动件无一在 core_files 或 parser_plane 里。",
+   "★★★发生了什么": "r5 第二版(鉴别格 2→6 · 主判据换成 vs 最佳浅层规则 · 门 ≥5/6)交 **92 个零调用 agent** 做投料前评审: 43 条发现, 存活 14, **BLOCKING 10** ⇒ **仍不投料, 64 次预算未动**。★ 41 个验证 agent 撞了会话限额, 被判 killed 的条目里有大量 **0/0 票** —— 那是**未验证**不是**已推翻**。",
+   "★★★决定性的一条": "主判据的零假设 p0 取自只搜**单 token** 的搜索器 ⇒ 2/6。评审实跑: 扩到**标准闭类词表 ≤3 项合取**(族规模 378)后, `含系动词 AND 不含介词 AND 不含程度词` 拿 **5/6 · 误伤 0/24 · 净 +5** 且**通过全部三个前置条件** ⇒ p0 变 5/6, **门在任何 n 下都不可达** —— 第一版被否决的病换了个门回来。★★ 根因: 我第三次调整对照集**只针对了当时可见的单 token 族**, 句法线索原封不动。",
+   "★★★★★ 由此逼出的更要紧的发现": "把那条规则放到 **r1/r2/r3 已付费的真实证书**上: **0/2 · 净 0**; 在真实证书上重搜整个冻结族, **最佳净增益也是 0**。⇒ **它是我造的对照集的伪影, 不是自然语言的现象。**★★★ 逐条看真实形态才明白: 真实的 RESTATES_IDENTIFIER 是「泛泛提及 / 只指认, 不给关于它的任何陈述」(r1/NEGP-1 无系动词含介词; r3/MIS-4 有系动词**也含介词**), 而我造的 6 对 ANX **全部**是「X is Y」教科书式定义句(6/6 系动词 · 5/6 不含介词)。⇒ **那套对照集测的是「定义句 vs 描述句」这个句法区分, 不是合同条款。**",
+   "★★★这同时否决了两条路": "① **现在投料**(对照集有伪影, 读数无法归因); ② **用规则代替模型**(那条规则在真实证书上净增益是 0)。",
+   "★★★买到的方法论进展: 外部锚点": "「我造对照集 → 搜索器找线索 → 我再改」这个循环**没有停止规则**。现在有了: **新对照集上冻结族的最佳净增益, 应当接近真实证书上的水平(净 0)**。★ 锚点来自 **48 次已付费调用**的真实证书, 不是我拍的数。★★ 配套纪律: 族**先冻结**(标准公开闭类词表 · ≤3 项合取 · 禁止自造词表 · 族规模随产物一起报), 再改对照集。",
+   "改了什么": [
+    "probes/best_shallow_rule_search.py —— 搜索空间由**单 token** 扩到**冻结的闭类族**(378 条), 两者并排报。",
+    "probes/shallow_rule_on_real_certs.py(新) + results/ —— 真实证书复核 + 两类片段的**真实形态对比**。",
+    "tests/test_cce_shallow_rule_reality_check.py(新, 13 项) —— 变异 **17/17**。",
+    "probes/slot_filling_run_r5.py —— 修评审抓到的**四条工程 bug**(见下)。",
+    "tests/data/slot_filling_prereg_r5.json —— status 改 **BLOCKED_ON_CORPUS**, 记评审结论与八条下一版前提。",
+    "tests/test_cce_slot_filling_r5.py —— +1 项(评审结论与前提必须留档), 共 16 项。"
+   ],
+   "★★★四条工程 bug(任何一条都会让 64 次白花)": {
+    "★★★ATTEMPTS": "原写 `RETRIES = 0` 传给 call_model(max_retries=)。而那是 `for attempt in range(max_retries)` ⇒ **0 表示一次 HTTP 都不发**, 64 条全被记成「格式失败」而预算照记。已改 1。",
+    "judge 抛错": "会连 64 次的**原始 rows 一起丢**(r3 那版正是跑完 16 次后必 KeyError)。已改为原始记录先保全。",
+    "B 支 null": "不计分却仍计 illegal ⇒ 模型**照提示词填 null 反而被罚**, 打掉前置条件③。已豁免。",
+    "p0 文件缺失": "退化成 p0=0 ⇒ 任何 ≥1/6 都印「超过」而 D6 同时哑掉。已改为**拒发**。"
+   },
+   "behavior_evidence": {
+    "results/best_shallow_rule_search.json": "单 token 族最佳 **2/6 净+2** vs 冻结族(378 条)最佳 **5/6 误伤 0/24 净+5**。⇒ 用前者当 p0 等于把**下界**当 null。",
+    "results/shallow_rule_on_real_certs.json": "同一条规则在**真实证书**上 **0/2 · 误伤 0/7 · 净 0**; 重搜冻结族最佳也是 **净 0**。★ 分母极小(RESTATES 仅 2 条), **不得按百分比引用**。",
+    "tests/test_cce_shallow_rule_reality_check.py": "13 项, 变异 **17/17**。★★★ 其中 5 条首轮漏网, 原因是「**断言太弱 / 子串仍在**」**第三次复发** —— 改法照旧: 结果文件与探针**现算整份逐键比对**, 源码断言改用完整片段而非子串。",
+    "tests/data/slot_filling_prereg_r5.json": "status **BLOCKED_ON_CORPUS**, 八条下一版前提, 由闸把住不许读成「可投料」。"
+   },
+   "★evidence_is_required_because": "**仪器哈希没变不足以证明行为没变**, 而且**「评审说否决」也不足以当证据** —— 43 条发现里有 29 条未存活。真正作数的是**现算与实跑**: 冻结族 5/6 与真实证书 0/2 都由探针现跑并被闸逐键比对。",
+   "★★★代价必须单独说": "① **64 次预算未动, 但那个问题仍没被回答** —— r4 的 predicate 零增益诊断**至今是未经检验的假说**; ② **对照集必须重造**(照真实形态, 且 n 从 6 提到 12–16) —— 这是下一个独立工程, 本轮未做; ③ 真实证书那边**分母极小**(RESTATES 仅 2 条), 「净 0」这个锚点本身**很弱**; ④ 判据层**仍未接进生产**。",
+   "★回滚点": "scratchpad/backup-r5v3-180433/",
+   "file": "probes/shallow_rule_on_real_certs.py",
+   "from_sha": "(新建)",
+   "to_sha": "5cd5fb4d8b46caeb",
+   "★file 字段说明": "本条改了多个文件(见「改了什么」), file 记的是**主要新增件**。不在 core_files 也不在 parser_plane。",
+   "★全部改动件的 sha 转移": {
+    "probes/best_shallow_rule_search.py": {
+     "to": "3b6a9065b4bd09b9"
+    },
+    "probes/shallow_rule_on_real_certs.py": {
+     "to": "5cd5fb4d8b46caeb"
+    },
+    "probes/slot_filling_run_r5.py": {
+     "to": "78ad68578bd3b903"
+    },
+    "tests/test_cce_shallow_rule_reality_check.py": {
+     "to": "09cfba3340354cd5"
+    },
+    "tests/test_cce_slot_filling_r5.py": {
+     "to": "7992654bc41a62a1"
+    },
+    "tests/data/slot_filling_prereg_r5.json": {
+     "to": "37c33d8982e1b5d2"
+    }
+   },
+   "★★★instrument_hash": "**未变** —— 改动件一件都不在 core_files/parser_plane 里, 生产**不换代**。",
+   "reason": "r5 第二版经 92-agent 投料前评审以 10 条 BLOCKING 否决, **64 次预算未动**。决定性理由是**对照集的句法与目标信号共线** ⇒ 真实的 p0 是 5/6 而非 1/3 ⇒ 门不可达。由此把那条规则放到**已付费的真实证书**上复核, 得到 **净 0** ⇒ 它是**手构对照集的伪影**, 并据此建立了造对照集的**外部锚点**。同轮修掉四条会让 64 次全部白花的工程 bug。"
+  },
+  {
+   "date": "2026-09-15",
+   "event": "R5_RUN_68_CALLS_MAIN_CRITERION_NOT_MET",
+   "route": "**测量轮次, 非仪器变更**。68 次已花。改动件无一在 core_files 或 parser_plane 里。",
+   "★★★读数": "**B 臂 predicate 鉴别格 4/24**(门 ≥11/24) ⇒ **主判据未达成**, 单侧 p=0.885, D6 触发。同批: 金标 24/24 · **最佳浅层规则 6/24** · 手写浅层臂 1/24 · 零基线 0/24。执行 68/68 · 失败 0 · 非法取值 1 · 端到端可用 67/68。",
+   "★★★★★它推翻了什么": "r4(2026-09-14)留下的诊断「**不是模型判不出, 是没人告诉它判据是什么**」—— 那条自留下之日起就是**未经检验的假说**, 本轮**检验了并且它不成立**: **告诉了它判据, 它还是判不出。**",
+   "★★★为什么这不是「模型摆烂」": "同一批 68 次里模型在其他槽位几乎满分: speaker 68/68 · polarity 136/136 · time 67/68 · citation 68/68。⇒ 它**认真读了**。",
+   "★★★为什么这不是 power 不够": "测量前算好的**联合** power: q=0.75→0.95, q=0.65→0.45。模型实际每格命中率 **4/24=0.167**, 远低于任何拐点。",
+   "★★★更准确的结论": "**不是「模型不如规则」** —— 最佳浅层规则也只有 6/24, 手写浅层臂 1/24。而**金标 24/24** ⇒ 这个区分**是可判的**(人标得对), 只是**自动化方法都接近随机**。⇒ **附件 A 这条合同条款目前没有可靠的自动判定方法**; 要用 predicate 这一格就得**人工标注或放弃它**。",
+   "★★★投料前走过什么": "**三轮零调用对抗评审**: 280 agent/30 BLOCKING → 92 agent/10 BLOCKING → 39 agent/8 BLOCKING。★ 第三轮抓到两条致命的: ① **RETRIES 改名漏一行** ⇒ 68 次全打完后必 NameError、结果文件一个字节不落盘, 而当时 19 道闸**全绿**(没有一道闸执行 main()); ② **power 只算了①**, 联合 power 在 q=0.65 是 0.069 不是 0.817。",
+   "★★★三条根本修法(不是逐条打补丁)": [
+    "**干跑闸**: 桩替换模型入口, **真的跑一遍 main()** 并断言产物落盘 + 静态查未定义自由名(变异 G1/G2 验过)。",
+    "**对照集体检器** probes/corpus_balance_audit.py: 逐轴机械对比手构集与**真实语料**的 pos/neg 分布差 —— 把「事后搜出共线」变成「造对照时的机械约束」。现报**全部已知轴都在真实语料水平内**。",
+    "**②改用净增益**: 分开判两个阈值会漏 —— 那条族外量词规则鉴别格 14≥门、多数类格也过阈值, **两项都过**而净增益 −2。"
+   ],
+   "改了什么": [
+    "tests/data/semantic_minimal_pairs.json —— contract_pairs **重造为 24 对**(v1 的 6 对已撤回留档), 按体检器逐轴对齐。",
+    "probes/slot_filling_run_r5.py —— 砍 A 臂 · 门与 p0 冻结 · ②改净增益 · 四条工程 bug · 桩自检十二态。",
+    "probes/corpus_balance_audit.py(新) + probes/best_shallow_rule_search.py(扩到冻结族 378 条)。",
+    "tests/test_cce_slot_filling_r5.py(21 项) · tests/test_cce_slot_filling_r5_result.py(新, 7 项) · tests/test_cce_corpus_balance.py(新, 7 项)。",
+    "tests/data/slot_filling_prereg_r5.json —— status DONE, 三轮评审收敛记录, 联合 power, dry-run 边界行为。"
+   ],
+   "behavior_evidence": {
+    "results/slot_filling_r5.json": "68/68 零失败。**B 臂 4/24 < 最佳浅层规则 6/24 < 金标 24/24**。两档端到端(只用合同明文)阴性放行: 模型 23/34 · 金标 4/34 · 零基线 34/34。",
+    "results/corpus_balance_audit.json": "**全部已知特征轴都在真实语料水平内**。那条曾拿 19/24 并穿过全部前置条件的族外量词规则, 现在净增益 **−2**。",
+    "tests/test_cce_slot_filling_r5_result.py": "7 项, 变异 **10/10** —— 重点守「68 次已花, 这些数不许被改写」。",
+    "tests/test_cce_slot_filling_r5.py": "21 项, 变异 **13/14 + 补跑 5/5**。★ 其中「三个冻结数与现搜对账」那条是评审 MAJOR 抓到的: 原版 `p0 = 2/6` **一直硬编码着**, 「把门改小到 5」这种变异抓不到。"
+   },
+   "★evidence_is_required_because": "**仪器哈希没变不足以证明行为没变**; **「三轮评审都过了」也不足以当证据** —— 每一轮都找到了上一轮没看见的东西。真正作数的是**现算与实跑**: 68 次的逐条 rows 落盘、五臂同批同打分、桩自检十二态、变异 23/24。",
+   "★★★代价必须单独说": "① **n=1 每条零重试**, r3 实测同一仪器重测一致率仅 60% ⇒ 每个数都是**单次读数**; ② 分母是**手构最小对照**, 体检器只对齐了**已知**轴 ⇒ 不得外推到自然语料; ③ 只测了 **RESTATES_IDENTIFIER 一个取值**, 不得外推到别的槽位或别的合同条款; ④ **第四轮评审未跑** —— 不声称已无缺陷; ⑤ 判据层**仍未接进生产**(一个字不进 prompt)。",
+   "★回滚点": "scratchpad/backup-r5v3-180433/ 与 backup-anxv2-214044/",
+   "file": "results/slot_filling_r5.json",
+   "from_sha": "(新建)",
+   "to_sha": "b9676a0b772fec03",
+   "★file 字段说明": "本条是**测量轮次**, file 记的是读数产物。它不在 core_files 也不在 parser_plane。",
+   "★★★instrument_hash": "**未变** —— 生产**不换代**, 本轮只调模型填槽位, 不经生产分类器。",
+   "reason": "r5 投料 68 次(只跑 B 臂), 零失败。**主判据未达成**: 给了模型已升为合同的附件 A 条款, 它在 24 个鉴别格上只认出 4 个, 比一条零语义正则(6)还少。⇒ **推翻 r4 那条「不是模型判不出, 是没人告诉它判据」的诊断**。★ 但规则也只有 6/24 而金标 24/24 ⇒ 准确结论是**这条条款目前没有可靠的自动判定方法**。"
+  },
+  {
+   "date": "2026-09-15",
+   "event": "SLOT_FILLABILITY_AUDIT_AND_A_CORRECTION",
+   "route": "**度量面变更 + 一条自我更正**。零调用(重算 r5 已付费的 68 次)。改动件无一在 core_files/parser_plane。",
+   "★★★做了什么": "把 r5 的 68 次读数按**相对零基线的净增益**重算, 建成**槽位可填性档案** —— 回答「判据层能不能靠模型自动填槽位」。",
+   "★★★★★它推翻了我自己前一条表述": "r5 产物里我写过「其他槽位几乎满分(speaker 68/68 · polarity 136/136) ⇒ **它认真读了**」。★ **那个推论证据不足**: 同一批上**零基线(完全不读文本)拿 66/68 与 134/136** ⇒ 那几格的**全部增益空间只有 2 格**。「满分」等于「**这批 items 在这个槽位上几乎没有区分度**」, 不等于能力。★★ 这正是 **r4 那条教训(金标倾斜 38:2 ⇒ 不读文本能拿 93.6%)的重演** —— 区别是这次算了。★★★ 已**带原文引述地更正**(不是抹掉), 由闸 test_r5结果里那条推论已被更正_而不是抹掉() 把住。",
+   "★★★逐槽位(净增益 = 模型 − 零基线; 可得增益 = 金标 − 零基线)": {
+    "speaker": "+2 / 可得 +2 ⇒ **这批数据测不出**",
+    "polarity": "+2 / 可得 +2 ⇒ **测不出**",
+    "citation": "+2 / 可得 +2 ⇒ **测不出**",
+    "time": "+1 / 可得 +2 ⇒ **测不出**",
+    "possession": "**−6** / 可得 +4 ⇒ **比不读文本还差**",
+    "predicate": "+3 / 可得 **+26** ⇒ **只取到 12%**"
+   },
+   "★★★结论": "**这批数据只测得出两个槽位**: predicate(可得增益 26 格)与 possession(4 格)。模型在 predicate 上**只取到 12%**, 在 possession 上**净增益为负**。其余四格的可得增益 ≤2, **它们的满分不得引用为能力**。⇒ **自动填槽位这条路, 在已测范围内没有可用的证据支持**。",
+   "改了什么": [
+    "probes/slot_fillability_audit.py(新) + results/slot_fillability_audit.json —— 零调用, 重算 r5 读数。",
+    "tests/test_cce_slot_fillability.py(新, 7 项) —— 变异 **8/8**。",
+    "results/slot_filling_r5.json —— 「为什么这不是模型摆烂」那条**带原文引述地更正**并补槽位可填性。"
+   ],
+   "behavior_evidence": {
+    "results/slot_fillability_audit.json": "逐槽位净增益/可得增益/取到比例, 全部由探针**现算**(闸逐键比对)。可得增益 ≤2 的槽位被**机械标成「这批数据测不出」**, 其准确率禁止引用。",
+    "tests/test_cce_slot_fillability.py": "7 项, 变异 **8/8**。其中两条专守**那条更正不许被抹掉**(J6 直接改写 / J7 删掉原文引述, 都被抓到)。"
+   },
+   "★evidence_is_required_because": "**准确率不足以证明能力** —— 这正是本条更正的内容。判准必须是**相对零基线的净增益**, 且要同时报**可得增益**(金标 − 零基线), 否则一个可得增益只有 2 格的槽位会以「满分」的样子被引用。",
+   "★★★代价必须单独说": "① 只重算了**这 68 条手构 item 与这一个模型**的读数, **不得外推**; ② 四个槽位「测不出」是**这批数据**的性质, 不是「模型填不出」的证据 —— 要测它们需要**区分度更高的 items**; ③ 判据层**仍未接进生产**。",
+   "★回滚点": "results/slot_filling_r5.json 的原表述以**引述**保留在更正块里。",
+   "file": "probes/slot_fillability_audit.py",
+   "from_sha": "(新建)",
+   "to_sha": "e9eeab952f6612c9",
+   "★file 字段说明": "本条主要新增件。不在 core_files 也不在 parser_plane。",
+   "★★★instrument_hash": "**未变** —— 零调用重算, 生产不换代。",
+   "reason": "把 r5 的 68 次读数按**相对零基线的净增益**重算, 建成槽位可填性档案。★ 由此**更正了我自己前一条表述**: 「其他槽位几乎满分 ⇒ 它认真读了」证据不足 —— 那几格的可得增益只有 2 格(零基线已拿 66/68), 是 r4 那条倾斜教训的重演。★★ 结论: **自动填槽位这条路在已测范围内没有可用的证据支持**。"
+  },
+  {
+   "date": "2026-09-15",
+   "event": "DECISION_DO_NOT_WIRE_CLAIM_FRAME_INTO_PRODUCTION",
+   "route": "**接入决策, 非仪器变更**。零调用。改动件无一在 core_files/parser_plane。",
+   "★★★问题": "判据层(命题框架层)**要不要接进生产**。",
+   "★★★答案": "**不接入。** 三条路都走不通, 每条都有实测:",
+   "(a) 把合同文本塞进生产 prompt": "**已排除**。gen9 双臂重测(results/gen9_verdict.json, 1291 次真实调用): display 出现率由**生产臂 1/80**(0/48 + 1/32) 涨到**候选臂 40/80**(27/48 + 13/32), 且**倒挂** —— 合同说**不该**给的 A 臂 **56%** > 合理可能的 B 臂 **41%**。",
+   "(b) 让模型自动填六槽位": "**没有证据支持**。r5(68 次已付费) + 槽位可填性档案: predicate 只取到可得增益的 **12%**, possession **净 −6**(比不读文本还差), 其余四格这批数据**测不出**(可得增益 ≤2)。",
+   "(c) 填不出的槽位一律留空": "**本轮实测不可用**。把 predicate+possession 留空后, 手构最小对照上**阴性拦住 34/34(满分)**, 但**对照也全被拦(0/34)**。★ 逻辑上显然(留空 ⇒ 证据不足 ⇒ fail-closed), **但算出来才是证据**。⇒ 一个把所有东西都拦住的过滤器**没有鉴别力**, 接进生产等于关掉输出。",
+   "★★★必须守住的区分": "**判据层本身是有效的** —— 全槽位时手构最小对照 **阴性拦住 34/34 · 对照通过 34/34**。⇒ 问题**不在判据, 在没有可靠的方法把槽位填对**。★★ 把这两件事混为一谈, 下一个人会去改判据(改不动)而不是去解决填槽位(真问题)。",
+   "★★★我在这一轮犯的两个错(都已处理)": {
+    "① 重写了已有的实现": "我**先写了一份自己的回放实现**, 它读出「对照通过 0/12」, 而仓里**已验证的** probes/claim_frame_replay.py 读出 **12/12** ⇒ 我那份是错的。★ 处理是**撤掉**不是「修好」—— 已有验证过的实现, 两份并存会让下一个人不知道信哪个。★★ **代价**: 真实证书上的降级效果**没算**(需要给已验证探针加 drop 参数), **本轮未做**, 已登记。",
+    "② 同一个数写在两个地方": "关键读数同时写在 docstring 与产物里。变异实测显示: 改了 docstring 那处**没有任何闸会红**(它不进产物), 文档就此与读数不一致。⇒ **通则: 一个数只写在一个地方 —— 现算的那个; 其余地方指过去。** 已加闸把住。"
+   },
+   "改了什么": [
+    "probes/claim_frame_degraded_capacity.py(新) + results/ —— 零调用, 接入决策的直接证据。",
+    "tests/test_cce_claim_frame_degraded.py(新, 8 项) —— 变异 **9/9 + 1 条 docstring 回归**。"
+   ],
+   "behavior_evidence": {
+    "results/claim_frame_degraded_capacity.json": "降级后阴性 34/34 而**对照 0/34**; 全槽位时 34/34 与 34/34。三条路的证据各带数字, 全部由探针**现算**(闸逐键比对)。",
+    "tests/test_cce_claim_frame_degraded.py": "8 项, 变异 9/9。★ 其中两条专守**我自己的两个错**: 撤掉的那份实现必须留档 · docstring 不许复述读数。"
+   },
+   "★evidence_is_required_because": "**「逻辑上显然」不足以当证据** —— 「留空 ⇒ 全拦」在逻辑上是显然的, 但**算出来的 0/34 才是可被检验的东西**。★ 同样地, **「判据层有效」与「能不能接入」是两个问题**, 前者成立不蕴含后者。",
+   "★★★代价必须单独说": "① 真实证书上的降级效果**没算**(只算了手构最小对照); ② gen9 与 r5 的读数都有各自的边界(手构对照 · n=1 · 单个模型), 本条只是**汇总**它们, 没有新增证据; ③ **「不接入」是当前证据下的判断, 不是永久结论** —— 若将来有可靠的填槽位方法, 要重新评估。",
+   "file": "probes/claim_frame_degraded_capacity.py",
+   "from_sha": "(新建)",
+   "to_sha": "829d444b0e275a0e",
+   "★file 字段说明": "本条主要新增件。不在 core_files 也不在 parser_plane。",
+   "★★★instrument_hash": "**未变** —— 这是一条**不接入**的决定, 生产一个字没动。",
+   "reason": "回答「判据层要不要接进生产」: **不接入**。三条路各有实测挡住 —— (a) 塞进 prompt 会让 display 1/80→40/80 且倒挂; (b) 自动填槽位没有证据支持; (c) 填不出的留空会把对照全误拦。★ 判据层**本身有效**, 问题在**填槽位**。"
+  },
+  {
+   "date": "2026-09-16",
+   "event": "DEGRADED_CAPACITY_ON_REAL_CERTS_DEBT_PAID",
+   "route": "**补上一条自己登记的欠账**。零调用。改动件无一在 core_files/parser_plane。",
+   "★★★补的是什么": "2026-09-15 我登记过: 「**真实证书上的降级效果没算**, 需要给已验证探针加 drop 参数, 本轮未做」。本条把它补上。",
+   "★做法(而不是重写)": "给**已验证的** probes/claim_frame_replay.py 抽出 build_rows(drop=()) —— **默认空元组 ⇒ 它自己的历史读数逐字节不变**(已验证: sha bc72a3c09816c3a9 前后相同, 7 道闸全过)。★ 这正是上一轮那个错的反面: 当时我**重写了一份**, 读出「对照 0/12」而已验证的是 12/12。",
+   "★★★读数": {
+    "真实证书 · 全槽位": "阴性拦住 **3/3** · 对照通过 **12/12**",
+    "真实证书 · 降级(predicate+possession 留空)": "阴性拦住 **3/3** · 对照通过 **0/12**",
+    "手构最小对照 · 全槽位": "阴性拦住 34/34 · 对照通过 34/34",
+    "手构最小对照 · 降级": "阴性拦住 34/34 · 对照通过 **0/34**"
+   },
+   "★★★结论(比昨天更稳)": "**「留空 ⇒ 对照全误拦」不是手构对照的特性** —— 在**真实模型产出的证书**上同样成立。⇒ 昨天「不接入」那条结论的第三支 (c), 现在有**两批数据**支撑而不是一批。★ 边界: 真实证书对照只有 **12 张**, 分母小, 只判方向。",
+   "★顺带确认了一件事": "全槽位时真实证书对照 **12/12** ⇒ 与已验证探针的历史读数一致, **再次确认我上一轮那份自己写的实现(给 0/12)是错的**。",
+   "改了什么": [
+    "probes/claim_frame_replay.py —— 抽出 build_rows(drop=()), **历史读数逐字节不变**。",
+    "probes/claim_frame_degraded_capacity.py —— 用那份算真实证书上的降级, 并补「两批数据是否一致」的结论。",
+    "tests/test_cce_claim_frame_degraded.py —— 7 项 → **9 项**, 变异 **7/7**。"
+   ],
+   "behavior_evidence": {
+    "results/claim_frame_degraded_capacity.json": "真实证书 全槽位 3/3 与 12/12; 降级后 3/3 与 **0/12**。全部现算。",
+    "results/claim_frame_replay.json": "**逐字节未变**(sha bc72a3c09816c3a9) —— 加 drop 参数没有动它的历史读数。",
+    "tests/test_cce_claim_frame_degraded.py": "9 项, 变异 7/7。新增两条: **drop 必须默认为空元组**(防污染历史读数) · **真实证书上的降级必须算出来且与手构一致**。"
+   },
+   "★evidence_is_required_because": "**「手构对照上成立」不足以支持一个关于生产的判断** —— 手构对照是我造的, 它的性质可能是构造伪影(这一轮已经栽过两次: 句法共线、量词共线)。⇒ 必须在**真实模型产出的数据**上复核。本条就是那次复核。",
+   "★★★代价必须单独说": "① 真实证书**对照只有 12 张 · 阴性只有 3 张**, 分母极小, **只判方向**; ② 那批证书的六槽位标注**仍是我做的** ⇒ 仍是「标注正确时」的上界; ③ 「不接入」仍是**当前证据下的判断**, 不是永久结论。",
+   "file": "probes/claim_frame_replay.py",
+   "from_sha": "(加 drop 参数前)",
+   "to_sha": "43a2924c75ffd32f",
+   "★file 字段说明": "本条主要改动件。不在 core_files 也不在 parser_plane。",
+   "★★★instrument_hash": "**未变** —— 零调用, 生产不换代。",
+   "reason": "补上 2026-09-15 自己登记的欠账: 真实证书上的降级效果。做法是**给已验证探针加参数**(默认不改变它的历史读数), 不是重写。★ 结果与手构对照一致 —— 降级后**对照全误拦**(真实证书 0/12 · 手构 0/34) ⇒ 「不接入」那条结论的第三支现在有**两批数据**支撑。"
+  },
+  {
+   "date": "2026-09-17",
+   "event": "CORPUS_BALANCE_SECOND_REFERENCE_REAL_REDDIT",
+   "route": "**度量面变更**。零调用。改动件无一在 core_files/parser_plane。",
+   "★★★做了什么": "给对照集体检器加**第二个参照**: 仓内**真实 Reddit 语料**(corpus/reddit_hearingaids_audience_v2.txt 等, 抽出 **493 句**, 其中含具体品牌/型号 **41 句**)。",
+   "★★★两个参照回答的是不同问题": {
+    "真实证书(9 条, **有标注**)": "比**类别间的差** —— 我的手构集在某条轴上 pos 与 neg 的差, 不该大于真实语料。",
+    "真实 Reddit 语料(493 句, **无标注**)": "比**我造的句子本身像不像真人写的**。",
+    "★ 互补不是替代": "类别差合格、但句子根本不像真人写的, **仍然是个问题** —— 它影响**外推**。"
+   },
+   "★★★读数": {
+    "类别差(vs 真实证书)": "超出的轴 **无** ⇒ 内部效度合格",
+    "整体分布(vs 真实语料, 阈值 40 点)": "两侧都远离的轴 **无**",
+    "★★★但偏离量本身": "末词首字母大写 **30 点** · 含系动词 **26** · 首词是限定词 **25** · 含时段单位 **19**"
+   },
+   "★★★这几条偏离意味着什么": "**同向偏离**(pos 与 neg 一起偏)**不影响类别区分** ⇒ 本轮**内部效度不受影响**。★★ 但它**影响外推**: 我造的句子在这几条轴上与真人写的差 **19–30 个百分点** ⇒ **本轮读数不得外推到自然语料** —— 这条以前只是口头边界, **现在有数了**。",
+   "★为什么不把阈值从 0.4 调到 0.2": "那是**看过这批偏离量之后**拍的 ⇒ 会变成拟合当前对照集。⇒ 保留 0.4 只抓**极端**偏离, 同时**把偏离量本身报出来**让人自己判断。★ 阈值已提成模块常量 FAR_THRESHOLD 并被闸**直接断言**。",
+   "★★★变异实测暴露的一条(同型第 N 次)": "原闸只断言「**有没有写「不许调阈值」这句话**」。变异 Q4b 把阈值真改成 0.2 并重跑探针 —— **那句话还在, 闸不响**。⇒ 改法: 把阈值提成常量, 闸**直接断言它的值**。★ 通则复述: **守「写没写」不等于守「是不是」**。",
+   "★★★边界_语料是外部真人内容": "已去标识(author 字段已移除)。**产物里只放统计量, 一个字的原文都不写进去** —— 由闸 test_语料原文不许进产物() 逐句检查。",
+   "改了什么": [
+    "probes/corpus_balance_audit.py —— 加第二个参照 + 偏离量 + FAR_THRESHOLD 常量。",
+    "tests/test_cce_corpus_balance.py —— 7 项 → **11 项**, 变异 **8/8 + 重跑后 6/6**。"
+   ],
+   "behavior_evidence": {
+    "results/corpus_balance_audit.json": "两个参照并排: 类别差超出 **无**; 整体分布偏离最大 **30 点**。全部现算。",
+    "tests/test_cce_corpus_balance.py": "11 项。★ 变异分两轮: **不重跑探针**时 8/8 由通用的「现算不符」抓到; **重跑探针后** 6 条里 5 条由专用闸抓到, **漏的那条(改阈值)已补成直接断言常量**。"
+   },
+   "★evidence_is_required_because": "**「类别差合格」不足以支持外推** —— 它只说明这批对照内部可比。句子本身像不像真人写的是**另一个问题**, 需要**另一个参照**(真实语料)才答得了。",
+   "★★★代价必须单独说": "① 真实语料 **493 句**里含品牌的只有 **41 句**, 那才是可比子集, 分母仍不大; ② 语料**没有 RESTATES/OF_DECLARED 标注** ⇒ 只能比整体分布, **不能**比类别间的差; ③ 语料来自 r/HearingAids 单一板块 ⇒ **不代表所有自然语料**; ④ 偏离 19–30 点这件事**没有修** —— 修它要重造对照集, 本轮不做, 只把它**变成有数的边界**。",
+   "file": "probes/corpus_balance_audit.py",
+   "from_sha": "(加第二个参照前)",
+   "to_sha": "2292f4148d2cc825",
+   "★file 字段说明": "本条主要改动件。不在 core_files 也不在 parser_plane。",
+   "★★★instrument_hash": "**未变** —— 零调用, 生产不换代。",
+   "reason": "给对照集体检器加**第二个参照**(仓内真实 Reddit 语料 493 句), 回答一个此前答不了的问题: **我造的句子像不像真人写的**。★ 结果: 类别差合格(内部效度 OK), 但整体分布**偏离 19–30 个百分点** ⇒ **本轮读数不得外推到自然语料, 这条以前只是口头边界现在有数了**。"
+  },
+  {
+   "date": "2026-09-17",
+   "event": "THREE_DECISIONS_SETTLED_AND_ROLLED_UP",
+   "file": "probes/three_decisions_rollup.py",
+   "to_sha": "5be44fdce7f2588b",
+   "reason": "三项决策换到同一把尺(净增益)上比, 逐项新增鉴别格 0/0/0。",
+   "route": "**度量面变更**。①② 零调用; ③ 花 **22 次**订阅制调用。改动件无一在 core_files/parser_plane。",
+   "★★★三个问题": "① 五类成立条件要不要升成合同明文 · ② 对照集要不要改用真实语料 · ③ 要不要向 MiniMax 要可验证的确定性保证。",
+   "★① 升合同": {
+    "读数": "四个选项在**镜像**上跑(仓内 scripts/cce_claim_frame.py 一字节未动)。手构对照上明文档阴性 **+2/+2/+4**, 零误封。",
+    "★★★但真实证书上": "REPORTED 出现 **0** 次、NOT_OF_DECLARED_KIND 出现 **0** 次 ⇒ **两条规则一次都没被 exercise** ⇒ 升与不升在真实数据上同结果。",
+    "★前提问题": "附件 A 里**根本没有五类成立条件的定义文本**(只有 A/B/C) ⇒ 这不是「批不批准」, 是「要不要先写五条新定义」。",
+    "★代价": "升了会让 **4 道闸见红**, 其中一道正是为拦这件事而建的。"
+   },
+   "★② 改用真实语料": {
+    "★★★核心": "RESTATES_IDENTIFIER 是**抽取错误类别**, 不是语言现象 —— 它的定义含「**声称这是增量**」, 而那是 A 支的属性。人从语料里标得出「这句只指认」, 标不出「**模型有没有把它当成增量**」。",
+    "读数": "493 句里机械候选 17 句, 但**没有一句是现成的鉴别格**。",
+    "代价": "按 48 次产出 2 条外推, 要 24 个鉴别格约需 **~570 次** —— 注意这是**外推不是预算**。",
+    "★仍可用": "作为**模板来源**, 以及 **~50 次小批试**把外推换成实测。"
+   },
+   "★③ MiniMax 确定性": {
+    "文档(自查 WebFetch)": "请求参数里**无 seed**, 响应字段里**无 system_fingerprint**, 未给任何可复现性保证。",
+    "★★★实测(22 次)": "temp=0.0 同一 prompt **6 次 → 5 种不同输出**, 零失败(base_resp=0/fin=stop); seed=42 与 seed=999 组内同样不确定 ⇒ **seed 被静默忽略**。",
+    "★★★它换掉了 r3 的一个保留": "r3 明写「k=6 **不能单独归因于模型随机性**(也可能是服务端变更)」。本探针多次调用是**同一时刻并发**发出的 ⇒ **服务端变更这个解释被排除**。",
+    "★不得外推": "单一 prompt、单一模型、n 小。**不是**对 CCE 全链路一致率的测量。"
+   },
+   "★★★★★ 三项同尺后": {
+    "尺": "净增益 = 鉴别格对数 − 多数类格错数。三项都换算成「**在真实证书上能新增几个鉴别格**」。",
+    "逐项新增鉴别格": {
+     "①升合同": 0,
+     "②换真实语料": 0,
+     "③要确定性": 0
+    },
+    "合计": 0,
+    "★结论": "三个问题问的是三件不同的事, 但同尺之后**三项都是 0** ⇒ 挡住的是**同一堵墙: 没有鉴别格**。该做的下一件事**不在这三项里**, 是 ②(a) 的 ~50 次小批试。"
+   },
+   "★不做裁定": "升不升 / 换不换 / 问不问供应商, **都是 owner 的决定**。本轮只把三项的后果摆到同一把尺上。",
+   "新增件": [
+    "probes/three_decisions_rollup.py",
+    "tests/test_cce_three_decisions_rollup.py",
+    "tests/test_cce_seed_probe.py",
+    "results/three_decisions_rollup.json",
+    "results/seed_probe.json"
+   ],
+   "复用未重写": "probes/seed_probe.py **写于 2026-08-18、今天第一次跑** —— 只改了输出路径与预算登记, **判据逻辑一字未动**(看过数据再改判据就是调参)。",
+   "闸": "seed 闸 7 项(变异 9/9 抓) · 同尺闸 8 项(变异 8/8 抓, 含 2 项**只改源产物不重跑**的灵敏度变异)。",
+   "★覆盖率被拉低": "新增 probes/three_decisions_rollup.py 进入消融 scope ⇒ 文件级 12.9%→12.84%, 行级 25.9%→25.81%。**分母长了分子没长, 是诚实方向**。",
+   "预算": "本轮 22 次, 累计 **158** 次(订阅制, 非按量)。",
+   "behavior_evidence": [
+    "tests/test_cce_three_decisions_rollup.py",
+    "tests/test_cce_seed_probe.py",
+    "tests/test_cce_three_decisions.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 本条新增的是 probes/three_decisions_rollup.py, 它只读三份已有产物、不产生新数字, 但**它读键的方式(按片段取键)可能与源产物脱钩而不改任何哈希** ⇒ 行为证据里的 test_cce_three_decisions_rollup.py **现算**三个数并与源产物比对, 那才是行为没漂的证据。"
+  },
+  {
+   "date": "2026-09-17",
+   "event": "REAL_CORPUS_PILOT_42_CALLS_TRANSFERS_NOT_HIGHER",
+   "file": "probes/real_corpus_pilot_run.py",
+   "to_sha": "678d570f08d63e5c",
+   "reason": "真实语料小批试: 实测抽取器在真实语料上的交卷率, 与手构模板对照。",
+   "behavior_evidence": [
+    "tests/test_cce_real_corpus_pilot_prereg.py",
+    "tests/test_cce_real_corpus_pilot_result.py",
+    "tests/test_cce_real_corpus_pilot_smoke.py",
+    "tests/test_cce_real_corpus_pilot_formal_quality.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 本轮的判决取自**按 n_ok 查表**的冻结拒绝域, 改一行 rows 或换一行表都不改任何哈希。行为证据里的烟测**真跑 build_result 四条分支**并用结果闸去验, 那才是行为没漂的证据。",
+   "route": "**度量面变更 + 投料 42 次**。改动件无一在 core_files/parser_plane。",
+   "★★★问的是什么": "把「从真实语料拿鉴别格」的代价拆成两个因子, 实测**可测的那一个**(因子一 = 交卷率)。",
+   "★★★★★ 我先更正上一次给 owner 的说法": "上一轮我把下一步写成「~50 次把 ~570 的外推换成实测产出率」。**事前可达性检验证明那做不到** —— 鉴别格产出率在预期的低 k 上区间跨 28 倍以上且上不封顶。⇒ 本轮换成测**因子一**, 预注册里写在主判据之前。",
+   "★★★读数": {
+    "交卷/有效": "34/41",
+    "率": 0.8293,
+    "CP95": [
+     0.6794,
+     0.9285
+    ],
+    "手构模板级底数": "5/16 = 0.3125",
+    "Fisher 两侧 p": 0.000344,
+    "拒绝域(按实际 n_ok 查表)": {
+     "k ≤": 3,
+     "k ≥": 26
+    },
+    "★★★判决": "TRANSFERS_NOT_HIGHER"
+   },
+   "★★★★★ 这个结果推翻了我自己的事前预期": "我预期真实语料**更难**交卷(所以功效分析全盯着下尾, 门槛也按下尾可达定在 n_ok≥13)。实测是**反过来的**: 83% vs 手构 31%, p=0.000344 ⇒ 手构模板上的外推在因子一上**低估**了产出。★ 预注册把两侧尾部分开成 TRANSFERS_NOT_LOWER/HIGHER 是评审二轮逼出来的改动 —— **没有那一改, 这个反方向结果会和我预期的方向印同一个词、同一段解释。**",
+   "★★★ 但 83% 不能读成「83% 的段落真的满足判别式」": "交卷只是 supported==true。手构那边 10 张交卷证书里 **6 张是 UPGRADED**(在阴性上错误升格, 形式合规语义错误)。本轮 34 张里只有 **29/34 整张 span 全逐字**, 其余按 r2 分类法是 MALFORMED。⇒ 交卷率高**既可能**是真实语料确实常谈自己的设备, **也可能**是抽取器在真实文本上更松 —— **本轮分不开**(没有金标)。见 results/real_corpus_pilot_formal_quality.json。",
+   "★★★ 不得读成「因为是真实语料」": "两样本长度中位数差 3.2 倍、26/42 比最长模板还长, 结构与话题也同时变了 ⇒ **机制未识别**。★ 长度三分位的交卷率 {\"短(下三分位)\": \"10/13 · 字符中位 170\", \"中\": \"11/13 · 字符中位 489\", \"长(上三分位)\": \"13/15 · 字符中位 1233\"} —— **没有明显梯度**, 这**削弱但不排除**长度解释。",
+   "★代价": {
+    "纯下界(只用交卷率上界)": "鉴别格 ≤ 交卷 ⇒ 买 24 格**至少**需 26 次",
+    "★因子二仍未测": "鉴别格计数**如实为空** —— 真实语料没金标, RESTATES 的定义含「声称这是增量」(A 支属性), 人标不出来。⇒ 总代价**仍未定**, 本轮没回答「花不花 ~570 次」。"
+   },
+   "★★★ 两轮零调用对抗评审(投料前)": {
+    "第一轮": "8 维 × 22 agent, 51 条发现, 14 条验证, 4 条存活。★ 被丢掉未验的 37 条我**逐条自核了 9 条, 全部属实** ⇒ 只修存活的是错的。",
+    "第二轮": "6 维 × 36 agent, 36 条发现, 30 条验证, **17 条存活**(2 BLOCKING)。",
+    "★两轮合计改掉 26 条实缺陷": "其中三条是致命型: ①拒绝域按 n=42 定却套在 n_ok 上(全失败 ⇒ 自信判「显著不同」); ②结果闸有一条**对任何结果都必然见红**的断言(查的字样在键里) ⇒ 花完 42 次才发现, 唯一出路是事后改判据; ③最低可判 n_ok 取自**上尾**, 而预期方向是下尾 ⇒ n_ok≤12 时预期方向**先验不可达**却印 CANNOT_DISTINGUISH。★ ②③ 都是 **r5-v1/v3 的死因换个位置重演**。",
+    "★还抓到一条我冻错了对象": "预注册原本 hash 的是 PROMPT 的**源码字面量**(带转义), 不是真发出去的串。改用真串后 sha16 = 7a8f9417, **正是本仓 r3 记录里一直引用的那个**。"
+   },
+   "★★★ 投料前的烟测(新立的一道)": "r5-v3 那次 19 道闸全绿是因为**没有一道执行过 main()**。本轮新建 tests/test_cce_real_corpus_pilot_smoke.py: 用合成行真跑 build_result() 的**四条判决分支**, 再用**结果闸自己**去验那四份产物。它当场抓到 4 条只会在花完钱之后才见红的闸缺陷。★ 另外用注入的假模型走了一遍**真实分支**: 写盘前人为炸掉 ⇒ 42 行全在分片里没丢; 再跑 ⇒ 新发起 **0** 次。",
+   "新增件": [
+    "probes/real_corpus_pilot_prereg.py",
+    "probes/real_corpus_pilot_run.py",
+    "probes/real_corpus_pilot_formal_quality.py",
+    "tests/data/real_corpus_pilot_prereg.json",
+    "tests/test_cce_real_corpus_pilot_prereg.py",
+    "tests/test_cce_real_corpus_pilot_result.py",
+    "tests/test_cce_real_corpus_pilot_smoke.py",
+    "tests/test_cce_real_corpus_pilot_formal_quality.py",
+    "results/real_corpus_pilot.json",
+    "results/real_corpus_pilot_partial.jsonl",
+    "results/real_corpus_pilot_formal_quality.json"
+   ],
+   "复用未重写": "提示词/判别式/ISSUED/_parse 全部逐字复用 probes/extractor_counterexample_run_r2.py; 品牌词表复用 probes/corpus_balance_audit.py。改一个字, 与手构底数的对照就不成立。",
+   "闸": "预注册 25 项(变异 18/18) · 结果 14 项(对**真实产物** 13/13) · 烟测 5 项 · 形式质量 6 项(6/6)。",
+   "★隐私": "语料是去标识的真人 Reddit 内容。**本轮是第一次把它发给外部模型**(只发 42 个被抽中的段落)。产物里只有 (文件, 行号, sha, 字符数) 与结构化事实, **无一字原文、无一字模型 span、无一字模型自由文本**。★ 代价: 为守这条我没存 object 字段 ⇒ **事后无法重算资格层**, 已登记。",
+   "★已知局限(评审提出、本轮未修)": "预注册里「因子一能把整条路关掉」与「分不出很可能且不携带信息」并列, 张力没挑明。**投料后不得改预注册**(sha 已写进产物), 故记在此处。",
+   "预算": {
+    "本轮": 42,
+    "之前已用": 158,
+    "合计": 200,
+    "失败构成": {
+     "UNPARSEABLE": 1
+    }
+   }
+  },
+  {
+   "date": "2026-09-17",
+   "event": "REAL_CORPUS_PILOT_R2_RETEST_CONFIRMED_AND_QUALIFICATION_MEASURED",
+   "file": "probes/real_corpus_pilot_r2_run.py",
+   "to_sha": "916740381aeef339",
+   "reason": "重测第一轮那个**单次**读数, 并新增 object 的 sha16 以算资格层的机械部分。",
+   "behavior_evidence": [
+    "tests/test_cce_real_corpus_pilot_r2_prereg.py",
+    "tests/test_cce_real_corpus_pilot_r2_result.py",
+    "tests/test_cce_real_corpus_pilot_r2_smoke.py",
+    "tests/test_cce_real_corpus_pilot_rollup.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 本轮判决取自**继承第一轮的**冻结拒绝域表, 换一行表或改一行 rows 都不改任何哈希。行为证据里的烟测**真跑 build_result 三条判决分支**(含「边际稳但逐条乱」那一支)并用结果闸去验。",
+   "route": "**度量面变更 + 投料 42 次**。改动件无一在 core_files/parser_plane。第一轮的产物与执行器**一个字节未动**。",
+   "★★★为什么要跑第二轮": "第一轮的 34/41=0.829(p=0.000344 ⇒ TRANSFERS_NOT_HIGHER)是**单次读数**, 而本仓已登记的硬教训是「**单次运行读数不可信**」(r3 实测 15 个比对点翻 6 条; seed 探针实测该端点 temp=0 不确定)。**我却已经拿那个单次数下了判决并登记进 refactor_log** ⇒ 这一轮就是去补那一步。",
+   "★★★一、复现了": {
+    "第一轮": "34/41 = 0.8293 ⇒ TRANSFERS_NOT_HIGHER",
+    "第二轮": "34/42 = 0.8095",
+    "继承的拒绝域(未重算)": {
+     "k ≤": 3,
+     "k ≥": 26
+    },
+    "判决": "CONFIRMED",
+    "逐条": "kappa **0.5924**, 95%CI [0.2577, 0.9272](下界>0) ⇒ STABLER_THAN_CHANCE",
+    "★★★但 kappa 不是 1": "独立基线 pe=0.7008(交卷率高 ⇒ 纯随机一致率本来就高), 观察一致 0.878, 翻转 5 条 ⇒ 「哪一条会交卷」**仍有真实的不确定性**, 只是没大到淹没信号。",
+    "McNemar p": 1.0,
+    "★意味着": "TRANSFERS_NOT_HIGHER **可以引用**了 —— 它不再是单次读数。"
+   },
+   "★★★★★二、真正的新发现: 交卷 ≠ 合格": {
+    "交卷": "34/42 = 0.8095",
+    "过机械资格层": "12/42 = 0.2857",
+    "机械出口": {
+     "MALFORMED": 6,
+     "P2_FAIL": 16,
+     "PASS_MECHANICAL": 12
+    },
+    "★★★主要卡点": "**P2_FAIL 16/34** —— 模型在「新信息增量」那一支说的东西, 与在「自己已拥有」那一支说的**不是同一个物**。这与 r1/r2 上的对象粒度/错配是**同一族故障**, 但那时只在 16 条手构模板上见过。",
+    "★对第一轮 83% 的修正": "83% 是**交卷率**, **没错**, 但它**不是「可用产出率」** —— 每 42 次调用只产出 12/42 = 0.2857 机械合格的证书。",
+    "★这笔债是上一轮欠的": "第一轮为守隐私没存 object ⇒ 资格层事后无法重算。本轮存 object 的 **sha16**(仍不落一个字原文)把它还了。"
+   },
+   "★★★三、代价下界: 哪个能用哪个不能": {
+    "能用(纯下界, 只用交卷率)": "鉴别格 ≤ 交卷 ⇒ 买 24 格**至少**需 26 次(用交卷率 CP95 上界 0.9140)。",
+    "★★★不得用合格数收紧": "「鉴别格 ≤ 合格证书」听起来对, **实际是错的** —— 鉴别格是**金标标注**上的格子, 被资格层拒掉的证书**照样可以被人标注**(r1/r2/r3 的 15 条 A 支标注多数并未过资格层)。收紧会**低估**代价。",
+    "合格证书产出率(另一个问题的答案)": "若要的是**能用的证书**而不是可标注的格子, 那是 12/42 = 0.2857, CP95 [0.1572, 0.4458] ⇒ 每张合格证书约需 3.5 次调用。"
+   },
+   "★★★四、两轮 84 次之后仍然没有的": [
+    "**因子二**(每张证书里有几个鉴别格) —— 需要金标, 真实语料没有, 两轮都事前声明过测不了。",
+    "**「验证器会拦住形式合规、语义错误的证书」** —— 机械出口只回答**形式**。这句话自 r2 起零证据, **两轮之后仍然零证据**。",
+    "**为什么真实语料交卷率高** —— 长度混淆未消除, 机制未识别。",
+    "**语料整体率** —— 两轮跑的都是含品牌子总体(上界), 上界有多松没测。"
+   ],
+   "★方法上做对的两件": {
+    "①判据全部继承不重立": "拒绝域是**第一轮那张冻结表**, 执行器按实际 n_ok 查表, **不现场推导**; 闸逐键比对两张表相同。",
+    "②kappa 而不是裸一致率": "交卷率高 ⇒ **纯随机独立下一致率就有 0.7008** ⇒ 「一致率 0.878」听着高其实近乎掷骰子。kappa 正是扣掉它之后剩下的。事前算过可达性: **翻转超过 6 条就判不出「比随机稳」**(实际翻转 5 条)。"
+   },
+   "新增件": [
+    "probes/real_corpus_pilot_r2_prereg.py",
+    "probes/real_corpus_pilot_r2_run.py",
+    "probes/real_corpus_pilot_rollup.py",
+    "tests/data/real_corpus_pilot_r2_prereg.json",
+    "tests/test_cce_real_corpus_pilot_r2_prereg.py",
+    "tests/test_cce_real_corpus_pilot_r2_result.py",
+    "tests/test_cce_real_corpus_pilot_r2_smoke.py",
+    "tests/test_cce_real_corpus_pilot_rollup.py",
+    "results/real_corpus_pilot_r2.json",
+    "results/real_corpus_pilot_r2_partial.jsonl",
+    "results/real_corpus_pilot_rollup.json"
+   ],
+   "复用未重写": "preflight/load_lines/classify_kind 全部 import 第一轮执行器; normalize_about/PROMPT/DISC/_parse 复用 extractor_counterexample_run_r2.py; fisher_p/clopper_pearson/submitted 复用第一轮预注册生成器。**第一轮文件一字未动**(闸现证)。",
+   "闸": "第二轮预注册 11 项(变异 16/16) · 第二轮结果 10 项 · 第二轮烟测 5 项 · 跨轮汇总 8 项(变异 7/7)。",
+   "★隐私": "object 只存**规范化后的 sha16**; 产物里无一字语料原文、模型 span、模型 object 文本、模型自由文本。",
+   "预算": {
+    "本轮": 42,
+    "之前已用": 200,
+    "合计": 242,
+    "失败构成": "无(42/42 全部成功)"
+   }
+  },
+  {
+   "date": "2026-09-23",
+   "event": "P2_FAIL_ANATOMY_THREE_FAMILIES",
+   "file": "probes/p2_fail_anatomy.py",
+   "to_sha": "b60fe4f06de84b2d",
+   "reason": "把第二轮 16 张 P2_FAIL 用 sha 反查语料子串拆成三族; 反查文本只在内存里用, 产物只落关系与计数。",
+   "behavior_evidence": [
+    "tests/test_cce_p2_fail_anatomy.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 关系分类靠 relation()/集合运算, 改一个 lower() 或一个词长阈值都不改任何哈希。闸现算整份逐键比对, 变异 7/7(含塞入对象文本必须见红)。",
+   "route": "**度量面变更**。零调用。改动件无一在 core_files/parser_plane。",
+   "★★★三族": {
+    "DISJOINT": 6,
+    "SET_MISMATCH": 8,
+    "SUBSTRING": 2
+   },
+   "★SET_MISMATCH 细节": {
+    "多出的对象 vs 共同对象": {
+     "SHARED_TOKEN": 1,
+     "DISJOINT": 15
+    },
+    "哪支多给": {
+     "A 多": 6,
+     "一样多": 2
+    }
+   },
+   "★含品牌": {
+    "A 支含品牌": 4,
+    "B 支含品牌": 8,
+    "只有 B 含": 6,
+    "只有 A 含": 2
+   },
+   "★★★读法": "P2_FAIL 不是一族: **SET_MISMATCH 8**(两支有共同对象, A 支多给证据指到无关的东西 —— r2 记的「多给反而被拦」, r3 判为运气, 现在有样本量) / **SUBSTRING 2**(粒度) / **DISJOINT 6**(真·不同对象)。三族修法完全不同(采集协议 / 判据 / 模型), **这里不裁**。",
+   "★逐字约束不解决 P2": "r2 提的「about 必须原文逐字」在第二轮已生效, P2 照样卡 16 张。",
+   "★隐私": "反查 0 歧义 0 失败; per_row 只有关系/计数/布尔, 闸对字段白名单 + 语料片段扫描。",
+   "预算": {
+    "本轮": 0,
+    "累计": 242
+   }
+  },
+  {
+   "date": "2026-09-23",
+   "event": "CONTRACT_PAIRS_V4_SURFACE_MATCHED_TO_REAL_CORPUS",
+   "file": "probes/contract_pairs_v4_check.py",
+   "to_sha": "deae15c95f22c5fc",
+   "reason": "重建对照集: 并列新增 contract_pairs_v4, 只重写 A 支把表层分布配到真实语料; v3/pairs 一字节未动。",
+   "behavior_evidence": [
+    "tests/test_cce_contract_pairs_v4.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 偏离/冻结族/判据层三项读数都是现算, 改一条 A 支不改任何生产哈希。闸现算整份逐键比对并钉 v3/pairs/v4 三个 sha, 变异 7/7(含改 v3 一字符、改 v4 一格金标、改 A 支不重跑)。",
+   "route": "**度量面变更**。零调用。改动件无一在 core_files/parser_plane。已有探针一个未改, 只复用其函数。",
+   "★读数": {
+    "表层平均偏离(点)": "14.0 → 1.8",
+    "v4 最大单轴": 5,
+    "v4 最大类差": 4,
+    "冻结族最佳净增益": "v3 1 → v4 1(未泄漏)",
+    "判据层": "逐对相同(frames 一格未动)",
+    "抄语料片段": 0
+   },
+   "★做法": "pos/neg 表层特征**逐项配额且完全对称**(系动词 8 对 / 末词大写 8 对且前无限定词 / 首词限定词 3 / 时段 2 / 数字 11 / -ing 6 / 无介词 4 / 程度词 2 / ≤6 词 2), 型号数字从 span 里去掉 —— 对称是为了不让冻结族冒出规则。",
+   "★★★用法": "已付费轮次(r4/r5/annex_a/shallow_cue)继续引用 v3; **新一轮起用 v4**。不据 v4 重跑旧轮次改结论。FAR_THRESHOLD 未动。",
+   "新增件": [
+    "probes/contract_pairs_v4_check.py",
+    "tests/test_cce_contract_pairs_v4.py",
+    "results/contract_pairs_v4_check.json",
+    "tests/data/semantic_minimal_pairs.json 新键 contract_pairs_v4"
+   ],
+   "预算": {
+    "本轮": 0,
+    "累计": 242
+   }
+  },
+  {
+   "date": "2026-09-23",
+   "event": "R6_SLOT_FILLING_ON_V4_NEGATIVE_REPLICATED",
+   "file": "probes/slot_filling_run_r6.py",
+   "to_sha": "6b8699be07e3c577",
+   "reason": "在表层配平后的 contract_pairs_v4 上按 r5 协议原样重跑(执行器 import r5 模块只 patch 四个名字)。",
+   "behavior_evidence": [
+    "tests/test_cce_slot_filling_r6.py",
+    "tests/test_cce_slot_filling_r6_result.py",
+    "tests/test_cce_contract_pairs_v4.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 执行器 patch 的是模块级名字, 不改任何文件哈希。行为证据: 12 态桩自检双向可达(金标/含噪 0.8 → 超过; 零基线/单 token/一刀切/纯正则/族外量词规则 → 未达成) + 零调用干跑 68 条真落盘 + 结果闸从 rows 的模型原样**重新打分重新 judge**逐键比对。",
+   "route": "**度量面变更 + 投料 68 次**。改动件无一在 core_files/parser_plane。r5 文件一行未改。",
+   "★★★这一轮问什么": "r5 的负结果(4/24, D6)是在 v3 上得到的, v3 与真人语料表层偏离 14 点。在偏离 1.8 点的 v4 上复现吗?",
+   "★★★读数": {
+    "执行": "68/68, 失败 0",
+    "B 臂鉴别格": "1/24",
+    "最佳浅层规则(冻结族: 含系动词 AND 含介词)": "4/24",
+    "净增益": {
+     "B 臂": 1,
+     "浅层规则": 1,
+     "冻结阈值": 3
+    },
+    "门": "≥8/24(p0=0.167, 比 r5 的 11 低是因为 v4 上浅层规则更弱, 不是放水)",
+    "单侧 p": 0.98743,
+    "结论": "**未达成**; D6 触发(鉴别格 1 ≤ 浅层规则 4 ⇒ 相对表层线索零增益)。",
+    "★鉴别格上模型填了什么": "OF_DECLARED_KIND 21 / NOT_OF_DECLARED_KIND 2 / RESTATES_IDENTIFIER 1 —— 拿到合同条款后**几乎从不启用** RESTATES 这个取值; 多数类 42/42 全对。",
+    "逐槽位(B 臂 vs 零基线)": {
+     "speaker": "68/68 vs 66/68",
+     "polarity": "136/136 vs 134/136",
+     "time": "67/68 vs 66/68",
+     "citation": "68/68 vs 66/68",
+     "possession": "53/68 vs 64/68",
+     "predicate": "44/68 vs 42/68"
+    },
+    "★possession 再次负增益": "53/68 < 零基线 64/68(r5 是 −6, 本轮 −11) —— 给了 predicate 的判据文字, possession 反而更差, 与 r5 同向。"
+   },
+   "★★★怎么读": {
+    "①负结果复现了": "在外部效度更好的对照集上, 「给了已升为合同的附件 A 条款, 模型仍认不出只复述标识」**再次未达成**。⇒ 「附件 A 这条合同条款目前没有可靠的自动判定方法」这句话现在有两轮、两套对照集、136 次支撑。",
+    "②不得说「比 r5 更差」": "1/24 CP95 [0.001, 0.211] 与 r5 4/24 [0.047, 0.374] 重叠; item 集不同 + 重测一致率 60%。能说的是**方向相同、都在 ≤ 浅层规则的区间**。",
+    "③也不得说「v3 的伪影没影响」": "归因需同轮配对 v3, 本轮没跑。",
+    "④仍然不是「模型摆烂」": "同批 speaker 68/68、polarity 136/136、citation 68/68、time 67/68; 多数类 42/42。它只是**不填 RESTATES**。"
+   },
+   "★★★不得据此说": [
+    "不得与 r5 的 4/24 当成两个可比的点估计。",
+    "不得外推到自然语料 —— 分母仍是手构最小对照, 只是表层配平了。",
+    "不得把 D6 读成模型摆烂。"
+   ],
+   "新增件": [
+    "probes/slot_filling_prereg_r6.py",
+    "probes/slot_filling_run_r6.py",
+    "tests/data/slot_filling_prereg_r6.json",
+    "tests/test_cce_slot_filling_r6.py",
+    "tests/test_cce_slot_filling_r6_result.py",
+    "results/slot_filling_r6.json"
+   ],
+   "复用未重写": "score/tally/judge/items/selfcheck/ref_fills/run_ref/_parse/提示词全部来自 r5 执行器(import 后 patch PREREG/PAIRS/OUT/_best_token); 闸用 AST 断言执行器没有重定义这些函数。",
+   "闸": "预注册闸 6 项(变异 8/8) · 结果闸 4 项(对干跑产物烟测过) · v4 闸 6 项(变异 7/7)。",
+   "预算": {
+    "本轮": 68,
+    "之前已用": 242,
+    "合计": 310,
+    "失败": 0
+   }
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",

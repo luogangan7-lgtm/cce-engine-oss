@@ -1,0 +1,28 @@
+{
+ "block": "RUN_PARAMS_GAP_2026-09-08",
+ "★what": "两个**进 prompt 的环境变量**(CCE_BODY_CHARS 截断长度 · CCE_UNIT_LABEL 「给你一条评论/帖子」)从未被写进任何产物。",
+ "★how_found": "要拿 run_a_repeat 的读数与新臂(生产字段集)做配对比较, 去核「那次截断是 700 吗」—— 产物里查不到。",
+ "★★it_is_the_class_not_the_instance": "manifest 早写明同族洞: 「只钉文件 sha 抓不到 **MEASUREMENT_MODEL 是环境变量**」, 那个用「现算 instrument_hash」修了。**但同类的另外两个实例一直没修。** ⇒ 修了一个实例, 没修那一类。本轮的闸改成**现算**「哪些环境变量流进 prompt」, 而不是钉这两个名字。",
+ "★★★the_two_runs_that_cannot_be_repaired": {
+  "run_a_repeat": "2026-09-07 重复性运行(81 条验收评论 × 5 标注者)。产物无 run_params。",
+  "run_c_confirm": "2026-09-07 确证运行(81 条 × 5)。产物无 run_params。",
+  "★状态": "这两次的参数**补不回来** —— 环境变量当时是什么, 事后没有任何记录可查。⇒ 凡拿它们做对照的结论, 其「两臂可比」这一前提是**假设**, **不是核实**。必须如实标。",
+  "★为什么不倒推": "可以从「代码默认值是 700」倒推, 但那是**推断**不是记录 —— 只要当时 shell 里 export 过一次, 倒推就错, 而这件事无法证伪。**不装作核实过。**"
+ },
+ "★fixed_going_forward": "run_gates.RUN_PARAMS 写进 gates_result.json 与 raw_annotations.json 两处; 由 tests/test_cce_run_params_recorded.py 现算守住。",
+ "★★★probe_outputs_without_params_2026-09-08": {
+  "★scope": "缺陷不止于 run_gates —— **7 个探针复用同一批参数构造 prompt**, 继承同一个缺陷。",
+  "★fixed": "run_gates.stamp_params(OUT) 已加, 7 个探针在写 raw 之前各调一次; tests/test_cce_run_params_recorded.py 现算守住(引用 RG.BODY_CHARS/UNIT_LABEL 却不盖章 ⇒ 红)。",
+  "缺章的既有运行目录": [
+   "anchor_expansion",
+   "cross_family_reference_81",
+   "run_a_repeat",
+   "run_b_external",
+   "run_c_confirm",
+   "study2_belong_discriminant",
+   "suspend_factorial",
+   "suspend_fix_confirm"
+  ],
+  "★状态": "这些目录的参数**同样补不回来**。它们的读数若被拿去与别的运行对照, 「可比」这一前提是**假设, 不是核实**。★ 本轮之后新开的运行目录会自带 run_params.json。"
+ }
+}

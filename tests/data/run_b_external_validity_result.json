@@ -1,0 +1,83 @@
+{
+ "block": "RUN_B_EXTERNAL_VALIDITY_RESULT_2026-09-07",
+ "★prereg": "tests/data/repeatability_and_external_validity_prereg.json (发起调用前冻结)",
+ "design": "**换语料**: r/HearingAids 版内他人**帖子**(标题+正文), 快照 2026-08-09, 全池 1208 篇/964 作者。按 sha256(post_id) 排序取前 81(预注册冻结, 校验和 2d043571400dc4e6)。同一 5 人面板、**同一 prompt 逐字不变**、BODY_CHARS=2000(全文不截)、G-K2 扣发。",
+ "★overlap_audit": {
+  "post_id_overlap": "**0**(3 vs 1208)",
+  "author_overlap": "★ **UNVERIFIABLE** —— 验收语料作者是 user_NN 假名, 与真实 handle 不可比。不得当作 0 用。"
+ },
+ "★★★B1_STRONGLY_CONFIRMED_belong_lives_in_posts": {
+  "predicted": "belong 在外部语料上会被吐出来(逐标注者 top1 > 0)",
+  "observed": {
+   "评论(Run A)": {
+    "逐标注者 top1": 2,
+    "共识 argmax": "0/81",
+    "进 top2": 19
+   },
+   "帖子(Run B)": {
+    "逐标注者 top1": 35,
+    "共识 argmax": "7/81",
+    "进 top2": 80
+   }
+  },
+  "★statistics": "帖子上 **7/81 = 8.6%**, Wilson 95%CI **[0.0425, 0.1678]**; 评论上 0/81 的单侧 95% 上界 **3.63%**。**两区间不重叠 ⇒ 差异不是噪声。**",
+  "★★the_decisive_part": "★★★ 而这是在 **prompt 仍然逐字说「给你一条评论」、输入槽标签仍是【评论】**的情况下发生的。⇒ 单元效应大到**穿透了 prompt 里那条相反的指示**。★ 这把「belong 是死类」从一个关于**分类学**的结论, 变成一个关于**采样框**的结论。",
+  "★consequence": "**RETIRE 出口被明确排除** —— belong 的 prevalence 在帖子上是 8.6%, 比冻结的 0.5% SESOI 高一个数量级以上。★ 因此原计划的 STUDY 1(1208 篇 × 1 标注者 ≈ 1208 次调用)**不必再跑** —— 它唯一的用途是给 RETIRE 提供 0/n 的上界, 而现在已知它不是 0。⇒ 剩下的只有 RETAIN vs MERGE, 由 STUDY 2(判别效度)判。",
+  "★★truncation_is_ruled_out_as_the_explanation": {
+   "★the_second_confound_i_introduced": "★ Run A 用 BODY_CHARS=**700**, Run B 用 **2000** ⇒ belong 0→7 可能来自①语料单元 ②**截断长度**。我引入了第二个混淆, 必须排除。",
+   "★measurement": "★★★ **7/7 条 belong 共识帖全部在 700 字符以内**(68/119/195/235/286/305/446, 中位 **235**), 而全池 81 篇中位 **530**、32 篇超 700。⇒ **即使用 Run A 的 700 截断, 这 7 条会原样出现。截断不是解释。**",
+   "★and_it_points_the_other_way": "★ belong 的帖子**显著更短**(中位 235 vs 全池 530) —— 这**符合 belong 自己的定义**(「自我暴露式发帖」「**无信息增量要求**」)。⇒ 不但排除了截断, 还提供了一条**独立的构念效度证据**: 仪器选中的那批文本, 在一个**没进 prompt 的维度(长度)**上, 与分类学的预期一致。"
+  }
+ },
+ "★★B2_CONFIRMED_and_the_margin_got_much_worse": {
+  "predicted": "top2 仍 >=0.8, 但平均 JS 会比 0.2321 差(更大)",
+  "observed": {
+   "top2": "0.9041 → **0.878**",
+   "JS": "0.219 → **0.2458**"
+  },
+  "★both_still_pass_but": "top2 0.878 >= 0.80 ✅ · JS 0.2458 <= 0.25 ✅ —— **但 JS 余量只有 0.0042**(评论上是 0.0310, **薄了 7.4 倍**)。自助 10000 次: **JS 不过 42%**, top2 不过 0.1%。",
+  "★★reading": "★★★ 「G-K1 在外部语料上通过」这句话**基本没有信息量** —— 它是一次抛硬币的好运: 换 81 篇同分布的别的帖子, 它有 **42%** 的概率不过。⇒ 正确的表述是 **「外部效度未被证伪, 但也远未被确立」**, 不是「外部效度通过」。",
+  "bootstrap_95CI": {
+   "top2": {
+    "lo": 0.8306,
+    "hi": 0.9215,
+    "se": 0.0234
+   },
+   "JS": {
+    "lo": 0.2055,
+    "hi": 0.2895,
+    "se": 0.0215
+   }
+  }
+ },
+ "★★★B3_FALSIFIED_the_collapse_got_worse_not_better": {
+  "predicted": "头两类共识占比 <56%(评论上是 56%)",
+  "observed": "评论 **63.0%** → 帖子 **76.5%**",
+  "★reading": "★★ **证伪, 而且方向相反。** 我预测换到更长更富内容的帖子会缓解类空间塌陷, 实测反而从 63.0% 恶化到 76.5%。★ 而且塌到了**不同的**两类: 评论上是 display 32 + pain_seek 19; 帖子上是 **pain_seek 49(独占 60%)** + display 13。⇒ **塌陷不是评论语料的性质, 是仪器的性质** —— 换单元只换了塌到哪一类, 没有缓解塌陷本身。★ 这一条比 B1 更该被记住: 我原本把塌陷归因于语料, **归错了**。",
+  "class_distribution": {
+   "评论_共识": {
+    "itch": 8,
+    "display": 32,
+    "reward": 12,
+    "audit": 5,
+    "pain_seek": 19,
+    "suspend": 5
+   },
+   "帖子_共识": {
+    "pain_seek": 49,
+    "display": 13,
+    "belong": 7,
+    "injustice": 7,
+    "itch": 1,
+    "suspend": 3,
+    "audit": 1
+   }
+  }
+ },
+ "★★the_crash_that_did_not_cost_405_calls": "★ Run B 在 405 次标注**之后**崩了: SKIP_GK2 只跳过了事实抽取, 下游仍按空 rows 算 ⇒ IndexError。★★ **但一条数据都没丢** —— 因为同日早些时候把逐条原始标注的落盘**挪到了 G-K2 之前**。若还是老代码, 405 次调用会跟着崩溃一起蒸发, 本页所有数字都要再花一次钱。⇒ 「聚合是判决要的, 逐条是复核要的」这条今天**当场兑现了一次**。已修 SKIP_GK2 包住整个 G-K2 块。",
+ "★what_this_run_does_NOT_answer": [
+  "★★ **单元混淆无法分离**: 帖 vs 评论同时变了**文体**和**prompt 里那句「给你一条评论」的真假**。要分离需 2×2: {单元标签 评论/帖子} × {语料 评论/帖子}。CCE_UNIT_LABEL 已就位, 是第一条腿。",
+  "跨模型家族(仍是 MiniMax 同族) · 跨社区(仍是 r/HearingAids)",
+  "★ G-K2 本轮**扣发**(外部语料无互动字段且 G-K2 已冻结), overall_pass = None, 不是通过。"
+ ]
+}

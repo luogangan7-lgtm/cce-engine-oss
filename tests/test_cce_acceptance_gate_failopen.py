@@ -37,34 +37,57 @@ import run_gates as RG  # noqa: E402
 SRC = (ROOT / "accuracy" / "run_gates.py").read_text(encoding="utf-8")
 
 
-def _quals(n_ok, total=5):
-    return [{"model": f"m{i}", "qualified": i < n_ok} for i in range(total)]
+# ══════════════════════════════════════════════════════════════════════════
+# ★★ 2026-09-07 晚: 资格考换成 v2 三态, 本文件的**语义**必须跟着换, 但守的东西不变。
+#   v1 语义: qualified=False ⇒ 排除。
+#   v2 语义: 只有 **DISQUALIFIED**(Wilson 上界 <= p_L) 才排除;
+#            **UNRESOLVED 留在 primary 面板** —— 「若 UNRESOLVED 就排除, 那只是把 FAIL 改名」。
+#   ⇒ 「零人合格不许回退到全员」这条在 v2 里的等价物是:
+#      **零人未被 DISQUALIFY ⇒ 扣发**, 以及 **没考试数据 ⇒ 扣发整轮**。
+#
+# ★★★ 而第二条是本次改写时**当场发现的新 fail-open**: v2 第一版把 of==0 归入 UNRESOLVED,
+#   而 UNRESOLVED 又留在面板里 ⇒ **「跳过资格考 ⇒ 所有人默认通过」**。
+#   它比 v1 那个更危险, 因为在输出上完全看不见。已单列 NOT_EXAMINED 并扣发整轮。
+# ══════════════════════════════════════════════════════════════════════════
+def _quals(states, of=5):
+    """states: 每人的 hits(答对数)。of=5 时 0~1 ⇒ DISQUALIFIED, 2~5 ⇒ UNRESOLVED。"""
+    return [{"model": f"m{i}", "hits": h, "of": of} for i, h in enumerate(states)]
 
 
-def test_zero_qualified_does_not_fall_back_to_everyone():
-    """★★ 核心: 零人合格必须**扣发**, 不许回退到全员。"""
-    a = RG.admit_annotators(_quals(0))
+def test_no_exam_data_withholds_the_whole_run():
+    """★★★ 新: 没考试数据**不是** UNRESOLVED —— 那等于「跳过考试 ⇒ 默认通过」。"""
+    a = RG.admit_annotators([{"model": f"m{i}"} for i in range(5)])
     assert a["admit"] is None, (
-        f"★★ 零人合格却放行了 {a['admit']} —— `passed or MODELS` 那个 fail-open 回来了。"
-        "「没人合格」与「全员合格」不可区分, 是本项目命名过的 fail-silent"
-    )
+        f"★★★ 无考试数据却放行了 {a['admit']} —— 「跳过资格考 ⇒ 所有人默认通过」, "
+        "是 v1 那个 fail-open 换壳, 而且在输出上看不见")
+    assert a["status"] == "QUALIFICATION_NOT_RUN"
+    assert all(v["state"] == "NOT_EXAMINED" for v in a["★states"].values())
+
+
+def test_everyone_disqualified_does_not_fall_back_to_everyone():
+    """★★ 核心(v1 那条的 v2 等价物): 全员 DISQUALIFIED 必须**扣发**, 不许回退到全员。"""
+    a = RG.admit_annotators(_quals([0, 0, 0, 0, 0]))
+    assert a["admit"] is None, (
+        f"★★ 全员不合格却放行了 {a['admit']} —— `passed or MODELS` 那个 fail-open 回来了。"
+        "「没人合格」与「全员合格」不可区分, 是本项目命名过的 fail-silent")
     assert a["status"] == "INSUFFICIENT_QUALIFIED_ANNOTATORS"
     assert "不产出判决 != 判决通过" in a["reason"]
 
 
-def test_one_qualified_is_also_withheld():
+def test_one_survivor_is_also_withheld():
     """两两一致性在 1 名标注者上**数学上无定义** —— 不能硬跑。"""
-    a = RG.admit_annotators(_quals(1))
-    assert a["admit"] is None, "★ 只有 1 名合格标注者时仍产出了判决 —— 那个数是假的"
+    a = RG.admit_annotators(_quals([5, 0, 0, 1, 1]))
+    assert a["admit"] is None, "★ 只剩 1 名标注者时仍产出了判决 —— 那个数是假的"
 
 
-def test_two_or_more_qualified_admits_only_the_qualified():
-    a = RG.admit_annotators(_quals(2))
+def test_only_the_disqualified_are_dropped():
+    a = RG.admit_annotators(_quals([5, 4, 3, 0, 1]))
     assert a["status"] == "OK"
-    assert a["admit"] == ["m0", "m1"], f"★ 准入名单不对: {a['admit']}"
-    assert len(a["admit"]) == 2, "★ 不合格者被放了进来"
-    b = RG.admit_annotators(_quals(5))
-    assert len(b["admit"]) == 5
+    assert a["admit"] == ["m0", "m1", "m2"], f"★ 准入名单不对: {a['admit']}"
+    assert a["★disqualified"] == ["m3", "m4"]
+    assert a["★primary_includes_UNRESOLVED"] == ["m0", "m1", "m2"], \
+        "★★★ UNRESOLVED 被排除了 —— 那只是把 FAIL 改名, v2 的核心就废了"
+    assert a["qualified_only"] == [], "★ n=5 不可能有人 QUALIFIED(需 n>=35 全对)"
 
 
 def test_source_no_longer_contains_the_fail_open():
@@ -118,8 +141,8 @@ def _reverse_checks():
 
     RG.admit_annotators = failopen
     try:
-        for fn in (test_zero_qualified_does_not_fall_back_to_everyone,
-                   test_one_qualified_is_also_withheld):
+        for fn in (test_everyone_disqualified_does_not_fall_back_to_everyone,
+                   test_one_survivor_is_also_withheld):
             try:
                 fn()
                 raise SystemExit(f"★ 反向验证失败: 退回 fail-open 后 {fn.__name__} 仍绿")
@@ -153,15 +176,16 @@ def _reverse_checks():
 
 
 if __name__ == "__main__":
-    test_zero_qualified_does_not_fall_back_to_everyone()
-    test_one_qualified_is_also_withheld()
-    test_two_or_more_qualified_admits_only_the_qualified()
+    test_no_exam_data_withholds_the_whole_run()
+    test_everyone_disqualified_does_not_fall_back_to_everyone()
+    test_one_survivor_is_also_withheld()
+    test_only_the_disqualified_are_dropped()
     test_source_no_longer_contains_the_fail_open()
     test_overall_pass_includes_qualification()
     test_withheld_run_returns_a_distinct_exit_code()
     n = _reverse_checks()
     print("test_cce_acceptance_gate_failopen: OK ("
-          "零人合格→扣发(不回退全员) | 1 人合格→扣发(两两一致性无定义) | "
+          "★**无考试数据→扣发整轮**(v2 自己造的新 fail-open, 已修) | 全员 DISQUALIFIED→扣发(不回退全员) | 只剩 1 人→扣发(两两一致性无定义) | ★**只剔 DISQUALIFIED, UNRESOLVED 留在 primary** | 源码不含 `... or MODELS` | "
           ">=2 人→只放合格者 | 源码不含 `passed or MODELS` | "
           "overall_pass 含资格考且拆项报告 | 扣发有独立退出码 2 | "
           f"{n} 条反向验证各自判红)")

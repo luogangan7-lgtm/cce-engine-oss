@@ -80,4 +80,42 @@ if len(b)==1 and len(c)==1:
     print(f"  → {'✅ seed 生效且可区分' if b!=c else '❌ 两个 seed 结果相同 —— seed 未被采纳，或该 prompt 本就确定'}")
 else:
     print("  → ⚠️ 组内已不确定，seed 未生效，反向测试不适用")
-pathlib.Path('/tmp/seed_probe.json').write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding='utf-8')
+# ★★★ 2026-09-17 首次运行。只改了**两处非判据的东西**, 判据逻辑一字未动:
+#   ① 输出路径 /tmp → results/(要进版本与闸)
+#   ② 加预算登记(本轮 22 次: 6+6+6+4; 之前已用 136 ⇒ 合计 158)
+# ★ 本文件写于 2026-08-18, **从未跑过**(results/ 无产物, 库内零结论)。
+OUT = pathlib.Path(__file__).resolve().parent.parent / "results" / "seed_probe.json"
+_b = {json.dumps(o["json"], sort_keys=True) for o in res["B temp=0.6 seed=42"] if o.get("json")}
+_c = {json.dumps(o["json"], sort_keys=True) for o in res["C temp=0.6 seed=999"] if o.get("json")}
+_uniq = {k: len({json.dumps(o["json"], sort_keys=True) for o in v if o.get("json")}) for k, v in res.items()}
+_n = {k: len(v) for k, v in res.items()}
+OUT.write_text(json.dumps({
+    "block": "SEED_PROBE",
+    "date": "2026-09-17",
+    "★★★这个探针写于 2026-08-18, 今天第一次跑": "写完放了一个月 —— results/ 无产物, 库内零结论。",
+    "★预算": {"本轮": sum(_n.values()), "分组": _n, "之前已用": 136, "合计": 136 + sum(_n.values())},
+    "★★★判据(写于 2026-08-18, 今天一字未动)":
+        "组内 uniq==1 ⇒ 该配置下确定; B(seed=42) 与 C(seed=999) **两组都确定且互不相同** ⇒ seed 生效; "
+        "B==C 或组内不确定 ⇒ **seed 未被端点采纳**。",
+    "★官方文档(2026-09-17 自查 platform.minimax.io/docs/api-reference/text-chat-openai)":
+        "请求参数 12 个: model/service_tier/messages/thinking/reasoning_split/stream/stream_options/"
+        "max_completion_tokens/temperature/top_p/tools/max_tokens —— **无 seed**。"
+        "响应字段 id/choices/created/model/object/usage/input_sensitive/input_sensitive_type/"
+        "output_sensitive/output_sensitive_type/base_resp —— **无 system_fingerprint**。"
+        "对 temperature=0 **无任何可复现性承诺**(只说 lower values produce more deterministic output)。",
+    "★★★为什么文档已说无 seed 还要实测": "**「文档没写」不等于「端点不支持」** —— "
+        "OpenAI 兼容端点可能静默接受未文档化的参数。C 组(seed=999)正是为区分这两种情况设的**反向测试**。"
+        "⇒ 跑完把「文档推断」升级为「实测」, 那才是向供应商提问时拿得出的硬证据。",
+    "逐组不同输出数": _uniq, "逐组样本数": _n,
+    "B(seed=42) 取值集合": sorted(_b), "C(seed=999) 取值集合": sorted(_c),
+    "★★★反向测试结论": (
+        ("✅ seed 生效且可区分" if _b != _c else "❌ 两个 seed 结果相同 —— seed 未被采纳, 或该 prompt 本就确定")
+        if (len(_b) == 1 and len(_c) == 1)
+        else "⚠️ 组内已不确定 ⇒ **seed 未生效**, 反向测试不适用"),
+    "★★★边界": "① 这是**单一 prompt · 单一模型**的读数, 不得外推到所有调用形态; "
+        "② **确定性是「可复现」的仪器属性** —— 即便 seed 生效, 也不解决当前卡住的三条路"
+        "(那些是**效度**问题: 模型填不出 predicate); "
+        "③ n=6/6/6/4 很小, 「组内确定」只说明这几次没抖, 不是保证。",
+    "rows": res,
+}, ensure_ascii=False, indent=1), encoding="utf-8")
+print("\n→", OUT)

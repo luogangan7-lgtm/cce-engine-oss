@@ -1,0 +1,116 @@
+{
+ "block": "QUALIFICATION_DECISION_CONSISTENCY_4RUNS",
+ "n_exams_per_model": 4,
+ "★source": "同一份 5 锚例, temp=0.0, 四次独立运行(run1 早/run2 重复性/run3 外部效度/run4 确证)",
+ "per_model": {
+  "MiniMax-M3": {
+   "scores": [
+    5,
+    5,
+    5,
+    5
+   ],
+   "v1": {
+    "PASS": 4
+   },
+   "v1_consistency": 1.0,
+   "v1_flipped": false,
+   "v2": {
+    "UNRESOLVED": 4
+   },
+   "v2_consistency": 1.0,
+   "v2_flipped": false,
+   "v2_coverage": 0.0
+  },
+  "MiniMax-M2.5": {
+   "scores": [
+    5,
+    5,
+    4,
+    5
+   ],
+   "v1": {
+    "PASS": 4
+   },
+   "v1_consistency": 1.0,
+   "v1_flipped": false,
+   "v2": {
+    "UNRESOLVED": 4
+   },
+   "v2_consistency": 1.0,
+   "v2_flipped": false,
+   "v2_coverage": 0.0
+  },
+  "MiniMax-M2.7": {
+   "scores": [
+    3,
+    5,
+    4,
+    4
+   ],
+   "v1": {
+    "FAIL": 1,
+    "PASS": 3
+   },
+   "v1_consistency": 0.625,
+   "v1_flipped": true,
+   "v2": {
+    "UNRESOLVED": 4
+   },
+   "v2_consistency": 1.0,
+   "v2_flipped": false,
+   "v2_coverage": 0.0
+  },
+  "MiniMax-M2": {
+   "scores": [
+    4,
+    5,
+    5,
+    5
+   ],
+   "v1": {
+    "PASS": 4
+   },
+   "v1_consistency": 1.0,
+   "v1_flipped": false,
+   "v2": {
+    "UNRESOLVED": 4
+   },
+   "v2_consistency": 1.0,
+   "v2_flipped": false,
+   "v2_coverage": 0.0
+  },
+  "MiniMax-Text-01": {
+   "scores": [
+    5,
+    5,
+    5,
+    5
+   ],
+   "v1": {
+    "PASS": 4
+   },
+   "v1_consistency": 1.0,
+   "v1_flipped": false,
+   "v2": {
+    "UNRESOLVED": 4
+   },
+   "v2_consistency": 1.0,
+   "v2_flipped": false,
+   "v2_coverage": 0.0
+  }
+ },
+ "★summary": {
+  "v1_flipped": [
+   "MiniMax-M2.7"
+  ],
+  "v2_flipped": [],
+  "v1_mean_consistency": 0.925,
+  "v2_mean_consistency": 1.0,
+  "v1_mean_coverage": 1.0,
+  "★v2_mean_coverage": 0.0
+ },
+ "★★the_tradeoff_is_the_whole_finding": "★ v1 二值: 判决覆盖率 **100%**, 但 **1/5** 名标注者在四次间**翻转过**(['MiniMax-M2.7'])。\n★ v2 三态: **0/5** 翻转 —— **但判决覆盖率 0%**, 它一次判决都没做。\n★★★ ⇒ **不能说「v2 更稳」。** 正确的说法是: **v2 把一个不可靠的判决换成了一个诚实的空缺。** 空缺本身不是成果, 是**对现状的准确描述** —— 5 个锚例本来就不足以判决, v1 只是在假装能判。\n★ 而空缺的填补**当前没有路**: 需要更多独立锚例, 而锚例真值 ①不能由 MiniMax 定(测量模型, 库内铁律禁止) ②四个模型家族今日探活全部失败 ③「规则可核验」那条路被我自己的阳性对照证伪(既有 audit 锚例按我的规则会被判成非 audit)。\n⇒ **只能由人裁定。**",
+ "★what_this_does_NOT_show": "★★ 这是 **decision consistency**, 不是 **decision accuracy**。后者需要知道真实能力, 而真实能力只能靠更多独立锚例估计 —— 同一个瓶颈。⇒ 「v1 会翻转」已证; 「v1 判错了谁」**未证**, 也无法在当前条件下证。",
+ "★n=4_is_small": "★ 每人只有 4 次。M2.7 的 v1 翻转率点估 1/4=25%, Wilson 95%CI [0.046, 0.699] —— **很宽**。但它与 p=0.80 的理论误判率 26.3% 相符, 两条独立线索同向。"
+}

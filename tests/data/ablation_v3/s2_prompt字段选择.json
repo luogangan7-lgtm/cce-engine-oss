@@ -1,0 +1,1941 @@
+{
+ "block": "ABLATION_V3_CLUSTER_s2_prompt_fieldset",
+ "cluster": "s2_prompt字段选择",
+ "target": "scripts/cce_knot_classify.py::_build_stage2_prompt (L692-727)",
+ "decided_at": "2026-09-11T17:24:00",
+ "methodology": "M1 先验收判官再用判官 · M2 L3(instrument_hash)是重言零证据力 · M3 按 tag 索引重放(不用共享迭代器)且扫描面含 accuracy/ · M4 引用计数报粗计与严计两个数 · M5 判决词表 LOAD_BEARING_L2 / LOAD_BEARING_L1_ONLY / UNREACHABLE / NO_CONSUMER / COULD_NOT_RUN / CIRCULAR / INCONCLUSIVE, deletable 是独立字段不由 verdict 推导 · M6 凡判无差异必跑荒谬值注入臂 · M7 工况(market/profile/k分布/语料sha/时点)随判决同行 · M8 存量消融天然把保险丝判成装饰: NO_CONSUMER 必须区分真死与本工况未触发",
+ "evidence_scope": "本装置能支持的结论**仅限**: 在**存量语料重放 + 内存内源码变异**这一工况下, 某常量/字段是否改变数值输出(L1)与判决面(L2)。它**不能**证明: 真实模型的语义判断准确率 · 重复稳定性 · 线上工况下的行为 · 该常量在**其它 k / 其它 market / 其它 profile** 下是否承重。",
+ "observable_note": "★ 只用 L1(数值输出改变) 与 L2(判决改变)。**明确排除 L3 = instrument_hash**: 它覆盖 ontology_version / s1_prompt_sha256 / s2_prompt_sha256 / model / endpoint / sampling_policy, 改**任何**被覆盖的常量它都会变, **包括改一个永不取用的死常量** ⇒ 用它判必然 100% 承重, 是重言。",
+ "replay_note": "★ 按 **tag** 索引, **不是**共享迭代器。`_stage2_aggregate` 用 ThreadPoolExecutor(5) 并发调 `_stage2_draw(prompt, taxo, f'd{i}')`; 若 stub 写成 `it=iter(draws); next(it)`, 线程抢迭代器 ⇒ draw 与序号随机错配 ⇒ **纯文档字段也会被判成 L1 变化**(上一轮 changelog_* 被判 1/8~5/8 随机数)。",
+ "scan_surface": {
+  "dirs": [
+   "scripts",
+   "probes",
+   "accuracy",
+   "tests",
+   ".github",
+   "config"
+  ],
+  "suffixes": [
+   ".py",
+   ".json",
+   ".yml",
+   ".yaml",
+   ".md",
+   ".txt",
+   ".sh"
+  ],
+  "blind_spot_note": "扫描面**不含**仓外任何目录, 也不含 .git/ 与 __pycache__/。它是**词碰撞统计**, 不是调用图: 动态 getattr / 字符串拼出来的键 / 经 JSON 传给外部工具的字段, 本扫描**看不见**。"
+ },
+ "operating_point": {
+  "market": "N/A —— 仓内无 market 字段(已实扫 scripts/ config/ accuracy/)。存量语料只按 archive/<run_id> 归档, 无市场维度 ⇒ 本判决**不能**外推到任何按市场分层的工况。",
+  "profile": [
+   "{\"stage1\": \"exp_v4_full_validation(frozen, M3)\", \"stage2\": \"knot_taxonomy v1.3.1 (M3)\", \"taxonomy_status\": \"v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注\"}"
+  ],
+  "n_archive_files": 22,
+  "k_distribution": {
+   "3": 20,
+   "5": 2
+  },
+  "n_draws_per_file": {
+   "5": 22
+  },
+  "s1_temperature_distribution": {
+   "0.0": 22,
+   "0.15": 2,
+   "0.3": 22,
+   "0.6": 22,
+   "0.9": 2
+  },
+  "corpus_sha256": "8226cd11ee4593a08ed356aa1085acce3c9aea2f287ae0ae544ee2e48c355ac7",
+  "decided_at": "2026-09-11T16:25:52",
+  "drift_rule": "以上任一项变化 ⇒ 基于本工况的判决当场失效, 必须重跑。",
+  "M8_structural_bias": "只在存量数据上做的消融**天然把所有保险丝判成装饰** —— 保险丝的定义就是「平时永远不动」。故 NO_CONSUMER 必须区分「真死」与「在本存量工况下没被触发」(后者应判 UNREACHABLE 并写明复活条件)。",
+  "ks_observed": [
+   3,
+   5
+  ]
+ },
+ "★★★装置缺陷报告_比本簇判决更值钱": {
+  "① 共享装置对本簇结构性失明": {
+   "fact": "ablation_harness_v3.observe_all 全程调用 _build_stage2_prompt **0 次**(实测 checks.replay_calls_to__build_stage2_prompt=0)。observe_stage2 直接把字面量 '<PROMPT>' 传给 _stage2_aggregate, 而重放 stub `_stage2_draw(prompt, taxo, tag)` **忽略 prompt 参数**, 按 tag 取存量 draw。",
+   "proof": "ctl_garbage 臂: _build_stage2_prompt 整体返回 'GARBAGE'(prompt 从 3386 字塌到 7 字, 毁掉 99.793%), L1_changed=False · L2_changed=False · 三个 L1 面(stage1/reach/stage2)全 False。",
+   "consequence": "⇒ 本簇里**任何**「L1/L2 无差异」都是**先验保证**的, 零信息。它是 L3 重言的镜像失效: L3 把一切判成承重, 本重放面把一切判成不承重。**据此判 NO_CONSUMER 就是第一轮 20/20 的同型错误换了个方向。**",
+   "not_a_bug_in_the_harness": "★ 这不是 harness 写错了 —— 它是为**温度表/聚合常量**那类消融造的, 对那类消融接得很好(液性臂实测大面积改变)。错的是**把它用在 prompt 字段簇上而不先测灵敏度**。⇒ 结论: 每个新簇都要先跑自己的**灵敏度上限臂**, 不能只沿用上一个簇的阳性对照。"
+  },
+  "② 我自己的 L4 v1 也曾坏掉(已修, 两版都留档)": {
+   "fact": "v1 没加 --continue-on-collection-errors。本仓多个测试文件是**模块级 assert 脚本**, 变异后在**收集期**就抛 ⇒ pytest 打印 'Interrupted: N errors during collection' 并**一条测试都不跑**。",
+   "consequence": "v1 得到的所谓「翻红集」其实是「**收集中断集**」, 恒为 3~4 个哈希钉住的文件; 而真正字段分辨的三个闸(rule_delivery / field_reach / gate_vs_production) **从来没被执行过**, 于是看起来「L4 完全不分辨字段」—— 那是假结论。",
+   "fix": "v2 加 --continue-on-collection-errors 并逐臂记录 n_tests_ran。两版数据都保留在本文件里对照。",
+   "v1_kept_for_the_record": {
+    "_pristine": {
+     "n_net_new_reds": 1,
+     "net_new_reds": [
+      "tests/test_cce_suspend_fix_confirmation.py::test_the_attempt_ledger_reports_attempts_not_just_successes"
+     ]
+    },
+    "key_drop": {
+     "n_net_new_reds": 3,
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py"
+     ]
+    },
+    "family_drop": {
+     "n_net_new_reds": 3,
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py"
+     ]
+    },
+    "typical_codes_drop": {
+     "n_net_new_reds": 3,
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py"
+     ]
+    },
+    "trunc_off": {
+     "n_net_new_reds": 3,
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py"
+     ]
+    },
+    "ctl_noop": {
+     "n_net_new_reds": 0,
+     "net_new_reds": []
+    },
+    "key_inject": {
+     "n_net_new_reds": 3,
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py"
+     ]
+    },
+    "family_inject": {
+     "n_net_new_reds": 3,
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py"
+     ]
+    },
+    "typical_codes_inject": {
+     "n_net_new_reds": 3,
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py"
+     ]
+    },
+    "trunc_to_1": {
+     "n_net_new_reds": 3,
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py"
+     ]
+    },
+    "ctl_whitespace": {
+     "n_net_new_reds": 3,
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py"
+     ]
+    },
+    "name_drop": {
+     "n_net_new_reds": 3,
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py"
+     ]
+    },
+    "signature_drop": {
+     "n_net_new_reds": 4,
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py",
+      "tests/test_cce_measurement_system.py"
+     ]
+    },
+    "behavior_drop": {
+     "n_net_new_reds": 3,
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py"
+     ]
+    },
+    "levers_drop": {
+     "n_net_new_reds": 3,
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py"
+     ]
+    },
+    "ctl_garbage": {
+     "n_net_new_reds": 4,
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py",
+      "tests/test_cce_measurement_system.py"
+     ]
+    },
+    "name_inject": {
+     "n_net_new_reds": 3,
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py"
+     ]
+    },
+    "signature_inject": {
+     "n_net_new_reds": 4,
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py",
+      "tests/test_cce_measurement_system.py"
+     ]
+    },
+    "behavior_inject": {
+     "n_net_new_reds": 3,
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py"
+     ]
+    },
+    "levers_inject": {
+     "n_net_new_reds": 3,
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py"
+     ]
+    }
+   }
+  },
+  "③ 我的 L4 装置第二个缺陷: 工作树复用污染(已定位并实测扣除)": {
+   "fact": "v2 的 4 棵工作树被多个臂**串行复用**, 而测试会把 tests/data/taxonomy_field_reach_ledger.json **写回工作树**。上一个臂留下的台账 artifact 会被下一个臂读到。",
+   "symptom": "signature/behavior/levers 六个臂各多出 2 条红: tests/test_cce_descriptive_exemption_vs_reach.py 的两条 —— 该文件**只读台账 JSON**, 不读源码。",
+   "proof": "① 干净树重跑 signature_drop 两次, 都是 12 条红(记录值 14), 差的正是那 2 条; ② 逐臂把台账重置为 pristine 后单跑该文件: behavior_drop / behavior_inject / levers_drop / levers_inject / signature_inject / ctl_noop **全部 0 红**(实测见 descriptive_exemption_clean)。",
+   "how_it_is_handled": "per_component 的「可归因」计数里这 2 条已被扣除; 未扣除的原始数保留在 layer_B_L4 里。",
+   "clean_reruns": {
+    "behavior_drop": [],
+    "behavior_inject": [],
+    "levers_drop": [],
+    "levers_inject": [],
+    "signature_inject": [],
+    "ctl_noop": []
+   }
+  },
+  "④ L4 红集的稳定性": {
+   "fact": "同一臂(signature_drop)在干净树连跑两次, 红集**逐条相同**(12/12); 与污染树的差异仅那 2 条。",
+   "flaky_row": "tests/test_cce_suspend_fix_confirmation.py::test_the_attempt_ledger_reports_attempts_not_just_successes 在真仓与 _pristine 副本红、在 ctl_noop 臂也红, 但它依赖仓外路径 ⇒ 不稳定。它已进 ctl_noop 红集, 被净新增的减法吃掉, 不影响任何字段归因。"
+  },
+  "⑤ 本仓存在三层「哈希钉」重言, 逐层由对照臂剥掉": {
+   "L0 源码字节钉": "config/cce_core_manifest.json 钉住 scripts/cce_knot_classify.py 的 sha256 ⇒ **改一个注释**都会让 test_cce_core_boundary / test_cce_chain_conformance 翻红。由 **ctl_noop**(只加 '  # abl-noop')剥掉。",
+   "L1 prompt 字节钉": "s2_prompt_sha256 → instrument_hash → test_cce_abstention(assert =='b8d0f60d66d10f12') / test_cce_draw_ledger(assert instrument_hash=='d4cce4c745f3f991') / test_cce_hash_scope(calibration_transfers 必须 True)。**加一个空格**就全红。由 **ctl_whitespace** 剥掉。",
+   "L2 字段通道哨兵": "tests/test_cce_measurement_system.py:50 改 knots[0].signature 后断言 instrument_hash 必变。它**只在 signature 离开 prompt 时**失效 ⇒ 是本套件里唯一的字段分辨信号, 但它分辨的是「**这个测试恰好选了 signature 当探针**」, 不是「signature 比别的字段重要」。若该测试当初改的是 behavior, 那就轮到 behavior_drop 触发它。"
+  }
+ },
+ "positive_control_rerun_in_my_own_process": {
+  "passed": true,
+  "failed_gates": [],
+  "gates": {
+   "dead_swap_not_load_bearing": true,
+   "dead_absurd_injection_still_no_diff": true,
+   "liquid_L1_changed": true,
+   "liquid_changed_broadly": true,
+   "noop_no_diff": true,
+   "determinism": true,
+   "tags_indexed": true,
+   "tripwire_never_tripped": true,
+   "repo_files_untouched": true,
+   "L3_is_tautology_confirmed": true,
+   "dead_constant_is_UNREACHABLE_not_NO_CONSUMER": true
+  },
+  "checks": {
+   "determinism_same_module_twice": true,
+   "determinism_fresh_reload": true,
+   "baseline_replay_reproduces_archived_intensity": "22/22",
+   "tags_indexed_not_iterator": true,
+   "dead_constant_revives_at_k": {
+    "k": 7,
+    "base_temps": [
+     0.0,
+     0.3,
+     0.6,
+     0.9,
+     0.15,
+     0.45,
+     0.75
+    ],
+    "dead_arm_temps": [
+     0.0,
+     0.3,
+     0.6,
+     0.9,
+     0.15,
+     999.0,
+     -999.0
+    ],
+    "L1_changed_at_this_k": true
+   },
+   "tripwire_tripped": []
+  },
+  "judge_verdict_on_dead_constant": "UNREACHABLE(本工况 k≤5 下第 6/7 档永不取用; k≥6 即复活 —— 实证见 checks.dead_constant_revives_at_k)。M5 词表下**不是** NO_CONSUMER, 更**不是**承重。",
+  "corpus_sha256": "8226cd11ee4593a08ed356aa1085acce3c9aea2f287ae0ae544ee2e48c355ac7",
+  "k_distribution": {
+   "3": 20,
+   "5": 2
+  }
+ },
+ "per_component": [
+  {
+   "component": "_build_stage2_prompt 整体(灵敏度上限臂 ctl_garbage)",
+   "locus": "scripts/cce_knot_classify.py:692-727 `_build_stage2_prompt`",
+   "verdict": "INCONCLUSIVE",
+   "L1_changed": "false。★★★ 这一行是本簇最重要的读数: prompt 整体替换成 7 个字符的 'GARBAGE'(毁掉 99.793% 的 prompt), L1 三面(stage1/reach/stage2)**全部 false**, L2 两面全 false。",
+   "L2_changed": "false(重放面)。非模型下游 calibration_transfers True→False, 与 ctl_whitespace 相同。",
+   "L4_net_new_reds": "净新增 10 条; 扣掉字节钉与污染后 6 条: ['tests/test_cce_gate_prompt_version_label.py::test_production_by_contrast_injects_the_live_version', 'tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied', 'tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment', 'tests/test_cce_measurement_system.py', 'tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial', 'tests/test_cce_rule_delivery_completeness.py::test_it_checks_the_final_outbound_request_not_an_imitation']",
+   "deletable": false,
+   "deletable_reason": "它是唯一构造 s2 出站请求的函数; 删掉 stage2 无输入。此判断来自调用图, 不来自消融。",
+   "ref_count_coarse": 26,
+   "ref_count_strict": 26,
+   "injection_test": "ctl_garbage 本身就是最极端的注入臂(整个 prompt → 'GARBAGE')。",
+   "evidence": "★ 结论不是「prompt 不承重」, 而是「**本装置看不见 prompt**」: observe_stage2 把字面量 '<PROMPT>' 传给 _stage2_aggregate, 重放 stub `_stage2_draw(prompt, taxo, tag)` 忽略 prompt 按 tag 取存量 draw ⇒ 全程 _build_stage2_prompt 调用 **0 次**(实测 checks.replay_calls_to__build_stage2_prompt=0)。⇒ 本簇 16 个字段臂的一切「L1/L2 无差异」都是**先验保证**的, 零证据力。"
+  },
+  {
+   "component": "knots[].key(9 个结的 key 进 knots_brief)",
+   "locus": "scripts/cce_knot_classify.py:694 `f\"- {k['key']}({k['name']}|{k['family']})...\"`",
+   "verdict": "INCONCLUSIVE",
+   "L1_changed": "false —— **零信息**。重放期 _build_stage2_prompt 调用 0 次(实测); ctl_garbage 把 prompt 从 3386 字塌到 7 字(毁 99.793%)后 L1 三面仍全 false ⇒ 该判据对本簇结构性失明, 不能据此判 NO_CONSUMER。",
+   "L2_changed": "重放判决面(measurement_status/k_valid/top1/knot_order) false, 同上为零信息。**非模型下游**: s2_prompt_sha256 变 ⇒ instrument_hash d4cce4c745f3f991→新 ⇒ calibration_transfers True→False(标定不可搬)。但 ctl_whitespace(末尾加一个空格, 零信息量)**逐位产生完全相同的结果** ⇒ 该面对「删了哪个字段」零分辨力。",
+   "L4_net_new_reds": "全套件实跑 392 条。净新增翻红(减 ctl_noop 红集)=5(drop) / 5(inject)。其中 4 条是 ctl_whitespace 也会触发的**prompt 字节钉**(abstention / draw_ledger / hash_scope / playbook_atoms), 零字段分辨力; 另减去 2 条经实测证实为**我的 L4 装置树复用污染**(见 instrument_defects③)。⇒ 真正可归因本字段的 = 1(drop) / 1(inject): drop=['tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied'] inject=['tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied']。★ 这些闸**全部是台账/送达簿记闸**, 断言内容就是「该字段进不进 prompt」—— 对「删了它读数变不变」而言**判据自证(CIRCULAR)**, 不构成承重证据。",
+   "deletable": false,
+   "deletable_reason": "无任何证据支持删除(本工况下**根本测不出**效应); 且删除有**已实测的价格**: prompt 任一字节变动 ⇒ s2_prompt_sha256 变 ⇒ instrument_hash 换代 ⇒ calibration_transfers 判 False ⇒ 22 份存量读数与新读数不可比, 需重投料重标定。★ 该价格对**加一个空格**同样成立(ctl_whitespace 实测) ⇒ 它是「改动的代价」, **不是**「该字段承重的证据」。是否删 = owner 决策, 本行只给价签, 不选方向。",
+   "ref_count_coarse": 702,
+   "ref_count_strict": 225,
+   "injection_test": "M6 已跑荒谬值注入臂 `key_inject`: prompt 文本确实改变(sha 6431989adb9ea6fa, 字数 3443 vs 基线 3386), 而 L1/L2 重放面**仍然逐位不变** —— ★ 但这个「仍然不变」**不是**无差异的证据, 它是失明的再一次确认(ctl_garbage 同样不变)。⇒ 按本簇规则, 注入检验在这里**不能**把判决从 INCONCLUSIVE 升级成 NO_CONSUMER。",
+   "evidence": "Layer C(prompt 文本到达, 真实消费面的输入): drop 臂移除 1.772% 的 prompt 字符(60 字), inject 臂 -1.683%。 ★ 结构事实: key 被移除后, prompt 里仍字面留有 3/9 个 key(reward·audit 出现在「reward=0.85 且 audit=0.80」的示例句, inertia 出现在【阻挡结特别提示】) —— 即**硬编码在 prompt 正文里的 key 与 knots_brief 的 key 是两套来源**, 消融一处不会清空另一处。 而 `_stage2_draw` 用 `ok_keys={k['key'] for k in taxo['knots']}` 校验模型返回值, 非法 key ⇒ 重试 3 次 ⇒ 返回 None ⇒ 聚合层 RuntimeError。★ 「模型在只剩 3 个 key 的提示下还能不能吐出合法 key」**必须调模型才知道**, 本轮零 API 测不到。"
+  },
+  {
+   "component": "knots[].name",
+   "locus": "scripts/cce_knot_classify.py:694",
+   "verdict": "INCONCLUSIVE",
+   "L1_changed": "false —— **零信息**。重放期 _build_stage2_prompt 调用 0 次(实测); ctl_garbage 把 prompt 从 3386 字塌到 7 字(毁 99.793%)后 L1 三面仍全 false ⇒ 该判据对本簇结构性失明, 不能据此判 NO_CONSUMER。",
+   "L2_changed": "重放判决面(measurement_status/k_valid/top1/knot_order) false, 同上为零信息。**非模型下游**: s2_prompt_sha256 变 ⇒ instrument_hash d4cce4c745f3f991→新 ⇒ calibration_transfers True→False(标定不可搬)。但 ctl_whitespace(末尾加一个空格, 零信息量)**逐位产生完全相同的结果** ⇒ 该面对「删了哪个字段」零分辨力。",
+   "L4_net_new_reds": "全套件实跑 392 条。净新增翻红(减 ctl_noop 红集)=7(drop) / 5(inject)。其中 4 条是 ctl_whitespace 也会触发的**prompt 字节钉**(abstention / draw_ledger / hash_scope / playbook_atoms), 零字段分辨力; 另减去 2 条经实测证实为**我的 L4 装置树复用污染**(见 instrument_defects③)。⇒ 真正可归因本字段的 = 3(drop) / 1(inject): drop=['tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied', 'tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment', 'tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied'] inject=['tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied']。★ 这些闸**全部是台账/送达簿记闸**, 断言内容就是「该字段进不进 prompt」—— 对「删了它读数变不变」而言**判据自证(CIRCULAR)**, 不构成承重证据。",
+   "deletable": false,
+   "deletable_reason": "无任何证据支持删除(本工况下**根本测不出**效应); 且删除有**已实测的价格**: prompt 任一字节变动 ⇒ s2_prompt_sha256 变 ⇒ instrument_hash 换代 ⇒ calibration_transfers 判 False ⇒ 22 份存量读数与新读数不可比, 需重投料重标定。★ 该价格对**加一个空格**同样成立(ctl_whitespace 实测) ⇒ 它是「改动的代价」, **不是**「该字段承重的证据」。是否删 = owner 决策, 本行只给价签, 不选方向。",
+   "ref_count_coarse": 625,
+   "ref_count_strict": 51,
+   "injection_test": "M6 已跑荒谬值注入臂 `name_inject`: prompt 文本确实改变(sha 6833e9ec62cc51e3, 字数 3386 vs 基线 3386), 而 L1/L2 重放面**仍然逐位不变** —— ★ 但这个「仍然不变」**不是**无差异的证据, 它是失明的再一次确认(ctl_garbage 同样不变)。⇒ 按本簇规则, 注入检验在这里**不能**把判决从 INCONCLUSIVE 升级成 NO_CONSUMER。",
+   "evidence": "Layer C(prompt 文本到达, 真实消费面的输入): drop 臂移除 1.861% 的 prompt 字符(63 字), inject 臂 0.0%。 ★ name_drop 的净新增里有 2 条**不可归因于 name**: 它同时删掉了 family 前的 `|` 分隔符, 而 probes/gate_vs_production_prompt_gap 用 `f\"|{family})\"` 当 family 的探针针 —— 实测 name_drop 下该针 False、name_inject 下 True。故 name 的干净估计取 name_inject 的 1 条。"
+  },
+  {
+   "component": "knots[].family(推动/阻挡 二分)",
+   "locus": "scripts/cce_knot_classify.py:694",
+   "verdict": "INCONCLUSIVE",
+   "L1_changed": "false —— **零信息**。重放期 _build_stage2_prompt 调用 0 次(实测); ctl_garbage 把 prompt 从 3386 字塌到 7 字(毁 99.793%)后 L1 三面仍全 false ⇒ 该判据对本簇结构性失明, 不能据此判 NO_CONSUMER。",
+   "L2_changed": "重放判决面(measurement_status/k_valid/top1/knot_order) false, 同上为零信息。**非模型下游**: s2_prompt_sha256 变 ⇒ instrument_hash d4cce4c745f3f991→新 ⇒ calibration_transfers True→False(标定不可搬)。但 ctl_whitespace(末尾加一个空格, 零信息量)**逐位产生完全相同的结果** ⇒ 该面对「删了哪个字段」零分辨力。",
+   "L4_net_new_reds": "全套件实跑 392 条。净新增翻红(减 ctl_noop 红集)=7(drop) / 7(inject)。其中 4 条是 ctl_whitespace 也会触发的**prompt 字节钉**(abstention / draw_ledger / hash_scope / playbook_atoms), 零字段分辨力; 另减去 2 条经实测证实为**我的 L4 装置树复用污染**(见 instrument_defects③)。⇒ 真正可归因本字段的 = 3(drop) / 3(inject): drop=['tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied', 'tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment', 'tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied'] inject=['tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied', 'tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment', 'tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied']。★ 这些闸**全部是台账/送达簿记闸**, 断言内容就是「该字段进不进 prompt」—— 对「删了它读数变不变」而言**判据自证(CIRCULAR)**, 不构成承重证据。",
+   "deletable": false,
+   "deletable_reason": "无任何证据支持删除(本工况下**根本测不出**效应); 且删除有**已实测的价格**: prompt 任一字节变动 ⇒ s2_prompt_sha256 变 ⇒ instrument_hash 换代 ⇒ calibration_transfers 判 False ⇒ 22 份存量读数与新读数不可比, 需重投料重标定。★ 该价格对**加一个空格**同样成立(ctl_whitespace 实测) ⇒ 它是「改动的代价」, **不是**「该字段承重的证据」。是否删 = owner 决策, 本行只给价签, 不选方向。",
+   "ref_count_coarse": 668,
+   "ref_count_strict": 42,
+   "injection_test": "M6 已跑荒谬值注入臂 `family_inject`: prompt 文本确实改变(sha 9ca4234a394d2bb9, 字数 3386 vs 基线 3386), 而 L1/L2 重放面**仍然逐位不变** —— ★ 但这个「仍然不变」**不是**无差异的证据, 它是失明的再一次确认(ctl_garbage 同样不变)。⇒ 按本簇规则, 注入检验在这里**不能**把判决从 INCONCLUSIVE 升级成 NO_CONSUMER。",
+   "evidence": "Layer C(prompt 文本到达, 真实消费面的输入): drop 臂移除 0.797% 的 prompt 字符(27 字), inject 臂 0.0%。 ★ family 有一个**重放面内的真实消费者**: `derived_layers()` 用 `fam_of={m['key']:m['family']}` 从 **taxonomy** 取 family 算 families.mass/composition —— 那条路径读的是 taxo 对象, **不经 prompt**, 所以把 family 从 prompt 里拿掉**不影响**它。两者是同一字段的两条独立通道。"
+  },
+  {
+   "component": "knots[].signature(appraisal 四层签名)",
+   "locus": "scripts/cce_knot_classify.py:694",
+   "verdict": "INCONCLUSIVE",
+   "L1_changed": "false —— **零信息**。重放期 _build_stage2_prompt 调用 0 次(实测); ctl_garbage 把 prompt 从 3386 字塌到 7 字(毁 99.793%)后 L1 三面仍全 false ⇒ 该判据对本簇结构性失明, 不能据此判 NO_CONSUMER。",
+   "L2_changed": "重放判决面(measurement_status/k_valid/top1/knot_order) false, 同上为零信息。**非模型下游**: s2_prompt_sha256 变 ⇒ instrument_hash d4cce4c745f3f991→新 ⇒ calibration_transfers True→False(标定不可搬)。但 ctl_whitespace(末尾加一个空格, 零信息量)**逐位产生完全相同的结果** ⇒ 该面对「删了哪个字段」零分辨力。",
+   "L4_net_new_reds": "全套件实跑 392 条。净新增翻红(减 ctl_noop 红集)=11(drop) / 11(inject)。其中 4 条是 ctl_whitespace 也会触发的**prompt 字节钉**(abstention / draw_ledger / hash_scope / playbook_atoms), 零字段分辨力; 另减去 2 条经实测证实为**我的 L4 装置树复用污染**(见 instrument_defects③)。⇒ 真正可归因本字段的 = 5(drop) / 5(inject): drop=['tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied', 'tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment', 'tests/test_cce_measurement_system.py', 'tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial', 'tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied'] inject=['tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied', 'tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment', 'tests/test_cce_measurement_system.py', 'tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial', 'tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied']。★ 这些闸**全部是台账/送达簿记闸**, 断言内容就是「该字段进不进 prompt」—— 对「删了它读数变不变」而言**判据自证(CIRCULAR)**, 不构成承重证据。",
+   "deletable": false,
+   "deletable_reason": "无任何证据支持删除(本工况下**根本测不出**效应); 且删除有**已实测的价格**: prompt 任一字节变动 ⇒ s2_prompt_sha256 变 ⇒ instrument_hash 换代 ⇒ calibration_transfers 判 False ⇒ 22 份存量读数与新读数不可比, 需重投料重标定。★ 该价格对**加一个空格**同样成立(ctl_whitespace 实测) ⇒ 它是「改动的代价」, **不是**「该字段承重的证据」。是否删 = owner 决策, 本行只给价签, 不选方向。",
+   "ref_count_coarse": 116,
+   "ref_count_strict": 37,
+   "injection_test": "M6 已跑荒谬值注入臂 `signature_inject`: prompt 文本确实改变(sha 31855bff5894f6ec, 字数 2782 vs 基线 3386), 而 L1/L2 重放面**仍然逐位不变** —— ★ 但这个「仍然不变」**不是**无差异的证据, 它是失明的再一次确认(ctl_garbage 同样不变)。⇒ 按本簇规则, 注入检验在这里**不能**把判决从 INCONCLUSIVE 升级成 NO_CONSUMER。",
+   "evidence": "Layer C(prompt 文本到达, 真实消费面的输入): drop 臂移除 37.242% 的 prompt 字符(1261 字), inject 臂 17.838%。 ★ 它是 prompt 里**体量最大**的字段: drop 掉 1261 字 = 全 prompt 的 37.24%, brief 段从 2405 字降到 1144 字。 ★ 唯一一条**看起来**字段分辨的闸 tests/test_cce_measurement_system.py:50 —— 它改 knots[0].signature 后断言 instrument_hash 必变; signature 离开 prompt 后该断言失效。但这分辨的是「**该测试恰好选了 signature 当探针**」, 不是 signature 比别的字段重要: 若当初改的是 behavior, 触发它的就会是 behavior_drop。"
+  },
+  {
+   "component": "knots[].typical_codes(desire/need 典型码)",
+   "locus": "scripts/cce_knot_classify.py:695",
+   "verdict": "INCONCLUSIVE",
+   "L1_changed": "false —— **零信息**。重放期 _build_stage2_prompt 调用 0 次(实测); ctl_garbage 把 prompt 从 3386 字塌到 7 字(毁 99.793%)后 L1 三面仍全 false ⇒ 该判据对本簇结构性失明, 不能据此判 NO_CONSUMER。",
+   "L2_changed": "重放判决面(measurement_status/k_valid/top1/knot_order) false, 同上为零信息。**非模型下游**: s2_prompt_sha256 变 ⇒ instrument_hash d4cce4c745f3f991→新 ⇒ calibration_transfers True→False(标定不可搬)。但 ctl_whitespace(末尾加一个空格, 零信息量)**逐位产生完全相同的结果** ⇒ 该面对「删了哪个字段」零分辨力。",
+   "L4_net_new_reds": "全套件实跑 392 条。净新增翻红(减 ctl_noop 红集)=7(drop) / 7(inject)。其中 4 条是 ctl_whitespace 也会触发的**prompt 字节钉**(abstention / draw_ledger / hash_scope / playbook_atoms), 零字段分辨力; 另减去 2 条经实测证实为**我的 L4 装置树复用污染**(见 instrument_defects③)。⇒ 真正可归因本字段的 = 3(drop) / 3(inject): drop=['tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied', 'tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment', 'tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied'] inject=['tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied', 'tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment', 'tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied']。★ 这些闸**全部是台账/送达簿记闸**, 断言内容就是「该字段进不进 prompt」—— 对「删了它读数变不变」而言**判据自证(CIRCULAR)**, 不构成承重证据。",
+   "deletable": false,
+   "deletable_reason": "无任何证据支持删除(本工况下**根本测不出**效应); 且删除有**已实测的价格**: prompt 任一字节变动 ⇒ s2_prompt_sha256 变 ⇒ instrument_hash 换代 ⇒ calibration_transfers 判 False ⇒ 22 份存量读数与新读数不可比, 需重投料重标定。★ 该价格对**加一个空格**同样成立(ctl_whitespace 实测) ⇒ 它是「改动的代价」, **不是**「该字段承重的证据」。是否删 = owner 决策, 本行只给价签, 不选方向。",
+   "ref_count_coarse": 72,
+   "ref_count_strict": 20,
+   "injection_test": "M6 已跑荒谬值注入臂 `typical_codes_inject`: prompt 文本确实改变(sha daa627da42eb44f2, 字数 3028 vs 基线 3386), 而 L1/L2 重放面**仍然逐位不变** —— ★ 但这个「仍然不变」**不是**无差异的证据, 它是失明的再一次确认(ctl_garbage 同样不变)。⇒ 按本簇规则, 注入检验在这里**不能**把判决从 INCONCLUSIVE 升级成 NO_CONSUMER。",
+   "evidence": "Layer C(prompt 文本到达, 真实消费面的输入): drop 臂移除 16.155% 的 prompt 字符(547 字), inject 臂 10.573%。 ★ 台账既有结论(本轮复现): typical_codes 是 **PROD_ONLY** —— 验收闸看不到它, 只有生产 s2 看得到。它同时被 consistency_check.DESCRIPTIVE 登记为「描述性/纯文档」, tests/test_cce_descriptive_exemption_vs_reach.py 就是为这条「贴着描述性标签却在驱动仪器」的退化通道建的守卫。"
+  },
+  {
+   "component": "knots[].behavior(行为例示, 送 60 字)",
+   "locus": "scripts/cce_knot_classify.py:695",
+   "verdict": "INCONCLUSIVE",
+   "L1_changed": "false —— **零信息**。重放期 _build_stage2_prompt 调用 0 次(实测); ctl_garbage 把 prompt 从 3386 字塌到 7 字(毁 99.793%)后 L1 三面仍全 false ⇒ 该判据对本簇结构性失明, 不能据此判 NO_CONSUMER。",
+   "L2_changed": "重放判决面(measurement_status/k_valid/top1/knot_order) false, 同上为零信息。**非模型下游**: s2_prompt_sha256 变 ⇒ instrument_hash d4cce4c745f3f991→新 ⇒ calibration_transfers True→False(标定不可搬)。但 ctl_whitespace(末尾加一个空格, 零信息量)**逐位产生完全相同的结果** ⇒ 该面对「删了哪个字段」零分辨力。",
+   "L4_net_new_reds": "全套件实跑 392 条。净新增翻红(减 ctl_noop 红集)=11(drop) / 11(inject)。其中 4 条是 ctl_whitespace 也会触发的**prompt 字节钉**(abstention / draw_ledger / hash_scope / playbook_atoms), 零字段分辨力; 另减去 2 条经实测证实为**我的 L4 装置树复用污染**(见 instrument_defects③)。⇒ 真正可归因本字段的 = 5(drop) / 5(inject): drop=['tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied', 'tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment', 'tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial', 'tests/test_cce_rule_delivery_completeness.py::test_it_checks_the_final_outbound_request_not_an_imitation', 'tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied'] inject=['tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied', 'tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment', 'tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial', 'tests/test_cce_rule_delivery_completeness.py::test_it_checks_the_final_outbound_request_not_an_imitation', 'tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied']。★ 这些闸**全部是台账/送达簿记闸**, 断言内容就是「该字段进不进 prompt」—— 对「删了它读数变不变」而言**判据自证(CIRCULAR)**, 不构成承重证据。",
+   "deletable": false,
+   "deletable_reason": "无任何证据支持删除(本工况下**根本测不出**效应); 且删除有**已实测的价格**: prompt 任一字节变动 ⇒ s2_prompt_sha256 变 ⇒ instrument_hash 换代 ⇒ calibration_transfers 判 False ⇒ 22 份存量读数与新读数不可比, 需重投料重标定。★ 该价格对**加一个空格**同样成立(ctl_whitespace 实测) ⇒ 它是「改动的代价」, **不是**「该字段承重的证据」。是否删 = owner 决策, 本行只给价签, 不选方向。",
+   "ref_count_coarse": 136,
+   "ref_count_strict": 24,
+   "injection_test": "M6 已跑荒谬值注入臂 `behavior_inject`: prompt 文本确实改变(sha f12a8fc0b014a385, 字数 3119 vs 基线 3386), 而 L1/L2 重放面**仍然逐位不变** —— ★ 但这个「仍然不变」**不是**无差异的证据, 它是失明的再一次确认(ctl_garbage 同样不变)。⇒ 按本簇规则, 注入检验在这里**不能**把判决从 INCONCLUSIVE 升级成 NO_CONSUMER。",
+   "evidence": "Layer C(prompt 文本到达, 真实消费面的输入): drop 臂移除 12.404% 的 prompt 字符(420 字), inject 臂 7.885%。 ★ behavior 被移除会打掉 tests/test_cce_rule_delivery_completeness.py 的两条断言(「收藏不买」不在最终请求里 / inertia 截断不再被判 PARTIAL) —— 这两条都是**送达簿记**断言, 不是读数断言。"
+  },
+  {
+   "component": "behavior[:60] 硬编码截断",
+   "locus": "scripts/cce_knot_classify.py:695 `k['behavior'][:60]`",
+   "verdict": "INCONCLUSIVE",
+   "L1_changed": "false —— **零信息**。重放期 _build_stage2_prompt 调用 0 次(实测); ctl_garbage 把 prompt 从 3386 字塌到 7 字(毁 99.793%)后 L1 三面仍全 false ⇒ 该判据对本簇结构性失明, 不能据此判 NO_CONSUMER。",
+   "L2_changed": "重放判决面(measurement_status/k_valid/top1/knot_order) false, 同上为零信息。**非模型下游**: s2_prompt_sha256 变 ⇒ instrument_hash d4cce4c745f3f991→新 ⇒ calibration_transfers True→False(标定不可搬)。但 ctl_whitespace(末尾加一个空格, 零信息量)**逐位产生完全相同的结果** ⇒ 该面对「删了哪个字段」零分辨力。",
+   "L4_net_new_reds": "全套件实跑 392 条。净新增翻红(减 ctl_noop 红集)=6(drop) / 9(inject)。其中 4 条是 ctl_whitespace 也会触发的**prompt 字节钉**(abstention / draw_ledger / hash_scope / playbook_atoms), 零字段分辨力; 另减去 2 条经实测证实为**我的 L4 装置树复用污染**(见 instrument_defects③)。⇒ 真正可归因本字段的 = 2(drop) / 5(inject): drop=['tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial', 'tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied'] inject=['tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied', 'tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment', 'tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial', 'tests/test_cce_rule_delivery_completeness.py::test_it_checks_the_final_outbound_request_not_an_imitation', 'tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied']。★ 这些闸**全部是台账/送达簿记闸**, 断言内容就是「该字段进不进 prompt」—— 对「删了它读数变不变」而言**判据自证(CIRCULAR)**, 不构成承重证据。",
+   "deletable": false,
+   "deletable_reason": "无任何证据支持删除(本工况下**根本测不出**效应); 且删除有**已实测的价格**: prompt 任一字节变动 ⇒ s2_prompt_sha256 变 ⇒ instrument_hash 换代 ⇒ calibration_transfers 判 False ⇒ 22 份存量读数与新读数不可比, 需重投料重标定。★ 该价格对**加一个空格**同样成立(ctl_whitespace 实测) ⇒ 它是「改动的代价」, **不是**「该字段承重的证据」。是否删 = owner 决策, 本行只给价签, 不选方向。",
+   "ref_count_coarse": 136,
+   "ref_count_strict": 24,
+   "injection_test": "M6 已跑荒谬值注入臂 `trunc_to_1`: prompt 文本确实改变(sha ae168c3ada80334f, 字数 3020 vs 基线 3386), 而 L1/L2 重放面**仍然逐位不变** —— ★ 但这个「仍然不变」**不是**无差异的证据, 它是失明的再一次确认(ctl_garbage 同样不变)。⇒ 按本簇规则, 注入检验在这里**不能**把判决从 INCONCLUSIVE 升级成 NO_CONSUMER。",
+   "evidence": "Layer C(prompt 文本到达, 真实消费面的输入): drop 臂移除 -0.236% 的 prompt 字符(-8 字), inject 臂 10.809%。 ★★ 本簇最精确的一条量: 9 个结里**只有 1 个**(inertia, behavior 68 字)受截断影响; 关掉截断只找回 **8 个字**「开口即高质量个案」, 占全 prompt 的 **0.2363%**(3386→3394 字)。其余 8 个结逐字不变(实测 trunc_off_per_knot_diff 只有 1 行)。 ★ 关掉截断 **同样** 会翻红 —— 因为 tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial **断言这个截断存在**(「★ inertia.behavior 的截断没被判成 PARTIAL —— 内容完整性检查失效」)。⇒ 仓里同时存在「把截断记为缺陷的闸」与「一旦修掉截断就翻红的闸」, **是同一条断言**。这是 owner 决策项, 不是 bug: 修它 = 换代。 ★ M8: 截断是**保险丝形状** —— 当前 9 个 behavior 只有 1 个超 60 字, 它在存量工况下几乎不动; 「几乎不动」不等于「可删」。"
+  },
+  {
+   "component": "levers_not_knots(4 个杠杆名, 结 vs 杠杆的对照名单)",
+   "locus": "scripts/cce_knot_classify.py:697 `levers = \"、\".join(taxo[\"levers_not_knots\"].keys())`",
+   "verdict": "INCONCLUSIVE",
+   "L1_changed": "false —— **零信息**。重放期 _build_stage2_prompt 调用 0 次(实测); ctl_garbage 把 prompt 从 3386 字塌到 7 字(毁 99.793%)后 L1 三面仍全 false ⇒ 该判据对本簇结构性失明, 不能据此判 NO_CONSUMER。",
+   "L2_changed": "重放判决面(measurement_status/k_valid/top1/knot_order) false, 同上为零信息。**非模型下游**: s2_prompt_sha256 变 ⇒ instrument_hash d4cce4c745f3f991→新 ⇒ calibration_transfers True→False(标定不可搬)。但 ctl_whitespace(末尾加一个空格, 零信息量)**逐位产生完全相同的结果** ⇒ 该面对「删了哪个字段」零分辨力。",
+   "L4_net_new_reds": "全套件实跑 392 条。净新增翻红(减 ctl_noop 红集)=9(drop) / 9(inject)。其中 4 条是 ctl_whitespace 也会触发的**prompt 字节钉**(abstention / draw_ledger / hash_scope / playbook_atoms), 零字段分辨力; 另减去 2 条经实测证实为**我的 L4 装置树复用污染**(见 instrument_defects③)。⇒ 真正可归因本字段的 = 3(drop) / 3(inject): drop=['tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied', 'tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment', 'tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied'] inject=['tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied', 'tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment', 'tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied']。★ 这些闸**全部是台账/送达簿记闸**, 断言内容就是「该字段进不进 prompt」—— 对「删了它读数变不变」而言**判据自证(CIRCULAR)**, 不构成承重证据。",
+   "deletable": false,
+   "deletable_reason": "无任何证据支持删除(本工况下**根本测不出**效应); 且删除有**已实测的价格**: prompt 任一字节变动 ⇒ s2_prompt_sha256 变 ⇒ instrument_hash 换代 ⇒ calibration_transfers 判 False ⇒ 22 份存量读数与新读数不可比, 需重投料重标定。★ 该价格对**加一个空格**同样成立(ctl_whitespace 实测) ⇒ 它是「改动的代价」, **不是**「该字段承重的证据」。是否删 = owner 决策, 本行只给价签, 不选方向。",
+   "ref_count_coarse": 25,
+   "ref_count_strict": 25,
+   "injection_test": "M6 已跑荒谬值注入臂 `levers_inject`: prompt 文本确实改变(sha cd3edeefaf5701e9, 字数 3380 vs 基线 3386), 而 L1/L2 重放面**仍然逐位不变** —— ★ 但这个「仍然不变」**不是**无差异的证据, 它是失明的再一次确认(ctl_garbage 同样不变)。⇒ 按本簇规则, 注入检验在这里**不能**把判决从 INCONCLUSIVE 升级成 NO_CONSUMER。",
+   "evidence": "Layer C(prompt 文本到达, 真实消费面的输入): drop 臂移除 0.443% 的 prompt 字符(15 字), inject 臂 0.177%。 ★ 也是 PROD_ONLY(验收闸看不到)。体量极小: drop 只减 15 字(0.443%), 但它是 prompt 里**唯一**界定「杠杆=内容侧制造、瞬时」的材料。"
+  }
+ ],
+ "cluster_own_sensitivity_control": {
+  "why": "M1 要求「先验收判官再用判官」。共享装置的死常量阳性对照只证明**判据不是重言**, **没有**证明判据对本簇的消融点敏感。故本簇自建两个对照:",
+  "ctl_garbage(灵敏度上限)": {
+   "family": "control",
+   "why": "★ 灵敏度上限臂: prompt 整体炸成 7 个字符。若 L1/L2 重放仍不变 ⇒ 重放面对 prompt **结构性失明**, 该面的任何「无差异」都是零信息。",
+   "source_sha16": "302008bfc78544b6",
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L1_sha": "5926b316460ef9ad",
+   "L2_sha": "f516ef742f694781",
+   "prompt": {
+    "sha256_16": "2e08694a7ebcdc2b",
+    "n_chars": 7,
+    "n_brief_lines": 0,
+    "brief_chars": 0,
+    "n_of_9_keys_literal_present": 0,
+    "n_of_9_names_literal_present": 0,
+    "n_of_4_levers_present": 0,
+    "inertia_tail_开口即高质量个案_present": false,
+    "brief_line_inertia": null,
+    "brief_line_first": null
+   },
+   "prompt_text_changed": true,
+   "prompt_chars_delta": -3379,
+   "instrument": {
+    "s2_prompt_sha256": "2e08694a7ebcdc2b",
+    "instrument_hash_L3_TAUTOLOGY": "551dc2f98c98f4ae",
+    "qualification_policy_hash": "b41ef5217a77d311",
+    "L2_calibration_transfers": false
+   },
+   "L2_calibration_transfers_changed": true,
+   "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+  },
+  "ctl_whitespace(零信息量, 分辨力下限)": {
+   "family": "control",
+   "why": "★ 本簇的判官验收臂: prompt 末尾加**一个空格** —— 文本变了但**零信息量**。若它的下游足迹与任一字段消融臂相同 ⇒ 该下游对「删了哪个字段」零分辨力, 是重言。",
+   "source_sha16": "a71364198623db9f",
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L1_sha": "5926b316460ef9ad",
+   "L2_sha": "f516ef742f694781",
+   "prompt": {
+    "sha256_16": "34a21fec2267308d",
+    "n_chars": 3387,
+    "n_brief_lines": 9,
+    "brief_chars": 2405,
+    "n_of_9_keys_literal_present": 9,
+    "n_of_9_names_literal_present": 9,
+    "n_of_4_levers_present": 4,
+    "inertia_tail_开口即高质量个案_present": false,
+    "brief_line_inertia": "- inertia(惯性·缺席结|阻挡): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}; 行为=缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,",
+    "brief_line_first": "- pain_seek(痛点·求解结|推动): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}; 行为=求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+   },
+   "prompt_text_changed": true,
+   "prompt_chars_delta": 1,
+   "instrument": {
+    "s2_prompt_sha256": "34a21fec2267308d",
+    "instrument_hash_L3_TAUTOLOGY": "8fd6e475e69e6e78",
+    "qualification_policy_hash": "b41ef5217a77d311",
+    "L2_calibration_transfers": false
+   },
+   "L2_calibration_transfers_changed": true,
+   "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+  },
+  "ctl_noop(空操作)": {
+   "family": "control",
+   "why": "空操作: 源码变、prompt 文本**一字不变** ⇒ L4 伪红对照臂",
+   "source_sha16": "cf01ddb784cc997d",
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L1_sha": "5926b316460ef9ad",
+   "L2_sha": "f516ef742f694781",
+   "prompt": {
+    "sha256_16": "b8d0f60d66d10f12",
+    "n_chars": 3386,
+    "n_brief_lines": 9,
+    "brief_chars": 2405,
+    "n_of_9_keys_literal_present": 9,
+    "n_of_9_names_literal_present": 9,
+    "n_of_4_levers_present": 4,
+    "inertia_tail_开口即高质量个案_present": false,
+    "brief_line_inertia": "- inertia(惯性·缺席结|阻挡): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}; 行为=缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,",
+    "brief_line_first": "- pain_seek(痛点·求解结|推动): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}; 行为=求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+   },
+   "prompt_text_changed": false,
+   "prompt_chars_delta": 0,
+   "instrument": {
+    "s2_prompt_sha256": "b8d0f60d66d10f12",
+    "instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+    "qualification_policy_hash": "b41ef5217a77d311",
+    "L2_calibration_transfers": true
+   },
+   "L2_calibration_transfers_changed": false,
+   "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": false
+  },
+  "verdict_on_the_judges": "· L1/L2 存量重放面: **对本簇不可用**(ctl_garbage 毁 99.79% 仍全 False)。· instrument_hash / calibration_transfers 面: **可用但零字段分辨力**(ctl_whitespace 一个空格即触发, 与 16 个字段臂**逐位相同**)。· L4 套件翻红面: 剥掉 L0/L1 两层钉之后**有**字段分辨力(见 per_component)。"
+ },
+ "layer_A_replay_L1_L2": {
+  "baseline": {
+   "L1_sha": "5926b316460ef9ad",
+   "L2_sha": "f516ef742f694781",
+   "prompt": {
+    "sha256_16": "b8d0f60d66d10f12",
+    "n_chars": 3386,
+    "n_brief_lines": 9,
+    "brief_chars": 2405,
+    "n_of_9_keys_literal_present": 9,
+    "n_of_9_names_literal_present": 9,
+    "n_of_4_levers_present": 4,
+    "inertia_tail_开口即高质量个案_present": false,
+    "brief_line_inertia": "- inertia(惯性·缺席结|阻挡): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}; 行为=缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,",
+    "brief_line_first": "- pain_seek(痛点·求解结|推动): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}; 行为=求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+   },
+   "instrument": {
+    "s2_prompt_sha256": "b8d0f60d66d10f12",
+    "instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+    "qualification_policy_hash": "b41ef5217a77d311",
+    "L2_calibration_transfers": true
+   }
+  },
+  "arms": {
+   "ctl_noop": {
+    "family": "control",
+    "why": "空操作: 源码变、prompt 文本**一字不变** ⇒ L4 伪红对照臂",
+    "source_sha16": "cf01ddb784cc997d",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "b8d0f60d66d10f12",
+     "n_chars": 3386,
+     "n_brief_lines": 9,
+     "brief_chars": 2405,
+     "n_of_9_keys_literal_present": 9,
+     "n_of_9_names_literal_present": 9,
+     "n_of_4_levers_present": 4,
+     "inertia_tail_开口即高质量个案_present": false,
+     "brief_line_inertia": "- inertia(惯性·缺席结|阻挡): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}; 行为=缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,",
+     "brief_line_first": "- pain_seek(痛点·求解结|推动): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}; 行为=求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+    },
+    "prompt_text_changed": false,
+    "prompt_chars_delta": 0,
+    "instrument": {
+     "s2_prompt_sha256": "b8d0f60d66d10f12",
+     "instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": true
+    },
+    "L2_calibration_transfers_changed": false,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": false
+   },
+   "ctl_whitespace": {
+    "family": "control",
+    "why": "★ 本簇的判官验收臂: prompt 末尾加**一个空格** —— 文本变了但**零信息量**。若它的下游足迹与任一字段消融臂相同 ⇒ 该下游对「删了哪个字段」零分辨力, 是重言。",
+    "source_sha16": "a71364198623db9f",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "34a21fec2267308d",
+     "n_chars": 3387,
+     "n_brief_lines": 9,
+     "brief_chars": 2405,
+     "n_of_9_keys_literal_present": 9,
+     "n_of_9_names_literal_present": 9,
+     "n_of_4_levers_present": 4,
+     "inertia_tail_开口即高质量个案_present": false,
+     "brief_line_inertia": "- inertia(惯性·缺席结|阻挡): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}; 行为=缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,",
+     "brief_line_first": "- pain_seek(痛点·求解结|推动): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}; 行为=求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+    },
+    "prompt_text_changed": true,
+    "prompt_chars_delta": 1,
+    "instrument": {
+     "s2_prompt_sha256": "34a21fec2267308d",
+     "instrument_hash_L3_TAUTOLOGY": "8fd6e475e69e6e78",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": false
+    },
+    "L2_calibration_transfers_changed": true,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+   },
+   "ctl_garbage": {
+    "family": "control",
+    "why": "★ 灵敏度上限臂: prompt 整体炸成 7 个字符。若 L1/L2 重放仍不变 ⇒ 重放面对 prompt **结构性失明**, 该面的任何「无差异」都是零信息。",
+    "source_sha16": "302008bfc78544b6",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "2e08694a7ebcdc2b",
+     "n_chars": 7,
+     "n_brief_lines": 0,
+     "brief_chars": 0,
+     "n_of_9_keys_literal_present": 0,
+     "n_of_9_names_literal_present": 0,
+     "n_of_4_levers_present": 0,
+     "inertia_tail_开口即高质量个案_present": false,
+     "brief_line_inertia": null,
+     "brief_line_first": null
+    },
+    "prompt_text_changed": true,
+    "prompt_chars_delta": -3379,
+    "instrument": {
+     "s2_prompt_sha256": "2e08694a7ebcdc2b",
+     "instrument_hash_L3_TAUTOLOGY": "551dc2f98c98f4ae",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": false
+    },
+    "L2_calibration_transfers_changed": true,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+   },
+   "key_drop": {
+    "family": "key",
+    "why": "key 不选入 knots_brief",
+    "source_sha16": "af67915f5a9b5f2c",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "3581fec2bb199d0d",
+     "n_chars": 3326,
+     "n_brief_lines": 9,
+     "brief_chars": 2345,
+     "n_of_9_keys_literal_present": 3,
+     "n_of_9_names_literal_present": 9,
+     "n_of_4_levers_present": 4,
+     "inertia_tail_开口即高质量个案_present": false,
+     "brief_line_inertia": "- (惯性·缺席结|阻挡): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}; 行为=缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,",
+     "brief_line_first": "- (痛点·求解结|推动): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}; 行为=求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+    },
+    "prompt_text_changed": true,
+    "prompt_chars_delta": -60,
+    "instrument": {
+     "s2_prompt_sha256": "3581fec2bb199d0d",
+     "instrument_hash_L3_TAUTOLOGY": "916106bdb110a74d",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": false
+    },
+    "L2_calibration_transfers_changed": true,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+   },
+   "key_inject": {
+    "family": "key",
+    "why": "M6: 9 个结的 key 全部替换成同一个非法常量",
+    "source_sha16": "68c514fae4b9c96a",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "6431989adb9ea6fa",
+     "n_chars": 3443,
+     "n_brief_lines": 9,
+     "brief_chars": 2462,
+     "n_of_9_keys_literal_present": 3,
+     "n_of_9_names_literal_present": 9,
+     "n_of_4_levers_present": 4,
+     "inertia_tail_开口即高质量个案_present": false,
+     "brief_line_inertia": "- ZZZ_NOT_A_KEY(惯性·缺席结|阻挡): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}; 行为=缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,",
+     "brief_line_first": "- ZZZ_NOT_A_KEY(痛点·求解结|推动): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}; 行为=求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+    },
+    "prompt_text_changed": true,
+    "prompt_chars_delta": 57,
+    "instrument": {
+     "s2_prompt_sha256": "6431989adb9ea6fa",
+     "instrument_hash_L3_TAUTOLOGY": "76c907eb78f68a39",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": false
+    },
+    "L2_calibration_transfers_changed": true,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+   },
+   "name_drop": {
+    "family": "name",
+    "why": "name 不选入",
+    "source_sha16": "b9881352b537b507",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "8dd9d93a6b090268",
+     "n_chars": 3323,
+     "n_brief_lines": 9,
+     "brief_chars": 2342,
+     "n_of_9_keys_literal_present": 9,
+     "n_of_9_names_literal_present": 0,
+     "n_of_4_levers_present": 4,
+     "inertia_tail_开口即高质量个案_present": false,
+     "brief_line_inertia": "- inertia(阻挡): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}; 行为=缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,",
+     "brief_line_first": "- pain_seek(推动): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}; 行为=求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+    },
+    "prompt_text_changed": true,
+    "prompt_chars_delta": -63,
+    "instrument": {
+     "s2_prompt_sha256": "8dd9d93a6b090268",
+     "instrument_hash_L3_TAUTOLOGY": "36bf4e9f1507a7cc",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": false
+    },
+    "L2_calibration_transfers_changed": true,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+   },
+   "name_inject": {
+    "family": "name",
+    "why": "M6: name 全替换成同一荒谬常量",
+    "source_sha16": "c02404827a61e12a",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "6833e9ec62cc51e3",
+     "n_chars": 3386,
+     "n_brief_lines": 9,
+     "brief_chars": 2405,
+     "n_of_9_keys_literal_present": 9,
+     "n_of_9_names_literal_present": 0,
+     "n_of_4_levers_present": 4,
+     "inertia_tail_开口即高质量个案_present": false,
+     "brief_line_inertia": "- inertia(ZZZZZZ|阻挡): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}; 行为=缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,",
+     "brief_line_first": "- pain_seek(ZZZZZZ|推动): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}; 行为=求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+    },
+    "prompt_text_changed": true,
+    "prompt_chars_delta": 0,
+    "instrument": {
+     "s2_prompt_sha256": "6833e9ec62cc51e3",
+     "instrument_hash_L3_TAUTOLOGY": "d1531b82e3ceb554",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": false
+    },
+    "L2_calibration_transfers_changed": true,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+   },
+   "family_drop": {
+    "family": "family",
+    "why": "family 不选入(推动/阻挡 二分消失)",
+    "source_sha16": "391cb0b358925585",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "c1f32280eba962cc",
+     "n_chars": 3359,
+     "n_brief_lines": 9,
+     "brief_chars": 2378,
+     "n_of_9_keys_literal_present": 9,
+     "n_of_9_names_literal_present": 9,
+     "n_of_4_levers_present": 4,
+     "inertia_tail_开口即高质量个案_present": false,
+     "brief_line_inertia": "- inertia(惯性·缺席结): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}; 行为=缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,",
+     "brief_line_first": "- pain_seek(痛点·求解结): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}; 行为=求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+    },
+    "prompt_text_changed": true,
+    "prompt_chars_delta": -27,
+    "instrument": {
+     "s2_prompt_sha256": "c1f32280eba962cc",
+     "instrument_hash_L3_TAUTOLOGY": "19db1dea6e93c4a8",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": false
+    },
+    "L2_calibration_transfers_changed": true,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+   },
+   "family_inject": {
+    "family": "family",
+    "why": "M6: family 全替换成不存在的族",
+    "source_sha16": "3ed4f48a379b8791",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "9ca4234a394d2bb9",
+     "n_chars": 3386,
+     "n_brief_lines": 9,
+     "brief_chars": 2405,
+     "n_of_9_keys_literal_present": 9,
+     "n_of_9_names_literal_present": 9,
+     "n_of_4_levers_present": 4,
+     "inertia_tail_开口即高质量个案_present": false,
+     "brief_line_inertia": "- inertia(惯性·缺席结|紫色): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}; 行为=缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,",
+     "brief_line_first": "- pain_seek(痛点·求解结|紫色): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}; 行为=求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+    },
+    "prompt_text_changed": true,
+    "prompt_chars_delta": 0,
+    "instrument": {
+     "s2_prompt_sha256": "9ca4234a394d2bb9",
+     "instrument_hash_L3_TAUTOLOGY": "6505d764968ba1a8",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": false
+    },
+    "L2_calibration_transfers_changed": true,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+   },
+   "signature_drop": {
+    "family": "signature",
+    "why": "signature 不选入",
+    "source_sha16": "cfa0302bf889a4bc",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "5c0100aab5cded4e",
+     "n_chars": 2125,
+     "n_brief_lines": 9,
+     "brief_chars": 1144,
+     "n_of_9_keys_literal_present": 9,
+     "n_of_9_names_literal_present": 9,
+     "n_of_4_levers_present": 4,
+     "inertia_tail_开口即高质量个案_present": false,
+     "brief_line_inertia": "- inertia(惯性·缺席结|阻挡): 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}; 行为=缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,",
+     "brief_line_first": "- pain_seek(痛点·求解结|推动): 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}; 行为=求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+    },
+    "prompt_text_changed": true,
+    "prompt_chars_delta": -1261,
+    "instrument": {
+     "s2_prompt_sha256": "5c0100aab5cded4e",
+     "instrument_hash_L3_TAUTOLOGY": "0c97bb91bbc0cc89",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": false
+    },
+    "L2_calibration_transfers_changed": true,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+   },
+   "signature_inject": {
+    "family": "signature",
+    "why": "M6: 9 个结共用同一份荒谬签名 ⇒ 签名两两不可分",
+    "source_sha16": "dbc08d670cd782a9",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "31855bff5894f6ec",
+     "n_chars": 2782,
+     "n_brief_lines": 9,
+     "brief_chars": 1801,
+     "n_of_9_keys_literal_present": 9,
+     "n_of_9_names_literal_present": 9,
+     "n_of_4_levers_present": 4,
+     "inertia_tail_开口即高质量个案_present": false,
+     "brief_line_inertia": "- inertia(惯性·缺席结|阻挡): 签名={\"congruence\":\"ZZZ\",\"need_status\":\"ZZZ\",\"coping\":\"ZZZ\",\"time\":\"ZZZ\"}; 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}; 行为=缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,",
+     "brief_line_first": "- pain_seek(痛点·求解结|推动): 签名={\"congruence\":\"ZZZ\",\"need_status\":\"ZZZ\",\"coping\":\"ZZZ\",\"time\":\"ZZZ\"}; 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}; 行为=求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+    },
+    "prompt_text_changed": true,
+    "prompt_chars_delta": -604,
+    "instrument": {
+     "s2_prompt_sha256": "31855bff5894f6ec",
+     "instrument_hash_L3_TAUTOLOGY": "95b0b932c29a6f87",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": false
+    },
+    "L2_calibration_transfers_changed": true,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+   },
+   "typical_codes_drop": {
+    "family": "typical_codes",
+    "why": "typical_codes 不选入",
+    "source_sha16": "37e62c9958d9b7df",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "7c00d2870f54cf90",
+     "n_chars": 2839,
+     "n_brief_lines": 9,
+     "brief_chars": 1858,
+     "n_of_9_keys_literal_present": 9,
+     "n_of_9_names_literal_present": 9,
+     "n_of_4_levers_present": 4,
+     "inertia_tail_开口即高质量个案_present": false,
+     "brief_line_inertia": "- inertia(惯性·缺席结|阻挡): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 行为=缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,",
+     "brief_line_first": "- pain_seek(痛点·求解结|推动): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 行为=求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+    },
+    "prompt_text_changed": true,
+    "prompt_chars_delta": -547,
+    "instrument": {
+     "s2_prompt_sha256": "7c00d2870f54cf90",
+     "instrument_hash_L3_TAUTOLOGY": "9908aa2e8a544bad",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": false
+    },
+    "L2_calibration_transfers_changed": true,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+   },
+   "typical_codes_inject": {
+    "family": "typical_codes",
+    "why": "M6: typical_codes 全替换成荒谬码",
+    "source_sha16": "52599a7ea8cca8cc",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "daa627da42eb44f2",
+     "n_chars": 3028,
+     "n_brief_lines": 9,
+     "brief_chars": 2047,
+     "n_of_9_keys_literal_present": 9,
+     "n_of_9_names_literal_present": 9,
+     "n_of_4_levers_present": 4,
+     "inertia_tail_开口即高质量个案_present": false,
+     "brief_line_inertia": "- inertia(惯性·缺席结|阻挡): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 典型codes=[\"ZZZ_999\"]; 行为=缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,",
+     "brief_line_first": "- pain_seek(痛点·求解结|推动): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 典型codes=[\"ZZZ_999\"]; 行为=求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+    },
+    "prompt_text_changed": true,
+    "prompt_chars_delta": -358,
+    "instrument": {
+     "s2_prompt_sha256": "daa627da42eb44f2",
+     "instrument_hash_L3_TAUTOLOGY": "e6ea82380aba5cbb",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": false
+    },
+    "L2_calibration_transfers_changed": true,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+   },
+   "behavior_drop": {
+    "family": "behavior",
+    "why": "behavior 整段不选入",
+    "source_sha16": "abadc3c796d7095a",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "6984ed6501f45bea",
+     "n_chars": 2966,
+     "n_brief_lines": 9,
+     "brief_chars": 1985,
+     "n_of_9_keys_literal_present": 9,
+     "n_of_9_names_literal_present": 9,
+     "n_of_4_levers_present": 4,
+     "inertia_tail_开口即高质量个案_present": false,
+     "brief_line_inertia": "- inertia(惯性·缺席结|阻挡): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}",
+     "brief_line_first": "- pain_seek(痛点·求解结|推动): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}"
+    },
+    "prompt_text_changed": true,
+    "prompt_chars_delta": -420,
+    "instrument": {
+     "s2_prompt_sha256": "6984ed6501f45bea",
+     "instrument_hash_L3_TAUTOLOGY": "ffb991eaca63b083",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": false
+    },
+    "L2_calibration_transfers_changed": true,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+   },
+   "behavior_inject": {
+    "family": "behavior",
+    "why": "M6: behavior 全替换成荒谬常量",
+    "source_sha16": "890cb302508ee9e3",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "f12a8fc0b014a385",
+     "n_chars": 3119,
+     "n_brief_lines": 9,
+     "brief_chars": 2138,
+     "n_of_9_keys_literal_present": 9,
+     "n_of_9_names_literal_present": 9,
+     "n_of_4_levers_present": 4,
+     "inertia_tail_开口即高质量个案_present": false,
+     "brief_line_inertia": "- inertia(惯性·缺席结|阻挡): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}; 行为=ZZZ 荒谬注入 999",
+     "brief_line_first": "- pain_seek(痛点·求解结|推动): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}; 行为=ZZZ 荒谬注入 999"
+    },
+    "prompt_text_changed": true,
+    "prompt_chars_delta": -267,
+    "instrument": {
+     "s2_prompt_sha256": "f12a8fc0b014a385",
+     "instrument_hash_L3_TAUTOLOGY": "654fb0979b7c8d89",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": false
+    },
+    "L2_calibration_transfers_changed": true,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+   },
+   "trunc_off": {
+    "family": "truncation",
+    "why": "★ 截断改成不截断 —— 只有 inertia(68 字)受影响, 找回末尾「开口即高质量个案」",
+    "source_sha16": "f0fcc1617d97249e",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "ae066bf671a0f294",
+     "n_chars": 3394,
+     "n_brief_lines": 9,
+     "brief_chars": 2413,
+     "n_of_9_keys_literal_present": 9,
+     "n_of_9_names_literal_present": 9,
+     "n_of_4_levers_present": 4,
+     "inertia_tail_开口即高质量个案_present": true,
+     "brief_line_inertia": "- inertia(惯性·缺席结|阻挡): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}; 行为=缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,开口即高质量个案",
+     "brief_line_first": "- pain_seek(痛点·求解结|推动): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}; 行为=求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+    },
+    "prompt_text_changed": true,
+    "prompt_chars_delta": 8,
+    "instrument": {
+     "s2_prompt_sha256": "ae066bf671a0f294",
+     "instrument_hash_L3_TAUTOLOGY": "9bb60a9d60d018d9",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": false
+    },
+    "L2_calibration_transfers_changed": true,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+   },
+   "trunc_to_1": {
+    "family": "truncation",
+    "why": "M6: 截断推到极端(只留 1 字) ⇒ 9 个结的行为例示全毁",
+    "source_sha16": "18f31ba26845c43f",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "ae168c3ada80334f",
+     "n_chars": 3020,
+     "n_brief_lines": 9,
+     "brief_chars": 2039,
+     "n_of_9_keys_literal_present": 9,
+     "n_of_9_names_literal_present": 9,
+     "n_of_4_levers_present": 4,
+     "inertia_tail_开口即高质量个案_present": false,
+     "brief_line_inertia": "- inertia(惯性·缺席结|阻挡): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}; 行为=缺",
+     "brief_line_first": "- pain_seek(痛点·求解结|推动): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}; 行为=求"
+    },
+    "prompt_text_changed": true,
+    "prompt_chars_delta": -366,
+    "instrument": {
+     "s2_prompt_sha256": "ae168c3ada80334f",
+     "instrument_hash_L3_TAUTOLOGY": "9dbe52d7b1a6bc55",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": false
+    },
+    "L2_calibration_transfers_changed": true,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+   },
+   "levers_drop": {
+    "family": "levers_not_knots",
+    "why": "levers_not_knots 不选入 ⇒ 「结 vs 杠杆」的对照名单消失",
+    "source_sha16": "c09821a3e72b08e1",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "4d9e419971f70b3f",
+     "n_chars": 3371,
+     "n_brief_lines": 9,
+     "brief_chars": 2405,
+     "n_of_9_keys_literal_present": 9,
+     "n_of_9_names_literal_present": 9,
+     "n_of_4_levers_present": 0,
+     "inertia_tail_开口即高质量个案_present": false,
+     "brief_line_inertia": "- inertia(惯性·缺席结|阻挡): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}; 行为=缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,",
+     "brief_line_first": "- pain_seek(痛点·求解结|推动): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}; 行为=求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+    },
+    "prompt_text_changed": true,
+    "prompt_chars_delta": -15,
+    "instrument": {
+     "s2_prompt_sha256": "4d9e419971f70b3f",
+     "instrument_hash_L3_TAUTOLOGY": "057e6bb9b5732919",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": false
+    },
+    "L2_calibration_transfers_changed": true,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+   },
+   "levers_inject": {
+    "family": "levers_not_knots",
+    "why": "M6: 杠杆名单换成荒谬常量",
+    "source_sha16": "89247c0ea8cd5656",
+    "L1_changed": false,
+    "L1_surfaces_changed": {
+     "stage1": false,
+     "reach": false,
+     "stage2": false
+    },
+    "L2_changed": false,
+    "L2_surfaces_changed": {
+     "stage1": false,
+     "stage2": false
+    },
+    "L1_sha": "5926b316460ef9ad",
+    "L2_sha": "f516ef742f694781",
+    "prompt": {
+     "sha256_16": "cd3edeefaf5701e9",
+     "n_chars": 3380,
+     "n_brief_lines": 9,
+     "brief_chars": 2405,
+     "n_of_9_keys_literal_present": 9,
+     "n_of_9_names_literal_present": 9,
+     "n_of_4_levers_present": 0,
+     "inertia_tail_开口即高质量个案_present": false,
+     "brief_line_inertia": "- inertia(惯性·缺席结|阻挡): 签名={\"congruence\": \"无激活或coping感知为零\", \"need_status\": \"现状部分满足为默认\", \"coping\": \"极低/习得性认命\", \"time\": \"无限期现在\", \"attribution\": \"none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"控制欲(被压抑)\"], \"need\": [\"N02(被搁置)\"]}; 行为=缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,",
+     "brief_line_first": "- pain_seek(痛点·求解结|推动): 签名={\"congruence\": \"威胁\", \"need_status\": \"未满足\", \"coping\": \"中/高\", \"time\": \"现在\", \"attribution\": \"system/none\", \"target_layer\": \"consumption_goal\"}; 典型codes={\"desire\": [\"摆脱欲\", \"控制欲\", \"安全感欲\"], \"need\": [\"N06\", \"N02\", \"N01\"]}; 行为=求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+    },
+    "prompt_text_changed": true,
+    "prompt_chars_delta": -6,
+    "instrument": {
+     "s2_prompt_sha256": "cd3edeefaf5701e9",
+     "instrument_hash_L3_TAUTOLOGY": "5bdfa933490ea1ea",
+     "qualification_policy_hash": "b41ef5217a77d311",
+     "L2_calibration_transfers": false
+    },
+    "L2_calibration_transfers_changed": true,
+    "L3_instrument_hash_changed_TAUTOLOGY_NOT_EVIDENCE": true
+   }
+  }
+ },
+ "layer_B_L4": {
+  "block": "ABLATION_V3_CLUSTER_s2_prompt_fieldset_LAYER_B_L4",
+  "★fix": "v1 缺陷: 未加 --continue-on-collection-errors ⇒ 变异臂在**收集期**就中断, 整套测试一条没跑, 我把「收集中断集」当成了「翻红集」。v2 已修, 并逐臂记录 n_tests_ran。",
+  "note": "L4 净新增翻红 = 臂红集 − **空操作对照臂(ctl_noop)** 红集。ctl_noop 改了源码但 prompt 文本一字未变 ⇒ 它的红全是伪红/存量红。",
+  "n_tests_baseline_summary": "1 failed, 391 passed, 27 warnings in 354.71s (0:05:54)",
+  "pristine_reds": [
+   "tests/test_cce_suspend_fix_confirmation.py::test_the_attempt_ledger_reports_attempts_not_just_successes"
+  ],
+  "noop_reds": [
+   "tests/test_cce_chain_conformance.py",
+   "tests/test_cce_core_boundary.py",
+   "tests/test_cce_suspend_fix_confirmation.py::test_the_attempt_ledger_reports_attempts_not_just_successes"
+  ],
+  "noop_equals_pristine": false,
+  "arms": {
+   "_pristine": {
+    "n_reds": 1,
+    "summary_line": "1 failed, 391 passed, 27 warnings in 354.71s (0:05:54)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [],
+    "n_net_new_reds": 0,
+    "went_green_vs_noop": [
+     "tests/test_cce_chain_conformance.py",
+     "tests/test_cce_core_boundary.py"
+    ]
+   },
+   "key_drop": {
+    "n_reds": 8,
+    "summary_line": "3 failed, 389 passed, 27 warnings, 5 errors in 310.47s (0:05:10)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+     "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+    ],
+    "n_net_new_reds": 5,
+    "went_green_vs_noop": []
+   },
+   "family_drop": {
+    "n_reds": 10,
+    "summary_line": "5 failed, 387 passed, 27 warnings, 5 errors in 234.46s (0:03:54)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+     "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+    ],
+    "n_net_new_reds": 7,
+    "went_green_vs_noop": []
+   },
+   "typical_codes_drop": {
+    "n_reds": 10,
+    "summary_line": "5 failed, 387 passed, 27 warnings, 5 errors in 240.43s (0:04:00)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+     "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+    ],
+    "n_net_new_reds": 7,
+    "went_green_vs_noop": []
+   },
+   "trunc_off": {
+    "n_reds": 9,
+    "summary_line": "4 failed, 388 passed, 26 warnings, 5 errors in 237.46s (0:03:57)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+     "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+     "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+    ],
+    "n_net_new_reds": 6,
+    "went_green_vs_noop": []
+   },
+   "ctl_noop": {
+    "n_reds": 3,
+    "summary_line": "1 failed, 391 passed, 27 warnings, 2 errors in 334.06s (0:05:34)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [],
+    "n_net_new_reds": 0,
+    "went_green_vs_noop": []
+   },
+   "key_inject": {
+    "n_reds": 8,
+    "summary_line": "3 failed, 389 passed, 27 warnings, 5 errors in 317.63s (0:05:17)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+     "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+    ],
+    "n_net_new_reds": 5,
+    "went_green_vs_noop": []
+   },
+   "family_inject": {
+    "n_reds": 10,
+    "summary_line": "5 failed, 387 passed, 27 warnings, 5 errors in 236.87s (0:03:56)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+     "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+    ],
+    "n_net_new_reds": 7,
+    "went_green_vs_noop": []
+   },
+   "typical_codes_inject": {
+    "n_reds": 10,
+    "summary_line": "5 failed, 387 passed, 27 warnings, 5 errors in 237.51s (0:03:57)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+     "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+    ],
+    "n_net_new_reds": 7,
+    "went_green_vs_noop": []
+   },
+   "trunc_to_1": {
+    "n_reds": 12,
+    "summary_line": "7 failed, 385 passed, 26 warnings, 5 errors in 238.44s (0:03:58)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+     "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+     "tests/test_cce_rule_delivery_completeness.py::test_it_checks_the_final_outbound_request_not_an_imitation",
+     "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+    ],
+    "n_net_new_reds": 9,
+    "went_green_vs_noop": []
+   },
+   "ctl_whitespace": {
+    "n_reds": 7,
+    "summary_line": "2 failed, 390 passed, 27 warnings, 5 errors in 327.20s (0:05:27)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation"
+    ],
+    "n_net_new_reds": 4,
+    "went_green_vs_noop": []
+   },
+   "name_drop": {
+    "n_reds": 10,
+    "summary_line": "5 failed, 387 passed, 27 warnings, 5 errors in 321.37s (0:05:21)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+     "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+    ],
+    "n_net_new_reds": 7,
+    "went_green_vs_noop": []
+   },
+   "signature_drop": {
+    "n_reds": 14,
+    "summary_line": "8 failed, 384 passed, 26 warnings, 6 errors in 237.64s (0:03:57)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_descriptive_exemption_vs_reach.py::test_the_intersection_is_exactly_the_two_known_fields",
+     "tests/test_cce_descriptive_exemption_vs_reach.py::test_the_two_fields_still_actually_reach_the_prompt",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_measurement_system.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+     "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+     "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+    ],
+    "n_net_new_reds": 11,
+    "went_green_vs_noop": []
+   },
+   "behavior_drop": {
+    "n_reds": 14,
+    "summary_line": "9 failed, 383 passed, 26 warnings, 5 errors in 244.41s (0:04:04)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_descriptive_exemption_vs_reach.py::test_the_intersection_is_exactly_the_two_known_fields",
+     "tests/test_cce_descriptive_exemption_vs_reach.py::test_the_two_fields_still_actually_reach_the_prompt",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+     "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+     "tests/test_cce_rule_delivery_completeness.py::test_it_checks_the_final_outbound_request_not_an_imitation",
+     "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+    ],
+    "n_net_new_reds": 11,
+    "went_green_vs_noop": []
+   },
+   "levers_drop": {
+    "n_reds": 12,
+    "summary_line": "7 failed, 385 passed, 27 warnings, 5 errors in 248.31s (0:04:08)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_descriptive_exemption_vs_reach.py::test_the_intersection_is_exactly_the_two_known_fields",
+     "tests/test_cce_descriptive_exemption_vs_reach.py::test_the_two_fields_still_actually_reach_the_prompt",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+     "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+    ],
+    "n_net_new_reds": 9,
+    "went_green_vs_noop": []
+   },
+   "ctl_garbage": {
+    "n_reds": 13,
+    "summary_line": "7 failed, 385 passed, 26 warnings, 6 errors in 339.38s (0:05:39)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_gate_prompt_version_label.py::test_production_by_contrast_injects_the_live_version",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_measurement_system.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+     "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+     "tests/test_cce_rule_delivery_completeness.py::test_it_checks_the_final_outbound_request_not_an_imitation"
+    ],
+    "n_net_new_reds": 10,
+    "went_green_vs_noop": []
+   },
+   "name_inject": {
+    "n_reds": 8,
+    "summary_line": "3 failed, 389 passed, 27 warnings, 5 errors in 316.05s (0:05:16)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+     "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+    ],
+    "n_net_new_reds": 5,
+    "went_green_vs_noop": []
+   },
+   "signature_inject": {
+    "n_reds": 14,
+    "summary_line": "8 failed, 384 passed, 26 warnings, 6 errors in 236.27s (0:03:56)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_descriptive_exemption_vs_reach.py::test_the_intersection_is_exactly_the_two_known_fields",
+     "tests/test_cce_descriptive_exemption_vs_reach.py::test_the_two_fields_still_actually_reach_the_prompt",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_measurement_system.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+     "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+     "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+    ],
+    "n_net_new_reds": 11,
+    "went_green_vs_noop": []
+   },
+   "behavior_inject": {
+    "n_reds": 14,
+    "summary_line": "9 failed, 383 passed, 26 warnings, 5 errors in 242.93s (0:04:02)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_descriptive_exemption_vs_reach.py::test_the_intersection_is_exactly_the_two_known_fields",
+     "tests/test_cce_descriptive_exemption_vs_reach.py::test_the_two_fields_still_actually_reach_the_prompt",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+     "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+     "tests/test_cce_rule_delivery_completeness.py::test_it_checks_the_final_outbound_request_not_an_imitation",
+     "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+    ],
+    "n_net_new_reds": 11,
+    "went_green_vs_noop": []
+   },
+   "levers_inject": {
+    "n_reds": 12,
+    "summary_line": "7 failed, 385 passed, 27 warnings, 5 errors in 243.12s (0:04:03)",
+    "n_tests_ran": 392,
+    "collection_aborted": false,
+    "net_new_reds": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_descriptive_exemption_vs_reach.py::test_the_intersection_is_exactly_the_two_known_fields",
+     "tests/test_cce_descriptive_exemption_vs_reach.py::test_the_two_fields_still_actually_reach_the_prompt",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+     "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+    ],
+    "n_net_new_reds": 9,
+    "went_green_vs_noop": []
+   }
+  }
+ },
+ "L4_whitespace_baseline_net_new": [
+  "tests/test_cce_abstention.py",
+  "tests/test_cce_draw_ledger.py",
+  "tests/test_cce_hash_scope.py",
+  "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation"
+ ],
+ "layer_C_prompt_reach": {
+  "_baseline": {
+   "n_chars": 3386,
+   "brief_share": 0.7103
+  },
+  "key_drop_surviving_keys": {
+   "keys": [
+    "reward",
+    "inertia",
+    "audit"
+   ],
+   "where": {
+    "reward": [
+     "「想要很强」与「审查也很强」可以同时成立(如 reward=0.85 且 audit=0.80),"
+    ],
+    "inertia": [
+     "【阻挡结特别提示】inertia 的行为签名是缺席与替代行为——认命句(\"but I understand it now\"式)、长期忍受、伪装,即使文本表面是致谢也要识别。"
+    ],
+    "audit": [
+     "「想要很强」与「审查也很强」可以同时成立(如 reward=0.85 且 audit=0.80),"
+    ]
+   }
+  },
+  "trunc_off_per_knot_diff": [
+   {
+    "knot": "inertia",
+    "delta_chars": 8,
+    "recovered": "开口即高质量个案"
+   }
+  ],
+  "trunc_off_n_knots_affected": 1,
+  "trunc_off_recovered_share_of_prompt": 0.002363,
+  "per_arm_prompt_size": {
+   "ctl_noop": {
+    "family": "control",
+    "n_chars": 3386,
+    "brief_chars": 2405,
+    "pct_of_prompt_removed": 0.0
+   },
+   "ctl_whitespace": {
+    "family": "control",
+    "n_chars": 3387,
+    "brief_chars": 2405,
+    "pct_of_prompt_removed": -0.03
+   },
+   "ctl_garbage": {
+    "family": "control",
+    "n_chars": 7,
+    "brief_chars": 0,
+    "pct_of_prompt_removed": 99.793
+   },
+   "key_drop": {
+    "family": "key",
+    "n_chars": 3326,
+    "brief_chars": 2345,
+    "pct_of_prompt_removed": 1.772
+   },
+   "key_inject": {
+    "family": "key",
+    "n_chars": 3443,
+    "brief_chars": 2462,
+    "pct_of_prompt_removed": -1.683
+   },
+   "name_drop": {
+    "family": "name",
+    "n_chars": 3323,
+    "brief_chars": 2342,
+    "pct_of_prompt_removed": 1.861
+   },
+   "name_inject": {
+    "family": "name",
+    "n_chars": 3386,
+    "brief_chars": 2405,
+    "pct_of_prompt_removed": 0.0
+   },
+   "family_drop": {
+    "family": "family",
+    "n_chars": 3359,
+    "brief_chars": 2378,
+    "pct_of_prompt_removed": 0.797
+   },
+   "family_inject": {
+    "family": "family",
+    "n_chars": 3386,
+    "brief_chars": 2405,
+    "pct_of_prompt_removed": 0.0
+   },
+   "signature_drop": {
+    "family": "signature",
+    "n_chars": 2125,
+    "brief_chars": 1144,
+    "pct_of_prompt_removed": 37.242
+   },
+   "signature_inject": {
+    "family": "signature",
+    "n_chars": 2782,
+    "brief_chars": 1801,
+    "pct_of_prompt_removed": 17.838
+   },
+   "typical_codes_drop": {
+    "family": "typical_codes",
+    "n_chars": 2839,
+    "brief_chars": 1858,
+    "pct_of_prompt_removed": 16.155
+   },
+   "typical_codes_inject": {
+    "family": "typical_codes",
+    "n_chars": 3028,
+    "brief_chars": 2047,
+    "pct_of_prompt_removed": 10.573
+   },
+   "behavior_drop": {
+    "family": "behavior",
+    "n_chars": 2966,
+    "brief_chars": 1985,
+    "pct_of_prompt_removed": 12.404
+   },
+   "behavior_inject": {
+    "family": "behavior",
+    "n_chars": 3119,
+    "brief_chars": 2138,
+    "pct_of_prompt_removed": 7.885
+   },
+   "trunc_off": {
+    "family": "truncation",
+    "n_chars": 3394,
+    "brief_chars": 2413,
+    "pct_of_prompt_removed": -0.236
+   },
+   "trunc_to_1": {
+    "family": "truncation",
+    "n_chars": 3020,
+    "brief_chars": 2039,
+    "pct_of_prompt_removed": 10.809
+   },
+   "levers_drop": {
+    "family": "levers_not_knots",
+    "n_chars": 3371,
+    "brief_chars": 2405,
+    "pct_of_prompt_removed": 0.443
+   },
+   "levers_inject": {
+    "family": "levers_not_knots",
+    "n_chars": 3380,
+    "brief_chars": 2405,
+    "pct_of_prompt_removed": 0.177
+   }
+  },
+  "file_integrity_identical": true
+ },
+ "ref_counts_M4": {
+  "_build_stage2_prompt": {
+   "coarse": 26,
+   "strict": 26
+  },
+  "_stage2_template": {
+   "coarse": 19,
+   "strict": 19
+  },
+  "knots_brief": {
+   "coarse": 7,
+   "strict": 7
+  },
+  "typical_codes": {
+   "coarse": 72,
+   "strict": 20
+  },
+  "signature": {
+   "coarse": 116,
+   "strict": 37
+  },
+  "behavior": {
+   "coarse": 136,
+   "strict": 24
+  },
+  "family": {
+   "coarse": 668,
+   "strict": 42
+  },
+  "name": {
+   "coarse": 625,
+   "strict": 51
+  },
+  "key": {
+   "coarse": 702,
+   "strict": 225
+  },
+  "levers_not_knots": {
+   "coarse": 25,
+   "strict": 25
+  },
+  "hard_discriminant": {
+   "coarse": 241,
+   "strict": 132
+  },
+  "negative_examples_prompt": {
+   "coarse": 72,
+   "strict": 27
+  }
+ },
+ "file_integrity": {
+  "before": {
+   "/Volumes/data/cce-engine/scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "/Volumes/data/cce-engine/config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "/Volumes/data/cce-engine/config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "/Volumes/data/cce-engine/accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "after": {
+   "/Volumes/data/cce-engine/scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "/Volumes/data/cce-engine/config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "/Volumes/data/cce-engine/config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "/Volumes/data/cce-engine/accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "identical": true
+ },
+ "tripwire": {
+  "scope_note": "覆盖本进程内经 socket.socket.connect 新建的连接; **不覆盖**子进程。★ L4 的 pytest 是 subprocess ⇒ 绊线管不到它, 只能说 pytest 用的是假 key(OFFLINE-FAKE-KEY-NOT-A-SECRET) 且 CCE_SKIP_GK2=1。",
+  "tripped_in_process": []
+ },
+ "limits_本批判决不覆盖什么": [
+  "★ 不覆盖「模型看到这些字段后读数变不变」—— 本簇唯一消费 prompt **内容**的是远端模型(_stage2_draw→call_model)。零 API 工况下该问题**结构上不可测**, 不是我偷懒。要回答它必须做**带 API 的 A/B**(每臂 n≥某个由功效分析定的数, 同仪器同制备), 那是另一件事。",
+  "★ 不覆盖「哪个字段更重要」的排序。L4 里唯一的字段分辨信号来自**台账/送达簿记闸**(taxonomy_field_reach / gate_vs_production / rule_delivery_completeness), 它们的断言就是「该字段进不进 prompt」⇒ 对承重问题**判据自证**。排序只反映「有几个簿记闸恰好钉了这个字段」。",
+  "★ 不覆盖 instrument_hash / calibration_transfers 这条下游的证据力。ctl_whitespace(prompt 末尾加**一个空格**, 零信息量)与 16 个字段臂**逐位产生相同结果** ⇒ 该面只是「prompt 字节变没变」的探测器。按 M2 它属 L3 派生, 计入承重就是第一轮 20/20 的同型错误。",
+  "★ 不覆盖其它 k / 其它 market / 其它 profile。工况: 22 份 archive, k={3:20, 5:2}, 每份 5 次 s2 抽样(共 110 次重放/臂), corpus_sha256=8226cd11ee4593a08ed356aa1085acce3c9aea2f287ae0ae544ee2e48c355ac7, instrument profile 22/22 完全一致, 仓内**无 market 维度**。工况漂移 ⇒ 本批判决当场失效。",
+  "★ 不覆盖 `_build_stage2_prompt` 的**非分类学部分**(强度独立打分说明、阻挡结特别提示、输出 JSON schema、s1 tops/appraisal 注入位)。只消融了 knots_brief 的 6 个键 + behavior[:60] + levers 共 8 个点。",
+  "★ 绊线只覆盖**本进程内经 socket.socket.connect 新建**的连接, 全程未触发。L4 的 pytest 是 **subprocess**, 绊线管不到它 —— 那一侧只能说: 只给了假 key(OFFLINE-FAKE-KEY-NOT-A-SECRET)、CCE_SKIP_GK2=1、且跑在 scratchpad 副本里。",
+  "★ M8 结构性偏倚: 存量消融天然把保险丝判成装饰。behavior[:60] 正是保险丝形状(9 个 behavior 只有 1 个超 60 字), 「在存量工况下几乎不动」**不等于**「真死」或「可删」。本批**没有**给任何一项 NO_CONSUMER。",
+  "★ 引用计数是**词碰撞统计**, 不是调用图(M4)。key/name/family 的粗计 702/625/668 绝大部分是同名的普通词, 不是对 taxonomy 字段的引用; 严计 225/51/42 也只是「同行出现限定词」, 两个数只作区间两端。",
+  "★ 我自己的 L4 装置出过两次错(都已修并留档): ① v1 漏 --continue-on-collection-errors ⇒ 变异臂在收集期中断, 整套一条没跑, 我差点把「收集中断集」当成「翻红集」并据此报「L4 完全不分辨字段」; ② v2 工作树复用 ⇒ 台账 artifact 污染, 六个臂各虚增 2 条红(已实测扣除)。两次都是「无差异/弱差异」方向的假结论, 与本簇的失明风险同向 —— 记下来。",
+  "★ 我在真仓跑过一次基线全套件(391 passed / 1 failed), 它会往 results/knot_classify_raw/ 与 results/calibration/ 写测试自己的产物。四个冻结生产件 sha256 跑前跑后**逐一相同**(已断言)。此后所有变异臂都跑在 scratchpad 副本里, 真仓再未被 pytest 触碰。",
+  "★ 本批**不替 owner 选方向**。「验收闸与生产字段集不同」这条待决项, 本批只加了两个可查的价签: (a) 生产独占 family/typical_codes/levers_not_knots 已复现; (b) 任何对齐动作(补字段、关截断、删字段)都会改 s2_prompt_sha256 ⇒ 换代 ⇒ 22 份存量读数不可比, 需重投料重标定。选哪边是 owner 的事。"
+ ]
+}

@@ -35,7 +35,11 @@ for fn in sorted(os.listdir(TESTS)):
     hits = OFFREPO.findall(src)
     if not hits:
         continue
+    # ★★ 2026-09-07: 本闸原来只认字面 `os.path.exists` —— **它自己有假阴性**:
+    #   pathlib 的 `Path(...).exists()` 是等价的存在性判断, 却判不过。
+    #   一条把合法写法判红的闸, 会诱使人去改**代码**迎合闸, 而不是改闸。
     guarded = ("os.path.exists" in src or "os.path.isdir" in src
+               or ".exists()" in src or ".is_dir()" in src
                or "glob.glob" in src or "glob(" in src)
     declares = any(w in src for w in ("CI(", "无本机素材", "不可验证", "未比对", "只跑"))
     if not (guarded and declares):

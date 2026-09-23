@@ -195,6 +195,69 @@ def _reverse_checks():
     return n
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# ★★★ 2026-09-07 补: probe 自己说「本轮判决作废」, 而**没有任何测试在读它**
+# ──────────────────────────────────────────────────────────────────────────
+# knot_taxonomy 的消融 probe 带阳性/阴性对照, 不过就在 stdout 打印
+# 「对照: ★★ 未通过 —— 本轮判决作废」。但 CI 里一条闸都没断言 `controls_passed`
+# ⇒ **probe 判自己作废, 测试照样绿**。与本仓反复栽的「结果报了但不进判决」同族。
+#
+# ★★ 而它当时确实是红的, 原因比「忘了断言」更根本:
+#    消融的 `code_refs` 在源码里 grep 字段名, **命中了 consistency_check.py 的
+#    `TOPLEVEL_DOC_ONLY` 登记表** —— 那张表逐字列着 8 个 changelog 的名字。
+#    ⇒ **「声明它没有消费者」这个动作本身, 被算成了一个消费者。**
+#    ⇒ 8 条纯文档全被推成 INCONCLUSIVE, 阴性对照(纯文档必须判 NO_CONSUMER)长期红。
+#    修法不是给对照开后门, 而是 code_refs **先按 AST 挖掉登记表的行区间** ——
+#    因为这是**系统性偏置**: 任何登记进 TOPLEVEL_DOC_ONLY / DESCRIPTIVE 的字段,
+#    都永远拿不到 NO_CONSUMER。越诚实地记录一个死字段, 它看起来越活。
+#    实测修完 **14 个字段从 INCONCLUSIVE 掉到 NO_CONSUMER**(24→10, 1→15)。
+# ══════════════════════════════════════════════════════════════════════════
+KT = ROOT / "tests" / "data" / "knot_taxonomy_ablation.json"
+
+
+def test_ablation_controls_are_actually_enforced():
+    """★ probe 的对照结论必须**进判决**, 不许只打印。"""
+    d = json.loads(KT.read_text(encoding="utf-8"))
+    c = d["controls"]
+    assert d["controls_passed"] is True, (
+        f"★★★ 消融的对照未通过 ⇒ **本轮判决作废**, 不得引用 tally/rows: {c}")
+    assert c["positive_knots_key"]["passed"], "★ 阳性对照(knots[].key 必须承重)未过 ⇒ 方法坏了"
+    assert c["negative_changelogs"]["passed"], (
+        "★ 阴性对照(纯 changelog 必须判 NO_CONSUMER)未过 ⇒ 判据是重言式的")
+    assert c["negative_changelogs"]["verdicts"] == ["NO_CONSUMER"], \
+        f"★ 阴性对照出现了非 NO_CONSUMER 的判决: {c['negative_changelogs']['verdicts']}"
+
+
+def test_ref_counter_excludes_declaration_registries():
+    """★★ 计数器不许再被登记表骗 —— 这是它判死规则的能力本身。"""
+    src = (ROOT / "probes" / "knot_taxonomy_ablation.py").read_text(encoding="utf-8")
+    assert "_srcs_without_registries" in src and "_REGISTRY_NAMES" in src, \
+        "★ code_refs 不再剔除声明式登记表 ⇒ 登记一个死字段就会让它看起来是活的"
+    cc = (ROOT / "scripts" / "consistency_check.py").read_text(encoding="utf-8")
+    import ast as _ast
+    names = {t.id for n in _ast.walk(_ast.parse(cc)) if isinstance(n, _ast.Assign)
+             for t in n.targets if isinstance(t, _ast.Name) and t.id.isupper()
+             and isinstance(n.value, (_ast.Set, _ast.List, _ast.Tuple, _ast.Dict))}
+    import re as _re
+    known = set(_re.search(r"_REGISTRY_NAMES = \{(.*?)\}", src, _re.S).group(1).replace('"', "").split(", "))
+    missed = {n for n in names if ("DOC_ONLY" in n or "DESCRIPTIVE" in n or "EXEMPT" in n)} - known
+    assert not missed, (
+        f"★★ consistency_check 新增了声明式登记表 {missed} 但 _REGISTRY_NAMES 没跟上 ⇒ "
+        "计数器会再次被自己骗")
+
+
+def test_dead_changelogs_are_no_consumer_not_inconclusive():
+    """把那 14 个字段的迁移钉住 —— 一旦它们又变回 INCONCLUSIVE, 说明偏置回来了。"""
+    d = json.loads(KT.read_text(encoding="utf-8"))
+    ch = [r for r in d["rows"] if r["field"].startswith("changelog")]
+    assert ch and all(r["verdict"] == "NO_CONSUMER" for r in ch), \
+        f"★ changelog 不再全是 NO_CONSUMER: {[(r['field'], r['verdict']) for r in ch]}"
+    assert all(r["code_refs"] == 0 for r in ch), \
+        f"★ 纯 changelog 又拿到非零引用数了: {[(r['field'], r['code_refs']) for r in ch]}"
+    assert d["tally"].get("NO_CONSUMER", 0) >= 9, \
+        f"★ NO_CONSUMER 只剩 {d['tally'].get('NO_CONSUMER')} 个 —— 修完应有 15 个左右"
+
+
 if __name__ == "__main__":
     test_the_word_decorative_is_retired()
     test_every_verdict_carries_an_operating_point()
@@ -203,6 +266,9 @@ if __name__ == "__main__":
     test_operating_point_is_still_true_right_now()
     test_needs_rerun_is_recorded_not_swallowed()
     test_tally_matches_rows()
+    test_ablation_controls_are_actually_enforced()
+    test_ref_counter_excludes_declaration_registries()
+    test_dead_changelogs_are_no_consumer_not_inconclusive()
     n = _reverse_checks()
     d = _load()
     print("test_cce_ablation_verdict_schema: OK ("
@@ -210,5 +276,6 @@ if __name__ == "__main__":
           "「DECORATIVE」已废除 | UNREACHABLE 逐条写明达成条件 | "
           f"deletable 与 verdict 分离(可删仅 {d['★deletable_count']} 条) | "
           "工况**现测**(--intl 硬编 / profile key / 三份语料 sha)一旦漂移即红 | "
+          "★消融对照**进判决**(此前只打印) | 计数器不再被登记表骗 | "
           f"{d['★needs_rerun_count']} 条受污染判决显式标注 | "
           f"{n} 条反向验证各自判红)")

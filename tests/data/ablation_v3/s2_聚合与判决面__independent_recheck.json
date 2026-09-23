@@ -1,0 +1,439 @@
+{
+ "block": "独立复核 — s2_聚合与判决面 (adversarial recheck)",
+ "reviewer_stance": "默认判决是错的, 直到验不出错。装置独立重搭, 不复用 probes/ablation_harness_v3.py。",
+ "decided_at": "2026-09-11T16:53:50",
+ "rig": "/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/s2_recheck_9730/rig.py (私有工作目录, 仓内零写入)",
+ "judge_validation": {
+  "determinism_fresh_reload": true,
+  "determinism_same_module_twice": true,
+  "false_positive_control_1_ABSTENTION_S1_NOTE": "L1 0/22 · L2 0/22",
+  "false_positive_control_2_caveat_string": "L1 0/22 · L2 0/22",
+  "dead_constant_S1_BASE_TEMPS_5_7_absurd": "L1 0/22 · L2 0/22 ⇒ 判据非重言",
+  "liquidity_control_merged_reversed": "L2 20/22 ⇒ 装置接上了",
+  "L4_device_positive_control": "intensity→999.0 使 test_cce_draw_ledger 翻红 ⇒ 我的 import 替换确实抵达测试",
+  "note": "本簇 L1/L2 全部在 s2 重放面上取, 故 M1 的 s1 液性臂不适用, 改用 s2 自己的液性臂(merged 反序)。"
+ },
+ "operating_point_recomputed_independently": {
+  "n_files": 22,
+  "corpus_sha256": "8226cd11ee4593a08ed356aa1085acce3c9aea2f287ae0ae544ee2e48c355ac7",
+  "k_distribution": {
+   "3": 20,
+   "5": 2
+  },
+  "n_draws_per_file": {
+   "5": 22
+  },
+  "total_draws": 110,
+  "abstained_draws": 0,
+  "draws_with_internal_top1_tie": 0,
+  "distinct_instrument_profiles": 1,
+  "verdict": "与被核方给出的工况**逐项一致**(含 corpus_sha 逐字符相同)"
+ },
+ "file_integrity_recomputed": {
+  "sha_before": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "scripts/cce_full_run.py": "5e41ede1fcde2745cb09803fa789979abcfc6db2c95ae2309adb50f2a79c966a",
+   "scripts/reply_batch.py": "4dcf1e2ff2f59596e7879e043d2a1b89057c65a6c31a5559e55678b55c3b543f"
+  },
+  "sha_after": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "scripts/cce_full_run.py": "5e41ede1fcde2745cb09803fa789979abcfc6db2c95ae2309adb50f2a79c966a",
+   "scripts/reply_batch.py": "4dcf1e2ff2f59596e7879e043d2a1b89057c65a6c31a5559e55678b55c3b543f"
+  },
+  "unchanged": true,
+  "verdict": "被核方的 file_integrity.unchanged=true **属实**; 六个文件的 sha 与其产物逐字符相同"
+ },
+ "my_arms_L1_L2": {
+  "A1_median_to_mean": {
+   "L1_files": 21,
+   "L1_fields": [
+    "L1_families",
+    "L1_intensity",
+    "L1_weights"
+   ],
+   "L2_files": 2,
+   "L2_fields": [
+    "L2_hooks",
+    "L2_knot_order"
+   ],
+   "n": 22
+  },
+  "A2_nz_filter_removed": {
+   "L1_files": 19,
+   "L1_fields": [
+    "L1_families",
+    "L1_intensity",
+    "L1_weights"
+   ],
+   "L2_files": 16,
+   "L2_fields": [
+    "L2_hooks",
+    "L2_knot_order",
+    "L2_quadrant",
+    "L2_support_set"
+   ],
+   "n": 22
+  },
+  "A3_intensity_absurd": {
+   "L1_files": 22,
+   "L1_fields": [
+    "L1_families",
+    "L1_intensity",
+    "L1_weights"
+   ],
+   "L2_files": 20,
+   "L2_fields": [
+    "L2_fr_playbook_primary",
+    "L2_hooks",
+    "L2_knot_order",
+    "L2_quadrant"
+   ],
+   "n": 22
+  },
+  "B1_support_gte": {
+   "L1_files": 0,
+   "L1_fields": [],
+   "L2_files": 0,
+   "L2_fields": [],
+   "n": 22
+  },
+  "B2_support_true": {
+   "L1_files": 15,
+   "L1_fields": [
+    "L1_families",
+    "L1_intensity",
+    "L1_weights"
+   ],
+   "L2_files": 15,
+   "L2_fields": [
+    "L2_nonzero_weight",
+    "L2_quadrant",
+    "L2_support_set"
+   ],
+   "n": 22
+  },
+  "B3_support_false": {
+   "L1_files": 22,
+   "L1_fields": [
+    "L1_families",
+    "L1_intensity",
+    "L1_weights"
+   ],
+   "L2_files": 22,
+   "L2_fields": [
+    "L2_nonzero_weight",
+    "L2_quadrant",
+    "L2_support_set"
+   ],
+   "n": 22
+  },
+  "C1_no_tiebreak": {
+   "L1_files": 0,
+   "L1_fields": [],
+   "L2_files": 1,
+   "L2_fields": [
+    "L2_knot_order"
+   ],
+   "n": 22
+  },
+  "C2_reversed": {
+   "L1_files": 0,
+   "L1_fields": [],
+   "L2_files": 20,
+   "L2_fields": [
+    "L2_fr_playbook_primary",
+    "L2_hooks",
+    "L2_knot_order"
+   ],
+   "n": 22
+  },
+  "D1_mass_sum": {
+   "L1_files": 18,
+   "L1_fields": [
+    "L1_families"
+   ],
+   "L2_files": 0,
+   "L2_fields": [],
+   "n": 22
+  },
+  "D2_mass_absurd": {
+   "L1_files": 22,
+   "L1_fields": [
+    "L1_families"
+   ],
+   "L2_files": 21,
+   "L2_fields": [
+    "L2_quadrant"
+   ],
+   "n": 22
+  },
+  "E1_quadrant_cut_0p99": {
+   "L1_files": 0,
+   "L1_fields": [],
+   "L2_files": 22,
+   "L2_fields": [
+    "L2_quadrant"
+   ],
+   "n": 22
+  },
+  "E2_quadrant_absurd": {
+   "L1_files": 0,
+   "L1_fields": [],
+   "L2_files": 22,
+   "L2_fields": [
+    "L2_quadrant"
+   ],
+   "n": 22
+  },
+  "F1_tops_tiebroken": {
+   "L1_files": 0,
+   "L1_fields": [],
+   "L2_files": 0,
+   "L2_fields": [],
+   "n": 22
+  },
+  "F2_tops_absurd": {
+   "L1_files": 11,
+   "L1_fields": [
+    "L1_mode_share"
+   ],
+   "L2_files": 22,
+   "L2_fields": [
+    "L2_fr_playbook_primary",
+    "L2_fr_top1_stable",
+    "L2_fr_withheld_reason",
+    "L2_top1_mode",
+    "L2_unanimous"
+   ],
+   "n": 22
+  },
+  "G1_denom_tops": {
+   "L1_files": 0,
+   "L1_fields": [],
+   "L2_files": 0,
+   "L2_fields": [],
+   "n": 22
+  },
+  "G2_modeshare_absurd": {
+   "L1_files": 22,
+   "L1_fields": [
+    "L1_mode_share"
+   ],
+   "L2_files": 0,
+   "L2_fields": [],
+   "n": 22
+  },
+  "H1_no_tristate": {
+   "L1_files": 0,
+   "L1_fields": [],
+   "L2_files": 0,
+   "L2_fields": [],
+   "n": 22
+  },
+  "H2_unanimous_true": {
+   "L1_files": 0,
+   "L1_fields": [],
+   "L2_files": 11,
+   "L2_fields": [
+    "L2_fr_playbook_primary",
+    "L2_fr_top1_stable",
+    "L2_fr_withheld_reason",
+    "L2_unanimous"
+   ],
+   "n": 22
+  },
+  "H3_unanimous_false": {
+   "L1_files": 0,
+   "L1_fields": [],
+   "L2_files": 11,
+   "L2_fields": [
+    "L2_fr_playbook_primary",
+    "L2_fr_top1_stable",
+    "L2_fr_withheld_reason",
+    "L2_unanimous"
+   ],
+   "n": 22
+  },
+  "K1_weight_no_gate": {
+   "L1_files": 15,
+   "L1_fields": [
+    "L1_weights"
+   ],
+   "L2_files": 15,
+   "L2_fields": [
+    "L2_nonzero_weight"
+   ],
+   "n": 22
+  },
+  "K2_weight_absurd": {
+   "L1_files": 22,
+   "L1_fields": [
+    "L1_weights"
+   ],
+   "L2_files": 15,
+   "L2_fields": [
+    "L2_nonzero_weight"
+   ],
+   "n": 22
+  },
+  "K3_weight_flat": {
+   "L1_files": 22,
+   "L1_fields": [
+    "L1_weights"
+   ],
+   "L2_files": 15,
+   "L2_fields": [
+    "L2_nonzero_weight"
+   ],
+   "n": 22
+  },
+  "M1_hooks_top1": {
+   "L1_files": 0,
+   "L1_fields": [],
+   "L2_files": 18,
+   "L2_fields": [
+    "L2_hooks"
+   ],
+   "n": 22
+  },
+  "M2_hooks_top9": {
+   "L1_files": 0,
+   "L1_fields": [],
+   "L2_files": 0,
+   "L2_fields": [],
+   "n": 22
+  },
+  "M3_hooks_alpha": {
+   "L1_files": 0,
+   "L1_fields": [],
+   "L2_files": 20,
+   "L2_fields": [
+    "L2_hooks"
+   ],
+   "n": 22
+  },
+  "M4_hooks_revrank": {
+   "L1_files": 0,
+   "L1_fields": [],
+   "L2_files": 20,
+   "L2_fields": [
+    "L2_hooks"
+   ],
+   "n": 22
+  },
+  "M5_cap1": {
+   "L1_files": 0,
+   "L1_fields": [],
+   "L2_files": 22,
+   "L2_fields": [
+    "L2_hooks"
+   ],
+   "n": 22
+  },
+  "M6_cap9": {
+   "L1_files": 0,
+   "L1_fields": [],
+   "L2_files": 11,
+   "L2_fields": [
+    "L2_hooks"
+   ],
+   "n": 22
+  }
+ },
+ "L1_L2_split_used": {
+  "L1": [
+   "intensity",
+   "families(mass/composition)",
+   "weights",
+   "top1_mode_share",
+   "alignment_score"
+  ],
+  "L2": [
+   "knot_order",
+   "measurement_status",
+   "top1_mode",
+   "top1_unanimous",
+   "support_majority_set",
+   "nonzero_weight_set",
+   "quadrant",
+   "fr_playbook_primary",
+   "fr_playbook_withheld_reason",
+   "fr_top1_stable",
+   "qualified.usable_keys",
+   "qualified.withheld_keys",
+   "reply_batch.hooks_for",
+   "cce_align_v2.★usable",
+   "cce_align_v2.pass"
+  ],
+  "★differs_from_reviewed": "被核方把 fr_knots_pairs([[key,weight]]) 与 fr_drive_brake({drive_mass,brake_mass,quadrant}) 整体计为 L2 字段 —— 二者的主体是**数值载体**。把数值载体计入 L2, L2 计数就退化成 L1 计数, M2 赖以成立的 L1/L2 之分当场塌掉。"
+ },
+ "findings": {
+  "F1_L2_counts_systematically_inflated_to_L1": {
+   "severity": "方法论级",
+   "evidence": "凡 L1≠L2 的臂, 被核方报的 L2 份数恰等于我测的 L1 份数: A1 报21(我 L1=21, L2=2) · A2 报19(我 L1=19, L2=16) · A3 报22(我 L1=22, L2=20) · D2 报22(我 L1=22, L2=21)。",
+   "consequence": "三处具体陈述因此为假, 见 F2/F3/F4。verdict 词本身多数仍成立。"
+  },
+  "F2_A1_deletable_reason_false": {
+   "claim": "「median→mean 就改变 21/22 文件的结顺序与交付给写稿人的推荐钩子」",
+   "measured": "结顺序(knot_order) 改 **2/22**; 推荐钩子(hooks) 改 **1/22**; playbook_primary 0/22; usable/withheld 0/22; quadrant 0/22。21/22 是 intensity/families/weights 这三个 L1 量。",
+   "verdict_word": "LOAD_BEARING_L2 仍成立(hooks 与 order 确有改变), 但证据强度虚高约 10 倍。"
+  },
+  "F3_C1_playbook_primary_claim_not_reproducible": {
+   "claim": "「去掉 `, k` 后 … playbook_primary 随 PYTHONHASHSEED 翻 —— 已实测」",
+   "measured": "6 seed(0/1/7/42/1234/99999) 跨进程扫描: 带 tie-break 时 order 0/22 变; 去掉后 order **3/22** 变(与被核方 3/22 一致), 但 **playbook_primary 0/22 变**, hooks 1/22 变。",
+   "mechanism": "本存量语料里**同时**满足「顶端 intensity 打平」与「top1_stable is True」的文件数 = **0**。唯一有顶端打平的 archive/33748217410/cce-subject-item-4 其 top1_stable=False ⇒ playbook_primary 基线本来就是 None, 无从翻转。",
+   "diagnosis": "被核方观察到 knots[0] 翻, 然后**推**出 playbook_primary 翻, 未测中间那道 `top1_stable is True` 闸, 却写成「已实测」。",
+   "verdict_word": "LOAD_BEARING_L2 仍成立 —— 依据改为 hooks 1/22 跨 seed 不确定, 不是 playbook_primary。"
+  },
+  "F4_D1_quadrant_claim_false": {
+   "claim": "D1(mass 取和) 的 L2「仅 fr_drive_brake 与 quadrant 标签」改变",
+   "measured": "quadrant **0/22** 改变; L2 合计 **0/22**; 只有 L1_families 18/22 改变。(D2 荒谬值 999.0 才改 quadrant 21/22)",
+   "verdict_word": "LOAD_BEARING_L1_ONLY 不仅成立, 而且比被核方展示的更干净。"
+  },
+  "F5_E1_quadrant_verdict_word_incoherent": {
+   "severity": "判决词错用 —— 建议 overturn",
+   "reported": "L1_changed 0/22 + L2_changed 22/22 + verdict LOAD_BEARING_L1_ONLY",
+   "measured_by_me": "E1(切点→0.99) 与 E2(常量 ABSURD): L1 **0/22**, L2(quadrant 标签) **22/22** —— 与被核方数字一致。",
+   "problem": "M5 的 LOAD_BEARING_L1_ONLY 定义是「**只有数值变**、判决不变」。此臂数值一个没变(L1=0/22), 唯一改变的是一个**分类输出**。该臂不落在 L1_ONLY 的定义域内。",
+   "root": "被核方改用**代码自述**(注记「仅作分类标签, 不得作判据」)当判据, 而不是用测量 —— 那是拿被测物对自己的声明当关于自己的证据(CIRCULAR 的一个变体)。",
+   "suggested": "要么判 LOAD_BEARING_L2(限定: 只改一个交付分类标签, 不改任何扣发路由), 要么把 quadrant 归为 L1 读数再重算; 但现报的三项不能同时为真。"
+  },
+  "F6_K2_K3_L2_not_zero_by_their_own_field_list": {
+   "reported": "K2(weight≡999)/K3(weight≡0.1111) 的 L2 = 0/22",
+   "measured": "nonzero_weight_set 改变 **15/22**。该字段被核方在 K1 与 B2/B3 三条里都当 L2 字段用, 到 K2/K3 却不算。",
+   "substance": "其主张的核心(hooks · playbook_primary · usable/withheld · knot_order 在 K2/K3 下逐项不变)我**逐项复现**成立。属口径不一致, 非结论错误。"
+  },
+  "F7_weight_does_reach_a_PASS_but_that_PASS_is_fused_off": {
+   "what_I_ran": "把 cce_align_v2._call 换成离线桩(恒 hit=1.0), 复演 reply_batch.phase_b 的 PASS 分支。",
+   "measured": "alignment_score 随 weight 从 0.0 → 0.9999 → 6993.0 大幅摆动, 但 ★usable 恒 False ⇒ pass 恒 None ⇒ phase_b 的 PASS 恒 False。",
+   "mechanism": "cce_k1_status.KNOT_READOUT_ALLOWLIST == {'top1'}, 'weight' 在 KNOT_READOUT_EXCLUDED('K1-v2 预注册判定 0/5 文本') ⇒ knot_readout_usable('weight') 无条件返回 False。",
+   "consequence": "被核方 limits① 把 cce_align_v2 与 reply_loop 划出覆盖面, 恰好把 weight **唯一**一处判决面消费者划了出去。我把它拉回来测了: 结论不变(LOAD_BEARING_L1_ONLY 成立), 但真实机制是 **K1 允许清单这道保险丝**, 不是被核方写的「hooks_for 对量值免疫」。推论: 若日后把 weight 加进允许清单, 这条判决**当场失效** —— 这个复活条件被核方没写。"
+  },
+  "F8_gate_gap_a_is_real_but_misdiagnosed": {
+   "their_claim": "(a) intensity 的 median→mean 改 21/22 判决面却零翻红 ⇒ 聚合统计量的选择没有行为闸守",
+   "measured": "净新增翻红确实 = [] (我用自己的 import 替换device, 并先过了阳性对照: intensity→999 能让 test_cce_draw_ledger 翻红)。但「没有闸」是错的 —— 闸在 tests/test_cce_draw_ledger.py:70 `assert abs(per['intensity'] - st.median(nz)) < 1e-9`。",
+   "real_defect": "该闸的夹具是 SPEC={pain_seek:[0.9]*5, audit:[0.5,0.5,0.5,0,0], belong:[0.3,0.3,0,0,0]} —— **每个 nz 集合内部恒为常数**, 于是 median≡mean≡min≡max≡mode。实测: 把 intensity 换成 fmean / min / max / mode **全部 PASS**, 只有换成常数 999.0 才翻红。",
+   "shape": "这正是本仓自己记过三次的失效形状(tests/data/phase2/k1_v2_multitext_prereg.json: 「预注册的 C2 条件数判据可被**常数估计器**满足」/「高一致率 + 零区分度 = 这个层什么都没测」) —— 闸存在但夹具退化, 比「没有闸」更危险: manifest 上它是绿的。",
+   "fix": "给该 fixture 加一个 nz 内部不等的结(例如 [0.2,0.4,0.9]), median=0.4 而 mean=0.5, 一行即可让闸活。"
+  },
+  "F9_limits_missing_a_consumer_class": {
+   "found": "scripts/cce_ledger.py:39 STATE_KEYS 与 scripts/cce_event_assemble.py:42 _STATE_KEYS 把 'mass' 'quadrant' 'families' 'weight' 'intensity' 'composition' 'drive_brake' 当**字段名**用作准入闸(铁律 3 Event≠State / 铁律 4 State≠Behavior), 违者 raise。",
+   "why_it_matters": "这是**按名**消费, 不按值 —— 故不影响任何消融臂的 L1/L2 结果(我已确认), 但它是 deletable=False 的一条被核方没引用的硬理由: 删/改名 mass 或 quadrant 会静默在两道铁律闸上开洞。",
+   "class": "限缺口, 非判决错误。"
+  }
+ },
+ "L4_note": "我只独立复核了 A1 这一条 L4(因为它支撑 gate_gap(a)), 用自建 import 替换 + 阳性对照。其余 L4 列未独立复核 —— 它们是列不是判决, 且被核方已自认 C1 那条是装置盲区。",
+ "offline_isolation": {
+  "tripwire": "socket.socket.connect 全程替换为抛 AssertionError 的 guard",
+  "tripped": [],
+  "api_key": "从未 export 真 key, 只设 MINIMAX_API_KEY='OFFLINE-FAKE-KEY-NOT-A-SECRET'",
+  "not_covered": "进入上下文前已建立的连接 · 不走 Python socket 的传输 · C 扩展自带网络栈"
+ },
+ "R3": "本复核只读仓内路径; 新写文件不引用任何仓外识别层目录。"
+}

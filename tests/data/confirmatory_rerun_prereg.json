@@ -1,0 +1,39 @@
+{
+ "block": "CONFIRMATORY_RERUN_PREREG_2026-09-07",
+ "★frozen_before_any_call": "本文件在发起任何调用之前写入。",
+ "★what_makes_this_confirmatory_and_what_does_not": "★★ **是确证的那一半**: 样本是**全新的**(941 篇未用过的帖子里抽 81, 与 Run B 的 81 篇、Study 2 的 200 篇**零重叠**, 校验和 dfe4e4ca5d3a6ba2), 而资格考 v2 的规则在**看到本样本之前**已完整冻结(tests/data/annotator_qualification_v2_prereg.json)。\n★★★ **不是确证的那一半**: **锚例没换** —— 仍是那 5 个。v2 预注册要求「新文本 **+ 新 anchor set**」才算完整确证。\n  ⇒ 本轮只确证 **panel reliability** 那一半, **没有**确证 qualification decision consistency。\n  ⇒ 换不了锚例的原因是**结构性的**, 不是偷懒: 见下。",
+ "★★why_the_anchor_set_could_not_be_replaced": {
+  "★the_iron_rule": "库内 2026-08-19 决策: 「**禁止拿测量模型当盲验(那是循环)**; 测量模型永远不得进入刺激筛选环节。」⇒ 锚例真值**不得**由 MiniMax(测量模型)定。",
+  "★preflight_2026-09-07": {
+   "阿里云(qwen3.8-max-preview / qwen3.7-max / qwen3.7-plus / glm-5.2)": "❌ HTTP 403 Access to model denied",
+   "智谱官方(glm-4-plus / 4.5 / 5.2)": "❌ HTTP 429 余额不足或无可用资源包",
+   "Kimi(moonshot-v1-8k / kimi-k2)": "❌ HTTP 429 account suspended",
+   "JustOneAPI": "❌ HTTP 404 —— 它是数据 API, 不是 chat 端点",
+   "★conclusion": "**只剩 MiniMax, 即测量模型本身。没有第二个家族可用。**"
+  },
+  "★why_not_me": "★ 也不能由我(Claude)定: 2026-08-07 的冷启动盲测之所以有效, 是因为标注者「**从未参与 codebook 修订**」; 而我今天大量改动了 taxonomy 的 status/caveat、写了判别效度研究、改了资格考判据 —— **我是这条链的作者**, 由我定锚例真值是最严重的一种循环。",
+  "★what_is_mechanically_verifiable": "★ 九个结里只有 **reward** 与 **audit** 的 hard_discriminant 是**二值前置**(「文本里必须有致谢句/直接指向某个人的质询句, 没有 → 不是」) —— 那是**表面特征, 规则可核验**。其余七个是软判断。⇒ 规则能可靠产出的只有**负例锚**(「这条一定不是 reward」), 不能产出正例锚。★★ 而混入负例会**改变 p 的含义**(负例比正例容易), 不能与正例合并成一个分数。",
+  "★handoff": "⇒ 七个结的**正例锚例待人工裁定**。候选已按规则筛好(见 tests/data/anchor_candidates_for_adjudication.json), 做到「只差裁定」。"
+ },
+ "design": {
+  "corpus": "外部他人帖子, 未用过的 941 篇里抽 81",
+  "★sampling_rule_frozen": "按 sha256(post_id + 'conf2026') 排序取前 81。salt 与 Run B 不同 ⇒ 独立抽样。",
+  "sample_ids_sha256": "dfe4e4ca5d3a6ba2",
+  "n_authors": 79,
+  "★overlap": "与 Run B 的 81 篇、Study 2 的 200 篇**零重叠**(实测)",
+  "annotators": "MiniMax 五员, 走 **v2 三态资格考**",
+  "body_chars": 2000,
+  "G_K2": "扣发(外部语料无互动字段)"
+ },
+ "★falsifiable_predictions": {
+  "D1": "**v2 资格考给出的 primary 面板 = 全部 5 人**(现有 5 锚例下人人 UNRESOLVED, 而 UNRESOLVED 留在面板)。★ 若有人被判 DISQUALIFIED(Wilson 上界 <= 0.70, 即 5 题答对 <=1), 那是新情况, 须单独看。",
+  "D2": "**top2 >= 0.80 且 平均 JS <= 0.25 —— 但 JS 会再次贴线。** 依据: Run B(帖子) 实测 JS=0.2458, 余量仅 0.0042, 自助 42% 不过。★ 预测本轮 JS 落在 **[0.22, 0.27]**, 且**有相当概率不过**。★★ 若它舒舒服服地过了(JS < 0.22), 说明 Run B 那次是运气差的一抽, 我对「余量薄」的判断要放宽。",
+  "D3": "**belong 共识 argmax > 0**(Run B 实测 7/81=8.6%, Wilson CI [4.3%,16.8%])。预测本轮落在 **[2, 14]** 条。★ 若又是 0, 那 Run B 的 7/81 就是一次侥幸, RETAIN 判决要重估。",
+  "D4": "**头两类共识占比 >= 63%**(评论上 63.0%, 帖子上 76.5%)。★ 若显著低于 63%, 说明 Run B 的 76.5% 是抽样波动, 「塌陷是仪器性质」这条要弱化。"
+ },
+ "★what_this_still_does_not_answer": [
+  "★★ **qualification decision consistency 未确证** —— 锚例没换。这是本轮最大的缺口。",
+  "跨模型家族(四家全部探活失败) · 跨社区(仍是 r/HearingAids)",
+  "★ 单元混淆(帖 vs 评论)仍未分离; CCE_UNIT_LABEL 的第三臂未跑。"
+ ]
+}

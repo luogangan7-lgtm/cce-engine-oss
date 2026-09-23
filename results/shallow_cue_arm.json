@@ -1,0 +1,4809 @@
+{
+ "block": "SHALLOW_CUE_ARM",
+ "★零调用": "本臂**不发起任何模型调用**, 也**不做任何语义判断** —— 只做正则匹配。",
+ "★★★它回答什么": "「**只读表层字符串**能拿多少」。零基线回答「完全不读文本能拿多少」; 两者之间隔着一整层**不需要任何理解**的字符串匹配。⇒ **任何臂只有超过本臂, 才谈得上读懂了语义**; 只超过零基线, 只证明它读了文本。",
+ "★★★规则的来源(本文件的全部严谨性)": "RULES **逐字沿用 2026-09-15 那次 280-agent 评审里, 某个 agent 在旧版对照文本上独立写出的**那一套。**我没有参与它的构造, 它也不知道我事后会怎么改文本。** ★ 若规则由我在看过答案后写, 它测的就只是「我能不能造一个打不中的正则」。**规则必须先于文本修改而固定** —— 所以本文件的 RULES **不许随文本调整**。",
+ "★★★逐槽位": {
+  "speaker": "136/136",
+  "polarity": "132/136",
+  "time": "134/136",
+  "citation": "134/136",
+  "possession": "132/136",
+  "predicate": "111/136"
+ },
+ "★predicate 聚合数不许直接读": "上面的 predicate 合计含 **B 支 24 格**, 而 B 支没标 kind ⇒ 本臂按协议直接填 OWNERSHIP, **结构上必然全对**。那 24 格是**协议白送的**, 不是能力。⇒ 只读下面按 A 支拆开的两个数。",
+ "★predicate 只看 A 支": "43/68",
+ "★★★predicate 必须拆开报": {
+  "鉴别格(金标 ≠ 零基线常数)": "1/26",
+  "多数类格(金标 == 零基线常数)": "42/42",
+  "★为什么拆": "合在一起时, **20 个多数类格会把 4 个鉴别格稀释掉** —— 一个在鉴别格上全错、在多数类格上全对的填充器, 聚合数与零基线**完全相同**。⇒ 聚合的 predicate 准确率**读不出鉴别力**。",
+  "★零基线在鉴别格上按构造是 0/4": "常数填充**结构上不可能**答对非多数类的格。"
+ },
+ "★★★消共线前后(现跑_不手写)": {
+  "★★★v1(已撤回的 6 对)": {
+   "最佳净增益": 5,
+   "命中鉴别格": "5/6",
+   "规则": "含系动词 AND 不含介词 AND 不含程度词",
+   "鉴别格数": 6
+  },
+  "★★★v2(现在的 24 对)": {
+   "最佳净增益": 1,
+   "命中鉴别格": "6/24",
+   "规则": "含介词 AND 不末词前是限定词 AND 词数<=6",
+   "鉴别格数": 24
+  },
+  "★外部锚点_真实证书上的冻结族最佳净增益": 0,
+  "★★★怎么读": "v1 的最佳净增益 5, v2 是 1, 而**真实证书**上是 **0**。⇒ 重造把手构对照集的句法共线**压向了真实语料的水平**。",
+  "★★★仍然成立的警告": "**净增益仍不是 0** —— 浅层规则照样「答对」一部分。⇒ 主判据的零假设必须**用搜出来的 p0**, 不许假定浅层规则无效; 且 p0 要取**留出集**那个(未被迭代过的), 不是最好看的那个。",
+  "零基线(常数填充)": {
+   "鉴别格": "0/26",
+   "多数类格": "42/42",
+   "A 支合计": "42/68",
+   "★": "常数填充**结构上不可能**答对鉴别格 —— 上面那个鉴别格的数必然是 0。"
+  }
+ },
+ "★★★从这个对比学到的通则": "消掉正字法共线的机制**不是把线索删掉**(「只复述标识」天然是系动词+品类名, 删不掉), 而是**让同一条线索同时打中 pos 和 neg**, 使它的**净增益归零**。★ 这也是 pos 对照存在的更深理由: 它不只防退化, 还**中和表层线索**。",
+ "★★★这不是模型的读数": "本臂是**手构的字符串匹配器**, 不经任何模型。它是**基线**, 不是被测对象。",
+ "rows": [
+  {
+   "id": "NEG-1/pos",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "NEG-1/neg",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "NEGATED",
+      "对": false
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "BOTH_NEGATED",
+      "对": false
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "NEGATED",
+      "浅层": "NEGATED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "BOTH_NEGATED",
+      "浅层": "BOTH_NEGATED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "NEG-2/pos",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "NEG-2/neg",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "NEGATED",
+      "对": false
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "BOTH_NEGATED",
+      "对": false
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "NEGATED",
+      "浅层": "NEGATED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "BOTH_NEGATED",
+      "浅层": "BOTH_NEGATED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ATT-1/pos",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ATT-1/neg",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "OTHER",
+      "浅层": "OTHER",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ATT-2/pos",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ATT-2/neg",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "OTHER",
+      "浅层": "OTHER",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "TNS-1/pos",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "TNS-1/neg",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "FUTURE",
+      "对": false
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "FUTURE",
+      "浅层": "FUTURE",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "UNSPECIFIED",
+      "浅层": "OWNED",
+      "对": false
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "TNS-2/pos",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "TNS-2/neg",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "FUTURE",
+      "对": false
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "FUTURE",
+      "浅层": "FUTURE",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "UNSPECIFIED",
+      "浅层": "OWNED",
+      "对": false
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "CIT-1/pos",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "CIT-1/neg",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "REPORTED",
+      "浅层": "REPORTED",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "REPORTED",
+      "对": false
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "CIT-2/pos",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "CIT-2/neg",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "REPORTED",
+      "浅层": "REPORTED",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "REPORTED",
+      "对": false
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "TYP-1/pos",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "NEGATED",
+      "对": false
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "NEGATED",
+      "对": false
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "TYP-1/neg",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "NOT_OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "TYP-2/pos",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "TYP-2/neg",
+   "is_ANX": false,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "NOT_OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-01/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-01/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-02/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-02/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-03/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-03/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-04/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-04/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-05/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-05/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-06/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-06/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-07/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-07/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-08/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-08/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-09/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-09/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-10/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-10/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-11/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-11/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-12/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-12/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-13/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-13/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-14/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-14/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "RESTATES_IDENTIFIER",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-15/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-15/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-16/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "ANX-16/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "HLD-1/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "HLD-1/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "HLD-2/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "HLD-2/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "HLD-3/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "HLD-3/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "HLD-4/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "HLD-4/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "HLD-5/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "HLD-5/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "HLD-6/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "HLD-6/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "HLD-7/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "HLD-7/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "HLD-8/pos",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OF_DECLARED_KIND",
+      "浅层": "OF_DECLARED_KIND",
+      "对": true
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  },
+  {
+   "id": "HLD-8/neg",
+   "is_ANX": true,
+   "支": {
+    "A": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "RESTATES_IDENTIFIER",
+      "浅层": "OF_DECLARED_KIND",
+      "对": false
+     }
+    },
+    "B": {
+     "speaker": {
+      "金标": "SELF",
+      "浅层": "SELF",
+      "对": true
+     },
+     "polarity": {
+      "金标": "ASSERTED",
+      "浅层": "ASSERTED",
+      "对": true
+     },
+     "time": {
+      "金标": "PAST_OR_PRESENT",
+      "浅层": "PAST_OR_PRESENT",
+      "对": true
+     },
+     "citation": {
+      "金标": "DIRECT",
+      "浅层": "DIRECT",
+      "对": true
+     },
+     "possession": {
+      "金标": "OWNED",
+      "浅层": "OWNED",
+      "对": true
+     },
+     "predicate": {
+      "金标": "OWNERSHIP",
+      "浅层": "OWNERSHIP",
+      "对": true
+     }
+    }
+   }
+  }
+ ]
+}

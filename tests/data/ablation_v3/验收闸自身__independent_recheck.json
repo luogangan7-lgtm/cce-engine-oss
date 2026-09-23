@@ -1,0 +1,335 @@
+{
+ "block": "CCE_ABLATION_V3_INDEPENDENT_RECHECK_验收闸自身",
+ "role": "独立对抗复核 —— 默认立场是待核判决错的, 直到验不出错。零 API, 仓内文件一字不改。",
+ "checked_cluster": "验收闸自身 · accuracy/run_gates.py",
+ "source_verdicts": "tests/data/ablation_v3/验收闸自身.json (decided_at 2026-09-11T16:48:25)",
+ "recheck_at": "2026-09-11",
+ "R1_offline": {
+  "tripwire_tripped_in_my_runs": [],
+  "scope": "只覆盖本进程内经 socket.socket.connect 新建的连接; 不覆盖已建连接/非 socket 传输/子进程/C 扩展自带栈。L4 子进程各自装同一条绊线。"
+ },
+ "R2_file_integrity": {
+  "sha_recomputed_after_my_own_runs": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "accuracy/data/corpus.json": "b990e76698a30641c11a24881346b97911fd7a7869e016f38cafc54d244840df",
+   "accuracy/data/anchors.json": "3880b9a283c55d8997704c6549048b012bbd49fa8b0d2c0937f027d4c64583e3",
+   "accuracy/out/gates_result.json": "a5edeea700934ca25201cf84d09e3c76a8c890d366e7bd3ae5198396045876d3",
+   "probes/accuracy_offline_harness.py": "5cf827fed03138699f91f25a0d86d35a40e7e9a0598c79ae9050e9c0ce407b55",
+   "probes/ablation_harness_v3.py": "db00b095cf408a0018c537c0a719159b081f0427b32fc7018b3cf991d487e871"
+  },
+  "identical_to_reported": true,
+  "note": "9/9 与待核报告 sha_before=sha_after 逐一相同。我自己只做内存内源码替换 + exec, 未写回 scripts/ config/ accuracy/。"
+ },
+ "★我自己跑了什么": [
+  "① 重算 9 个冻结/输入件 sha256(跑前跑后各一次)。",
+  "② 伪差异检验(M3-①·独立选样): 用**我自己挑的 4 个肯定不承重的改动**过一遍他们的 driver —— 一条纯注释里的词 / 模块 docstring 一句 / TIER_ORD 行尾注释 / kappa_note 纯说明正文。四臂 L1/L2/L0/reach **全 False** ⇒ 无假阳性, 判据非重言。",
+  "③ 判据阈值的**真实数据**复算: 直接拿 accuracy/out/gates_result.json 的真实 pairwise 重算 mean_top2/mean_JS 与翻转点, 绕开他们的合成面板。",
+  "④ 全扫描面 word-boundary 引用重数(scripts/ probes/ accuracy/ tests/ .github/ config/ × 7 种后缀), 与他们的粗计逐项对照。",
+  "⑤ 重建 L4 的**真实**扫描面: 找出所有经 probes/scripts 传递性 import run_gates 的测试文件, 用他们自己的 ablplugin 跑 13 臂。",
+  "⑥ AST 核对 stamp_params 在 run_gates.py 内的调用点集合。",
+  "⑦ 把离群规则的守卫断言喂一个真正的**删除臂**, 看它是否翻红。"
+ ],
+ "CONFIRMED": [
+  {
+   "item": "file_integrity.unchanged",
+   "how": "我自己重算 9 个文件的 sha256, 与报告 sha_before/sha_after 逐一相同; 我自己的臂跑完后再算一次, 仍相同。"
+  },
+  {
+   "item": "判据非重言 / 无伪差异(M1 + M3-①)",
+   "how": "4 个我自己挑的惰性改动过他们的装置 ⇒ L1/L2/L0/prompt_reach 全 False。determinism 与 tripwire=[] 在我的进程里复现。"
+  },
+  {
+   "item": "mean_JS ≤ 0.25 = LOAD_BEARING_L2",
+   "how": "**用真实记录数据独立复算**(accuracy/out/gates_result.json 的 6 个核心两两对): mean_JS=0.2321, `<=0.2321` 过 / `<=0.2320` 不过 ⇒ 阈就是判决开关。与他们合成面板无关, 反而比他们的证据更硬。"
+  },
+  {
+   "item": "mean_top2 ≥ 0.80 = LOAD_BEARING_L2",
+   "how": "同一真实数据: mean_top2=0.9042, `>=0.9042` 不过(浮点 0.904166…) / `>=0.90` 过 ⇒ 同样是判决开关。limits③ 的未标定不影响这条判决。"
+  },
+  {
+   "item": "★头条: 仓内没有任何测试读 run_gates 里活着的 0.25/0.80",
+   "how": "三路验证: (a) 扫全部 tests/ 与 .github/, 无一条把阈值字面量对 run_gates **源码文本**做断言; (b) 两个阈值是 `gk1[\"pass\"]` 表达式里的内联字面量, 没有模块级名字 ⇒ 按属性消费在结构上不可能; (c) 我把 thr_BOTH_removed 在他们**漏掉的 10 个测试文件**上再跑一遍 ⇒ 净新增翻红仍为 0。头条经受住了我的攻击。"
+  },
+  {
+   "item": "五员面板聚合 = LOAD_BEARING_L2 且无测试守面板成分",
+   "how": "grep 全部 tests/ 无一条钉 run_gates 活的 MODELS; panel_two_members 在我扩大的扫描面上净新增仍 0。"
+  },
+  {
+   "item": "kappa() / predict_tier_fixed = LOAD_BEARING_L1_ONLY",
+   "how": "读源码: gk1['pass'] 只用 t2s/jss; gk2['pass'] 只用 rho/spearman_p/macro_recall。他们的臂表 L1=True L2=False 与之一致。"
+  },
+  {
+   "item": "stamp_params: main() 从不调用它",
+   "how": "AST 独立核对: run_gates.py 内 stamp_params 的 Call 节点集合为**空**; 8 个调用方全在 probes/。INCONCLUSIVE 成立。"
+  },
+  {
+   "item": "gate_protocol_hash = CIRCULAR",
+   "how": "读函数体: 它恰好哈希 KNOT_BRIEF+DECISION_TREE+NEGATIVE_EXAMPLES+DIST_TMPL 全部字节 ⇒ 清空臂与荒谬臂触发同一条钉子。自证形状确认。"
+  },
+  {
+   "item": "GATE_PROTOCOL = NO_CONSUMER(判决本身)",
+   "how": "我自己做全扫描面 word-boundary grep: 粗计=1, 就是它自己的赋值行。"
+  },
+  {
+   "item": "M4 引用计数可复现",
+   "how": "我独立重扫, 粗计逐项吻合: GATE_PROTOCOL 1 · KNOT_BRIEF 47 · DECISION_TREE 26 · NEGATIVE_EXAMPLES 32 · DIST_TMPL 55 · mean_JS 78 · RUN_PARAMS 24 · stamp_params 18 · GATE_PROTOCOL_VERSION 19 · gate_protocol_hash 22 · ANCHOR_CORPUS 15 · MODELS 114 · QUAL_P_* 2 · kappa 27 · predict_tier_fixed 2 · admit_annotators 33。"
+  },
+  {
+   "item": "deletable 是独立字段, 没有从 verdict 推导",
+   "how": "NO_CONSUMER + deletable:false 同时出现(GATE_PROTOCOL), 正是 M5 要的独立性。但其中一条理由事实有误, 见 downgraded。"
+  },
+  {
+   "item": "limits⑬ 的副作用自报属实",
+   "how": "results/calibration/json_extract_failures.log 现有 1454 条 gk1v2_ 记录; 我自己的 5 臂又追加了约 50 条。这条日志确实被写, 且我复现了它。"
+  }
+ ],
+ "OVERTURNED": [
+  {
+   "component": "离群标注者规则 med + 2*sd",
+   "was": "UNREACHABLE · L4 净新增 0 · evidence 里写「★★ 在这条复活路径上『闸是否通过』完全由这条离群规则决定, 而**零测试守它**」",
+   "now": "「零测试守它」**是错的**。tests/test_cce_second_exclusion_channel.py 整个文件就是为这条规则立的, 其 test_there_really_are_two_exclusion_channels 断言 `\"outliers_excluded\" in SRC` 且 `\"outlier_rule\" in SRC`, 并用 AST 检查离群分支仍在 main() 里。它读的是**真文件源码**, 所以他们的内存内变异看不见它 —— 这正是他们自己在 limits⑤ 为 stamp_params 写过、却没有对这一条应用的那个装置缺口。",
+   "why": "我把守卫断言喂一个真正的**删除臂**(删掉 outliers 赋值行 + outliers_excluded/outlier_rule 两个产物键): 两条断言都变 False ⇒ RED。而他们实际跑的 2SD→99SD 臂两条断言都还是 True ⇒ 那个 0 对**那一臂**是对的, 对**这个组件**是错的。"
+  },
+  {
+   "component": "离群标注者规则 med + 2*sd —— unreachable_condition 的写法",
+   "was": "「本工况五员平均 JS 全落在 0.216~0.259, 离散不足以触发」; 复活实证需要把重放面板的 ALPHA 从 0.2855 拉到 0.85(平均 JS 0.6079)",
+   "now": "这条规则在**真实运行里已经触发过**。仓内记录(tests/test_cce_second_exclusion_channel.py 文档 + tests/data/run_c_confirmatory_result.json): 2026-09-07 Run C 它第一次真的触发, 剔掉 MiniMax-Text-01(平均 JS 0.2645 vs 其余 0.1805~0.1961); 此前两次分别差 **0.0010** 与 **0.0006** 没触发。",
+   "why": "⇒ 它不是 M8 意义上的「平时永远不动的保险丝」, 而是一条**贴在触发线上**、已经改变过「该引用哪个面板的数」的规则。UNREACHABLE 这个标签只对他们的合成面板成立; 写进产物的复活条件(需要极端合成离散)与真实工况不符。我复算他们重放取中心的那份 accuracy/out/gates_result.json, 五(四)员 annotator_mean_JS 跨度 0.2166~0.2586 —— 同样是近触发区。"
+  },
+  {
+   "component": "L4 扫描面(影响四块材料 + GATE_PROTOCOL_VERSION 的净新增翻红数)",
+   "was": "l4_files.txt = 「19 个引用 run_gates 的测试文件」, 据此报: KNOT_BRIEF 3 · DECISION_TREE 2 · NEGATIVE_EXAMPLES 3 · DIST_TMPL 1~2 · GATE_PROTOCOL_VERSION 1",
+   "now": "扫描面是用**字面 grep `run_gates`** 建的, 漏掉了**经 probes/ 传递性 import run_gates** 的 10 个测试文件: test_cce_core_boundary · test_cce_cross_family_reference · test_cce_decision_consistency · test_cce_descriptive_exemption_vs_reach · test_cce_fieldset_arm_b · test_cce_gate_vs_production_prompt · test_cce_glm_cross_family · test_cce_ledger_audits_claims · test_cce_module_boundary · test_cce_taxonomy_field_reach。我**用他们自己的 ablplugin**在这 10 个文件上重跑 13 臂(空操作对照臂 47 passed, 净新增法同): KNOT_BRIEF **+3** · DECISION_TREE **+3** · NEGATIVE_EXAMPLES(空/荒谬各) **+3** · DIST_TMPL_drop_anchors **+3** · DIST_TMPL_drop_role **+1** · GATE_PROTOCOL_VERSION **+1**; 而 thr_BOTH_removed / panel_outlier_rule_off / panel_two_members / prov_RUN_PARAMS_gutted 仍 **0**。",
+   "why": "这是 M3-② 点名的「扫描面盲区」在 L4 层的复发 —— 且他们在 limits⑤ 把 19 个文件描述成「所有引用 run_gates 的测试」, 那句话本身不成立。★ 新增的红里, tests/test_cce_gate_vs_production_prompt.py 的两条是**非哈希**探测: 它从活的 RG.DIST_TMPL/KNOT_BRIEF/DECISION_TREE/NEGATIVE_EXAMPLES 现算「哪些分类学字段真的进了闸的 prompt」—— KNOT_BRIEF 清空 ⇒ signature/behavior 的『验收闸』位 True→False; 删锚例块 ⇒ anchor_examples 位消失。第三条 test_cce_core_boundary 则确实还是同一条哈希钉子(经 scripts/cce_core_boundary.py)。"
+  },
+  {
+   "component": "KNOT_BRIEF / DECISION_TREE / NEGATIVE_EXAMPLES / DIST_TMPL 的判决标签",
+   "was": "INCONCLUSIVE ×4",
+   "now": "按**他们自己公布的词表映射**(LOAD_BEARING_L2 = 在(a)闸内判决面**或**(b)CI 判决面 L4 上改变判决), 这四块都在 (b) 上有非零净新增翻红(且实为 1~3 条以上), 应判 **LOAD_BEARING_L2(CI 面)**, 另注『语义效应(材料变化是否使标注变坏)离线不可测, 那一面仍 INCONCLUSIVE』。",
+   "why": "内部不一致: RUN_PARAMS(L1/L2 都不变, 只有 2 条 L4 红)与 GATE_PROTOCOL_VERSION(只有 1 条 L4 红)都被判 LOAD_BEARING_L2, 理由正是『承重在 CI 判决面』; 同一种证据、同一个映射, 到四块材料这里却变成 INCONCLUSIVE。★ 他们判 INCONCLUSIVE 的**理由**(重放 stub 按条目身份返回固定分布 ⇒ 那个『不变』是构造性的)我复核后**成立**, 但那只能让『语义承重』悬置, 不能把已经观测到的 CI 判决面改变一并抹掉。"
+  }
+ ],
+ "DOWNGRADED": [
+  {
+   "component": "GATE_PROTOCOL 文档 dict 的 deletable_reason",
+   "was": "「它是仓内**唯一**把闸的覆盖面/不覆盖面写成**数据**的地方 ⇒ 该接线不该删」",
+   "now": "覆盖面那一半**不唯一**: config/cce_core_manifest.json 的 `gate_protocol_expected` 已经把 version / hash / ★covers(与 dict 里逐字同义)/ ★why(与 ★★why_separate 同义)写成数据, **而且那一份才是被钉住、被测试守的**(scripts/cce_core_boundary.py → tests/test_cce_core_boundary.py, 以及 test_cce_gate_protocol_version)。dict 里真正独有的只剩 ★does_not_cover 一条。",
+   "why": "NO_CONSUMER 判决本身不动(我自己 grep 复核过粗计=1); 但『该接线不该删』的论证强度被大幅削弱 —— 大部分内容已经接好线了, 接的是 manifest 那一份。"
+  },
+  {
+   "component": "operating_point 的工况自述(M7)",
+   "was": "「条目级中心取自 accuracy/out/gates_result.json 的 G-K2 rows 真实共识分布与真实 facts」+「标定结果: mean_JS=0.24195 对齐记录工况 0.2422」",
+   "now": "这两句指的是**两次不同的运行**。accuracy/out/gates_result.json 我核过是 **2026-09-07 的四员运行**(annotators = M3/M2.5/M2/Text-01, **无 M2.7**; mean_JS 0.2321 · mean_top2 0.9042 · run_params 为 null, 早于 RUN_PARAMS 落盘)。而 0.2422/0.8812 是 **2026-09-09 的五员 v2 运行**(tests/data/gate_protocol_v2_acceptance_result.json), 那次的逐条数据并未被本装置使用。",
+   "why": "M7 要求工况随判决同行且不得含糊。把『重放取自 A 次运行』与『标定到 B 次运行的均值』并排写成一个工况, 正是会让后人误读的那种含糊。不影响任何一条 verdict 的方向, 但 operating_point 必须拆成两行写。"
+  },
+  {
+   "component": "头条里的「仓内四份 0.25 抄本」",
+   "was": "四份(gate_v2_acceptance / gk1_margin / fieldset_arm_b / cross_family_reference)",
+   "now": "实际有 **7 个**测试文件把 0.25 / 0.80 当 G-K1 判决线硬编: gate_v2_acceptance:51,52 · gk1_margin:50,51,57,157,158 · fieldset_arm_b(文档表) · cross_family_reference:11,181 · **gk3_not_a_tautology:110**(`assert t2 >= 0.8 and jsv <= 0.25`) · **js_metric_definition:75**(文档明写「mean_JS <= 0.25 是 G-K1 的判决线之一」) · **repeatability:46,49**(`★JS_CI_crosses_0.25` / `★top2_CI_crosses_0.80`)。后三个不在他们的名单里。★ 自纠: 我第一版数成 12, 把 knot_stability(0.25=support) · observation_gap(0.25<中位) · phase2_sampling(`10.25` 词碰撞) · within_js_gate(那是 within-JS 的 flag, 另一个量) 错算进去了 —— M4 说的「词碰撞不是引用」我自己先踩了一次, 照实记。",
+   "why": "实质结论(没有一处读活常量)我验过仍成立 —— 其中 gk3_not_a_tautology 与 js_metric_definition 确实 import/读 run_gates, 但阈值字面量写在测试自己这边, 所以改活常量它们看不见, 与他们的结论一致。抄本数从 4 改到 7: 『抄本越多、活常量越没人守』正是这条头条要说的事, 数字得对。"
+  }
+ ],
+ "MISSING_LIMITS": [
+  "limits⑤ 把 L4 扫描面描述成「19 个引用 run_gates 的测试文件」, 实际是「19 个**字面出现** run_gates 的文件」; 传递性消费者(经 probes/)整类缺席。应补一条: 扫描面必须按 import 图算, 不按字面 grep 算。",
+  "没有一条 limit 记下: accuracy/out/gates_result.json 是**四员**运行的产物, 与判决里引用的五员 v2 工况不是同一次。",
+  "没有一条 limit 记下: 离群规则在真实运行(Run C)里**已经触发过**, 因此 M8 的『保险丝』读法对它不适用。",
+  "自报: 我自己的第一版 L4 runner 用 `-rf`, 而 pytest 的 `-rf` **不报 collection error** ⇒ 6 个材料臂实际是 collection 阶段就中断的, 却被我记成『0 红』。改用 `-rEf --continue-on-collection-errors` 后才出现真实的净新增。这与他们 limits⑥ 自报的那个缺口同族 —— 同一类洞在两个独立装置上各出现一次。"
+ ],
+ "MY_L4_ON_MISSED_SURFACE": {
+  "scope": [
+   "tests/test_cce_core_boundary.py",
+   "tests/test_cce_cross_family_reference.py",
+   "tests/test_cce_decision_consistency.py",
+   "tests/test_cce_descriptive_exemption_vs_reach.py",
+   "tests/test_cce_fieldset_arm_b.py",
+   "tests/test_cce_gate_vs_production_prompt.py",
+   "tests/test_cce_glm_cross_family.py",
+   "tests/test_cce_ledger_audits_claims.py",
+   "tests/test_cce_module_boundary.py",
+   "tests/test_cce_taxonomy_field_reach.py"
+  ],
+  "arms": {
+   "ctl_insurface_dead": {
+    "reds": [],
+    "n": 0,
+    "tail": "47 passed, 2 warnings in 24.43s",
+    "net_new": [],
+    "n_net": 0
+   },
+   "mat_KNOT_BRIEF_empty": {
+    "reds": [
+     "tests/test_cce_core_boundary.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment"
+    ],
+    "n": 3,
+    "tail": "2 failed, 45 passed, 2 warnings, 1 error in 19.65s",
+    "net_new": [
+     "tests/test_cce_core_boundary.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment"
+    ],
+    "n_net": 3
+   },
+   "mat_DECISION_TREE_empty": {
+    "reds": [
+     "tests/test_cce_core_boundary.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment"
+    ],
+    "n": 3,
+    "tail": "2 failed, 45 passed, 2 warnings, 1 error in 14.56s",
+    "net_new": [
+     "tests/test_cce_core_boundary.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment"
+    ],
+    "n_net": 3
+   },
+   "mat_NEGATIVE_EXAMPLES_empty": {
+    "reds": [
+     "tests/test_cce_core_boundary.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment"
+    ],
+    "n": 3,
+    "tail": "2 failed, 45 passed, 2 warnings, 1 error in 16.21s",
+    "net_new": [
+     "tests/test_cce_core_boundary.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment"
+    ],
+    "n_net": 3
+   },
+   "mat_NEGATIVE_EXAMPLES_absurd": {
+    "reds": [
+     "tests/test_cce_core_boundary.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment"
+    ],
+    "n": 3,
+    "tail": "2 failed, 45 passed, 2 warnings, 1 error in 12.68s",
+    "net_new": [
+     "tests/test_cce_core_boundary.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment"
+    ],
+    "n_net": 3
+   },
+   "mat_DIST_TMPL_drop_anchors": {
+    "reds": [
+     "tests/test_cce_core_boundary.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment"
+    ],
+    "n": 3,
+    "tail": "2 failed, 45 passed, 2 warnings, 1 error in 13.33s",
+    "net_new": [
+     "tests/test_cce_core_boundary.py",
+     "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+     "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment"
+    ],
+    "n_net": 3
+   },
+   "mat_DIST_TMPL_drop_role": {
+    "reds": [
+     "tests/test_cce_core_boundary.py"
+    ],
+    "n": 1,
+    "tail": "47 passed, 2 warnings, 1 error in 12.68s",
+    "net_new": [
+     "tests/test_cce_core_boundary.py"
+    ],
+    "n_net": 1
+   },
+   "thr_BOTH_removed": {
+    "reds": [],
+    "n": 0,
+    "tail": "47 passed, 2 warnings in 9.62s",
+    "net_new": [],
+    "n_net": 0
+   },
+   "panel_outlier_rule_off": {
+    "reds": [],
+    "n": 0,
+    "tail": "47 passed, 2 warnings in 9.12s",
+    "net_new": [],
+    "n_net": 0
+   },
+   "panel_two_members": {
+    "reds": [],
+    "n": 0,
+    "tail": "47 passed, 2 warnings in 8.53s",
+    "net_new": [],
+    "n_net": 0
+   },
+   "prov_RUN_PARAMS_gutted": {
+    "reds": [],
+    "n": 0,
+    "tail": "47 passed, 2 warnings in 8.63s",
+    "net_new": [],
+    "n_net": 0
+   },
+   "prov_GATE_PROTOCOL_VERSION": {
+    "reds": [
+     "tests/test_cce_core_boundary.py"
+    ],
+    "n": 1,
+    "tail": "47 passed, 2 warnings, 1 error in 8.63s",
+    "net_new": [
+     "tests/test_cce_core_boundary.py"
+    ],
+    "n_net": 1
+   }
+  },
+  "unmutated": {
+   "reds": [],
+   "n": 0,
+   "tail": "47 passed, 2 warnings in 38.85s"
+  },
+  "noop": {
+   "reds": [],
+   "n": 0,
+   "tail": "47 passed, 2 warnings in 22.80s"
+  },
+  "elapsed": 236.2
+ },
+ "MY_FALSE_POSITIVE_CONTROL": {
+  "fp_comment": {
+   "L1_changed": false,
+   "L2_changed": false,
+   "L0_prov_changed_TAUTOLOGY_NOT_EVIDENCE": false,
+   "prompt_reach_changed": false,
+   "L1_fields_changed": [],
+   "L2_fields_changed": []
+  },
+  "fp_docstring": {
+   "L1_changed": false,
+   "L2_changed": false,
+   "L0_prov_changed_TAUTOLOGY_NOT_EVIDENCE": false,
+   "prompt_reach_changed": false,
+   "L1_fields_changed": [],
+   "L2_fields_changed": []
+  },
+  "fp_trailing": {
+   "L1_changed": false,
+   "L2_changed": false,
+   "L0_prov_changed_TAUTOLOGY_NOT_EVIDENCE": false,
+   "prompt_reach_changed": false,
+   "L1_fields_changed": [],
+   "L2_fields_changed": []
+  },
+  "fp_kappa_note": {
+   "L1_changed": false,
+   "L2_changed": false,
+   "L0_prov_changed_TAUTOLOGY_NOT_EVIDENCE": false,
+   "prompt_reach_changed": false,
+   "L1_fields_changed": [],
+   "L2_fields_changed": []
+  },
+  "tripwire": []
+ }
+}

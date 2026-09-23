@@ -51,17 +51,48 @@ TOPLEVEL_DOC_ONLY = {
     # 变更日志 —— 纯文档, 零引用, 不进 prompt(消融实测 L1/L2 皆 0/8)
     "changelog_1_1_0", "changelog_1_1_1", "changelog_1_2_0", "changelog_1_3_0",
     "changelog_1_3_1", "changelog_1_3_1_b", "changelog_2026_09_05_atoms_a1a2",
-    "changelog_2026_09_07_acceptance_rerun",   # ★ 这条闸昨天刚建, 今天就抓到了我自己新加的键
+    "changelog_2026_09_07_acceptance_rerun",
+    "changelog_2026_09_07_gk3_revoked",
+    "changelog_2026_09_07_qualification_is_a_coin_flip",
+    "changelog_2026_09_07_repeatability_external_belong",   # ★ 这条闸昨天刚建, 今天就抓到了我自己新加的键
     # 占位槽 —— 「等数据到了再填」, 机制未接线。★ 不是死规则, 是**未来的接口**,
     #   删了等于把「这里还缺东西」这件事也删了(同 sesoi 那类诚实性载荷)。
     "extra_appraisal_slots", "extension_slots_pending_data",
+    # ★ 修订说明 —— 它**是**文档(记录「旧 PASS 的资格前提为何被撤销」),
+    #   但**同时**有一道断言其内容的闸 tests/test_cce_qualification_premise_revised.py
+    #   (钉住两个方向: 数字不许被说成假的 · 不许再说「资格考生效」)。
+    #   ⇒ 登记为文档 + 有闸守着, 两者都成立, 都写下来。
+    "★qualification_premise_of_the_2026-09-07_PASS_is_revised",
 }
+
+# ★★★ 2026-09-08 加第三档 GATED_DOC。
+#   C1 原本只有两档: 「被 scripts/accuracy 引用」或「具名登记为纯文档」。
+#   ⇒ 一个**只被 tests/ 里的闸引用**的字段会被判成死规则 —— 而它其实**有消费者, 就是那道闸**。
+#   ★ 但不能简单把 tests/ 加进 SRC_FILES: 那样「为了让闸绿而写一个只提字段名的闸」也会通过。
+#   ⇒ 要求更强: 引用它的测试文件必须**同时含 assert**, 且**报出是哪个文件**, 让「谁在守这个字段」可追溯。
+#   ★★ 这比「登记为纯文档」**强**: 登记只是一句声明, 闸是**可执行的**。
+TEST_FILES = sorted(glob.glob(f"{ROOT}/tests/test_*.py"))
+
+
+def _gated_by(field):
+    """返回**断言了该字段**的测试文件名; 只提名字不断言的不算。"""
+    out = []
+    for t in TEST_FILES:
+        src = open(t, encoding="utf-8").read()
+        if field in src and "assert" in src:
+            out.append(os.path.basename(t))
+    return out
 _top_desc = DESCRIPTIVE | TOPLEVEL_DOC_ONLY | {"knots", "version", "annotation_protocol"}
 for f in sorted(set(TAXO) - _top_desc):
     if f'"{f}"' not in ALL and f"'{f}'" not in ALL and f".{f}" not in ALL:
+        gates = _gated_by(f)
+        if gates:
+            warn.append(f"C1 顶层键 {f} 无生产代码引用, 但**被闸守着**(GATED_DOC): {gates}")
+            continue
         err.append(f"C1 分类学**顶层**键 {f} 在代码中引用数为 0 —— "
                    f"死规则。若它确实是纯文档, 请具名登记进 TOPLEVEL_DOC_ONLY "
-                   f"(登记 = 写下一句可被反驳的声明, 不是豁免)")
+                   f"(登记 = 写下一句可被反驳的声明, 不是豁免); "
+                   f"★ **或给它写一道断言其内容的闸** —— 那比登记更强")
 
 proto = TAXO.get("annotation_protocol") or {}
 for f in sorted(set(proto) - DESCRIPTIVE - {"version"}):

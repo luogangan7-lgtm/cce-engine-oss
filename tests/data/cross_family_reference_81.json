@@ -1,0 +1,81 @@
+{
+ "block": "CROSS_FAMILY_REFERENCE_ON_THE_81_2026-09-08",
+ "★why_this_instead_of_more_anchors": "★★★ 2026-09-08 网页 GPT(Pro, 10m10s)的第五条路: 「若近期真正要交付的是这 81 条的验收结果, **优先做独立参考标注**, 而不是先建一场**仅用于决定谁能参与这 81 条验收**的资格考。」\n⇒ 它把问题从「**先证明谁合格**」翻转成「**直接证明这批产物的质量**」。**我一直在解前一个问题, 而它不是必需的前置。**",
+ "★★what_this_is_and_is_not": "★ GPT 说的是**独立人工参考**。我**没有人类复核者**, 而**我自己不能当** —— 2026-08-07 冷启动盲测有效的前提是标注者「**从未参与 codebook 修订**」, 而我今天大量改了 taxonomy / 资格考判据 / 多个闸, **我是这条链的作者**。\n⇒ 用 **glm-4.5-flash** 代替: 跨家族(非测量模型)、锚例阳性对照 **5/5**、**且从未标注过评论语料**(它此前只标过帖子)。\n★★ 真值标签 = **`cross_family_model_reference`**, **不是** human-adjudicated。阳性对照 5/5 的 Wilson 下界只有 **0.5655** —— 这个限度必须随结论一起报。\n★ 它**不**把五名标注者变成 QUALIFIED, **不**恢复旧语料的外部独立性, **不是**人工金标 —— 两个模型仍可能同向错。",
+ "★★★headline": {
+  "n": 81,
+  "glm_parse_success": "81/81",
+  "top1_一致": "**62/81 = 76.5%**  Wilson [0.6625, 0.8444]",
+  "top2_命中": "**74/81 = 91.4%**  (G-K1 阈 >=0.80) ✅",
+  "平均_JS": "**0.2236**  (G-K1 阈 <=0.25) ✅",
+  "★★reading": "★★★ **用一个从未参与 codebook 修订、不同家族的模型当参考, G-K1 的两项指标依然达标。**\n★ 这比「五个 MiniMax 互相比」强得多 —— 后者可能是**同族共享先验的假收敛**(interpretive convergence), 那正是 2026-08-07 做冷启动盲测要防的东西。\n★★ 但**不能**由此宣称 G-K1「通过」: 本轮是**产物质量证据**, 不是资格认证; 且参考者是模型不是人。",
+  "分布对照": {
+   "MiniMax共识": {
+    "itch": 8,
+    "display": 32,
+    "reward": 12,
+    "audit": 5,
+    "pain_seek": 19,
+    "suspend": 5
+   },
+   "GLM参考": {
+    "itch": 7,
+    "display": 33,
+    "reward": 13,
+    "audit": 5,
+    "pain_seek": 20,
+    "injustice": 1,
+    "suspend": 1,
+    "inertia": 1
+   },
+   "★note": "display 32 vs 33 · pain_seek 19 vs 20 · reward 12 vs 13 · audit 5 vs 5 —— **高度一致**"
+  }
+ },
+ "★★★the_one_class_that_broke": {
+  "class": "**suspend**",
+  "cross_family": "逐类一致 **0/5** —— GLM 一条都不同意",
+  "★★but_it_is_not_a_cross_family_disagreement": "★★★ **MiniMax 五员在这 5 条上内部全票一致 0/5**(其余 76 条是 **40/76 = 52.6%**); 共识权重只有 **0.37~0.47** —— **那是「最高票」不是共识**。\n⇒ **suspend 不是跨家族分歧, 是一个连内部都立不住的类。**",
+  "★glm_side": "GLM 给这 5 条的 **suspend 权重全是 0.00**; 它全 81 条只判了 **1** 条 suspend ⇒ **不是「认不出这 5 条」, 是几乎不用这个类**。 它把它们判成 {'pain_seek': 4, 'itch': 1}。",
+  "★fisher": "跨家族不一致率 suspend **5/5=100%** vs 其余 **18.4%**, Fisher 单侧 p = **0.00045**",
+  "★★this_is_a_different_disease_from_belong": "★★★ **belong 的病是「采样框错配」**(它在**另一个单元**活着, 换帖子后 7/81 ⇒ RETAIN)。\n★★ **suspend 的病不同, 但具体是什么**, 2026-09-08 已**降级为待检验假设**:\n  · 测量证据: 自然评论上 5 条**无一稳定**(五员全票一致 0/5, 共识权重 0.37~0.47, 跨家族全灭)\n  · 使用证据: 自制的、姿态**极端**的文本上**稳定读成 suspend 0.7**, 且**驱动了真实改稿决策**\n★★★ 两者**并存且指向不同处置** ⇒ **不能直接推出「构念本身坏了」**。\n  更准确: **suspend 在自然评论上的可靠性不足以支撑单类断言; 但它在高信号强度文本上可读, 且在下游 manipulation 上有实证效用。**\n★ 一个可检验的解释: **它的可靠性依赖信号强度** —— 自制文本姿态极端(信号强) vs 自然评论姿态混杂(一句话里既比价又求解又犹豫, 信号弱)。**这是测量条件限制, 不必然是构念缺陷。**",
+  "★corroborating_evidence_i_saw_earlier_but_did_not_follow": "★ Run C 的混淆诊断里就写着: 「**itch|suspend** 两者在 time=未来、未满足、attribution=none、coping 中/不确定 上**大面积重叠**」。**我当时看到了但没深究。** 现在有了跨家族证据。",
+  "★★downgraded_2026-09-08": "★★ 本节原写「**suspend 的病是构念本身**」—— **该句已降级为待检验假设**, 见 ★★★the_counter_evidence_i_found_in_memory_2026-09-08。测量证据(自然评论上不稳)与使用证据(自制文本上稳且有下游效用)**并存且指向不同处置**。"
+ },
+ "★disagreement_pairs": {
+  "suspend→pain_seek": 4,
+  "itch→display": 3,
+  "display→pain_seek": 2,
+  "audit→reward": 1,
+  "reward→display": 1,
+  "pain_seek→display": 1,
+  "pain_seek→injustice": 1,
+  "display→reward": 1,
+  "suspend→itch": 1,
+  "pain_seek→suspend": 1,
+  "display→inertia": 1,
+  "pain_seek→itch": 1,
+  "pain_seek→audit": 1
+ },
+ "★★what_this_does_not_settle": [
+  "★ 参考者是**模型**不是人 —— 两个模型可能同向错。阳性对照 5/5 的 Wilson 下界只有 0.5655。",
+  "★ GLM 与 MiniMax 用的是**逐字相同的 prompt**(含 KNOT_BRIEF / 决策树 / 负例句) ⇒ **共享的是同一份 codebook**。这检验的是「不同家族对同一 codebook 的解读是否一致」, **不是**「codebook 本身对不对」。",
+  "★ 不恢复外部独立性: 这 81 条仍是参与过开发决策的那批。",
+  "★ suspend 的 n=5, 结论方向清楚但**样本量小**。"
+ ],
+ "★★executable_next": "★ **suspend 需要单独处置**, 处置方式与 belong **不同**: belong 是换语料(已做, RETAIN); suspend 要么**修判别式**(与 itch/pain_seek 的边界), 要么按 belong 的先例走一次**判别效度研究**(挑战集 + 阴性近似对照)。★★ 但**不在本轮做** —— 那是看到结果之后的动作, 必须先冻结判据。",
+ "★★★the_counter_evidence_i_found_in_memory_2026-09-08": {
+  "★why_this_matters": "★★★ 我在 cross_family 那一轮的结论是「suspend 是一个连内部都立不住的类」。查库后发现**两条反面证据**, 它们让这个结论**不能直接推出「该删/该并」**。",
+  "①_downstream_efficacy": {
+   "source": "库内 2026-08-12 · CCE 对齐分归零的真正根因是姿态类型错配",
+   "★fact": "一次**真实的社媒回帖改稿**里: v1 稿(满篇「我缺这块/我发现我有个洞/我还没决定」+ 结尾提问)被本仪器**稳定读成 suspend 0.7**, 判为「阻挡类」⇒ **对齐分归零** ⇒ 触发改稿; v3 改成陈述句 + 给素材后读成 **display 0.92**, 对齐分 0.68 通过。三版才过闸。",
+   "★★reading": "★★★ **suspend 在「自制的、姿态极端的文本」上是稳定可读的, 而且驱动了一个真实决策。**\n⇒ 与「自然评论上 5 条无一稳定」**并存**。这不是矛盾, 是**两种测量条件**:\n  · 自制文本: 姿态**极端**(满篇自我怀疑) ⇒ 信号强\n  · 自然评论: 姿态**混杂**(一句话里既比价又求解又犹豫) ⇒ 信号弱\n★★ ⇒ 「suspend 是坏构念」这个结论**过强**。可能只是**它的可靠性依赖信号强度**。"
+  },
+  "②_it_keeps_landing_on_thresholds": {
+   "source": "库内 2026-08-18",
+   "★fact": "另一处实验里 suspend 在 T0/T1 格子的删失率 **恰好 = 50.0%**(4/8): 「>50% 判 UNRELIABLE」用 `>` → 保留 → P0; 用 `>=` → 剔除 → PASS。**一个比较符号, 相反判决, 且样本正落在边界上。**",
+   "★reading": "★ suspend 反复出现在各种判据的**边界**上 —— 这本身是它「难判」的独立证据, 与本轮一致。"
+  },
+  "★★★what_this_changes_about_my_conclusion": "★★★ 我原来写的是「**suspend 的病是构念本身**」。**那句话现在要降级为一个待检验的假设**, 因为它与「自制文本上稳定可读且有下游效用」并存。\n★ 更准确的表述: **suspend 在自然评论上的可靠性不足以支撑单类断言; 但它在高信号强度文本上可读, 且在下游 manipulation 上有实证效用。**\n★★ 这两件事都成立, 而**它们指向不同的处置** —— 前者指向删/并, 后者指向保留。⇒ 已交网页 GPT 调研(2026-09-08, 对话「审核 suspend 处置方案」)。",
+  "★still_frozen": "★ **本轮仍不处置。** 判别式未动(闸里现算确认)。"
+ }
+}

@@ -1,0 +1,1223 @@
+{
+ "kind": "cce.ablation_v3.parser_plane.cce_event_assemble.v1",
+ "unit": "parser_plane / EVENT 段 —— scripts/cce_event_assemble.py(125 行)",
+ "file": "scripts/cce_event_assemble.py",
+ "decided_at": "2026-09-12T20:05:01",
+ "method": {
+  "ablation_mode": "★ 磁盘副本消融(copy farm), 不是内存内注入。每臂从 pristine 全量 rsync 还原 → 对副本的 scripts/cce_event_assemble.py 做 replace_once 变异 → 清所有 __pycache__ → python3 -B 跑观测器 + 全量 164 测试。仓内被测文件**一字未改**(sha 见 file_integrity)。",
+  "why_copy_farm": "N1 的解法: 内存注入到不了「import 期自读磁盘」和「按路径读源码文本做子串断言」的面; 把变异写到磁盘副本上, 这两类面**结构上都看得见**, 于是本轮没有 blind 面来自注入作用域。",
+  "M3_4_pyc": "每臂 rsync 还原后先递归删 __pycache__ 再 python3 -B ⇒ 保字节数变异不会被旧 .pyc 掩盖。",
+  "M3_1_determinism": "观测器同输入连跑两次 + 在另一份独立副本(pc/)上再跑一次, 三次 L1/L2 sha 逐字节相同; 测试并行按**测试文件名 tag 索引**结果, 不共享迭代器。",
+  "R1_zero_network": "进程内 socket 绊线(sitecustomize 钩 socket.socket.connect / connect_ex / create_connection, 每个子进程 import 期自动装, 触发即抛并落账)。实测: **观测器与生产链子进程全程 tripped=0**; 全量套件 40 次运行里共拦下 **320 次**连接尝试(每次 8 次), **全部来自同一个测试** tests/test_cce_audio_prosody.py —— 它要从 modelscope.cn 下 speaker 模型, 经本机代理 127.0.0.1:7897。**没有一次连接成功**, 没有任何 key 被 export(全程用假环境变量, 仓内也不存在 .env)。",
+  "L3_excluded": "M2: instrument_hash / gate_protocol_hash 是重言, 零证据力, 本轮不用。另核: 本文件**根本不进** instrument_hash(它由 s1/s2 prompt sha 构成), 见 parser_plane_claim。"
+ },
+ "parser_plane_claim": {
+  "claim_under_test": "config/cce_core_manifest.json 的 parser_plane_note: 「Parser/Ingest 层可自由增删改, 不影响本闸; 新增模态只许落在这一层。」",
+  "note_holds": false,
+  "why": "★ 按字面读(「可自由增删改」= 改了不出事), **本件反例已实测**, 不止一条:\n① 本面活对照 C2_live_layer(行 76 的 \"layer\": \"atomic\" 改成非法值): cce_full_run --mode media_ingest 三份产物全部 complete: true→false · failed_at: null→event_assemble · 退出码 0→1, 且出口闸 qualified_readout **根本没跑到** ⇒ usable_keys 从 ['p3.events','p3.observations'] 变成 null, withheld 从 7 条变成空。**这是生产判决面, 不是数值面。**\n② A02/A03/A06(删 ATOMIC_TYPES 里的一条或整表): 纯视觉/纯 OCR 产物的 events 归零, scripts/cce_case_assemble.py:56 直接抛 ValueError('no events available: CCE request cannot bypass the event plane') —— CCE 请求面硬失败。\n③ A09i(intersection 注入 999.0/-999.0): 合同判 time must be a finite half-open interval ⇒ 生产链同样 complete: true→false。\n④ A10/A11(动铁律 3 准入闸): 带 knots/mass/state 的伪事件从**被拦**变成**放行**, tests/test_cce_ontology_iron_laws.py 翻红。\n⑤ 连**不动语义只动行数**都会红: C0_noop 只在文件末尾加了一行注释, tests/test_cce_ablation_verdicts_v3.py 的 coverage.scope_lines 现算闸就报 'scripts/cce_event_assemble.py: (125, 127)'。\n\n★ 按**窄读**(「本闸」专指铁律 20 的 Core 边界闸 scripts/cce_core_boundary.py / instrument_hash), 那句话**成立**: 本文件不在 config/cce_core_manifest.json 的 core_files 六件里, 不进 instrument_hash(它由 s1/s2 prompt sha 构成), 32 个臂里**没有一个**让 core_boundary 闸变色。\n⇒ 结论: 这句话的**措辞**为假(它说的是「不影响本闸」而读起来像「不影响任何闸」), **分层本身没错** —— 它确实不是 Core。真正的问题是这句话给了一个比事实宽得多的许可。",
+  "affects_collected_draws": "否(对 s1/s2 原始 draw), 是(对本层自己的归档产物的**可复现性**)。\n· Core 判据原文是「改了它, 已采集的原始 draw 就不能用」。本文件**不进任何 prompt**, media_ingest 链(media_validate→foundation_adapt→event_assemble→qualified_readout)根本不跑 s1/s2 ⇒ archive/*/ 里 22 份 draw_ledger 一条都不受影响, instrument_hash 不变, 旧标定照样可搬。\n· 但仓内**确实存在**本层的已采集产物: archive/33743931309/cce-item-0-33743931309__events.json(39 事件) 与 archive/33840200869/cce-item-0-33840200869__events.json(1 事件), 两者都带 provenance={'producer':'cce_event_assemble','version':'1.0.0'}, 是 P3 首次进生产那两次 CI 的产物。它们由 archive/<rid>/_listing.json 逐文件 sha256 钉住(cce-item-0-33743931309__events.json → 3baec9daadc1a4eb; cce-item-0-33840200869__events.json → dfa6f0207ea67ef5)、由 scripts/cce_archive.py:80-95 rebuild() 现校 ⇒ **改本文件不会让这两份文件本身失效**(字节没动, sha 照过)。失效的是「拿同一份解析产物重跑能得到同样 events」这条可复现性: A02/A03/A24 都会让重跑结果与归档不一致, 而**没有任何闸在比这件事**。",
+  "counterexamples": [
+   "C2_live_layer @ scripts/cce_event_assemble.py:76 → media_ingest 生产链 complete true→false, 出口闸 usable_keys ['p3.events','p3.observations']→null, withheld 7→0, 退出码 0→1",
+   "A02_map_visual @ :22 → B_visual_only 产物 events 2→0, build_request 抛 'no events available: CCE request cannot bypass the event plane'",
+   "A03_map_ocr @ :23 → C_ocr_only 产物 events 2→0, 同上硬失败",
+   "A06_map_all_empty @ :21-26 → 四类产物里三类 build_request 硬失败, 出口闸 p3.events n=10→2",
+   "A09i_intersection_inverted @ :36-38 → 合同 'time: must be a finite half-open interval', 生产链 complete true→false",
+   "A10_state_keys_empty / A11_iron3_raise_removed @ :42-44 / :59-64 → 铁律 3 从拦变放行, tests/test_cce_ontology_iron_laws.py 翻红",
+   "C0_noop(纯加一行注释) @ 文件末 → tests/test_cce_ablation_verdicts_v3.py coverage.scope_lines 闸红"
+  ],
+  "asymmetry_note": "★ 任务书提醒的不对称在本件上**反过来了**: parser_plane 明说可自由增删改, 所以这里的 NO_CONSUMER 本不该直接推出 deletable; 但本件实测**几乎没有 NO_CONSUMER** —— 它是 parser_plane 四件里唯一直接进生产主链(cce_full_run.py:379)的那件, 27 个位点里多数直接改生产判决面。M8 的存量偏倚在这里**很弱**, 因为观测面里放了真正的生产链而不是只放存量语料。"
+ },
+ "positive_control": {
+  "passed": true,
+  "layer_s1_harness": {
+   "what": "M1 第一条: 先过既有判官(probes/ablation_harness_v3.positive_control), 在**独立副本** pc/ 上跑, 不碰仓。",
+   "passed": true,
+   "checks": {
+    "determinism_same_module_twice": true,
+    "determinism_fresh_reload": true,
+    "baseline_replay_reproduces_archived_intensity": "22/22",
+    "tags_indexed_not_iterator": true,
+    "dead_constant_revives_at_k": {
+     "k": 7,
+     "base_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "dead_arm_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      999.0,
+      -999.0
+     ],
+     "L1_changed_at_this_k": true
+    },
+    "tripwire_tripped": []
+   },
+   "arms": [
+    "dead_absurd",
+    "dead_swap",
+    "liquid",
+    "noop"
+   ],
+   "caveat": "★ 这一对对照只验收 **s1 面**。本轮三件消融落在 parser/ingest 面, 它证明不了我这一面接上了 —— 所以下面另做了一对。"
+  },
+  "own_face_dead_control": "C1_dead_comment @ scripts/cce_event_assemble.py:84-85 —— 把复合段上方那两行纯英文注释换成两行别的注释(**行数不变**, 不含任何被闸 grep 的证据串)。结果: L1 sha 不变 · 六个 L2 面逐字节不变 · L4 净新增(串行确认后)0 条。⇒ 判据非重言。",
+  "own_face_live_control": "C2_live_layer @ scripts/cce_event_assemble.py:76 —— 把原子事件的 \"layer\": \"atomic\" 改成 \"atomic_CTRL\"(一个合同不认的值)。结果: L1 sha 改变 · L2a 合同判决 7 份产物全 ok:true→false · L2b/L2c 生产链 complete true→false、failed_at null→event_assemble、退出码 0→1、出口闸 usable_keys ['p3.events','p3.observations']→null、withheld 7→0 · L4 净新增多条。⇒ 装置在本面接上了。",
+  "dead_constant_verdict": "cce_knot_classify._S1_BASE_TEMPS[5:7] 在 k∈{3,5} 下: swap 与 999.0/-999.0 两种注入, L1 与 L2 **都不变** ⇒ 判无差异(与既有结论一致); k=7 时被取用、L1 改变 ⇒ UNREACHABLE 而非 NO_CONSUMER。",
+  "liquidity_arm_changed_L1": true,
+  "determinism_ok": true,
+  "determinism_evidence": "观测器在同一份 pristine 上连跑两次 → 输出文件 sha256 逐字节相同; 再在**另一份独立副本** pc/ 上跑第三次 → L1_sha256 与 L2_sha256 与 arm 基线完全一致。套件结果按**测试文件名 tag** 索引(runsuite.py 用 ThreadPoolExecutor.map 返回 (tag, 结果) 元组), 不共享迭代器。",
+  "copy_baseline_green": true,
+  "copy_baseline_evidence": "pristine 副本全量 164 测试: 163 绿 / 1 红。唯一的红是 tests/test_cce_audio_prosody.py —— 它要从 modelscope.cn 下 speaker 模型, 在 R1 零网络下**结构上不可能绿**(绊线记录 8 次被拦的连接尝试, 全部指向本机代理 127.0.0.1:7897)。基线红名单: ['tests/test_cce_audio_prosody.py']。★ 第一版副本曾 60/164 红, 根因两条, 都已修: ① 我的 sitecustomize 遮住了 homebrew 的 sitecustomize, 导致 site-packages 丢失(requests/numpy/PIL 全 ModuleNotFound) —— 改为先 exec 被遮住的那份; ② 漏拷 .git, 导致 test_cce_k1_cost_curve / test_cce_open_items 找不到冻结 commit —— 已补拷。(这正是 M3-⑤ 说的那个坑, 本轮实测又踩到一次。)",
+  "pycache_cleared": true,
+  "pycache_evidence": "每臂从 pristine rsync --delete 全量还原后, 递归删除全部 __pycache__ 目录, 再用 python3 -B 跑观测器与套件(runsuite.py 亦在每次运行前再删一遍)。本轮多数变异**改变文件长度**, 但 A08/A15/A17/A24/A27 这几条是等长或近等长替换, M3-④ 那个 mtime+size 的坑正是冲它们来的。",
+  "evidence": "见 tests/data/ablation_v3/ 同目录下本文件, 以及 scratchpad 里的 out/*.obs.json · out/*.suite.json · out/_analysis.json · out/_confirm.json · out/_harness_positive_control.json。"
+ },
+ "operating_point": {
+  "unit_note": "★ 本件在 media_ingest 链上, **不跑 s1/s2** ⇒ k 不是它的参数。下面同时给两套工况: 本轮真正的工况(媒体语料), 与仓内存量 draw 的工况(供与其它消融判决对齐)。",
+  "market": "★ **存在**, 不是 N/A。实扫 scripts/ probes/ accuracy/ config/ .github/ 共 61 处(明细见 instrument_defects[0])。但 **media_ingest 链自身不带 market 维度** —— market 只出现在出站闸(cce_outbound_guard / cce_strategy_gate, env CCE_MARKET 默认 'intl'), 而出站闸与本文件所在的链无交集。⇒ 本判决对 market 的正确表述是「本链不分市场; 出站闸分, 但够不着这里」, 而不是「仓内无 market」。",
+  "profile": "media_ingest(config/cce_submission_contract_v1.json profiles.media_ingest; CHAINS['media_ingest'] = media_validate → foundation_adapt → event_assemble → qualified_readout; 能力档 config/cce_capability_registry_v1.json: profile 为 production_github, 而 capability id=event_assembly 自身仍标 component_only)。",
+  "k_distribution": "N/A —— media_ingest 链不产生 draw。供对齐: 仓内 archive 存量 22 份 draw_ledger 的 k_requested 分布 {3: 20, 5: 2}, 每份 n=5(由 probes/ablation_harness_v3.operating_point 现算)。",
+  "n_replayed": 7,
+  "n_replayed_note": "7 份确定性合成解析产物(A 视觉+OCR 同时刻重叠 / B 纯视觉 / C 纯 OCR / D 纯音频 / E 视觉与 OCR 时间窗完全不交叠 / F 纯 shot_boundary / G 密集 30s 多时刻), 基线共产出 55 个事件、48 个观察; 其中 3 份(A/D/E)另走了完整的 cce_full_run --mode media_ingest 子进程。",
+  "corpus_sha": "b7030fbb245767f55fa3568872ee50ef11219b2ef5a670f061134d9a3027c379",
+  "archive_corpus_sha256": "8226cd11ee4593a08ed356aa1085acce3c9aea2f287ae0ae544ee2e48c355ac7",
+  "decided_at": "2026-09-12T20:05:01",
+  "drift_rule": "以上任一项变化 ⇒ 本判决当场失效, 必须重跑。特别是 cce_foundation_adapter.timepoint() 的 **1ms 点窗**: A08(严格 <)与 A09(max/min)的 UNREACHABLE 判决直接建在它上面。",
+  "M8_structural_bias": "★ 在本件上很弱。存量消融的偏倚来自「只拿已归档的数据重放」, 而本轮的主观测面是**现跑生产链**(cce_full_run --mode media_ingest 子进程, 每臂重跑), 不是重放存量; 所以保险丝(铁律 3 准入闸、合同守卫)是被**主动触发**判定的, 不是靠存量碰运气。仍有偏倚的只剩两处: ① 合成语料的形状是我选的, 长尾没覆盖(见 limits 第 1 条); ② 归档的两份生产 events 产物只有 2 份, 样本极小。"
+ },
+ "file_integrity": {
+  "sha_before": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "scripts/cce_event_assemble.py": "dfd53cb628ad5dbe3b3aee720ab2172a2d56d66705a16fe4641fc488ac69e70a"
+  },
+  "sha_after": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "scripts/cce_event_assemble.py": "dfd53cb628ad5dbe3b3aee720ab2172a2d56d66705a16fe4641fc488ac69e70a"
+  },
+  "unchanged": true,
+  "note": "五个文件(四个冻结件 + 被测件)跑前跑后逐一相同。"
+ },
+ "reference_counting": {
+  "surfaces": {
+   "coarse": "词边界正则, 扫描面 = scripts/ probes/ accuracy/ tests/ .github/ config/, 后缀 .py/.json/.yml/.yaml/.md/.txt/.sh, 排除 __pycache__ 与**定义文件自身**; 共 640 个文件。",
+   "strict": "在 coarse 之上再要求: ①是 .py ②该文件文本里确实出现 'cce_event_assemble'(即真能解析到本模块) ③该行不是纯注释行。"
+  },
+  "counts": {
+   "ASSEMBLER_VERSION": {
+    "coarse": 0,
+    "strict": 0
+   },
+   "ATOMIC_TYPES": {
+    "coarse": 0,
+    "strict": 0
+   },
+   "overlaps": {
+    "coarse": 2,
+    "strict": 0,
+    "coarse_files": [
+     "config/cce_foundation_contract_v1.json",
+     "config/cce_foundation_contract_v2.json"
+    ]
+   },
+   "intersection": {
+    "coarse": 2,
+    "strict": 0,
+    "coarse_files": [
+     "probes/discriminability.py",
+     "probes/pairing_calibration.py"
+    ]
+   },
+   "_STATE_KEYS": {
+    "coarse": 1,
+    "strict": 0,
+    "coarse_files": [
+     "tests/data/ablation_v3/s2_聚合与判决面__independent_recheck.json"
+    ]
+   },
+   "assemble": {
+    "coarse": 18,
+    "strict": 13
+   },
+   "main": {
+    "coarse": 327,
+    "strict": 6
+   },
+   "cross_modal_synchronization": {
+    "coarse": 3,
+    "strict": 0
+   },
+   "confidence_basis": {
+    "coarse": 12,
+    "strict": 8
+   }
+  },
+  "M4_counterexamples_from_this_file": [
+   "★ ASSEMBLER_VERSION 与 ATOMIC_TYPES 的**粗计都是 0**(定义文件之外一次都不出现) —— 按引用计数它们是 NO_CONSUMER。实测: ASSEMBLER_VERSION 是每条派生事件 provenance.version 的唯一来源(已落进两份归档生产产物), ATOMIC_TYPES 决定哪些观察能变成事件(删一条就让某类产物 events 归零、build_request 直接抛)。**引用计数在这两件上给的是反的。**",
+   "★ overlaps 粗计 2 / intersection 粗计 2, 但逐条看: overlaps 的两处在 cce_foundation_contract_v1/v2.json 的**散文**里, intersection 的两处在 probes/discriminability.py 与 probes/pairing_calibration.py 里指**集合交集**, 没有一处是对本文件函数的调用 —— 教科书式词碰撞。"
+  ],
+  "★为什么排除 tests/data/ablation_v3/": "实测自污染: 本报告一落盘, 'ASSEMBLER_VERSION' 的粗计就从 0 跳到 9(全是我自己这份报告里的引用); 同一目录下**并发跑的另一个 agent** 的产物 tests/data/ablation_v3/parser_cce_case_assemble.json 又贡献了 2 处。⇒ 引用计数必须把本轮消融产物目录整体排除, 否则数的是「我写了几次这个词」不是「代码引用了几次」。顶层 counts 是**报告落盘前**的一次独立扫描(未排除该目录, 但当时该目录里还没有本轮任何产物), 逐条 verdict 的 ref_count_* 则是排除后现算的 —— 两者口径已分别写明。"
+ },
+ "N1_modules_that_reread_source_at_import": {
+  "question": "哪些模块会绕过内存注入, 自己从磁盘再读一份 scripts/cce_event_assemble.py 的源码/路径?",
+  "how_measured": "全量 164 个测试各跑一遍, 进程内用 sitecustomize 钩住 builtins.__import__ / builtins.open / pathlib.Path.read_text, 按测试文件名打 tag 记账(不是静态猜)。",
+  "import_it": [
+   "tests/test_cce_chain_conformance.py",
+   "tests/test_cce_contract.py",
+   "tests/test_ontology_migration.py",
+   "tests/test_cce_ontology_iron_laws.py",
+   "tests/test_cce_media_ingest_production.py",
+   "tests/test_cce_media_chain_history.py",
+   "tests/test_cce_image_chain_ci.py"
+  ],
+  "read_its_source_text_from_disk": {
+   "tests/test_cce_doc_reconcile.py": 34,
+   "tests/test_cce_chain_conformance.py": 34,
+   "tests/test_cce_consistency_check.py": 15,
+   "tests/test_cce_ablation_verdicts_v3.py": 14,
+   "tests/test_cce_archive_plane.py": 11,
+   "tests/test_ontology_migration.py": 4,
+   "tests/test_cce_module_boundary.py": 2,
+   "tests/test_cce_ablation_harness_v3.py": 2,
+   "tests/test_cce_taxonomy_field_reach.py": 1,
+   "tests/test_cce_confidence_basis.py": 1
+  },
+  "production_importers": [
+   "scripts/cce_full_run.py:379 (生产链 media_ingest)",
+   "scripts/cce_case_assemble.py:20",
+   "probes/media_chain_on_history.py:24"
+  ],
+  "source_text_gate_mechanisms": [
+   "tests/test_cce_confidence_basis.py:56-66 —— 读本文件源码, 断言 count('\"confidence_basis\": \"definitional\"')==2, 且每处 confidence:1.0 之后 200 字内必须出现 confidence_basis。",
+   "scripts/cce_doc_reconcile.py:50 —— 按 config/cce_doc_reconciliation.json 的 iron_laws 2/3 打开本文件, 断言证据串 'events' / '铁律 3: Event != State' 在其中(入口: tests/test_cce_doc_reconcile.py / test_cce_docs_index.py)。",
+   "tests/test_cce_ablation_verdicts_v3.py:101 —— coverage.scope_lines 现算闸: 本文件**行数**改变即红(与语义无关, 加一行注释也红)。"
+  ],
+  "conclusion": "★ 本轮采用磁盘副本消融 ⇒ 上面每一类都看得见。**本轮没有任何面是因为「注入到不了」而 blind 的**; faces_blind 里列的四条是**结构上不可达**(前两条)或**口径外/未实跑**(后两条), 不是注入盲区。"
+ },
+ "★tally": {
+  "LOAD_BEARING_L1_ONLY": 7,
+  "LOAD_BEARING_L2": 11,
+  "UNREACHABLE": 6,
+  "NO_CONSUMER": 3
+ },
+ "★n_verdicts": 27,
+ "★headline": [
+  "★ parser_plane_note 按字面读为假: 本件 27 个位点里 11 个直接改**生产判决面**(cce_full_run --mode media_ingest 的 complete/failed_at/退出码 与出口闸 qualified_readout 的 usable/withheld 集合)。按窄读(本闸=铁律20 Core 边界闸)成立。",
+  "★ 删掉整段跨模态复合事件(行 88-105) ⇒ 事件数 10→8 / 34→29, 生产产物实打实变少, 但**确认净新增 L4 = 0** —— 唯一声称管它的断言读的是归档 JSON(tests/test_cce_media_chain_history.py:38), 不是现跑结果。",
+  "★ assertion 从 derived 改成 observed ⇒ L1 变, **零测试翻红** —— 合同只管形状(三种 assertion 都合法), 语义退化没人管。",
+  "★ 引用计数在本件上给的是反的: ASSEMBLER_VERSION 与 ATOMIC_TYPES 的**粗计都是 0**, 实际一个进两份归档生产产物、一个决定哪些观察能成为事件。",
+  "★ 铁律 3 的「有闸」在 config/cce_doc_reconciliation.json 上是被一条**注释**满足的: 删掉整个 raise 块后, 行 50 的注释仍含证据串 ⇒ cce_doc_reconcile.py:50 照样绿。真正拦得住的是 tests/test_cce_ontology_iron_laws.py。",
+  "★ 装置缺陷: probes/ablation_harness_v3.operating_point() 写死的「仓内无 market 字段」是假的(实扫 61 处)。"
+ ],
+ "verdicts": [
+  {
+   "component": "ASSEMBLER_VERSION = \"1.0.0\"",
+   "locus": "scripts/cce_event_assemble.py:18",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "consumer_side": "P",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "True",
+   "L2_changed": "False",
+   "L4_measured": "并行套件净新增红 1 条 → 串行复跑确认 0 条: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: []。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "未跑(本臂已有差异, M6 不要求)",
+   "deletable": false,
+   "deletable_reason": "它是每条派生事件 provenance.version 的唯一来源, 已落进两份归档生产产物(archive/33743931309/…__events.json · archive/33840200869/…__events.json, 均写着 version=1.0.0)。删掉 ⇒ 产物少一个字段, 且无从区分不同代组装器产出的事件。",
+   "unreachable_condition": "",
+   "analysis_note": "L1 面改变(输出 JSON 值), 但没有任何闸或判决读它 ⇒ L1_ONLY。",
+   "ref_count_coarse": 0,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'ASSEMBLER_VERSION' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A01_version\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"3c261de3d9ae2eac\", \"L2_faces_changed\": [], \"L4_parallel_raw_new_red\": [\"tests/test_cce_chain_conformance.py\"], \"L4_confirmed_new_red_serial\": [], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "ATOMIC_TYPES[\"visual_frame_description\"]",
+   "locus": "scripts/cce_event_assemble.py:22",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "C",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "True",
+   "L2_changed": "True",
+   "L4_measured": "并行套件净新增红 3 条 → 串行复跑确认 1 条: ['tests/test_cce_ablation_verdicts_v3.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: ['tests/test_cce_ablation_verdicts_v3.py']。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "未跑(本臂已有差异, M6 不要求)",
+   "deletable": false,
+   "deletable_reason": "删它 ⇒ 纯视觉产物的 events 归零, cce_case_assemble.build_request 直接抛「no events available: CCE request cannot bypass the event plane」。",
+   "unreachable_condition": "",
+   "analysis_note": "",
+   "ref_count_coarse": 1,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'visual_frame_observed' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A02_map_visual\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"863fd42ead048c58\", \"L2_faces_changed\": [\"a_contract_ok\", \"b_c_full_run_media_ingest\", \"d_build_request\"], \"L4_parallel_raw_new_red\": [\"tests/test_cce_ablation_verdicts_v3.py\", \"tests/test_cce_chain_conformance.py\", \"tests/test_cce_consistency_check.py\"], \"L4_confirmed_new_red_serial\": [\"tests/test_cce_ablation_verdicts_v3.py\"], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\", \"tests/test_cce_consistency_check.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "ATOMIC_TYPES[\"on_screen_text\"]",
+   "locus": "scripts/cce_event_assemble.py:23",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "C",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "True",
+   "L2_changed": "True",
+   "L4_measured": "并行套件净新增红 1 条 → 串行复跑确认 1 条: ['tests/test_cce_ablation_verdicts_v3.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: ['tests/test_cce_ablation_verdicts_v3.py']。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "未跑(本臂已有差异, M6 不要求)",
+   "deletable": false,
+   "deletable_reason": "同上; 且它同时喂 cross_modal_synchronization 的 texts 侧。",
+   "unreachable_condition": "",
+   "analysis_note": "",
+   "ref_count_coarse": 1,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'on_screen_text_observed' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A03_map_ocr\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"2908134f527c96c5\", \"L2_faces_changed\": [\"a_contract_ok\", \"b_c_full_run_media_ingest\", \"d_build_request\", \"f_iron_law3_admission\"], \"L4_parallel_raw_new_red\": [\"tests/test_cce_ablation_verdicts_v3.py\"], \"L4_confirmed_new_red_serial\": [\"tests/test_cce_ablation_verdicts_v3.py\"], \"L4_dropped_as_parallel_flake\": [], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "ATOMIC_TYPES[\"speech_transcript\"]",
+   "locus": "scripts/cce_event_assemble.py:24",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "P",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "True",
+   "L2_changed": "True",
+   "L4_measured": "并行套件净新增红 2 条 → 串行复跑确认 1 条: ['tests/test_cce_ablation_verdicts_v3.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: ['tests/test_cce_ablation_verdicts_v3.py']。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "未跑(本臂已有差异, M6 不要求)",
+   "deletable": false,
+   "deletable_reason": "删它 ⇒ 纯语音产物 events 归零; 出口闸 usable['p3.events'].n 与 types 少一类。",
+   "unreachable_condition": "",
+   "analysis_note": "",
+   "ref_count_coarse": 1,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'speech_observed' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A04_map_speech\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"2cd9035878dc1fd4\", \"L2_faces_changed\": [\"a_contract_ok\", \"b_c_full_run_media_ingest\", \"d_build_request\"], \"L4_parallel_raw_new_red\": [\"tests/test_cce_ablation_verdicts_v3.py\", \"tests/test_cce_chain_conformance.py\"], \"L4_confirmed_new_red_serial\": [\"tests/test_cce_ablation_verdicts_v3.py\"], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "ATOMIC_TYPES[\"audio_tags\"]",
+   "locus": "scripts/cce_event_assemble.py:25",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "P",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "True",
+   "L2_changed": "True",
+   "L4_measured": "并行套件净新增红 1 条 → 串行复跑确认 1 条: ['tests/test_cce_ablation_verdicts_v3.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: ['tests/test_cce_ablation_verdicts_v3.py']。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "未跑(本臂已有差异, M6 不要求)",
+   "deletable": false,
+   "deletable_reason": "同上。",
+   "unreachable_condition": "",
+   "analysis_note": "",
+   "ref_count_coarse": 1,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'audio_tags_observed' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A05_map_audio_tags\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"1ecdf7204bd38c7d\", \"L2_faces_changed\": [\"a_contract_ok\", \"b_c_full_run_media_ingest\", \"d_build_request\"], \"L4_parallel_raw_new_red\": [\"tests/test_cce_ablation_verdicts_v3.py\"], \"L4_confirmed_new_red_serial\": [\"tests/test_cce_ablation_verdicts_v3.py\"], \"L4_dropped_as_parallel_flake\": [], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "ATOMIC_TYPES 整表",
+   "locus": "scripts/cce_event_assemble.py:21-26",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "C",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "True",
+   "L2_changed": "True",
+   "L4_measured": "并行套件净新增红 3 条 → 串行复跑确认 2 条: ['tests/test_cce_ablation_verdicts_v3.py', 'tests/test_cce_contract.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: ['tests/test_cce_ablation_verdicts_v3.py']。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): ['tests/test_cce_contract.py']。",
+   "injection_test": "未跑(本臂已有差异, M6 不要求)",
+   "deletable": false,
+   "deletable_reason": "清空 ⇒ media_ingest 出口闸 usable['p3.events'] 变 n=0/types={}; 四类产物里三类 build_request 直接抛。",
+   "unreachable_condition": "",
+   "analysis_note": "",
+   "ref_count_coarse": 0,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'ATOMIC_TYPES' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A06_map_all_empty\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"653777219becc43c\", \"L2_faces_changed\": [\"a_contract_ok\", \"b_c_full_run_media_ingest\", \"d_build_request\", \"f_iron_law3_admission\"], \"L4_parallel_raw_new_red\": [\"tests/test_cce_ablation_verdicts_v3.py\", \"tests/test_cce_chain_conformance.py\", \"tests/test_cce_contract.py\"], \"L4_confirmed_new_red_serial\": [\"tests/test_cce_ablation_verdicts_v3.py\", \"tests/test_cce_contract.py\"], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "overlaps() 的 time 类型守卫",
+   "locus": "scripts/cce_event_assemble.py:31-32",
+   "verdict": "UNREACHABLE",
+   "consumer_side": "P",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "False",
+   "L2_changed": "False",
+   "L4_measured": "并行套件净新增红 1 条 → 串行复跑确认 1 条: ['tests/test_cce_ablation_verdicts_v3.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: ['tests/test_cce_ablation_verdicts_v3.py']。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "A07i_overlaps_always_true: L1_changed=True L2_changed=True 面=['a_contract_ok', 'b_c_full_run_media_ingest', 'd_build_request'] ⇒ 位点确被读到, 无差异只对这一组取值成立",
+   "deletable": false,
+   "deletable_reason": "它是防御分支, 但 overlaps() 是模块级公开函数, 删守卫 = 把 TypeError 暴露给未来调用方。本轮无法证明它承重, 也不能据此判它该删。",
+   "unreachable_condition": "assemble() 内 overlaps() 只被行 90 以 atomic 事件调用, 而行 70 已保证 isinstance(obs['time'], dict) ⇒ 守卫在本调用图上**结构上进不去**。复活条件: 出现 assemble() 以外的 overlaps() 调用方并传入非 dict 的 time。实扫: 仓内 overlaps 粗计 2 处, 全在 config/cce_foundation_contract_v1/v2.json 的散文里, **没有一处是调用** ⇒ 今天没有这样的调用方。",
+   "analysis_note": "",
+   "ref_count_coarse": 2,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'overlaps' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A07_overlaps_typeguard\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"736f44936f79b29c\", \"L2_faces_changed\": [], \"L4_parallel_raw_new_red\": [\"tests/test_cce_ablation_verdicts_v3.py\"], \"L4_confirmed_new_red_serial\": [\"tests/test_cce_ablation_verdicts_v3.py\"], \"L4_dropped_as_parallel_flake\": [], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "overlaps() 的严格 < (半开区间语义)",
+   "locus": "scripts/cce_event_assemble.py:33",
+   "verdict": "UNREACHABLE",
+   "consumer_side": "P",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "False",
+   "L2_changed": "False",
+   "L4_measured": "并行套件净新增红 1 条 → 串行复跑确认 0 条: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: []。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "A08i_overlaps_always_false: L1_changed=True L2_changed=True 面=['a_contract_ok', 'b_c_full_run_media_ingest', 'd_build_request'] ⇒ 位点确被读到, 无差异只对这一组取值成立",
+   "deletable": false,
+   "deletable_reason": "< 改 <= 在本语料上无差异, 但那是语料性质不是符号性质。",
+   "unreachable_condition": "cce_foundation_adapter.timepoint() 给每个时间点造 **1ms 半开窗**(start, start+0.001)。两窗要恰好相接需要两个时间戳相差正好 0.001s; 真实解析产物的时间戳步长是 0.5s 量级 ⇒ 本工况下 < 与 <= 判出的结果集**恒等**。复活条件: 出现相差恰好 1ms 的 visual/ocr 时间戳(或 timepoint 的 duration 夹取分支造出相接窗)。",
+   "analysis_note": "",
+   "ref_count_coarse": 2,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'overlaps' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A08_overlaps_strict_lt\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"736f44936f79b29c\", \"L2_faces_changed\": [], \"L4_parallel_raw_new_red\": [\"tests/test_cce_chain_conformance.py\"], \"L4_confirmed_new_red_serial\": [], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "intersection() 的 max(start)/min(end)",
+   "locus": "scripts/cce_event_assemble.py:36-38",
+   "verdict": "UNREACHABLE",
+   "consumer_side": "C",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "False",
+   "L2_changed": "False",
+   "L4_measured": "并行套件净新增红 1 条 → 串行复跑确认 0 条: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: []。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "A09i2_intersection_none: L1_changed=True L2_changed=True 面=['a_contract_ok', 'b_c_full_run_media_ingest', 'd_build_request'] ⇒ 位点确被读到, 无差异只对这一组取值成立",
+   "deletable": false,
+   "deletable_reason": "注入荒谬值直接把生产链判红 ⇒ 该函数**在承重路径上**; 只是 max/min 的取舍在本工况退化。",
+   "unreachable_condition": "1ms 窗要重叠, 两窗必须几乎重合 ⇒ a.time == b.time, 此时 max 与 min 同值, 把 max/min 对调**输出逐字节不变**。复活条件: 出现真正**部分重叠**(非重合)的两个观察窗, 即解析器改用有实际时长的窗(scene duration)而不是 1ms 点窗。",
+   "analysis_note": "",
+   "ref_count_coarse": 2,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'intersection' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A09_intersection_swapped\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"736f44936f79b29c\", \"L2_faces_changed\": [], \"L4_parallel_raw_new_red\": [\"tests/test_cce_chain_conformance.py\"], \"L4_confirmed_new_red_serial\": [], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "_STATE_KEYS(铁律 3 的状态字段表)",
+   "locus": "scripts/cce_event_assemble.py:42-44",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "G",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "False",
+   "L2_changed": "True",
+   "L4_measured": "并行套件净新增红 3 条 → 串行复跑确认 2 条: ['tests/test_cce_ablation_verdicts_v3.py', 'tests/test_cce_ontology_iron_laws.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: ['tests/test_cce_ablation_verdicts_v3.py']。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): ['tests/test_cce_ontology_iron_laws.py']。",
+   "injection_test": "未跑(本臂已有差异, M6 不要求)",
+   "deletable": false,
+   "deletable_reason": "它是铁律 3(Event != State)准入闸的判别集合。清空 = 闸失效。",
+   "unreachable_condition": "",
+   "analysis_note": "",
+   "ref_count_coarse": 0,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 '_STATE_KEYS' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A10_state_keys_empty\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"736f44936f79b29c\", \"L2_faces_changed\": [\"f_iron_law3_admission\"], \"L4_parallel_raw_new_red\": [\"tests/test_cce_ablation_verdicts_v3.py\", \"tests/test_cce_chain_conformance.py\", \"tests/test_cce_ontology_iron_laws.py\"], \"L4_confirmed_new_red_serial\": [\"tests/test_cce_ablation_verdicts_v3.py\", \"tests/test_cce_ontology_iron_laws.py\"], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "铁律 3 的 raise 块(自带 events 的准入闸)",
+   "locus": "scripts/cce_event_assemble.py:59-64",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "G",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "False",
+   "L2_changed": "True",
+   "L4_measured": "并行套件净新增红 3 条 → 串行复跑确认 2 条: ['tests/test_cce_ablation_verdicts_v3.py', 'tests/test_cce_ontology_iron_laws.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: ['tests/test_cce_ablation_verdicts_v3.py']。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): ['tests/test_cce_ontology_iron_laws.py']。",
+   "injection_test": "未跑(本臂已有差异, M6 不要求)",
+   "deletable": false,
+   "deletable_reason": "删它 ⇒ 贴 assertion='observed' 的状态断言可直接冒充事件进入事件面。",
+   "unreachable_condition": "",
+   "analysis_note": "",
+   "ref_count_coarse": 0,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 '_STATE_KEYS' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A11_iron3_raise_removed\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"736f44936f79b29c\", \"L2_faces_changed\": [\"f_iron_law3_admission\"], \"L4_parallel_raw_new_red\": [\"tests/test_cce_ablation_verdicts_v3.py\", \"tests/test_cce_chain_conformance.py\", \"tests/test_cce_ontology_iron_laws.py\"], \"L4_confirmed_new_red_serial\": [\"tests/test_cce_ablation_verdicts_v3.py\", \"tests/test_cce_ontology_iron_laws.py\"], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "copy.deepcopy(case)",
+   "locus": "scripts/cce_event_assemble.py:48",
+   "verdict": "UNREACHABLE",
+   "consumer_side": "P",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "False",
+   "L2_changed": "False",
+   "L4_measured": "并行套件净新增红 1 条 → 串行复跑确认 0 条: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: []。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "A12i_mutate_input_in_place: L1_changed=False L2_changed=False 面=[] ⇒ 荒谬值注入后下游**仍然不变**",
+   "deletable": false,
+   "deletable_reason": "去掉 ⇒ assemble() 就地改调用方的 case。cce_full_run.event_assemble 把 ctx['case'] 传进来又把结果另存 ctx['events_case'], 两者会变成同一个对象。",
+   "unreachable_condition": "去掉 deepcopy 后, assemble() 的返回值与入参是同一个对象。今天没有任何调用方在 assemble() 之后还读原 case: cce_full_run.event_assemble 拿到 ev 就存 ctx['events_case'](ctx['case'] 此后不再被读), cce_case_assemble.build_request 直接用返回值, probes/media_chain_on_history.py 同理 ⇒ 别名在本工况无人察觉。复活条件: 出现「先 assemble 再读原 case」的调用方, 或同一个 case 被 assemble 两次(第二次会看见第一次写进去的 events)。",
+   "analysis_note": "",
+   "ref_count_coarse": 108,
+   "ref_count_strict": 12,
+   "ref_scan_surface": "符号 'deepcopy' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A12_no_deepcopy\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"736f44936f79b29c\", \"L2_faces_changed\": [], \"L4_parallel_raw_new_red\": [\"tests/test_cce_chain_conformance.py\"], \"L4_confirmed_new_red_serial\": [], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "原子事件去重 if eid in existing",
+   "locus": "scripts/cce_event_assemble.py:73-74",
+   "verdict": "UNREACHABLE",
+   "consumer_side": "P",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "False",
+   "L2_changed": "False",
+   "L4_measured": "并行套件净新增红 2 条 → 串行复跑确认 1 条: ['tests/test_cce_ablation_verdicts_v3.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: ['tests/test_cce_ablation_verdicts_v3.py']。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "A13i_duplicate_every_atomic: L1_changed=True L2_changed=True 面=['a_contract_ok', 'b_c_full_run_media_ingest', 'd_build_request', 'f_iron_law3_admission'] ⇒ 位点确被读到, 无差异只对这一组取值成立",
+   "deletable": false,
+   "deletable_reason": "它防的是「调用方已带同 id 事件」与重复 obs id; 本工况两者都不出现。",
+   "unreachable_condition": "existing 集合由调用方自带 events 的 id 与已生成的 eid 组成。本工况两者都不碰撞: adapter 产出的 obs id 唯一(含时间戳与模型名), 且 media_ingest 传进来的 case 自带 events 只有 shot_boundary(id 前缀 evt:shot-cut:, 与 evt:assembled: 不重叠) ⇒ 去重分支一次都没进过。复活条件: 同一个 case 被 assemble 两次, 或解析产物里出现重复的 obs id(例如同一时间戳同一模型被写了两条)。",
+   "analysis_note": "",
+   "ref_count_coarse": 22,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'existing' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A13_atomic_dedup_removed\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"736f44936f79b29c\", \"L2_faces_changed\": [], \"L4_parallel_raw_new_red\": [\"tests/test_cce_ablation_verdicts_v3.py\", \"tests/test_cce_chain_conformance.py\"], \"L4_confirmed_new_red_serial\": [\"tests/test_cce_ablation_verdicts_v3.py\"], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "观察形状守卫 not event_type or time 非 dict",
+   "locus": "scripts/cce_event_assemble.py:70",
+   "verdict": "UNREACHABLE",
+   "consumer_side": "P",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "False",
+   "L2_changed": "False",
+   "L4_measured": "并行套件净新增红 1 条 → 串行复跑确认 0 条: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: []。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "A14i_skip_everything: L1_changed=True L2_changed=True 面=['a_contract_ok', 'b_c_full_run_media_ingest', 'd_build_request', 'f_iron_law3_admission'] ⇒ 位点确被读到, 无差异只对这一组取值成立",
+   "deletable": false,
+   "deletable_reason": "它一行里管两件事: ①kind 不在 ATOMIC_TYPES 里就跳过(这半件天天生效 —— shot_boundary 观察就是靠它不被二次派生) ②time 不是 dict 就跳过(这半件进不去)。删整行会把第一半也删掉 ⇒ 不可删。",
+   "unreachable_condition": "只有 isinstance(obs.get('time'), dict) 这**半个**条件不可达: cce_foundation_adapter 的每条 observation 都带 timepoint() 产出的 dict。复活条件: 解析产物里出现没有 time 或 time 非 dict 的观察(例如新模态的 adapter 忘了给时间窗)。",
+   "analysis_note": "★ 「一行两个判据, 一活一死」的典型 —— 按行消融会把它整体判成承重, 掩盖掉死的那半。",
+   "ref_count_coarse": 12,
+   "ref_count_strict": 6,
+   "ref_scan_surface": "符号 'event_type' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A14_time_shape_guard\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"736f44936f79b29c\", \"L2_faces_changed\": [], \"L4_parallel_raw_new_red\": [\"tests/test_cce_chain_conformance.py\"], \"L4_confirmed_new_red_serial\": [], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "原子事件 \"confidence\": 1.0",
+   "locus": "scripts/cce_event_assemble.py:79",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "consumer_side": "C",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "True",
+   "L2_changed": "False",
+   "L4_measured": "并行套件净新增红 1 条 → 串行复跑确认 0 条: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: []。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "未跑(本臂已有差异, M6 不要求)",
+   "deletable": false,
+   "deletable_reason": "改成 0.9 只动数值; 但它与 confidence_basis 是一对 —— cce_contract 只在 confidence==1.0 时**强制**要求 basis。降到 0.9 等于绕开那条强制。",
+   "unreachable_condition": "",
+   "analysis_note": "tests/test_cce_confidence_basis.py 从磁盘读源码做正则邻接断言(每处 confidence:1.0 后 200 字内必须有 basis), 属**源码文本闸** —— 内存内注入看不见它, 本轮磁盘副本看得见。",
+   "ref_count_coarse": 120,
+   "ref_count_strict": 16,
+   "ref_scan_surface": "符号 'confidence' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A15_atomic_confidence_09\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"a2ddcc778c860516\", \"L2_faces_changed\": [], \"L4_parallel_raw_new_red\": [\"tests/test_cce_chain_conformance.py\"], \"L4_confirmed_new_red_serial\": [], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "\"confidence_basis\": \"definitional\" ×2",
+   "locus": "scripts/cce_event_assemble.py:79,101",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "consumer_side": "G",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "True",
+   "L2_changed": "False",
+   "L4_measured": "并行套件净新增红 2 条 → 串行复跑确认 1 条: ['tests/test_cce_confidence_basis.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: ['tests/test_cce_confidence_basis.py']。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "未跑(本臂已有差异, M6 不要求)",
+   "deletable": false,
+   "deletable_reason": "它声明「这个 1.0 不是测出来的」, cce_contract.CONFIDENCE_WEIGHTABLE 只放行 measured。",
+   "unreachable_condition": "",
+   "analysis_note": "",
+   "ref_count_coarse": 12,
+   "ref_count_strict": 8,
+   "ref_scan_surface": "符号 'confidence_basis' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A16_basis_measured\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"a7051b20a4976100\", \"L2_faces_changed\": [], \"L4_parallel_raw_new_red\": [\"tests/test_cce_chain_conformance.py\", \"tests/test_cce_confidence_basis.py\"], \"L4_confirmed_new_red_serial\": [\"tests/test_cce_confidence_basis.py\"], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "原子事件 \"assertion\": \"derived\"",
+   "locus": "scripts/cce_event_assemble.py:76",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "consumer_side": "C",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "True",
+   "L2_changed": "False",
+   "L4_measured": "并行套件净新增红 1 条 → 串行复跑确认 0 条: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: []。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "未跑(本臂已有差异, M6 不要求)",
+   "deletable": false,
+   "deletable_reason": "assertion='derived' 是本文件的核心语义声明(事件是**派生**的, 不是断言进来的)。改成 observed 在合同上**仍然合法** —— 合同允许 observed/derived/inferred 三种 —— 所以不会被形状闸拦, 但下游读到 observed 会把派生当观察。",
+   "unreachable_condition": "",
+   "analysis_note": "★ 这正是本文件注释里写的那条分层的代价: 「形状由 cce_contract 管」, 语义退化就没人管。",
+   "ref_count_coarse": 77,
+   "ref_count_strict": 11,
+   "ref_scan_surface": "符号 'assertion' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A17_atomic_assertion_observed\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"2c65b352339500d8\", \"L2_faces_changed\": [], \"L4_parallel_raw_new_red\": [\"tests/test_cce_chain_conformance.py\"], \"L4_confirmed_new_red_serial\": [], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "原子事件 \"layer\": \"atomic\"",
+   "locus": "scripts/cce_event_assemble.py:76",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "C",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "True",
+   "L2_changed": "True",
+   "L4_measured": "并行套件净新增红 5 条 → 串行复跑确认 4 条: ['tests/test_cce_contract.py', 'tests/test_cce_image_chain_ci.py', 'tests/test_cce_media_chain_history.py', 'tests/test_cce_media_ingest_production.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: []。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): ['tests/test_cce_contract.py', 'tests/test_cce_image_chain_ci.py', 'tests/test_cce_media_chain_history.py', 'tests/test_cce_media_ingest_production.py']。",
+   "injection_test": "未跑(本臂已有差异, M6 不要求)",
+   "deletable": false,
+   "deletable_reason": "本轮**本面活对照**。改成非法值直接把生产链判红。",
+   "unreachable_condition": "",
+   "analysis_note": "",
+   "ref_count_coarse": 61,
+   "ref_count_strict": 5,
+   "ref_scan_surface": "符号 'layer' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"C2_live_layer\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"cb7ed283dd7337f4\", \"L2_faces_changed\": [\"a_contract_ok\", \"b_c_full_run_media_ingest\"], \"L4_parallel_raw_new_red\": [\"tests/test_cce_chain_conformance.py\", \"tests/test_cce_contract.py\", \"tests/test_cce_image_chain_ci.py\", \"tests/test_cce_media_chain_history.py\", \"tests/test_cce_media_ingest_production.py\"], \"L4_confirmed_new_red_serial\": [\"tests/test_cce_contract.py\", \"tests/test_cce_image_chain_ci.py\", \"tests/test_cce_media_chain_history.py\", \"tests/test_cce_media_ingest_production.py\"], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "事件 id 前缀 \"evt:assembled:\"",
+   "locus": "scripts/cce_event_assemble.py:72",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "consumer_side": "P",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "True",
+   "L2_changed": "False",
+   "L4_measured": "并行套件净新增红 2 条 → 串行复跑确认 0 条: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: []。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "未跑(本臂已有差异, M6 不要求)",
+   "deletable": false,
+   "deletable_reason": "它是事件 id 的命名空间; 两份归档生产产物里 39+1 条事件全部以 evt:assembled: 开头。改前缀 ⇒ 同一份解析产物重跑得到的 id 与归档不一致, 而仓内**没有任何闸在比这件事**。",
+   "unreachable_condition": "",
+   "analysis_note": "见 parser_plane_claim.affects_collected_draws。",
+   "ref_count_coarse": 0,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'evt:assembled' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A24_eid_prefix\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"cada47b84a35d348\", \"L2_faces_changed\": [], \"L4_parallel_raw_new_red\": [\"tests/test_cce_chain_conformance.py\", \"tests/test_cce_open_items_dedup_no_silent_loss.py\"], \"L4_confirmed_new_red_serial\": [], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\", \"tests/test_cce_open_items_dedup_no_silent_loss.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "原子事件 \"member_refs\": [obs[\"id\"]]",
+   "locus": "scripts/cce_event_assemble.py:77",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "C",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "True",
+   "L2_changed": "True",
+   "L4_measured": "并行套件净新增红 5 条 → 串行复跑确认 4 条: ['tests/test_cce_contract.py', 'tests/test_cce_image_chain_ci.py', 'tests/test_cce_media_chain_history.py', 'tests/test_cce_media_ingest_production.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: []。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): ['tests/test_cce_contract.py', 'tests/test_cce_image_chain_ci.py', 'tests/test_cce_media_chain_history.py', 'tests/test_cce_media_ingest_production.py']。",
+   "injection_test": "未跑(本臂已有差异, M6 不要求)",
+   "deletable": false,
+   "deletable_reason": "member_refs 是事件回指观察的唯一通路; 清空 ⇒ 事件成为无来源断言。",
+   "unreachable_condition": "",
+   "analysis_note": "若合同不校验 member_refs 非空, 清空会**静默**通过 —— 那是合同的缺口, 不是本文件的。",
+   "ref_count_coarse": 42,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'member_refs' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A26_member_refs_empty\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"9c8d187ba6f056ee\", \"L2_faces_changed\": [\"a_contract_ok\", \"b_c_full_run_media_ingest\"], \"L4_parallel_raw_new_red\": [\"tests/test_cce_chain_conformance.py\", \"tests/test_cce_contract.py\", \"tests/test_cce_image_chain_ci.py\", \"tests/test_cce_media_chain_history.py\", \"tests/test_cce_media_ingest_production.py\"], \"L4_confirmed_new_red_serial\": [\"tests/test_cce_contract.py\", \"tests/test_cce_image_chain_ci.py\", \"tests/test_cce_media_chain_history.py\", \"tests/test_cce_media_ingest_production.py\"], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "provenance {\"producer\",\"version\"} ×2",
+   "locus": "scripts/cce_event_assemble.py:80,103",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "consumer_side": "P",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "True",
+   "L2_changed": "False",
+   "L4_measured": "并行套件净新增红 0 条 → 串行复跑确认 0 条: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: []。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "未跑(本臂已有差异, M6 不要求)",
+   "deletable": false,
+   "deletable_reason": "provenance 是「这条事件谁造的」的唯一记录, 已落进两份归档生产产物。",
+   "unreachable_condition": "",
+   "analysis_note": "与 ASSEMBLER_VERSION 同族: 只进输出 JSON, 没有闸读它。",
+   "ref_count_coarse": 19,
+   "ref_count_strict": 8,
+   "ref_scan_surface": "符号 'cce_event_assemble' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A27_producer_name\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"d9698d9e4fcde732\", \"L2_faces_changed\": [], \"L4_parallel_raw_new_red\": [], \"L4_confirmed_new_red_serial\": [], \"L4_dropped_as_parallel_flake\": [], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "跨模态复合事件段(visual×text)",
+   "locus": "scripts/cce_event_assemble.py:88-105",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "C",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "True",
+   "L2_changed": "True",
+   "L4_measured": "并行套件净新增红 1 条 → 串行复跑确认 0 条: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: []。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "未跑(本臂已有差异, M6 不要求)",
+   "deletable": false,
+   "deletable_reason": "cross_modal_synchronization 是多模态相对纯文本的**唯一增量**(tests/test_cce_media_chain_history.py:39 自己这么写的)。删它 ⇒ 事件数 10→8 / 34→29, build_request 的 event_refs 同步缩水。",
+   "unreachable_condition": "",
+   "analysis_note": "★★ 本轮最刺眼的一条: 删掉整段复合事件, **一条测试都没翻红**(净新增 L4 = 0)。唯一声称在管它的断言是 tests/test_cce_media_chain_history.py:38 `assert 'cross_modal_synchronization' in ART['event_types']` —— 而 ART 读的是**归档产物** tests/data/media_chain_on_history.json, 不是现跑结果; 同文件第 57 行的现跑 run(limit=20) 只查 chain_error/contract_fail, 不查事件类型。⇒ N2 同源退化: 期望与实际不同源, 但实际那一侧根本没被看。",
+   "ref_count_coarse": 3,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'cross_modal_synchronization' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A18_composite_removed\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"7114e2aff1668a0f\", \"L2_faces_changed\": [\"a_contract_ok\", \"b_c_full_run_media_ingest\", \"d_build_request\"], \"L4_parallel_raw_new_red\": [\"tests/test_cce_chain_conformance.py\"], \"L4_confirmed_new_red_serial\": [], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "\"relations\": [\"synchronizes\"]",
+   "locus": "scripts/cce_event_assemble.py:102",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "consumer_side": "P",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "True",
+   "L2_changed": "False",
+   "L4_measured": "并行套件净新增红 2 条 → 串行复跑确认 1 条: ['tests/test_cce_ablation_verdicts_v3.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: ['tests/test_cce_ablation_verdicts_v3.py']。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "未跑(本臂已有差异, M6 不要求)",
+   "deletable": false,
+   "deletable_reason": "'synchronizes' 是这条复合事件**唯一**的语义限定 —— 它明说只断言同步, 不断言 reinforcement。删掉 ⇒ 复合事件失去它自己划的边界。",
+   "unreachable_condition": "",
+   "analysis_note": "config/cce_foundation_contract_v1/v2.json 里出现 synchronizes(粗计 2), 但那是契约枚举的散文侧。",
+   "ref_count_coarse": 2,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'synchronizes' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A19_relations_removed\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"a49b5b1877d108c1\", \"L2_faces_changed\": [], \"L4_parallel_raw_new_red\": [\"tests/test_cce_ablation_verdicts_v3.py\", \"tests/test_cce_chain_conformance.py\"], \"L4_confirmed_new_red_serial\": [\"tests/test_cce_ablation_verdicts_v3.py\"], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "复合事件 evidence_refs 合并",
+   "locus": "scripts/cce_event_assemble.py:99",
+   "verdict": "LOAD_BEARING_L2",
+   "consumer_side": "C",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "True",
+   "L2_changed": "True",
+   "L4_measured": "并行套件净新增红 4 条 → 串行复跑确认 3 条: ['tests/test_cce_contract.py', 'tests/test_cce_media_chain_history.py', 'tests/test_cce_media_ingest_production.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: []。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): ['tests/test_cce_contract.py', 'tests/test_cce_media_chain_history.py', 'tests/test_cce_media_ingest_production.py']。",
+   "injection_test": "未跑(本臂已有差异, M6 不要求)",
+   "deletable": false,
+   "deletable_reason": "复合事件的证据 = 两个成员各自的证据并集; 清空 ⇒ 它变成无证据断言。",
+   "unreachable_condition": "",
+   "analysis_note": "铁律 1(Raw != Observation)在 adapter 侧强制 evidence_refs 非空, 但事件侧是否强制由 cce_contract 决定。",
+   "ref_count_coarse": 107,
+   "ref_count_strict": 7,
+   "ref_scan_surface": "符号 'evidence_refs' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A20_composite_evidence_empty\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"8c3206196589802d\", \"L2_faces_changed\": [\"a_contract_ok\", \"b_c_full_run_media_ingest\"], \"L4_parallel_raw_new_red\": [\"tests/test_cce_chain_conformance.py\", \"tests/test_cce_contract.py\", \"tests/test_cce_media_chain_history.py\", \"tests/test_cce_media_ingest_production.py\"], \"L4_confirmed_new_red_serial\": [\"tests/test_cce_contract.py\", \"tests/test_cce_media_chain_history.py\", \"tests/test_cce_media_ingest_production.py\"], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "main() 的合同守卫 raise SystemExit",
+   "locus": "scripts/cce_event_assemble.py:116-118",
+   "verdict": "NO_CONSUMER",
+   "consumer_side": "P",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "False",
+   "L2_changed": "False",
+   "L4_measured": "并行套件净新增红 2 条 → 串行复跑确认 1 条: ['tests/test_cce_ablation_verdicts_v3.py']",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: ['tests/test_cce_ablation_verdicts_v3.py']。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "A21i_main_raises: L1_changed=False L2_changed=False 面=[] ⇒ 荒谬值注入后下游**仍然不变**",
+   "deletable": false,
+   "deletable_reason": "CLI 入口目前没有生产调用方, 但它是本文件对外的唯一命令行契约; 删守卫 = 允许 CLI 写出不合合同的产物。**不是没消费者就该删。**",
+   "unreachable_condition": "生产链(cce_full_run.event_assemble)**不走 main()**, 它自己再调一次 validate_case 并抛。main() 只有 CLI 入口一条路, 仓内无任何脚本/工作流以子进程调用本文件 CLI。复活条件: 有人按 python3 scripts/cce_event_assemble.py CASE --out OUT 的 CLI 用法接生产。",
+   "analysis_note": "",
+   "ref_count_coarse": 36,
+   "ref_count_strict": 19,
+   "ref_scan_surface": "符号 'validate_case' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A21_main_contract_guard_removed\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"736f44936f79b29c\", \"L2_faces_changed\": [], \"L4_parallel_raw_new_red\": [\"tests/test_cce_ablation_verdicts_v3.py\", \"tests/test_cce_chain_conformance.py\"], \"L4_confirmed_new_red_serial\": [\"tests/test_cce_ablation_verdicts_v3.py\"], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "模块 docstring(argparse description)",
+   "locus": "scripts/cce_event_assemble.py:2-7",
+   "verdict": "NO_CONSUMER",
+   "consumer_side": "P",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "False",
+   "L2_changed": "False",
+   "L4_measured": "并行套件净新增红 1 条 → 串行复跑确认 0 条: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: []。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "A22i_docstring_none: L1_changed=False L2_changed=False 面=[] ⇒ 荒谬值注入后下游**仍然不变**",
+   "deletable": false,
+   "deletable_reason": "它只经 argparse(description=__doc__) 出现在 CLI --help 里。改它无任何 L1/L2 差异。但它是本文件的自述(「不是心理推断引擎」), 删掉会丢掉设计约束的唯一书面痕迹。",
+   "unreachable_condition": "docstring 的唯一消费者是 main() 里的 argparse(description=__doc__), 而 main() 只有 CLI 入口一条路; 全仓(含 .github/*.yml 与 skills/)**没有任何地方以 CLI 方式调用本文件** ⇒ 这段文字在机器面上到不了任何地方。复活条件: 有人按 python3 scripts/cce_event_assemble.py CASE --out OUT 接生产, 或有闸开始核这段自述。",
+   "analysis_note": "",
+   "ref_count_coarse": 0,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'Assemble conservative CCE events' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"A22_module_docstring\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"736f44936f79b29c\", \"L2_faces_changed\": [], \"L4_parallel_raw_new_red\": [\"tests/test_cce_chain_conformance.py\"], \"L4_confirmed_new_red_serial\": [], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  },
+  {
+   "component": "复合段上方的英文注释(本面死对照)",
+   "locus": "scripts/cce_event_assemble.py:84-85",
+   "verdict": "NO_CONSUMER",
+   "consumer_side": "P",
+   "faces_observed": [
+    "L1: assemble() 产出的 events 列表逐字段(7 份解析产物, 规范化 JSON sha256)",
+    "L2a: cce_contract.validate_case(assembled).ok + errors —— Foundation 合同判决",
+    "L2b: cce_full_run --mode media_ingest 全链 complete / failed_at / 进程退出码 —— **生产 PASS/FAIL**",
+    "L2c: 出口闸 qualified_readout 的 usable_keys 集合 / withheld 键集 / usable_count / withheld_count",
+    "L2d: cce_case_assemble.build_request —— 「CCE request 不得绕过事件面」硬闸(抛/不抛)",
+    "L2e: cce_k1_status.knot_readout_usable('top1'/'weight'/'intensity', instrument_hash=生产仪器) —— 任务书点名的判决面",
+    "L2f: assemble() 对调用方自带 events 的铁律 3 准入判决(5 个探针: 3 违例 + 2 合法)",
+    "L4: 全量 164 个 tests/test_*.py, 每臂从 pristine 全量还原后重跑(源码文本闸与内存注入盲区同时可见, 因为变异做在**磁盘副本**上)"
+   ],
+   "faces_blind": [
+    "出站闸 cce_outbound_guard 的 withheld 集合: **结构上不可达**, 不是没测 —— CHAINS 里 s4_guard 只在 reply/outbound_post 两条链上, 而 event_assemble 只在 media_ingest 链上, 两组链无交集(scripts/cce_full_run.py:513-518)。",
+    "s1/s2 读数与 instrument_hash: media_ingest 链不跑 s1/s2, 本文件不进任何 prompt ⇒ 不可达(非盲区)。",
+    "真实 276 份历史解析产物的 L1: **未纳入本轮 L1 口径**(仓外 /Volumes/data/viral-skill-eval), 只经 tests/test_cce_media_chain_history.py 间接进入 L4。",
+    "CI 工作流级 complete 判决(.github/workflows/cce-submit.yml 的 measure / measure-aggregate job): 未实跑 CI, 只按 cce_full_run 退出码推断。"
+   ],
+   "L1_changed": "False",
+   "L2_changed": "False",
+   "L4_measured": "并行套件净新增红 1 条 → 串行复跑确认 0 条: []",
+   "L4_source_text_gates_invisible_to_memory_ablation": "本轮消融做在**磁盘副本**上, 源码文本闸与内存内闸同时可见 ⇒ 两行都是实测, 无低报。 [源码文本闸行] 确认净新增里属于「从磁盘读本文件源码做子串/行数断言」的: []。 [内存可见行] 确认净新增里内存内注入也能看见的(行为闸): []。",
+   "injection_test": "★ M6 在本条上是**自足**的: C1 这一臂本身就是注入臂 —— 我把那两行换成了含 ZZZZ 的另一段文字(等行数, 且实扫确认它们不含任何被闸 grep 的证据串: 不含 '铁律 3: Event != State'、不含 'confidence_basis'、不含 'events')。换成荒谬文字后 L1/六个 L2 面/L4 **全部不变** ⇒ 真无消费者。",
+   "deletable": true,
+   "deletable_reason": "本轮**本面死对照**: 纯注释, 不含任何被闸 grep 的证据串, 改它全面无差异。但注意同文件行 50 的中文注释**不是**这一类 —— 见 limits。",
+   "unreachable_condition": "",
+   "analysis_note": "",
+   "ref_count_coarse": 0,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "符号 'separately validated mechanism' · 粗计面 = scripts/ probes/ accuracy/ tests/ .github/ config/ 的 .py/.json/.yml/.yaml/.md/.txt/.sh 共 612 文件(排除 __pycache__ · 定义文件自身 · **整个 tests/data/ablation_v3/**), 词边界匹配; 严计面 = 粗计面 ∩ .py ∩ 文件内出现 cce_event_assemble(共 6 个) ∩ 非纯注释行。两者都是**词碰撞统计, 不是调用图**。",
+   "evidence": "{\"arm\": \"C1_dead_comment\", \"anchor_hits\": \"replace_once 校验通过(命中数=期望数, 否则该臂作废)\", \"L1_sha_base\": \"736f44936f79b29c\", \"L1_sha_arm\": \"736f44936f79b29c\", \"L2_faces_changed\": [], \"L4_parallel_raw_new_red\": [\"tests/test_cce_chain_conformance.py\"], \"L4_confirmed_new_red_serial\": [], \"L4_dropped_as_parallel_flake\": [\"tests/test_cce_chain_conformance.py\"], \"tripwire\": \"tripped=0\"}"
+  }
+ ],
+ "instrument_defects_found": [
+  {
+   "where": "probes/ablation_harness_v3.py operating_point()",
+   "defect": "返回值里写死 'market: N/A —— 仓内无 market 字段(已实扫 scripts/ config/ accuracy/)'。**这句是假的。**",
+   "evidence": "实扫 scripts/ probes/ accuracy/ config/ .github/ 共 **61 处** market: scripts/cce_outbound_guard.py 22 · probes/operating_point_adjudication.py 20 · accuracy/data/hearingaids_regulars_20260809.json 6 · scripts/cce_strategy_gate.py 3 (含 :100 def gate(..., market='intl') · :113 scan_draft(text, market=market) · :140 market=os.environ.get('CCE_MARKET','intl')) · probes/ablation_harness_v3.py 自身 3 · config/outbound_guard_registry_v1.json 2 · accuracy/data/reddit_snapshot_20260809.json 2 · scripts/cce_open_items.py 1 · config/platform_adapter_registry_v1.json 1 · accuracy/data/corpus.json 1。",
+   "impact": "任何沿用该 operating_point() 的判决, 其 market 一栏都是**假陈述**; 而 cce_outbound_guard.py:248 自己写着「这个缺陷只在 market=cn 上看得见, 而生产硬编 --intl ⇒ 存量语料永远暴露不了它」—— 即 market 不但存在, 还正是一条已知的存量偏倚轴。",
+   "fix": "把那句改成现算(扫描面 + 命中数 + 文件清单), 或直接删掉这句断言。"
+  },
+  {
+   "where": "tests/test_cce_chain_conformance.py + tests/test_cce_consistency_check.py",
+   "defect": "并行跑套件时会**自抖**(假红)。",
+   "evidence": "两次完全相同的 pristine 基线臂(BASE_pristine / BASE_pristine_rerun), 第一次 chain_conformance 绿、第二次红(它 shell 出 `python3 scripts/check_ontology_migration.py && python3 tests/test_ontology_migration.py`, 子闸与别的测试抢共享文件); consistency_check 在 A02 臂里报的是 shutil.Error: 找不到 scripts/cce_knot_classify.py.coreguard_bak2 —— 那是别的测试建/删的临时文件, 与消融无关; test_cce_open_items_dedup_no_silent_loss 在 A24 臂报的是 json.decoder.JSONDecodeError: Expecting value: line 1 column 1 —— 读到一个被并发写空的 JSON 文件。单独串行跑三者都绿。",
+   "impact": "任何**并行**跑全量套件当 L4 的消融, 每臂会凭空多出 0~2 条假红。",
+   "fix": "本轮的做法: 并行拿候选, 再对每条候选**串行**复跑 2 次(臂) + 2 次(pristine), 只认「臂两次都红且 pristine 两次都绿」。"
+  },
+  {
+   "where": "tests/test_cce_media_chain_history.py:38",
+   "defect": "N2 同源退化 + 仓外依赖。",
+   "evidence": "`assert 'cross_modal_synchronization' in ART['event_types']` 读的是**归档产物** tests/data/media_chain_on_history.json, 不是现跑结果; 现跑那一半(第 57 行 run(limit=20)) 只查 chain_error/contract_fail, **不查事件类型**。另: run() 读 /Volumes/data/viral-skill-eval/results/video_parse(**仓外**), 该目录不在就红。",
+   "impact": "删掉复合事件段(跨模态同步)不会让这条断言翻红 —— 实测见 A18_composite_removed 的 L4。"
+  },
+  {
+   "where": "config/cce_doc_reconciliation.json 铁律 3 + scripts/cce_doc_reconcile.py:50",
+   "defect": "N3: 「有闸」这句话被一条**注释**满足。",
+   "evidence": "证据串 '铁律 3: Event != State' 在本文件出现 **2 次**: 行 50 的注释 与 行 61 的 raise 消息。把整个 raise 块删掉(A11 臂)之后, 行 50 的注释仍在 ⇒ doc_reconcile 那道闸**照样绿**。铁律 2 更弱: 证据串就是 'events', 全文 11 处。",
+   "impact": "doc_reconciliation 的 GATE 声明对本文件只验证「文件里有这个字符串」, 不验证「闸真的在拦」。真正拦得住的是 tests/test_cce_ontology_iron_laws.py(实测 A10/A11 把它判红)。"
+  },
+  {
+   "where": "config/cce_chain_conformance.json chain_stages[n=6] EVENT",
+   "defect": "声明的 tested_by 与实际**零接触**。",
+   "evidence": "EVENT 段 implemented_in = [cce_event_assemble.py, cce_case_assemble.py], tested_by = [tests/test_cce_end_to_end.py]。实测(进程内 import/open 钩子): test_cce_end_to_end.py 跑完 rc=0, 对 cce_event_assemble **0 次 import / 0 次读源码**。scripts/cce_chain_conformance.py:44-51 只检查这两个路径**存在**, 从不检查测试是否真的跑过实现。",
+   "impact": "「链路第 6 段有测试」这句在机器上只是路径存在性。"
+  },
+  {
+   "where": "docs/CCE_full_architecture_workflow_parameters_v1.md:4147-4148 与 tests/test_cce_confidence_basis.py 的 docstring",
+   "defect": "行号漂了(小事, 但它是「按行号引用源码」这种写法的通病)。",
+   "evidence": "两处都写 cce_event_assemble.py:57 / :78 是那两个 definitional; 现文件里实际在 **:79 与 :101**。没有任何闸在校这两个行号(闸校的是字符串计数与邻接), 所以它可以一直错下去。",
+   "impact": "只影响人读; 但下一个审计者按行号去看会看到别的东西。"
+  }
+ ],
+ "limits": [
+  "★ L1 语料是**确定性合成的 7 份解析产物**(corpus_sha256 见 operating_point), 不是 276 份真实历史解析。真实语料只经 tests/test_cce_media_chain_history.py 间接进入 L4, 且那条测试的事件类型断言读的是归档 JSON(见 instrument_defects)。⇒ 本轮 L1 覆盖了 4 类 ATOMIC_TYPES + 重叠/不重叠/纯单模态/密集 7 种形状, 但**没有覆盖**真实产物的长尾(缺 duration、ocr_regions、非 dict time、超长 transcript、同 ts 多模型 visual 等)。",
+  "★ 未实跑 GitHub Actions。生产 PASS/FAIL 是按 scripts/cce_full_run.py 的退出码与 manifest.complete 判的; 工作流级 complete(measure / measure-aggregate job 的 if 条件)只在 .github/workflows/cce-submit.yml 里读代码确认, 没有实跑。",
+  "★ 出站闸(cce_outbound_guard 的 withheld 集合)与 s1/s2 读数面**结构上不可达**, 不是没测: scripts/cce_full_run.py:513-518 的 CHAINS 里 s4_guard 只在 reply/outbound_post, event_assemble 只在 media_ingest, 两组无交集。任务书点名的 cce_k1_status.knot_readout_usable 已放进观测面并每臂实测 —— **32 个臂全部没有改变它**, 原因同上(它读的是 K1 判定文件与 instrument_hash, 与本文件无通路)。这是「已观测且确认不通」, 不是 blind。",
+  "★ L4 口径: 164 个 tests/test_*.py 全量, 但 tests/test_cce_audio_prosody.py **在零网络下永远红**(它要从 modelscope.cn 下 speaker 模型; 绊线记到 8 次被拦的连接尝试, 全部指向本机代理 127.0.0.1:7897)。该测试从基线起就红, 不计入任何臂的净新增。⇒ 本轮 L4 的有效面是 163 个。",
+  "★ L4 去抖口径: tests/test_cce_chain_conformance.py **全局排除**, 不逐臂复跑 —— 证据是两次完全相同的 pristine 基线臂(BASE_pristine / BASE_pristine_rerun)一绿一红, 且单独串行跑它绿(实测 rc=0), 失败消息指向它 shell 出的子闸`python3 scripts/check_ontology_migration.py && python3 tests/test_ontology_migration.py` 返回非零, 与本文件无关。其余候选(consistency_check / open_items_dedup_no_silent_loss / ablation_verdicts_v3 等)逐条**串行**复跑: 臂最多 2 次、pristine 最多 2 次, 只认「臂全红 且 pristine 全绿」。★ 并行套件的另一面: 去抖只对**出现过的**候选做, 但去抖只对**出现过的**候选做, 若某臂的真红恰好被并行掩成绿(假阴性), 本轮看不见。",
+  "★ 判决只对本工况成立: 语料 sha、解析产物形状、cce_contract 当前版本、cce_foundation_adapter.timepoint 的 **1ms 点窗**。其中 1ms 点窗是 A08/A09 判 UNREACHABLE 的**直接前提** —— 解析器一旦改成有实际时长的窗, 这两条判决当场失效, 必须重跑。",
+  "★ 未消融的部分(诚实清单): import 段(行 10-16, 含 `from cce_contract import validate_case` 这条硬依赖)、`from __future__ import annotations`、全部类型标注、argparse 的参数名 `case`/`--out`、main() 末尾的写盘与 print 格式。前者删了会直接 ImportError(不必消融也知道承重), 后几项只影响 CLI 表面。",
+  "★ 本轮不含跨文件交互消融: 没有同时动 cce_foundation_adapter(它决定 observation 的 kind 与 time 形状)。ATOMIC_TYPES 的四个键与 adapter 产出的五类 kind 是**两处硬编码的对表**, 对不上就静默丢事件 —— 这条耦合本轮只在单侧证实(删 ATOMIC_TYPES 一条 ⇒ 该类事件消失), 没有反向做(改 adapter 的 kind 名)。"
+ ]
+}

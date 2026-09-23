@@ -1,0 +1,63 @@
+{
+ "unit": "parser_plane · scripts/cce_platform_adapter.py",
+ "checked": 26,
+ "overturned": [
+  {
+   "component": "re.fullmatch(pattern, surface_id) 的全匹配语义 (locus :56, 臂 A17)",
+   "was": "UNREACHABLE · unreachable_condition=「注册表出现任何一条缺 ^ 或 $ 的 space_pattern」· L1 0/54 · L2 0/21 · INJ_A17_search 复现无差异",
+   "now": "LOAD_BEARING_L2 (deletable 仍 false)。复活条件不是注册表改动 —— 用**未经改动**的注册表即可触发。",
+   "why": "Python 的 $ 匹配「串尾**或**尾部换行之前」, 所以对已锚定模式 ^...$ , re.match/re.search 会接受以 \\n 结尾的 surface.id 而 re.fullmatch 拒绝。我在自己的装置上实测(L1 10 探针 + L2 4 面): A17 臂 L1 2/10 变; **L2-P 用真实的 examples/cce_submission_outbound_post_v1.json, validate_submission 从 ok=False(2 条 errors) 翻成 ok=True(0 条 errors)** —— 这是生产准入判决翻转, 不是文案变; **L2-D build_dispatch 从 raise ValueError 翻成 BUILT, 且出站 payload 的 context 串里带着那个换行**: 'reddit community r/HearingAids\\n hearing_aid inbound response to reddit:1vma3l2: ...' ⇒ 换行被注入进喂给测量链路的 prompt context。INJ_A17_search(最弱注入)给出**逐字相同**的翻转。受影响模式: 我用已知合法 id 检了 5 条, 5 条全部可绕(reddit/community · owned_site/owned_site · instagram/profile · threads/profile · x/profile) —— 含**真实存档记录里仅有的那两个 platform/kind 对**; 另 20 条未探, 故 5 是下界。他们判无差异的根因是**语料形状, 不是结构**: 54 例里有 surface_id_suffix_junk('<script>' 后缀, 两边都拒)却没有尾部换行例, 而 $ 恰恰是 fullmatch 与 match 在已锚模式上**唯一**分歧的输入类。其 M6 注入臂跑在同一盲语料上, 所以「注入复现无差异」是循环论证(N1 的失效模式从模块作用域平移到了语料作用域)。★ 这同时是一条**验收缺口**: tests/test_cce_platform_adapter.py 无换行用例, L4 净新增红仍为 0, 应与 A12/A14 一并进 ★acceptance_gaps_found。"
+  },
+  {
+   "component": "platform 必须在注册表里(含 isinstance 守卫与提前返回) (locus :38-40, 臂 A11)",
+   "was": "LOAD_BEARING_L1_ONLY · L2 判决翻 0/21 · 结构性论证「spec={} 时结构上无法放行未注册 platform」",
+   "now": "LOAD_BEARING_L2 —— 按**他们自己**在 A14/A18/A05/A19 用的编码约定(「带说明的拒收变成未捕获崩溃」计为 L2 判决翻转)",
+   "why": "他们的结构论证只覆盖「放行」这条路, 漏了「崩溃」这条路。platform 来自 JSON 信封, 因此可以是 object 或 array。把该守卫消融成 adapters.get(platform, {}) 后实测: platform={'id':'reddit'} 与 ['reddit'] 触发**未捕获 TypeError: cannot use 'dict' as a dict key (unhashable type)**; 拿真实信封跑 validate_submission, 基线给出干净的 2 条 errors 拒收, 消融后**整个 prep 直接崩**。基线对 7 / 'tiktok' / dict / list / None 五种输入全部是干净拒收。他们语料里的 platform_not_str 用的是 7(可哈希)⇒ 结构上看不见这条。A14(adapter isinstance 守卫)、A18(observed_at 必填)、A05(_instant str 守卫)、A19(失败不产半成品)四条都把同一个「拒收→崩溃」转变计为 L2 翻转并判 LOAD_BEARING_L2 ⇒ A11 与它的四个同胞条目自相矛盾。"
+  },
+  {
+   "component": "★parser_plane_claim.note_holds / affects_collected_draws",
+   "was": "note_holds=false(「可自由增删改」为假)· affects_collected_draws=「会」(四条独立路径让 archive/33748217410 的 8 份已采集 artifact 无法 ingest)",
+   "now": "note_holds = **true(按它自己的作用域)** · affects_collected_draws = **不会(draw 本身)/ 会(旧信封再校验)**",
+   "why": "两步。① 我先**复现**了他们的反例①: 内存内把 reddit adapter_version 升到 1.1.0, ingest 已采集 run 33748217410 报 `invalid response source: response_source.context.platform_adapter.version must equal '1.1.0'` —— 与他们记的逐字相同, 且我的基线是**绿的**(8 条 response_measurement)。② 但**旁路信封再校验**后重跑, bumped-registry 的 ingest 输出与基线**逐字节相同**(仍 8 条 measurement)⇒ 已采集的 draw 本身完全不受影响。而 manifest 与 scripts/cce_core_boundary.py 给 Core 下的判据正是「改它之后, 已采集的原始 draw 还能不能用」—— 这条**得到满足**, 这恰恰是把本文件划进 parser_plane 而非 Core 的理由。③ note 的谓语本身是「**不影响本闸**」, 本闸 = cce_core_boundary, 它只钉 core_files 六个 sha; 他们自己的 27 个臂零翻红, 也自己承认「窄读法成立」。⇒ 他们的四条反例falsify 的是 note **没有做出**的无限定解读。真正该记的是: 「可自由增删改」这个措辞对「改/删」会引人误读, 因为**存量信封必须同步迁移**(元数据迁移, 不是数据失效)。他们建议的改写方向仍值得做, 但结论字段应是 note_holds=true(as scoped) + 一条措辞风险, 而不是 false。★ 另: 他们的复现配方漏了关键一步 —— _artifact_index 是 rglob 字面 'manifest.json' + 同目录 s1_readout.json, 直接把 archive/33748217410 当 artifacts_dir 会得到空索引和**红基线**(我第一次就踩了, M3-⑤); 必须先把扁平的 cce-subject-item-N-...__manifest.json 还原成 CI 的每 item 一目录布局。"
+  }
+ ],
+ "downgraded": [
+  {
+   "component": "surface 必须是对象(isinstance dict 守卫 + 提前返回) (locus :49-51, 臂 A15)",
+   "was": "LOAD_BEARING_L2, deletable_reason 头条: 「★不可删, 且**被真实存量数据触发**: 54 例里有 2 例 REAL(archive/32095782756 与 archive/33840200869 的 manifest)把 surface 存成裸字符串, 基线正是靠这条守卫给出 'context.surface must be an object'」",
+   "now": "verdict LOAD_BEARING_L2 **维持**(L4 净新增红 3 是真的), 但「被真实存量数据触发」这条支撑**撤销** —— 应按 M8 改写为「本工况未触发的保险丝」",
+   "why": "我去查了那两份 archive。裸字符串 surface 出现在 `.submission.surface`, 那是 cce_submission 的**输出** meta 字段(cce_submission.py 里 meta = {..., 'surface': surface_id}), 从来不是 validate_platform_context 的输入。同一份文件里真正的输入位 `.submission.context_snapshot.surface` 是 **dict**('r/HearingAids' vs {'kind':'community','id':'r/HearingAids','observed_at':...})。三个生产调用方传的都是 item['surface'] / context['surface'], 没有任何一条路把 meta.surface 回喂给适配器。⇒ 那 2 例 REAL 是**他们自己语料抽取方式的回环产物**(穷举 manifest 里的 (platform, platform_adapter, surface) 三元组时把输出位当成了输入位), 不是真实投料。按他们自己引的 M8, 这里该说「没有真实畸形投料样本证明它被触发过」, 而不是把它当成本轮唯一「被存量触发」的亮点。"
+  }
+ ],
+ "confirmed": [
+  "A06 value.replace(\"Z\",\"+00:00\") 的 Z 归一 — UNREACHABLE 成立。我跑了 13 串对照电池(含 basic format '20260901T100000Z' · 分数秒 · 小写 'z' · 'ZZ' · date-only · 'Z' 单字 · '2026-W36-2' · 裸 '2026-09-01T10Z'), 在 3.14.6 上 raw 与 replaced 的 fromisoformat 接受与否**逐条一致** ⇒ 本工况下确是恒等变换, 不存在 A17 那种语料形状的可达路径。复活条件(CPython ≤3.10)与他们一样未实跑。",
+  "A10 read_text(encoding=\"utf-8\") — UNREACHABLE 成立且复活条件有实据。我实测注册表 7046 字节里有 **6 个非 ASCII 字节** ⇒ 「换到非 UTF-8 默认编码会直接解码错」不是空话。未在真实非 UTF-8 环境实跑, 与他们同。",
+  "A02 from __future__ import annotations — NO_CONSUMER + deletable=true 成立。我把这一行内存内删掉后模块照常加载、合法 context 仍 ok=True(3.14 下注解被立即求值, 文件里只有 dict[str,Any]/list[str] 这类 3.9+ 内建泛型, 无 PEP-604 的 X|None); 全仓 get_type_hints / __annotations__ / inspect.signature 命中 0。他们记的「删它会改行数 ⇒ 台账闸翻红」也成立。",
+  "A20 canonical[\"platform\"][\"adapter\"] 这个键名 — NO_CONSUMER 成立。我自己在 scripts/ probes/ accuracy/ tests/ .github/ config/ 全面 grep, 读这个键的地方**零处**。生产只读 canonical['space']['id'](cce_submission.py:229-230)与 canonical['space'](cce_response_chain.py:147), 测试读的是兄弟键 adapter_version。deletable=false 的理由(NO_CONSUMER ≠ 该删 · parser 层可能只是当前 profile 不走该模态)符合 M5。",
+  "A21 返回值的 ok 字段 — 「G 侧读 / P 侧 NO_CONSUMER」成立。我逐个看了三个生产调用点: cce_contract.py:95 只 errors.extend(verdict[\"errors\"]); cce_submission.py:217 只 extend errors、:229 只取 canonical; cce_response_chain.py:144-147 只取 [\"canonical\"]。无一处读 ok。",
+  "A22 path 参数的默认值 \"context\" — NO_CONSUMER + deletable=true 成立。三个生产调用方全部显式传 path(cce_contract:95 · cce_submission:216 · cce_response_chain:147 传字面 'response_source.context'); tests 里 grep 'context.platform'/'context.surface' 命中 0 ⇒ 没有任何闸断言这个前缀。",
+  "A07 _instant 的 except ValueError -> False — LOAD_BEARING_L1_ONLY 成立, 而且比他们验得更紧。他们给的理由是「cce_contract 的 _instant_is_valid 对**同一字段**冗余又验了一遍」。我把污染**隔离**开(只把 items[i].surface.observed_at 设成 'yesterday', 把 context 顶层的 observed_at 留成合法), 消融后生产判决**仍然不翻** ⇒ 冗余不止他们指的那一处, 结论方向不变, 理由需要补。",
+  "★N1 枚举(零个模块从磁盘再读 config/platform_adapter_registry_v1.json)— 我自己 grep 复核成立: 除 scripts/cce_platform_adapter.py:17 外, 另 3 处命中分别是注册表自己的 kind 串、cce-submit.yml:10 的 paths 触发器、cce_submission_contract_v1.json:145 的散文。无第二个读者。",
+  "★非重言(专盯 #1/#2)成立。他们全程没用 L3(instrument_hash / gate_protocol_hash)做任何判据。我自己的装置也过了同一关: 两条死对照(加一行纯注释 · 整段 docstring 替换)在 L1 10 探针与 L2 4 面上**全 0 差异**; 活对照(canonical['space'] 的 'id' 键改名, 生产真读)出差异(D.dispatch BUILT→KeyError); 确定性: 两次独立基线加载输出逐字节相同。",
+  "★deletable 未由 verdict 推导 — 成立。26 条里 NO_CONSUMER 族同时存在 deletable=false(canonical adapter 键名 · docstring)与 deletable=true(path 默认值 · future import), LOAD_BEARING 族全 false 且各写了迁移代价 ⇒ 是独立判的。",
+  "★行数台账一致 — tests/data/ablation_verdicts_v3.json 的 per_file_lines['scripts/cce_platform_adapter.py']=64, 文件实测 64 行; tests/test_cce_ablation_verdicts_v3.py:102 确实现算比对。他们把空操作臂当对照扣除的做法正确。",
+  "★R1/R2 自查全绿 — 四个冻结件 + 被测件 + 注册表 + verdicts 台账共 7 个文件, 我**自己重算**的 sha256 跑前跑后逐一相同(f2cef2f9… / 56a1c197… / 9d9e1229… / b758e667… / 381ea8ae… / cfb1bc93… / f8055f78…); 全程 socket 绊线 tripped==[]; 所有变异都是内存内 exec, 仓内零文件 mtime 变动, 仓内零 __pycache__ 写入(全程 python3 -B + PYTHONDONTWRITEBYTECODE=1)。tests/data/ablation_verdicts_v3.json 未动(R5)。"
+ ],
+ "enumeration_gaps": [
+  "我**没有**重跑他们那 171 个目标的 L4 磁盘副本矩阵, L4 数字按他们所报采信。两条推翻都不依赖 L4: A17 与 A11 无论判决怎么变, L4 净新增红都是 0 —— 那正是验收缺口本身, 不是证据。",
+  "尾部换行绕过我只检了 25 条 space_pattern 中的 5 条(有已知合法 id 的那 5 条), 另 20 条未探 ⇒ 「5 条可绕」是**下界**不是全集。",
+  "未在 CPython ≤3.10 或非 UTF-8 环境实跑 ⇒ A06 / A10 的复活条件仍是推断, 与他们同。",
+  "profile media_ingest 仍未重放(examples/ 里没有该信封)。",
+  "未在 GitHub 托管 runner 上实跑任何 workflow; CI 结论仍是静态读 .github/workflows/cce-submit.yml。★ 顺带更正一处他们的 CI 叙述: :330 的 subject-aggregate job 吃的是**本次 run 自己产出的** submission-package/responses.json(由 normalized.json 经 jq 切出), **不是**回放历史 archive 信封 ⇒ 「CI 会重新 ingest 已采集记录」这层不成立, 他们的①②③④证明的是「人工重处理旧记录会失败」这条因果, 与 CI 步骤是两回事。",
+  "按 R3 未读 /Volumes/data/cce-identified-vault, 未加任何降级分支; 仓外若有依赖我结构上看不见。",
+  "真实平台线上协议行为、模型语义、重复稳定性一概未覆盖(与他们的 limits 相同)。"
+ ],
+ "harness_faults_found": [
+  "★★★ 我自己第一次 L2 跑就踩了一个会**直接制造假阴性**的坑, 必须回灌共享装置: 用 sys.modules 预塞注入适配器时, 第二次 build 里 `cce_contract` **已经在 sys.modules 里**(第一次 build 时被 cce_submission 间接导入), 于是消融臂静默地继续绑着**基线**适配器, 报出来就是「注入后不变」。第一版结果因此显示 A17 不翻转 —— 与被复核 agent 的结论一模一样。修法: 每次 build 前按 scripts/*.py 的模块名全量 purge sys.modules, 且在测量前**断言** validate_platform_context 在 cce_submission / cce_response_chain / cce_contract 三处与新模块是同一个对象。没有这条断言, 这次推翻会以和他们完全相同的方式丢掉。这是 N1 从「模块自读磁盘」平移到「模块绑定作用域」的同族缺陷, 建议写进 probes/ablation_harness_v3.py 的 load() 旁边。",
+  "被复核产物的 I 面(ingest 已采集 run)复现配方缺一步: scripts/cce_response_chain.py:170 的 _artifact_index 是 rglob **字面** 'manifest.json' 且要求同目录有 s1_readout.json; archive/33748217410 里的文件是扁平的 cce-subject-item-N-33748217410__manifest.json ⇒ 直接把该目录当 artifacts_dir 得到**空索引 + 红基线**(报 'missing exact-input CCE artifact')。必须先还原成 CI 下载 artifact 的「每 item 一目录」布局。他们的产物没记这一步, 后人照抄会得到假的「判红」证据(M3-⑤)。",
+  "M6 注入臂的有效性不只取决于**观测面**(N1), 还取决于**语料**。A17 的 INJ_A17_search 跑在一个结构上不可能显出差异的 54 例语料上, 于是「注入复现无差异」读起来像最强的证据, 实际零信息。建议给 M6 补一句: 无差异族的注入臂, 必须先证明语料里**存在**能让该分支与其替代物分岔的输入类, 否则只能标 INCONCLUSIVE。"
+ ],
+ "parser_plane_claim_recheck": "推翻其结论, 但保留其全部实验事实。逐条: ① 他们的反例①我**复现成功且基线是绿的**(内存内把 reddit adapter_version 升 1.1.0 ⇒ archive/33748217410 的 ingest 报 response_source.context.platform_adapter.version must equal '1.1.0'; 基线 8 条 response_measurement)。② 但我加了一条他们没做的对照: **旁路 validate_response_source 后**, 升版注册表的 ingest 输出与基线**逐字节相同**(仍 8 条)⇒ 已采集的原始 draw 本身**照样有效**, 失效的只是包在外面的信封再校验。而 manifest 与 scripts/cce_core_boundary.py 给 Core 下的判据字面就是「改它之后, 已采集的原始 draw 还能不能用」—— 该判据**得到满足**, 这正是本文件该留在 parser_plane 的理由。⇒ affects_collected_draws 应从「会」改成「draw 不受影响; 旧信封需随注册表同步迁移」。③ parser_plane_note 的谓语是「**不影响本闸**」, 本闸 = cce_core_boundary(只钉 core_files 六个 sha), 他们自己 27 个臂零翻红也自认「窄读法成立」⇒ 他们的四条反例 falsify 的是 note **没有做出**的无限定解读, note 按其自身作用域**成立**。⇒ note_holds 应为 true(as scoped)。④ 「本文件有至少 12 个符号在生产准入判决面上承重」这一事实我独立确认(registry() 恒空 / ROOT 改 parents[2] 等都能把三份干净投料从收翻拒), 但它**不与 note 冲突** —— note 谈的是闸, 不是生产判决。⑤ 他们建议的改写方向仍成立且值得采纳(「改 parser 层不换代生产仪器, 但会让已采集记录的再处理失败 —— adapter 版本/模式一变, 旧记录必须一起迁移或标注为按旧适配器采集」), 只是该记作**措辞风险**而非 note 为假。⑥ 顺带更正他们的 CI 叙述: cce-submit.yml:330 的 ingest 吃的是本次 run 自产的 responses.json, 不是历史 archive 信封 ⇒ 「CI 会重新 ingest 已采集记录」不成立。★ 另按任务书提示复核不对称性: parser_plane 明说可自由增删改, 所以本层的 NO_CONSUMER 更不能推 deletable —— 他们 26 条里只有 2 条 deletable=true 且都写了迁移代价, 这一点做对了。",
+ "notes": "默认立场是「它是错的」, 尽力推翻后的实情: **26 条判决里 2 条被推翻、1 条支撑证据被撤、顶层 parser_plane 断言被推翻, 其余站得住**。整份产物的方法论纪律明显高于前几轮(零 L3、自面死/活对照都做了、deletable 独立判、limits 里主动认了语料薄和穷举缺口), 我没有为了显得尽职去制造问题 —— 专盯清单里的重言、伪阳性、faces_blind 漏标/自相矛盾、N2 同源、pycache、冻结件 sha 这几项, 我逐条查过, **都没有问题**。\n\n两条推翻共享**同一个根因**, 这比两条判决本身值钱: **他们的语料是按「本文件的职责清单」逐条构造的(20 条 SYN_INVALID「逐条对应本文件一条职责」), 而不是按「每个分支与其最近替代物的分岔输入类」构造的。** 于是凡是「守卫 X 与替代实现 X' 只在某一小类输入上分岔」的地方, 语料结构上不可能命中: fullmatch vs match 只在**尾部换行**上分岔(A17), 成员检查 vs .get 只在**不可哈希的 platform**上分岔(A11)。两处他们都有「形似」的用例(surface_id_suffix_junk 用的是 '<script>' 后缀, platform_not_str 用的是 7), 差的正好是那一类。M6 的注入臂跑在同一盲语料上, 所以给出的「无差异被注入臂复现」是循环的。⇒ 建议给方法论补一条 **M9: 判无差异之前, 必须先说清「这个分支与它的替代物在哪一类输入上分岔」, 并证明语料里存在那一类; 说不出分岔类的, 只能 INCONCLUSIVE。**\n\nA17 的后果不止判决翻转: 消融后 build_dispatch 会把带内嵌换行的 surface.id 写进出站 dispatch 的 context 串(实测 'reddit community r/HearingAids\\\\n hearing_aid inbound response to ...'), 即一条通往测量 prompt 的注入面; 而 171 个闸没有一条喂过换行 id ⇒ 它同时是第三条验收缺口, 应与 A12(adapter.id 漂移零覆盖)、A14(adapter isinstance 零覆盖)并列写进 ★acceptance_gaps_found。\n\n我这一轮自己也踩了一个坑并已修复(见 harness_faults_found 第一条): sys.modules 预塞注入没覆盖到 cce_contract, 第一版结果显示 A17 不翻转 —— 与被复核者的结论**完全一致**。加了「注入必须到达全部绑定者」的断言后结论才反过来。这条如果不回灌到 probes/ablation_harness_v3.py, 下一个 agent 会以同样方式再丢一次。\n\n临时脚本: /private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/recheck_pa_82594/{e1_regex_z.py, e2_L2_newline.py, e2b.py, e3_a11_and_plane.py, e4_misc.py, e5_controls.py, stage/}。按 R5 我**没有**碰 tests/data/ablation_verdicts_v3.json, 也没有改 tests/data/ablation_v3/parser_cce_platform_adapter.json —— 合并交给收口 agent。",
+ "★这份产物的来源": "2026-09-12 由主线从工作流 journal (wf_f6a2c9a2-3ab) 取出补落盘 —— 该复核 agent 当时**只把结论返回给收口 agent, 没有写产物文件**, 于是证据链在磁盘上缺了一环(v3 里的引用没断, 因为结论已被折进判决行)。★ 内容逐字未改, 只加本说明键。"
+}

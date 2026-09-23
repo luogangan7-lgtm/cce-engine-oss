@@ -1,0 +1,2393 @@
+{
+ "block": "ABLATION_V3_CE3_TAXONOMY_FIELDS_G_SIDE",
+ "cluster": "CE3_分类学字段_G侧",
+ "decided_at": "2026-09-11T19:47:30",
+ "★本轮要回答的问题": "上一轮把 _stage1_template() 判成 NO_CONSUMER, 理由是「唯一消费者是 instrument_id 的 s1_prompt_sha256 ⇒ L3 面 ⇒ 重言」。该理由实证为假: 它的**返回值本身**被 _s1_scope_widening_holds() 当子串谓词读, 一路走到 cce_k1_status.verdict_path_for 与生产 top1 扣发。根因是**上一轮的 L1/L2 观测面里没有「仪器身份 / 标定继承 / 扣发路径」这一面**, 注入检验跑在一个看不见消费者的面上。⇒ 本轮把这七条判决的观测面扩到那四面后**重测**, 看判决还站不站得住。",
+ "methodology": "M1 先验收判官再用判官 · M2 L3(instrument_hash)是重言零证据力 · M3 按 tag 索引重放(不用共享迭代器)且扫描面含 accuracy/ · M4 引用计数报粗计与严计两个数 · M5 判决词表 LOAD_BEARING_L2 / LOAD_BEARING_L1_ONLY / UNREACHABLE / NO_CONSUMER / COULD_NOT_RUN / CIRCULAR / INCONCLUSIVE, deletable 是独立字段不由 verdict 推导 · M6 凡判无差异必跑荒谬值注入臂 · M7 工况(market/profile/k分布/语料sha/时点)随判决同行 · M8 存量消融天然把保险丝判成装饰: NO_CONSUMER 必须区分真死与本工况未触发",
+ "evidence_scope": "本装置能支持的结论**仅限**: 在**存量语料重放 + 内存内源码变异**这一工况下, 某常量/字段是否改变数值输出(L1)与判决面(L2)。它**不能**证明: 真实模型的语义判断准确率 · 重复稳定性 · 线上工况下的行为 · 该常量在**其它 k / 其它 market / 其它 profile** 下是否承重。",
+ "★三台消费者_判决必须分开给": {
+  "P 生产分类器": "scripts/cce_knot_classify.py —— 真跑 _build_stage2_prompt(取仪器口径的 s2 prompt) 与 _stage2_aggregate(22 份存量 draw_ledger 按 tag 重放), 外加发布载荷(knots[].name/family/playbook/behavior_predicted)。",
+  "G 验收闸": "accuracy/run_gates.py —— 内存内把它的 TAXO 指向临时 taxonomy 副本后 import, 读 ① gate_protocol_hash() ② 四块材料(KNOT_BRIEF/DECISION_TREE/NEGATIVE_EXAMPLES/DIST_TMPL) ③ **整个模块命名空间摘要** ④ import 期异常。★ ③ 是本轮新增: 只盯 gate_protocol_hash 会漏掉 COST_TIER 这类「哈希看不见、闸却真在用」的消费者 —— 已用 cost_tier 对照臂实证。",
+  "CE-3 下游(上一轮整面缺失)": "① scripts/cce_knot_classify.same_physical_instrument / calibration_transfers ② scripts/cce_k1_status.verdict_path_for(生产仪器) / layer_status / knot_readout_usable ③ scripts/cce_full_run.py 的 `qualified` 出口闸(真跑该段, 读它的 withheld 集合)。"
+ },
+ "★判据定义": {
+  "L1": "数值输出改变(P: 22 份存量 draw_ledger 重放后的 intensity/families/weight; G: 四块进闸材料的字节)",
+  "L2": "判决面改变(P: measurement_status/knot_order/top1_mode/top1_unanimous; G: gate_protocol_hash 与模块级派生物; CE-3: calibration_transfers / verdict_path_for(钉死生产仪器) / layer_status / knot_readout_usable / cce_full_run 出口闸 withheld 集合)",
+  "L3": "现算 instrument_hash —— **只记录, 不作证据**(M2 重言)。本轮实测证实: 死常量臂同样让它变。",
+  "L4": "全仓 tests/ 净新增翻红 = 本臂红集 − **空操作臂**红集(农场副本)",
+  "PAYLOAD": "发布载荷(knots[].name/family/playbook/behavior_predicted)—— 是发布内容不是数字, 单列",
+  "★deletable 是独立字段": "不由 verdict 推导。本产物里凡 deletable=false 都标明理由是**实测的**(delete 臂翻闸)还是**规范的**(无运行期证据)。"
+ },
+ "operating_point": {
+  "★自己重算的, 没抄上一轮": true,
+  "corpus_glob": "archive/*/*.json 里 stage2.draw_ledger 非空的那些",
+  "n_archive_files": 22,
+  "corpus_sha256": "8226cd11ee4593a08ed356aa1085acce3c9aea2f287ae0ae544ee2e48c355ac7",
+  "k_distribution": {
+   "3": 20,
+   "5": 2
+  },
+  "n_draws_per_file": {
+   "5": 22
+  },
+  "s1_temperature_distribution": {
+   "0.0": 22,
+   "0.15": 2,
+   "0.3": 22,
+   "0.6": 22,
+   "0.9": 2
+  },
+  "profile": [
+   "{\"stage1\": \"exp_v4_full_validation(frozen, M3)\", \"stage2\": \"knot_taxonomy v1.3.1 (M3)\", \"taxonomy_status\": \"v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注\"}"
+  ],
+  "生产仪器(本轮实测现算)": {
+   "call": "instrument_id(TAXO, k=3, knot_n=5, s1_pairing='round_robin_over_3_s1_draws')",
+   "instrument_hash": "d4cce4c745f3f991",
+   "★与任务书给的 d4cce4c745f3f991 一致": true,
+   "VERDICT_BY_INSTRUMENT": [
+    "565470cf26c16d01",
+    "0e9ca1d4e7a2f180"
+   ],
+   "★承重前提已复核": "生产仪器**不在** VERDICT_BY_INSTRUMENT 里 ⇒ 它的 K1 判定**只能**经 SCOPE_WIDENINGS 那条模板自证边继承(gen4 565470cf26c16d01 → gen6)。"
+  },
+  "G 的仪器身份(本轮实测现算)": {
+   "gate_protocol_version": 2,
+   "gate_protocol_hash": "dbdff13f9da155bc"
+  },
+  "market": "intl(默认值)—— ★ 上一轮六个产物写的「仓内无 market 字段(已实扫)」**是假的**, 本轮独立复扫: `grep -rnw market scripts/ config/ accuracy/` = **33 处**(含 scripts/cce_strategy_gate.py:100/113/140 的 `os.environ.get(\"CCE_MARKET\", \"intl\")` 与 scripts/cce_outbound_guard.py:286/309/343/361 的 `if market in (\"cn\",\"both\")`), 连 probes/ 一起数是 52 处。★ 本轮四个观测面**没有一面**调用 cce_strategy_gate / cce_outbound_guard, 也没有设 CCE_MARKET ⇒ 走的是默认 intl 分支, 本轮判决**不覆盖 market=cn**(见 faces_blind)。",
+  "profile_env": {
+   "CCE_MEASUREMENT_MODEL": "未设(用 cce_knot_classify 默认)",
+   "CCE_SKIP_GK2": "1(装置设的, 只影响 run_gates 跑不跑 GK2, 不影响材料)",
+   "MINIMAX_API_KEY": "OFFLINE-FAKE-KEY-NOT-A-SECRET(假 key, 只为让 import 期的 os.environ[...] 不炸; **绝未 export 真 key**)"
+  },
+  "decided_at": "2026-09-11T19:47:30",
+  "drift_rule": "以上任一项变化 ⇒ 基于本工况的判决当场失效, 必须重跑。",
+  "M8_structural_bias": "只在存量数据上做的消融**天然把所有保险丝判成装饰** —— 保险丝的定义就是「平时永远不动」。故 NO_CONSUMER 必须区分「真死」与「在本存量工况下没被触发」(后者应判 UNREACHABLE 并写明复活条件)。"
+ },
+ "positive_control": {
+  "★为什么在自己进程里重跑": "判官不能沿用别人那一轮的通过记录 —— 工况与进程都不同。",
+  "M1-a 死常量臂(_S1_BASE_TEMPS[5:7], k∈{3,5} 下永不取用)": {
+   "在 CE-3 三面上": {
+    "F1_scope_widening_verify": "same",
+    "F1_same_physical_instrument_gen4_gen6": "same",
+    "F1_calibration_transfers_promptonly": "same",
+    "F1_calibration_transfers_gen4edge": "same",
+    "F1_calibration_transfers_fulldeps_TAUTOLOGY_PRONE": "EXC TypeError: cannot use 'tuple' as a dict key (unhashable type: 'dict')",
+    "F1_current_instrument_hash_L3_TAUTOLOGY": "2d4409b1222624bb",
+    "F2_verdict_path_for_PINNED": "same",
+    "F2_verdict_path_for_CURRENT": "NONE",
+    "F2_layer_status_PINNED": "same",
+    "F2_layer_status_CURRENT": {
+     "intensity": false,
+     "top1": false
+    },
+    "F2_knot_readout_usable_PINNED": "same",
+    "F3_withheld_PINNED": "same",
+    "F3_withheld_CURRENT": {
+     "usable_keys": [
+      "s1.tops.action",
+      "s1.tops.desire",
+      "s1.tops.emotion",
+      "s1.tops.need",
+      "s2.playbook_primary"
+     ],
+     "withheld_keys": [
+      "s2.distribution.intensity",
+      "s2.distribution.knot_weight",
+      "s2.distribution.top1",
+      "s2.drive_brake",
+      "s2.families"
+     ],
+     "withheld_count": 5,
+     "top1_withheld": true
+    }
+   },
+   "★判官结论": "F1_scope_widening_verify · same_physical_instrument · calibration_transfers(prompt 依赖) · verdict_path_for(钉死生产仪器) · layer_status(PINNED) · knot_readout_usable(PINNED) · 出口闸 withheld(PINNED) **七面全部不动** ⇒ 这七面**不是重言**, 可以当判据。而 F1_current_instrument_hash 与 verdict_path_for(现算哈希) / 出口闸(现算哈希) **动了** ⇒ 这三支是 M2 说的重言, 本轮**只记录不作证据**。",
+   "★顺带实测到的仓内缺陷": "scripts/cce_knot_classify.py calibration_transfers 在 depends_on 命中**字典值字段**(sampling_policy / aggregation_policy / qualification_policy)且该字段变了时, `SCOPE_WIDENINGS.get((d, snap.get(d), _spec_field(cur,d)))` 拿 dict 当 dict key ⇒ **TypeError: unhashable type: 'dict'**, 函数不是返回「不可搬」而是**整个炸掉**。已单独复现两次(sampling_policy / aggregation_policy)。6 个 spec 字段里有 3 个是字典 ⇒ 这条路径一半是雷。"
+  },
+  "M1-b 液性臂(CE-3 面)": {
+   "做法": "内存内把 _stage1_template() 的返回值换成 build_prompt(\"ABSURD-999\") ⇒ _s1_scope_widening_holds() 的子串自证不成立。★ 期望: F1_verify False · F2_verdict_path_for_PINNED NONE · F3 top1_withheld True。不满足 ⇒ CE-3 那三面装置没接上。",
+   "结果": {
+    "F1_scope_widening_verify": false,
+    "F1_same_physical_instrument_gen4_gen6": false,
+    "F1_calibration_transfers_promptonly": false,
+    "F1_calibration_transfers_gen4edge": false,
+    "F1_calibration_transfers_fulldeps_TAUTOLOGY_PRONE": false,
+    "F1_current_instrument_hash_L3_TAUTOLOGY": "679ccd4348b6c24b",
+    "F2_verdict_path_for_PINNED": "NONE",
+    "F2_verdict_path_for_CURRENT": "NONE",
+    "F2_layer_status_PINNED": {
+     "intensity": false,
+     "top1": false
+    },
+    "F2_layer_status_CURRENT": {
+     "intensity": false,
+     "top1": false
+    },
+    "F2_knot_readout_usable_PINNED": {
+     "top1": false,
+     "weight": false,
+     "intensity": false
+    },
+    "F3_withheld_PINNED": {
+     "usable_keys": [
+      "s1.tops.action",
+      "s1.tops.desire",
+      "s1.tops.emotion",
+      "s1.tops.need",
+      "s2.playbook_primary"
+     ],
+     "withheld_keys": [
+      "s2.distribution.intensity",
+      "s2.distribution.knot_weight",
+      "s2.distribution.top1",
+      "s2.drive_brake",
+      "s2.families"
+     ],
+     "withheld_count": 5,
+     "top1_withheld": true
+    },
+    "F3_withheld_CURRENT": {
+     "usable_keys": [
+      "s1.tops.action",
+      "s1.tops.desire",
+      "s1.tops.emotion",
+      "s1.tops.need",
+      "s2.playbook_primary"
+     ],
+     "withheld_keys": [
+      "s2.distribution.intensity",
+      "s2.distribution.knot_weight",
+      "s2.distribution.top1",
+      "s2.drive_brake",
+      "s2.families"
+     ],
+     "withheld_count": 5,
+     "top1_withheld": true
+    }
+   },
+   "★判官结论": "十三面**全翻**: _s1_scope_widening_holds True→False · same_physical_instrument True→False · calibration_transfers True→False · verdict_path_for('d4cce4c745f3f991') 有路径→**NONE** · layer_status top1 True→False · knot_readout_usable top1 True→False · 出口闸 **s2.distribution.top1 进 withheld**(4→5 项) ⇒ CE-3 那三面在本装置上**确实接上了**。★ 这正是上一轮 s1 簇缺的那一面: 它的注入检验跑在一个看不见消费者的面上。"
+  },
+  "★★M1-c stage2/taxonomy 面的液性臂(任务书点名必跑)": {
+   "为什么必须另跑": "温度表不喂 stage2。死常量/液性温度臂证明不了 taxonomy 面接上了。",
+   "臂 1 knots[].name(P 与 G 都取得到)": {
+    "P_prompt_changed": true,
+    "P_sentinel_in_prompt": true,
+    "P_PAYLOAD_changed": true,
+    "G_gate_protocol_hash_changed": true,
+    "G_sentinel_in_materials": true,
+    "L4_net_new": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation"
+    ],
+    "★判据": "P 与 G **同时**翻 ⇒ taxonomy 面对两台机器都接上了。"
+   },
+   "臂 2 knots[].cost_tier(★ 哈希看不见、闸却真在用)": {
+    "G_gate_protocol_hash_changed": false,
+    "G_COST_TIER_changed": true,
+    "G_ns_changed_names": [
+     "COST_TIER"
+    ],
+    "delete 臂 G_import_exc": "KeyError: 'cost_tier'",
+    "L4_net_new(mutate)": [],
+    "★判据": "mutate ⇒ COST_TIER 变而 gate_protocol_hash **不变** · delete ⇒ import 期 KeyError 整台起不来。⇒ 本轮 G 面**确实能看见非哈希消费者**, 那几条 NO_CONSUMER 不是「面太窄看不见」。★★ 且顺带暴露一件事: mutate 臂改了 COST_TIER (G-K2 成本档预测的真实输入)而**全仓 tests/ 净新增翻红 = 0 条** ⇒ 这个真实 G 消费者**没有任何闸守着它的内容**。"
+   },
+   "臂 3 knots[].internal_examples(死对照)": {
+    "全部 15 面": "same(见 face_table)",
+    "L4_net_new(mutate)": [
+     "tests/test_cce_internal_examples.py::test_belong_has_no_clean_example",
+     "tests/test_cce_internal_examples.py::test_the_breakage_has_not_grown"
+    ],
+    "★判据": "L1/L2/CE3 全部不动, 但 L4 上翻了 tests/test_cce_internal_examples.py 的两条 ⇒ 它对 P/G 运行期是死的, 对**账本闸**不是。这正是「死对照」该有的样子: 判它非承重, 但**不等于零引用**。"
+   },
+   "臂 4 knots[inertia].behavior[0:2](头部对照, 排除装置没接上)": {
+    "P_prompt_changed": true,
+    "G_gate_protocol_hash_changed": true,
+    "L4_net_new": [
+     "tests/test_cce_abstention.py",
+     "tests/test_cce_draw_ledger.py",
+     "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+     "tests/test_cce_hash_scope.py",
+     "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+     "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial"
+    ],
+    "★判据": "同一个字段的**头部**两台都变 ⇒ v3-091 的尾部『P 不变』不是装置没接上。"
+   }
+  },
+  "M3-① 确定性自检": {
+   "同输入连跑两次(全 15 面)逐值相同": true,
+   "不同的面": [],
+   "重放按 tag 索引不是共享迭代器": "用 probes/ablation_harness_v3.replay_draws(按 tag 索引)"
+  },
+  "M3-② 扫描面": {
+   "dirs": [
+    "scripts",
+    "probes",
+    "accuracy",
+    "tests",
+    ".github",
+    "config"
+   ],
+   "L4 测试面": "全仓 tests/(161 个 test_*.py) —— **不是**上一轮的 57 个子集"
+  },
+  "空操作臂": {
+   "L1/L2/CE3 面": "CTRL_NOOP 15 面全 same",
+   "L4 面 noop 相对 pristine 的伪红": [
+    "tests/test_cce_ablation_verdict_schema.py::test_operating_point_is_still_true_right_now",
+    "tests/test_cce_ablation_verdicts_v3.py",
+    "tests/test_cce_core_boundary.py"
+   ],
+   "★伪红成因": "所有 L4 臂的 taxonomy 都是 json.dumps 重新序列化的, 字节与仓里的缩进版不同 ⇒ 钉文件 sha256 / 钉工况时点的闸判红。**这正是空操作对照臂存在的理由**: 这几条对每个臂都一样, 被净新增减掉。",
+   "农场基线红(pristine)": [
+    "tests/test_cce_audio_prosody.py",
+    "tests/test_cce_chain_conformance.py",
+    "tests/test_cce_suspend_fix_confirmation.py::test_the_attempt_ledger_reports_attempts_not_just_successes",
+    "tests/test_ontology_migration.py"
+   ]
+  },
+  "R1 绊线": {
+   "父进程(L1/L2/CE3 面)": "覆盖: 本进程内**经 socket.socket.connect 新建**的连接(含 urllib/requests/http.client)。 **不覆盖**: ① 进入本上下文**之前已建立**的连接 ② 不走 socket 的传输(共享内存 / 本机文件 / unix pipe 以外的自带通道) ③ **子进程**(subprocess / os.system 另起进程, 有自己的 socket 模块) ④ **C 扩展自带的网络栈**(不经 Python socket 对象) ⑤ 本进程外的任何东西。 ⇒ 证据只能说「**本进程内经 socket 新建的连接被拦截, 且整段运行中一次都没被触发**」, **不能**说「全进程所有网络出口都已关闭」。",
+   "父进程触发记录": [],
+   "L4 子进程": "农场副本根目录注入 conftest.py 绊线(pytest 子进程不继承父进程的 socket 补丁)",
+   "L4 子进程触发总数": 5,
+   "★L4 子进程触发明细": {
+    "pristine": [
+     "('127.0.0.1', 7897)",
+     "('127.0.0.1', 7897)",
+     "('127.0.0.1', 7897)",
+     "('127.0.0.1', 7897)",
+     "('127.0.0.1', 7897)"
+    ]
+   },
+   "★如实说明": "这 5 次全部是 modelscope 库自己的 hub 自检(由 tests/test_cce_audio_prosody.py 的 import 链拉起), 目标是本机 HTTP_PROXY 127.0.0.1:7897, **在 connect 之前被绊线抛掉, 零请求发出**。不是 CCE 代码调模型 API。父进程 tripped == []。★ 但它说明: 不装绊线直接跑全仓测试会真的发出这些请求。"
+  },
+  "passed": true,
+  "gates": {
+   "CE3面_死常量臂七面不动": true,
+   "CE3面_液性臂把钉死扣发路径翻掉": true,
+   "stage2面_液性臂(name)P与G同时翻": true,
+   "stage2面_G的非哈希消费者可见(cost_tier)": true,
+   "stage2面_死对照(internal_examples)15面不动": true,
+   "空操作臂_15面不动": true,
+   "确定性": true,
+   "绊线_父进程未触发": true,
+   "绊线_L4子进程_触发的都不是CCE代码且全部被阻断": true,
+   "仓内被测文件进出一致": true,
+   "生产仪器现算哈希 == d4cce4c745f3f991": true,
+   "基线 gate_protocol_hash == dbdff13f9da155bc": true
+  },
+  "failed_gates": []
+ },
+ "cluster_local_controls": {
+  "基线读数": {
+   "P_prompt_sha": "b8d0f60d66d10f12",
+   "P_prompt_len": 3386,
+   "P_L1_sha": "1be97845b06af67c",
+   "P_L2_sha": "891dcc6a6582568e",
+   "P_PAYLOAD_sha": "ff36b8813bdd1c5b",
+   "G_hash": "dbdff13f9da155bc",
+   "G_brief_sha": "f8066c240118d57b",
+   "G_dt_sha": "10d954ce3eb57bd6",
+   "G_ne_sha": "e8d3763e3eb31acf",
+   "G_tmpl_sha": "d2a0306116db6072",
+   "G_materials_len": 4460,
+   "G_ns_sha": "9f8b8f97147a4050",
+   "G_COST_TIER_sha": "eb13dc121b7ab3d7",
+   "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+   "F2_verdict_path_for_PINNED": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json",
+   "F2_layer_status_PINNED": {
+    "intensity": false,
+    "top1": true
+   },
+   "F2_knot_readout_usable_PINNED": {
+    "top1": true,
+    "weight": false,
+    "intensity": false
+   },
+   "F3_withheld_PINNED": {
+    "usable_keys": [
+     "s1.tops.action",
+     "s1.tops.desire",
+     "s1.tops.emotion",
+     "s1.tops.need",
+     "s2.distribution.top1",
+     "s2.playbook_primary"
+    ],
+    "withheld_keys": [
+     "s2.distribution.intensity",
+     "s2.distribution.knot_weight",
+     "s2.drive_brake",
+     "s2.families"
+    ],
+    "withheld_count": 4,
+    "top1_withheld": false
+   }
+  },
+  "n_recs": 22
+ },
+ "★★★本轮的新发现": {
+  "① CE-3 的四面在本装置上是真接上的, 而这七条判决在它上面**纹丝不动**": "液性对照臂把 _stage1_template() 换成 build_prompt(\"ABSURD-999\") ⇒ verdict_path_for('d4cce4c745f3f991') 由有路径变 **NONE**, 出口闸 top1 由不扣发变扣发。同一装置上, hard_discriminant / definition_of_knot / identity_criterion 的 mutate+delete+absurd+poison 四臂**一面都不动**。⇒ 「加宽观测面后仍然 NO_CONSUMER」是本轮的主要结论, 不是没测出来。",
+  "② 「G 材料的唯一消费者是钉死哈希」这个前提**是假的**, 本轮已在同一配置文件里复现反例": "knots[].cost_tier mutate ⇒ run_gates.COST_TIER 变而 gate_protocol_hash **一字不变**(dbdff13f9da155bc); delete ⇒ import 期 KeyError 整台起不来。⇒ 所以本轮 G 面观测的是**整个模块命名空间 + import 异常**, 不是只看哈希。",
+  "③ ★ COST_TIER 这个真实 G 消费者**没有任何闸守着它的内容**": "cost_tier 的 mutate 臂改掉了 G-K2 成本档预测的真实输入, 而全仓 tests/ 净新增翻红 = 0 条。⇒ 改它一个字, 九结验收闸的 G-K2 那条线会静默地换一把尺子。",
+  "④★★ 只跑 append 型 mutate 臂会系统性低报 L4 —— 并与上一轮对上了账": "v3-093 的 hard_discriminant: mutate(尾附哨兵)净新增 0 条, absurd(整值替换)4 条, delete 21 条。仓里那几条闸(test_cce_contract_gap / test_cce_cross_family_reference / test_cce_suspend_factorial / test_cce_necessary_condition_reach)钉的是**原文引句仍在**(如 '等XX再说' in k['hard_discriminant'] · '决策被**明确悬置**' in sus['hard_discriminant'])—— 尾附哨兵时它们照样绿。★★ 对账结果: 上一轮给 v3-093/094 报的 4 条净新增, 与本轮 **absurd 臂**的 4 条**逐条相同**(contract_gap · cross_family_reference · necessary_condition_reach · suspend_factorial)⇒ 上一轮那个叫 mutate 的臂其实是**整值替换**。两轮的差别在**臂的构造方式**, 不在组件。⇒ 臂必须三个都跑, 且必须写清是哪一个。",
+  "⑤ ★ 仓内缺陷(顺带实测到, 不在任务清单里)": "scripts/cce_knot_classify.py 的 calibration_transfers: 当 calibration 的 depends_on 命中**字典值**的 spec 字段(sampling_policy / aggregation_policy / qualification_policy)且该字段变了, `SCOPE_WIDENINGS.get((d, snap.get(d), _spec_field(cur, d)))` 拿 dict 当 dict key ⇒ **TypeError: unhashable type: 'dict'** —— 函数不是返回「标定不可搬」而是**整个抛出**。6 个 spec 字段里 3 个是字典。已在死常量臂上自然撞到, 并单独复现两次。★ 这条路径正是「采样策略变了, 标定还能不能搬」—— 最该给出判决的那一支, 现在是雷。",
+  "⑤b ★ 仓内测试套件自己会发网络请求(绊线抓到的, 与本轮消融无关但必须报)": "L4 的 pristine 臂里绊线**捕获并阻断**了 5 次到 127.0.0.1:7897 的连接(本机 HTTP_PROXY)。栈顶是 **modelscope/hub/api.py:3642 send_request → requests.get** —— 由 tests/test_cce_audio_prosody.py → scripts/cce_video_parse.py 的 import 拉起来的第三方库自检, **不是** CCE 代码在调模型 API。★ 但含义是实的: **不装绊线直接 `pytest tests/` 就会真的发出这 5 个出站请求**。本轮 30 个臂里只有第一个臂被触发(之后应是该库自身缓存), 全部被阻断, 零请求发出。",
+  "⑥ v3-091 的那 8 个字: @P 标签承载不了 G 侧的后果": "P 截 behavior[:60] / G 截 [:70] ⇒ 第 60–67 字只进验收闸。本轮实测: CE-3 三面全不动(对 P 的仪器同一性确实不承重), 但 gate_protocol_hash **变了**、钉死闸转红。而 gate_protocol_hash 在本簇里**双向可分辨**(6 个点里 5 个不动它; cost_tier 能在不动它的前提下改真实 G 消费者)⇒ 它不是重言。⇒ 建议收口 agent 另立一条 @G 兄弟行判 LOAD_BEARING_L2。"
+ },
+ "M4_ref_counts_coarse_strict": {
+  "hard_discriminant": {
+   "coarse": 301,
+   "strict": 175
+  },
+  "typical_codes": {
+   "coarse": 124,
+   "strict": 48
+  },
+  "family": {
+   "coarse": 828,
+   "strict": 89
+  },
+  "definition_of_knot": {
+   "coarse": 49,
+   "strict": 49
+  },
+  "identity_criterion": {
+   "coarse": 48,
+   "strict": 22
+  },
+  "behavior": {
+   "coarse": 250,
+   "strict": 93
+  },
+  "cost_tier": {
+   "coarse": 26,
+   "strict": 12
+  },
+  "internal_examples": {
+   "coarse": 31,
+   "strict": 11
+  }
+ },
+ "l4": {
+  "★测试面": "全仓 tests/ 共 161 个 test_*.py(上一轮只跑 57 个子集 —— 那是把 M3-② 的盲区复制到了 L4)",
+  "★每点跑三个臂": "只跑 append 型 mutate 会**低报**: 钉「原文引句仍在」的子串闸在尾部追加哨兵时照样绿。本轮每点跑 mutate/absurd/delete 三臂。实测差距见 v3-093: mutate 净新增 0 条, absurd 4 条, delete 21 条。",
+  "空操作臂红集": [
+   "tests/test_cce_ablation_verdict_schema.py::test_operating_point_is_still_true_right_now",
+   "tests/test_cce_ablation_verdicts_v3.py",
+   "tests/test_cce_audio_prosody.py",
+   "tests/test_cce_chain_conformance.py",
+   "tests/test_cce_core_boundary.py",
+   "tests/test_cce_suspend_fix_confirmation.py::test_the_attempt_ledger_reports_attempts_not_just_successes",
+   "tests/test_ontology_migration.py"
+  ],
+  "农场基线红集(pristine)": [
+   "tests/test_cce_audio_prosody.py",
+   "tests/test_cce_chain_conformance.py",
+   "tests/test_cce_suspend_fix_confirmation.py::test_the_attempt_ledger_reports_attempts_not_just_successes",
+   "tests/test_ontology_migration.py"
+  ],
+  "空操作臂相对 pristine 的伪红": [
+   "tests/test_cce_ablation_verdict_schema.py::test_operating_point_is_still_true_right_now",
+   "tests/test_cce_ablation_verdicts_v3.py",
+   "tests/test_cce_core_boundary.py"
+  ],
+  "逐臂净新增": {
+   "pristine": [],
+   "noop": [],
+   "knots[].hard_discriminant::mutate": [],
+   "knots[].hard_discriminant::absurd": [
+    "tests/test_cce_contract_gap.py::test_the_broken_routing_is_quoted_from_the_contract_not_paraphrased",
+    "tests/test_cce_cross_family_reference.py::test_no_action_taken_on_suspend_this_round",
+    "tests/test_cce_necessary_condition_reach.py::test_reverse_the_gate_must_go_green_if_the_condition_were_delivered",
+    "tests/test_cce_suspend_factorial.py::test_the_defect_is_an_omission_in_what_actually_reaches_the_prompt"
+   ],
+   "knots[].hard_discriminant::delete": [
+    "tests/test_cce_contract_gap.py::test_the_broken_routing_is_quoted_from_the_contract_not_paraphrased",
+    "tests/test_cce_cross_family_reference.py::test_no_action_taken_on_suspend_this_round",
+    "tests/test_cce_gk3_not_a_tautology.py::test_hard_discriminant_never_reaches_the_annotator",
+    "tests/test_cce_necessary_condition_reach.py::test_hardcoded_truncation_in_the_production_prompt_builder",
+    "tests/test_cce_necessary_condition_reach.py::test_production_never_receives_the_necessary_condition",
+    "tests/test_cce_necessary_condition_reach.py::test_reverse_the_gate_must_go_green_if_the_condition_were_delivered",
+    "tests/test_cce_necessary_condition_reach.py::test_the_asymmetry_is_stated_not_just_recorded",
+    "tests/test_cce_necessary_condition_reach.py::test_the_two_defects_stay_separate_and_the_narrow_gate_is_marked_narrow",
+    "tests/test_cce_necessary_condition_reach.py::test_this_probe_claims_no_authority_it_does_not_have",
+    "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+    "tests/test_cce_rule_delivery_completeness.py::test_i_recorded_that_i_gave_gpt_a_false_premise",
+    "tests/test_cce_rule_delivery_completeness.py::test_the_gate_claims_no_behavioral_authority",
+    "tests/test_cce_rule_delivery_completeness.py::test_the_spec_side_set_found_what_the_builder_side_method_could_not",
+    "tests/test_cce_rule_delivery_completeness.py::test_two_instruments_are_not_folded_into_one",
+    "tests/test_cce_stage2_candidate.py::test_behavior_is_labelled_as_illustration_not_criterion",
+    "tests/test_cce_stage2_candidate.py::test_budget_blocks_and_never_trims",
+    "tests/test_cce_stage2_candidate.py::test_candidate_closes_the_delivery_gap",
+    "tests/test_cce_stage2_candidate.py::test_decision_tree_is_off_by_default_with_a_stated_cost",
+    "tests/test_cce_stage2_candidate.py::test_reverse_turning_a_component_off_reopens_the_gap",
+    "tests/test_cce_suspend_factorial.py::test_the_defect_is_an_omission_in_what_actually_reaches_the_prompt",
+    "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+   ],
+   "knots[].typical_codes::mutate": [
+    "tests/test_cce_abstention.py",
+    "tests/test_cce_draw_ledger.py",
+    "tests/test_cce_hash_scope.py",
+    "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation"
+   ],
+   "knots[].typical_codes::absurd": [
+    "tests/test_cce_abstention.py",
+    "tests/test_cce_draw_ledger.py",
+    "tests/test_cce_hash_scope.py",
+    "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation"
+   ],
+   "knots[].typical_codes::delete": [
+    "tests/test_cce_abstention.py",
+    "tests/test_cce_draw_ledger.py",
+    "tests/test_cce_fingerprint_coverage.py::test_changing_the_ontology_changes_the_instrument",
+    "tests/test_cce_fingerprint_coverage.py::test_scope_widening_is_not_a_general_escape_hatch",
+    "tests/test_cce_gate_prompt_version_label.py::test_production_by_contrast_injects_the_live_version",
+    "tests/test_cce_gate_protocol_version.py::test_changing_negative_examples_moves_the_gate_hash_but_not_instrument_hash",
+    "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+    "tests/test_cce_gate_vs_production_prompt.py::test_negative_examples_does_not_enter_instrument_hash",
+    "tests/test_cce_gate_vs_production_prompt.py::test_production_prompt_really_lacks_the_fix_target",
+    "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+    "tests/test_cce_hash_scope.py",
+    "tests/test_cce_measurement_system.py",
+    "tests/test_cce_necessary_condition_reach.py::test_hardcoded_truncation_in_the_production_prompt_builder",
+    "tests/test_cce_necessary_condition_reach.py::test_production_never_receives_the_necessary_condition",
+    "tests/test_cce_necessary_condition_reach.py::test_reverse_the_gate_must_go_green_if_the_condition_were_delivered",
+    "tests/test_cce_necessary_condition_reach.py::test_the_asymmetry_is_stated_not_just_recorded",
+    "tests/test_cce_necessary_condition_reach.py::test_the_two_defects_stay_separate_and_the_narrow_gate_is_marked_narrow",
+    "tests/test_cce_necessary_condition_reach.py::test_this_probe_claims_no_authority_it_does_not_have",
+    "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+    "tests/test_cce_playbook_atoms_a1a2.py::test_playbook_never_enters_the_measurement_prompts",
+    "tests/test_cce_preparation_bridge.py",
+    "tests/test_cce_qualification_margin.py",
+    "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+    "tests/test_cce_rule_delivery_completeness.py::test_i_recorded_that_i_gave_gpt_a_false_premise",
+    "tests/test_cce_rule_delivery_completeness.py::test_it_checks_the_final_outbound_request_not_an_imitation",
+    "tests/test_cce_rule_delivery_completeness.py::test_the_gate_claims_no_behavioral_authority",
+    "tests/test_cce_rule_delivery_completeness.py::test_the_spec_side_set_found_what_the_builder_side_method_could_not",
+    "tests/test_cce_rule_delivery_completeness.py::test_two_instruments_are_not_folded_into_one",
+    "tests/test_cce_stage2_candidate.py::test_behavior_is_labelled_as_illustration_not_criterion",
+    "tests/test_cce_stage2_candidate.py::test_budget_blocks_and_never_trims",
+    "tests/test_cce_stage2_candidate.py::test_candidate_closes_the_delivery_gap",
+    "tests/test_cce_stage2_candidate.py::test_candidate_is_not_wired_into_production",
+    "tests/test_cce_stage2_candidate.py::test_decision_tree_is_off_by_default_with_a_stated_cost",
+    "tests/test_cce_stage2_candidate.py::test_reverse_turning_a_component_off_reopens_the_gap",
+    "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied",
+    "tests/test_cce_withholding_and_labels.py::test_preparation_id_actually_reaches_the_identity"
+   ],
+   "knots[].family::mutate": [
+    "tests/test_cce_abstention.py",
+    "tests/test_cce_draw_ledger.py",
+    "tests/test_cce_hash_scope.py",
+    "tests/test_cce_knot_stability.py",
+    "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+    "tests/test_cce_support_publication.py"
+   ],
+   "knots[].family::absurd": [
+    "tests/test_cce_abstention.py",
+    "tests/test_cce_draw_ledger.py",
+    "tests/test_cce_hash_scope.py",
+    "tests/test_cce_knot_stability.py",
+    "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+    "tests/test_cce_support_publication.py"
+   ],
+   "knots[].family::delete": [
+    "tests/test_cce_ablation_harness_v3.py",
+    "tests/test_cce_abstention.py",
+    "tests/test_cce_draw_ledger.py",
+    "tests/test_cce_fingerprint_coverage.py::test_changing_the_ontology_changes_the_instrument",
+    "tests/test_cce_fingerprint_coverage.py::test_scope_widening_is_not_a_general_escape_hatch",
+    "tests/test_cce_gate_prompt_version_label.py::test_production_by_contrast_injects_the_live_version",
+    "tests/test_cce_gate_protocol_version.py::test_changing_negative_examples_moves_the_gate_hash_but_not_instrument_hash",
+    "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+    "tests/test_cce_gate_vs_production_prompt.py::test_negative_examples_does_not_enter_instrument_hash",
+    "tests/test_cce_gate_vs_production_prompt.py::test_production_prompt_really_lacks_the_fix_target",
+    "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+    "tests/test_cce_hash_scope.py",
+    "tests/test_cce_knot_stability.py",
+    "tests/test_cce_measurement_system.py",
+    "tests/test_cce_necessary_condition_reach.py::test_hardcoded_truncation_in_the_production_prompt_builder",
+    "tests/test_cce_necessary_condition_reach.py::test_production_never_receives_the_necessary_condition",
+    "tests/test_cce_necessary_condition_reach.py::test_reverse_the_gate_must_go_green_if_the_condition_were_delivered",
+    "tests/test_cce_necessary_condition_reach.py::test_the_asymmetry_is_stated_not_just_recorded",
+    "tests/test_cce_necessary_condition_reach.py::test_the_two_defects_stay_separate_and_the_narrow_gate_is_marked_narrow",
+    "tests/test_cce_necessary_condition_reach.py::test_this_probe_claims_no_authority_it_does_not_have",
+    "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+    "tests/test_cce_playbook_atoms_a1a2.py::test_playbook_never_enters_the_measurement_prompts",
+    "tests/test_cce_preparation_bridge.py",
+    "tests/test_cce_qualification_margin.py",
+    "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+    "tests/test_cce_rule_delivery_completeness.py::test_i_recorded_that_i_gave_gpt_a_false_premise",
+    "tests/test_cce_rule_delivery_completeness.py::test_it_checks_the_final_outbound_request_not_an_imitation",
+    "tests/test_cce_rule_delivery_completeness.py::test_the_gate_claims_no_behavioral_authority",
+    "tests/test_cce_rule_delivery_completeness.py::test_the_spec_side_set_found_what_the_builder_side_method_could_not",
+    "tests/test_cce_rule_delivery_completeness.py::test_two_instruments_are_not_folded_into_one",
+    "tests/test_cce_stage2_candidate.py::test_behavior_is_labelled_as_illustration_not_criterion",
+    "tests/test_cce_stage2_candidate.py::test_budget_blocks_and_never_trims",
+    "tests/test_cce_stage2_candidate.py::test_candidate_closes_the_delivery_gap",
+    "tests/test_cce_stage2_candidate.py::test_candidate_is_not_wired_into_production",
+    "tests/test_cce_stage2_candidate.py::test_decision_tree_is_off_by_default_with_a_stated_cost",
+    "tests/test_cce_stage2_candidate.py::test_reverse_turning_a_component_off_reopens_the_gap",
+    "tests/test_cce_support_publication.py",
+    "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied",
+    "tests/test_cce_withholding_and_labels.py::test_preparation_id_actually_reaches_the_identity"
+   ],
+   "definition_of_knot::mutate": [],
+   "definition_of_knot::absurd": [],
+   "definition_of_knot::delete": [
+    "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+    "tests/test_cce_rule_delivery_completeness.py::test_i_recorded_that_i_gave_gpt_a_false_premise",
+    "tests/test_cce_rule_delivery_completeness.py::test_the_gate_claims_no_behavioral_authority",
+    "tests/test_cce_rule_delivery_completeness.py::test_the_spec_side_set_found_what_the_builder_side_method_could_not",
+    "tests/test_cce_rule_delivery_completeness.py::test_two_instruments_are_not_folded_into_one",
+    "tests/test_cce_stage2_candidate.py::test_behavior_is_labelled_as_illustration_not_criterion",
+    "tests/test_cce_stage2_candidate.py::test_budget_blocks_and_never_trims",
+    "tests/test_cce_stage2_candidate.py::test_candidate_closes_the_delivery_gap",
+    "tests/test_cce_stage2_candidate.py::test_decision_tree_is_off_by_default_with_a_stated_cost",
+    "tests/test_cce_stage2_candidate.py::test_reverse_turning_a_component_off_reopens_the_gap",
+    "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+   ],
+   "identity_criterion::mutate": [],
+   "identity_criterion::absurd": [],
+   "identity_criterion::delete": [
+    "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+    "tests/test_cce_rule_delivery_completeness.py::test_i_recorded_that_i_gave_gpt_a_false_premise",
+    "tests/test_cce_rule_delivery_completeness.py::test_the_gate_claims_no_behavioral_authority",
+    "tests/test_cce_rule_delivery_completeness.py::test_the_spec_side_set_found_what_the_builder_side_method_could_not",
+    "tests/test_cce_rule_delivery_completeness.py::test_two_instruments_are_not_folded_into_one",
+    "tests/test_cce_stage2_candidate.py::test_behavior_is_labelled_as_illustration_not_criterion",
+    "tests/test_cce_stage2_candidate.py::test_budget_blocks_and_never_trims",
+    "tests/test_cce_stage2_candidate.py::test_candidate_closes_the_delivery_gap",
+    "tests/test_cce_stage2_candidate.py::test_decision_tree_is_off_by_default_with_a_stated_cost",
+    "tests/test_cce_stage2_candidate.py::test_reverse_turning_a_component_off_reopens_the_gap",
+    "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+   ],
+   "knots[inertia].behavior[60:]::mutate": [
+    "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+    "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial"
+   ],
+   "knots[inertia].behavior[60:]::absurd": [
+    "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+    "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial"
+   ],
+   "knots[inertia].behavior[60:]::delete": [
+    "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+    "tests/test_cce_necessary_condition_reach.py::test_hardcoded_truncation_in_the_production_prompt_builder",
+    "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial"
+   ],
+   "CTRL_DEAD::knots[].internal_examples::mutate": [
+    "tests/test_cce_internal_examples.py::test_belong_has_no_clean_example",
+    "tests/test_cce_internal_examples.py::test_the_breakage_has_not_grown"
+   ],
+   "CTRL_DEAD::knots[].internal_examples::absurd": [
+    "tests/test_cce_internal_examples.py::test_belong_has_no_clean_example",
+    "tests/test_cce_internal_examples.py::test_the_breakage_has_not_grown"
+   ],
+   "CTRL_DEAD::knots[].internal_examples::delete": [
+    "tests/test_cce_internal_examples.py::test_belong_has_no_clean_example",
+    "tests/test_cce_internal_examples.py::test_the_breakage_has_not_grown",
+    "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+   ],
+   "CTRL_LIQUID_P_and_G::knots[].name::mutate": [
+    "tests/test_cce_abstention.py",
+    "tests/test_cce_draw_ledger.py",
+    "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+    "tests/test_cce_hash_scope.py",
+    "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation"
+   ],
+   "CTRL_LIQUID_P_and_G::knots[].name::absurd": [
+    "tests/test_cce_abstention.py",
+    "tests/test_cce_draw_ledger.py",
+    "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+    "tests/test_cce_hash_scope.py",
+    "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation"
+   ],
+   "CTRL_LIQUID_P_and_G::knots[].name::delete": [
+    "tests/test_cce_ablation_harness_v3.py",
+    "tests/test_cce_abstention.py",
+    "tests/test_cce_acceptance_gate_failopen.py",
+    "tests/test_cce_accuracy_offline.py::test_all_five_failure_modes_pass_computed_now",
+    "tests/test_cce_accuracy_offline.py::test_conclusion_scope_matches_the_substitution_boundary",
+    "tests/test_cce_accuracy_offline.py::test_harness_loads_without_a_real_key_and_sets_env_before_import",
+    "tests/test_cce_accuracy_offline.py::test_mutants_are_caught_and_invalid_ones_are_not_counted",
+    "tests/test_cce_accuracy_offline.py::test_patch_point_is_where_the_code_actually_looks_it_up",
+    "tests/test_cce_accuracy_offline.py::test_repo_files_untouched_by_mutation",
+    "tests/test_cce_accuracy_offline.py::test_tripwire_states_its_scope_and_is_not_overclaimed",
+    "tests/test_cce_anchors_independent_of_corpus.py::test_every_anchor_id_resolves",
+    "tests/test_cce_anchors_independent_of_corpus.py::test_switching_corpus_does_not_break_the_exam",
+    "tests/test_cce_criterion_cast.py::test_run_gates_indifference_region_is_live_not_transcribed",
+    "tests/test_cce_draw_ledger.py",
+    "tests/test_cce_fingerprint_coverage.py::test_changing_the_ontology_changes_the_instrument",
+    "tests/test_cce_fingerprint_coverage.py::test_scope_widening_is_not_a_general_escape_hatch",
+    "tests/test_cce_gate_prompt_version_label.py::test_production_by_contrast_injects_the_live_version",
+    "tests/test_cce_gate_prompt_version_label.py::test_the_content_really_is_synced_so_the_label_really_does_lie",
+    "tests/test_cce_gate_prompt_version_label.py::test_the_label_is_frozen_and_still_stale",
+    "tests/test_cce_gate_protocol_version.py::test_changing_negative_examples_moves_the_gate_hash_but_not_instrument_hash",
+    "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+    "tests/test_cce_gate_protocol_version.py::test_the_hash_really_covers_the_gate_materials",
+    "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+    "tests/test_cce_gate_vs_production_prompt.py::test_negative_examples_does_not_enter_instrument_hash",
+    "tests/test_cce_gate_vs_production_prompt.py::test_production_prompt_really_lacks_the_fix_target",
+    "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+    "tests/test_cce_hash_scope.py",
+    "tests/test_cce_internal_examples.py::test_audit_has_zero_usable_examples",
+    "tests/test_cce_internal_examples.py::test_belong_has_no_clean_example",
+    "tests/test_cce_internal_examples.py::test_the_breakage_has_not_grown",
+    "tests/test_cce_js_metric_definition.py::test_fixed_vectors_hit_the_expected_values",
+    "tests/test_cce_js_metric_definition.py::test_it_is_the_divergence_not_the_sqrt_distance",
+    "tests/test_cce_js_metric_definition.py::test_the_truncation_dependence_is_written_down",
+    "tests/test_cce_js_metric_definition.py::test_the_two_implementations_agree_bit_for_bit",
+    "tests/test_cce_knot_stability.py",
+    "tests/test_cce_measurement_system.py",
+    "tests/test_cce_necessary_condition_reach.py::test_hardcoded_truncation_in_the_production_prompt_builder",
+    "tests/test_cce_necessary_condition_reach.py::test_production_never_receives_the_necessary_condition",
+    "tests/test_cce_necessary_condition_reach.py::test_reverse_the_gate_must_go_green_if_the_condition_were_delivered",
+    "tests/test_cce_necessary_condition_reach.py::test_the_asymmetry_is_stated_not_just_recorded",
+    "tests/test_cce_necessary_condition_reach.py::test_the_two_defects_stay_separate_and_the_narrow_gate_is_marked_narrow",
+    "tests/test_cce_necessary_condition_reach.py::test_this_probe_claims_no_authority_it_does_not_have",
+    "tests/test_cce_only_bookmark_conflict.py::test_no_priority_rule_was_added_to_the_prompt",
+    "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+    "tests/test_cce_playbook_atoms_a1a2.py::test_playbook_never_enters_the_measurement_prompts",
+    "tests/test_cce_preparation_bridge.py",
+    "tests/test_cce_prompt_template_args.py::test_both_paths_actually_render",
+    "tests/test_cce_prompt_template_args.py::test_every_template_actually_renders",
+    "tests/test_cce_prompt_template_args.py::test_every_template_format_supplies_all_placeholders",
+    "tests/test_cce_prompt_template_args.py::test_unit_label_is_a_measured_variable_not_a_hardcode",
+    "tests/test_cce_qualification_margin.py",
+    "tests/test_cce_qualification_premise_revised.py::test_v2_really_says_all_unresolved",
+    "tests/test_cce_qualification_v2.py",
+    "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+    "tests/test_cce_rule_delivery_completeness.py::test_i_recorded_that_i_gave_gpt_a_false_premise",
+    "tests/test_cce_rule_delivery_completeness.py::test_it_checks_the_final_outbound_request_not_an_imitation",
+    "tests/test_cce_rule_delivery_completeness.py::test_the_gate_claims_no_behavioral_authority",
+    "tests/test_cce_rule_delivery_completeness.py::test_the_spec_side_set_found_what_the_builder_side_method_could_not",
+    "tests/test_cce_rule_delivery_completeness.py::test_two_instruments_are_not_folded_into_one",
+    "tests/test_cce_run_params_recorded.py::test_corpus_path_is_recorded_even_though_ast_cannot_trace_it",
+    "tests/test_cce_run_params_recorded.py::test_every_env_var_that_reaches_a_prompt_is_recorded",
+    "tests/test_cce_second_exclusion_channel.py::test_there_really_are_two_exclusion_channels",
+    "tests/test_cce_stage2_candidate.py::test_behavior_is_labelled_as_illustration_not_criterion",
+    "tests/test_cce_stage2_candidate.py::test_budget_blocks_and_never_trims",
+    "tests/test_cce_stage2_candidate.py::test_candidate_closes_the_delivery_gap",
+    "tests/test_cce_stage2_candidate.py::test_candidate_is_not_wired_into_production",
+    "tests/test_cce_stage2_candidate.py::test_decision_tree_is_off_by_default_with_a_stated_cost",
+    "tests/test_cce_stage2_candidate.py::test_reverse_turning_a_component_off_reopens_the_gap",
+    "tests/test_cce_support_publication.py",
+    "tests/test_cce_suspend_factorial.py::test_the_defect_is_an_omission_in_what_actually_reaches_the_prompt",
+    "tests/test_cce_taxonomy_field_reach.py::test_the_ablation_now_measures_the_gate_side_too",
+    "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied",
+    "tests/test_cce_withholding_and_labels.py::test_preparation_id_actually_reaches_the_identity"
+   ],
+   "CTRL_LIQUID_G_beyond_hash::knots[].cost_tier::mutate": [],
+   "CTRL_LIQUID_G_beyond_hash::knots[].cost_tier::absurd": [],
+   "CTRL_LIQUID_G_beyond_hash::knots[].cost_tier::delete": [
+    "tests/test_cce_acceptance_gate_failopen.py",
+    "tests/test_cce_accuracy_offline.py::test_all_five_failure_modes_pass_computed_now",
+    "tests/test_cce_accuracy_offline.py::test_conclusion_scope_matches_the_substitution_boundary",
+    "tests/test_cce_accuracy_offline.py::test_harness_loads_without_a_real_key_and_sets_env_before_import",
+    "tests/test_cce_accuracy_offline.py::test_mutants_are_caught_and_invalid_ones_are_not_counted",
+    "tests/test_cce_accuracy_offline.py::test_patch_point_is_where_the_code_actually_looks_it_up",
+    "tests/test_cce_accuracy_offline.py::test_repo_files_untouched_by_mutation",
+    "tests/test_cce_accuracy_offline.py::test_tripwire_states_its_scope_and_is_not_overclaimed",
+    "tests/test_cce_anchors_independent_of_corpus.py::test_every_anchor_id_resolves",
+    "tests/test_cce_anchors_independent_of_corpus.py::test_switching_corpus_does_not_break_the_exam",
+    "tests/test_cce_criterion_cast.py::test_run_gates_indifference_region_is_live_not_transcribed",
+    "tests/test_cce_gate_prompt_version_label.py::test_the_content_really_is_synced_so_the_label_really_does_lie",
+    "tests/test_cce_gate_prompt_version_label.py::test_the_label_is_frozen_and_still_stale",
+    "tests/test_cce_gate_protocol_version.py::test_changing_negative_examples_moves_the_gate_hash_but_not_instrument_hash",
+    "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+    "tests/test_cce_gate_protocol_version.py::test_the_hash_really_covers_the_gate_materials",
+    "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+    "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+    "tests/test_cce_internal_examples.py::test_audit_has_zero_usable_examples",
+    "tests/test_cce_internal_examples.py::test_belong_has_no_clean_example",
+    "tests/test_cce_internal_examples.py::test_the_breakage_has_not_grown",
+    "tests/test_cce_js_metric_definition.py::test_fixed_vectors_hit_the_expected_values",
+    "tests/test_cce_js_metric_definition.py::test_it_is_the_divergence_not_the_sqrt_distance",
+    "tests/test_cce_js_metric_definition.py::test_the_truncation_dependence_is_written_down",
+    "tests/test_cce_js_metric_definition.py::test_the_two_implementations_agree_bit_for_bit",
+    "tests/test_cce_only_bookmark_conflict.py::test_no_priority_rule_was_added_to_the_prompt",
+    "tests/test_cce_prompt_template_args.py::test_both_paths_actually_render",
+    "tests/test_cce_prompt_template_args.py::test_every_template_actually_renders",
+    "tests/test_cce_prompt_template_args.py::test_every_template_format_supplies_all_placeholders",
+    "tests/test_cce_prompt_template_args.py::test_unit_label_is_a_measured_variable_not_a_hardcode",
+    "tests/test_cce_qualification_premise_revised.py::test_v2_really_says_all_unresolved",
+    "tests/test_cce_qualification_v2.py",
+    "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+    "tests/test_cce_rule_delivery_completeness.py::test_i_recorded_that_i_gave_gpt_a_false_premise",
+    "tests/test_cce_rule_delivery_completeness.py::test_the_gate_claims_no_behavioral_authority",
+    "tests/test_cce_rule_delivery_completeness.py::test_the_spec_side_set_found_what_the_builder_side_method_could_not",
+    "tests/test_cce_rule_delivery_completeness.py::test_two_instruments_are_not_folded_into_one",
+    "tests/test_cce_run_params_recorded.py::test_corpus_path_is_recorded_even_though_ast_cannot_trace_it",
+    "tests/test_cce_run_params_recorded.py::test_every_env_var_that_reaches_a_prompt_is_recorded",
+    "tests/test_cce_second_exclusion_channel.py::test_there_really_are_two_exclusion_channels",
+    "tests/test_cce_suspend_factorial.py::test_the_defect_is_an_omission_in_what_actually_reaches_the_prompt",
+    "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+   ],
+   "CTRL_HEAD::knots[inertia].behavior[0:2]::mutate": [
+    "tests/test_cce_abstention.py",
+    "tests/test_cce_draw_ledger.py",
+    "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+    "tests/test_cce_hash_scope.py",
+    "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+    "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial"
+   ]
+  },
+  "★M3-③ 结构上看不见本轮消融的钉源码闸": "★ M3-③ 分开报的第二行。仓内共 43 个测试文件对**从磁盘读进来的源码文本**做子串断言; 其中 12 个文件(合计 25 条断言)钉的正是本轮两台机器自己的源码 —— accuracy/run_gates.py(test_cce_acceptance_gate_failopen 5 条 · test_cce_second_exclusion_channel 2 条 · test_cce_gk1_margin 2 条 · test_cce_run_params_recorded 1 条) 与 scripts/cce_knot_classify.py(test_cce_abstention · test_cce_draw_ledger · test_cce_knot_stability 的 inspect.getsource(K.stage1), 以及 test_cce_attempt_ledger / test_cce_operational_ledger_key / test_cce_structural_gate / test_cce_tiebreak_determinism / test_cce_withholding_and_labels)。**本轮消融只写 config/knot_taxonomy.json** ⇒ 这 25 条断言**结构上不可能**因本轮任何一个臂翻红, 无论该字段在 G/P 上多承重。它们的『没红』不是证据, 上面那行『实测 L4』的净新增因此是**下界**。★ 唯一不失明的是 tests/test_cce_ablation_verdict_schema.py(它读 taxonomy 相关产物)。",
+  "★M3-③ 名单": [
+   {
+    "test_file": "tests/test_cce_abstention.py",
+    "pins_source_of": [
+     "cce_full_run.py",
+     "cce_knot_classify.py",
+     "cce_response_chain.py",
+     "getsource:K.stage1"
+    ],
+    "n_substring_assertions_on_source": 3
+   },
+   {
+    "test_file": "tests/test_cce_acceptance_gate_failopen.py",
+    "pins_source_of": [
+     "run_gates.py"
+    ],
+    "n_substring_assertions_on_source": 5
+   },
+   {
+    "test_file": "tests/test_cce_attempt_ledger.py",
+    "pins_source_of": [
+     "cce_knot_classify.py"
+    ],
+    "n_substring_assertions_on_source": 3
+   },
+   {
+    "test_file": "tests/test_cce_draw_ledger.py",
+    "pins_source_of": [
+     "getsource:K.stage1"
+    ],
+    "n_substring_assertions_on_source": 2
+   },
+   {
+    "test_file": "tests/test_cce_gk1_margin.py",
+    "pins_source_of": [
+     "run_gates.py"
+    ],
+    "n_substring_assertions_on_source": 2
+   },
+   {
+    "test_file": "tests/test_cce_knot_stability.py",
+    "pins_source_of": [
+     "getsource:K.stage1"
+    ],
+    "n_substring_assertions_on_source": 1
+   },
+   {
+    "test_file": "tests/test_cce_operational_ledger_key.py",
+    "pins_source_of": [
+     "cce_knot_classify.py"
+    ],
+    "n_substring_assertions_on_source": 2
+   },
+   {
+    "test_file": "tests/test_cce_run_params_recorded.py",
+    "pins_source_of": [
+     "run_gates.py"
+    ],
+    "n_substring_assertions_on_source": 1
+   },
+   {
+    "test_file": "tests/test_cce_second_exclusion_channel.py",
+    "pins_source_of": [
+     "run_gates.py"
+    ],
+    "n_substring_assertions_on_source": 2
+   },
+   {
+    "test_file": "tests/test_cce_structural_gate.py",
+    "pins_source_of": [
+     "cce_knot_classify.py"
+    ],
+    "n_substring_assertions_on_source": 1
+   },
+   {
+    "test_file": "tests/test_cce_tiebreak_determinism.py",
+    "pins_source_of": [
+     "cce_knot_classify.py"
+    ],
+    "n_substring_assertions_on_source": 2
+   },
+   {
+    "test_file": "tests/test_cce_withholding_and_labels.py",
+    "pins_source_of": [
+     "cce_full_run.py",
+     "cce_knot_classify.py"
+    ],
+    "n_substring_assertions_on_source": 1
+   }
+  ]
+ },
+ "verdicts": [
+  {
+   "id": "v3-093",
+   "round": "v3-CE3-rerun",
+   "cluster": "CE3_分类学字段_G侧",
+   "component": "knots[].hard_discriminant @P",
+   "locus": "config/knot_taxonomy.json: knots[*].hard_discriminant; 生产侧 scripts/cce_knot_classify.py:_build_stage2_prompt(:692-726) 不取它",
+   "consumer_side": "P",
+   "verdict": "NO_CONSUMER",
+   "verdict_before": "NO_CONSUMER",
+   "verdict_changed": false,
+   "deletable": false,
+   "deletable_reason": "不可删(实测口径, 非规范口径): delete 臂在全仓 tests/ 上净新增翻红 21 条(见 L4_measured.delete)。其中 tests/test_cce_gk3_not_a_tautology.py::test_hard_discriminant_never_reaches_the_annotator 断言的正是「这个键存在、且不进标注 prompt」—— 删了它这条闸失去被验对象。★ 与 v2 的 audio.capabilities/prosody 同型: **真没消费者, 但该接线不该删**; scripts/cce_stage2_candidate.py 正是为接它而写的候选件。",
+   "ablation_point": "knots[].hard_discriminant",
+   "ablated_files": [
+    "config/knot_taxonomy.json"
+   ],
+   "ablation_method": "L1/L2/CE3 面: 内存内改 taxonomy 对象 + 把 run_gates 的 TAXO 指向 scratch 里的临时副本(仓里一字未改); L4 面: 把仓 clone 到 scratch 农场, 只在**副本**里写改过的 config/knot_taxonomy.json 再跑全仓 tests/。",
+   "faces_observed": [
+    "P::prompt(_build_stage2_prompt 全文 sha + 哨兵是否进 prompt)",
+    "P::L1(22 份存量重放的 intensity/families/weight)",
+    "P::L2(measurement_status/knot_order/top1_mode/top1_unanimous)",
+    "P::payload(发布载荷 name/family/playbook/behavior_predicted)",
+    "G::gate_protocol_hash()",
+    "G::四块进闸材料(KNOT_BRIEF/DECISION_TREE/NEGATIVE_EXAMPLES/DIST_TMPL)",
+    "G::run_gates 模块命名空间全摘要(★本轮新增, 抓 COST_TIER 这类非哈希消费者)",
+    "G::import 期异常",
+    "CE3-1::_s1_scope_widening_holds() / same_physical_instrument(gen4,gen6)",
+    "CE3-1::calibration_transfers(depends_on=s1/s2 prompt sha)",
+    "CE3-2::cce_k1_status.verdict_path_for('d4cce4c745f3f991')(钉死生产仪器)",
+    "CE3-2::layer_status(PINNED) / knot_readout_usable(top1|weight|intensity)",
+    "CE3-3::cce_full_run.qualified 出口闸 withheld 集合",
+    "L3(现算 instrument_hash)—— **只记录, 不作证据**(M2)",
+    "L4::全仓 tests/ 净新增翻红(农场副本, 空操作臂扣减)"
+   ],
+   "faces_blind": [
+    "blind::G 的 PASS/FAIL 本身(κ / Spearman ρ / 资格率)—— 需要真模型调用, 零 API 纪律下本轮一次都没跑; 本轮 G 面测的是**进闸材料与闸的模块级派生物**, 不是闸的判决结果",
+    "blind::真实模型的语义判断(标注者读到不同材料后会不会标得不一样)—— 结构上不可离线测",
+    "blind::market=cn 分支 —— 仓内 market 确实存在(scripts/ config/ accuracy/ 实扫 33 处, 含 CCE_MARKET 环境变量), 但本轮四面没有一面调用 cce_strategy_gate / cce_outbound_guard ⇒ 本判决**不覆盖** market=cn",
+    "blind::k∉{3,5} 与非 gen6 profile —— 存量语料只有 k=3(20)与 k=5(2), instrument profile 只有一种",
+    "blind::C 面(候选件与账本线: scripts/cce_stage2_candidate.py · probes/taxonomy_field_reach_ledger.py · scripts/cce_align_v2.py)在 L1/L2 上**没有单独观测** —— 只在 L4 全仓测试面里间接覆盖"
+   ],
+   "face_table_by_arm": {
+    "mutate": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "same",
+     "G::materials": "same",
+     "G::module_namespace": "same",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": true,
+      "G_ns_changed_names": [],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    },
+    "delete": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "same",
+     "G::materials": "same",
+     "G::module_namespace": "same",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": true,
+      "G_ns_changed_names": [],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    },
+    "absurd": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "same",
+     "G::materials": "same",
+     "G::module_namespace": "same",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": true,
+      "G_ns_changed_names": [],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    },
+    "poison": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "G::materials": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "G::module_namespace": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "G::COST_TIER": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": "NOT_SERIALIZABLE: TypeError",
+      "G_sentinel_in_materials": null,
+      "G_pin_holds": null,
+      "G_ns_changed_names": null,
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    }
+   },
+   "L4_measured": {
+    "mutate": {
+     "net_new_reds": [],
+     "n": 0,
+     "net_gone": []
+    },
+    "absurd": {
+     "net_new_reds": [
+      "tests/test_cce_contract_gap.py::test_the_broken_routing_is_quoted_from_the_contract_not_paraphrased",
+      "tests/test_cce_cross_family_reference.py::test_no_action_taken_on_suspend_this_round",
+      "tests/test_cce_necessary_condition_reach.py::test_reverse_the_gate_must_go_green_if_the_condition_were_delivered",
+      "tests/test_cce_suspend_factorial.py::test_the_defect_is_an_omission_in_what_actually_reaches_the_prompt"
+     ],
+     "n": 4,
+     "net_gone": []
+    },
+    "delete": {
+     "net_new_reds": [
+      "tests/test_cce_contract_gap.py::test_the_broken_routing_is_quoted_from_the_contract_not_paraphrased",
+      "tests/test_cce_cross_family_reference.py::test_no_action_taken_on_suspend_this_round",
+      "tests/test_cce_gk3_not_a_tautology.py::test_hard_discriminant_never_reaches_the_annotator",
+      "tests/test_cce_necessary_condition_reach.py::test_hardcoded_truncation_in_the_production_prompt_builder",
+      "tests/test_cce_necessary_condition_reach.py::test_production_never_receives_the_necessary_condition",
+      "tests/test_cce_necessary_condition_reach.py::test_reverse_the_gate_must_go_green_if_the_condition_were_delivered",
+      "tests/test_cce_necessary_condition_reach.py::test_the_asymmetry_is_stated_not_just_recorded",
+      "tests/test_cce_necessary_condition_reach.py::test_the_two_defects_stay_separate_and_the_narrow_gate_is_marked_narrow",
+      "tests/test_cce_necessary_condition_reach.py::test_this_probe_claims_no_authority_it_does_not_have",
+      "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+      "tests/test_cce_rule_delivery_completeness.py::test_i_recorded_that_i_gave_gpt_a_false_premise",
+      "tests/test_cce_rule_delivery_completeness.py::test_the_gate_claims_no_behavioral_authority",
+      "tests/test_cce_rule_delivery_completeness.py::test_the_spec_side_set_found_what_the_builder_side_method_could_not",
+      "tests/test_cce_rule_delivery_completeness.py::test_two_instruments_are_not_folded_into_one",
+      "tests/test_cce_stage2_candidate.py::test_behavior_is_labelled_as_illustration_not_criterion",
+      "tests/test_cce_stage2_candidate.py::test_budget_blocks_and_never_trims",
+      "tests/test_cce_stage2_candidate.py::test_candidate_closes_the_delivery_gap",
+      "tests/test_cce_stage2_candidate.py::test_decision_tree_is_off_by_default_with_a_stated_cost",
+      "tests/test_cce_stage2_candidate.py::test_reverse_turning_a_component_off_reopens_the_gap",
+      "tests/test_cce_suspend_factorial.py::test_the_defect_is_an_omission_in_what_actually_reaches_the_prompt",
+      "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+     ],
+     "n": 21,
+     "net_gone": []
+    }
+   },
+   "L4_source_text_gates_invisible_to_this_ablation": "★ M3-③ 分开报的第二行。仓内共 43 个测试文件对**从磁盘读进来的源码文本**做子串断言; 其中 12 个文件(合计 25 条断言)钉的正是本轮两台机器自己的源码 —— accuracy/run_gates.py(test_cce_acceptance_gate_failopen 5 条 · test_cce_second_exclusion_channel 2 条 · test_cce_gk1_margin 2 条 · test_cce_run_params_recorded 1 条) 与 scripts/cce_knot_classify.py(test_cce_abstention · test_cce_draw_ledger · test_cce_knot_stability 的 inspect.getsource(K.stage1), 以及 test_cce_attempt_ledger / test_cce_operational_ledger_key / test_cce_structural_gate / test_cce_tiebreak_determinism / test_cce_withholding_and_labels)。**本轮消融只写 config/knot_taxonomy.json** ⇒ 这 25 条断言**结构上不可能**因本轮任何一个臂翻红, 无论该字段在 G/P 上多承重。它们的『没红』不是证据, 上面那行『实测 L4』的净新增因此是**下界**。★ 唯一不失明的是 tests/test_cce_ablation_verdict_schema.py(它读 taxonomy 相关产物)。",
+   "injection_test": "M6 四臂全跑: mutate(尾附哨兵) / delete(整键删除) / absurd(1200 字荒谬串) / Poison(任何触碰即抛)。★ Poison 臂最强: 生产全路径(prompt 构造 + 22 份聚合重放 + 发布载荷) **一个异常都没抛**(P_prompt_exc=None, P_agg_exc=None) ⇒ 该字段在 P 侧**一次都没被访问**。G 侧的 Poison 臂写不出 JSON 文件 ⇒ **未测**(如实记, 不当证据); G 侧改用 delete 臂: 整键删除后 run_gates **import 正常且模块命名空间逐字节不变** —— 而 TAXO 在 run_gates 里只出现在 6 处且**全部是模块级**(:20 :21 :137 :143 :145 :275), 没有调用期读取 ⇒ 「命名空间不变」等价于「从未被读」。",
+   "evidence": "★★ 本轮把观测面扩到 CE-3 点名的四面后, 判决**没有变** —— 这本身是结论。mutate / delete / absurd 三臂在**全部 15 个面**上逐值不变: P 的 prompt/L1/L2/载荷 · G 的 gate_protocol_hash 与整个模块命名空间 · CE-3 的 _s1_scope_widening_holds / same_physical_instrument / calibration_transfers / verdict_path_for('d4cce4c745f3f991') / layer_status / knot_readout_usable / cce_full_run 出口闸 withheld 集合(基线恒为 4 项: intensity·knot_weight·families·drive_brake, top1 **不**扣发)。★ Poison 臂(任何触碰即抛)在 P 全路径零异常 ⇒ 实证**一次都没被访问**。★ 上一轮把 _stage1_template 判成 NO_CONSUMER 的那个错误形状在这里**不成立**: CE-3 那三面本轮是**真接上的**(液性对照臂把 _stage1_template() 换成 build_prompt(\"ABSURD-999\") 后, F1_verify True→False · verdict_path_for(PINNED) 有路径→NONE · 出口闸 top1 由不扣发→扣发), 而 hard_discriminant 在同一装置上纹丝不动。",
+   "M4_ref_count_coarse_strict": {
+    "coarse": 301,
+    "strict": 175
+   },
+   "M4_note": "粗计 = 裸词频(词边界), 严计 = 同行还出现 taxo|knot|self|stage1|stage2|_S1_|gate。两个都是**词碰撞统计不是引用图**: hard_discriminant 的粗计里有一大块来自 accuracy/run_gates.py:777 —— 那是 GK3 探针**输出 JSON 的键名**, 不是读 TAXO 的那个字段。粗计高 ≠ 有消费者。"
+  },
+  {
+   "id": "v3-094",
+   "round": "v3-CE3-rerun",
+   "cluster": "CE3_分类学字段_G侧",
+   "component": "knots[].hard_discriminant @G",
+   "locus": "accuracy/run_gates.py 的 KNOT_BRIEF(:135-137, 只取 key/name/signature/behavior[:70]) / DECISION_TREE(:144) / NEGATIVE_EXAMPLES(:147) / DIST_TMPL(:179) 四块材料里都没有它",
+   "consumer_side": "G",
+   "verdict": "NO_CONSUMER",
+   "verdict_before": "NO_CONSUMER",
+   "verdict_changed": false,
+   "deletable": false,
+   "deletable_reason": "不可删: 同 v3-093(delete 臂翻 test_cce_gk3_not_a_tautology 那条闸)。",
+   "ablation_point": "knots[].hard_discriminant",
+   "ablated_files": [
+    "config/knot_taxonomy.json"
+   ],
+   "ablation_method": "L1/L2/CE3 面: 内存内改 taxonomy 对象 + 把 run_gates 的 TAXO 指向 scratch 里的临时副本(仓里一字未改); L4 面: 把仓 clone 到 scratch 农场, 只在**副本**里写改过的 config/knot_taxonomy.json 再跑全仓 tests/。",
+   "faces_observed": [
+    "P::prompt(_build_stage2_prompt 全文 sha + 哨兵是否进 prompt)",
+    "P::L1(22 份存量重放的 intensity/families/weight)",
+    "P::L2(measurement_status/knot_order/top1_mode/top1_unanimous)",
+    "P::payload(发布载荷 name/family/playbook/behavior_predicted)",
+    "G::gate_protocol_hash()",
+    "G::四块进闸材料(KNOT_BRIEF/DECISION_TREE/NEGATIVE_EXAMPLES/DIST_TMPL)",
+    "G::run_gates 模块命名空间全摘要(★本轮新增, 抓 COST_TIER 这类非哈希消费者)",
+    "G::import 期异常",
+    "CE3-1::_s1_scope_widening_holds() / same_physical_instrument(gen4,gen6)",
+    "CE3-1::calibration_transfers(depends_on=s1/s2 prompt sha)",
+    "CE3-2::cce_k1_status.verdict_path_for('d4cce4c745f3f991')(钉死生产仪器)",
+    "CE3-2::layer_status(PINNED) / knot_readout_usable(top1|weight|intensity)",
+    "CE3-3::cce_full_run.qualified 出口闸 withheld 集合",
+    "L3(现算 instrument_hash)—— **只记录, 不作证据**(M2)",
+    "L4::全仓 tests/ 净新增翻红(农场副本, 空操作臂扣减)"
+   ],
+   "faces_blind": [
+    "blind::G 的 PASS/FAIL 本身(κ / Spearman ρ / 资格率)—— 需要真模型调用, 零 API 纪律下本轮一次都没跑; 本轮 G 面测的是**进闸材料与闸的模块级派生物**, 不是闸的判决结果",
+    "blind::真实模型的语义判断(标注者读到不同材料后会不会标得不一样)—— 结构上不可离线测",
+    "blind::market=cn 分支 —— 仓内 market 确实存在(scripts/ config/ accuracy/ 实扫 33 处, 含 CCE_MARKET 环境变量), 但本轮四面没有一面调用 cce_strategy_gate / cce_outbound_guard ⇒ 本判决**不覆盖** market=cn",
+    "blind::k∉{3,5} 与非 gen6 profile —— 存量语料只有 k=3(20)与 k=5(2), instrument profile 只有一种",
+    "blind::C 面(候选件与账本线: scripts/cce_stage2_candidate.py · probes/taxonomy_field_reach_ledger.py · scripts/cce_align_v2.py)在 L1/L2 上**没有单独观测** —— 只在 L4 全仓测试面里间接覆盖"
+   ],
+   "face_table_by_arm": {
+    "mutate": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "same",
+     "G::materials": "same",
+     "G::module_namespace": "same",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": true,
+      "G_ns_changed_names": [],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    },
+    "delete": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "same",
+     "G::materials": "same",
+     "G::module_namespace": "same",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": true,
+      "G_ns_changed_names": [],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    },
+    "absurd": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "same",
+     "G::materials": "same",
+     "G::module_namespace": "same",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": true,
+      "G_ns_changed_names": [],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    },
+    "poison": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "G::materials": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "G::module_namespace": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "G::COST_TIER": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": "NOT_SERIALIZABLE: TypeError",
+      "G_sentinel_in_materials": null,
+      "G_pin_holds": null,
+      "G_ns_changed_names": null,
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    }
+   },
+   "L4_measured": {
+    "mutate": {
+     "net_new_reds": [],
+     "n": 0,
+     "net_gone": []
+    },
+    "absurd": {
+     "net_new_reds": [
+      "tests/test_cce_contract_gap.py::test_the_broken_routing_is_quoted_from_the_contract_not_paraphrased",
+      "tests/test_cce_cross_family_reference.py::test_no_action_taken_on_suspend_this_round",
+      "tests/test_cce_necessary_condition_reach.py::test_reverse_the_gate_must_go_green_if_the_condition_were_delivered",
+      "tests/test_cce_suspend_factorial.py::test_the_defect_is_an_omission_in_what_actually_reaches_the_prompt"
+     ],
+     "n": 4,
+     "net_gone": []
+    },
+    "delete": {
+     "net_new_reds": [
+      "tests/test_cce_contract_gap.py::test_the_broken_routing_is_quoted_from_the_contract_not_paraphrased",
+      "tests/test_cce_cross_family_reference.py::test_no_action_taken_on_suspend_this_round",
+      "tests/test_cce_gk3_not_a_tautology.py::test_hard_discriminant_never_reaches_the_annotator",
+      "tests/test_cce_necessary_condition_reach.py::test_hardcoded_truncation_in_the_production_prompt_builder",
+      "tests/test_cce_necessary_condition_reach.py::test_production_never_receives_the_necessary_condition",
+      "tests/test_cce_necessary_condition_reach.py::test_reverse_the_gate_must_go_green_if_the_condition_were_delivered",
+      "tests/test_cce_necessary_condition_reach.py::test_the_asymmetry_is_stated_not_just_recorded",
+      "tests/test_cce_necessary_condition_reach.py::test_the_two_defects_stay_separate_and_the_narrow_gate_is_marked_narrow",
+      "tests/test_cce_necessary_condition_reach.py::test_this_probe_claims_no_authority_it_does_not_have",
+      "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+      "tests/test_cce_rule_delivery_completeness.py::test_i_recorded_that_i_gave_gpt_a_false_premise",
+      "tests/test_cce_rule_delivery_completeness.py::test_the_gate_claims_no_behavioral_authority",
+      "tests/test_cce_rule_delivery_completeness.py::test_the_spec_side_set_found_what_the_builder_side_method_could_not",
+      "tests/test_cce_rule_delivery_completeness.py::test_two_instruments_are_not_folded_into_one",
+      "tests/test_cce_stage2_candidate.py::test_behavior_is_labelled_as_illustration_not_criterion",
+      "tests/test_cce_stage2_candidate.py::test_budget_blocks_and_never_trims",
+      "tests/test_cce_stage2_candidate.py::test_candidate_closes_the_delivery_gap",
+      "tests/test_cce_stage2_candidate.py::test_decision_tree_is_off_by_default_with_a_stated_cost",
+      "tests/test_cce_stage2_candidate.py::test_reverse_turning_a_component_off_reopens_the_gap",
+      "tests/test_cce_suspend_factorial.py::test_the_defect_is_an_omission_in_what_actually_reaches_the_prompt",
+      "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+     ],
+     "n": 21,
+     "net_gone": []
+    }
+   },
+   "L4_source_text_gates_invisible_to_this_ablation": "★ M3-③ 分开报的第二行。仓内共 43 个测试文件对**从磁盘读进来的源码文本**做子串断言; 其中 12 个文件(合计 25 条断言)钉的正是本轮两台机器自己的源码 —— accuracy/run_gates.py(test_cce_acceptance_gate_failopen 5 条 · test_cce_second_exclusion_channel 2 条 · test_cce_gk1_margin 2 条 · test_cce_run_params_recorded 1 条) 与 scripts/cce_knot_classify.py(test_cce_abstention · test_cce_draw_ledger · test_cce_knot_stability 的 inspect.getsource(K.stage1), 以及 test_cce_attempt_ledger / test_cce_operational_ledger_key / test_cce_structural_gate / test_cce_tiebreak_determinism / test_cce_withholding_and_labels)。**本轮消融只写 config/knot_taxonomy.json** ⇒ 这 25 条断言**结构上不可能**因本轮任何一个臂翻红, 无论该字段在 G/P 上多承重。它们的『没红』不是证据, 上面那行『实测 L4』的净新增因此是**下界**。★ 唯一不失明的是 tests/test_cce_ablation_verdict_schema.py(它读 taxonomy 相关产物)。",
+   "injection_test": "M6 四臂全跑: mutate(尾附哨兵) / delete(整键删除) / absurd(1200 字荒谬串) / Poison(任何触碰即抛)。★ Poison 臂最强: 生产全路径(prompt 构造 + 22 份聚合重放 + 发布载荷) **一个异常都没抛**(P_prompt_exc=None, P_agg_exc=None) ⇒ 该字段在 P 侧**一次都没被访问**。G 侧的 Poison 臂写不出 JSON 文件 ⇒ **未测**(如实记, 不当证据); G 侧改用 delete 臂: 整键删除后 run_gates **import 正常且模块命名空间逐字节不变** —— 而 TAXO 在 run_gates 里只出现在 6 处且**全部是模块级**(:20 :21 :137 :143 :145 :275), 没有调用期读取 ⇒ 「命名空间不变」等价于「从未被读」。",
+   "evidence": "★★ 本轮**先验了那个前提**再用它。任务书点名: 「G 材料的唯一消费者是钉死哈希」这句话不能当理由用。实测反例已复现: knots[].cost_tier 的 mutate 臂 ⇒ run_gates.COST_TIER **变**而 gate_protocol_hash **一字不变**(dbdff13f9da155bc), delete 臂 ⇒ run_gates import 期 KeyError('cost_tier') 整台起不来。⇒ 本轮的 G 面**不是**只盯 gate_protocol_hash, 而是整个模块命名空间 + import 异常, 它**确实看得见**非哈希消费者。在这样一个已证明有分辨力的面上, hard_discriminant 的 mutate/delete/absurd 三臂**命名空间逐字节不变、import 正常**。★ 再加一条结构证据: TAXO 在 run_gates 里只出现 6 处(:20 :21 :137 :143 :145 :275)且**全部是模块级**, 没有任何调用期读取 ⇒ 「模块级派生物不变」等价于「G 从未读过它」, 不是「我的面没覆盖到调用期」。",
+   "M4_ref_count_coarse_strict": {
+    "coarse": 301,
+    "strict": 175
+   },
+   "M4_note": "粗计 = 裸词频(词边界), 严计 = 同行还出现 taxo|knot|self|stage1|stage2|_S1_|gate。两个都是**词碰撞统计不是引用图**: hard_discriminant 的粗计里有一大块来自 accuracy/run_gates.py:777 —— 那是 GK3 探针**输出 JSON 的键名**, 不是读 TAXO 的那个字段。粗计高 ≠ 有消费者。"
+  },
+  {
+   "id": "v3-099",
+   "round": "v3-CE3-rerun",
+   "cluster": "CE3_分类学字段_G侧",
+   "component": "knots[].typical_codes @G",
+   "locus": "accuracy/run_gates.py 四块材料里没有它(KNOT_BRIEF 只取 key/name/signature/behavior[:70])",
+   "consumer_side": "G",
+   "verdict": "NO_CONSUMER",
+   "verdict_before": "NO_CONSUMER",
+   "verdict_changed": false,
+   "deletable": false,
+   "deletable_reason": "不可删: 它是 **P** 的 prompt 材料 —— delete 臂在 P 侧 _build_stage2_prompt 抛 KeyError('typical_codes'), 且全仓 L4 净新增 36 条。",
+   "ablation_point": "knots[].typical_codes",
+   "ablated_files": [
+    "config/knot_taxonomy.json"
+   ],
+   "ablation_method": "L1/L2/CE3 面: 内存内改 taxonomy 对象 + 把 run_gates 的 TAXO 指向 scratch 里的临时副本(仓里一字未改); L4 面: 把仓 clone 到 scratch 农场, 只在**副本**里写改过的 config/knot_taxonomy.json 再跑全仓 tests/。",
+   "faces_observed": [
+    "P::prompt(_build_stage2_prompt 全文 sha + 哨兵是否进 prompt)",
+    "P::L1(22 份存量重放的 intensity/families/weight)",
+    "P::L2(measurement_status/knot_order/top1_mode/top1_unanimous)",
+    "P::payload(发布载荷 name/family/playbook/behavior_predicted)",
+    "G::gate_protocol_hash()",
+    "G::四块进闸材料(KNOT_BRIEF/DECISION_TREE/NEGATIVE_EXAMPLES/DIST_TMPL)",
+    "G::run_gates 模块命名空间全摘要(★本轮新增, 抓 COST_TIER 这类非哈希消费者)",
+    "G::import 期异常",
+    "CE3-1::_s1_scope_widening_holds() / same_physical_instrument(gen4,gen6)",
+    "CE3-1::calibration_transfers(depends_on=s1/s2 prompt sha)",
+    "CE3-2::cce_k1_status.verdict_path_for('d4cce4c745f3f991')(钉死生产仪器)",
+    "CE3-2::layer_status(PINNED) / knot_readout_usable(top1|weight|intensity)",
+    "CE3-3::cce_full_run.qualified 出口闸 withheld 集合",
+    "L3(现算 instrument_hash)—— **只记录, 不作证据**(M2)",
+    "L4::全仓 tests/ 净新增翻红(农场副本, 空操作臂扣减)"
+   ],
+   "faces_blind": [
+    "blind::G 的 PASS/FAIL 本身(κ / Spearman ρ / 资格率)—— 需要真模型调用, 零 API 纪律下本轮一次都没跑; 本轮 G 面测的是**进闸材料与闸的模块级派生物**, 不是闸的判决结果",
+    "blind::真实模型的语义判断(标注者读到不同材料后会不会标得不一样)—— 结构上不可离线测",
+    "blind::market=cn 分支 —— 仓内 market 确实存在(scripts/ config/ accuracy/ 实扫 33 处, 含 CCE_MARKET 环境变量), 但本轮四面没有一面调用 cce_strategy_gate / cce_outbound_guard ⇒ 本判决**不覆盖** market=cn",
+    "blind::k∉{3,5} 与非 gen6 profile —— 存量语料只有 k=3(20)与 k=5(2), instrument profile 只有一种",
+    "blind::C 面(候选件与账本线: scripts/cce_stage2_candidate.py · probes/taxonomy_field_reach_ledger.py · scripts/cce_align_v2.py)在 L1/L2 上**没有单独观测** —— 只在 L4 全仓测试面里间接覆盖"
+   ],
+   "face_table_by_arm": {
+    "mutate": {
+     "P::prompt": "changed",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "same",
+     "G::materials": "same",
+     "G::module_namespace": "same",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "changed",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": true,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": true,
+      "G_ns_changed_names": [],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "df87ba1e66cea076",
+      "F2_verdict_path_for_CURRENT": "NONE"
+     }
+    },
+    "delete": {
+     "P::prompt": "changed",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "same",
+     "G::materials": "same",
+     "G::module_namespace": "same",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "changed",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": "KeyError: 'typical_codes'",
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": null,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": true,
+      "G_ns_changed_names": [],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "EXC KeyError: 'typical_codes'",
+      "F2_verdict_path_for_CURRENT": "N/A"
+     }
+    },
+    "absurd": {
+     "P::prompt": "changed",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "same",
+     "G::materials": "same",
+     "G::module_namespace": "same",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "changed",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": true,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": true,
+      "G_ns_changed_names": [],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "9a8b3fa60997ffee",
+      "F2_verdict_path_for_CURRENT": "NONE"
+     }
+    },
+    "poison": {
+     "P::prompt": "changed",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "G::materials": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "G::module_namespace": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "G::COST_TIER": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "changed",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": "TypeError: Object of type Poison is not JSON serializable",
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": null,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": "NOT_SERIALIZABLE: TypeError",
+      "G_sentinel_in_materials": null,
+      "G_pin_holds": null,
+      "G_ns_changed_names": null,
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "EXC TypeError: Object of type Poison is not JSON serializable",
+      "F2_verdict_path_for_CURRENT": "N/A"
+     }
+    }
+   },
+   "L4_measured": {
+    "mutate": {
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py",
+      "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation"
+     ],
+     "n": 4,
+     "net_gone": []
+    },
+    "absurd": {
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py",
+      "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation"
+     ],
+     "n": 4,
+     "net_gone": []
+    },
+    "delete": {
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_fingerprint_coverage.py::test_changing_the_ontology_changes_the_instrument",
+      "tests/test_cce_fingerprint_coverage.py::test_scope_widening_is_not_a_general_escape_hatch",
+      "tests/test_cce_gate_prompt_version_label.py::test_production_by_contrast_injects_the_live_version",
+      "tests/test_cce_gate_protocol_version.py::test_changing_negative_examples_moves_the_gate_hash_but_not_instrument_hash",
+      "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+      "tests/test_cce_gate_vs_production_prompt.py::test_negative_examples_does_not_enter_instrument_hash",
+      "tests/test_cce_gate_vs_production_prompt.py::test_production_prompt_really_lacks_the_fix_target",
+      "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+      "tests/test_cce_hash_scope.py",
+      "tests/test_cce_measurement_system.py",
+      "tests/test_cce_necessary_condition_reach.py::test_hardcoded_truncation_in_the_production_prompt_builder",
+      "tests/test_cce_necessary_condition_reach.py::test_production_never_receives_the_necessary_condition",
+      "tests/test_cce_necessary_condition_reach.py::test_reverse_the_gate_must_go_green_if_the_condition_were_delivered",
+      "tests/test_cce_necessary_condition_reach.py::test_the_asymmetry_is_stated_not_just_recorded",
+      "tests/test_cce_necessary_condition_reach.py::test_the_two_defects_stay_separate_and_the_narrow_gate_is_marked_narrow",
+      "tests/test_cce_necessary_condition_reach.py::test_this_probe_claims_no_authority_it_does_not_have",
+      "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+      "tests/test_cce_playbook_atoms_a1a2.py::test_playbook_never_enters_the_measurement_prompts",
+      "tests/test_cce_preparation_bridge.py",
+      "tests/test_cce_qualification_margin.py",
+      "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+      "tests/test_cce_rule_delivery_completeness.py::test_i_recorded_that_i_gave_gpt_a_false_premise",
+      "tests/test_cce_rule_delivery_completeness.py::test_it_checks_the_final_outbound_request_not_an_imitation",
+      "tests/test_cce_rule_delivery_completeness.py::test_the_gate_claims_no_behavioral_authority",
+      "tests/test_cce_rule_delivery_completeness.py::test_the_spec_side_set_found_what_the_builder_side_method_could_not",
+      "tests/test_cce_rule_delivery_completeness.py::test_two_instruments_are_not_folded_into_one",
+      "tests/test_cce_stage2_candidate.py::test_behavior_is_labelled_as_illustration_not_criterion",
+      "tests/test_cce_stage2_candidate.py::test_budget_blocks_and_never_trims",
+      "tests/test_cce_stage2_candidate.py::test_candidate_closes_the_delivery_gap",
+      "tests/test_cce_stage2_candidate.py::test_candidate_is_not_wired_into_production",
+      "tests/test_cce_stage2_candidate.py::test_decision_tree_is_off_by_default_with_a_stated_cost",
+      "tests/test_cce_stage2_candidate.py::test_reverse_turning_a_component_off_reopens_the_gap",
+      "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied",
+      "tests/test_cce_withholding_and_labels.py::test_preparation_id_actually_reaches_the_identity"
+     ],
+     "n": 36,
+     "net_gone": []
+    }
+   },
+   "L4_source_text_gates_invisible_to_this_ablation": "★ M3-③ 分开报的第二行。仓内共 43 个测试文件对**从磁盘读进来的源码文本**做子串断言; 其中 12 个文件(合计 25 条断言)钉的正是本轮两台机器自己的源码 —— accuracy/run_gates.py(test_cce_acceptance_gate_failopen 5 条 · test_cce_second_exclusion_channel 2 条 · test_cce_gk1_margin 2 条 · test_cce_run_params_recorded 1 条) 与 scripts/cce_knot_classify.py(test_cce_abstention · test_cce_draw_ledger · test_cce_knot_stability 的 inspect.getsource(K.stage1), 以及 test_cce_attempt_ledger / test_cce_operational_ledger_key / test_cce_structural_gate / test_cce_tiebreak_determinism / test_cce_withholding_and_labels)。**本轮消融只写 config/knot_taxonomy.json** ⇒ 这 25 条断言**结构上不可能**因本轮任何一个臂翻红, 无论该字段在 G/P 上多承重。它们的『没红』不是证据, 上面那行『实测 L4』的净新增因此是**下界**。★ 唯一不失明的是 tests/test_cce_ablation_verdict_schema.py(它读 taxonomy 相关产物)。",
+   "injection_test": "M6 四臂全跑。Poison 臂在 P 侧**当场抛** ⇒ 确被读取(它进 _build_stage2_prompt 的 典型codes= 段); G 侧 delete 臂 import 正常、命名空间逐字节不变 ⇒ G 从未读它。",
+   "evidence": "★ @G 判决不变: 三臂 G 侧 gate_protocol_hash 与模块命名空间**逐字节不变**, import 正常。★★ 但加宽观测面后多出一件上一轮没记的事: 同一个消融在 **CE-3 面上是动的** —— P 的 s2 prompt 变(哨兵进 prompt), 于是 s2_prompt_sha256 变 ⇒ calibration_transfers(depends_on=s1/s2 prompt sha) True→False, 现算 instrument_hash d4cce4c745f3f991→变, verdict_path_for(现算哈希) 有路径→NONE, cce_full_run 出口闸 **top1 由不扣发→扣发**(withheld 4→5)。⇒ 这条链是真的, 但它归 **P**, 不归 G; 把它记到 @G 行上就是把两台机器混成一台。★ 且必须标注: 「现算哈希变 ⇒ 扣发」这一支是**重言污染**的 —— 死常量对照臂(_S1_BASE_TEMPS[5:7]→999/-999, k∈{3,5} 下永不取用)**同样**让现算哈希变、verdict_path_for(现算) 变 NONE、出口闸扣发 top1。故本轮对 P 的非重言证据只用「哨兵字面进了 prompt」这一条, 不用扣发链。",
+   "M4_ref_count_coarse_strict": {
+    "coarse": 124,
+    "strict": 48
+   },
+   "M4_note": "粗计 = 裸词频(词边界), 严计 = 同行还出现 taxo|knot|self|stage1|stage2|_S1_|gate。两个都是**词碰撞统计不是引用图**: hard_discriminant 的粗计里有一大块来自 accuracy/run_gates.py:777 —— 那是 GK3 探针**输出 JSON 的键名**, 不是读 TAXO 的那个字段。粗计高 ≠ 有消费者。"
+  },
+  {
+   "id": "v3-101",
+   "round": "v3-CE3-rerun",
+   "cluster": "CE3_分类学字段_G侧",
+   "component": "knots[].family @G",
+   "locus": "accuracy/run_gates.py:135-137 KNOT_BRIEF 只取 key/name/signature/behavior[:70]",
+   "consumer_side": "G",
+   "verdict": "NO_CONSUMER",
+   "verdict_before": "NO_CONSUMER",
+   "verdict_changed": false,
+   "deletable": false,
+   "deletable_reason": "不可删: 它是 P 的承重件 —— delete 臂 P 侧**双 KeyError**(_build_stage2_prompt 与 _stage2_aggregate 都炸), 全仓 L4 净新增 39 条。",
+   "ablation_point": "knots[].family",
+   "ablated_files": [
+    "config/knot_taxonomy.json"
+   ],
+   "ablation_method": "L1/L2/CE3 面: 内存内改 taxonomy 对象 + 把 run_gates 的 TAXO 指向 scratch 里的临时副本(仓里一字未改); L4 面: 把仓 clone 到 scratch 农场, 只在**副本**里写改过的 config/knot_taxonomy.json 再跑全仓 tests/。",
+   "faces_observed": [
+    "P::prompt(_build_stage2_prompt 全文 sha + 哨兵是否进 prompt)",
+    "P::L1(22 份存量重放的 intensity/families/weight)",
+    "P::L2(measurement_status/knot_order/top1_mode/top1_unanimous)",
+    "P::payload(发布载荷 name/family/playbook/behavior_predicted)",
+    "G::gate_protocol_hash()",
+    "G::四块进闸材料(KNOT_BRIEF/DECISION_TREE/NEGATIVE_EXAMPLES/DIST_TMPL)",
+    "G::run_gates 模块命名空间全摘要(★本轮新增, 抓 COST_TIER 这类非哈希消费者)",
+    "G::import 期异常",
+    "CE3-1::_s1_scope_widening_holds() / same_physical_instrument(gen4,gen6)",
+    "CE3-1::calibration_transfers(depends_on=s1/s2 prompt sha)",
+    "CE3-2::cce_k1_status.verdict_path_for('d4cce4c745f3f991')(钉死生产仪器)",
+    "CE3-2::layer_status(PINNED) / knot_readout_usable(top1|weight|intensity)",
+    "CE3-3::cce_full_run.qualified 出口闸 withheld 集合",
+    "L3(现算 instrument_hash)—— **只记录, 不作证据**(M2)",
+    "L4::全仓 tests/ 净新增翻红(农场副本, 空操作臂扣减)"
+   ],
+   "faces_blind": [
+    "blind::G 的 PASS/FAIL 本身(κ / Spearman ρ / 资格率)—— 需要真模型调用, 零 API 纪律下本轮一次都没跑; 本轮 G 面测的是**进闸材料与闸的模块级派生物**, 不是闸的判决结果",
+    "blind::真实模型的语义判断(标注者读到不同材料后会不会标得不一样)—— 结构上不可离线测",
+    "blind::market=cn 分支 —— 仓内 market 确实存在(scripts/ config/ accuracy/ 实扫 33 处, 含 CCE_MARKET 环境变量), 但本轮四面没有一面调用 cce_strategy_gate / cce_outbound_guard ⇒ 本判决**不覆盖** market=cn",
+    "blind::k∉{3,5} 与非 gen6 profile —— 存量语料只有 k=3(20)与 k=5(2), instrument profile 只有一种",
+    "blind::C 面(候选件与账本线: scripts/cce_stage2_candidate.py · probes/taxonomy_field_reach_ledger.py · scripts/cce_align_v2.py)在 L1/L2 上**没有单独观测** —— 只在 L4 全仓测试面里间接覆盖"
+   ],
+   "face_table_by_arm": {
+    "mutate": {
+     "P::prompt": "changed",
+     "P::L1": "changed",
+     "P::L2": "same",
+     "P::payload": "changed",
+     "G::gate_protocol_hash": "same",
+     "G::materials": "same",
+     "G::module_namespace": "same",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "changed",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": true,
+      "P_sentinel_in_payload": true,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": true,
+      "G_ns_changed_names": [],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "93f47526e42b4a83",
+      "F2_verdict_path_for_CURRENT": "NONE"
+     }
+    },
+    "delete": {
+     "P::prompt": "changed",
+     "P::L1": "changed",
+     "P::L2": "changed",
+     "P::payload": "changed",
+     "G::gate_protocol_hash": "same",
+     "G::materials": "same",
+     "G::module_namespace": "same",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "changed",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": "KeyError: 'family'",
+      "P_agg_exc": "KeyError: 'family'",
+      "P_sentinel_in_prompt": null,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": true,
+      "G_ns_changed_names": [],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "EXC KeyError: 'family'",
+      "F2_verdict_path_for_CURRENT": "N/A"
+     }
+    },
+    "absurd": {
+     "P::prompt": "changed",
+     "P::L1": "changed",
+     "P::L2": "same",
+     "P::payload": "changed",
+     "G::gate_protocol_hash": "same",
+     "G::materials": "same",
+     "G::module_namespace": "same",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "changed",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": true,
+      "P_sentinel_in_payload": true,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": true,
+      "G_ns_changed_names": [],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "f50ca913992b10f9",
+      "F2_verdict_path_for_CURRENT": "NONE"
+     }
+    },
+    "poison": {
+     "P::prompt": "changed",
+     "P::L1": "changed",
+     "P::L2": "changed",
+     "P::payload": "changed",
+     "G::gate_protocol_hash": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "G::materials": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "G::module_namespace": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "G::COST_TIER": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "changed",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": "AssertionError: POISON_TOUCHED",
+      "P_agg_exc": "AssertionError: POISON_TOUCHED",
+      "P_sentinel_in_prompt": null,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": "NOT_SERIALIZABLE: TypeError",
+      "G_sentinel_in_materials": null,
+      "G_pin_holds": null,
+      "G_ns_changed_names": null,
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "EXC AssertionError: POISON_TOUCHED",
+      "F2_verdict_path_for_CURRENT": "N/A"
+     }
+    }
+   },
+   "L4_measured": {
+    "mutate": {
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py",
+      "tests/test_cce_knot_stability.py",
+      "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+      "tests/test_cce_support_publication.py"
+     ],
+     "n": 6,
+     "net_gone": []
+    },
+    "absurd": {
+     "net_new_reds": [
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_hash_scope.py",
+      "tests/test_cce_knot_stability.py",
+      "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+      "tests/test_cce_support_publication.py"
+     ],
+     "n": 6,
+     "net_gone": []
+    },
+    "delete": {
+     "net_new_reds": [
+      "tests/test_cce_ablation_harness_v3.py",
+      "tests/test_cce_abstention.py",
+      "tests/test_cce_draw_ledger.py",
+      "tests/test_cce_fingerprint_coverage.py::test_changing_the_ontology_changes_the_instrument",
+      "tests/test_cce_fingerprint_coverage.py::test_scope_widening_is_not_a_general_escape_hatch",
+      "tests/test_cce_gate_prompt_version_label.py::test_production_by_contrast_injects_the_live_version",
+      "tests/test_cce_gate_protocol_version.py::test_changing_negative_examples_moves_the_gate_hash_but_not_instrument_hash",
+      "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+      "tests/test_cce_gate_vs_production_prompt.py::test_negative_examples_does_not_enter_instrument_hash",
+      "tests/test_cce_gate_vs_production_prompt.py::test_production_prompt_really_lacks_the_fix_target",
+      "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+      "tests/test_cce_hash_scope.py",
+      "tests/test_cce_knot_stability.py",
+      "tests/test_cce_measurement_system.py",
+      "tests/test_cce_necessary_condition_reach.py::test_hardcoded_truncation_in_the_production_prompt_builder",
+      "tests/test_cce_necessary_condition_reach.py::test_production_never_receives_the_necessary_condition",
+      "tests/test_cce_necessary_condition_reach.py::test_reverse_the_gate_must_go_green_if_the_condition_were_delivered",
+      "tests/test_cce_necessary_condition_reach.py::test_the_asymmetry_is_stated_not_just_recorded",
+      "tests/test_cce_necessary_condition_reach.py::test_the_two_defects_stay_separate_and_the_narrow_gate_is_marked_narrow",
+      "tests/test_cce_necessary_condition_reach.py::test_this_probe_claims_no_authority_it_does_not_have",
+      "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation",
+      "tests/test_cce_playbook_atoms_a1a2.py::test_playbook_never_enters_the_measurement_prompts",
+      "tests/test_cce_preparation_bridge.py",
+      "tests/test_cce_qualification_margin.py",
+      "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+      "tests/test_cce_rule_delivery_completeness.py::test_i_recorded_that_i_gave_gpt_a_false_premise",
+      "tests/test_cce_rule_delivery_completeness.py::test_it_checks_the_final_outbound_request_not_an_imitation",
+      "tests/test_cce_rule_delivery_completeness.py::test_the_gate_claims_no_behavioral_authority",
+      "tests/test_cce_rule_delivery_completeness.py::test_the_spec_side_set_found_what_the_builder_side_method_could_not",
+      "tests/test_cce_rule_delivery_completeness.py::test_two_instruments_are_not_folded_into_one",
+      "tests/test_cce_stage2_candidate.py::test_behavior_is_labelled_as_illustration_not_criterion",
+      "tests/test_cce_stage2_candidate.py::test_budget_blocks_and_never_trims",
+      "tests/test_cce_stage2_candidate.py::test_candidate_closes_the_delivery_gap",
+      "tests/test_cce_stage2_candidate.py::test_candidate_is_not_wired_into_production",
+      "tests/test_cce_stage2_candidate.py::test_decision_tree_is_off_by_default_with_a_stated_cost",
+      "tests/test_cce_stage2_candidate.py::test_reverse_turning_a_component_off_reopens_the_gap",
+      "tests/test_cce_support_publication.py",
+      "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied",
+      "tests/test_cce_withholding_and_labels.py::test_preparation_id_actually_reaches_the_identity"
+     ],
+     "n": 39,
+     "net_gone": []
+    }
+   },
+   "L4_source_text_gates_invisible_to_this_ablation": "★ M3-③ 分开报的第二行。仓内共 43 个测试文件对**从磁盘读进来的源码文本**做子串断言; 其中 12 个文件(合计 25 条断言)钉的正是本轮两台机器自己的源码 —— accuracy/run_gates.py(test_cce_acceptance_gate_failopen 5 条 · test_cce_second_exclusion_channel 2 条 · test_cce_gk1_margin 2 条 · test_cce_run_params_recorded 1 条) 与 scripts/cce_knot_classify.py(test_cce_abstention · test_cce_draw_ledger · test_cce_knot_stability 的 inspect.getsource(K.stage1), 以及 test_cce_attempt_ledger / test_cce_operational_ledger_key / test_cce_structural_gate / test_cce_tiebreak_determinism / test_cce_withholding_and_labels)。**本轮消融只写 config/knot_taxonomy.json** ⇒ 这 25 条断言**结构上不可能**因本轮任何一个臂翻红, 无论该字段在 G/P 上多承重。它们的『没红』不是证据, 上面那行『实测 L4』的净新增因此是**下界**。★ 唯一不失明的是 tests/test_cce_ablation_verdict_schema.py(它读 taxonomy 相关产物)。",
+   "injection_test": "M6 四臂全跑。Poison 臂在 P 侧 **POISON_TOUCHED** ⇒ 被读; delete 臂 P 侧双 KeyError(_build_stage2_prompt 与 _stage2_aggregate 都炸)。G 侧 delete 臂 import 正常、命名空间不变。",
+   "evidence": "★ @G 判决不变, 且这次是在一个**能看见非哈希 G 消费者**的面上得出的: 四臂 G 侧 gate_protocol_hash 与模块命名空间全不变 ⇒ **验收闸确实不知道结分族** —— 闸在为一个它看不见族结构的分类学发证。★ P 侧本轮实测更强: mutate/absurd 臂不只改 prompt, 还改 **L1**(families 的 mass/composition 与 knots[].weight 随族标签重算)与发布载荷; delete 臂连 L2 都产不出。CE-3 面随 P 一起动(同 v3-099 的重言污染说明)。",
+   "M4_ref_count_coarse_strict": {
+    "coarse": 828,
+    "strict": 89
+   },
+   "M4_note": "粗计 = 裸词频(词边界), 严计 = 同行还出现 taxo|knot|self|stage1|stage2|_S1_|gate。两个都是**词碰撞统计不是引用图**: hard_discriminant 的粗计里有一大块来自 accuracy/run_gates.py:777 —— 那是 GK3 探针**输出 JSON 的键名**, 不是读 TAXO 的那个字段。粗计高 ≠ 有消费者。"
+  },
+  {
+   "id": "v3-103",
+   "round": "v3-CE3-rerun",
+   "cluster": "CE3_分类学字段_G侧",
+   "component": "definition_of_knot @G",
+   "locus": "config/knot_taxonomy.json 顶层 definition_of_knot; accuracy/run_gates.py 四块材料里没有它, scripts/cce_knot_classify.py:698 的「结」定义是**写死在 prompt 里的另一份**, 不读这个键",
+   "consumer_side": "G",
+   "verdict": "NO_CONSUMER",
+   "verdict_before": "NO_CONSUMER",
+   "verdict_changed": false,
+   "deletable": false,
+   "deletable_reason": "不可删(实测): mutate 与 absurd 臂全仓 L4 净新增各 0 条, 但 **delete 臂 11 条** —— 集中在 tests/test_cce_stage2_candidate.py(5 条) · tests/test_cce_rule_delivery_completeness.py(5 条) · tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied。★ 这是本轮把 deletable 从「规范性断言」升级成「实测断言」的地方: **改它的内容零后果, 删掉这个键有 11 条闸接得住** —— 两者必须分开说。",
+   "ablation_point": "definition_of_knot",
+   "ablated_files": [
+    "config/knot_taxonomy.json"
+   ],
+   "ablation_method": "L1/L2/CE3 面: 内存内改 taxonomy 对象 + 把 run_gates 的 TAXO 指向 scratch 里的临时副本(仓里一字未改); L4 面: 把仓 clone 到 scratch 农场, 只在**副本**里写改过的 config/knot_taxonomy.json 再跑全仓 tests/。",
+   "faces_observed": [
+    "P::prompt(_build_stage2_prompt 全文 sha + 哨兵是否进 prompt)",
+    "P::L1(22 份存量重放的 intensity/families/weight)",
+    "P::L2(measurement_status/knot_order/top1_mode/top1_unanimous)",
+    "P::payload(发布载荷 name/family/playbook/behavior_predicted)",
+    "G::gate_protocol_hash()",
+    "G::四块进闸材料(KNOT_BRIEF/DECISION_TREE/NEGATIVE_EXAMPLES/DIST_TMPL)",
+    "G::run_gates 模块命名空间全摘要(★本轮新增, 抓 COST_TIER 这类非哈希消费者)",
+    "G::import 期异常",
+    "CE3-1::_s1_scope_widening_holds() / same_physical_instrument(gen4,gen6)",
+    "CE3-1::calibration_transfers(depends_on=s1/s2 prompt sha)",
+    "CE3-2::cce_k1_status.verdict_path_for('d4cce4c745f3f991')(钉死生产仪器)",
+    "CE3-2::layer_status(PINNED) / knot_readout_usable(top1|weight|intensity)",
+    "CE3-3::cce_full_run.qualified 出口闸 withheld 集合",
+    "L3(现算 instrument_hash)—— **只记录, 不作证据**(M2)",
+    "L4::全仓 tests/ 净新增翻红(农场副本, 空操作臂扣减)"
+   ],
+   "faces_blind": [
+    "blind::G 的 PASS/FAIL 本身(κ / Spearman ρ / 资格率)—— 需要真模型调用, 零 API 纪律下本轮一次都没跑; 本轮 G 面测的是**进闸材料与闸的模块级派生物**, 不是闸的判决结果",
+    "blind::真实模型的语义判断(标注者读到不同材料后会不会标得不一样)—— 结构上不可离线测",
+    "blind::market=cn 分支 —— 仓内 market 确实存在(scripts/ config/ accuracy/ 实扫 33 处, 含 CCE_MARKET 环境变量), 但本轮四面没有一面调用 cce_strategy_gate / cce_outbound_guard ⇒ 本判决**不覆盖** market=cn",
+    "blind::k∉{3,5} 与非 gen6 profile —— 存量语料只有 k=3(20)与 k=5(2), instrument profile 只有一种",
+    "blind::C 面(候选件与账本线: scripts/cce_stage2_candidate.py · probes/taxonomy_field_reach_ledger.py · scripts/cce_align_v2.py)在 L1/L2 上**没有单独观测** —— 只在 L4 全仓测试面里间接覆盖"
+   ],
+   "face_table_by_arm": {
+    "mutate": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "same",
+     "G::materials": "same",
+     "G::module_namespace": "same",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": true,
+      "G_ns_changed_names": [],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    },
+    "delete": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "same",
+     "G::materials": "same",
+     "G::module_namespace": "same",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": true,
+      "G_ns_changed_names": [],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    },
+    "absurd": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "same",
+     "G::materials": "same",
+     "G::module_namespace": "same",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": true,
+      "G_ns_changed_names": [],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    },
+    "poison": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "G::materials": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "G::module_namespace": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "G::COST_TIER": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": "NOT_SERIALIZABLE: TypeError",
+      "G_sentinel_in_materials": null,
+      "G_pin_holds": null,
+      "G_ns_changed_names": null,
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    }
+   },
+   "L4_measured": {
+    "mutate": {
+     "net_new_reds": [],
+     "n": 0,
+     "net_gone": []
+    },
+    "absurd": {
+     "net_new_reds": [],
+     "n": 0,
+     "net_gone": []
+    },
+    "delete": {
+     "net_new_reds": [
+      "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+      "tests/test_cce_rule_delivery_completeness.py::test_i_recorded_that_i_gave_gpt_a_false_premise",
+      "tests/test_cce_rule_delivery_completeness.py::test_the_gate_claims_no_behavioral_authority",
+      "tests/test_cce_rule_delivery_completeness.py::test_the_spec_side_set_found_what_the_builder_side_method_could_not",
+      "tests/test_cce_rule_delivery_completeness.py::test_two_instruments_are_not_folded_into_one",
+      "tests/test_cce_stage2_candidate.py::test_behavior_is_labelled_as_illustration_not_criterion",
+      "tests/test_cce_stage2_candidate.py::test_budget_blocks_and_never_trims",
+      "tests/test_cce_stage2_candidate.py::test_candidate_closes_the_delivery_gap",
+      "tests/test_cce_stage2_candidate.py::test_decision_tree_is_off_by_default_with_a_stated_cost",
+      "tests/test_cce_stage2_candidate.py::test_reverse_turning_a_component_off_reopens_the_gap",
+      "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+     ],
+     "n": 11,
+     "net_gone": []
+    }
+   },
+   "L4_source_text_gates_invisible_to_this_ablation": "★ M3-③ 分开报的第二行。仓内共 43 个测试文件对**从磁盘读进来的源码文本**做子串断言; 其中 12 个文件(合计 25 条断言)钉的正是本轮两台机器自己的源码 —— accuracy/run_gates.py(test_cce_acceptance_gate_failopen 5 条 · test_cce_second_exclusion_channel 2 条 · test_cce_gk1_margin 2 条 · test_cce_run_params_recorded 1 条) 与 scripts/cce_knot_classify.py(test_cce_abstention · test_cce_draw_ledger · test_cce_knot_stability 的 inspect.getsource(K.stage1), 以及 test_cce_attempt_ledger / test_cce_operational_ledger_key / test_cce_structural_gate / test_cce_tiebreak_determinism / test_cce_withholding_and_labels)。**本轮消融只写 config/knot_taxonomy.json** ⇒ 这 25 条断言**结构上不可能**因本轮任何一个臂翻红, 无论该字段在 G/P 上多承重。它们的『没红』不是证据, 上面那行『实测 L4』的净新增因此是**下界**。★ 唯一不失明的是 tests/test_cce_ablation_verdict_schema.py(它读 taxonomy 相关产物)。",
+   "injection_test": "M6 四臂全跑。Poison 臂 P 侧**毫发无损穿过**(零异常) · G 侧 delete 臂 import 正常且命名空间不变 ⇒ P 与 G **都**一次没读过。",
+   "evidence": "★ 判决不变, 且这次覆盖了上一轮整面缺失的 CE-3 三面: 四臂全部 same。Poison 臂在 P 全路径零异常, delete 臂在 G 侧 import 正常且命名空间逐字节不变 ⇒ P 与 G **都**一次没读过它。★★ 结论照旧刺眼: 闸在**不知道「什么算一个结」**的情况下判「标得对不对」。",
+   "M4_ref_count_coarse_strict": {
+    "coarse": 49,
+    "strict": 49
+   },
+   "M4_note": "粗计 = 裸词频(词边界), 严计 = 同行还出现 taxo|knot|self|stage1|stage2|_S1_|gate。两个都是**词碰撞统计不是引用图**: hard_discriminant 的粗计里有一大块来自 accuracy/run_gates.py:777 —— 那是 GK3 探针**输出 JSON 的键名**, 不是读 TAXO 的那个字段。粗计高 ≠ 有消费者。"
+  },
+  {
+   "id": "v3-106",
+   "round": "v3-CE3-rerun",
+   "cluster": "CE3_分类学字段_G侧",
+   "component": "identity_criterion @G",
+   "locus": "config/knot_taxonomy.json 顶层 identity_criterion; run_gates 四块材料与 _build_stage2_prompt 都不读它",
+   "consumer_side": "G",
+   "verdict": "NO_CONSUMER",
+   "verdict_before": "NO_CONSUMER",
+   "verdict_changed": false,
+   "deletable": false,
+   "deletable_reason": "不可删(实测): mutate/absurd 各 0 条, **delete 臂 11 条**(与 v3-103 逐条相同的那 11 条)。改内容零后果 ≠ 可删。",
+   "ablation_point": "identity_criterion",
+   "ablated_files": [
+    "config/knot_taxonomy.json"
+   ],
+   "ablation_method": "L1/L2/CE3 面: 内存内改 taxonomy 对象 + 把 run_gates 的 TAXO 指向 scratch 里的临时副本(仓里一字未改); L4 面: 把仓 clone 到 scratch 农场, 只在**副本**里写改过的 config/knot_taxonomy.json 再跑全仓 tests/。",
+   "faces_observed": [
+    "P::prompt(_build_stage2_prompt 全文 sha + 哨兵是否进 prompt)",
+    "P::L1(22 份存量重放的 intensity/families/weight)",
+    "P::L2(measurement_status/knot_order/top1_mode/top1_unanimous)",
+    "P::payload(发布载荷 name/family/playbook/behavior_predicted)",
+    "G::gate_protocol_hash()",
+    "G::四块进闸材料(KNOT_BRIEF/DECISION_TREE/NEGATIVE_EXAMPLES/DIST_TMPL)",
+    "G::run_gates 模块命名空间全摘要(★本轮新增, 抓 COST_TIER 这类非哈希消费者)",
+    "G::import 期异常",
+    "CE3-1::_s1_scope_widening_holds() / same_physical_instrument(gen4,gen6)",
+    "CE3-1::calibration_transfers(depends_on=s1/s2 prompt sha)",
+    "CE3-2::cce_k1_status.verdict_path_for('d4cce4c745f3f991')(钉死生产仪器)",
+    "CE3-2::layer_status(PINNED) / knot_readout_usable(top1|weight|intensity)",
+    "CE3-3::cce_full_run.qualified 出口闸 withheld 集合",
+    "L3(现算 instrument_hash)—— **只记录, 不作证据**(M2)",
+    "L4::全仓 tests/ 净新增翻红(农场副本, 空操作臂扣减)"
+   ],
+   "faces_blind": [
+    "blind::G 的 PASS/FAIL 本身(κ / Spearman ρ / 资格率)—— 需要真模型调用, 零 API 纪律下本轮一次都没跑; 本轮 G 面测的是**进闸材料与闸的模块级派生物**, 不是闸的判决结果",
+    "blind::真实模型的语义判断(标注者读到不同材料后会不会标得不一样)—— 结构上不可离线测",
+    "blind::market=cn 分支 —— 仓内 market 确实存在(scripts/ config/ accuracy/ 实扫 33 处, 含 CCE_MARKET 环境变量), 但本轮四面没有一面调用 cce_strategy_gate / cce_outbound_guard ⇒ 本判决**不覆盖** market=cn",
+    "blind::k∉{3,5} 与非 gen6 profile —— 存量语料只有 k=3(20)与 k=5(2), instrument profile 只有一种",
+    "blind::C 面(候选件与账本线: scripts/cce_stage2_candidate.py · probes/taxonomy_field_reach_ledger.py · scripts/cce_align_v2.py)在 L1/L2 上**没有单独观测** —— 只在 L4 全仓测试面里间接覆盖"
+   ],
+   "face_table_by_arm": {
+    "mutate": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "same",
+     "G::materials": "same",
+     "G::module_namespace": "same",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": true,
+      "G_ns_changed_names": [],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    },
+    "delete": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "same",
+     "G::materials": "same",
+     "G::module_namespace": "same",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": true,
+      "G_ns_changed_names": [],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    },
+    "absurd": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "same",
+     "G::materials": "same",
+     "G::module_namespace": "same",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": true,
+      "G_ns_changed_names": [],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    },
+    "poison": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "same",
+     "G::gate_protocol_hash": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "G::materials": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "G::module_namespace": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "G::COST_TIER": "NOT_MEASURED(poison 对象写不出 JSON, G 侧读不到)",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": "NOT_SERIALIZABLE: TypeError",
+      "G_sentinel_in_materials": null,
+      "G_pin_holds": null,
+      "G_ns_changed_names": null,
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    }
+   },
+   "L4_measured": {
+    "mutate": {
+     "net_new_reds": [],
+     "n": 0,
+     "net_gone": []
+    },
+    "absurd": {
+     "net_new_reds": [],
+     "n": 0,
+     "net_gone": []
+    },
+    "delete": {
+     "net_new_reds": [
+      "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+      "tests/test_cce_rule_delivery_completeness.py::test_i_recorded_that_i_gave_gpt_a_false_premise",
+      "tests/test_cce_rule_delivery_completeness.py::test_the_gate_claims_no_behavioral_authority",
+      "tests/test_cce_rule_delivery_completeness.py::test_the_spec_side_set_found_what_the_builder_side_method_could_not",
+      "tests/test_cce_rule_delivery_completeness.py::test_two_instruments_are_not_folded_into_one",
+      "tests/test_cce_stage2_candidate.py::test_behavior_is_labelled_as_illustration_not_criterion",
+      "tests/test_cce_stage2_candidate.py::test_budget_blocks_and_never_trims",
+      "tests/test_cce_stage2_candidate.py::test_candidate_closes_the_delivery_gap",
+      "tests/test_cce_stage2_candidate.py::test_decision_tree_is_off_by_default_with_a_stated_cost",
+      "tests/test_cce_stage2_candidate.py::test_reverse_turning_a_component_off_reopens_the_gap",
+      "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+     ],
+     "n": 11,
+     "net_gone": []
+    }
+   },
+   "L4_source_text_gates_invisible_to_this_ablation": "★ M3-③ 分开报的第二行。仓内共 43 个测试文件对**从磁盘读进来的源码文本**做子串断言; 其中 12 个文件(合计 25 条断言)钉的正是本轮两台机器自己的源码 —— accuracy/run_gates.py(test_cce_acceptance_gate_failopen 5 条 · test_cce_second_exclusion_channel 2 条 · test_cce_gk1_margin 2 条 · test_cce_run_params_recorded 1 条) 与 scripts/cce_knot_classify.py(test_cce_abstention · test_cce_draw_ledger · test_cce_knot_stability 的 inspect.getsource(K.stage1), 以及 test_cce_attempt_ledger / test_cce_operational_ledger_key / test_cce_structural_gate / test_cce_tiebreak_determinism / test_cce_withholding_and_labels)。**本轮消融只写 config/knot_taxonomy.json** ⇒ 这 25 条断言**结构上不可能**因本轮任何一个臂翻红, 无论该字段在 G/P 上多承重。它们的『没红』不是证据, 上面那行『实测 L4』的净新增因此是**下界**。★ 唯一不失明的是 tests/test_cce_ablation_verdict_schema.py(它读 taxonomy 相关产物)。",
+   "injection_test": "同 definition_of_knot: Poison 零触碰 + delete 后 G 命名空间逐字节不变。",
+   "evidence": "★ 与 v3-103 完全同型: 四臂 × 15 面全 same, Poison 零触碰, delete 后 G 命名空间不变。两条一起说的是同一件事: **同一性判据既不进生产 prompt, 也不进标注者材料** —— 两台机器都在没有同一性判据的情况下判「这是不是同一个结」。",
+   "M4_ref_count_coarse_strict": {
+    "coarse": 48,
+    "strict": 22
+   },
+   "M4_note": "粗计 = 裸词频(词边界), 严计 = 同行还出现 taxo|knot|self|stage1|stage2|_S1_|gate。两个都是**词碰撞统计不是引用图**: hard_discriminant 的粗计里有一大块来自 accuracy/run_gates.py:777 —— 那是 GK3 探针**输出 JSON 的键名**, 不是读 TAXO 的那个字段。粗计高 ≠ 有消费者。"
+  },
+  {
+   "id": "v3-091",
+   "round": "v3-CE3-rerun",
+   "cluster": "CE3_分类学字段_G侧",
+   "component": "knots[inertia].behavior[60:] (尾部) @P",
+   "locus": "config/knot_taxonomy.json knots[inertia].behavior 第 60–67 字「开口即高质量个案」; P 截 scripts/cce_knot_classify.py:695 `k['behavior'][:60]`, G 截 accuracy/run_gates.py:136 `k['behavior'][:70]`",
+   "consumer_side": "P",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "verdict_before": "LOAD_BEARING_L1_ONLY",
+   "verdict_changed": false,
+   "deletable": false,
+   "deletable_reason": "不可删: delete 臂(把 behavior 截到 60 字)在全仓 tests/ 上净新增翻红 3 条, 含 tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live —— 删这 8 个字等于**悄悄改了闸的材料**却没换 G 的版本号。",
+   "ablation_point": "knots[inertia].behavior[60:]",
+   "ablated_files": [
+    "config/knot_taxonomy.json"
+   ],
+   "ablation_method": "L1/L2/CE3 面: 内存内改 taxonomy 对象 + 把 run_gates 的 TAXO 指向 scratch 里的临时副本(仓里一字未改); L4 面: 把仓 clone 到 scratch 农场, 只在**副本**里写改过的 config/knot_taxonomy.json 再跑全仓 tests/。",
+   "faces_observed": [
+    "P::prompt(_build_stage2_prompt 全文 sha + 哨兵是否进 prompt)",
+    "P::L1(22 份存量重放的 intensity/families/weight)",
+    "P::L2(measurement_status/knot_order/top1_mode/top1_unanimous)",
+    "P::payload(发布载荷 name/family/playbook/behavior_predicted)",
+    "G::gate_protocol_hash()",
+    "G::四块进闸材料(KNOT_BRIEF/DECISION_TREE/NEGATIVE_EXAMPLES/DIST_TMPL)",
+    "G::run_gates 模块命名空间全摘要(★本轮新增, 抓 COST_TIER 这类非哈希消费者)",
+    "G::import 期异常",
+    "CE3-1::_s1_scope_widening_holds() / same_physical_instrument(gen4,gen6)",
+    "CE3-1::calibration_transfers(depends_on=s1/s2 prompt sha)",
+    "CE3-2::cce_k1_status.verdict_path_for('d4cce4c745f3f991')(钉死生产仪器)",
+    "CE3-2::layer_status(PINNED) / knot_readout_usable(top1|weight|intensity)",
+    "CE3-3::cce_full_run.qualified 出口闸 withheld 集合",
+    "L3(现算 instrument_hash)—— **只记录, 不作证据**(M2)",
+    "L4::全仓 tests/ 净新增翻红(农场副本, 空操作臂扣减)"
+   ],
+   "faces_blind": [
+    "blind::G 的 PASS/FAIL 本身(κ / Spearman ρ / 资格率)—— 需要真模型调用, 零 API 纪律下本轮一次都没跑; 本轮 G 面测的是**进闸材料与闸的模块级派生物**, 不是闸的判决结果",
+    "blind::真实模型的语义判断(标注者读到不同材料后会不会标得不一样)—— 结构上不可离线测",
+    "blind::market=cn 分支 —— 仓内 market 确实存在(scripts/ config/ accuracy/ 实扫 33 处, 含 CCE_MARKET 环境变量), 但本轮四面没有一面调用 cce_strategy_gate / cce_outbound_guard ⇒ 本判决**不覆盖** market=cn",
+    "blind::k∉{3,5} 与非 gen6 profile —— 存量语料只有 k=3(20)与 k=5(2), instrument profile 只有一种",
+    "blind::C 面(候选件与账本线: scripts/cce_stage2_candidate.py · probes/taxonomy_field_reach_ledger.py · scripts/cce_align_v2.py)在 L1/L2 上**没有单独观测** —— 只在 L4 全仓测试面里间接覆盖",
+    "blind::G 侧的这条后果没有对应的 verdict 行 —— 本轮不改台账, 只报给收口 agent"
+   ],
+   "face_table_by_arm": {
+    "mutate": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "changed",
+     "G::gate_protocol_hash": "changed",
+     "G::materials": "changed",
+     "G::module_namespace": "changed",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": true,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": false,
+      "G_ns_changed_names": [
+       "KNOT_BRIEF"
+      ],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    },
+    "delete": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "changed",
+     "G::gate_protocol_hash": "changed",
+     "G::materials": "changed",
+     "G::module_namespace": "changed",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": false,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": false,
+      "G_ns_changed_names": [
+       "KNOT_BRIEF"
+      ],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    },
+    "absurd": {
+     "P::prompt": "same",
+     "P::L1": "same",
+     "P::L2": "same",
+     "P::payload": "changed",
+     "G::gate_protocol_hash": "changed",
+     "G::materials": "changed",
+     "G::module_namespace": "changed",
+     "G::COST_TIER": "same",
+     "CE3-1::scope_widening_verify": "same",
+     "CE3-1::same_physical_instrument": "same",
+     "CE3-1::calibration_transfers": "same",
+     "CE3-2::verdict_path_for(PINNED)": "same",
+     "CE3-2::layer_status(PINNED)": "same",
+     "CE3-2::knot_readout_usable(PINNED)": "same",
+     "CE3-3::cce_full_run.qualified.withheld": "same",
+     "_raw": {
+      "P_prompt_exc": null,
+      "P_agg_exc": null,
+      "P_sentinel_in_prompt": false,
+      "P_sentinel_in_payload": true,
+      "P_poison_in_payload": false,
+      "G_import_exc": null,
+      "G_sentinel_in_materials": false,
+      "G_pin_holds": false,
+      "G_ns_changed_names": [
+       "KNOT_BRIEF"
+      ],
+      "F1_current_instrument_hash_L3_TAUTOLOGY": "d4cce4c745f3f991",
+      "F2_verdict_path_for_CURRENT": "/Volumes/data/cce-engine/tests/data/phase2/k1_reliability_verdict.json"
+     }
+    }
+   },
+   "L4_measured": {
+    "mutate": {
+     "net_new_reds": [
+      "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+      "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial"
+     ],
+     "n": 2,
+     "net_gone": []
+    },
+    "absurd": {
+     "net_new_reds": [
+      "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+      "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial"
+     ],
+     "n": 2,
+     "net_gone": []
+    },
+    "delete": {
+     "net_new_reds": [
+      "tests/test_cce_gate_protocol_version.py::test_gate_protocol_is_pinned_and_matches_live",
+      "tests/test_cce_necessary_condition_reach.py::test_hardcoded_truncation_in_the_production_prompt_builder",
+      "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial"
+     ],
+     "n": 3,
+     "net_gone": []
+    }
+   },
+   "L4_source_text_gates_invisible_to_this_ablation": "★ M3-③ 分开报的第二行。仓内共 43 个测试文件对**从磁盘读进来的源码文本**做子串断言; 其中 12 个文件(合计 25 条断言)钉的正是本轮两台机器自己的源码 —— accuracy/run_gates.py(test_cce_acceptance_gate_failopen 5 条 · test_cce_second_exclusion_channel 2 条 · test_cce_gk1_margin 2 条 · test_cce_run_params_recorded 1 条) 与 scripts/cce_knot_classify.py(test_cce_abstention · test_cce_draw_ledger · test_cce_knot_stability 的 inspect.getsource(K.stage1), 以及 test_cce_attempt_ledger / test_cce_operational_ledger_key / test_cce_structural_gate / test_cce_tiebreak_determinism / test_cce_withholding_and_labels)。**本轮消融只写 config/knot_taxonomy.json** ⇒ 这 25 条断言**结构上不可能**因本轮任何一个臂翻红, 无论该字段在 G/P 上多承重。它们的『没红』不是证据, 上面那行『实测 L4』的净新增因此是**下界**。★ 唯一不失明的是 tests/test_cce_ablation_verdict_schema.py(它读 taxonomy 相关产物)。",
+   "injection_test": "本行不是无差异族(G 材料与 P 载荷都变了), M6 不适用; 但同点的头部对照臂(behavior[0:2])两台都变 ⇒ 排除「装置没接上」。",
+   "evidence": "★ 上一轮的核心发现本轮**独立复现**: P_prompt_changed=False(生产截 [:60], 这 8 个字从来没进过生产 prompt) 而 G_materials_changed=True(G 截 [:70])。P 侧只有发布载荷 behavior_predicted 变, L1 数值面与 L2 判决面逐值不变。★★ 加宽观测面后的**新结论**: CE-3 三面(标定继承 / verdict_path_for(钉死生产仪器) / 出口闸 withheld)**全部不动** ⇒ 它对 P 的仪器同一性确实不承重, 上一轮这一半是对的。★★★ 但同一次消融在 **G 的仪器身份**上是**承重的**: gate_protocol_hash dbdff13f9da155bc→变, 钉死闸转红。gate_protocol_hash **不是**重言 —— 本簇 6 个消融点里有 5 个不动它(hard_discriminant/typical_codes/family/definition_of_knot/identity_criterion), 而 cost_tier 能在不动它的前提下改 G 的真实消费者 ⇒ 它双向可分辨。⇒ 本行按 @P 记 LOAD_BEARING_L1_ONLY **不变**, 但收口时应当**另立一条 @G 兄弟行**判 LOAD_BEARING_L2(G 侧仪器身份 + 钉死闸); 现在这条 @P 行的标签**承载不了**那个事实。",
+   "M4_ref_count_coarse_strict": {
+    "coarse": 250,
+    "strict": 93
+   },
+   "M4_note": "粗计 = 裸词频(词边界), 严计 = 同行还出现 taxo|knot|self|stage1|stage2|_S1_|gate。两个都是**词碰撞统计不是引用图**: hard_discriminant 的粗计里有一大块来自 accuracy/run_gates.py:777 —— 那是 GK3 探针**输出 JSON 的键名**, 不是读 TAXO 的那个字段。粗计高 ≠ 有消费者。"
+  }
+ ],
+ "tally": {
+  "NO_CONSUMER": 6,
+  "LOAD_BEARING_L1_ONLY": 1
+ },
+ "verdicts_changed_vs_v3": [],
+ "file_integrity": {
+  "before": {
+   "/Volumes/data/cce-engine/scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "/Volumes/data/cce-engine/config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "/Volumes/data/cce-engine/config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "/Volumes/data/cce-engine/accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "after_this_agent": {
+   "scripts/cce_knot_classify.py": "ad6503a8db0e871d1b652793014b74fc978aef63d31f2d42d3a0221e28b3314f",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "expected_prefix": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c",
+   "config/cce_core_manifest.json": "9d9e122966b753f8",
+   "accuracy/run_gates.py": "b758e6676a94acf3"
+  },
+  "matches_expected_prefix": {
+   "scripts/cce_knot_classify.py": false,
+   "config/knot_taxonomy.json": true,
+   "config/cce_core_manifest.json": true,
+   "accuracy/run_gates.py": true
+  },
+  "identical_across_run": true
+ },
+ "limits": [
+  "本装置只能支持: 在**存量语料重放 + 内存内变异 / 农场副本**这一工况下, 某字段是否改变数值输出(L1) · 判决面(L2) · 测试翻红(L4)。**不能**证明真实模型的语义判断准确率、重复稳定性、线上工况下的行为。",
+  "G 面测的是**进闸材料与 run_gates 的模块级派生物**, 不是闸的 PASS/FAIL —— κ 与 Spearman ρ 需要真模型调用, 零 API 纪律下本轮一次都没跑。",
+  "Poison 臂在 G 侧**未跑**: Poison 对象写不出 JSON 文件, run_gates 只能从文件读 TAXO。G 侧的「从未被读」改由 delete 臂 + 「TAXO 在 run_gates 里 6 处引用全是模块级」这两条支撑。",
+  "L4 的净新增是**下界**: 12 个测试文件的 25 条断言钉的是 run_gates.py / cce_knot_classify.py 的**源码文本**, 本轮消融只写 config/knot_taxonomy.json ⇒ 它们结构上不可能翻红(M3-③ 名单见 l4.★M3-③ 名单)。",
+  "C 面(scripts/cce_stage2_candidate.py 候选件 · probes/taxonomy_field_reach_ledger.py 账本 · scripts/cce_align_v2.py 对齐链)本轮在 L1/L2 上**没有单独观测**, 只在 L4 全仓测试面里间接覆盖。",
+  "CE-3 面 ③(cce_full_run 出口闸)跑的是**真代码**(scripts/cce_full_run.py 的 qualified 段), 但喂它的 MANIFEST 是一份**合成的**、按存量 archive 记录形状写的 s1_readout/s2_knots (s1 四层 tops 齐全 · s2 有 knots 与 playbook_primary)。这样构造是**故意的**: 让 withheld 集合只随 instrument_hash 这一个自由度动, 从而成为一个干净的仪器身份检波器。代价是它**不代表任何一次真实运行**的 withheld 集合。",
+  "market=cn 分支未覆盖(本轮四面都不调 cce_strategy_gate / cce_outbound_guard)。",
+  "存量工况只有 k=3(20 份)与 k=5(2 份)、单一 instrument profile ⇒ 不可外推到其它 k / profile。",
+  "M8: 只在存量数据上做的消融天然把保险丝判成装饰。本轮 6 个消融点里没有一个被判 UNREACHABLE —— 因为它们在**任何** k 下都不进 P 的 prompt / G 的材料(是结构性缺席, 不是本工况未触发); 这一点由「字段根本不出现在 _build_stage2_prompt 与四块材料的构造代码里」支撑, 不是由「本轮没看到差异」支撑。",
+  "L4 农场里 pristine 本身有 4 条红(farm 基线), 空操作臂另有 3 条伪红(json 重序列化) —— 净新增已扣减, 但这意味着农场不是绿的基线。"
+ ],
+ "raw_measurement_files": {
+  "L1/L2/CE3 逐臂原始": "/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/ce3g_92211/ce3_raw.json",
+  "L4 逐臂原始(含每臂完整 pytest 输出 farm/arm_*/_pytest.txt)": "/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/ce3g_92211/l4_raw.json",
+  "M3-③ 钉源码闸枚举": "/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/ce3g_92211/m3c_raw.json",
+  "探针": [
+   "/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/ce3g_92211/ce3_probe.py",
+   "/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/ce3g_92211/l4_runner.py",
+   "/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/ce3g_92211/m3c_source_pinned.py",
+   "/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/ce3g_92211/conftest_tripwire.py"
+  ]
+ },
+ "★★★事故与异常(必须先读)": {
+  "①★★★ 并行 agent 在本轮跑到一半时改了一个冻结件(scripts/cce_knot_classify.py)": {
+   "事实": "任务书给的冻结前缀 f2cef2f99c949a75。本 agent 的 L1/L2/CE3 测量窗口内(进出各取一次 sha256)该文件**一字未变**, 断言通过。但在 L4 农场跑到一半时, 该文件于 **2026-09-11 19:40:25** 被改动, 现算 sha 变成 ad6503a8db0e871d1b652793014b74fc978aef63d31f2d42d3a0221e28b3314f。",
+   "改了什么(git diff)": "① CANDIDATE_CAVEAT 整句重写(G-K1 由「已通过」改为「两项指标达标但面板从未被有效认证」等)② 文件末尾新增一行注释 `# refactor log reverse test`。",
+   "不是我改的": "本 agent 全程只做**内存内 exec** 与**农场副本**写入, 从未对仓内任何文件执行写操作。那行 `# refactor log reverse test` 是别人在做 refactor-log 闸的反向测试。",
+   "对本轮测量的影响": "**零**。① L1/L2/CE3 面在 19:13–19:14 跑完, 用的是 f2cef2f9 那一版; ② L4 农场的 40 个副本**全部**从 19:13 克隆的 farm/base 派生, 实测 40/40 的 scripts/cce_knot_classify.py = f2cef2f99c949a75 · 40/40 的 accuracy/run_gates.py = b758e6676a94acf3 ⇒ L4 内部一致, 未被污染。③ 改动落在 CANDIDATE_CAVEAT 与一行注释, 不在 _build_stage2_prompt / _stage1_template / instrument_id / SCOPE_WIDENINGS 上; 改后现算 instrument_id(...) 仍是 **d4cce4c745f3f991**(实测)。",
+   "★给收口 agent": "合并本产物时请注意: 本产物的 frozen sha 一栏对 scripts/cce_knot_classify.py 报的是**两个值**(测量时 / 交付时), 不是一个。若你的台账闸只比对一个, 会误判。"
+  },
+  "② 绊线在 L4 子进程里被触发 5 次(全部阻断, 零请求发出)": {
+   "地址": "127.0.0.1:7897 —— 本机 HTTP_PROXY(HTTP_PROXY/HTTPS_PROXY 在本机 shell 里是设着的)",
+   "栈顶": "modelscope/hub/api.py:3642 send_request → requests.get",
+   "谁拉起来的": "tests/test_cce_audio_prosody.py → scripts/cce_video_parse.py 的 import 把 modelscope 拉进来, 该库自己在 import/调用期做 hub 自检。**不是** CCE 代码调模型 API, 与本轮消融无关。",
+   "处置": "绊线在 connect 之前抛异常 ⇒ 5 次全部**未建立连接**。只在 30 个臂里的第一个臂(pristine)触发, 之后应是该库自身缓存。已单独复跑一次带栈捕获确认来源。",
+   "★这条不是免责, 是发现": "不装绊线直接 `pytest tests/` 会真的发出这 5 个出站请求。",
+   "父进程(L1/L2/CE3 面)": "tripped == [] —— 一次都没有。"
+  }
+ },
+ "★不改台账": "本 agent **未**改动 tests/data/ablation_verdicts_v3.json(只读)。合并由收口 agent 做。"
+}

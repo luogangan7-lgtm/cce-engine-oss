@@ -19,7 +19,87 @@ KEY = os.environ["MINIMAX_API_KEY"]
 BASE = "https://api.minimaxi.com/v1/text/chatcompletion_v2"
 TAXO = json.load(open(os.path.join(ROOT, "config/knot_taxonomy.json")))
 KNOTS = [k["key"] for k in TAXO["knots"]]
-CORPUS = json.load(open(f"{D}/corpus.json"))
+# ★★ 2026-09-07: 语料与输出目录可被环境变量覆盖 —— 为**重复性**(同语料二次运行)
+#   与**外部效度**(换语料)两个实验而加。默认值与此前逐字相同, 不改变既有行为。
+#   ★ CCE_OUT_DIR 允许指向仓外(识别层保险库), 因为外部效度语料含真实 reddit handle:
+#     **原始产物落保险库, 只有去识别的聚合量进公开仓**。
+CORPUS = json.load(open(os.environ.get("CCE_CORPUS", f"{D}/corpus.json"), encoding="utf-8"))
+# ★★ 2026-09-07: 锚例考卷**必须独立于被测语料**。
+#   实测缺陷: 换 CCE_CORPUS 跑外部效度时, qualify() 仍从 CORPUS 里按 id 找锚例 ⇒ 一个都找不到
+#   ⇒ 全员 hits=0 ⇒ **0/5 合格 ⇒ 整轮扣发**。
+#   ★ 闸做对了事(扣发而不是假通过), 但根因是**锚例与被测语料耦合**:
+#     资格考问的是「这个标注者懂不懂这套分类学」, 与「今天要标什么语料」无关。
+#   ⇒ 锚例固定读自有 anchors.json 的那份 corpus, 不受 CCE_CORPUS 影响。
+ANCHOR_CORPUS = json.load(open(f"{D}/corpus.json", encoding="utf-8"))
+_OUT_DIR = os.environ.get(
+    "CCE_OUT_DIR", os.path.join(os.path.dirname(os.path.abspath(__file__)), "out"))
+SKIP_GK2 = os.environ.get("CCE_SKIP_GK2") == "1"   # 外部语料无 followed_up/replied_by_op
+# ★★ 正文截断长度。默认 700 = 此前逐字硬编的值, **不改变既有行为**。
+#   ★ 更正: 我第一版注释写「它对验收语料从未触发过(最长 683 字符, 0 条超 700)」——
+#     **那是编的**。实测验收语料最长 **900** 字符, **15/86(17%)** 超过 700 ⇒ 它**触发过**。
+#     ⇒ 700 确实是仪器的一部分, 换语料时改它**不是无害的**, 必须记为工况变更。
+#   ★★ 真正的理由是**截断率差了一倍多**: 验收 17%(15/86) vs 外部帖子 **38%(461/1208)**,
+#     且实测 **16.2% 的 belong 标志词落在 700 字符之后**("only me?" 常在结尾) ——
+#     照 700 跑外部语料, 会**系统性漏检 belong**, 方向恰好偏向「找不到 ⇒ 判它死」。
+#   ★ 所以 Run B **两种截断都跑**(700 与 2000), 把截断当成一个**被测变量**而不是一个默认值 ——
+#     否则「belong=0」与「截断吃掉了它」永远分不开。
+#   ⇒ 产物里必须记下实际用了多少。
+BODY_CHARS = int(os.environ.get("CCE_BODY_CHARS", "700"))
+# ★★★ 2026-09-07: **标注 prompt 逐字告诉模型「给你一条评论」, 输入槽标签也是【{unit}】。**
+#   而 KNOT_BRIEF 里(逐字来自 taxonomy 的 behavior 字段)同时告诉它:
+#     · display = 「…**评论区**最高质量UGC主力」
+#     · belong  = 「自我暴露式**发帖**+『only me?』」
+#   ⇒ 在这个 prompt 下, 标注一条评论时 belong 拿 0/78 共识 argmax
+#     **几乎是被 prompt 指示出来的**, 不是仪器的独立判断。
+#   ★ 这不是「单元错配的可能机制」, 是 prompt 里一条**显式的、方向明确的指示**。
+#   ⇒ 把单元标签做成**被测变量**: 同一批帖子跑两臂(评论 / 帖子), 直接测这个词的效应。
+#   默认「评论」= 此前硬编值, **不改变既有行为**。
+UNIT_LABEL = os.environ.get("CCE_UNIT_LABEL", "评论")
+
+
+# ★★★ 2026-09-08: 这两个参数**进 prompt**(body 截断长度、prompt 里说「给你一条评论/帖子」),
+#   而它们是**环境变量** —— 换掉就换了刺激, 却一个文件都不动。
+#   实测缺陷: run_a_repeat / run_c_confirm 两次运行的产物里**都没有记录它们** ⇒
+#   事后无法核实「那次跑的是 700 还是别的」, 于是**任何与它对照的新臂都只能假设可比, 不能验证**。
+#   ★ 与 manifest 里已记的同族洞(MEASUREMENT_MODEL 是环境变量, 只钉文件 sha 抓不到)一模一样,
+#     那个洞修了, 这个没修 —— **修了一个实例, 没修那一类**。
+#   ⇒ 每次运行必须把它们写进产物。由 tests/test_cce_run_params_recorded.py 守住。
+RUN_PARAMS = {
+    "CCE_BODY_CHARS": BODY_CHARS,
+    "CCE_UNIT_LABEL": UNIT_LABEL,
+    "CCE_CORPUS": os.environ.get("CCE_CORPUS", "<default corpus.json>"),
+    "CCE_SKIP_GK2": SKIP_GK2,
+    "run_gates_MODELS": None,          # 由 main()/stamp_params 填 run_gates 自己的面板
+    "annotators_actually_used": None,  # ★ 探针若另加标注者(跨家族 GLM 等)必须自报, 否则章不完整
+    "gate_protocol_version": None,     # 由 main()/stamp_params 填(定义在下方, 此处占位)
+    "gate_protocol_hash": None,
+    "★why_recorded": ("这些参数**进 prompt 或决定跑哪几道闸**, 且全是环境变量。"
+                      "不记 ⇒ 事后无法核实两次运行是否可比。"),
+}
+
+
+def stamp_params(out_dir, extra=None):
+    """★ 把「进 prompt 的环境参数」盖在任意一次运行的输出目录旁。
+
+    探针复用 run_gates 的 BODY_CHARS / UNIT_LABEL 构造 prompt, 于是**继承了同一个缺陷**:
+    产物不记参数 ⇒ 事后无法核实两次跑是否可比。一行调用堵住。
+    """
+    import datetime
+    d = dict(RUN_PARAMS)
+    d["gate_protocol_version"] = GATE_PROTOCOL_VERSION
+    d["gate_protocol_hash"] = gate_protocol_hash()
+    # ★ 这是 **run_gates 的**面板。探针若另加标注者(如跨家族 GLM), 必须自己传
+    #   extra={"annotators_actually_used": [...]} —— 实测漏过一次(suspend V0/V1 的章少了 glm-4.5-flash)。
+    d["run_gates_MODELS"] = list(MODELS)
+    d["annotators_actually_used"] = None   # 由调用方覆盖; 留 None 表示与 run_gates_MODELS 相同
+    d["stamped_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
+    if extra:
+        d.update(extra)
+    q = os.path.join(str(out_dir), "run_params.json")
+    os.makedirs(str(out_dir), exist_ok=True)
+    with open(q, "w") as f:
+        json.dump(d, f, ensure_ascii=False, indent=1)
+    return q
 ANCHOR_IDS=['p1852zo', 'p1cuqrr', 'p1ypm4q', 'p1sqabv', 'p25z258']
 ANCHORS = json.load(open(f"{D}/anchors.json", encoding="utf-8"))["anchors"]
 ANCHOR_TRUTH = {a["id"]: a["knot"] for a in ANCHORS if a.get("id") and a.get("knot")}
@@ -67,6 +147,34 @@ _NE = {k["key"]: k.get("negative_examples_prompt") for k in TAXO["knots"]}
 NEGATIVE_EXAMPLES = "★何时不用(负例判据,与决策树同权重):\n" + "\n".join(
     f"- {k} 不用于: {_NE[k]}" for k in _P["negative_examples_order"] if _NE.get(k))
 
+
+# ══ ★★★ 验收闸的**独立版本** (2026-09-09) ═══════════════════════════════════
+#  网页版 GPT-6 Pro 裁定: 改 negative_examples 这类改动**不是生产换代** ——
+#  P 的实现与有效输入不变, 变的是 **G(验收者)怎样判**。
+#  ⇒ 「P 不递增 instrument_generation」是对的, **但 G 必须有自己的版本**,
+#    否则就成了「一面把 instrument_generation 叫整体仪器代号,
+#    一面利用哈希未覆盖 G 来宣称没换代」。
+#  ★ instrument_generation **只指称 P** —— 这层关系此前是**隐含**的, 现在写成明文。
+# v1 → v2 (2026-09-09, GATE_PROTOCOL_CHANGE): suspend 的负例新增「决定已作出、延后的只是
+#   执行/购买时点」这一条排除。**生产 instrument_hash 一字未变** —— 见 manifest 的 refactor_log。
+#   ★ v2 与 v1 的 G-K1 读数**可比不可合**。
+GATE_PROTOCOL_VERSION = 2
+
+
+def gate_protocol_hash():
+    """现算**进闸 prompt 的全部材料**的哈希。改任何一块 ⇒ 哈希变 ⇒ 必须换 G 的版本。"""
+    import hashlib as _h
+    mat = KNOT_BRIEF + "\x00" + DECISION_TREE + "\x00" + NEGATIVE_EXAMPLES + "\x00" + DIST_TMPL
+    return _h.sha256(mat.encode()).hexdigest()[:16]
+
+
+GATE_PROTOCOL = {
+    "version": GATE_PROTOCOL_VERSION,
+    "★covers": "KNOT_BRIEF + DECISION_TREE + NEGATIVE_EXAMPLES + DIST_TMPL —— 即**标注者实际看到的全部材料**",
+    "★does_not_cover": "生产 s1/s2 prompt(那由 instrument_hash 管)、模型与端点(由 sampling/endpoint 管)",
+    "★★why_separate": "闸与生产是**两台仪器**。用一个版本号同时代表两者, 会让改了一台却宣称没换代。",
+}
+
 # ══ G-K1 v2: 带权分布标注 ══
 DIST_TMPL = """你是心理配置标注员。九结分类学(v1.1.1):
 {brief}
@@ -95,16 +203,16 @@ I was especially pissed at my audiologist who swore
 
 You only care about size being identical if it remains a consideration albeit lower in 
 
-给你一条评论。判定被激活的结组合,带权分布(权重和=1,只列>=0.1,最多3个)。
+给你一条{unit}。判定被激活的结组合,带权分布(权重和=1,只列>=0.1,最多3个)。
 
-【评论】
+【{unit}】
 {body}
 
 只输出JSON: {{"knots":[{{"key":"<九结key>","weight":0.0}}],"evidence":"<原文引句,20字内>"}}"""
 
 def annot_dist(args):
     model, item = args
-    c = call(model, DIST_TMPL.format(decision_tree=DECISION_TREE, negative_examples=NEGATIVE_EXAMPLES, brief=KNOT_BRIEF, body=item["b"][:700]))
+    c = call(model, DIST_TMPL.format(unit=UNIT_LABEL, decision_tree=DECISION_TREE, negative_examples=NEGATIVE_EXAMPLES, brief=KNOT_BRIEF, body=item["b"][:BODY_CHARS]))
     d = extract_json_robust(c, log_note=f"gk1v2_{model}")
     if isinstance(d, dict) and isinstance(d.get("knots"), list) and d["knots"]:
         v = {}
@@ -120,7 +228,7 @@ def annot_dist(args):
 # ══ G-K2 v2: 可核验行为事实抽取 ══
 FACT_TMPL = """你是事实抽取器。只做客观抽取,不做心理判断。对这条 r/HearingAids 评论回答:
 
-【评论】
+【{unit}】
 {body}
 
 只输出JSON:
@@ -133,7 +241,7 @@ FACT_TMPL = """你是事实抽取器。只做客观抽取,不做心理判断。�
 
 
 def extract_facts(item):
-    c = call("MiniMax-Text-01", FACT_TMPL.format(body=item["b"][:700]), max_tokens=400)
+    c = call("MiniMax-Text-01", FACT_TMPL.format(unit=UNIT_LABEL, body=item["b"][:BODY_CHARS]), max_tokens=400)
     d = extract_json_robust(c, log_note="gk2v2_fact")
     if isinstance(d, dict):
         return item["id"], {k: bool(d.get(k)) for k in
@@ -282,22 +390,22 @@ def qualify(model):
     for held in ANCHOR_IDS:
         if held not in ANCHOR_TRUTH:
             continue
-        item = next((x for x in CORPUS if x["id"] == held), None)
+        item = next((x for x in ANCHOR_CORPUS if x["id"] == held), None)
         if not item:
             continue
         shown = [a for a in ANCHORS if a.get("id") != held]
         demo = "\n".join(f"【锚例·{a['knot']}】{a.get('text','')[:200]}" for a in shown)
         # 用与正式标注完全相同的模板考试, 只是把示范锚例换成留一法的4个
         # ★★ 2026-09-07 修: 此前只填了 brief/body, 漏了 decision_tree 与 negative_examples
-        #   ⇒ `DIST_TMPL.format(...)` 抛 KeyError('decision_tree') ⇒ **qualify() 一次都没跑通过**。
+        #   ⇒ `DIST_TMPL.format(unit=UNIT_LABEL, ...)` 抛 KeyError('decision_tree') ⇒ **qualify() 一次都没跑通过**。
         #   而它是 main() 的第一步 ⇒ **整个验收闸根本跑不起来**。
         #   ⇒ `gate_record` 里那句「G-K1 v5 通过(2026-08-07)」只能来自 qualify() 被加进来**之前**
         #     的版本 —— 有人写了资格考、写了「本次起强制执行」的注释, 而这段代码从未执行。
         #   ★ 本函数自己的注释写着「用与正式标注**完全相同的模板**考试」—— 现在它才真的相同。
-        p = DIST_TMPL.format(decision_tree=DECISION_TREE,
+        p = DIST_TMPL.format(unit=UNIT_LABEL, decision_tree=DECISION_TREE,
                              negative_examples=NEGATIVE_EXAMPLES,
                              brief=KNOT_BRIEF + "\n\n★示范锚例(留一法, 已隐去本题):\n" + demo,
-                             body=item["b"][:700])
+                             body=item["b"][:BODY_CHARS])
         out = call(model, p)
         d = extract_json_robust(out, log_note="qual")
         top = None
@@ -314,31 +422,116 @@ def qualify(model):
             "qualified": hits >= 4, "detail": detail}
 
 
-def admit_annotators(quals):
-    """由资格考结果决定谁进验收 —— **纯函数, 无 API, 可离线测**。
+# ★★ v2 资格考的 indifference region(2026-09-07 冻结于
+#    tests/data/annotator_qualification_v2_prereg.json, **待新数据确证**)
+QUAL_P_LOW, QUAL_P_HIGH = 0.70, 0.90
 
-    ★★★ 2026-09-07 修三处 fail-open。原实现:
+
+def _wilson(k, n, z=1.96):
+    if n <= 0:
+        return (0.0, 1.0)
+    p = k / n
+    d = 1 + z * z / n
+    c = (p + z * z / (2 * n)) / d
+    h = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
+    return (max(0.0, c - h), min(1.0, c + h))
+
+
+def qualification_state(hits, of):
+    """三态判决 —— 单调, 不会一题之差翻转。见 v2 预注册。
+
+    · QUALIFIED    : Wilson 95% **下界 >= p_H**  (可信地够好)
+    · DISQUALIFIED : Wilson 95% **上界 <= p_L**  (可信地不够好)
+    · UNRESOLVED   : 其余 —— **追加独立锚例, 绝不视同 FAIL**
+
+    ★★ 判决带是**不对称**的, 而这是对的: 实测 n=5 时 DISQUALIFIED 只需 k<=1,
+      而 QUALIFIED 需 **n>=35 且全对**。⇒ **排除一个明显坏的便宜, 证明一个够好昂贵。**
+      所以资格考**只用于 DISQUALIFY, 不用于 CERTIFY** —— v1 恰恰反过来, 那是它乱剔人的根因。
+    """
+    # ★★★ of == 0 ⇒ **考试根本没跑**, 不是「证据不足」。
+    #   若把它归入 UNRESOLVED, 而 UNRESOLVED 又留在 primary 面板里,
+    #   就等于「**跳过资格考 ⇒ 所有人默认通过**」—— 那正是 v1 那个 fail-open 换了个壳。
+    #   ⇒ 单列一档, 由 admit_annotators 扣发整轮。
+    if not of:
+        return "NOT_EXAMINED", (0.0, 1.0)
+    lo, hi = _wilson(hits, of)
+    if lo >= QUAL_P_HIGH:
+        return "QUALIFIED", (round(lo, 4), round(hi, 4))
+    if hi <= QUAL_P_LOW:
+        return "DISQUALIFIED", (round(lo, 4), round(hi, 4))
+    return "UNRESOLVED", (round(lo, 4), round(hi, 4))
+
+
+def admit_annotators(quals):
+    """谁进验收 —— **纯函数, 无 API, 可离线测**。
+
+    ## ★★★ v1 的两次修法, 都不够
+
+    **第一次(2026-09-07 早)** 修的是 fail-open。原实现:
         if len(passed) < 2: print(...)          # 只打印, 然后照跑
         globals()["MODELS"] = passed or MODELS  # ★ 零人合格 ⇒ **静默回退到全员**
-
-    `passed or MODELS` 让「**没人合格**」与「**全员合格**」在输出上**不可区分** ——
-    而上一行刚把他们逐个打印成「★不合格, 剔除」。打印说剔除, 代码把他们放了回去。
+    `passed or MODELS` 让「零人合格」与「全员合格」在输出上**不可区分** —— 而上一行刚把他们
+    逐个打印成「★不合格, 剔除」。打印说剔除, 代码把他们放了回去。
     ⇒ 这正是本项目命名过的 fail-silent: **缺判定不等于判定通过**。
     而函数上方的注释写着「本次起**强制执行**」—— **注释不是闸**。
+    改成合格者 <2 就扣发。**那条修法仍然有效, 保留。**
 
-    ★ 现在: 合格者 <2 ⇒ **不产出判决**(admit=None), 由调用方扣发, 不回退、不硬跑。
-      两两一致性在 <2 个标注者上**数学上无定义**, 硬跑出来的数是假的。
+    ★★★ 而 v2 第一版**当场又造了一个同族的**: 把 `of == 0`(考试没跑)归入 UNRESOLVED,
+      而 UNRESOLVED 又留在 primary 面板里 ⇒ **「跳过资格考 ⇒ 所有人默认通过」**。
+      它比第一个更危险, 因为在输出上完全看不见。已单列 NOT_EXAMINED 并扣发整轮。
+
+    **第二次(2026-09-07 晚, 本次)** 修的是**判据本身**:
+    同一份 5 题考卷、temp=0、代码逐字相同, 跑三次 M2.7 得 **3/5、5/5、4/5**。
+    ★ 实测 **n=5 时任何 cutoff 都做不到 α、β 同时 <5%**(最好的全对判据是 α=0.168/β=0.226)
+      ⇒ **5 题在任何阈值下都不可能做出可靠的二元判决**, 不是调阈值能修的。
+    ★★ 而那次剔除**损害了指标**: 剔 M2.7 的 4 人面板自助失败率 **23.1%**, 保留它的 5 人 **7.0%**。
+    ★★★ 且我的 bootstrap **本身是低估的** —— 它只重采样条目, 没传播「谁进面板」的随机性。
+      传播后是 **14.8%**, 且**跑一次得到 5 人面板的概率只有 46%**。
+
+    ## v2 的三条改动
+    ① **三态**(QUALIFIED / UNRESOLVED / DISQUALIFIED), 由 indifference region 两端定, 单调。
+    ② **UNRESOLVED 保留, 不排除** —— 「若 UNRESOLVED 就排除, 那只是把 FAIL 改名」。
+    ③ **只有 DISQUALIFIED 与明确协议违规才排除**。primary 含所有无协议违规者;
+       qualified-only 另作 sensitivity。
+
+    ★ 本规则**据 development 证据设计, 待新数据确证** —— 不得用当天那 81 条当确证证据。
     """
-    passed = [q["model"] for q in quals if q.get("qualified")]
-    if len(passed) >= 2:
-        return {"admit": passed, "status": "OK",
-                "reason": f"{len(passed)}/{len(quals)} 名标注者通过留一法锚例考(top1>=4/5)"}
-    return {"admit": None,
-            "status": "INSUFFICIENT_QUALIFIED_ANNOTATORS",
-            "reason": (f"仅 {len(passed)}/{len(quals)} 名标注者合格({passed or '无'}) —— "
-                       "两两一致性需要 >=2 名合格标注者, 少于此**数学上无定义**。"
-                       "★ 不回退到全员: 那会让「没人合格」与「全员合格」不可区分。"
-                       "★ 不产出判决 != 判决通过。")}
+    states = {}
+    for q in quals:
+        st, ci = qualification_state(q.get("hits", 0), q.get("of", 0) or 0)
+        states[q["model"]] = {"hits": q.get("hits"), "of": q.get("of"),
+                              "wilson95": list(ci), "state": st}
+    # ★★ 有任何一名 NOT_EXAMINED ⇒ **扣发整轮**。理由见 qualification_state:
+    #   「跳过考试 ⇒ 默认通过」比「考砸了 ⇒ 剔除」更危险, 因为它在输出上看不见。
+    ne = [m for m, v in states.items() if v["state"] == "NOT_EXAMINED"]
+    if ne:
+        return {"admit": None, "status": "QUALIFICATION_NOT_RUN", "★states": states,
+                "qualified_only": [],
+                "reason": (f"{len(ne)}/{len(quals)} 名标注者**没有考试数据**({ne}) —— "
+                           "资格考没跑。★ 不得归入 UNRESOLVED 后放行: 那等于"
+                           "「跳过考试 ⇒ 默认通过」, 是 v1 那个 fail-open 换壳。"
+                           "★ 不产出判决 != 判决通过。")}
+    # ★ 只有 DISQUALIFIED 出局。UNRESOLVED 留在 primary 面板里。
+    admitted = [m for m, v in states.items() if v["state"] != "DISQUALIFIED"]
+    qualified_only = [m for m, v in states.items() if v["state"] == "QUALIFIED"]
+    dis = [m for m, v in states.items() if v["state"] == "DISQUALIFIED"]
+    unres = [m for m, v in states.items() if v["state"] == "UNRESOLVED"]
+    if len(admitted) < 2:
+        return {"admit": None, "status": "INSUFFICIENT_QUALIFIED_ANNOTATORS",
+                "★states": states, "qualified_only": qualified_only,
+                "reason": (f"仅 {len(admitted)}/{len(quals)} 名标注者未被 DISQUALIFY({admitted or '无'}) —— "
+                           "两两一致性需要 >=2 名, 少于此**数学上无定义**。"
+                           "★ 不回退到全员: 那会让「没人合格」与「全员合格」不可区分。"
+                           "★ 不产出判决 != 判决通过。")}
+    return {"admit": admitted, "status": "OK", "★states": states,
+            "qualified_only": qualified_only,
+            "★primary_includes_UNRESOLVED": unres,
+            "★disqualified": dis,
+            "reason": (f"primary 面板 {len(admitted)}/{len(quals)} 名(含 {len(unres)} 名 UNRESOLVED, "
+                       f"剔除 {len(dis)} 名 DISQUALIFIED)。"
+                       f"★ UNRESOLVED **不视同 FAIL** —— 那只是把 FAIL 改名。"
+                       f"★ qualified-only({len(qualified_only)} 名)另作 sensitivity, "
+                       f"**不是 primary**。判据见 tests/data/annotator_qualification_v2_prereg.json")}
 
 
 def main():
@@ -350,11 +543,14 @@ def main():
     adm = admit_annotators(quals)
     globals()["QUAL_REPORT"] = {"per_model": quals, **adm}
     if adm["admit"] is None:
-        out = {"gate": "九结分类学验收", "overall_pass": None,
+        # ★ 扣发路径也要带参数: 「哪一批语料、哪个截断下没人合格」本身就是要复核的事实
+        RUN_PARAMS["run_gates_MODELS"] = RUN_PARAMS["annotators_actually_used"] = list(MODELS)
+        RUN_PARAMS["gate_protocol_version"] = GATE_PROTOCOL_VERSION
+        RUN_PARAMS["gate_protocol_hash"] = gate_protocol_hash()
+        out = {"gate": "九结分类学验收", "overall_pass": None, "run_params": RUN_PARAMS,
                "★withheld": adm["reason"], "annotator_qualification": globals()["QUAL_REPORT"]}
-        os.makedirs(os.path.join(os.path.dirname(os.path.abspath(__file__)), "out"), exist_ok=True)
-        json.dump(out, open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                         "out", "gates_result.json"), "w"),
+        os.makedirs(_OUT_DIR, exist_ok=True)
+        json.dump(out, open(os.path.join(_OUT_DIR, "gates_result.json"), "w"),
                   ensure_ascii=False, indent=1)
         print(json.dumps(out, ensure_ascii=False, indent=1))
         return 2      # ★ 扣发, 不是失败也不是通过
@@ -369,10 +565,33 @@ def main():
             dists[m][iid] = dv
     cover = {m: sum(1 for v in dists[m].values() if v) for m in MODELS}
     print("分布标注覆盖:", cover, flush=True)
+    # ★★ 2026-09-07: 原始逐条标注**必须落盘**。
+    #   此前只落聚合数 ⇒ 2026-09-07 那次 430+ 次调用的原始数据**全部丢掉**,
+    #   而下一个问题(误差棒/自助重采样/逐条复核/G-K3 实证版)全都要它 ——
+    #   于是「想知道 JS 的置信区间」就得**再花 430 次调用**, 而一行 json.dump 本可避免。
+    #   ★ 这与本项目反复栽的「只存聚合值, 回答不了『是哪一条在动』」同族:
+    #     聚合是**判决**要的, 逐条是**复核**要的, 两者不可互相替代。
+    _raw = os.path.join(_OUT_DIR, "raw_annotations.json")
+    os.makedirs(os.path.dirname(_raw), exist_ok=True)
+    RUN_PARAMS["run_gates_MODELS"] = RUN_PARAMS["annotators_actually_used"] = list(MODELS)
+    RUN_PARAMS["gate_protocol_version"] = GATE_PROTOCOL_VERSION
+    RUN_PARAMS["gate_protocol_hash"] = gate_protocol_hash()
+    json.dump({"★what": "逐条原始标注分布, 供自助重采样/逐条复核/重跑对照; 聚合数在 gates_result.json",
+               "run_params": RUN_PARAMS,
+               "annotators": MODELS, "sample_ids": [x["id"] for x in SAMPLE],
+               "coverage": cover, "dists": dists},
+              open(_raw, "w"), ensure_ascii=False)
+    print(f"原始标注已落盘: {_raw}", flush=True)
 
-    with ThreadPoolExecutor(max_workers=8) as ex:
-        facts = dict(ex.map(extract_facts, SAMPLE))
-    print("事实抽取覆盖:", sum(1 for v in facts.values() if v), "/", len(SAMPLE), flush=True)
+    if SKIP_GK2:
+        # ★ 外部效度语料是**帖子**, 没有 followed_up / replied_by_op / u 这些互动字段,
+        #   且 G-K2 早已被正式定性为**不可判**并冻结 N>=150 复测 ⇒ 本轮**不跑、不猜、不补**。
+        facts = {}
+        print("★ CCE_SKIP_GK2=1: 跳过 G-K2 事实抽取(外部语料无互动字段, 且 G-K2 已冻结)", flush=True)
+    else:
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            facts = dict(ex.map(extract_facts, SAMPLE))
+        print("事实抽取覆盖:", sum(1 for v in facts.values() if v), "/", len(SAMPLE), flush=True)
 
     # ── G-K1 v2 三指标 ──
     tops = {m: {i: (max(v, key=v.get) if v else None) for i, v in dists[m].items()} for m in MODELS}
@@ -438,86 +657,99 @@ def main():
            "criteria": "主判(核心面板): top2命中≥0.8 且 平均JS≤0.25; κ与生判一致率为参考项",
            "pass": (sum(t2s) / len(t2s) >= 0.8 and sum(jss) / len(jss) <= 0.25) if (t2s and jss) else False}
 
-    # ── G-K2 v2 ──
-    cons = {}
-    for it in SAMPLE:
-        vs = [dists[m].get(it["id"]) for m in MODELS if dists[m].get(it["id"])]
-        if vs:
-            agg = collections.defaultdict(float)
-            for v in vs:
-                for k, w in v.items():
-                    agg[k] += w / len(vs)
-            cons[it["id"]] = dict(agg)
-    rows = []
-    for it in SAMPLE:
-        c, f = cons.get(it["id"]), facts.get(it["id"])
-        obs = observed_tier_from_facts(f, it)
-        if not c or not obs:
-            continue
-        # 分布 → 连续成本分。定档留到后面用留一法校准, 避免把校准问题误报成信号问题。
-        s = expected_ordinal(c, it)
-        if s is None:
-            continue
-        # 逐条留痕: 只存聚合导致改完无法离线复核(已三次咬人: YouTube头对头亦因此算不出)
-        rows.append({"id": it["id"], "score": round(s, 4), "obs": obs, "obs_ord": TIER_ORD[obs],
-                     "pred_fixed": predict_tier_fixed(c, it),
-                     "followed_up": bool(it.get("followed_up")),
-                     "dist": {k: round(w, 3) for k, w in sorted(c.items(), key=lambda x: -x[1])},
-                     "facts": f})
+    # ★★★ 2026-09-07: SKIP_GK2 时必须跳过**整个 G-K2 块**, 不只事实抽取。
+    #   实测崩法: facts={} ⇒ observed_tier_from_facts 每条返 None ⇒ rows=[] ⇒
+    #   下游按空列表算 ⇒ **IndexError**, 而那已经是 405 次标注调用**之后**。
+    #   ★ 那次没丢数据, 只因为逐条原始标注的落盘被挪到了 G-K2 **之前** —— 同日刚修的那条。
+    #     若还是老代码, 405 次调用的原始数据会跟着崩溃一起蒸发。
+    if SKIP_GK2:
+        gk2 = {"n": 0, "pass": None,
+               "★withheld": "CCE_SKIP_GK2=1 —— 外部语料无 followed_up/replied_by_op 等互动字段, "
+                            "且 G-K2 已于 2026-08-07 正式定性为不可判并冻结 N>=150 复测。"
+                            "★ 不跑、不猜、不补; 扣发 != 不通过。",
+               "rows": []}
+        rows, diag = [], None
+    else:
+        # ── G-K2 v2 ──
+        cons = {}
+        for it in SAMPLE:
+            vs = [dists[m].get(it["id"]) for m in MODELS if dists[m].get(it["id"])]
+            if vs:
+                agg = collections.defaultdict(float)
+                for v in vs:
+                    for k, w in v.items():
+                        agg[k] += w / len(vs)
+                cons[it["id"]] = dict(agg)
+        rows = []
+        for it in SAMPLE:
+            c, f = cons.get(it["id"]), facts.get(it["id"])
+            obs = observed_tier_from_facts(f, it)
+            if not c or not obs:
+                continue
+            # 分布 → 连续成本分。定档留到后面用留一法校准, 避免把校准问题误报成信号问题。
+            s = expected_ordinal(c, it)
+            if s is None:
+                continue
+            # 逐条留痕: 只存聚合导致改完无法离线复核(已三次咬人: YouTube头对头亦因此算不出)
+            rows.append({"id": it["id"], "score": round(s, 4), "obs": obs, "obs_ord": TIER_ORD[obs],
+                         "pred_fixed": predict_tier_fixed(c, it),
+                         "followed_up": bool(it.get("followed_up")),
+                         "dist": {k: round(w, 3) for k, w in sorted(c.items(), key=lambda x: -x[1])},
+                         "facts": f})
 
-    scores = [r["score"] for r in rows]
-    obs_ords = [r["obs_ord"] for r in rows]
-    bc = collections.Counter(r["obs"] for r in rows).most_common(1)[0]
-    base = bc[1] / len(rows) if rows else 0
+        scores = [r["score"] for r in rows]
+        obs_ords = [r["obs_ord"] for r in rows]
+        bc = collections.Counter(r["obs"] for r in rows).most_common(1)[0]
+        base = bc[1] / len(rows) if rows else 0
 
-    # ① 信号问题(与校准无关): 成本分与实测档的秩相关
-    rho = _spearman(scores, obs_ords) if len(rows) > 2 else None
+        # ① 信号问题(与校准无关): 成本分与实测档的秩相关
+        rho = _spearman(scores, obs_ords) if len(rows) > 2 else None
 
-    # ② 校准问题: 留一法定切点——切点只在其余 n-1 条上拟合, 不看本条, 无泄漏
-    for i, r in enumerate(rows):
-        tr_s = scores[:i] + scores[i + 1:]
-        tr_o = obs_ords[:i] + obs_ords[i + 1:]
-        cuts = _fit_cuts(tr_s, tr_o)
-        po = _apply_cuts(r["score"], cuts)
-        r["pred"] = ORD_TIER[po]
-        r["hit"] = (po == r["obs_ord"])
-        r["off_by"] = abs(po - r["obs_ord"])
-        r["cuts"] = cuts
+        # ② 校准问题: 留一法定切点——切点只在其余 n-1 条上拟合, 不看本条, 无泄漏
+        for i, r in enumerate(rows):
+            tr_s = scores[:i] + scores[i + 1:]
+            tr_o = obs_ords[:i] + obs_ords[i + 1:]
+            cuts = _fit_cuts(tr_s, tr_o)
+            po = _apply_cuts(r["score"], cuts)
+            r["pred"] = ORD_TIER[po]
+            r["hit"] = (po == r["obs_ord"])
+            r["off_by"] = abs(po - r["obs_ord"])
+            r["cuts"] = cuts
 
-    hit = sum(1 for r in rows if r["hit"])
-    near = sum(1 for r in rows if r["off_by"] <= 1)
-    fixed_hit = sum(1 for r in rows if r["pred_fixed"] == r["obs"])
-    p_rho = _spearman_p(rho, len(rows)) if rho is not None else None
-    # macro-recall: 每个实测档各自的召回率再取平均, 不被多数类淹没
-    per_cls = collections.defaultdict(lambda: [0, 0])
-    for r in rows:
-        per_cls[r["obs"]][1] += 1
-        per_cls[r["obs"]][0] += r["hit"]
-    n_cls = max(len(per_cls), 1)
-    macro_r = round(sum(h / t for h, t in per_cls.values()) / n_cls, 3) if per_cls else None
-    # 对照: 常数预测器在「相邻档」上能拿多少(用于证明该判据不可用)
-    const_w1 = {ORD_TIER[o]: round(sum(1 for r in rows if abs(o - r["obs_ord"]) <= 1) / len(rows), 3)
-                for o in TIER_ORD.values()} if rows else {}
-    gk2 = {"n": len(rows), "exact_acc": round(hit / len(rows), 3) if rows else None,
-           "within_1_tier": round(near / len(rows), 3) if rows else None,
-           "baseline_majority": round(base, 3), "baseline_tier": bc[0],
-           "lift_vs_baseline": round(hit / len(rows) - base, 3) if rows else None,
-           "spearman_score_vs_observed": rho,
-           "exact_acc_fixed_cuts": round(fixed_hit / len(rows), 3) if rows else None,
-           "confusion": dict(collections.Counter(f"{r['pred']}→{r['obs']}" for r in rows)),
-           "rows": rows,
-           "predictor": "expected_tier_ordinal(taxonomy-sourced + display×followed_up→high) "
-                        "→ leave-one-out calibrated cutpoints",
-           "note": "spearman 测信号是否存在(免校准); exact/within1 用留一法切点, 与固定切点口径并列可比",
-           # 2026-08-09: 删除原「或相邻档命中≥0.85」——实测常数预测器(永远说mid)在该条上
-           # 得 1.000、永远说high 得 0.921, 而本预测器 0.921, 即判据被常数吊打, 绿灯无意义。
-           # 改为 ①spearman 显著(免校准、常数预测器相关性恒为0不可刷) ②macro-recall 超随机。
-           "spearman_p": p_rho, "macro_recall": macro_r, "chance_macro_recall": round(1 / n_cls, 3),
-           "constant_predictor_within1": const_w1,
-           "criteria": ("主判: spearman(成本分,实测档) 显著(p<0.05) 且 ρ≥0.3; "
-                        "辅判: macro-recall > 1/类别数。精确率对多数基线仅作参考(基率偏斜时不可判)"),
-           "pass": bool(rho is not None and rho >= 0.3 and p_rho is not None and p_rho < 0.05
-                        and macro_r is not None and macro_r > 1 / n_cls)}
+        hit = sum(1 for r in rows if r["hit"])
+        near = sum(1 for r in rows if r["off_by"] <= 1)
+        fixed_hit = sum(1 for r in rows if r["pred_fixed"] == r["obs"])
+        p_rho = _spearman_p(rho, len(rows)) if rho is not None else None
+        # macro-recall: 每个实测档各自的召回率再取平均, 不被多数类淹没
+        per_cls = collections.defaultdict(lambda: [0, 0])
+        for r in rows:
+            per_cls[r["obs"]][1] += 1
+            per_cls[r["obs"]][0] += r["hit"]
+        n_cls = max(len(per_cls), 1)
+        macro_r = round(sum(h / t for h, t in per_cls.values()) / n_cls, 3) if per_cls else None
+        # 对照: 常数预测器在「相邻档」上能拿多少(用于证明该判据不可用)
+        const_w1 = {ORD_TIER[o]: round(sum(1 for r in rows if abs(o - r["obs_ord"]) <= 1) / len(rows), 3)
+                    for o in TIER_ORD.values()} if rows else {}
+        gk2 = {"n": len(rows), "exact_acc": round(hit / len(rows), 3) if rows else None,
+               "within_1_tier": round(near / len(rows), 3) if rows else None,
+               "baseline_majority": round(base, 3), "baseline_tier": bc[0],
+               "lift_vs_baseline": round(hit / len(rows) - base, 3) if rows else None,
+               "spearman_score_vs_observed": rho,
+               "exact_acc_fixed_cuts": round(fixed_hit / len(rows), 3) if rows else None,
+               "confusion": dict(collections.Counter(f"{r['pred']}→{r['obs']}" for r in rows)),
+               "rows": rows,
+               "predictor": "expected_tier_ordinal(taxonomy-sourced + display×followed_up→high) "
+                            "→ leave-one-out calibrated cutpoints",
+               "note": "spearman 测信号是否存在(免校准); exact/within1 用留一法切点, 与固定切点口径并列可比",
+               # 2026-08-09: 删除原「或相邻档命中≥0.85」——实测常数预测器(永远说mid)在该条上
+               # 得 1.000、永远说high 得 0.921, 而本预测器 0.921, 即判据被常数吊打, 绿灯无意义。
+               # 改为 ①spearman 显著(免校准、常数预测器相关性恒为0不可刷) ②macro-recall 超随机。
+               "spearman_p": p_rho, "macro_recall": macro_r, "chance_macro_recall": round(1 / n_cls, 3),
+               "constant_predictor_within1": const_w1,
+               "criteria": ("主判: spearman(成本分,实测档) 显著(p<0.05) 且 ρ≥0.3; "
+                            "辅判: macro-recall > 1/类别数。精确率对多数基线仅作参考(基率偏斜时不可判)"),
+               "pass": bool(rho is not None and rho >= 0.3 and p_rho is not None and p_rho < 0.05
+                            and macro_r is not None and macro_r > 1 / n_cls)}
 
     # ── 混淆诊断(问题2) ──
     disagree = []
@@ -548,17 +780,23 @@ def main():
         diag = {"n_disagree_cases": len(disagree), "top_confusion_pairs": dict(top_pairs), "diagnosis": diag}
 
     out = {"gate": "九结分类学 v1.1.1 验收 v5(v4+全结负例句)",
+           "run_params": RUN_PARAMS,
            "sample_n": len(SAMPLE), "annotators": MODELS, "coverage": cover,
            "G_K1v2_分布一致性": gk1, "G_K2v2_成本档预测": gk2, "混淆诊断": diag,
            "annotator_qualification": globals().get("QUAL_REPORT"),
            # ★ 2026-09-07: 资格考此前**只被报告, 不进判决** —— 于是 4/5 不合格也能 overall_pass=True。
            #   现在它是判决的一部分。三项缺一即不通过。
-           "overall_pass": bool(gk1["pass"] and gk2["pass"]
-                                and (globals().get("QUAL_REPORT") or {}).get("status") == "OK"),
+           # ★ SKIP_GK2 下 **不发 overall_pass** —— 缺一道闸就宣称整体通过, 正是本仓修过的 fail-open。
+           "overall_pass": (None if SKIP_GK2 else
+                            bool(gk1["pass"] and gk2["pass"]
+                                 and (globals().get("QUAL_REPORT") or {}).get("status") == "OK")),
+           "★overall_withheld_because": ("G-K2 本轮未跑(外部语料无互动字段且 G-K2 已冻结) ⇒ "
+                                          "整体判决**扣发**, 只报 G-K1 与类实现台账") if SKIP_GK2 else None,
            "★pass_components": {"G_K1": gk1["pass"], "G_K2": gk2["pass"],
                                 "annotator_qualification":
                                     (globals().get("QUAL_REPORT") or {}).get("status")}}
-    json.dump(out, open(os.path.join(os.path.dirname(os.path.abspath(__file__)),"out","gates_result.json"), "w"), ensure_ascii=False, indent=1)
+    os.makedirs(_OUT_DIR, exist_ok=True)
+    json.dump(out, open(os.path.join(_OUT_DIR, "gates_result.json"), "w"), ensure_ascii=False, indent=1)
     print(json.dumps({k: v for k, v in out.items() if k != "混淆诊断"}, ensure_ascii=False, indent=1))
     if diag:
         print("\n=== 混淆诊断 ===")

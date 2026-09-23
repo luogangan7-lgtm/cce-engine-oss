@@ -1,0 +1,427 @@
+{
+ "block": "CLAIM_FRAME_ANNOTATIONS",
+ "★★★这是什么": "给 tests/data/semantic_minimal_pairs.json 那 10 对的**正确六槽位标注**。",
+ "★★★它给出的是能力上界_不是抽取正确性": "这份标注是**人工给定的正确答案**。用它跑出来的数是「**槽位标注正确时, 判据能拦住多少**」—— 这是**能力上界**。★ 槽位由谁填、填错多少, 是**另一个未测的问题**。本层**不承诺**结构化抽取会正确, 它只把错误**挪到可逐项检验的地方**。",
+ "★默认槽位": {
+  "speaker": "UNSPECIFIED",
+  "polarity": "UNSPECIFIED",
+  "time": "UNSPECIFIED",
+  "citation": "UNSPECIFIED",
+  "predicate": "UNSPECIFIED",
+  "possession": "UNSPECIFIED"
+ },
+ "★两档规则必须分开报": "**合同明文**(否定辖域/说话者/时间/析取两支同否) 与 **依赖解释**(转述算不算「输出」/ 谓词是不是所声明的那一类) —— 分别报「只用明文拦住多少」与「明文+解释拦住多少」, **不许合并成一个总数**。",
+ "annotations": {
+  "NEG-1": {
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "NEGATED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "BOTH_NEGATED"
+     }
+    }
+   },
+   "★标注理由": "neg 版片段落在 never…or 的否定辖域内, 且**两支同时被否定** ⇒ polarity=NEGATED + possession=BOTH_NEGATED。"
+  },
+  "NEG-2": {
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "NEGATED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "BOTH_NEGATED"
+     }
+    }
+   },
+   "★标注理由": "同 NEG-1(do not own / never worn 两支同时否定)。"
+  },
+  "ATT-1": {
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "OTHER",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版谓词主语是 brother ⇒ speaker=OTHER。"
+  },
+  "ATT-2": {
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "OTHER",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版佩戴者是 wife ⇒ speaker=OTHER。"
+  },
+  "TNS-1": {
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "FUTURE",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "UNSPECIFIED"
+     }
+    }
+   },
+   "★标注理由": "neg 版是未来时(will buy) ⇒ time=FUTURE; 尚未取得 ⇒ possession 无法落到肯定的一支。"
+  },
+  "TNS-2": {
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "FUTURE",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "UNSPECIFIED"
+     }
+    }
+   },
+   "★标注理由": "同 TNS-1(will have)。"
+  },
+  "CIT-1": {
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "REPORTED",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 P 支是**转述**(Someone on here claimed) ⇒ citation=REPORTED。★ 该规则**依赖解释**。"
+  },
+  "CIT-2": {
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "REPORTED",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "同 CIT-1(The ad claims)。★ 依赖解释。"
+  },
+  "TYP-1": {
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "NOT_OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版声明 kind=纠错 但**没有纠正任何说法** ⇒ predicate=NOT_OF_DECLARED_KIND。★ 依赖解释。"
+  },
+  "TYP-2": {
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "NOT_OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版声明 kind=数据 但「good battery life」**无任何数值** ⇒ predicate=NOT_OF_DECLARED_KIND。★ 依赖解释。"
+  }
+ },
+ "★★★默认为什么必须是 UNSPECIFIED": "★★★ **默认必须是 UNSPECIFIED, 不能是任何肯定值。** 2026-09-14 抓到我自己: 原默认写的是 possession='OWNED' —— 那是 **fail-open**。r3/MIS-2 的文本是「诊所展示机…**Mine** are a much older pair」, 说话人对「有没有用过那台展示机」**沉默**, 而我用默认把它补成了 OWNED, 等于**替模型补了一个文本不支持的槽位**。⇒ 改成全 UNSPECIFIED: **漏标落证据不足**(不许输出), 而不是落支持。这才是 fail-closed。"
+}

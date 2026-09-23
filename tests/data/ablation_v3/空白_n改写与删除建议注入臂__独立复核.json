@@ -1,0 +1,260 @@
+{
+ "block": "消融 v3 · 独立对抗复核",
+ "unit": "空白_n改写与删除建议注入臂",
+ "role": "独立复核者(默认立场: 被核方是错的)",
+ "decided_at": "2026-09-11T21:20:15",
+ "被核产物": "tests/data/ablation_v3/空白_n改写与删除建议注入臂.json (10 条判决)",
+ "我自己的脚本": "/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/rev_blank_95075 (rev.py · t1_instrument.py · t2_faces.py · t3_ast.py · t4_deadconst.py · shim/hook.py · shim/runner.py)",
+ "R1_零API": {
+  "进程内绊线": "socket.socket.connect 全程被替换, tripped=[]",
+  "子进程绊线": "7 臂 × 7 个测试文件 = 49 个子进程, 每个都自带绊线, 全部 tripped=[]",
+  "真key": "从未 export; 只设 MINIMAX_API_KEY=OFFLINE-FAKE-KEY-NOT-A-SECRET",
+  "tripped": []
+ },
+ "R2_仓内未改": {
+  "四个冻结件_我自己重算": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "与任务书给定前缀一致": true,
+  "跑前跑后相同": true,
+  "ablation_verdicts_v3.json_未动": "85aee4a840eca7b89db00075a6d159dff5236eeb58bec2fc4bcb2a42e25cdf78(只读, 我没写)",
+  "做法": "全部内存内源码字符串替换后 exec(进程内) / meta_path 加载器(子进程)。磁盘零写入。"
+ },
+ "R3_未读识别层": {
+  "vault_touch": [],
+  "做法": "builtins.open 上装了 /Volumes/data/cce-identified-vault 前缀绊线"
+ },
+ "M1_我自己的判官验收": {
+  "★这是本轮最关键的一步, 被核方没做": "被核方的 M1 只跑了 probes/ablation_harness_v3.positive_control() 的**自带** L1/L2 面, 以及一条 stage2 面液性臂。它**从未**把已证死常量喂进自己新建的 CE-3 七面。",
+  "我补跑的死常量臂": "内存内把 _S1_BASE_TEMPS[5:7] 换成 (a) 互换 0.75/0.45 (b) 999.0/-999.0",
+  "结果": {
+   "temps_used_k3/k5 逐位不变": true,
+   "F_k1.verdict_path_for_live": "base=k1_reliability_verdict.json → 死常量臂 **null**",
+   "F_k1.knot_readout_usable_top1": "base=True → 死常量臂 **False(一律扣发)**",
+   "F_k1.layer_status_top1_usable": "True → **False**",
+   "F_inst.same_physical_565_to_live": "True → **False**",
+   "F_inst.calibration_transfers_knot_n0": "transfers=true, changed=[] —— **不变**(唯一幸存的有分辨力的面)"
+  },
+  "结论": "★★★ CE-3 的面①(same_physical_instrument / instrument_id)、面②(F_k1 扣发路径)、面③(F_exit 出口闸)对**任何落在 _INSTRUMENT_FIELDS 内的消融**都只是 instrument_hash 的马甲 —— 已证死常量把它们翻得与 A6b/A9/A10/S2_POSCTL **一模一样**。按 M2, 这三面在本簇的证据力 = 0。唯一通过死常量对照的是 calibration_transfers(depends_on 逐字段比)。",
+  "反向对照(证明不是什么都翻)": "A0_noop(文件尾加注释)在全部面上零差异; A6_spec_fix 只翻 calibration_transfers"
+ },
+ "我独立复现的数字(与被核方逐位比对)": {
+  "prod_instrument_k3": {
+   "我": "d4cce4c745f3f991",
+   "它": "d4cce4c745f3f991",
+   "同": true
+  },
+  "prod_instrument_k5": {
+   "我": "c4419c3e53aa2fa9",
+   "它": "c4419c3e53aa2fa9",
+   "同": true
+  },
+  "A6_spec_fix 下 knot_n=0 的仪器": {
+   "我": "3979ecc1b9e8013d",
+   "它": "3979ecc1b9e8013d",
+   "同": true
+  },
+  "A6b_spec_absurd(s2_n=999)": {
+   "我": "bb86fc7bf90ef416",
+   "它": "bb86fc7bf90ef416",
+   "同": true
+  },
+  "A9_env_CCE_KNOT_N_0": {
+   "我": "3979ecc1b9e8013d",
+   "它(arms_raw)": "3979ecc1b9e8013d",
+   "同": true
+  },
+  "A10_env_CCE_KNOT_N_1": {
+   "我": "ee2e64518cef2ec1",
+   "它(arms_raw)": "ee2e64518cef2ec1",
+   "它(判决正文)": "6eb06cbeb2a1d6b6",
+   "★": "判决正文写的哈希**不在它自己的 arms_raw 里**, 是个凭空的数"
+  },
+  "n=0 基线行为": {
+   "我": "5 次调用, sampling.n_requested 上报 5",
+   "它": "n_calls=5, n_requested_reported=5",
+   "同": true
+  },
+  "A1(is None) 下 n=0": {
+   "我": "ValueError: max_workers must be greater than 0",
+   "同": true
+  },
+  "A3(拿掉默认) 生产形状": {
+   "我": "TypeError: '<' not supported between NoneType and int",
+   "同": true
+  },
+  "A7 全失败路线": {
+   "我": "基线 RuntimeError → 拆闸后正常返回",
+   "同": true
+  }
+ },
+ "我独立跑的 L4 抽样(7 臂 × 7 个测试文件, 直接 python3 跑脚本, 非 pytest)": {
+  "做法": "meta_path 加载器在**内存里**换掉 cce_knot_classify 的源码; 磁盘一字不动; 每个子进程自带绊线",
+  "L4_base / L4_A0_noop / L4_A1_fix_is_none / L4_A6_spec_fix / L4_A8_gate_msg": "7/7 全绿",
+  "L4_A3_no_default": "tests/test_cce_measurement_system.py RED —— TypeError: '<' not supported between instances of 'NoneType' and 'int'",
+  "L4_A7_gate_removed": "tests/test_cce_knot_stability.py RED —— AssertionError: 全部抽样失败时必须抛错",
+  "覆盖的 7 个文件": [
+   "test_cce_measurement_system",
+   "test_cce_knot_stability",
+   "test_cce_abstention",
+   "test_cce_draw_ledger",
+   "test_cce_support_publication",
+   "test_cce_tiebreak_determinism",
+   "test_cce_fingerprint_coverage"
+  ],
+  "结论": "被核方的 L4 净新增 1 / 1 / 0 / 0 在这 7 个文件的范围内**逐条吻合**, 且归因的测试名与错误文本一字不差",
+  "★我没跑全量套件": "故无法独立证实它报的『空操作对照底噪 2~3 条』与 B 簇的净新增数字; 但 B 簇的两条关键归因我用静态法逐条核了(见下)"
+ },
+ "静态核查(替代跑全量套件)": {
+  "LITERAL_PINS": "全仓 grep `ta >= 0.7 and (js is not None and js <= 0.30)` —— **唯一实现出处**是 scripts/exp_v4_full_validation.py:741, 正在 write_report 体内; 另两处是 cce_criterion_cast.py:357 的钉子本身与消融台账。tests/test_cce_criterion_cast.py:163-168 从**磁盘** read_text 逐条查 ⇒ 删掉必红。确认。",
+  "core_files": "config/cce_core_manifest.json 含 scripts/exp_v4_full_validation.py(f934b56b01b6b6b2), **不含** scripts/exp_v4_causal_chain.py ⇒ 两块的不对称性确认。",
+  "死符号全仓反查": "23/18 个死符号名逐个在全仓(含 docs/ 与根 *.md, 排除 tests/data 台账)grep: 无一被外部引用; `_load` 等命中全是别的模块里的同名函数(M4 词碰撞)。",
+  "CI": ".github/workflows/*.yml 无一处调用 python3 scripts/exp_v4_full_validation.py 或 exp_v4_causal_chain.py ⇒ CLI 只在人工路径上, 与它标的 blind::CLI 一致。",
+  "钉源码文本的闸": "11 个测试文件从磁盘读 cce_knot_classify.py 做子串断言(abstention:96/109 · attempt_ledger:73 · gen8_shipping:36 · operational_ledger_key:76 · rule_delivery_completeness:27 · stage2_candidate:20 · withholding_and_labels:134 · structural_gate:108 · tiebreak_determinism:66 + inspect.getsource(K.stage1) ×3)。逐条比对: **无一条**钉住 `n or KNOT_N` / `if not draws` / `s2_n` / `min(5, n)` ⇒ 它的 M3-③ 结论确认。"
+ },
+ "★★ 穷举缺口(它自己的 limits 里没有)": {
+  "同族的 `X or DEFAULT` 静默改写, 同一个文件里还有两处, 一条判决都没出": [
+   {
+    "locus": "scripts/cce_knot_classify.py:661",
+    "code": "prep = preparation_id or RAW_PREPARATION_ID",
+    "★可达性": "**生产可达**。:755 与 :772 传 preparation_id=s1.get('preparation_id') —— 键缺失即 None, 空串即 ''。",
+    "★该文件自己的注释就记着这个洞已经炸过": "cce_knot_classify.py:749-752 ——「此前两个生产调用点都不传 ⇒ 兜底成 RAW_PREPARATION_ID, 而 stage1 同一份读数里记的是真实制备 id ⇒ **22/22 存量读数自相矛盾**」。它修了调用点, **没修这个 `or`**。",
+    "后果面": "prep 进 measurement_procedure_id(ih, prep, qh) ⇒ 与 :626 的 s2_n 同一条身份链"
+   },
+   {
+    "locus": "scripts/cce_knot_classify.py:588",
+    "code": "m = margin or QUALIFICATION_MARGIN",
+    "可达性": "仓内无调用方显式传 margin ⇒ 本工况 UNREACHABLE, 但 margin={} / 0 会被静默改写, 与 v-blank-02 同型, 应同样单列"
+   }
+  ],
+  "AST 死集口径": "我独立重算 exp_v4_full_validation 的不可达闭包 = **21** 个顶层符号(它报 23)。差的 CAL / RESULTS 被顶层语句 os.makedirs(CAL, exist_ok=True) 用到 ⇒ 严格说不是『不可达符号』, 而是『还要额外删掉一条活的顶层语句』。它在 deletable_reason 里披露了这条副作用, 但符号计数把它算进了死集。exp_v4_causal_chain 同形(它 18 / 我 18, 但成员不同: 我把 TAXO_PATH / load_desire_taxonomy 误判成死的 —— 那是我 AST 对 `A, B = f()` 元组赋值的处理缺陷, 更正后与它一致)。",
+  "STABILITY_CASE 的前置条件比它写的窄": "名字 PILOT_CASES / STABILITY_CASE / STABILITY_N 全仓确无第二处定义(确认); 但 STABILITY_CASE 的**取值** 'IT_life_kitchen' 在 config/need_taxonomy.json · scripts/exp_crossmodel_desire.py · scripts/exp_v4_full_validation.py 里都有 ⇒ 『唯一副本』只对名字成立, 对数据不成立。"
+ },
+ "★ 量具缺陷(harness fault)": [
+  {
+   "where": "probes/ablation_harness_v3.py:142-164 load()",
+   "what": "**从不把变异后的模块塞进 sys.modules**(全文件 0 处 sys.modules)。",
+   "后果": "任何跨模块消费者走 `import cce_knot_classify` 拿到的是**磁盘上的原件** —— cce_k1_status._inherited_verdict_name():84 就是这么 import 的。⇒ 直接用这个共享 harness 做跨模块消融, CE-3 面②结构上看不见变异。",
+   "本轮是否中招": "**否** —— 被核方自己写了 faces.py:load_chain() 按依赖序塞 sys.modules(CHAIN 七个模块), 绕过了这个坑。但共享 harness 本身没修, 下一个复用它的 agent 会中招。"
+  },
+  {
+   "where": "scratchpad/blank_n_31950/faces.py:258-263 observe()",
+   "what": "`except BaseException: live = \"d4cce4c745f3f991\"` —— instrument_id 一抛异常就**静默回落到生产哈希**。",
+   "后果": "S2_DEAD_taxo_unconsumed_key 这条**死对照臂**里 F_instrument 记的是 `{\"instrument_exc\": \"KeyError: 'signature'\"}` —— 该臂根本没算出哈希, F_k1/F_exit 的『不变』是回落值造成的, **不是测量**。而它的产物把这条写成「死键加 → 只有 F_instrument 变, 因为分类学文本进 s2_prompt_sha256」 —— 这句解释被它自己的 arms_raw 证伪。",
+   "影响": "stage2 面的**分辨力**仍由 F_own.stage2 单独证成(活键翻→变 / 死键加→不变), 故结论不倒; 倒的是『F_instrument 变是因为进了 s2_prompt_sha256』这句因果解释, 与 F_k1/F_exit 在该臂上的读数。"
+  },
+  {
+   "where": "faces.py:225-240 F_exit()",
+   "what": "★方法 写的是「cce_full_run.qualified() 在 68 行存量 manifest 上重放」, 实际是 `ctx = {...\"instrument_hash\": _ih or live_hash}` —— 68 份 manifest 在该路径上没有 instrument_hash, 于是**每一行都被换成现算的 live 哈希**。",
+   "后果": "F_exit 退化成 1 bit:「live 哈希还在不在 VERDICT_BY_INSTRUMENT(或可继承)」。A6b / A9 / A10 / S2_POSCTL 四条臂的 F_exit_summary **逐字节相同**(0/61, rows_sha 9957a4d67781d968), 死常量臂也会给出同一个值。",
+   "顺带解释了一处跨产物矛盾": "CE3_出口闸与验收闸__independent_recheck 报的是 top1 放行 **59/68 · withheld 2/68**, 本产物报 **61/68 · withheld 0/68** —— 不是谁算错, 是两者喂进闸的 instrument_hash 不同源(那边用 manifest 自带的, 这边全替换成现算的)。★ 但这意味着本产物的 F_exit **不是生产出口闸的重放**, 产物里不该按重放来读。"
+  },
+  {
+   "where": "产物 ★方法.观测面.F_k1",
+   "what": "写成「verdict_path_for(d4cce4c745f3f991)」(字面量), 而 faces.py:196 `def F_k1(k1, live_hash)` 用的是现算 live 哈希。方法自述与代码不一致。"
+  },
+  {
+   "where": "probes/ablation_harness_v3.py:288 operating_point()",
+   "what": "**至今仍返回**「market: N/A —— 仓内无 market 字段(已实扫 scripts/ config/ accuracy/)」。我实扫: 全仓 *.py(排除 tests/data)词边界命中 **56 处**, 含 scripts/cce_strategy_gate.py:100/113/140 的 os.environ.get('CCE_MARKET','intl') 与 scripts/cce_outbound_guard.py:286/309/343/361。",
+   "被核方": "**已识别并声明不沿用**(它 limits 里写得很清楚) —— 这一条是对量具的追认, 不是对它的指控。"
+  }
+ ],
+ "工况(我自己的)": {
+  "market": "未设 CCE_MARKET; 我的观测面也不含出站闸 ⇒ 同样不得外推到按 market 分层的工况",
+  "k": "instrument_id 用 k=3 / k=5 两点; 未重放 22 份语料(我不复核它的 F_own.stage2 数值, 只复核判决所依赖的面)",
+  "python": "/opt/homebrew/opt/python@3.14/bin/python3.14, PYTHONHASHSEED=0",
+  "时点": "2026-09-11T21:20:15"
+ },
+ "逐条判决": [
+  {
+   "id": "v-blank-01",
+   "component": "cce_knot_classify.py:942 `n = n or KNOT_N` 默认值机制本身",
+   "被核方判决": "LOAD_BEARING_L2 / deletable=false",
+   "我的裁定": "CONFIRMED",
+   "理由": "生产入口 :769 `_stage2_aggregate(prompts, taxo)` 确实不传 n(我逐行核过); 拿掉默认值后生产形状当场 TypeError; 唯一翻红的测试与它报的一致。判据非重言: A0_noop 与死常量臂在同一面上零差异。",
+   "我实际跑了什么": "t2_faces.py A3 臂(TypeError: '<' not supported between NoneType and int, 0 次抽样) + shim/runner.py 跑 7 个测试文件: 只有 test_cce_measurement_system 转红, 错误文本一字不差"
+  },
+  {
+   "id": "v-blank-02",
+   "component": "同一行的 `or` 语义 —— 显式 n=0/False 被静默改写成 KNOT_N",
+   "被核方判决": "UNREACHABLE(写了复活条件) / deletable=false",
+   "我的裁定": "CONFIRMED",
+   "理由": "① n=0 基线确实静默抽 5 次且 sampling.n_requested **上报 5**(我独立复现); ② 改成 is None 后 n=0 变 ValueError, 生产六面零差异; ③ L4 净新增 0(我独立跑 7 个文件全绿); ④ 它列的 6 处『拿长度当 n 传』我逐个核对, 6/6 属实; ⑤ M8 分类正确 —— 22 份存量 ledger 长度全为 5, 是『本工况未触发』不是『真死』。",
+   "我实际跑了什么": "t2_faces.py base/A1/A2 等价臂 + shim/runner.py L4_A1 全绿"
+  },
+  {
+   "id": "v-blank-03",
+   "component": "cce_knot_classify.py:626 `\"s2_n\": knot_n or KNOT_N`",
+   "被核方判决": "UNREACHABLE / deletable=false",
+   "我的裁定": "CONFIRMED(判决成立), 但**证据链要砍掉一半**",
+   "理由": "判决与 deletable 成立: 生产三处调用全传 KNOT_N, 未触发; 真后果(0 抽样仪器与 5 抽样仪器同哈希、依赖 s2_n 的标定被错判可搬)我逐位复现。★ 但它的 M6 注入臂 A6b 用『出口闸 top1 61/68 → 0/68 ⇒ 链路确实接上』当连通性证明 —— 这条**是重言**: 我把已证死常量 _S1_BASE_TEMPS[5:7] 喂进同一面, 得到**完全一样的翻转**。幸存的非重言证据只有 calibration_transfers(depends_on=['sampling_policy.s2_n']) 那一条。★ 另: 判决正文把调用写成 `instrument_id(taxo,k=3,knot_n=0)` —— 那个确切形状给的是 **d6c4366c0e2294cd**(s1_pairing 兜底成 'unspecified'), 不是 d4cce4c745f3f991; 与生产同哈希只在补上 s1_pairing='round_robin_over_3_s1_draws' 时成立(它的 arms_raw 传了, 正文没写)。",
+   "我实际跑了什么": "t1_instrument.py(六种调用形状的哈希) + t4_deadconst.py(死常量 vs A6b 同面对照) + shim/runner.py L4_A6 全绿"
+  },
+  {
+   "id": "v-blank-04",
+   "component": "cce_knot_classify.py:812 `KNOT_N = int(os.environ.get(\"CCE_KNOT_N\",\"5\"))`",
+   "被核方判决": "LOAD_BEARING_L2 / deletable=false",
+   "我的裁定": "DOWNGRADED(标签留住, 支撑它的 L2 换一条)",
+   "理由": "L1 成立且非重言(CCE_KNOT_N=1 → 抽样 5→1、intensity sha 变; =0 → ValueError; 死常量臂在这面上零差异)。但它写的 L2 全部是『verdict_path_for → null / top1 放行 61/68 → 0/68』—— 我实测死常量 _S1_BASE_TEMPS[5:7] 把这三面翻得一模一样 ⇒ 按 M2 零证据力。LOAD_BEARING_L2 仍能站住, 但只靠 calibration_transfers(依赖 sampling_policy.s2_n 的标定 transfers true→false, 死常量臂不翻)。★ 另: 它正文写 CCE_KNOT_N=1 下活仪器变成『6eb06cbeb2a1d6b6 类的新哈希』—— 我算出 ee2e64518cef2ec1, 它自己的 arms_raw 也写着 ee2e64518cef2ec1。正文那个数凭空出现。★ 它自报 L4=INCONCLUSIVE(环境臂没跑 L4), 这点诚实, 我也没跑。",
+   "我实际跑了什么": "t4_deadconst.py(死常量 / 液性 / A6b / A0_noop 四臂同面对照) + t2_faces.py A9/A10 环境臂"
+  },
+  {
+   "id": "v-blank-05",
+   "component": "cce_knot_classify.py:947-948 `if not draws: raise RuntimeError(...)` 生产侧",
+   "被核方判决": "UNREACHABLE / deletable=false",
+   "我的裁定": "CONFIRMED(locus 行号要改)",
+   "理由": "① 全失败路线确实可达(我用恒返 None 的 _stage2_draw 复现 RuntimeError); ② 它那条关键否定成立 —— n=0 永远到不了这道闸: 基线被 `or` 吞成 5, A1(is None) 与 A3(无默认)下 n=0/-1 都先死在 ThreadPoolExecutor(max_workers=min(5,n)) 的 ValueError; ③ A8(只换异常文案)七面零差异 ⇒ 判据非重言; ④ M8 分类正确(保险丝, 非装饰)。★ 唯一要改的是 locus: 实际是 **:947-948**, 它写的 :943-944 是 `prompts = ...` 与 `with ThreadPoolExecutor(...)` 两行。",
+   "我实际跑了什么": "t2_faces.py 的 allfail 路线 + A7/A8 两臂 + 我逐行数了 cce_knot_classify.py:936-948"
+  },
+  {
+   "id": "v-blank-06",
+   "component": "同一道资格闸 —— 验收闸侧(tests/test_cce_knot_stability.py)",
+   "被核方判决": "LOAD_BEARING_L2 / deletable=false / v3-046 由 UNREACHABLE 改判",
+   "我的裁定": "CONFIRMED",
+   "理由": "我读了整份 tests/test_cce_knot_stability.py: 第 3d 段 `try: agg([None,None,None]) ; raise AssertionError(\"全部抽样失败时必须抛错\") except RuntimeError: pass` —— 是**行为断言**不是文本钉。我独立跑 A7 臂: 该文件转红, 错误文本一字不差; A8(只换文案)臂该文件**仍绿** ⇒ 钉的确实是行为不是文案。同批 7 个文件在 base/A0_noop 下全绿 ⇒ 这 1 条是净新增, 不是底噪。",
+   "我实际跑了什么": "shim/runner.py × 7 臂 × 7 文件 = 49 个带绊线的子进程"
+  },
+  {
+   "id": "v-blank-07",
+   "component": "scripts/exp_v4_full_validation.py 的死块(它算 23 符号/534 行) —— 生产侧",
+   "被核方判决": "NO_CONSUMER / **deletable=true**",
+   "我的裁定": "DOWNGRADED(verdict 留住, deletable 必须改)",
+   "理由": "NO_CONSUMER 确认: 23 个符号名我在全仓(scripts/ probes/ accuracy/ tests/ .github/ config/ docs/ 与根 *.md, 排除 tests/data 台账)逐个 grep, 零外部引用; .github/workflows 无一处跑它的 CLI; 它的 poison 臂 _POISON_TOUCHED=[] 与我的静态结论一致。★ 但 deletable=true 必须改 —— 同一块 534 行在它自己的下一行(v-blank-08)被证明**不可直接删**(会红掉 test_literal_pins_still_present_in_repo)。台账的 deletable 是**按行读**的动作标志, 把同一块代码在 P 行标 true、G 行标 false, 复现的正是 v2-028 当初出错的形状。应改为 deletable=false + deletable_precondition。★ 次要: 我独立算的不可达闭包是 **21** 个符号 —— CAL/RESULTS 被顶层 os.makedirs(CAL) 用到, 要删它们得连那条**活的**顶层语句一起删(它在 deletable_reason 里披露了副作用, 但符号计数里算成死的)。",
+   "我实际跑了什么": "t3_ast.py(独立 AST 闭包) + 全仓死符号名反查 + core_manifest/workflows 静态核查"
+  },
+  {
+   "id": "v-blank-08",
+   "component": "同一块 534 行 —— 验收闸侧(core_files + criterion_cast LITERAL_PINS/locus)",
+   "被核方判决": "LOAD_BEARING_L2 / deletable=false(对 v2-028 的实质限定)",
+   "我的裁定": "CONFIRMED —— 这是本簇最值钱的一条",
+   "理由": "全仓 grep: `ta >= 0.7 and (js is not None and js <= 0.30)` 的**唯一实现出处**就是 scripts/exp_v4_full_validation.py:741, 而 :741 正在 write_report 体内(死集成员)。tests/test_cce_criterion_cast.py:163-168 是 `(ROOT/rel).read_text()` 逐条子串查 ⇒ 删掉必红, 且这条闸**既不是 import 消费者也不是文件哈希钉**, 两类自动化检查都漏。core_files 里有 exp_v4_full_validation.py 而无 exp_v4_causal_chain.py, 不对称性确认。",
+   "我实际跑了什么": "全仓 grep(含 tests/data 以证明其余命中都是台账自引) + 读 cce_criterion_cast.py:344/357 与 tests/test_cce_criterion_cast.py:163-168 + 读 exp_v4_full_validation.py:730-750 确认 :741 的宿主函数"
+  },
+  {
+   "id": "v-blank-09",
+   "component": "scripts/exp_v4_causal_chain.py 死块(15/18 符号两套) —— 生产侧",
+   "被核方判决": "NO_CONSUMER / deletable=true",
+   "我的裁定": "CONFIRMED(一处前置条件要收窄)",
+   "理由": "18 个符号名全仓零外部引用(EMOTIONS/ACTIONS/POS_EMO/NEG_EMO 这四个**活**符号被 9 个模块 import, 但不在死集里); 该文件不在 core_files, 不在 LITERAL_PINS, 不在 criterion_cast 的 locus 钉 ⇒ 与 exp_v4_full_validation 的不对称确认。★ 要收窄的是前置条件(a): 名字 PILOT_CASES/STABILITY_CASE/STABILITY_N 全仓确无第二处定义, 但 STABILITY_CASE 的**取值** 'IT_life_kitchen' 在 config/need_taxonomy.json 与另两个 script 里都有 ⇒ 『唯一副本』只对名字成立。",
+   "我实际跑了什么": "t3_ast.py + 全仓 grep(死符号名 / PILOT_CASES / STABILITY_CASE / IT_life_kitchen) + core_manifest + cce_criterion_cast.py 的 LITERAL_PINS 与 CRITERIA locus 逐条比对"
+  },
+  {
+   "id": "v-blank-10",
+   "component": "同一块 —— 验收闸侧",
+   "被核方判决": "NO_CONSUMER / deletable=true",
+   "我的裁定": "CONFIRMED",
+   "理由": "源码文本层对该文件**一条钉都没有**: 不在 config/cce_core_manifest.json 的 core_files(6 个文件我逐个列过), 不在 cce_criterion_cast.LITERAL_PINS 的 6 个键里, CRITERIA 的 locus 也没指向它。与 v-blank-08 形成的不对称是本簇最可迁移的判据。",
+   "我实际跑了什么": "config/cce_core_manifest.json 全文 + cce_criterion_cast.py:320-362 全文"
+  }
+ ],
+ "汇总": {
+  "checked": 10,
+  "confirmed": 7,
+  "downgraded": 3,
+  "overturned": 0,
+  "★没能推翻的原因": "它的 10 条判决在**结论**层面都站得住; 我打掉的是其中三条的**证据链**(CE-3 面②③在本簇是 instrument_hash 的马甲)与一条 deletable 标志。"
+ }
+}

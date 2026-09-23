@@ -1,0 +1,15 @@
+{
+ "block": "GATE_PROMPT_VERSION_LABEL_IS_STALE",
+ "★zero_api": "现算 run_gates.DIST_TMPL 的字面 vs config/knot_taxonomy.json 的 version。",
+ "★fact": {
+  "闸 prompt 里对标注者说的": "九结分类学(**v1.1.1**)  ← 硬编在 DIST_TMPL 第一行",
+  "config 实际版本": "1.3.1",
+  "annotation_protocol.version": "1.3.1",
+  "gates_result 的 gate 字段": "「九结分类学 **v1.1.1** 验收 v5(v4+全结负例句)」 ← 同一个陈旧标签",
+  "生产 s2 prompt": "注入 `taxo['version']` ⇒ **是活的**, 现在会说 v1.3.1"
+ },
+ "★★why_it_matters": "★ 这不是纯装饰。闸的 prompt 是**部分同步、部分陈旧**的最坏组合: 决策树与负例**是从 config 现组装的**(2026-08-09 起), 1.3.1 的改动**已经进了** prompt; 而版本标签停在 1.1.1 ⇒ **标签在否认已经发生的同步**。⇒ 任何读 gates_result 的人会以为那次量的是 v1.1.1 的分类学, 实际量的是 v1.3.1 的内容配 v1.1.1 的标签。",
+ "★★★i_am_not_fixing_it": "★★ **不改。** 闸的 prompt 就是那台测量仪器 —— 改它一个字就换了刺激, 历史读数不可比。taxonomy 自己的 `_order_note` 已立下同一条规矩: 「改动会影响标注结果, **非经重新验收不得变更**」。为一个标签去作废全部历史读数, 是拿准确的记账换整齐的外观。⇒ **本轮只登记, 不修**。真要修, 走与 suspend 修法同一条路: 冻结预注册 + 重跑完整验收闸。",
+ "★what_this_also_shows": "闸的 prompt **没有**与 config 自动对版 —— 版本号是硬编的。这是一条**漂移通道**: config 改了、prompt 的内容跟着改了、而 prompt 自称的版本不会改。★ 与本仓已修过的「两份实现悄悄漂移」同族, 只是漂的是**标签**不是**内容**。",
+ "★gate": "tests/test_cce_gate_prompt_version_label.py 现算钉住这个差异; 一旦有人改了标签(或改了 config 版本), 闸会红并要求走验收流程。"
+}

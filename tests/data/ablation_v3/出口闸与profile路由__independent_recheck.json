@@ -1,0 +1,284 @@
+{
+ "block": "出口闸与profile路由 —— 独立复核(第二读者, 默认立场: 判决是错的)",
+ "decided_at": "2026-09-11",
+ "device": {
+  "what": "自建, 未复用前一 agent 脚手架。内存内源码字符串替换 + spec_from_file_location exec; L4 用 pytest 插件(-p ablinject)装 meta_path 加载器并覆写 get_code 从源码编译(绕开 .pyc)",
+  "workdir": "/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/exitgate_recheck_62919",
+  "corpus": {
+   "recipe": "os.walk 全仓找 *manifest.json 且含 stages 键, 配对同前缀 *s1_readout.json",
+   "n_rows": 75,
+   "n_with_cce": 70,
+   "corpus_sha256": "4abbabed7757b08697b120e881a23c3a7d5d8a2a1a5b34be9621570ebf73f720",
+   "vs_prior": "前一 agent 报出口闸 72 / 全链 70。全链 70 逐一对上; 出口闸我多 3 行(他未公布排除规则)。仪器分布完全一致: 565470cf26c16d01x18 · 0e9ca1d4e7a2f180x2 · 3170a226dec8726bx1 · 57ec6cf478d3875ex1"
+  },
+  "controls": {
+   "determinism": "同源两次加载逐字节相同(exit gate 与 full chain)",
+   "noop": "L1 0/75 · 0/70",
+   "decorative_false_positive_probe": "改 qualified docstring + cce_k1_status 模块 docstring ⇒ L1 0/75 · 0/70",
+   "liquidity": "改 rule 文案 ⇒ L1 75/75, L2 0/75(L1/L2 分辨率成立)",
+   "device_defect_caught_by_me": "第一版 L4 注入器被 .pyc 缓存吞掉, 七个臂全报 19 passed 0 red。靠 hit 日志发现, 不是靠红集。只看红集会把每个臂都'确认'成零净红。"
+  },
+  "tripwire": {
+   "installed_everywhere": true,
+   "tripped": [],
+   "scope": "本进程 socket.socket.connect 新建连接; 不覆盖 test 内部再 spawn 的孙进程"
+  }
+ },
+ "file_integrity": {
+  "sha_now": {
+   "scripts/cce_full_run.py": "5e41ede1fcde2745cb09803fa789979abcfc6db2c95ae2309adb50f2a79c966a",
+   "scripts/cce_k1_status.py": "5f0df2624754c865c49eee39b5e4e81b9883da4bfc93a81d3d82d51f58e6f117",
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "config/context_taxonomy.json": "c024e5557551f4bbda8428cfbbbd39f5d39b27ebf155b3870cabd2ce9ecfd558"
+  },
+  "unchanged_across_my_run": true,
+  "matches_prior_agent_sha_before_and_after": true
+ },
+ "reproduced_arms": {
+  "E1_within_js_trivial": {
+   "L1_eg": 0,
+   "L2_eg": 0,
+   "L1_fc": 70,
+   "L2_fc": 41,
+   "eg_exc": 0
+  },
+  "E1i_within_js_absurd": {
+   "L1_eg": 0,
+   "L2_eg": 0,
+   "L1_fc": 70,
+   "L2_fc": 70,
+   "eg_exc": 0
+  },
+  "E2_layer_of_top_empty": {
+   "L1_eg": 2,
+   "L2_eg": 2,
+   "L1_fc": 41,
+   "L2_fc": 41,
+   "eg_exc": 0
+  },
+  "E3_else_branch_revert": {
+   "L1_eg": 2,
+   "L2_eg": 2,
+   "L1_fc": 0,
+   "L2_fc": 0,
+   "eg_exc": 0
+  },
+  "E4_reason_str_removed": {
+   "L1_eg": 0,
+   "L2_eg": 0,
+   "L1_fc": 0,
+   "L2_fc": 0,
+   "eg_exc": 0
+  },
+  "E4i_reason_absurd": {
+   "L1_eg": 0,
+   "L2_eg": 0,
+   "L1_fc": 0,
+   "L2_fc": 0,
+   "eg_exc": 0
+  },
+  "E5_playbook_unconditional": {
+   "L1_eg": 29,
+   "L2_eg": 29,
+   "L1_fc": 59,
+   "L2_fc": 59,
+   "eg_exc": 0
+  },
+  "E6_intensity_cascade_pass": {
+   "ERROR": "SyntaxError: '(' was never closed (cce_full_run.py, line 486)"
+  },
+  "E7_w_ok_renamed": {
+   "L1_eg": 0,
+   "L2_eg": 0,
+   "L1_fc": 0,
+   "L2_fc": 0,
+   "eg_exc": 0
+  },
+  "E8_inst_hardcoded565": {
+   "L1_eg": 50,
+   "L2_eg": 48,
+   "L1_fc": 52,
+   "L2_fc": 50,
+   "eg_exc": 0
+  },
+  "E8i_inst_empty": {
+   "L1_eg": 22,
+   "L2_eg": 20,
+   "L1_fc": 22,
+   "L2_fc": 20,
+   "eg_exc": 0
+  },
+  "P3_withhold_off": {
+   "L1_eg": 2,
+   "L2_eg": 2,
+   "L1_fc": 0,
+   "L2_fc": 0,
+   "eg_exc": 0
+  },
+  "K3_allowlist_open": {
+   "L1_eg": 68,
+   "L2_eg": 0,
+   "L1_fc": 70,
+   "L2_fc": 0,
+   "eg_exc": 0
+  },
+  "K3i_allowlist_empty": {
+   "L1_eg": 0,
+   "L2_eg": 0,
+   "L1_fc": 0,
+   "L2_fc": 0,
+   "eg_exc": 0
+  },
+  "K4i_excluded_absurd": {
+   "L1_eg": 68,
+   "L2_eg": 0,
+   "L1_fc": 70,
+   "L2_fc": 0,
+   "eg_exc": 0
+  },
+  "K1d_del_k3_entry": {
+   "L1_eg": 66,
+   "L2_eg": 18,
+   "L1_fc": 68,
+   "L2_fc": 18,
+   "eg_exc": 0
+  },
+  "K2d_del_k5_entry": {
+   "L1_eg": 50,
+   "L2_eg": 2,
+   "L1_fc": 52,
+   "L2_fc": 2,
+   "eg_exc": 0
+  },
+  "K2m_k5_points_k3": {
+   "L1_eg": 2,
+   "L2_eg": 2,
+   "L1_fc": 2,
+   "L2_fc": 2,
+   "eg_exc": 0
+  },
+  "K5_inheritance_off": {
+   "L1_eg": 0,
+   "L2_eg": 0,
+   "L1_fc": 0,
+   "L2_fc": 0,
+   "eg_exc": 0
+  },
+  "K5i_inheritance_uncond": {
+   "L1_eg": 0,
+   "L2_eg": 0,
+   "L1_fc": 0,
+   "L2_fc": 0,
+   "eg_exc": 0
+  },
+  "K6_same_guard_off": {
+   "L1_eg": 0,
+   "L2_eg": 0,
+   "L1_fc": 0,
+   "L2_fc": 0,
+   "eg_exc": 0
+  },
+  "CRIT_rename": {
+   "L1_eg": 20,
+   "L2_eg": 20,
+   "L1_fc": 20,
+   "L2_fc": 20,
+   "eg_exc": 0
+  },
+  "MISS_hash_as_k3": {
+   "L1_eg": 46,
+   "L2_eg": 46,
+   "L1_fc": 48,
+   "L2_fc": 48,
+   "eg_exc": 0
+  },
+  "E6_cascade_pass": {
+   "L1_eg": 68,
+   "L2_eg": 68,
+   "L1_fc": 70,
+   "L2_fc": 70
+  },
+  "E6i_cascade_absurd": {
+   "L1_eg": 68,
+   "L2_eg": 0,
+   "L1_fc": 70,
+   "L2_fc": 0
+  },
+  "K5i_inherit_uncond_v2": {
+   "L1_eg": 2,
+   "L2_eg": 0,
+   "L1_fc": 2,
+   "L2_fc": 0
+  },
+  "K6i2_uncond_plus_guardoff": {
+   "L1_eg": 2,
+   "L2_eg": 2,
+   "L1_fc": 2,
+   "L2_fc": 2
+  }
+ },
+ "L4_in_process_only": {
+  "scan_set": "20 个静态 grep 命中 cce_full_run / cce_k1_status 的 tests/test_*.py",
+  "base": "19 passed 0 red",
+  "noop": "19 passed 0 red",
+  "net_new_reds": {
+   "K5_inheritance_off": [],
+   "CH_response_add_gate": [
+    "tests/test_cce_submission.py"
+   ],
+   "E1_within_js_trivial": [
+    "tests/test_cce_within_js_gate.py"
+   ],
+   "P1_k_const_3": [],
+   "P1i_k_const_5": [],
+   "E4i_reason_absurd": [],
+   "K3_allowlist_open": [
+    "tests/test_cce_chain_conformance.py",
+    "tests/test_cce_k1_k5_instrument.py",
+    "tests/test_cce_k1_readout_forms.py",
+    "tests/test_cce_reply_alignment_withheld.py",
+    "tests/test_cce_usable_routing.py"
+   ],
+   "E7_w_ok_renamed": [],
+   "none": [],
+   "K4i_excluded_absurd": [
+    "tests/test_cce_k1_readout_forms.py",
+    "tests/test_cce_usable_routing.py"
+   ],
+   "CH_reply_drop_gate": [
+    "tests/test_cce_measurement_system.py",
+    "tests/test_cce_submission.py"
+   ],
+   "noop": [],
+   "K6_same_guard_off": [],
+   "E2_layer_of_top_empty": [
+    "tests/test_cce_withholding_and_labels.py::test_empty_tops_records_four_withholdings_not_zero",
+    "tests/test_cce_withholding_and_labels.py::test_empty_tops_with_no_reason_still_records_something_checkable",
+    "tests/test_cce_within_js_gate.py"
+   ]
+  },
+  "coverage_gap": "我只注入 pytest 主进程的 import。test_cce_chain_conformance.py 的 cc.check() 会 subprocess.run(shell=True) 起孙进程跑真实仓内文件 —— 我够不着, 前一 agent 的 sitecustomize 方案够得着。凡差 1 条且差的是 chain_conformance, 按覆盖面差异读, 不按错误读。"
+ },
+ "tautology_probe_on_this_clusters_own_surfaces": {
+  "what": "死常量 _S1_BASE_TEMPS[5:7](实测 0.45/0.75, k<=5 永不取用)换成 0.11/0.22, 重算本簇 profile 路由矩阵",
+  "result": "四个 profile 全变; reply/response/media_ingest 的结层 top1 True->False(d4cce4c745f3f991 -> b582c3ec 未登记), outbound_post c4419c3e -> 3cdf853f",
+  "meaning": "路由矩阵是 instrument_hash 的函数, 对死常量也会翻 L2 —— M2 的重言形状, 只隔了一跳。前一 agent 的阳性对照跑在 s1 重放装置上, 从未在本簇自己的面上跑死常量对照。",
+  "scope_of_damage": "落到未登记哈希的翻转无信息(任何扰动都会脱籍); 落到已登记哈希的才有信息。P1(k恒3 -> outbound_post 落到已登记 d4cce4c745f3f991 -> top1 放行)有信息; P1i(k恒5 -> 落到未登记)与死常量同形, 该半边证据作废。"
+ },
+ "additional_findings": [
+  "live 仪器不是 profile 的函数, 是 k_valid 的函数: pairing = f'round_robin_over_{len(s1_draws)}_s1_draws'。实算 k=2 -> 4d4d373ed52a42e9(未登记, 无 SCOPE_WIDENINGS 边) ⇒ 任何一次 draw 掉线的 reply 运行会静默脱籍, 结层 top-1 全面扣发。按 profile 列的路由矩阵看不见这条活路径。",
+  "scripts/cce_align_v2.py:145 把默认仪器硬编成 565470cf26c16d01(口径扩大前的 gen4 哈希), 而 live 是 d4cce4c745f3f991。本簇判 _inst 为「标定不可跨仪器搬的唯一落点」时, 这个被引为 L2 证据的消费者正在做它禁止的事。今天不改判(weight 恒不在白名单, 走不到仪器比对), 但是第四处仪器身份漂移。",
+  "media_ingest 出口闸除 4 条 s1.tops.* 外还记 s2.playbook_primary='未产出', 而 media_ingest 链同样无 s2 段 ⇒ 同一个「没测被记成测了但扣发」缺陷实为 5 条, 前一 agent 只点了 4 条。",
+  "config/cce_submission_contract_v1.json 的 profiles 里没有 response 这一档(只有 outbound_post / outbound_reply / subject_chain / media_ingest)。把 response 钉成「无闸」的是 tests/test_cce_submission.py:39 的写死字面量, 不是契约。前一 agent 的机制陈述有误。",
+  "前一 agent 在 build_ctx 条目的 evidence 里称 load_ctx / save_ctx / load_manifest / _ctx_path 也是仓内零调用方 —— 错。load_ctx 在 :610 · save_ctx 在 :604 · load_manifest 在 :592 · _ctx_path 在 :573/:578 都有调用方, 只是那些调用方自己没人调。"
+ ],
+ "live_routing_recomputed": {
+  "k=3": "round_robin_over_3_s1_draws -> d4cce4c745f3f991 -> k1_reliability_verdict.json(经唯一一条 SCOPE_WIDENINGS 边继承, verify()=True) -> top1 usable, intensity withheld",
+  "k=5": "round_robin_over_5_s1_draws -> c4419c3e53aa2fa9 -> verdict_path_for=None -> 两层全扣发",
+  "SCOPE_WIDENINGS": "仅 ('s1_prompt_sha256','eadcdcdac46a5180','61fe230f5c588c1f'): 565470cf26c16d01 -> d4cce4c745f3f991; 无 k=5 边",
+  "verdict": "前一 agent 的头号发现「live k=5 仪器未登记 ⇒ outbound_post 结层零可用读数」独立复算完全成立"
+ }
+}

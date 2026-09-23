@@ -1,0 +1,3740 @@
+{
+ "block": "parser_plane",
+ "unit": "parser_cce_case_assemble",
+ "file": "/Volumes/data/cce-engine/scripts/cce_case_assemble.py",
+ "n_lines": 144,
+ "decided_at": "2026-09-12T20:00:02",
+ "scope": "parser_plane 四件中最大的一件, 前两轮零判决。本轮穷举 33 个候选消融点 (源码锚点逐个断言恰好命中一次) + 1 空操作臂 + 1 兄弟件臂 + 3 组合/修正臂 = 38 臂, 每臂过 L1 / L2 / M6 注入探针 / L4 全量 164 测试。",
+ "★parser_plane_claim": {
+  "claim_under_test": "config/cce_core_manifest.json · parser_plane_note: \"Parser/Ingest 层可自由增删改, 不影响本闸; 新增模态只许落在这一层。\"",
+  "note_holds": false,
+  "why": "拆成两半分别回答, 因为它两半的真假不同。\n【前半「不影响本闸」—— 若「本闸」= scripts/cce_core_boundary.py 的 core_files 哈希钉, 则**为真**】实证: cce_core_boundary.check() 只对 manifest['core_files'] 的 6 个文件现算 sha256(:39-50), 对 parser_plane 只做一次 `overlap = set(pinned) & set(parser_plane)` 的互斥检查(:143-147) —— 本件的字节**不在任何哈希钉里**, 改它 core_boundary 不会红。这一半我没找到反例。\n【后半「可自由增删改」—— **为假**, 四类反例, 全部本轮实测】\n反例① 与内容无关的纯行数: 删掉本文件第 23-26 行 **4 行纯注释**(语义 L1 0/16 · L2 0/16), tests/test_cce_ablation_verdicts_v3.py::check_coverage 立刻翻红 —— `★coverage.scope_lines 与现算不符: 档案 36937 vs 现算 36933 | 漂移的文件: {'scripts/cce_case_assemble.py': (144, 140)}`。本件的**行数 144** 被消融台账当覆盖率分母钉死了。⇒ 连「改注释」都不自由。\n反例② 删 MODEL_FORBIDDEN_KEYS 里的两个 legacy sentinel(`segment_id`/`individual_id`) ⇒ P1 本体迁移闸 scripts/check_ontology_migration.py 报 `stale_registry_entry: scripts/cce_case_assemble.py segment_id` ⇒ **P1_FAIL**, 连带 tests/test_ontology_migration.py 与 tests/test_cce_chain_conformance.py 一起红。config/ontology_legacy_exceptions_v1.json 里有两条 entry **按文件名+token 精确登记**在本件上。\n反例③ 删 canonical v2 三名(`mode_id`/`population_field_id`/`evidence_unit_id`) ⇒ tests/test_ontology_migration.py:81-82 反向4 翻红。\n反例④ 不翻闸但改语义(最危险的一类): 删最终 fail-closed 检查(:119-121) 或 _forbidden_model_keys 的任一条递归 ⇒ 10/10 身份泄漏探针从 REJECTED 变 ADMITTED, `subject_ref`/`segment_id`/`population_id` 等**真的进入** cce.measurement_input.v1(由一个**不读 MODEL_FORBIDDEN_KEYS 的独立判官**实证)。config/cce_foundation_contract_v2.json:10/61 与 config/cce_subject_window_contract_v1.json:49 把这条写成硬闸, 而这 5 行代码是它**唯一的执行体** —— 契约文件本身不执行。\n【结论】那句话在「本闸 = core_boundary 哈希钉」的窄义下成立; 作为一句「这一层可以随便动」的一般指引**不成立**, 而它的措辞会被读成后者。★ 建议改写成: 「本层不进 core_files 哈希钉; 但它承载 P1 本体闸的 denylist sentinel 与 CCE 匿名投影的硬闸执行体, 改动前必须过 test_cce_contract / test_ontology_migration / check_ontology_migration 三道。」",
+  "affects_collected_draws": "**否 —— 本件改动不会让任何已采集的原始 draw 不可用。**实证三条: ① import 图实扫: scripts/cce_knot_classify.py 的顶层 import 只有 cce_structural_gate / exp_v4_full_validation / exp_v4_causal_chain / exp_crossmodel_desire —— **没有** cce_case_assemble / cce_event_assemble / cce_foundation_prepare; ② 本件的产物 kind `cce.measurement_input.v1` 全仓(含 docs/)只有 5 处词碰撞: 1 处定义(本件)、1 处测试断言、2 处契约/文档声明, **零读者**; ③ archive/*/*.json 的 stage2.draw_ledger 由 cce_knot_classify 直接产出, 与本件无数据通路。⇒ 按 manifest 自己给 Core 的判据(「改了它已采集的原始 draw 就不能用」), 本件**确实不是 Core**, 分层没分错。★ 注意这与「parser_plane 可自由增删改」是两件事: 前者只说它不是 Core, 不蕴含后者。",
+  "counterexamples": [
+   "D1_comment_block: 删 4 行纯注释 ⇒ test_cce_ablation_verdicts_v3.py 红(行数 144 是覆盖率分母)。L1/L2 皆 0/16。",
+   "A1_legacy_sentinels: 删 2 个 legacy sentinel ⇒ check_ontology_migration P1_FAIL(stale_registry_entry) + test_ontology_migration + test_cce_chain_conformance 红; 同时 3/3 旧名泄漏探针放行。",
+   "A2_canonical_v2_trio: 删 3 个 v2 尺度名 ⇒ test_ontology_migration 反向4 红(P1 闸自身仍绿 —— 它只管旧名) + chain_conformance 红; 3/3 新名泄漏探针放行。",
+   "F7_drop_final_forbidden_check / B1 / B2 / A3 / A4 / A5 / B3: 身份键真进 cce.measurement_input.v1, 由独立判官(名单取自 config, 不取自本模块)实证; test_cce_contract.py:62-67 反向断言翻红。",
+   "F5+F7 组合臂: subject_ref / profile_version / population_id 三个键**落进 baseline_state** —— 单删任一仍 fail-closed, 同时删才失守 ⇒ 白名单是纵深防御第二层, 不是装饰。",
+   "G1+G2b 组合臂: 非法 measurement_mode 被**写进磁盘产物**(written=True, persisted_contract_ok=False)。",
+   "E6_drop_mode_arg_coherence: 删掉后调用方传的 pre_state_snapshot_ref 被**静默丢弃**且 contract 仍 ok —— 这是本件唯一一条**没有任何下游能兜住**的闸。"
+  ],
+  "how_strong_is_the_M8_bias_here": "★★ 极强, 必须先说清楚再读任何判决。本件的**生产执行路径在本仓快照里流量为零**: 唯一生产调用方 scripts/cce_foundation_prepare.py 的 main() 在全仓 —— 含 .github/ 全部 16 个 workflow、全部 164 个 tests/test_*.py、全部 probes/ —— **零调用点**(只有 tests/test_cce_contract.py:15 从它 import 了 fingerprint 这个 4 行工具函数)。本件自己的 main() 同样零调用点。⇒ 「本件在生产判决面(knot top1 / align ★usable / run_gates PASS)上零承重」这句话在本工况成立, 但它成立的原因**不是这些符号不承重**, 而是**这条路整条没通车**。parser/ingest 层恰恰是 M8 说的那种「平时永远不动的保险丝」: 它守的是「身份不得进 CCE 模型输入」, 而当前没有任何 CCE adapter 在真的消费这个投影。⇒ 本轮所有 LOAD_BEARING_L2 判决, 承重的是**本件自己的准入判决面 + 三道验收闸**, **不是**生产读数面。这一点在每条 faces_blind 里都写了。"
+ },
+ "★instrument_defects_found_this_round": [
+  {
+   "severity": "★★★",
+   "where": "probes/ablation_harness_v3.py :283-286 operating_point()",
+   "defect": "`market` 那句「N/A —— 仓内无 market 字段(已实扫 scripts/ config/ accuracy/)」**是假的**。",
+   "my_independent_scan": "全仓 .py/.json 实扫命中 `market` 共 118 行: scripts/cce_outbound_guard.py 22 · scripts/cce_strategy_gate.py 3(含 `market=os.environ.get(\"CCE_MARKET\", \"intl\")` @:140, 以及 `def gate(path, profile=..., market=\"intl\")` @:100 · `scan_draft(text, market=market, ...)` @:113) · probes/operating_point_adjudication.py 20 · config/outbound_guard_registry_v1.json 2 · config/platform_adapter_registry_v1.json 1 · scripts/cce_open_items.py 1 · accuracy/data/*.json 9。`cce_outbound_guard.scan_draft/is_clean/summarize` 三个函数都**按 market 分支**(广告法层仅 cn/both 生效, :309)。",
+   "impact": "该字段真实存在且由环境变量驱动 ⇒ 任何写「仓内无 market」的产物在这一项上是假工况。★ 对本件的条件作用: 无 —— scripts/cce_case_assemble.py · cce_event_assemble.py · cce_foundation_prepare.py 三个文件里 `market` 命中 0 次(实扫), 本件的判决不按市场分层。"
+  },
+  {
+   "severity": "★★",
+   "where": "probes/ablation_harness_v3.py :116-165 load()",
+   "defect": "已知缺陷复现: load() 不 patch `builtins.open`, 也不 patch 文件读取 ⇒ 任何**从磁盘再读一份源码文本**的闸结构上看不见内存注入(N1 / M3-③)。",
+   "impact": "本件的同族实例有 4 个: tests/test_cce_ablation_verdicts_v3.py(nlines 读行数) · scripts/check_ontology_migration.py(os.walk 读全仓 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。⇒ 本轮 L4 **整体改到磁盘副本上跑**, 才没有低报。"
+  },
+  {
+   "severity": "★★★",
+   "where": "我自己的装置(新踩的坑, 记下来给下一个 agent)",
+   "defect": "把自定义 `sitecustomize.py` 放进 PYTHONPATH 会**遮蔽** homebrew python 自带的 sitecustomize, 而后者正是挂 site-packages 的那一个 ⇒ requests/numpy 等全仓依赖**假失踪**。",
+   "symptom": "第一次副本基线 **60/164 红**, 全部是 ModuleNotFoundError, 看起来像「副本坏了」。",
+   "fix": "自定义 sitecustomize 开头先把被遮蔽的那份 exec 掉(遍历 sys.path 找同名文件, 跳过自己)。修后基线 163 绿/1 红。"
+  },
+  {
+   "severity": "★★",
+   "where": "我自己的臂设计(N4)",
+   "defect": "原 G2 臂只删了 `verdict = validate_case(out)` 这三行, 却留着下方 `verdict[\"warnings\"]` 的引用 ⇒ 跑出 `NameError: name 'verdict' is not defined`。**那不是消融, 是语法事故**, 读者会把它误读成「这行很承重」。",
+   "fix": "重做成 G2b(把赋值换成一个占位 dict), 两臂都留在 arms_raw 里对照。"
+  },
+  {
+   "severity": "★",
+   "where": "副本实验(M3-⑤)",
+   "defect": "rsync 排除 .git 会让 tests/test_cce_k1_cost_curve.py(git cat-file 查冻结 commit)与 tests/test_cce_open_items.py(查退役提交)**假红**。",
+   "fix": "把 .git 一并复制(29M)。补齐后基线 163 绿。"
+  }
+ ],
+ "★gate_gaps_found_this_round": [
+  {
+   "gap": "★ `_forbidden_model_keys` 的 **list 递归分支**(:41-42) 无任何验收闸守护",
+   "evidence": "B1 臂: L1 2/16 · L2 2/16(两条泄漏探针从 REJECTED 变 ADMITTED, 独立判官抓到 `segment_id`/`subject_id` 进入 payload), 但 L4 净新增里**只有行数闸**, tests/test_cce_contract.py **不红**。",
+   "why": "test_cce_contract.py:60-67 的反向探针把 `subject_ref` 放在 `context_snapshots[0]` —— 一个 **dict** 里。事件流天然是 **list**, 而没有任何断言把身份键放进 list 元素。⇒ 删掉 list 递归, 闸全绿, 身份从数组里漏出去。",
+   "suggested_fix": "在 test_cce_contract.py 加一条: 把 subject_ref 塞进 `events[0]` 的某个 list 元素, 断言 build_model_input 抛。"
+  },
+  {
+   "gap": "★ MODEL_FORBIDDEN_KEYS 的 `subject_card` / `subject_cards` / `population_id` 三键无验收闸",
+   "evidence": "A4 臂: 删这行后 `population_id` 泄漏探针放行(L2 1/16 变), L4 净新增**只有行数闸**。test_ontology_migration.py 的反向4 只点名 5 个键(2 个 legacy sentinel + 3 个 canonical v2), 漏了这 3 个。",
+   "suggested_fix": "把反向4 的名单补成整张 MODEL_FORBIDDEN_KEYS, 或改成「名单只许增不许减」的快照断言。"
+  },
+  {
+   "gap": "★ `request_id()` 的身份构成(五条分臂 C1-C5)一条都没有闸",
+   "evidence": "C1/C2/C3/C4/C5 五臂 L4 净新增**全部为 0**(连行数闸都不红, 因为它们保行数)。其中 C2 实测造出真实碰撞: 同一 case 上两条 pre_state 不同的 transition 请求得到**同一个 request_id**。",
+   "why": "tests/test_cce_contract.py:79 那条 `transition_request['id'] != request['id']` 用的是**两个不同的 case**(content_id 就不同), 所以无论 identity 里放什么它都成立 —— 这条断言抓不到碰撞。",
+   "suggested_fix": "改成同一个 case 上 stimulus vs transition、以及两个不同 pre_state 的 transition 两两不等。"
+  },
+  {
+   "gap": "★ `main()` 的两道 fail-closed 是**成对**的, 而没有闸测它们的组合",
+   "evidence": "G1 单删 / G2b 单删 L4 净新增都只有行数闸; 但 COMBO_G1_plus_G2b 实测把一个 `measurement_mode=\"NOT_A_MODE\"` 的非法请求**写进磁盘产物**(written=True, persisted_contract_ok=False), 而 L4 净新增**仍然只有行数闸**。",
+   "suggested_fix": "加一条端到端断言: 跑 cce_case_assemble.main() 产出的文件必须过 validate_case。"
+  },
+  {
+   "gap": "`measurement_adapter` 的取值全仓无白名单无断言",
+   "evidence": "G3 臂把 CLI 默认 adapter 改成 `ABLATED@v0` ⇒ 写进产物且 **contract 仍 ok**; cce_contract.py:213 只 _require 该字段存在。L4 净新增 0。",
+   "suggested_fix": "给 measurement_adapter 建一张注册表(仓里已有 config/platform_adapter_registry_v1.json 这个先例)。"
+  },
+  {
+   "gap": "`baseline_state` 的字段构成有契约声明, 无可执行闸",
+   "evidence": "F6 臂把 `evidence_refs` 从白名单里删掉 ⇒ baseline_state 少一个键、L1 变、contract 仍 ok、**L4 净新增 0**。而 config/cce_foundation_contract_v2.json:61 明写它必须含「证据」字段。",
+   "suggested_fix": "在 test_cce_contract.py 里断言 baseline_state 的键集合恰好等于那六个。"
+  },
+  {
+   "gap": "★★ 反向: tests/test_cce_ablation_verdicts_v3.py 对本件的保护是**按行数**的",
+   "evidence": "它对**任何保行数的语义改写**(D2/D3/V1/F4/E4/C1-C5/F6/G3 …)完全无感, 却对**删 4 行纯注释**立刻翻红。这是本轮 L4 里出现频率最高的一条红, 而它与行为无关。",
+   "why": "check_coverage 把 scope_lines 与 per_file_lines 当成消融覆盖率的分母现算比对, 本件被钉在 144 行。它是消融台账的自洽闸, 不是本件的行为闸 —— 但在 L4 读数里它会**淹没**真正的信号。",
+   "suggested_fix": "读 L4 时把它单列(本产物已在每条 L4 里分出 source_text_only 一栏)。"
+  }
+ ],
+ "N1_modules_that_reread_source_from_disk": {
+  "note": "这些面**结构上看不见内存内注入**; 本轮 L4 因此整体改到磁盘副本上跑。",
+  "modules": [
+   "tests/test_cce_ablation_verdicts_v3.py:52 nlines() —— 读本文件**行数**当覆盖率分母(钉死 144)",
+   "scripts/check_ontology_migration.py:82 scan_file() —— os.walk 全仓读 .py/.json/.md/.yml 文本",
+   "scripts/consistency_check.py:25-27 —— glob scripts/*.py + accuracy/*.py 读**全文**拼成 ALL",
+   "tests/test_cce_no_real_identities.py —— 同族整目录源码文本扫描",
+   "scripts/cce_archive.py —— 读 scripts/ 源码(归档用)",
+   "tests/test_ontology_migration.py:27 gate() —— subprocess.run([sys.executable, CHECKER]), 子进程从磁盘重新 import, 内存注入不传递",
+   "另 13 个 tests/ 文件用 subprocess.run([sys.executable, ...]) 起子进程(同族机制)"
+  ],
+  "what_this_means_for_this_unit": "本件被消融的是**它自己的 Python 源码文本**。上面 6 类消费者读的是磁盘上的字节/行数, 而不是我 exec 出来的模块对象 ⇒ 纯内存消融会把它们全部漏掉, L4 被低报。★ 实证: A1 臂在磁盘上跑时第一条翻红的是 check_ontology_migration(子进程), 而不是内存可见的 test_ontology_migration 反向4(:79)。"
+ },
+ "positive_control": {
+  "harness_s1_face": {
+   "passed": true,
+   "gates": {
+    "dead_swap_not_load_bearing": true,
+    "dead_absurd_injection_still_no_diff": true,
+    "liquid_L1_changed": true,
+    "liquid_changed_broadly": true,
+    "noop_no_diff": true,
+    "determinism": true,
+    "tags_indexed": true,
+    "tripwire_never_tripped": true,
+    "repo_files_untouched": true,
+    "L3_is_tautology_confirmed": true,
+    "dead_constant_is_UNREACHABLE_not_NO_CONSUMER": true
+   },
+   "note": "M1 规定的 s1 面阳性对照(死常量 _S1_BASE_TEMPS[5:7] / 液性 _S1_BASE_TEMPS[0] / 空操作 / 确定性), 11/11 全过。★ 但按 M1-★, 它**证明不了 parser 面接上了** —— 见下面 own_face。"
+  },
+  "★own_face_controls": {
+   "why": "本轮消融落在 parser/ingest 面, s1 面的死/活对照对这一面零证据力(M1-★)。故另做一对。",
+   "dead": {
+    "D2_docstring": {
+     "L1": "0/16",
+     "L2": "0/16",
+     "L4_net_new": [],
+     "verdict": "无差异 ✓ (肯定不承重的东西被判无差异 ⇒ 判据不是重言)"
+    },
+    "D3_inner_docstring": {
+     "L1": "0/16",
+     "L2": "0/16",
+     "L4_net_new": [],
+     "verdict": "无差异 ✓"
+    },
+    "★D1_comment_block(不合格的死对照, 如实报)": {
+     "L1": "0/16",
+     "L2": "0/16",
+     "L4_net_new": [
+      "test_cce_ablation_verdicts_v3.py"
+     ],
+     "verdict": "语义面无差异, **L4 却翻红** —— 因为它改了行数, 而行数被覆盖率闸钉死。⇒ 我原本挑它当死对照是错的, 已改用 D2/D3(保行数的改写)。这条本身成了一个反例(见 parser_plane_claim)。"
+    }
+   },
+   "live": {
+    "V1_kind_const": {
+     "L1": "2/16",
+     "L2": "0/16",
+     "L4_net_new": [
+      "test_cce_contract.py"
+     ],
+     "verdict": "L1 有差异 + L4 翻红 ✓ (该文件真被读的输出字段被判有差异 ⇒ 装置在这一面接上了)"
+    }
+   },
+   "both_ran": true
+  },
+  "null_arm": {
+   "L1": "0/15",
+   "L2": "0/16",
+   "L4_net_new": [],
+   "note": "行尾加注释(**保行数**), 全面无差异 ⇒ 净新增口径的零点"
+  },
+  "sibling_arm": {
+   "arm": "S1_sibling_event_assemble",
+   "L1": "12/15",
+   "L2": "0/16",
+   "L4_net_new": [],
+   "note": "只改兄弟件 cce_event_assemble.ASSEMBLER_VERSION, 本件源码一字不动。L1 12/15 变 · L2 0/16 变 · L4 净新增 0 ⇒ 兄弟件效应**只落 L1**, 与本件的 L2/L4 效应签名不同, 两者可分开归因。"
+  },
+  "determinism_ok": true,
+  "determinism_evidence": "同一模块连续两次 load+observe, L1/L2 全面逐字节相同(0/15 · 0/16)。",
+  "pycache_cleared": true,
+  "pycache_evidence": "每臂跑前 shutil.rmtree 清掉副本内全部 __pycache__, 且 python3 -B + PYTHONDONTWRITEBYTECODE=1 (M3-④)。",
+  "copy_baseline_green": true,
+  "copy_baseline_evidence": "副本基线 164 个测试 163 绿 / 1 红; 唯一的红是 tests/test_cce_audio_prosody.py (需要真实网络做 ASR, 零 API 约束下必红), 它在基线/空操作臂/全部 38 臂里恒红 ⇒ 净新增口径已扣除。★ 第一次副本基线 60 红与 3 红两次都是装置缺陷(见 instrument_defects 第 3、5 条), 已修后才开跑。",
+  "dead_constant_verdict": "UNREACHABLE(沿用 harness 阳性对照: k=7 时第 6/7 档被取用 ⇒ 不是 NO_CONSUMER)",
+  "liquidity_arm_changed_L1": true
+ },
+ "operating_point": {
+  "corpus": "examples/cce_foundation_case_v1.json (sha16 c7dcb6c45b33b115) + 一份合成 video-parse artifact, 经 scripts/cce_foundation_adapter.adapt() 生成; 面板 15 例 + 9 条 M6 注入探针 + 4 条 inject2 探针",
+  "corpus_sha": "panel_canonical_sha256_16 = 18c936441c464cd9",
+  "k_distribution": "N/A —— 本件不在 s1/s2 抽样链上, 无 k。(harness 阳性对照那一路的工况是 k={3:20,5:2}, 语料 sha 8226cd11…)",
+  "market": "★ 实测**存在**, 与 harness 的 operating_point() 自述相反。全仓 .py/.json 命中 118 行: cce_outbound_guard.py 22 · cce_strategy_gate.py 3(含 CCE_MARKET 环境变量, 默认 'intl') · operating_point_adjudication.py 20 · 若干 config/ 与 accuracy/data/。★ 对本件**无条件作用**: cce_case_assemble / cce_event_assemble / cce_foundation_prepare 三文件里 market 命中 0。",
+  "profile": "cce_foundation_adapter.adapt() 的 video-parse profile; measurement_adapter='event_packet@v1'/'@v2'",
+  "n_replayed": 15,
+  "python": "3.14.6",
+  "decided_at": "2026-09-12T20:00:02",
+  "drift_rule": "examples/cce_foundation_case_v1.json · scripts/cce_contract.py · scripts/cce_foundation_adapter.py 任一改变 ⇒ 本批判决当场失效, 必须重跑。"
+ },
+ "zero_api": {
+  "in_process_L1_L2": "probes/ablation_harness_v3.load() 的 Tripwire 在每次加载期装上, 退出前断言 tripped==[]; 38 次加载全部通过, 无一次触发。",
+  "subprocess_L4": {
+   "mechanism": "自写 sitecustomize 在每个子进程里把 socket.connect / connect_ex / create_connection 三个入口换成**抛 AssertionError** 的守卫, 并把每次尝试写进 tripwire.log。",
+   "attempts_recorded": 215,
+   "all_refused": true,
+   "targets": "100/100 全部指向 ('127.0.0.1', 7897) —— 本机 HTTP 代理(环境变量 HTTP_PROXY/HTTPS_PROXY)。另有 20 行是同一次尝试的 socket 对象记录(laddr 0.0.0.0:0)。**零条非环回目标**。",
+   "source": "全部来自 tests/test_cce_audio_prosody.py(ASR 测试), 它在基线也红, 与本件无关。",
+   "★honest_note": "R1 要求断言 tripped==[]。进程内那一路做到了; L4 子进程这一路**绊线确实被触发了 100 次**, 但每一次都是**被拒绝**(抛异常, 连接从未建立), 零字节出机器, 零 API 调用。如实记录而不是隐去。"
+  },
+  "real_key_never_exported": "只设过假值 'ABLATION_FAKE_KEY_NOT_REAL' / 'OFFLINE-FAKE-KEY-NOT-A-SECRET'。"
+ },
+ "file_integrity": {
+  "t0_recorded_at_task_start": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "scripts/cce_case_assemble.py": "b6972a972ff703b2cf536e566ea51260b416022c2371ef9356332d6d38840dd3",
+   "scripts/cce_event_assemble.py": "dfd53cb628ad5dbe3b3aee720ab2172a2d56d66705a16fe4641fc488ac69e70a"
+  },
+  "before": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "scripts/cce_case_assemble.py": "b6972a972ff703b2cf536e566ea51260b416022c2371ef9356332d6d38840dd3",
+   "scripts/cce_event_assemble.py": "dfd53cb628ad5dbe3b3aee720ab2172a2d56d66705a16fe4641fc488ac69e70a",
+   "scripts/cce_contract.py": "81149cf509a6473a78696dc9bd981cd2ad4ce003e5974adc74e7c75242638128",
+   "scripts/cce_foundation_prepare.py": "ad313d157d2ab94ff846a217f7dffeffc83b295c6a50177f0dad9259d6e4c9b5",
+   "scripts/cce_foundation_adapter.py": "0184cdf20688b4bfcf6bbba6a7f864c0ee95d1d576bab691beee8c0cdf32a7b3",
+   "config/ontology_legacy_exceptions_v1.json": "fbcbb901bcfd738a39b71ca7cb02c40e755291ac6cd1b15a776d4a24160c485d",
+   "config/cce_foundation_contract_v2.json": "fedb42ed4c8a8663e46d67b72c44d4a07baf278cc3d623518d55667290b30f5b",
+   "tests/test_cce_contract.py": "3f0f20c5442a9b5667b485d075ce391e8d1151c5045fe62e8e35de7f84ac1b4e",
+   "tests/test_ontology_migration.py": "7af477f21b9b40b3e9e62d395c7828fe0ed70ef24b2eddac5923fd67895bcb58",
+   "tests/data/ablation_verdicts_v3.json": "f8055f784e8ed8436b76e1feef53449956bc530162747c2f03d04a552ee25d44",
+   "examples/cce_foundation_case_v1.json": "c7dcb6c45b33b115435af786fb706c7e12459b50e8387c1928bfc1f015620c9f",
+   "probes/ablation_harness_v3.py": "db00b095cf408a0018c537c0a719159b081f0427b32fc7018b3cf991d487e871"
+  },
+  "after": {
+   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "config/cce_foundation_contract_v2.json": "fedb42ed4c8a8663e46d67b72c44d4a07baf278cc3d623518d55667290b30f5b",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "config/ontology_legacy_exceptions_v1.json": "fbcbb901bcfd738a39b71ca7cb02c40e755291ac6cd1b15a776d4a24160c485d",
+   "examples/cce_foundation_case_v1.json": "c7dcb6c45b33b115435af786fb706c7e12459b50e8387c1928bfc1f015620c9f",
+   "probes/ablation_harness_v3.py": "db00b095cf408a0018c537c0a719159b081f0427b32fc7018b3cf991d487e871",
+   "scripts/cce_case_assemble.py": "b6972a972ff703b2cf536e566ea51260b416022c2371ef9356332d6d38840dd3",
+   "scripts/cce_contract.py": "81149cf509a6473a78696dc9bd981cd2ad4ce003e5974adc74e7c75242638128",
+   "scripts/cce_event_assemble.py": "dfd53cb628ad5dbe3b3aee720ab2172a2d56d66705a16fe4641fc488ac69e70a",
+   "scripts/cce_foundation_adapter.py": "0184cdf20688b4bfcf6bbba6a7f864c0ee95d1d576bab691beee8c0cdf32a7b3",
+   "scripts/cce_foundation_prepare.py": "ad313d157d2ab94ff846a217f7dffeffc83b295c6a50177f0dad9259d6e4c9b5",
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "tests/data/ablation_verdicts_v3.json": "f8055f784e8ed8436b76e1feef53449956bc530162747c2f03d04a552ee25d44",
+   "tests/test_cce_contract.py": "3f0f20c5442a9b5667b485d075ce391e8d1151c5045fe62e8e35de7f84ac1b4e",
+   "tests/test_ontology_migration.py": "7af477f21b9b40b3e9e62d395c7828fe0ed70ef24b2eddac5923fd67895bcb58"
+  },
+  "changed": [],
+  "unchanged": true,
+  "n_files_compared": 16,
+  "frozen_four_expected_prefix": {
+   "scripts/cce_knot_classify.py": "f2cef2f99c949a75",
+   "config/knot_taxonomy.json": "56a1c1977bf8d18c",
+   "config/cce_core_manifest.json": "9d9e122966b753f8",
+   "accuracy/run_gates.py": "b758e6676a94acf3"
+  },
+  "frozen_four_match": {
+   "scripts/cce_knot_classify.py": true,
+   "config/knot_taxonomy.json": true,
+   "config/cce_core_manifest.json": true,
+   "accuracy/run_gates.py": true
+  },
+  "ablation_verdicts_v3_json_untouched": true,
+  "★how": "仓内一字未改: L1/L2 走 harness 的**内存内 exec**; L4 走 scratchpad 里的**整仓副本**(含 .git)。"
+ },
+ "verdicts": [
+  {
+   "component": "MODEL_FORBIDDEN_KEYS —— legacy denylist sentinel (`segment_id`, `individual_id`)",
+   "locus": "scripts/cce_case_assemble.py:32-33",
+   "symbol": "segment_id / individual_id",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "A1_legacy_sentinels=3/16",
+   "L2_changed": "A1_legacy_sentinels=3/16",
+   "L4_measured": "{\"A1_legacy_sentinels\": [\"test_cce_ablation_verdicts_v3.py\", \"test_cce_chain_conformance.py\", \"test_ontology_migration.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"A1_legacy_sentinels\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\", \"test_cce_chain_conformance.py [subprocess 跑 check_ontology_migration, 读磁盘源码文本]\", \"test_ontology_migration.py [subprocess 跑 check_ontology_migration, 读磁盘源码文本]\"]}",
+   "injection_test": "{\"A1_legacy_sentinels\": []}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "删掉这两行后: ① 带旧名 `segment_id`/`individual_id` 的 case 从 REJECTED 变 ADMITTED, 身份键真进 `cce.measurement_input.v1`(独立判官实证, 不是用它自己的名单判的) ② P1 本体闸 `check_ontology_migration` 立刻报 `stale_registry_entry: scripts/cce_case_assemble.py segment_id/individual_id` ⇒ P1_FAIL ③ `tests/test_ontology_migration.py` 反向4 与 `tests/test_cce_chain_conformance.py` 连带红。 文件里那句「删旧名不等于旧攻击面消失」经本轮实测**为真**。",
+   "unreachable_condition": "",
+   "evidence": "★ 这是本件最硬的一条: parser_plane 的一行常量同时钉住了一道跨文件的验收闸。",
+   "arms": [
+    "A1_legacy_sentinels"
+   ],
+   "ref_count_coarse": 7,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "MODEL_FORBIDDEN_KEYS —— canonical v2 尺度名 (`mode_id`,`population_field_id`,`evidence_unit_id`)",
+   "locus": "scripts/cce_case_assemble.py:30-31",
+   "symbol": "mode_id / population_field_id / evidence_unit_id",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "A2_canonical_v2_trio=3/16",
+   "L2_changed": "A2_canonical_v2_trio=3/16",
+   "L4_measured": "{\"A2_canonical_v2_trio\": [\"test_cce_ablation_verdicts_v3.py\", \"test_cce_chain_conformance.py\", \"test_ontology_migration.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"A2_canonical_v2_trio\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\", \"test_cce_chain_conformance.py [subprocess 跑 check_ontology_migration, 读磁盘源码文本]\"]}",
+   "injection_test": "{\"A2_canonical_v2_trio\": []}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "删后三类 v2 尺度名进 model input(独立判官 3/3 实证泄漏); `tests/test_ontology_migration.py:81-82` 反向4 直接翻红(**内存注入也看得见的那一面**), 连带 chain_conformance 红。注意 P1 闸本身**是绿的** —— 它只管旧名, 不管新名 ⇒ 守新名的只有这条黑名单 + 那道断言。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "A2_canonical_v2_trio"
+   ],
+   "ref_count_coarse": 14,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "MODEL_FORBIDDEN_KEYS —— subject 身份键第一行 (`subject_ref`,`subject_refs`,`subject_id`,`profile_version`,`subject_version`)",
+   "locus": "scripts/cce_case_assemble.py:28",
+   "symbol": "subject_ref 等 5 个",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "A3_subject_line1=3/16",
+   "L2_changed": "A3_subject_line1=3/16",
+   "L4_measured": "{\"A3_subject_line1\": [\"test_cce_ablation_verdicts_v3.py\", \"test_cce_contract.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"A3_subject_line1\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"A3_subject_line1\": []}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "删后 `subject_ref` / `profile_version` / 嵌套 `subject_id` 三类泄漏全部放行(3/3)。`config/cce_foundation_contract_v2.json:10` 的 join_rule 与 `config/cce_subject_window_contract_v1.json:49` 的 no_subject_model_input 正是靠这一行**可执行地**成立 —— 契约文件本身只是声明, 不执行。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "A3_subject_line1"
+   ],
+   "ref_count_coarse": 26,
+   "ref_count_strict": 2,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "MODEL_FORBIDDEN_KEYS —— subject 卡/人群键第二行 (`subject_card`,`subject_cards`,`population_id`)",
+   "locus": "scripts/cce_case_assemble.py:29",
+   "symbol": "subject_card(s) / population_id",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "A4_subject_line2=1/16",
+   "L2_changed": "A4_subject_line2=1/16",
+   "L4_measured": "{\"A4_subject_line2\": [\"test_cce_ablation_verdicts_v3.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"A4_subject_line2\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"A4_subject_line2\": []}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "删后 `population_id` 泄漏放行(1/1 探针)。`subject_card`/`subject_cards` 在本面板上未被单独触发 —— 它们的探针我没造(见 limits), 该两个名的判决只到 ref_count 层。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "A4_subject_line2"
+   ],
+   "ref_count_coarse": 2,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "MODEL_FORBIDDEN_KEYS 整张表(注入臂)",
+   "locus": "scripts/cce_case_assemble.py:27-34",
+   "symbol": "MODEL_FORBIDDEN_KEYS",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "A5_whole_denylist_EMPTY=10/16",
+   "L2_changed": "A5_whole_denylist_EMPTY=10/16",
+   "L4_measured": "{\"A5_whole_denylist_EMPTY\": [\"test_cce_ablation_verdicts_v3.py\", \"test_cce_chain_conformance.py\", \"test_cce_contract.py\", \"test_ontology_migration.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"A5_whole_denylist_EMPTY\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\", \"test_cce_chain_conformance.py [subprocess 跑 check_ontology_migration, 读磁盘源码文本]\"]}",
+   "injection_test": "{\"A5_whole_denylist_EMPTY\": []}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "M6 注入: 整表清空 ⇒ 10/10 身份泄漏探针全部从 REJECTED 变 ADMITTED, 独立判官在序列化 payload 里逐个抓到。这张表是该边界的**唯一可执行实现**。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "A5_whole_denylist_EMPTY"
+   ],
+   "ref_count_coarse": 7,
+   "ref_count_strict": 1,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "`_forbidden_model_keys` 的 list 递归分支",
+   "locus": "scripts/cce_case_assemble.py:41-42",
+   "symbol": "_forbidden_model_keys(list 分支)",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "B1_no_list_recursion=2/16",
+   "L2_changed": "B1_no_list_recursion=2/16",
+   "L4_measured": "{\"B1_no_list_recursion\": [\"test_cce_ablation_verdicts_v3.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"B1_no_list_recursion\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"B1_no_list_recursion\": []}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "删后 `events[0].list_probe[0].segment_id` 与 `nested_probe.subject_id` 两条从 REJECTED 变 ADMITTED ⇒ **数组里的身份键整条通道打开**。事件流天然是 list, 这不是理论风险。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "B1_no_list_recursion"
+   ],
+   "ref_count_coarse": 4,
+   "ref_count_strict": 4,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "`_forbidden_model_keys` 的 dict 值递归",
+   "locus": "scripts/cce_case_assemble.py:39-40",
+   "symbol": "_forbidden_model_keys(dict 值递归)",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "B2_no_dict_value_recursion=10/16",
+   "L2_changed": "B2_no_dict_value_recursion=10/16",
+   "L4_measured": "{\"B2_no_dict_value_recursion\": [\"test_cce_ablation_verdicts_v3.py\", \"test_cce_contract.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"B2_no_dict_value_recursion\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"B2_no_dict_value_recursion\": []}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "只查顶层键 ⇒ 10/10 泄漏探针全放行(与整表清空等效)。所有真实泄漏都在嵌套层(context_snapshot / event 内部), 顶层永远干净 ⇒ **只查顶层 = 不查**。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "B2_no_dict_value_recursion"
+   ],
+   "ref_count_coarse": 4,
+   "ref_count_strict": 4,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "`_forbidden_model_keys` 作为谓词本身(N3 橡皮图章检验)",
+   "locus": "scripts/cce_case_assemble.py:37-43",
+   "symbol": "_forbidden_model_keys",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "B3_scanner_always_empty=10/16",
+   "L2_changed": "B3_scanner_always_empty=10/16",
+   "L4_measured": "{\"B3_scanner_always_empty\": [\"test_cce_ablation_verdicts_v3.py\", \"test_cce_contract.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"B3_scanner_always_empty\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"B3_scanner_always_empty\": []}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "N3: 不是查它「可调用且返回集合」, 而是把它改成恒返回 `set()` —— 10/10 泄漏放行。⇒ 这个谓词**真的在判**, 不是橡皮图章。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "B3_scanner_always_empty"
+   ],
+   "ref_count_coarse": 4,
+   "ref_count_strict": 4,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "`request_id`: `sorted(event_ids)`",
+   "locus": "scripts/cce_case_assemble.py:48",
+   "symbol": "sorted(event_ids)",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "L1_changed": "C1_unsorted_event_ids=12/16",
+   "L2_changed": "C1_unsorted_event_ids=0/16",
+   "L4_measured": "{\"C1_unsorted_event_ids\": []}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"C1_unsorted_event_ids\": []}",
+   "injection_test": "{\"C1_unsorted_event_ids\": [\"C_request_id\"]}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "M6 注入实测: 打乱 `observations` 输入顺序后, 基线 request_id **不变**, 去掉 sorted 后 **变了**(`obs_permuted_same_id` True→False) ⇒ 它确实提供输入序不变性。但本工况下没有任何消费者读 request_id 的稳定性做判决 ⇒ 只判 L1。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "C1_unsorted_event_ids"
+   ],
+   "ref_count_coarse": null,
+   "ref_count_strict": null,
+   "ref_scan_surface": "该构件是一段语句/分支, 无单一符号名可数 —— 不给计数, 给了是假精度。"
+  },
+  {
+   "component": "`request_id`: `pre_state_snapshot_ref` 参与身份",
+   "locus": "scripts/cce_case_assemble.py:48",
+   "symbol": "pre_state_snapshot_ref or \"none\"",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "L1_changed": "C2_drop_prestate_from_id=1/16",
+   "L2_changed": "C2_drop_prestate_from_id=0/16",
+   "L4_measured": "{\"C2_drop_prestate_from_id\": []}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"C2_drop_prestate_from_id\": []}",
+   "injection_test": "{\"C2_drop_prestate_from_id\": [\"C_request_id\"]}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "M6 注入实测: 同一 case 上两条 pre_state 不同的 transition 请求, 基线 id 不同, 去掉该项后 **id 相同**(`two_prestates_collide` False→True) ⇒ 真实身份碰撞。但无消费者据此判决 ⇒ L1。★ `tests/test_cce_contract.py:79` 那条断言用的是**两个不同 case**, 抓不到这个碰撞 —— 闸有洞。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "C2_drop_prestate_from_id"
+   ],
+   "ref_count_coarse": 30,
+   "ref_count_strict": 4,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "`request_id`: `measurement_mode` 参与身份",
+   "locus": "scripts/cce_case_assemble.py:48",
+   "symbol": "measurement_mode(在 identity 里)",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "L1_changed": "C3_drop_mode_from_id=12/16",
+   "L2_changed": "C3_drop_mode_from_id=0/16",
+   "L4_measured": "{\"C3_drop_mode_from_id\": []}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"C3_drop_mode_from_id\": []}",
+   "injection_test": "{\"C3_drop_mode_from_id\": [\"C_request_id\"]}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "去掉后 id 值变(12/16 读数变), 但本工况**造不出碰撞** —— 因为 mode 与 `pre_state_snapshot_ref` 的有无强相关, 后者仍在 identity 里兜住。⇒ 在本工况下它是冗余项; 复活条件见右。",
+   "unreachable_condition": "★ 复活条件: 出现一个 `observed_response` 模式的请求(它与 `stimulus` 一样 pre_state=None) ⇒ 两模式 id 立刻碰撞。本仓 `MEASUREMENT_MODES` 含该模式但存量语料里 0 例。",
+   "evidence": "",
+   "arms": [
+    "C3_drop_mode_from_id"
+   ],
+   "ref_count_coarse": 20,
+   "ref_count_strict": 4,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "`request_id`: 后缀长度 `[:10]`",
+   "locus": "scripts/cce_case_assemble.py:49",
+   "symbol": "hexdigest()[:10]",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "L1_changed": "C4_suffix_len=12/16",
+   "L2_changed": "C4_suffix_len=0/16",
+   "L4_measured": "{\"C4_suffix_len\": []}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"C4_suffix_len\": []}",
+   "injection_test": "{\"C4_suffix_len\": [\"C_request_id\"]}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "改 4 位后 12/16 读数变, 无判决变。碰撞空间 16^10→16^4, 但本工况样本量太小,**我没有实测到碰撞**, 只报读数改变。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "C4_suffix_len"
+   ],
+   "ref_count_coarse": null,
+   "ref_count_strict": null,
+   "ref_scan_surface": "该构件是一段语句/分支, 无单一符号名可数 —— 不给计数, 给了是假精度。"
+  },
+  {
+   "component": "`request_id`: `f\"req:{content_id}:{suffix}\"` 字面格式",
+   "locus": "scripts/cce_case_assemble.py:50",
+   "symbol": "req: 前缀格式",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "L1_changed": "C5_id_format=12/16",
+   "L2_changed": "C5_id_format=0/16",
+   "L4_measured": "{\"C5_id_format\": []}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"C5_id_format\": []}",
+   "injection_test": "{\"C5_id_format\": [\"C_request_id\"]}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "12/16 读数变, 无判决变。`cce_contract` 不校验 request id 的前缀形状(实测: 改成 `reqABL/...` 后 contract 仍 ok)。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "C5_id_format"
+   ],
+   "ref_count_coarse": null,
+   "ref_count_strict": null,
+   "ref_scan_surface": "该构件是一段语句/分支, 无单一符号名可数 —— 不给计数, 给了是假精度。"
+  },
+  {
+   "component": "`build_request`: 事件面旁路闸 `if not out.get(\"events\"): raise`",
+   "locus": "scripts/cce_case_assemble.py:56-57",
+   "symbol": "no events available",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "E1_drop_event_plane_guard=1/16",
+   "L2_changed": "E1_drop_event_plane_guard=1/16",
+   "L4_measured": "{\"E1_drop_event_plane_guard\": [\"test_cce_ablation_verdicts_v3.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"E1_drop_event_plane_guard\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"E1_drop_event_plane_guard\": []}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "删后 `build_request` 不再当场抛, 但**下游仍然 fail-closed**: `cce_contract.validate_case` 在 `build_model_input`(以及 `cce_foundation_prepare.py:40`)把它拦下, contract_ok 由 True 变 False。⇒ 判决面的**结论**未变(仍拒), 变的是**失败发生的位置与错误文本**。这一条是 fail-fast 定位器, 不是唯一防线。",
+   "unreachable_condition": "",
+   "evidence": "★ 本条的 L2 变化是「拒绝的理由/地点变了」, 不是「从拒变准」。别把它读成安全漏洞。",
+   "arms": [
+    "E1_drop_event_plane_guard"
+   ],
+   "ref_count_coarse": null,
+   "ref_count_strict": null,
+   "ref_scan_surface": "该构件是一段语句/分支, 无单一符号名可数 —— 不给计数, 给了是假精度。"
+  },
+  {
+   "component": "`build_request`: 恰好一个 context_snapshot 闸",
+   "locus": "scripts/cce_case_assemble.py:58-60",
+   "symbol": "exactly one context_snapshot",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "E2_drop_single_context_guard=1/16",
+   "L2_changed": "E2_drop_single_context_guard=1/16",
+   "L4_measured": "{\"E2_drop_single_context_guard\": [\"test_cce_ablation_verdicts_v3.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"E2_drop_single_context_guard\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"E2_drop_single_context_guard\": []}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "同 E1: 删后由 `cce_contract` 兜住(contract_ok True→False), 结论仍是拒。定位器, 非唯一防线。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "E2_drop_single_context_guard"
+   ],
+   "ref_count_coarse": null,
+   "ref_count_strict": null,
+   "ref_scan_surface": "该构件是一段语句/分支, 无单一符号名可数 —— 不给计数, 给了是假精度。"
+  },
+  {
+   "component": "`build_request`: `out.pop(\"subject_refs\"/\"contexts\")` 剥离",
+   "locus": "scripts/cce_case_assemble.py:61-62",
+   "symbol": "for forbidden in (\"subject_refs\", \"contexts\")",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "E3_drop_strip=0/16",
+   "L2_changed": "E3_drop_strip=0/16",
+   "L4_measured": "{\"E3_drop_strip\": [\"test_cce_ablation_verdicts_v3.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"E3_drop_strip\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"E3_drop_strip\": [\"E3_strip\"]}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "默认面板 0/16 无差异 —— 因为 `cce_foundation_adapter.adapt()` 产出的 case 本来就不带这两个键。M6 注入(手工塞入 `subject_refs`/`contexts`)后: 基线剥得干净、contract ok; 删除后两键幸存、**contract_ok True→False**。⇒ 不是 NO_CONSUMER, 是**本工况未触发的保险丝**(M8)。",
+   "unreachable_condition": "★ 复活条件: 任何上游 adapter 在 case 上留下 `subject_refs` 或旧 `contexts` 平面 —— `cce_foundation_adapter.py:141` 的模板里就有 `\"cce_requests\": []` 同族的空键位。",
+   "evidence": "",
+   "arms": [
+    "E3_drop_strip"
+   ],
+   "ref_count_coarse": null,
+   "ref_count_strict": null,
+   "ref_scan_surface": "该构件是一段语句/分支, 无单一符号名可数 —— 不给计数, 给了是假精度。"
+  },
+  {
+   "component": "`build_request`: `\"prediction_time\": \"pre_exposure\"` 常量",
+   "locus": "scripts/cce_case_assemble.py:70",
+   "symbol": "prediction_time",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "E4_prediction_time=12/16",
+   "L2_changed": "E4_prediction_time=12/16",
+   "L4_measured": "{\"E4_prediction_time\": [\"test_cce_contract.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"E4_prediction_time\": []}",
+   "injection_test": "{\"E4_prediction_time\": [\"E3_strip\", \"F2_two_requests\", \"G_default\"]}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "注入为 `post_exposure` ⇒ 12/16 判决面翻(contract_ok True→False, `cce_contract.py:217-218` 显式钉死该常量)。★ 这条的判官是**另一个文件**(cce_contract), 不是本件自己 ⇒ 不是 N2 的同义反复。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "E4_prediction_time"
+   ],
+   "ref_count_coarse": 8,
+   "ref_count_strict": 2,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "`build_request`: transition 的 pre_state 必须在 state_snapshots 里",
+   "locus": "scripts/cce_case_assemble.py:72-75",
+   "symbol": "transition 成员闸",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "E5_drop_transition_membership=0/16",
+   "L2_changed": "E5_drop_transition_membership=0/16",
+   "L4_measured": "{\"E5_drop_transition_membership\": [\"test_cce_ablation_verdicts_v3.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"E5_drop_transition_membership\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"E5_drop_transition_membership\": [\"E5_bogus_prestate\"]}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "默认面板 0/16(面板里的 transition case 的 ref 本来就合法)。M6 注入(ref 指向不存在的 `state:DOES-NOT-EXIST`): 基线抛 ValueError; 删除后 `build_request` 放行, 由 `cce_contract.py:226` 兜住 ⇒ contract_ok False。定位器, 非唯一防线; 但**未触发 ≠ 无消费者**。",
+   "unreachable_condition": "★ 复活条件: 任何调用方传入拼错/过期的 pre_state ref。",
+   "evidence": "",
+   "arms": [
+    "E5_drop_transition_membership"
+   ],
+   "ref_count_coarse": null,
+   "ref_count_strict": null,
+   "ref_scan_surface": "该构件是一段语句/分支, 无单一符号名可数 —— 不给计数, 给了是假精度。"
+  },
+  {
+   "component": "`build_request`: `elif pre_state_snapshot_ref: raise` 模式/参数一致性闸",
+   "locus": "scripts/cce_case_assemble.py:77-78",
+   "symbol": "pre_state_snapshot_ref is only valid for transition mode",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "E6_drop_mode_arg_coherence=1/16",
+   "L2_changed": "E6_drop_mode_arg_coherence=1/16",
+   "L4_measured": "{\"E6_drop_mode_arg_coherence\": [\"test_cce_ablation_verdicts_v3.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"E6_drop_mode_arg_coherence\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"E6_drop_mode_arg_coherence\": []}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "★ 这条是**唯一防线**: 删除后 `mode_arg_mismatch` 由 REJECTED 变 **ADMITTED 且 contract_ok=True** —— 调用方传的 `pre_state_snapshot_ref` 被**静默丢弃**, 没有任何下游会发现。`cce_contract` 只在 request **带** 该字段时才管(:228), 字段被丢了它就无从判。⇒ 删它 = 把一个调用方错误变成静默错读数。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "E6_drop_mode_arg_coherence"
+   ],
+   "ref_count_coarse": 30,
+   "ref_count_strict": 4,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "`build_model_input`: 投影前 `validate_case` 前置闸",
+   "locus": "scripts/cce_case_assemble.py:91-93",
+   "symbol": "cannot project invalid CCE case",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "F1_drop_validate_gate=0/16",
+   "L2_changed": "F1_drop_validate_gate=0/16",
+   "L4_measured": "{\"F1_drop_validate_gate\": [\"test_cce_ablation_verdicts_v3.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"F1_drop_validate_gate\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"F1_drop_validate_gate\": [\"F1_invalid_case\"]}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "默认面板 0/16。M6 注入(half-open 时间窗违规的 case): 基线 REJECTED, 删除后 **ADMITTED** ⇒ 契约不过的 case 也能投影出 model input。这是**唯一**把契约与投影绑在一起的地方(`build_model_input` 的其它调用点不复核)。",
+   "unreachable_condition": "★ 复活条件: 任何非法 case 走到投影(`cce_foundation_prepare.py:40` 会先验一次, 但直接调 `build_model_input` 的路径没有)。",
+   "evidence": "",
+   "arms": [
+    "F1_drop_validate_gate"
+   ],
+   "ref_count_coarse": null,
+   "ref_count_strict": null,
+   "ref_scan_surface": "该构件是一段语句/分支, 无单一符号名可数 —— 不给计数, 给了是假精度。"
+  },
+  {
+   "component": "`build_model_input`: 恰好一条匹配 request 闸",
+   "locus": "scripts/cce_case_assemble.py:96-97",
+   "symbol": "exactly one matching cce_request",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "F2_drop_single_request_guard=0/16",
+   "L2_changed": "F2_drop_single_request_guard=0/16",
+   "L4_measured": "{\"F2_drop_single_request_guard\": [\"test_cce_ablation_verdicts_v3.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"F2_drop_single_request_guard\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"F2_drop_single_request_guard\": [\"F2_two_requests\", \"F2_zero_requests\"]}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "默认面板 0/16。M6 注入: 两条 request 时基线 REJECTED, 删除后**静默取第一条**(ADMITTED, picked=第一条 id); 零条时由 ValueError 退化成 `IndexError: list index out of range`(N4: 裸崩, 无诊断)。⇒ 删它 = 多请求 case 上静默测错对象。",
+   "unreachable_condition": "★ 复活条件: case 里出现 ≠1 条 cce_request —— `cce_contract` 允许多条(它按 list 校验)。",
+   "evidence": "",
+   "arms": [
+    "F2_drop_single_request_guard"
+   ],
+   "ref_count_coarse": null,
+   "ref_count_strict": null,
+   "ref_scan_surface": "该构件是一段语句/分支, 无单一符号名可数 —— 不给计数, 给了是假精度。"
+  },
+  {
+   "component": "`build_model_input`: `copy.deepcopy` 隔离",
+   "locus": "scripts/cce_case_assemble.py:107-108,115",
+   "symbol": "copy.deepcopy",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "L1_changed": "F3_no_deepcopy=0/16",
+   "L2_changed": "F3_no_deepcopy=0/16",
+   "L4_measured": "{\"F3_no_deepcopy\": [\"test_cce_ablation_verdicts_v3.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"F3_no_deepcopy\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"F3_no_deepcopy\": []}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "改成别名后 `_aliasing` 探针翻: 对 model input 的 `event_stream[0]` 写一个键, **原 case 被污染**(基线 False → 臂 True)。适配器拿到的是可写视图 ⇒ 测量输入与证据面共享可变对象。本工况无判决消费者读这件事 ⇒ L1。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "F3_no_deepcopy"
+   ],
+   "ref_count_coarse": 108,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "`payload[\"kind\"] = \"cce.measurement_input.v1\"`",
+   "locus": "scripts/cce_case_assemble.py:102",
+   "symbol": "cce.measurement_input.v1",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "L1_changed": "V1_kind_const=2/16",
+   "L2_changed": "V1_kind_const=0/16",
+   "L4_measured": "{\"V1_kind_const\": [\"test_cce_contract.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"V1_kind_const\": []}",
+   "injection_test": "{\"V1_kind_const\": []}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "本轮**自设活对照**: 改它 ⇒ L1 2/16 变(两条干净 case 的 payload), L2 不变。`tests/test_cce_contract.py:57` 断言该字面量 ⇒ L4 会红。仓内无任何生产消费者按 kind 分派(全仓只有 3 处词碰撞, 其中 1 处是定义、1 处是测试断言、1 处是契约文档)。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "V1_kind_const"
+   ],
+   "ref_count_coarse": 3,
+   "ref_count_strict": 3,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "`payload[\"boundary\"]` 声明串",
+   "locus": "scripts/cce_case_assemble.py:109",
+   "symbol": "anonymous state measurement; Subject is constructed downstream",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "L1_changed": "F4_boundary_string=2/16",
+   "L2_changed": "F4_boundary_string=0/16",
+   "L4_measured": "{\"F4_boundary_string\": [\"test_cce_contract.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"F4_boundary_string\": []}",
+   "injection_test": "{\"F4_boundary_string\": []}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "L1 2/16 变, L2 不变。`tests/test_cce_contract.py:83` 用 `endswith(\"Subject is constructed downstream\")` 钉住它 ⇒ L4 会红。它是**写进 payload 的一句声明**, 没有代码据它分支 —— 但它是唯一随读数一起流向适配器的边界说明。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "F4_boundary_string"
+   ],
+   "ref_count_coarse": null,
+   "ref_count_strict": null,
+   "ref_scan_surface": "该构件是一段语句/分支, 无单一符号名可数 —— 不给计数, 给了是假精度。"
+  },
+  {
+   "component": "`baseline_state` 白名单元组(六字段投影)",
+   "locus": "scripts/cce_case_assemble.py:116-117",
+   "symbol": "(\"observed_at\",\"assertion\",\"dimensions\",\"evidence_refs\",\"confidence\",\"temporal_scope\")",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "F5_baseline_whole_snapshot=1/16; COMBO_F5_plus_F7=(组合臂→arms_raw)",
+   "L2_changed": "F5_baseline_whole_snapshot=1/16; COMBO_F5_plus_F7=(组合臂→arms_raw)",
+   "L4_measured": "{\"F5_baseline_whole_snapshot\": [\"test_cce_ablation_verdicts_v3.py\", \"test_cce_contract.py\"], \"COMBO_F5_plus_F7\": [\"test_cce_ablation_verdicts_v3.py\", \"test_cce_contract.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"F5_baseline_whole_snapshot\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"], \"COMBO_F5_plus_F7\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"F5_baseline_whole_snapshot\": [], \"COMBO_F5_plus_F7\": \"(组合臂→inject2)\"}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "单独换成整份 snapshot ⇒ 从 ADMITTED 变 **REJECTED**(被 F7 那道 fail-closed 检查兜住) ⇒ 判决翻, 但仍 fail-closed。★ 组合臂(F5+F7 同时删) ⇒ `subject_ref`/`profile_version`/`population_id` **真的落进 `baseline_state`**(独立判官在序列化 payload 里抓到三个)。⇒ 白名单是纵深防御的第二层, 不是装饰。",
+   "unreachable_condition": "",
+   "evidence": "★ 这是本轮唯一需要**组合臂**才看得见全貌的一条: 单臂只能证明它改判决, 组合臂才证明它守的是什么。",
+   "arms": [
+    "F5_baseline_whole_snapshot",
+    "COMBO_F5_plus_F7"
+   ],
+   "ref_count_coarse": null,
+   "ref_count_strict": null,
+   "ref_scan_surface": "该构件是一段语句/分支, 无单一符号名可数 —— 不给计数, 给了是假精度。"
+  },
+  {
+   "component": "`baseline_state` 白名单成员 `evidence_refs`",
+   "locus": "scripts/cce_case_assemble.py:116",
+   "symbol": "evidence_refs(在白名单里)",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "L1_changed": "F6_drop_evidence_refs_field=1/16",
+   "L2_changed": "F6_drop_evidence_refs_field=0/16",
+   "L4_measured": "{\"F6_drop_evidence_refs_field\": []}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"F6_drop_evidence_refs_field\": []}",
+   "injection_test": "{\"F6_drop_evidence_refs_field\": []}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "删掉该成员 ⇒ `baseline_state` 少一个键(L1 1/16 变), 仍 ADMITTED、contract 仍 ok ⇒ 判决不变。但 `config/cce_foundation_contract_v2.json:61` 明写 baseline_state 只含「状态值、时间、证据和认识论字段」—— 删了 `evidence_refs` 就是把「证据」那一半抽掉, 而**没有任何可执行闸会发现**。",
+   "unreachable_condition": "",
+   "evidence": "★ 闸缺口: 契约声明了 baseline_state 的字段构成, 仓内无断言核它。",
+   "arms": [
+    "F6_drop_evidence_refs_field"
+   ],
+   "ref_count_coarse": 111,
+   "ref_count_strict": 1,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "最终 fail-closed 检查 `forbidden = _forbidden_model_keys(payload)`",
+   "locus": "scripts/cce_case_assemble.py:119-121",
+   "symbol": "CCE model input contains downstream Subject keys",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "F7_drop_final_forbidden_check=10/16; COMBO_F5_plus_F7=(组合臂→arms_raw)",
+   "L2_changed": "F7_drop_final_forbidden_check=10/16; COMBO_F5_plus_F7=(组合臂→arms_raw)",
+   "L4_measured": "{\"F7_drop_final_forbidden_check\": [\"test_cce_ablation_verdicts_v3.py\", \"test_cce_contract.py\"], \"COMBO_F5_plus_F7\": [\"test_cce_ablation_verdicts_v3.py\", \"test_cce_contract.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"F7_drop_final_forbidden_check\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"], \"COMBO_F5_plus_F7\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"F7_drop_final_forbidden_check\": [], \"COMBO_F5_plus_F7\": \"(组合臂→inject2)\"}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "删掉 ⇒ 10/10 身份泄漏探针全部从 REJECTED 变 ADMITTED, 独立判官逐个抓到进入 payload 的键。这是 `config/cce_foundation_contract_v2.json` / `cce_subject_window_contract_v1.json` 两份契约里「CCE 不得看到身份」这条硬闸的**唯一执行体**。`tests/test_cce_contract.py:62-67` 反向钉住它。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "F7_drop_final_forbidden_check",
+    "COMBO_F5_plus_F7"
+   ],
+   "ref_count_coarse": null,
+   "ref_count_strict": null,
+   "ref_scan_surface": "该构件是一段语句/分支, 无单一符号名可数 —— 不给计数, 给了是假精度。"
+  },
+  {
+   "component": "`main()`: argparse `choices=(\"stimulus\",\"observed_response\",\"transition\")`",
+   "locus": "scripts/cce_case_assemble.py:129",
+   "symbol": "measurement-mode choices",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "G1_mode_choices=0/16; COMBO_G1_plus_G2b=(组合臂→arms_raw)",
+   "L2_changed": "G1_mode_choices=0/16; COMBO_G1_plus_G2b=(组合臂→arms_raw)",
+   "L4_measured": "{\"G1_mode_choices\": [], \"COMBO_G1_plus_G2b\": [\"test_cce_ablation_verdicts_v3.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"G1_mode_choices\": [], \"COMBO_G1_plus_G2b\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"G1_mode_choices\": [\"G_bogus_mode\"], \"COMBO_G1_plus_G2b\": \"(组合臂→inject2)\"}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "单独删 ⇒ 非法 mode 由 argparse exit 2 退化成 main() 里的契约 SystemExit(仍拒, 定位变)。★ 组合臂(G1 + main() 契约复核一起删) ⇒ **非法 mode 被写进磁盘产物**, `written=True`, `persisted_mode=\"NOT_A_MODE\"`, `persisted_contract_ok=False`。⇒ 这两道是**成对**的 fail-closed, 单删任一仍安全, 双删即失守。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "G1_mode_choices",
+    "COMBO_G1_plus_G2b"
+   ],
+   "ref_count_coarse": null,
+   "ref_count_strict": null,
+   "ref_scan_surface": "该构件是一段语句/分支, 无单一符号名可数 —— 不给计数, 给了是假精度。"
+  },
+  {
+   "component": "`main()`: 落盘前 `validate_case(out)` 复核",
+   "locus": "scripts/cce_case_assemble.py:135-137",
+   "symbol": "request assembly failed contract",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "G2_drop_post_validate=0/16; G2b_drop_post_validate_fixed=(组合臂→arms_raw); COMBO_G1_plus_G2b=(组合臂→arms_raw)",
+   "L2_changed": "G2_drop_post_validate=0/16; G2b_drop_post_validate_fixed=(组合臂→arms_raw); COMBO_G1_plus_G2b=(组合臂→arms_raw)",
+   "L4_measured": "{\"G2_drop_post_validate\": [\"test_cce_ablation_verdicts_v3.py\"], \"G2b_drop_post_validate_fixed\": [\"test_cce_ablation_verdicts_v3.py\"], \"COMBO_G1_plus_G2b\": [\"test_cce_ablation_verdicts_v3.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"G2_drop_post_validate\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"], \"G2b_drop_post_validate_fixed\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"], \"COMBO_G1_plus_G2b\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"G2_drop_post_validate\": [\"G_default\"], \"G2b_drop_post_validate_fixed\": \"(组合臂→inject2)\", \"COMBO_G1_plus_G2b\": \"(组合臂→inject2)\"}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "★ 装置更正: 原臂 G2 是**残缺变异**(删了赋值却留着 `verdict[\"warnings\"]` 的引用, 跑出 `NameError`) —— 那不是消融是语法事故, 已重做成 G2b。G2b 单独: CLI 面无差异(argparse choices 先拦)。组合臂见上 ⇒ 成对承重。",
+   "unreachable_condition": "",
+   "evidence": "★ 这条是本轮踩到的方法缺陷, 照 N4 记下来: 变异必须自洽, 否则读者看到的是 NameError 不是判决。",
+   "arms": [
+    "G2_drop_post_validate",
+    "G2b_drop_post_validate_fixed",
+    "COMBO_G1_plus_G2b"
+   ],
+   "ref_count_coarse": null,
+   "ref_count_strict": null,
+   "ref_scan_surface": "该构件是一段语句/分支, 无单一符号名可数 —— 不给计数, 给了是假精度。"
+  },
+  {
+   "component": "`main()`: `--adapter` 默认值 `event_packet@v1`",
+   "locus": "scripts/cce_case_assemble.py:128",
+   "symbol": "event_packet@v1",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "L1_changed": "G3_adapter_default=0/16",
+   "L2_changed": "G3_adapter_default=0/16",
+   "L4_measured": "{\"G3_adapter_default\": []}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"G3_adapter_default\": []}",
+   "injection_test": "{\"G3_adapter_default\": [\"G_default\"]}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "面板 0/16(面板显式传 adapter)。M6 注入(走 CLI 默认): `measurement_adapter` 由 `event_packet@v1` 变 `ABLATED@v0`, 写进产物, **contract 仍 ok** —— `cce_contract` 只要求该字段存在, 不校验取值。⇒ 换掉它 = 静默换掉产物里声明的适配器身份, 无闸可拦。",
+   "unreachable_condition": "",
+   "evidence": "★ 闸缺口: `measurement_adapter` 的取值全仓无白名单、无断言。",
+   "arms": [
+    "G3_adapter_default"
+   ],
+   "ref_count_coarse": 3,
+   "ref_count_strict": 3,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "`request_id()` 函数本身(作为 CCE 请求身份的唯一产生器)",
+   "locus": "scripts/cce_case_assemble.py:46-50",
+   "symbol": "request_id",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "L1_changed": "C1_unsorted_event_ids=12/16; C2_drop_prestate_from_id=1/16; C3_drop_mode_from_id=12/16; C4_suffix_len=12/16; C5_id_format=12/16",
+   "L2_changed": "C1_unsorted_event_ids=0/16; C2_drop_prestate_from_id=0/16; C3_drop_mode_from_id=0/16; C4_suffix_len=0/16; C5_id_format=0/16",
+   "L4_measured": "{\"C1_unsorted_event_ids\": [], \"C2_drop_prestate_from_id\": [], \"C3_drop_mode_from_id\": [], \"C4_suffix_len\": [], \"C5_id_format\": []}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"C1_unsorted_event_ids\": [], \"C2_drop_prestate_from_id\": [], \"C3_drop_mode_from_id\": [], \"C4_suffix_len\": [], \"C5_id_format\": []}",
+   "injection_test": "{\"C1_unsorted_event_ids\": [\"C_request_id\"], \"C2_drop_prestate_from_id\": [\"C_request_id\"], \"C3_drop_mode_from_id\": [\"C_request_id\"], \"C4_suffix_len\": [\"C_request_id\"], \"C5_id_format\": [\"C_request_id\"]}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "五条分臂全部只动 L1。它产出的 id 被 `cce_contract` 当作 `state_transitions[].request_ref` / `measurement_results[].request_ref` 的连接键(:263-274)校验**一致性**, 但不校验**取值**。⇒ 在本工况下 request_id 的内容对任何判决都不承重, 只承重「同一 case 两次要得到同一个 id」。",
+   "unreachable_condition": "",
+   "evidence": "",
+   "arms": [
+    "C1_unsorted_event_ids",
+    "C2_drop_prestate_from_id",
+    "C3_drop_mode_from_id",
+    "C4_suffix_len",
+    "C5_id_format"
+   ],
+   "ref_count_coarse": 16,
+   "ref_count_strict": 1,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "模块 docstring(第 2-9 行)",
+   "locus": "scripts/cce_case_assemble.py:2-9",
+   "symbol": "__doc__",
+   "consumer_side": "G",
+   "verdict": "NO_CONSUMER",
+   "L1_changed": "D2_docstring=0/16",
+   "L2_changed": "D2_docstring=0/16",
+   "L4_measured": "{\"D2_docstring\": []}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"D2_docstring\": []}",
+   "injection_test": "{\"D2_docstring\": []}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "L1 0/16 · L2 0/16 · L4 净新增 0(与空操作臂逐条相同)。唯一去处是 `argparse.ArgumentParser(description=__doc__)` ⇒ 只进 `--help`。★ 但 `deletable=False`: 它是本件对「CCE 收什么 / 不收什么」的唯一成文声明, 删掉等于删掉这条边界的可读依据 —— 「没有消费者」不等于「该删」。",
+   "unreachable_condition": "",
+   "evidence": "★ 本轮 M1 的**本面死对照之一**: 判据必须判它无差异, 实测无差异。",
+   "arms": [
+    "D2_docstring"
+   ],
+   "ref_count_coarse": 20,
+   "ref_count_strict": 13,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "`build_model_input` 的内部 docstring",
+   "locus": "scripts/cce_case_assemble.py:84-89",
+   "symbol": "build_model_input.__doc__",
+   "consumer_side": "G",
+   "verdict": "NO_CONSUMER",
+   "L1_changed": "D3_inner_docstring=0/16",
+   "L2_changed": "D3_inner_docstring=0/16",
+   "L4_measured": "{\"D3_inner_docstring\": []}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"D3_inner_docstring\": []}",
+   "injection_test": "{\"D3_inner_docstring\": []}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "L1 0/16 · L2 0/16 · L4 净新增 0。纯文档。deletable=False 同上: 它写着「保留 subject_ref 仅为 join, 投影必须去掉」—— 是这条投影的立法理由。",
+   "unreachable_condition": "",
+   "evidence": "★ M1 本面死对照之二。",
+   "arms": [
+    "D3_inner_docstring"
+   ],
+   "ref_count_coarse": null,
+   "ref_count_strict": null,
+   "ref_scan_surface": "该构件是一段语句/分支, 无单一符号名可数 —— 不给计数, 给了是假精度。"
+  },
+  {
+   "component": "旧名/新名 denylist 的理由注释块(第 23-26 行)",
+   "locus": "scripts/cce_case_assemble.py:23-26",
+   "symbol": "DENYLIST_SENTINEL 注释",
+   "consumer_side": "G",
+   "verdict": "NO_CONSUMER",
+   "L1_changed": "D1_comment_block=0/16",
+   "L2_changed": "D1_comment_block=0/16",
+   "L4_measured": "{\"D1_comment_block\": [\"test_cce_ablation_verdicts_v3.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"D1_comment_block\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"D1_comment_block\": []}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "★ 意外结果, 必须如实报: L1 0/16 · L2 0/16(纯注释, 语义零影响), **但 L4 净新增 1** —— `tests/test_cce_ablation_verdicts_v3.py::check_coverage` 把本文件行数 **144 钉死**当覆盖率分母, 删 4 行注释即 `scope_lines 36937 vs 36936` 翻红。 ⇒ 它在**语义面**是死的, 在**消融台账的元闸面**是活的。这也说明: 把它当「肯定不承重的死对照」只在 L1/L2 面成立, 在 L4 面不成立 —— 本轮的死对照因此改用 D2/D3(保行数的改写)。",
+   "unreachable_condition": "",
+   "evidence": "★ 这条同时是对 `parser_plane_note` 那句话的直接反例之一(见 parser_plane_claim)。",
+   "arms": [
+    "D1_comment_block"
+   ],
+   "ref_count_coarse": null,
+   "ref_count_strict": null,
+   "ref_scan_surface": "该构件是一段语句/分支, 无单一符号名可数 —— 不给计数, 给了是假精度。"
+  },
+  {
+   "component": "`main()` / CLI 入口整体",
+   "locus": "scripts/cce_case_assemble.py:125-144",
+   "symbol": "main",
+   "consumer_side": "C",
+   "verdict": "UNREACHABLE",
+   "L1_changed": "G1_mode_choices=0/16; G2b_drop_post_validate_fixed=(组合臂→arms_raw); G3_adapter_default=0/16; COMBO_G1_plus_G2b=(组合臂→arms_raw)",
+   "L2_changed": "G1_mode_choices=0/16; G2b_drop_post_validate_fixed=(组合臂→arms_raw); G3_adapter_default=0/16; COMBO_G1_plus_G2b=(组合臂→arms_raw)",
+   "L4_measured": "{\"G1_mode_choices\": [], \"G2b_drop_post_validate_fixed\": [\"test_cce_ablation_verdicts_v3.py\"], \"G3_adapter_default\": [], \"COMBO_G1_plus_G2b\": [\"test_cce_ablation_verdicts_v3.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"G1_mode_choices\": [], \"G2b_drop_post_validate_fixed\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"], \"G3_adapter_default\": [], \"COMBO_G1_plus_G2b\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"G1_mode_choices\": [\"G_bogus_mode\"], \"G2b_drop_post_validate_fixed\": \"(组合臂→inject2)\", \"G3_adapter_default\": [\"G_default\"], \"COMBO_G1_plus_G2b\": \"(组合臂→inject2)\"}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "★ 全仓实扫: `scripts/cce_foundation_prepare.py` 是本件唯一的生产调用方, 而 **`cce_foundation_prepare` 的 `main()` 在全仓(含 .github/ 所有 16 个 workflow · 所有 164 个测试 · 所有 probes)零调用点** —— 只有 `tests/test_cce_contract.py:15` 从它 import 了 `fingerprint` 一个工具函数。 本件自己的 `main()` 同样零调用点。⇒ CLI 这一面在本工况下**结构上不被执行**, 我是靠直接调 `mod.main()` 并喂 argv 才测到的。",
+   "unreachable_condition": "★ 复活条件: 任何人真的跑 `python3 scripts/cce_foundation_prepare.py --parse-artifact ... --outdir ...`(它是 `config/cce_chain_conformance.json` 第 5 段 OBSERVATION 的 implemented_in 之一), 或直接跑本件 CLI。",
+   "evidence": "",
+   "arms": [
+    "G1_mode_choices",
+    "G2b_drop_post_validate_fixed",
+    "G3_adapter_default",
+    "COMBO_G1_plus_G2b"
+   ],
+   "ref_count_coarse": 361,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  },
+  {
+   "component": "★ 本文件的**行数**(144) —— 被消融台账当覆盖率分母钉死",
+   "locus": "scripts/cce_case_assemble.py(整文件) ← tests/test_cce_ablation_verdicts_v3.py:52-104 nlines()/check_coverage",
+   "symbol": "nlines('scripts/cce_case_assemble.py') == 144",
+   "consumer_side": "G",
+   "verdict": "LOAD_BEARING_L2",
+   "L1_changed": "D1_comment_block=0/16; A1_legacy_sentinels=3/16; A2_canonical_v2_trio=3/16; G2b_drop_post_validate_fixed=(组合臂→arms_raw); COMBO_F5_plus_F7=(组合臂→arms_raw); COMBO_G1_plus_G2b=(组合臂→arms_raw)",
+   "L2_changed": "D1_comment_block=0/16; A1_legacy_sentinels=3/16; A2_canonical_v2_trio=3/16; G2b_drop_post_validate_fixed=(组合臂→arms_raw); COMBO_F5_plus_F7=(组合臂→arms_raw); COMBO_G1_plus_G2b=(组合臂→arms_raw)",
+   "L4_measured": "{\"D1_comment_block\": [\"test_cce_ablation_verdicts_v3.py\"], \"A1_legacy_sentinels\": [\"test_cce_ablation_verdicts_v3.py\", \"test_cce_chain_conformance.py\", \"test_ontology_migration.py\"], \"A2_canonical_v2_trio\": [\"test_cce_ablation_verdicts_v3.py\", \"test_cce_chain_conformance.py\", \"test_ontology_migration.py\"], \"G2b_drop_post_validate_fixed\": [\"test_cce_ablation_verdicts_v3.py\"], \"COMBO_F5_plus_F7\": [\"test_cce_ablation_verdicts_v3.py\", \"test_cce_contract.py\"], \"COMBO_G1_plus_G2b\": [\"test_cce_ablation_verdicts_v3.py\"]}",
+   "L4_source_text_gates_invisible_to_memory_ablation": "{\"D1_comment_block\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"], \"A1_legacy_sentinels\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\", \"test_cce_chain_conformance.py [subprocess 跑 check_ontology_migration, 读磁盘源码文本]\", \"test_ontology_migration.py [subprocess 跑 check_ontology_migration, 读磁盘源码文本]\"], \"A2_canonical_v2_trio\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\", \"test_cce_chain_conformance.py [subprocess 跑 check_ontology_migration, 读磁盘源码文本]\"], \"G2b_drop_post_validate_fixed\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"], \"COMBO_F5_plus_F7\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"], \"COMBO_G1_plus_G2b\": [\"test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]\"]}",
+   "injection_test": "{\"D1_comment_block\": [], \"A1_legacy_sentinels\": [], \"A2_canonical_v2_trio\": [], \"G2b_drop_post_validate_fixed\": \"(组合臂→inject2)\", \"COMBO_F5_plus_F7\": \"(组合臂→inject2)\", \"COMBO_G1_plus_G2b\": \"(组合臂→inject2)\"}",
+   "faces_observed": [
+    "L1.build_request 的完整 request 字典 + 整份 request_case 的 canonical sha256",
+    "L1.build_model_input 的完整 cce.measurement_input.v1 payload + canonical sha256",
+    "L1.request_id 字符串(含输入序不变性探针与同 case 跨模式碰撞探针)",
+    "L1.baseline_state 的键集合",
+    "L1.别名污染探针(改 model input 是否回写原 case)",
+    "L2.build_request 抛/不抛 + 异常类型与文本",
+    "L2.build_model_input ADMITTED / REJECTED + 异常类型与文本",
+    "L2.cce_contract.validate_case 的 ok / errors / counts —— **判官是另一个文件**(N2: 期望与实际不同源)",
+    "L2.独立身份泄漏判官: 名单取自 config/ontology_legacy_exceptions_v1.json 的 token_map + cce_foundation_contract_v2 / cce_subject_window_contract_v1 点名的键, **不读** MODEL_FORBIDDEN_KEYS(N2)",
+    "L4.磁盘副本上的全量 164 个 tests/test_*.py(每臂一次, 带空操作对照臂做净新增)"
+   ],
+   "faces_blind": [
+    "★生产判决面(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS): 与本件**无 import 通路**(cce_knot_classify 顶层 import 实扫无本件), `cce.measurement_input.v1` 全仓零读者 ⇒ 结构上不可达。按 N1: 此面只标 blind, **不用来支撑任何无差异结论**。",
+    "★cce_foundation_prepare 的真实 CLI 运行面: 全仓(.github/ 16 workflow · 164 tests · probes/)零调用点; G* 系列证据是我直接调 main() 造出来的人造面。",
+    "★只有磁盘源码文本看得见的闸(纯内存注入结构上看不见, 会低报 L4): tests/test_cce_ablation_verdicts_v3.py(nlines) · scripts/check_ontology_migration.py(os.walk 读 .py 文本) · scripts/consistency_check.py(读 scripts/*.py 全文) · tests/test_cce_no_real_identities.py。本轮 L4 走磁盘副本故看得见它们。",
+    "subject_card / subject_cards 两个黑名单键: 无泄漏探针, 只有 ref_count 层证据。",
+    "observed_response 测量模式: 存量语料 0 例, 未进面板。"
+   ],
+   "deletable": false,
+   "deletable_reason": "★★★ 实测: **任何**改变本文件行数的编辑 —— 包括删 4 行纯注释 —— 都让 tests/test_cce_ablation_verdicts_v3.py::check_coverage 翻红。错误原文: `★coverage.scope_lines 与现算不符: 档案 36937 vs 现算 36936 | 漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 143)}`。反过来, **保行数的语义改写**(D2/D3/V1/F4/E4 等)它一个都看不见。 ⇒ 这道闸钉的是行数不是行为，它对本件的保护是**反向**的。",
+   "unreachable_condition": "",
+   "evidence": "★ 判决面口径: 这里的「判决」是**消融台账元闸**的绿/红(tests/test_cce_ablation_verdicts_v3.py), **不是**生产判决面(knot_classify top1 / align_v2 ★usable / run_gates PASS) —— 后者与本件无 import 路径, 见 limits。 ★ 这一条还是 M3-③ 的典型: 它从**磁盘**读行数, 内存内注入结构上看不见它。",
+   "arms": [
+    "D1_comment_block",
+    "A1_legacy_sentinels",
+    "A2_canonical_v2_trio",
+    "G2b_drop_post_validate_fixed",
+    "COMBO_F5_plus_F7",
+    "COMBO_G1_plus_G2b"
+   ],
+   "ref_count_coarse": 3,
+   "ref_count_strict": 0,
+   "ref_scan_surface": "粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh。★ 两个都是词碰撞统计, 不是引用图(M4)。"
+  }
+ ],
+ "verdict_tally": {
+  "LOAD_BEARING_L2": 21,
+  "LOAD_BEARING_L1_ONLY": 11,
+  "NO_CONSUMER": 3,
+  "UNREACHABLE": 1,
+  "_total": 36,
+  "_deletable_true": 0
+ },
+ "arms_raw": {
+  "NULL_no_op": {
+   "L1_n": "0/15",
+   "L2_n": "0/16",
+   "L1_changed": [],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": null,
+   "L4": {
+    "n_red_total": 1,
+    "n_net_new": 0,
+    "net_new_vs_null_arm": [],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [],
+    "first_failing_assertion": {}
+   }
+  },
+  "S1_sibling_event_assemble": {
+   "L1_n": "12/15",
+   "L2_n": "0/16",
+   "L1_changed": [
+    "clean_stimulus",
+    "clean_transition",
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": null,
+   "L4": {
+    "n_red_total": 1,
+    "n_net_new": 0,
+    "net_new_vs_null_arm": [],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [],
+    "first_failing_assertion": {}
+   }
+  },
+  "D1_comment_block": {
+   "L1_n": "0/16",
+   "L2_n": "0/16",
+   "L1_changed": [],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 2,
+    "n_net_new": 1,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py"
+    ],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 140)}"
+    }
+   }
+  },
+  "D2_docstring": {
+   "L1_n": "0/16",
+   "L2_n": "0/16",
+   "L1_changed": [],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 1,
+    "n_net_new": 0,
+    "net_new_vs_null_arm": [],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [],
+    "first_failing_assertion": {}
+   }
+  },
+  "D3_inner_docstring": {
+   "L1_n": "0/16",
+   "L2_n": "0/16",
+   "L1_changed": [],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 1,
+    "n_net_new": 0,
+    "net_new_vs_null_arm": [],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [],
+    "first_failing_assertion": {}
+   }
+  },
+  "V1_kind_const": {
+   "L1_n": "2/16",
+   "L2_n": "0/16",
+   "L1_changed": [
+    "clean_stimulus",
+    "clean_transition"
+   ],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 2,
+    "n_net_new": 1,
+    "net_new_vs_null_arm": [
+     "test_cce_contract.py"
+    ],
+    "memory_visible": [
+     "test_cce_contract.py"
+    ],
+    "source_text_only_invisible_to_memory_injection": [],
+    "first_failing_assertion": {
+     "test_cce_contract.py": "AssertionError"
+    }
+   }
+  },
+  "A1_legacy_sentinels": {
+   "L1_n": "3/16",
+   "L2_n": "3/16",
+   "L1_changed": [
+    "leak_ctx_individual_id",
+    "leak_ctx_segment_id",
+    "leak_evt_inlist_segment_id"
+   ],
+   "L2_changed": [
+    "leak_ctx_individual_id",
+    "leak_ctx_segment_id",
+    "leak_evt_inlist_segment_id"
+   ],
+   "independent_leak_cases": [
+    "leak_ctx_individual_id",
+    "leak_ctx_segment_id",
+    "leak_evt_inlist_segment_id"
+   ],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 4,
+    "n_net_new": 3,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py",
+     "test_cce_chain_conformance.py",
+     "test_ontology_migration.py"
+    ],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]",
+     "test_cce_chain_conformance.py [subprocess 跑 check_ontology_migration, 读磁盘源码文本]",
+     "test_ontology_migration.py [subprocess 跑 check_ontology_migration, 读磁盘源码文本]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 143)}",
+     "test_cce_chain_conformance.py": "AssertionError: 基线必须绿: ['P1 本体重命名 的验收 gate 红了: python3 scripts/check_ontology_migration.py && python3 tests/test_ontology_migration.py\\n            scripts/cce_case_assemble.py  segment_id\\n      \\n      P1_FAIL']",
+     "test_ontology_migration.py": "AssertionError: 基线: P1 闸当前必须通过"
+    }
+   }
+  },
+  "A2_canonical_v2_trio": {
+   "L1_n": "3/16",
+   "L2_n": "3/16",
+   "L1_changed": [
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id"
+   ],
+   "L2_changed": [
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id"
+   ],
+   "independent_leak_cases": [
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id"
+   ],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 4,
+    "n_net_new": 3,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py",
+     "test_cce_chain_conformance.py",
+     "test_ontology_migration.py"
+    ],
+    "memory_visible": [
+     "test_ontology_migration.py"
+    ],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]",
+     "test_cce_chain_conformance.py [subprocess 跑 check_ontology_migration, 读磁盘源码文本]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 143)}",
+     "test_cce_chain_conformance.py": "AssertionError: 基线必须绿: ['P1 本体重命名 的验收 gate 红了: python3 scripts/check_ontology_migration.py && python3 tests/test_ontology_migration.py\\n      ✓ stale_registry_entry      登记了但已不存在的豁免: 0\\n      \\n      P1_PASS']",
+     "test_ontology_migration.py": "AssertionError: 反向4 失败: 黑名单缺 canonical v2 名 mode_id"
+    }
+   }
+  },
+  "A3_subject_line1": {
+   "L1_n": "3/16",
+   "L2_n": "3/16",
+   "L1_changed": [
+    "leak_ctx_profile_version",
+    "leak_ctx_subject_ref",
+    "leak_evt_nested_subject_id"
+   ],
+   "L2_changed": [
+    "leak_ctx_profile_version",
+    "leak_ctx_subject_ref",
+    "leak_evt_nested_subject_id"
+   ],
+   "independent_leak_cases": [
+    "leak_ctx_profile_version",
+    "leak_ctx_subject_ref",
+    "leak_evt_nested_subject_id"
+   ],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 3,
+    "n_net_new": 2,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py",
+     "test_cce_contract.py"
+    ],
+    "memory_visible": [
+     "test_cce_contract.py"
+    ],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 143)}",
+     "test_cce_contract.py": "AssertionError: nested subject identity must not enter CCE model input"
+    }
+   }
+  },
+  "A4_subject_line2": {
+   "L1_n": "1/16",
+   "L2_n": "1/16",
+   "L1_changed": [
+    "leak_ctx_population_id"
+   ],
+   "L2_changed": [
+    "leak_ctx_population_id"
+   ],
+   "independent_leak_cases": [
+    "leak_ctx_population_id"
+   ],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 2,
+    "n_net_new": 1,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py"
+    ],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 143)}"
+    }
+   }
+  },
+  "A5_whole_denylist_EMPTY": {
+   "L1_n": "10/16",
+   "L2_n": "10/16",
+   "L1_changed": [
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "L2_changed": [
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "independent_leak_cases": [
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 5,
+    "n_net_new": 4,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py",
+     "test_cce_chain_conformance.py",
+     "test_cce_contract.py",
+     "test_ontology_migration.py"
+    ],
+    "memory_visible": [
+     "test_cce_contract.py",
+     "test_ontology_migration.py"
+    ],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]",
+     "test_cce_chain_conformance.py [subprocess 跑 check_ontology_migration, 读磁盘源码文本]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 145)}",
+     "test_cce_chain_conformance.py": "AssertionError: 基线必须绿: ['P1 本体重命名 的验收 gate 红了: python3 scripts/check_ontology_migration.py && python3 tests/test_ontology_migration.py\\n      ✓ stale_registry_entry      登记了但已不存在的豁免: 0\\n      \\n      P1_PASS']",
+     "test_cce_contract.py": "AssertionError: nested subject identity must not enter CCE model input",
+     "test_ontology_migration.py": "AssertionError: 反向4 失败: 黑名单丢了 legacy sentinel segment_id, 旧名可重新注入"
+    }
+   }
+  },
+  "B1_no_list_recursion": {
+   "L1_n": "2/16",
+   "L2_n": "2/16",
+   "L1_changed": [
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "L2_changed": [
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "independent_leak_cases": [
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 2,
+    "n_net_new": 1,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py"
+    ],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 142)}"
+    }
+   }
+  },
+  "B2_no_dict_value_recursion": {
+   "L1_n": "10/16",
+   "L2_n": "10/16",
+   "L1_changed": [
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "L2_changed": [
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "independent_leak_cases": [
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 3,
+    "n_net_new": 2,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py",
+     "test_cce_contract.py"
+    ],
+    "memory_visible": [
+     "test_cce_contract.py"
+    ],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 143)}",
+     "test_cce_contract.py": "AssertionError: nested subject identity must not enter CCE model input"
+    }
+   }
+  },
+  "B3_scanner_always_empty": {
+   "L1_n": "10/16",
+   "L2_n": "10/16",
+   "L1_changed": [
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "L2_changed": [
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "independent_leak_cases": [
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 3,
+    "n_net_new": 2,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py",
+     "test_cce_contract.py"
+    ],
+    "memory_visible": [
+     "test_cce_contract.py"
+    ],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 146)}",
+     "test_cce_contract.py": "AssertionError: nested subject identity must not enter CCE model input"
+    }
+   }
+  },
+  "C1_unsorted_event_ids": {
+   "L1_n": "12/16",
+   "L2_n": "0/16",
+   "L1_changed": [
+    "clean_stimulus",
+    "clean_transition",
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [
+    "C_request_id"
+   ],
+   "L4": {
+    "n_red_total": 1,
+    "n_net_new": 0,
+    "net_new_vs_null_arm": [],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [],
+    "first_failing_assertion": {}
+   }
+  },
+  "C2_drop_prestate_from_id": {
+   "L1_n": "1/16",
+   "L2_n": "0/16",
+   "L1_changed": [
+    "clean_transition"
+   ],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [
+    "C_request_id"
+   ],
+   "L4": {
+    "n_red_total": 1,
+    "n_net_new": 0,
+    "net_new_vs_null_arm": [],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [],
+    "first_failing_assertion": {}
+   }
+  },
+  "C3_drop_mode_from_id": {
+   "L1_n": "12/16",
+   "L2_n": "0/16",
+   "L1_changed": [
+    "clean_stimulus",
+    "clean_transition",
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [
+    "C_request_id"
+   ],
+   "L4": {
+    "n_red_total": 1,
+    "n_net_new": 0,
+    "net_new_vs_null_arm": [],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [],
+    "first_failing_assertion": {}
+   }
+  },
+  "C4_suffix_len": {
+   "L1_n": "12/16",
+   "L2_n": "0/16",
+   "L1_changed": [
+    "clean_stimulus",
+    "clean_transition",
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [
+    "C_request_id"
+   ],
+   "L4": {
+    "n_red_total": 1,
+    "n_net_new": 0,
+    "net_new_vs_null_arm": [],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [],
+    "first_failing_assertion": {}
+   }
+  },
+  "C5_id_format": {
+   "L1_n": "12/16",
+   "L2_n": "0/16",
+   "L1_changed": [
+    "clean_stimulus",
+    "clean_transition",
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [
+    "C_request_id"
+   ],
+   "L4": {
+    "n_red_total": 1,
+    "n_net_new": 0,
+    "net_new_vs_null_arm": [],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [],
+    "first_failing_assertion": {}
+   }
+  },
+  "E1_drop_event_plane_guard": {
+   "L1_n": "1/16",
+   "L2_n": "1/16",
+   "L1_changed": [
+    "no_events"
+   ],
+   "L2_changed": [
+    "no_events"
+   ],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 2,
+    "n_net_new": 1,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py"
+    ],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 142)}"
+    }
+   }
+  },
+  "E2_drop_single_context_guard": {
+   "L1_n": "1/16",
+   "L2_n": "1/16",
+   "L1_changed": [
+    "two_contexts"
+   ],
+   "L2_changed": [
+    "two_contexts"
+   ],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 2,
+    "n_net_new": 1,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py"
+    ],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 142)}"
+    }
+   }
+  },
+  "E3_drop_strip": {
+   "L1_n": "0/16",
+   "L2_n": "0/16",
+   "L1_changed": [],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [
+    "E3_strip"
+   ],
+   "L4": {
+    "n_red_total": 2,
+    "n_net_new": 1,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py"
+    ],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 142)}"
+    }
+   }
+  },
+  "E4_prediction_time": {
+   "L1_n": "12/16",
+   "L2_n": "12/16",
+   "L1_changed": [
+    "clean_stimulus",
+    "clean_transition",
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "L2_changed": [
+    "clean_stimulus",
+    "clean_transition",
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [
+    "E3_strip",
+    "F2_two_requests",
+    "G_default"
+   ],
+   "L4": {
+    "n_red_total": 2,
+    "n_net_new": 1,
+    "net_new_vs_null_arm": [
+     "test_cce_contract.py"
+    ],
+    "memory_visible": [
+     "test_cce_contract.py"
+    ],
+    "source_text_only_invisible_to_memory_injection": [],
+    "first_failing_assertion": {
+     "test_cce_contract.py": "AssertionError: {'ok': False, 'errors': [\"cce_requests[req:content:video-parse:adapter-test:2737b605ae].prediction_time: must be 'pre_exposure'\"], 'warnings': ['no measurement_results: valid request packet, but no completed measurement'], 'counts': {'observati"
+    }
+   }
+  },
+  "E5_drop_transition_membership": {
+   "L1_n": "0/16",
+   "L2_n": "0/16",
+   "L1_changed": [],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [
+    "E5_bogus_prestate"
+   ],
+   "L4": {
+    "n_red_total": 2,
+    "n_net_new": 1,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py"
+    ],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 141)}"
+    }
+   }
+  },
+  "E6_drop_mode_arg_coherence": {
+   "L1_n": "1/16",
+   "L2_n": "1/16",
+   "L1_changed": [
+    "mode_arg_mismatch"
+   ],
+   "L2_changed": [
+    "mode_arg_mismatch"
+   ],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 2,
+    "n_net_new": 1,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py"
+    ],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 142)}"
+    }
+   }
+  },
+  "F1_drop_validate_gate": {
+   "L1_n": "0/16",
+   "L2_n": "0/16",
+   "L1_changed": [],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [
+    "F1_invalid_case"
+   ],
+   "L4": {
+    "n_red_total": 2,
+    "n_net_new": 1,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py"
+    ],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 141)}"
+    }
+   }
+  },
+  "F2_drop_single_request_guard": {
+   "L1_n": "0/16",
+   "L2_n": "0/16",
+   "L1_changed": [],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [
+    "F2_two_requests",
+    "F2_zero_requests"
+   ],
+   "L4": {
+    "n_red_total": 2,
+    "n_net_new": 1,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py"
+    ],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 142)}"
+    }
+   }
+  },
+  "F3_no_deepcopy": {
+   "L1_n": "0/16",
+   "L2_n": "0/16",
+   "L1_changed": [],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 2,
+    "n_net_new": 1,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py"
+    ],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 146)}"
+    }
+   }
+  },
+  "F4_boundary_string": {
+   "L1_n": "2/16",
+   "L2_n": "0/16",
+   "L1_changed": [
+    "clean_stimulus",
+    "clean_transition"
+   ],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 2,
+    "n_net_new": 1,
+    "net_new_vs_null_arm": [
+     "test_cce_contract.py"
+    ],
+    "memory_visible": [
+     "test_cce_contract.py"
+    ],
+    "source_text_only_invisible_to_memory_injection": [],
+    "first_failing_assertion": {
+     "test_cce_contract.py": "AssertionError"
+    }
+   }
+  },
+  "F5_baseline_whole_snapshot": {
+   "L1_n": "1/16",
+   "L2_n": "1/16",
+   "L1_changed": [
+    "clean_transition"
+   ],
+   "L2_changed": [
+    "clean_transition"
+   ],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 3,
+    "n_net_new": 2,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py",
+     "test_cce_contract.py"
+    ],
+    "memory_visible": [
+     "test_cce_contract.py"
+    ],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 140)}",
+     "test_cce_contract.py": "ValueError: CCE model input contains downstream Subject keys: subject_ref"
+    }
+   }
+  },
+  "F6_drop_evidence_refs_field": {
+   "L1_n": "1/16",
+   "L2_n": "0/16",
+   "L1_changed": [
+    "clean_transition"
+   ],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 1,
+    "n_net_new": 0,
+    "net_new_vs_null_arm": [],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [],
+    "first_failing_assertion": {}
+   }
+  },
+  "F7_drop_final_forbidden_check": {
+   "L1_n": "10/16",
+   "L2_n": "10/16",
+   "L1_changed": [
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "L2_changed": [
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "independent_leak_cases": [
+    "leak_ctx_evidence_unit_id",
+    "leak_ctx_individual_id",
+    "leak_ctx_mode_id",
+    "leak_ctx_population_field_id",
+    "leak_ctx_population_id",
+    "leak_ctx_profile_version",
+    "leak_ctx_segment_id",
+    "leak_ctx_subject_ref",
+    "leak_evt_inlist_segment_id",
+    "leak_evt_nested_subject_id"
+   ],
+   "injection_probes_changed": [],
+   "L4": {
+    "n_red_total": 3,
+    "n_net_new": 2,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py",
+     "test_cce_contract.py"
+    ],
+    "memory_visible": [
+     "test_cce_contract.py"
+    ],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 141)}",
+     "test_cce_contract.py": "AssertionError: nested subject identity must not enter CCE model input"
+    }
+   }
+  },
+  "G1_mode_choices": {
+   "L1_n": "0/16",
+   "L2_n": "0/16",
+   "L1_changed": [],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [
+    "G_bogus_mode"
+   ],
+   "L4": {
+    "n_red_total": 1,
+    "n_net_new": 0,
+    "net_new_vs_null_arm": [],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [],
+    "first_failing_assertion": {}
+   }
+  },
+  "G2_drop_post_validate": {
+   "L1_n": "0/16",
+   "L2_n": "0/16",
+   "L1_changed": [],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [
+    "G_default"
+   ],
+   "L4": {
+    "n_red_total": 2,
+    "n_net_new": 1,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py"
+    ],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 141)}"
+    }
+   }
+  },
+  "G3_adapter_default": {
+   "L1_n": "0/16",
+   "L2_n": "0/16",
+   "L1_changed": [],
+   "L2_changed": [],
+   "independent_leak_cases": [],
+   "injection_probes_changed": [
+    "G_default"
+   ],
+   "L4": {
+    "n_red_total": 1,
+    "n_net_new": 0,
+    "net_new_vs_null_arm": [],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [],
+    "first_failing_assertion": {}
+   }
+  },
+  "G2b_drop_post_validate_fixed": {
+   "note": "组合/修正臂: L1/L2 见 inject2 探针(未进 15 例默认面板)",
+   "inject2": {
+    "id": {
+     "obs_permuted_same_id": true,
+     "id_a": "req:content:video-parse:adapter-test:2737b605ae",
+     "id_perm": "req:content:video-parse:adapter-test:2737b605ae",
+     "same_case_stimulus_id": "req:content:video-parse:adapter-test:2737b605ae",
+     "same_case_transition_id": "req:content:video-parse:adapter-test:4d9e0a33da",
+     "stimulus_collides_with_transition": false,
+     "transition_X_id": "req:content:video-parse:adapter-test:4d9e0a33da",
+     "transition_Y_id": "req:content:video-parse:adapter-test:be0c8cb106",
+     "two_prestates_collide": false
+    },
+    "combo_leak": {
+     "baseline_state_keys": [
+      "assertion",
+      "confidence",
+      "dimensions",
+      "evidence_refs",
+      "observed_at",
+      "temporal_scope"
+     ],
+     "independent_leak": [],
+     "leak_in_serialized": []
+    },
+    "cli_bogus_mode": {
+     "main": "SystemExit: 2",
+     "written": false
+    }
+   },
+   "L4": {
+    "n_red_total": 2,
+    "n_net_new": 1,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py"
+    ],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 142)}"
+    }
+   }
+  },
+  "COMBO_F5_plus_F7": {
+   "note": "组合/修正臂: L1/L2 见 inject2 探针(未进 15 例默认面板)",
+   "inject2": {
+    "id": {
+     "obs_permuted_same_id": true,
+     "id_a": "req:content:video-parse:adapter-test:2737b605ae",
+     "id_perm": "req:content:video-parse:adapter-test:2737b605ae",
+     "same_case_stimulus_id": "req:content:video-parse:adapter-test:2737b605ae",
+     "same_case_transition_id": "req:content:video-parse:adapter-test:4d9e0a33da",
+     "stimulus_collides_with_transition": false,
+     "transition_X_id": "req:content:video-parse:adapter-test:4d9e0a33da",
+     "transition_Y_id": "req:content:video-parse:adapter-test:be0c8cb106",
+     "two_prestates_collide": false
+    },
+    "combo_leak": {
+     "baseline_state_keys": [
+      "assertion",
+      "confidence",
+      "dimensions",
+      "evidence_refs",
+      "id",
+      "observed_at",
+      "population_id",
+      "profile_version",
+      "subject_ref",
+      "temporal_scope"
+     ],
+     "independent_leak": [
+      "population_id",
+      "profile_version",
+      "subject_ref"
+     ],
+     "leak_in_serialized": [
+      "population_id",
+      "profile_version",
+      "subject_ref"
+     ]
+    },
+    "cli_bogus_mode": {
+     "main": "SystemExit: 2",
+     "written": false
+    }
+   },
+   "L4": {
+    "n_red_total": 3,
+    "n_net_new": 2,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py",
+     "test_cce_contract.py"
+    ],
+    "memory_visible": [
+     "test_cce_contract.py"
+    ],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 137)}",
+     "test_cce_contract.py": "AssertionError: nested subject identity must not enter CCE model input"
+    }
+   }
+  },
+  "COMBO_G1_plus_G2b": {
+   "note": "组合/修正臂: L1/L2 见 inject2 探针(未进 15 例默认面板)",
+   "inject2": {
+    "id": {
+     "obs_permuted_same_id": true,
+     "id_a": "req:content:video-parse:adapter-test:2737b605ae",
+     "id_perm": "req:content:video-parse:adapter-test:2737b605ae",
+     "same_case_stimulus_id": "req:content:video-parse:adapter-test:2737b605ae",
+     "same_case_transition_id": "req:content:video-parse:adapter-test:4d9e0a33da",
+     "stimulus_collides_with_transition": false,
+     "transition_X_id": "req:content:video-parse:adapter-test:4d9e0a33da",
+     "transition_Y_id": "req:content:video-parse:adapter-test:be0c8cb106",
+     "two_prestates_collide": false
+    },
+    "combo_leak": {
+     "baseline_state_keys": [
+      "assertion",
+      "confidence",
+      "dimensions",
+      "evidence_refs",
+      "observed_at",
+      "temporal_scope"
+     ],
+     "independent_leak": [],
+     "leak_in_serialized": []
+    },
+    "cli_bogus_mode": {
+     "main": "OK",
+     "written": true,
+     "persisted_mode": "NOT_A_MODE",
+     "persisted_contract_ok": false
+    }
+   },
+   "L4": {
+    "n_red_total": 2,
+    "n_net_new": 1,
+    "net_new_vs_null_arm": [
+     "test_cce_ablation_verdicts_v3.py"
+    ],
+    "memory_visible": [],
+    "source_text_only_invisible_to_memory_injection": [
+     "test_cce_ablation_verdicts_v3.py [覆盖率分母 nlines() 读磁盘行数]"
+    ],
+    "first_failing_assertion": {
+     "test_cce_ablation_verdicts_v3.py": "  漂移的文件(档案行数, 现在行数): {'scripts/cce_case_assemble.py': (144, 142)}"
+    }
+   }
+  },
+  "_inject2_baseline": {
+   "id": {
+    "obs_permuted_same_id": true,
+    "id_a": "req:content:video-parse:adapter-test:2737b605ae",
+    "id_perm": "req:content:video-parse:adapter-test:2737b605ae",
+    "same_case_stimulus_id": "req:content:video-parse:adapter-test:2737b605ae",
+    "same_case_transition_id": "req:content:video-parse:adapter-test:4d9e0a33da",
+    "stimulus_collides_with_transition": false,
+    "transition_X_id": "req:content:video-parse:adapter-test:4d9e0a33da",
+    "transition_Y_id": "req:content:video-parse:adapter-test:be0c8cb106",
+    "two_prestates_collide": false
+   },
+   "combo_leak": {
+    "baseline_state_keys": [
+     "assertion",
+     "confidence",
+     "dimensions",
+     "evidence_refs",
+     "observed_at",
+     "temporal_scope"
+    ],
+    "independent_leak": [],
+    "leak_in_serialized": []
+   },
+   "cli_bogus_mode": {
+    "main": "SystemExit: 2",
+    "written": false
+   },
+   "cli_ok_mode": {
+    "main": "ValueError: transition mode requires a pre_state_snapshot_ref present in",
+    "written": false
+   }
+  },
+  "_arm_definitions": [
+   {
+    "arm": "D1_comment_block",
+    "class": "DEAD",
+    "anchor": "# 旧名与新名必须**同时**永久禁止。\n# 只留新名, 历史模型和外部输入仍可用旧名把身份/分群字段重新注入; 删旧名不等于旧攻击面消失。\n# 旧名在这里是 DENYLIST_SENTINEL —— 代表「拒绝能力」, 不代表业务还依赖旧",
+    "replacement": "",
+    "note": "整块 changelog/理由注释删除(纯注释, 肯定不承重)"
+   },
+   {
+    "arm": "D2_docstring",
+    "class": "DEAD",
+    "anchor": "\"\"\"Build a context-bound CCE request and anonymous model-input projection.",
+    "replacement": "\"\"\"ABLATED-DOCSTRING-PLACEHOLDER.",
+    "note": "模块 docstring 首行改写(只进 argparse --help)"
+   },
+   {
+    "arm": "D3_inner_docstring",
+    "class": "DEAD",
+    "anchor": "    \"\"\"Project a validated case into the only payload a CCE adapter may consume.",
+    "replacement": "    \"\"\"ABLATED.",
+    "note": "build_model_input 的 docstring"
+   },
+   {
+    "arm": "V1_kind_const",
+    "class": "LIVE",
+    "anchor": "\"kind\": \"cce.measurement_input.v1\",",
+    "replacement": "\"kind\": \"cce.measurement_input.vABLATED\",",
+    "note": "payload 的 kind —— 该文件真被读的输出字段(活对照)"
+   },
+   {
+    "arm": "A1_legacy_sentinels",
+    "class": "ABL",
+    "anchor": "    \"segment_id\", \"individual_id\",\n",
+    "replacement": "",
+    "note": "删掉 legacy denylist sentinel(segment_id/individual_id)"
+   },
+   {
+    "arm": "A2_canonical_v2_trio",
+    "class": "ABL",
+    "anchor": "    \"mode_id\", \"population_field_id\", \"evidence_unit_id\",\n",
+    "replacement": "",
+    "note": "删掉 canonical v2 尺度名三件"
+   },
+   {
+    "arm": "A3_subject_line1",
+    "class": "ABL",
+    "anchor": "    \"subject_ref\", \"subject_refs\", \"subject_id\", \"profile_version\", \"subject_version\",\n",
+    "replacement": "",
+    "note": "删掉 subject_ref/refs/id/profile_version/subject_version"
+   },
+   {
+    "arm": "A4_subject_line2",
+    "class": "ABL",
+    "anchor": "    \"subject_card\", \"subject_cards\", \"population_id\",\n",
+    "replacement": "",
+    "note": "删掉 subject_card(s)/population_id"
+   },
+   {
+    "arm": "A5_whole_denylist_EMPTY",
+    "class": "INJ",
+    "anchor": "MODEL_FORBIDDEN_KEYS = {",
+    "replacement": "MODEL_FORBIDDEN_KEYS = set()\n_UNUSED_OLD = {",
+    "note": "整张黑名单清空(M6 注入臂)"
+   },
+   {
+    "arm": "B1_no_list_recursion",
+    "class": "ABL",
+    "anchor": "    if isinstance(value, list):\n        return set().union(*(_forbidden_model_keys(item) for item in value), set())\n",
+    "replacement": "",
+    "note": "不再递归进 list"
+   },
+   {
+    "arm": "B2_no_dict_value_recursion",
+    "class": "ABL",
+    "anchor": "        return ({str(key) for key in value if key in MODEL_FORBIDDEN_KEYS}\n                | set().union(*(_forbidden_mo",
+    "replacement": "        return {str(key) for key in value if key in MODEL_FORBIDDEN_KEYS}",
+    "note": "只查顶层键, 不递归进 dict 的值"
+   },
+   {
+    "arm": "B3_scanner_always_empty",
+    "class": "INJ",
+    "anchor": "def _forbidden_model_keys(value: Any) -> set[str]:",
+    "replacement": "def _forbidden_model_keys(value: Any) -> set[str]:\n    return set()  # INJECTED: 橡皮图章\n    # noqa",
+    "note": "N3: 弄坏它声称在核的对象 —— 扫描器恒返回空集"
+   },
+   {
+    "arm": "C1_unsorted_event_ids",
+    "class": "ABL",
+    "anchor": "*sorted(event_ids)]",
+    "replacement": "*event_ids]",
+    "note": "request_id 不再对 event_ids 排序"
+   },
+   {
+    "arm": "C2_drop_prestate_from_id",
+    "class": "ABL",
+    "anchor": "identity = [measurement_mode, pre_state_snapshot_ref or \"none\", *sorted(event_ids)]",
+    "replacement": "identity = [measurement_mode, \"none\", *sorted(event_ids)]",
+    "note": "pre_state_ref 退出 request 身份"
+   },
+   {
+    "arm": "C3_drop_mode_from_id",
+    "class": "ABL",
+    "anchor": "identity = [measurement_mode, pre_state_snapshot_ref or \"none\", *sorted(event_ids)]",
+    "replacement": "identity = [pre_state_snapshot_ref or \"none\", *sorted(event_ids)]",
+    "note": "measurement_mode 退出 request 身份"
+   },
+   {
+    "arm": "C4_suffix_len",
+    "class": "ABL",
+    "anchor": ".hexdigest()[:10]",
+    "replacement": ".hexdigest()[:4]",
+    "note": "request_id 后缀 10→4 位"
+   },
+   {
+    "arm": "C5_id_format",
+    "class": "ABL",
+    "anchor": "return f\"req:{content_id}:{suffix}\"",
+    "replacement": "return f\"reqABL/{content_id}/{suffix}\"",
+    "note": "request_id 字面格式改写"
+   },
+   {
+    "arm": "E1_drop_event_plane_guard",
+    "class": "ABL",
+    "anchor": "    if not out.get(\"events\"):\n        raise ValueError(\"no events available: CCE request cannot bypass the event plane\")",
+    "replacement": "",
+    "note": "删掉「无事件不得建请求」闸"
+   },
+   {
+    "arm": "E2_drop_single_context_guard",
+    "class": "ABL",
+    "anchor": "    if len(contexts) != 1 or not contexts[0].get(\"id\"):\n        raise ValueError(\"exactly one context_snapshot is requir",
+    "replacement": "",
+    "note": "删掉「恰好一个 context_snapshot」闸"
+   },
+   {
+    "arm": "E3_drop_strip",
+    "class": "ABL",
+    "anchor": "    for forbidden in (\"subject_refs\", \"contexts\"):\n        out.pop(forbidden, None)\n",
+    "replacement": "",
+    "note": "不再从 case 上剥掉 subject_refs/contexts"
+   },
+   {
+    "arm": "E4_prediction_time",
+    "class": "INJ",
+    "anchor": "\"prediction_time\": \"pre_exposure\",",
+    "replacement": "\"prediction_time\": \"post_exposure\",",
+    "note": "prediction_time 常量注入为 post_exposure"
+   },
+   {
+    "arm": "E5_drop_transition_membership",
+    "class": "ABL",
+    "anchor": "        snapshots = {row.get(\"id\") for row in out.get(\"state_snapshots\", []) if isinstance(row, dict)}\n        if pre_st",
+    "replacement": "",
+    "note": "删掉 transition 的 pre_state 必须存在于 state_snapshots 的闸"
+   },
+   {
+    "arm": "E6_drop_mode_arg_coherence",
+    "class": "ABL",
+    "anchor": "    elif pre_state_snapshot_ref:\n        raise ValueError(\"pre_state_snapshot_ref is only valid for transition mode\")\n",
+    "replacement": "",
+    "note": "删掉「非 transition 不得带 pre_state_ref」闸"
+   },
+   {
+    "arm": "F1_drop_validate_gate",
+    "class": "ABL",
+    "anchor": "    verdict = validate_case(case)\n    if not verdict[\"ok\"]:\n        raise ValueError(\"cannot project invalid CCE case:\\n",
+    "replacement": "",
+    "note": "投影前不再跑契约校验"
+   },
+   {
+    "arm": "F2_drop_single_request_guard",
+    "class": "ABL",
+    "anchor": "    if len(requests) != 1:\n        raise ValueError(\"exactly one matching cce_request is required\")\n",
+    "replacement": "",
+    "note": "删掉「恰好一条匹配 request」闸"
+   },
+   {
+    "arm": "F3_no_deepcopy",
+    "class": "ABL",
+    "anchor": "import copy\n",
+    "replacement": "import copy as _copy_unused\nclass copy:\n    deepcopy = staticmethod(lambda x: x)\n",
+    "note": "deepcopy → 直接别名(投影与 case 共享可变对象)"
+   },
+   {
+    "arm": "F4_boundary_string",
+    "class": "ABL",
+    "anchor": "\"boundary\": \"anonymous state measurement; Subject is constructed downstream\",",
+    "replacement": "\"boundary\": \"ABLATED\",",
+    "note": "boundary 声明串改写"
+   },
+   {
+    "arm": "F5_baseline_whole_snapshot",
+    "class": "ABL",
+    "anchor": "        payload[\"baseline_state\"] = {\n            field: copy.deepcopy(snapshot[field])\n            for field in (\"obser",
+    "replacement": "        payload[\"baseline_state\"] = copy.deepcopy(snapshot)",
+    "note": "★ baseline_state 白名单 → 整份 state_snapshot(含 subject_ref)"
+   },
+   {
+    "arm": "F6_drop_evidence_refs_field",
+    "class": "ABL",
+    "anchor": "\"observed_at\", \"assertion\", \"dimensions\", \"evidence_refs\",",
+    "replacement": "\"observed_at\", \"assertion\", \"dimensions\",",
+    "note": "白名单里删掉 evidence_refs"
+   },
+   {
+    "arm": "F7_drop_final_forbidden_check",
+    "class": "ABL",
+    "anchor": "    forbidden = _forbidden_model_keys(payload)\n    if forbidden:\n        raise ValueError(\"CCE model input contains down",
+    "replacement": "",
+    "note": "★ 删掉最终 fail-closed 身份键检查"
+   },
+   {
+    "arm": "G1_mode_choices",
+    "class": "ABL",
+    "anchor": "choices=(\"stimulus\", \"observed_response\", \"transition\"), ",
+    "replacement": "",
+    "note": "argparse 去掉 measurement-mode 的 choices 约束"
+   },
+   {
+    "arm": "G2_drop_post_validate",
+    "class": "ABL",
+    "anchor": "    verdict = validate_case(out)\n    if not verdict[\"ok\"]:\n        raise SystemExit(\"request assembly failed contract:\\n",
+    "replacement": "",
+    "note": "main() 落盘前不再复核契约"
+   },
+   {
+    "arm": "G3_adapter_default",
+    "class": "ABL",
+    "anchor": "default=\"event_packet@v1\"",
+    "replacement": "default=\"ABLATED@v0\"",
+    "note": "--adapter 默认值改写"
+   }
+  ]
+ },
+ "ref_counts": {
+  "MODEL_FORBIDDEN_KEYS": {
+   "coarse": 7,
+   "strict": 1
+  },
+  "_forbidden_model_keys": {
+   "coarse": 4,
+   "strict": 4
+  },
+  "request_id": {
+   "coarse": 16,
+   "strict": 1
+  },
+  "build_request": {
+   "coarse": 7,
+   "strict": 7
+  },
+  "build_model_input": {
+   "coarse": 8,
+   "strict": 8
+  },
+  "cce.measurement_input.v1": {
+   "coarse": 3,
+   "strict": 3
+  },
+  "pre_state_snapshot_ref": {
+   "coarse": 30,
+   "strict": 4
+  },
+  "prediction_time": {
+   "coarse": 8,
+   "strict": 2
+  },
+  "measurement_adapter": {
+   "coarse": 6,
+   "strict": 2
+  },
+  "measurement_mode": {
+   "coarse": 20,
+   "strict": 4
+  },
+  "baseline_state": {
+   "coarse": 10,
+   "strict": 1
+  },
+  "event_refs": {
+   "coarse": 7,
+   "strict": 2
+  },
+  "context_snapshot_ref": {
+   "coarse": 9,
+   "strict": 2
+  },
+  "segment_id": {
+   "coarse": 7,
+   "strict": 0
+  },
+  "individual_id": {
+   "coarse": 5,
+   "strict": 0
+  },
+  "mode_id": {
+   "coarse": 14,
+   "strict": 0
+  },
+  "population_field_id": {
+   "coarse": 2,
+   "strict": 0
+  },
+  "evidence_unit_id": {
+   "coarse": 3,
+   "strict": 0
+  },
+  "population_id": {
+   "coarse": 6,
+   "strict": 0
+  },
+  "subject_card": {
+   "coarse": 2,
+   "strict": 0
+  },
+  "subject_version": {
+   "coarse": 7,
+   "strict": 0
+  },
+  "event_packet@v1": {
+   "coarse": 3,
+   "strict": 3
+  },
+  "cce_requests": {
+   "coarse": 15,
+   "strict": 15
+  },
+  "__doc__": {
+   "coarse": 20,
+   "strict": 13
+  },
+  "copy.deepcopy": {
+   "coarse": 108,
+   "strict": 0
+  },
+  "evidence_refs": {
+   "coarse": 111,
+   "strict": 1
+  },
+  "main": {
+   "coarse": 361,
+   "strict": 0
+  },
+  "subject_ref": {
+   "coarse": 26,
+   "strict": 2
+  },
+  "boundary": {
+   "coarse": 21,
+   "strict": 0
+  },
+  "nlines": {
+   "coarse": 3,
+   "strict": 0
+  },
+  "_scan": {
+   "n_files": 640,
+   "dirs": [
+    "scripts",
+    "probes",
+    "accuracy",
+    "tests",
+    ".github",
+    "config"
+   ],
+   "suffixes": [
+    ".py",
+    ".json",
+    ".yml",
+    ".yaml",
+    ".md",
+    ".txt",
+    ".sh"
+   ]
+  }
+ },
+ "l4_index": {
+  "A1_legacy_sentinels": {
+   "n": 164,
+   "n_red": 4,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py",
+    "test_cce_chain_conformance.py",
+    "test_ontology_migration.py"
+   ]
+  },
+  "A2_canonical_v2_trio": {
+   "n": 164,
+   "n_red": 4,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py",
+    "test_cce_chain_conformance.py",
+    "test_ontology_migration.py"
+   ]
+  },
+  "A3_subject_line1": {
+   "n": 164,
+   "n_red": 3,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py",
+    "test_cce_contract.py"
+   ]
+  },
+  "A4_subject_line2": {
+   "n": 164,
+   "n_red": 2,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "A5_whole_denylist_EMPTY": {
+   "n": 164,
+   "n_red": 5,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py",
+    "test_cce_chain_conformance.py",
+    "test_cce_contract.py",
+    "test_ontology_migration.py"
+   ]
+  },
+  "B1_no_list_recursion": {
+   "n": 164,
+   "n_red": 2,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "B2_no_dict_value_recursion": {
+   "n": 164,
+   "n_red": 3,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py",
+    "test_cce_contract.py"
+   ]
+  },
+  "B3_scanner_always_empty": {
+   "n": 164,
+   "n_red": 3,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py",
+    "test_cce_contract.py"
+   ]
+  },
+  "BASELINE": {
+   "n": 164,
+   "n_red": 1,
+   "red": [
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "C1_unsorted_event_ids": {
+   "n": 164,
+   "n_red": 1,
+   "red": [
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "C2_drop_prestate_from_id": {
+   "n": 164,
+   "n_red": 1,
+   "red": [
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "C3_drop_mode_from_id": {
+   "n": 164,
+   "n_red": 1,
+   "red": [
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "C4_suffix_len": {
+   "n": 164,
+   "n_red": 1,
+   "red": [
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "C5_id_format": {
+   "n": 164,
+   "n_red": 1,
+   "red": [
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "COMBO_F5_plus_F7": {
+   "n": 164,
+   "n_red": 3,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py",
+    "test_cce_contract.py"
+   ]
+  },
+  "COMBO_G1_plus_G2b": {
+   "n": 164,
+   "n_red": 2,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "D1_comment_block": {
+   "n": 164,
+   "n_red": 2,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "D2_docstring": {
+   "n": 164,
+   "n_red": 1,
+   "red": [
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "D3_inner_docstring": {
+   "n": 164,
+   "n_red": 1,
+   "red": [
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "E1_drop_event_plane_guard": {
+   "n": 164,
+   "n_red": 2,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "E2_drop_single_context_guard": {
+   "n": 164,
+   "n_red": 2,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "E3_drop_strip": {
+   "n": 164,
+   "n_red": 2,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "E4_prediction_time": {
+   "n": 164,
+   "n_red": 2,
+   "red": [
+    "test_cce_audio_prosody.py",
+    "test_cce_contract.py"
+   ]
+  },
+  "E5_drop_transition_membership": {
+   "n": 164,
+   "n_red": 2,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "E6_drop_mode_arg_coherence": {
+   "n": 164,
+   "n_red": 2,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "F1_drop_validate_gate": {
+   "n": 164,
+   "n_red": 2,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "F2_drop_single_request_guard": {
+   "n": 164,
+   "n_red": 2,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "F3_no_deepcopy": {
+   "n": 164,
+   "n_red": 2,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "F4_boundary_string": {
+   "n": 164,
+   "n_red": 2,
+   "red": [
+    "test_cce_audio_prosody.py",
+    "test_cce_contract.py"
+   ]
+  },
+  "F5_baseline_whole_snapshot": {
+   "n": 164,
+   "n_red": 3,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py",
+    "test_cce_contract.py"
+   ]
+  },
+  "F6_drop_evidence_refs_field": {
+   "n": 164,
+   "n_red": 1,
+   "red": [
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "F7_drop_final_forbidden_check": {
+   "n": 164,
+   "n_red": 3,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py",
+    "test_cce_contract.py"
+   ]
+  },
+  "G1_mode_choices": {
+   "n": 164,
+   "n_red": 1,
+   "red": [
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "G2_drop_post_validate": {
+   "n": 164,
+   "n_red": 2,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "G2b_drop_post_validate_fixed": {
+   "n": 164,
+   "n_red": 2,
+   "red": [
+    "test_cce_ablation_verdicts_v3.py",
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "G3_adapter_default": {
+   "n": 164,
+   "n_red": 1,
+   "red": [
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "NULL_no_op": {
+   "n": 164,
+   "n_red": 1,
+   "red": [
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "S1_sibling_event_assemble": {
+   "n": 164,
+   "n_red": 1,
+   "red": [
+    "test_cce_audio_prosody.py"
+   ]
+  },
+  "V1_kind_const": {
+   "n": 164,
+   "n_red": 2,
+   "red": [
+    "test_cce_audio_prosody.py",
+    "test_cce_contract.py"
+   ]
+  }
+ },
+ "limits": [
+  "★ 本批判决**不覆盖生产判决面**(cce_knot_classify top1 / cce_align_v2.★usable / accuracy/run_gates PASS)。该面与本件**无 import 通路**(实扫), 故列为 faces_blind, 且按 N1 规定**没有**用它支撑任何无差异结论。",
+  "★ 本批判决不覆盖 scripts/cce_foundation_prepare.py 的真实 CLI 运行面 —— 全仓零调用点。G* 系列的证据是我直接 import 后调 main() 并喂 argv 造出来的**人造面**。",
+  "语料窄: 面板 15 例 + 9 条注入探针, 全部由 examples/cce_foundation_case_v1.json(sha16 c7dcb6c45b33b115) 与一份合成 video-parse artifact 经 cce_foundation_adapter.adapt() 生成。没有真实多模态 case, 没有 observed_response 模式(该模式在 cce_contract.MEASUREMENT_MODES 里存在但存量语料 0 例), 没有跑通 state_transitions 全链。",
+  "MODEL_FORBIDDEN_KEYS 里的 `subject_card` / `subject_cards` 两个键**没有造泄漏探针**, 它们的证据只到 ref_count 层。",
+  "C4(request_id 后缀 10→4 位)**没有实测到碰撞** —— 样本量不足以证伪。只报「读数改变」, 不报碰撞率。",
+  "组合臂只做了 2 组(F5+F7、G1+G2b), **没有穷举两两组合**。其它纵深防御配对(例如 F1+F2、E1+E2)未测 —— 单臂「仍 fail-closed」不蕴含「任意两臂同删仍 fail-closed」。",
+  "兄弟件对照只做了 cce_event_assemble 一件(S1 臂: 改 ASSEMBLER_VERSION ⇒ L1 12/15 变 · L2 0/16 变)。parser_plane 另两件 cce_platform_adapter / cce_structural_gate 与本件的交互**未测**。",
+  "L4 面 = tests/test_*.py 共 164 个, **不含 probes/ 下的任何探针**, 也不含 .github/ workflow 里那些需要真 API 的步骤。",
+  "★ L4 基线有 1 条**恒红**: tests/test_cce_audio_prosody.py —— 它需要真实网络(ASR), 零 API 约束下必红。它在基线、空操作臂与全部 38 个臂里都红, 净新增口径已逐条扣除。",
+  "★ L4 是 4 路并行跑的(各自独立 repo 副本、各自清 __pycache__、各自 python3 -B)。**只采信 pass/fail, 不采信耗时** —— 并行负载不同, 耗时在 159s~256s 间浮动。",
+  "引用计数是**词碰撞统计不是引用图**(M4)。粗计=词边界匹配; 严计=同一行还含 cce_case_assemble|build_request|build_model_input|measurement_input|cce_request|forbidden|parser 之一。扫描面 scripts/ probes/ accuracy/ tests/ .github/ config/ 共 640 个 .py .json .yml .yaml .md .txt .sh 文件。",
+  "★ 工况漂移即失效: examples/cce_foundation_case_v1.json 或 scripts/cce_contract.py 任一改变 ⇒ 本批判决当场作废重跑。"
+ ]
+}

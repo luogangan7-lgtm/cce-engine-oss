@@ -1,0 +1,89 @@
+{
+ "block": "SUSPEND_FIX_CONFIRMATION_PREREG_2026-09-08",
+ "★frozen_before_implementing_and_running": "本文件、**新题集**、**修法文本**三者在发起**任何**调用之前写入。新题校验和 **6627d70e135d0113**",
+ "★★why_new_items": "★★★ 修法是**看到第一轮 F3 失败之后**想到的 ⇒ 用第一轮那 34 题确认它就是**用结果选规则**。本轮用**全新的 22 题**, 与第一轮**同构造规则、不同实例**。",
+ "★★★the_authorship_bias_i_must_declare": "★★★ **题目是我写的, 而我知道修法是什么** ⇒ 我可能(无意地)构造出「修法轻易通过」的题。\n**三条缓解, 但都不彻底**:\n  ① 加入**阳性对照组**「★真悬置_必须仍判」—— 修法**不许**把真悬置也压掉(**这是修法可能失败的方向**)\n  ② 加入**对抗组**「★悬置_未来时间词」与「★已决定_未来时间词」—— 二者**都有强未来时间指向**(与 signature 的 `time=\"未来(决策悬置)\"` 冲突), **只差决定是否已作出**\n  ③ 每条负例都换了**不同的延后理由**(payday / 预约 / 休假 / 新款上市 / 福利重置), 不复用第一轮措辞\n★ **残留限度**: 真正干净的做法是由**不知道修法内容的第三方**出题。我没有。**如实记, 不假装解决了。**",
+ "design": {
+  "n_items": 22,
+  "sha256": "6627d70e135d0113",
+  "groups": {
+   "已决定_延后执行": 4,
+   "历史悬置_现已决定": 4,
+   "★真悬置_必须仍判": 4,
+   "★悬置_未来时间词": 2,
+   "★已决定_未来时间词": 2,
+   "仅收藏": 2,
+   "明确放弃": 2,
+   "纯向往": 2
+  },
+  "★arms": "**V0(现网 prompt)** 与 **V1(仅改 suspend.negative_examples_prompt)** 跑**同一批题**, 其余一切不变",
+  "annotators": "MiniMax 五员 + glm-4.5-flash",
+  "n_calls": "22 × 6 × 2 臂 = 264"
+ },
+ "★★the_fix_verbatim": {
+  "★target_field": "`suspend.negative_examples_prompt` —— **已验证进 prompt**(NEGATIVE_EXAMPLES)",
+  "★why_not_hard_discriminant": "★★★ `hard_discriminant` **不进 prompt**, 改它**对行为无效**。我一度写错, 已更正。",
+  "old": "无决策语境的纯畅想(那是itch); 已明确放弃(那是inertia)",
+  "new": "无决策语境的纯畅想(那是itch); 已明确放弃(那是inertia); **决定已作出、延后的只是执行/购买时点**(『已经决定买A, 等打折再下单』—— 那是display或reward, 不是suspend); **文本表明历史上曾犹豫但现已作出决定**(『之前没定, 现在决定买A』—— 同上)。★ 判 suspend 必须确认**决策对象上的决定尚未作出**; 仅有未来时间指向(等打折/等下个月)**不构成证据**",
+  "★minimality": "**只改这一个字段**。decision_tree / signature / behavior / 其余八结**全部不动** —— 防止同时改多处后无法归因。"
+ },
+ "★★★falsifiable_predictions": {
+  "C1_修法在失败方向上有效": "**V1 在「已决定_延后执行」与「历史悬置_现已决定」上的 suspend 率, 显著低于 V0。**\n★ 具体: V0 在这两组合计的 suspend 率(第一轮 MiniMax 是 80%/10%, GLM 是 0%/100%)应在 V1 下降到 **<= 0.20**。★ 若不降 ⇒ **修法无效**, 说明缺口不在 negative_examples。",
+  "C2_★修法不许压掉真悬置": "★★ **V1 在「★真悬置_必须仍判」上的 suspend 率 >= 0.70, 且与 V0 之差 <= 0.20。**\n★★★ **这是修法最可能失败的方向** —— 一条写得太狠的排除会把真悬置也排掉。若这里掉下来 ⇒ **修法过度**, 必须收窄。",
+  "C3_对抗组能分开": "**V1 在「★悬置_未来时间词」上的 suspend 率, 显著高于「★已决定_未来时间词」。**\n★ 二者**都有强未来时间指向**, 只差决定是否已作出。若分不开 ⇒ 模型是靠 **time 维度**而非**决策状态**在判, 那修 negative_examples **治不了根**, 需动 signature。",
+  "C4_跨家族同向": "MiniMax 与 GLM 在 C1、C2 上方向一致。★ 若 GLM 侧因几乎不判 suspend 而不可判, 如实记。"
+ },
+ "★★instrument_generation": "★★★ 改 `negative_examples_prompt` = **改 prompt** = **换仪器**。按 `how_to_change_core` 的第一条路: 必须 ①更新 pin ②**递增 instrument_generation** ③在 `INSTRUMENT_LINEAGE` 加一代并写明「上一代的标定还能不能用」。\n★ **本轮先在旁路跑 V0/V1 对照, 不改现网**。只有 C1~C4 全部通过, 才走换代流程。⇒ **现网 prompt 在本轮结束前一个字都不动。**",
+ "★what_this_still_cannot_do": [
+  "★ 仍是 **SYNTHETIC_DIAGNOSTIC** —— 合成题, 不并入自然语料 n。",
+  "★★ 即使 C1~C4 全过, 也**只证明修法在构造题上有效**, **不证明**它修好了**自然评论**上的可靠性。后者需要在自然语料上重测, 且需要独立人类参考。",
+  "★ 出题人偏倚未消除(见上)。"
+ ],
+ "★★correction_2026-09-08_the_route_in_this_prereg_is_wrong": {
+  "★what_the_frozen_text_says": "上面 ★★instrument_generation 一节写: 本修法走 how_to_change_core 的**第一条路**(递增 instrument_generation + 加 LINEAGE 一代)。",
+  "★★it_is_wrong_and_here_is_the_measurement": "实测(零 API, tests/test_cce_gate_vs_production_prompt.py 现算): 把 suspend.negative_examples_prompt 改掉后 **instrument_hash 一字不变**, 仍是 d4cce4c745f3f991。根因: 生产 `_stage2_template` 只喂 signature/typical_codes/behavior[:60]/family/levers, **根本不读 negative_examples** —— 它只进**验收闸标注者**的 DIST_TMPL。",
+  "★★★why_route_1_would_be_a_false_claim": "递增 instrument_generation = 声明**结分类仪器变了**。但它没变。manifest 第五条路自己写明了这个反模式: 「换代会假称结分类仪器变了, **白白作废仍然有效的标定**」。⇒ 走第一条路不是「保守一点」, 是**记了一笔假账**。",
+  "★the_route_is_still_open": "第五条路的原文限定「只影响下游 **manipulation**」, 而本例影响的是**验收闸**本身 —— 比 manipulation 更要紧(它是给别的结论发证的那台仪器)。⇒ **不硬套第五条路**。待 C1~C4 出结果后, 若要落地, 需在 manifest 里**新立一条路**并写明为何比第五条更严。",
+  "★what_this_does_not_change": "★ 预测 C1~C4、题目、校验和 6627d70e135d0113 **一字未改**。本条只更正**处置路由**, 不碰判据。",
+  "★★the_consequence_that_must_be_reported": "★★★ **这条修法即使全过, 也修不到生产分类器。** 它只让验收闸的标注者更少把「已决定但延后执行」判成 suspend。生产 s2 从来看不到负例 ⇒ 生产上的 suspend 误判(如果有)**本轮一点没动**。任何引用本轮结果的地方都必须带上这句。"
+ },
+ "★★★criterion_preflight_2026-09-09补算": {
+  "★★这是**事后**补算, 不是发起前做的": "**如实记**: 本预注册发起时**没有**做判据准入检查 —— 那正是 2026-09-09 花 220 次才发现否决判据裁不动的直接原因。本块是**回溯补算**, **不得**被读成「当时做过」。★ 此后新预注册必须**发起前**做。",
+  "verdict": "PASS",
+  "逐条": {
+   "C1<=20%(40单元)": {
+    "n": 40,
+    "阈值": "<=0.2",
+    "允许的整数计数": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8
+    ],
+    "★零容差": false,
+    "★实际等价于": "0~8 / 40"
+   },
+   "C2>=0.70(20单元)": {
+    "n": 20,
+    "阈值": ">=0.7",
+    "允许的整数计数": [
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20
+    ],
+    "★零容差": false,
+    "★实际等价于": "14~20 / 20"
+   }
+  },
+  "拦下的": []
+ }
+}

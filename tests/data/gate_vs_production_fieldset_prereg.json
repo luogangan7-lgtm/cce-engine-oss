@@ -1,0 +1,84 @@
+{
+ "block": "GATE_VS_PRODUCTION_FIELDSET_PREREG",
+ "★frozen_before_running": "本文件在**发起 arm B 之前**写完并落盘。判据、方向赌注、外推限度全部先写死。",
+ "★why": "2026-09-08 实测(tests/test_cce_gate_vs_production_prompt.py): 验收闸标注者与生产 s2 分类器喂进去的分类学字段是**双向差异** —— 闸独占 决策树/负例/锚例, 生产独占 family/typical_codes/levers。★ 我第一版判成「闸更严 ⇒ G-K1 是乐观上界」, **被自己的实测推翻**(不是包含关系)。⇒ 「谁更一致」现在是一个**未知量**。本轮把它变成一个**测量**。",
+ "design": {
+  "items": {
+   "n": 81,
+   "checksum": "958738e11d211ae5",
+   "★source": "run_a_repeat 的 81 条验收评论 —— **逐条配对**, 不是新抽样。配对设计把条目难度当区组消掉。"
+  },
+  "annotators": [
+   "MiniMax-M3",
+   "MiniMax-M2.5",
+   "MiniMax-M2.7",
+   "MiniMax-M2",
+   "MiniMax-Text-01"
+  ],
+  "arm_A": {
+   "★已有数据, 零新增调用": true,
+   "prompt": "现网 DIST_TMPL: KNOT_BRIEF(signature+behavior[:70]) + DECISION_TREE + NEGATIVE_EXAMPLES + 5 条锚例",
+   "source": "cce_runs/run_a_repeat/raw_annotations.json"
+  },
+  "arm_B": {
+   "新增调用": 405,
+   "prompt": "同一 DIST_TMPL 骨架与**同一任务形态**(带权分布, <=3 个, >=0.1), 但分类学材料换成**生产 s2 的那一份**: signature + typical_codes + behavior[:60] + family, 外加 levers_not_knots 的「结 vs 杠杆」一句; **删掉**决策树、负例、锚例。"
+  },
+  "★★what_is_held_constant": "条目、模型、温度、body 截断、输出 schema、任务措辞 —— 全同。**唯一变量是分类学材料的字段集合。**"
+ },
+ "★★★falsifiable_predictions": {
+  "D1_主判据": "两臂的 mean_JS 之差, 带**对条目自助**(B=10000, 配对重采样)95%CI。CI 不含 0 ⇒ 字段集合对一致性**有**影响。",
+  "D2": "mean_JS(B) - mean_JS(A) > +0.02 且 CI 不含 0 ⇒ **闸是乐观代理**: G-K1 高估了生产字段集下的一致性。",
+  "D3": "mean_JS(B) - mean_JS(A) < -0.02 且 CI 不含 0 ⇒ **闸是悲观代理**: 生产字段集反而更一致(typical_codes/family/levers 比决策树更有效)。",
+  "D4": "|差| <= 0.02 ⇒ 字段集合影响小; G-K1 的读数在**字段这一维**上可近似外推到生产。",
+  "D5_top2": "同样报 mean_top2 之差。★ 但 top2 在混淆方向上结构性盲(已留档) ⇒ **以 JS 为主判据, top2 只作参考**。"
+ },
+ "★★my_directional_bet_declared_in_advance": {
+  "赌": "**arm B 更差**(JS 更高)。理由: 决策树/负例/锚例是三件**程序性**消歧装置, 而 typical_codes/family/levers 是**描述性**材料。",
+  "★信心": "**低**。写下来是为了**事后不能反着编** —— 若 D3 成立, 本条必须在结果里被点名为「我赌错了」。"
+ },
+ "★★★what_this_still_cannot_say": [
+  "★ arm B **不是生产**。生产 s2 还要吃 s1 的四层输出、要出完整 schema、k=3 多次抽样。本轮**只隔离了分类学字段这一个变量**。",
+  "★★ 因此本轮**无论结果如何**, 都不能说「生产分类器的可靠性是 X」。只能说「把字段集合换成生产那一份, 一致性动了多少」。",
+  "★ 也**不得**用本轮结果去改判 2026-09-07 的 G-K1 PASS —— 那是**另一台仪器**的读数, 可比不可合。"
+ ],
+ "★cost_ceiling": {
+  "新增调用上限": 405,
+  "★撞上限即停": "按 2026-07-29 铁律, 超出 405 次立即停并报告, 不自行加预算。",
+  "★与在跑的任务": "suspend V0/V1 (264 次)仍在跑。**本轮排队等它结束再发起**, 不并发 —— 同一 endpoint 并发会互相拖慢并抬高 429 风险。"
+ },
+ "★★which_panel_frozen_before_running": {
+  "主判": "**全 5 人面板**(10 个两两对), 两臂都用同一批人。",
+  "★why_not_core_panel": "★★ 离群规则会在两臂**各自**剔人 —— 若 arm A 剔了 Text-01 而 arm B 没剔, 两臂比的就不是同一个面板, 差值里会混进「剔了谁」的效应, **归因立刻断掉**。⇒ 主判据固定用全面板。核心面板数字并列报出, 只作参考, **不作判决**。",
+  "★bootstrap": "对**条目**配对自助 B=10000: 每次重采样同一批 id, 两臂在**同一批 id** 上各自重算 mean_JS, 取差。配对消掉条目难度。"
+ },
+ "★★★an_assumption_i_cannot_verify": {
+  "★what": "arm A 的读数来自 run_a_repeat, 而**那次运行没有记录自己的参数**(CCE_BODY_CHARS 截断长度 · CCE_UNIT_LABEL 单元标签, 二者都进 prompt)。",
+  "★★consequence": "⇒ 「两臂除字段集合外逐字相同」这一前提, 在**截断长度**这一维上是**假设**, **不是核实**。arm B 用代码默认值 700; 若 arm A 当时 export 过别的值, 两臂就多了一个变量, 而这件事**事后无法证伪**。",
+  "★i_will_not_pretend_otherwise": "可以倒推「默认就是 700」, 但那是推断不是记录。⇒ 结果里必须带这条限度, **不写成「已核实可比」**。",
+  "★already_fixed_for_the_future": "run_gates.RUN_PARAMS 已把这些参数写进两处产物; tests/test_cce_run_params_recorded.py 现算守住。详见 tests/data/run_params_gap.json。"
+ },
+ "★★★missing_readings_rule_frozen_before_results": {
+  "★why_now": "★ suspend 那轮**吃过这个亏**: 4 条解析失败全落在一臂, 分母变小会机械地帮那一臂, 而预注册没写缺失怎么办。这次**提前写**。",
+  "主分析": "**完备条目分析**: 只用「两臂 × 5 名标注者**全部有读数**」的条目。判决脚本已按此写死。",
+  "★必须同时报": [
+   "两臂各自的逐模型覆盖率",
+   "被剔掉的条目数与它们的 id",
+   "★ 剔掉的条目在**两臂之间是否失衡**(单侧 Fisher)"
+  ],
+  "★★sensitivity": "若剔掉的条目数 > 5% 或两臂失衡 p < 0.10 ⇒ **补齐缺失读数后重判**, 不得用完备条目结果直接下结论。补齐是完成预注册设计, 不是选择性重试。",
+  "★what_i_will_not_do": "不按结果决定要不要补 —— 上面的触发条件**现在就写死**。"
+ },
+ "★★★criterion_preflight_2026-09-09补算": {
+  "★★这是**事后**补算, 不是发起前做的": "**如实记**: 本预注册发起时**没有**做判据准入检查 —— 那正是 2026-09-09 花 220 次才发现否决判据裁不动的直接原因。本块是**回溯补算**, **不得**被读成「当时做过」。★ 此后新预注册必须**发起前**做。",
+  "verdict": "PASS",
+  "逐条": {
+   "配对差CI不含0(79条)": {
+    "n": 79,
+    "最优单侧p": 0.0,
+    "★在α下可达": true
+   }
+  },
+  "拦下的": []
+ }
+}

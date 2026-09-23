@@ -9,13 +9,27 @@ description: 统一处理 CCE 的内容解析、事件与状态建模、主体/�
 
 把本 Skill 当作 CCE 的唯一用户入口。不要再调用旧的 `viral-*`、`b2b-*`、`b2c-*` 或 `cce-github-client` Skill。
 
-每次先从仓库根目录读取：
+每次先按下方规则解析 `CCE_ROOT`，再从该仓库根目录读取：
 
 1. `config/cce_capability_registry_v1.json`：当前能力、状态和入口的权威清单。
 2. `config/cce_workflow_registry_v1.json`：GitHub 生产工作流边界。
 3. 需要解释全链路时，再读 `docs/cce_chain_architecture_v3_1.md` 和 `config/cce_foundation_contract_v2.json`。
 
 不得仅凭本 Skill 的文字断言某项能力已上线。注册表与实际工作流不一致时，停止并报告漂移。
+
+### 权威 repo-root 定位（与当前工作目录无关）
+
+先解析并确认一个绝对的 `CCE_ROOT`，再读取注册表、工作流、脚本和测试；不要把安装目录、当前 shell 目录或 `$PWD` 猜成仓库根目录。当前本机 source root 为 `/Volumes/data/cce-engine`；其他安装使用其实际绝对路径：
+
+```bash
+CCE_ROOT=/absolute/path/to/cce-engine
+test -f "$CCE_ROOT/config/cce_capability_registry_v1.json" \
+  && test -f "$CCE_ROOT/config/cce_workflow_registry_v1.json" \
+  && test -f "$CCE_ROOT/scripts/cce_github_client.py" \
+  || { echo "CCE_ROOT_NOT_FOUND" >&2; exit 2; }
+```
+
+从仓库 cwd、skill 安装 cwd 或其他 cwd 都使用同一绝对根路径；不能定位时返回 `NOT_RUN`/`NOT_AVAILABLE_PRODUCTION`，不得用相对路径或本地伪算结果替代。现有安装脚本、registry、GitHub 外发授权、哈希和完整性 gate 不变。
 
 ## 工作流程 · 路由
 
@@ -52,8 +66,11 @@ Python 依赖锁，并重新跑完整 workflow 回放。本 Skill 不得静默�
 任一条件不满足时，不触发 GitHub，返回 `EXTERNAL_PROCESSING_NOT_AUTHORIZED` 并停止。不得用本地计算伪装为 GitHub 生产结果，也不得静默换成其他外部服务。
 
 ```bash
-python3 scripts/cce_github_client.py verify-input /absolute/path/submission.json
-python3 scripts/cce_github_client.py run /absolute/path/submission.json \
+CCE_ROOT=/absolute/path/to/cce-engine
+python3 "$CCE_ROOT/scripts/cce_github_client.py" --repo-root "$CCE_ROOT" \
+  verify-input /absolute/path/submission.json
+python3 "$CCE_ROOT/scripts/cce_github_client.py" --repo-root "$CCE_ROOT" \
+  run /absolute/path/submission.json \
   --ref master \
   --outdir /absolute/path/result
 ```
@@ -85,9 +102,11 @@ python3 scripts/cce_github_client.py run /absolute/path/submission.json \
 任何变更至少通过：
 
 ```bash
-python3 tests/test_cce_skill_contract.py
-python3 /Users/luolimo/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/cce
-python3 scripts/install_cce_skill.py --check
+CCE_ROOT=/absolute/path/to/cce-engine
+python3 "$CCE_ROOT/tests/test_cce_skill_contract.py"
+python3 /Users/luolimo/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
+  "$CCE_ROOT/skills/cce"
+python3 "$CCE_ROOT/scripts/install_cce_skill.py" --check
 ```
 
 涉及生产工作流时，还需运行对应 GitHub Actions 回放，并验证产物哈希。

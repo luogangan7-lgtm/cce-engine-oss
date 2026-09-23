@@ -1,0 +1,202 @@
+{
+ "block": "STRATIFIED_ANCHOR_CANDIDATES_2026-09-08",
+ "★truth_source": "**single_cross_family_model**(glm-4.5-flash) —— **不是** human-adjudicated, **待人复核**",
+ "★selection_rule": "每结按 `sha256(post_id + 'strat')` 排序取前 3。★ **不按模型置信度取** —— 那会挑「模型最有把握的」= 最容易的样本, 而资格考最需要的恰恰是边界样本。",
+ "★pool": {
+  "n_labeled": 240,
+  "by_knot": {
+   "pain_seek": 143,
+   "display": 50,
+   "suspend": 13,
+   "injustice": 9,
+   "belong": 8,
+   "audit": 8,
+   "itch": 6,
+   "reward": 2,
+   "inertia": 1
+  }
+ },
+ "candidates": {
+  "audit": [
+   {
+    "id": "1pzhi5j",
+    "chars": 316,
+    "glm_label": "audit"
+   },
+   {
+    "id": "1oa7p6c",
+    "chars": 509,
+    "glm_label": "audit"
+   },
+   {
+    "id": "17j9xzr",
+    "chars": 694,
+    "glm_label": "audit"
+   }
+  ],
+  "belong": [
+   {
+    "id": "1uxb120",
+    "chars": 232,
+    "glm_label": "belong"
+   },
+   {
+    "id": "1uq372y",
+    "chars": 1120,
+    "glm_label": "belong"
+   },
+   {
+    "id": "1kp2s31",
+    "chars": 195,
+    "glm_label": "belong"
+   }
+  ],
+  "display": [
+   {
+    "id": "1smm2p2",
+    "chars": 401,
+    "glm_label": "display"
+   },
+   {
+    "id": "1k4l10z",
+    "chars": 249,
+    "glm_label": "display"
+   },
+   {
+    "id": "1nt0ajn",
+    "chars": 1117,
+    "glm_label": "display"
+   }
+  ],
+  "inertia": [
+   {
+    "id": "1rkl90x",
+    "chars": 780,
+    "glm_label": "inertia"
+   }
+  ],
+  "injustice": [
+   {
+    "id": "1u52qzd",
+    "chars": 881,
+    "glm_label": "injustice"
+   },
+   {
+    "id": "1pikkjk",
+    "chars": 228,
+    "glm_label": "injustice"
+   },
+   {
+    "id": "1p15yu2",
+    "chars": 928,
+    "glm_label": "injustice"
+   }
+  ],
+  "itch": [
+   {
+    "id": "1p8q2oe",
+    "chars": 1096,
+    "glm_label": "itch"
+   },
+   {
+    "id": "1r062bf",
+    "chars": 733,
+    "glm_label": "itch"
+   },
+   {
+    "id": "1pdscyr",
+    "chars": 280,
+    "glm_label": "itch"
+   }
+  ],
+  "pain_seek": [
+   {
+    "id": "1qxuqew",
+    "chars": 340,
+    "glm_label": "pain_seek"
+   },
+   {
+    "id": "1v4x6ds",
+    "chars": 167,
+    "glm_label": "pain_seek"
+   },
+   {
+    "id": "1qj2t6a",
+    "chars": 1003,
+    "glm_label": "pain_seek"
+   }
+  ],
+  "reward": [
+   {
+    "id": "1g6lwxb",
+    "chars": 276,
+    "glm_label": "reward"
+   },
+   {
+    "id": "1cnw8jc",
+    "chars": 266,
+    "glm_label": "reward"
+   }
+  ],
+  "suspend": [
+   {
+    "id": "1n2oevh",
+    "chars": 741,
+    "glm_label": "suspend"
+   },
+   {
+    "id": "1n9xkdf",
+    "chars": 875,
+    "glm_label": "suspend"
+   },
+   {
+    "id": "1n8b7vv",
+    "chars": 271,
+    "glm_label": "suspend"
+   }
+  ]
+ },
+ "★★the_gap_and_why_it_cannot_be_closed_here": {
+  "缺口": {
+   "inertia": 2,
+   "reward": 1
+  },
+  "★unit_affinity": {
+   "inertia": {
+    "亲和": "评论",
+    "评论侧": 0.0106,
+    "帖子侧": 0.0025,
+    "比值": 4.28
+   },
+   "reward": {
+    "亲和": "评论",
+    "评论侧": 0.1508,
+    "帖子侧": 0.0096,
+    "比值": 15.7
+   }
+  },
+  "★★★why": "★★★ reward 与 inertia 按单元亲和性**都在评论侧**(reward 评论 15.1% vs 帖子 1.0%, 15.7 倍)。⇒ 正确做法是**从评论语料取**, 而不是在帖子里多抽 400 条(那期望只多 0.8 条 inertia)。\n★★ **但评论语料取不了**: 全部只有 **86 条**, 其中 **81 条已进验收集 + 5 条已是现有锚例** ⇒ 从中取锚例会**把考题放进测试集**。\n⇒ **在当前语料条件下, reward/inertia 的锚例结构上取不到。**",
+  "★options_for_owner": [
+   "① **采新的评论语料** —— 1208 篇外部帖子的评论从未采过。JustOneAPI 已停用, 但 ScraperAPI×2 + ScrapingBee×2 记录为可用(**2026-07-29 的记录, 未复测**)。",
+   "② **接受 7/9 覆盖** —— reward/inertia 暂不进考卷, 并在协议里写明「资格考不覆盖这两个结」。★ 代价: 标注者对这两个结的能力**永远不被考核**。",
+   "③ **人工从既有评论里挑, 并把对应条目移出验收集** —— 语料从 81 降到 ~75, ★ 代价: 验收集变小, 且**改变了已发布结论的样本基础**。"
+  ],
+  "★★option1_technical_premise_measured_2026-09-08": {
+   "★what_i_had_assumed": "「Reddit 有公开 JSON 接口」—— 我在给 owner 列选项时是这么写的。",
+   "★measured": {
+    "www.reddit.com/comments/<id>.json 自报 UA": "**HTTP 403**",
+    "old.reddit.com/comments/<id>.json 自报 UA": "**HTTP 403**",
+    "同 URL 换浏览器 User-Agent": "**仍 403**",
+    "oauth.reddit.com(不带 token)": "403(预期, 它本来就要 token)"
+   },
+   "★★the_premise_was_wrong": "★★★ **Reddit 的未认证 JSON 端点已全面关闭。** 我列选项时写的「有公开 JSON 接口」是**基于旧印象, 没有实测**。⇒ 方案① 的性质变了。",
+   "★option1_now_forks_into_two": {
+    "(a) Reddit OAuth API": "免费, 但需注册 app 拿 client_id / client_secret。★★ **这是 owner 的动作 —— 我(agent)做不了, 也不该替他注册账号。**",
+    "(b) ScraperAPI / ScrapingBee": "按量计费 ⇒ 触发项目 2026-07-29 那条**配额守卫铁律**(必须先报估算上限、撞上限即停; 起因是之前一个 agent 把采集 API 额度一次性烧光)。★ 另有 2026-07-29 实测: 这两个服务在**抖音**上因 API 级拒绝不可行 —— 但目标是 Reddit 不是抖音, **不能直接外推**。"
+   },
+   "★★★the_question_i_should_have_asked_first": "★★★ **为了 6 条锚例(reward 3 + inertia 3, 其中已有 reward 2 + inertia 1 ⇒ 实际只差 3 条)去开一条新采集通道, 值不值?**\n★ 我怀疑自己陷入了「因为方案①技术上可行就去做」, 而没算它对**最终目标**(让资格考有分辨力, 需 n>=60)的**边际贡献**。\n★★ 而实算: 补齐 reward/inertia 只把覆盖从 7/9 提到 9/9, **锚例总数仍是 21~27 条, 离 n>=60 还差一半以上** ⇒ **它不会让资格考从「没有分辨力」变成「有分辨力」。**\n⇒ 这条已交 GPT 审(问题 7), 但我自己先记下: **补齐覆盖 ≠ 达到分辨力, 两者是不同的目标。**"
+  }
+ },
+ "★★what_owner_needs_to_do": "★ 复核上面 7 个结 × 3 条的 **glm_label 对不对**(不是从零判, 是**判对错**)。★★ 真值是**单模型**跨家族标注, 阳性对照 5/5 但 Wilson 下界仅 0.70, **边界样本未验** ⇒ 复核不是形式, 是必要的。",
+ "★i_will_not": "**不**在未经确认前替换 accuracy/data/anchors.json。"
+}

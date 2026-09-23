@@ -1,0 +1,162 @@
+{
+ "block": "ANCHOR_EXPANSION_ROUND1_2026-09-07",
+ "★prereg": "tests/data/anchor_expansion_prereg.json(打标前冻结, 候选校验和 750544aa29483656)",
+ "★truth_source": "**single_cross_family_model**(glm-4.5-flash 单模型) —— 比 consensus 更弱, **不是** human-adjudicated",
+ "round1": {
+  "n_candidates": 60,
+  "n_both_parsed": 25,
+  "n_agreed": 24,
+  "agreement_among_parsed": 0.96,
+  "n_knots_covered": 2,
+  "by_knot": {
+   "pain_seek": 19,
+   "display": 5
+  }
+ },
+ "★★★the_selection_bias_i_did_not_predict": {
+  "★the_finding": "★★ **`glm-4.5-flash` 60/60 全部解析成功**(finish=stop 全部); 而 **`glm-4.7-flash` 33/60 是 finish=length(预算打满)**, 即使已给到 max_tokens=6000。\n⇒ **96% 的一致率是在「4.7 能在 6000 token 内答完的 25 条」上算的** —— 那批是**它觉得更容易的样本**。**96% 是高估。**",
+  "distribution_by_45_eyes": {
+   "4.7 答完的": {
+    "display": 5,
+    "pain_seek": 20
+   },
+   "4.7 没答完的": {
+    "display": 8,
+    "pain_seek": 21,
+    "suspend": 3,
+    "reward": 1,
+    "itch": 1,
+    "belong": 1
+   }
+  },
+  "median_chars": {
+   "答完": 482,
+   "没答完": 528
+  },
+  "★verdict": "★ 两组在 4.5 眼里的 pain_seek 占比 80.0% vs 60.0% —— **确有选择偏倚**",
+  "★fix": "给 4.7 加到 max_tokens=16000 补跑那 35 条, 补齐后重算一致率。"
+ },
+ "★★coverage_is_the_real_blocker": {
+  "★the_problem": "★★★ 一致的 24 条只覆盖 **2 个结**(pain_seek 19 · display 5)。而 `glm-4.5-flash` 单独看覆盖 **6 个**({'pain_seek': 41, 'display': 13, 'suspend': 3, 'reward': 1, 'itch': 1, 'belong': 1}) ⇒ 覆盖被 4.7 的预算打满**人为压窄了**。",
+  "★★the_structural_reason": "★★★ 但即使补齐, 随机抽样也**结构上覆盖不了九个结**: GLM 的分布(pain_seek 41/60=68%)与 MiniMax 五员在帖子上的共识分布(pain_seek 48/81=59%)**塌到同一批类**。\n⇒ 随机抽 60 条, 薄类(belong/inertia/injustice)期望只有 1~3 条, **凑不够每结 3 条**。\n★ 要覆盖九个结, **必须分层抽样** —— 先用 4.5 标大量候选, 再按结取。\n★★ 而这本身又是一条独立证据: **两个不同家族的仪器塌到同一批类** ⇒ 加强了 Run B/C 的「**塌陷是仪器性质, 不是语料性质**」。"
+ },
+ "★★three_predictions_adjudicated": {
+  "E1_一致率>=60%": {
+   "observed": "**96.0%**(25 条上)",
+   "verdict": "✅ 命中",
+   "★caveat": "★★ **但有选择偏倚** —— 见上。补跑后重判。",
+   "round2": "补跑后 95.0%(40 条上)。★★ 但**偏倚被证明而非消除**: 那 40 条里薄类 0 条。⇒ 95% 仍然只是「在 4.7 能答的典型样本上」的一致率, **不能外推到薄类**。"
+  },
+  "E2_覆盖>=5个结": {
+   "observed": "**2 个**",
+   "verdict": "❌ **证伪**",
+   "★reading": "我预注册里就写了「若只覆盖 2~3 个(全是 pain_seek/display), 那扩充后的考卷仍测不了薄类」—— **正是如此**。",
+   "round2": "补跑后**仍是 2 个结** ⇒ 证伪**加强**。且现在知道原因是结构性的(4.7 对薄类失败 + 两家族同向塌陷)。"
+  },
+  "E3_扩充后v2覆盖率仍是0%": {
+   "observed": "24 条 < CERTIFY 所需的 35 条",
+   "verdict": "✅ 命中",
+   "★the_real_number": "★★ 实算 v2 三态在各 n 下的分辨力: n<35 **无法 CERTIFY**; n=35~50 需**全对**; n=60 才第一次允许错 1 题。\n★★★ 更有用的读法: **n=60 起, M2.7(p≈0.80) 与 M3(p≈1.0) 才开始被判成不同的档**。在那之前**资格考在这五个人身上没有分辨力** —— 这才是「扩充多少才够」的真答案。"
+  }
+ },
+ "★what_i_will_not_do": "★ **不**把这 24 条投入资格考。真值是跨家族模型共识(阳性对照 9/9 但 Wilson 下界仅 0.70, 边界样本未验), 且覆盖只有 2 个结。**未经 owner 确认不替换 anchors.json。**",
+ "round2_retry_at_16000_tokens": {
+  "★why": "第一轮 max_tokens=6000 时 4.7 有 33/60 打满。给到 **16000** 补跑那 35 条。",
+  "result": {
+   "4.7 新解析成功": "15/35",
+   "两模型都解析": "40/60",
+   "一致": "38 (95.0%)",
+   "覆盖结数": 2,
+   "by_knot": {
+    "pain_seek": 31,
+    "display": 7
+   }
+  },
+  "★★★the_bias_did_not_go_away_it_got_proven": {
+   "薄类占比": {
+    "4.7 答完的 40 条": "**0/40 = 0.0%**",
+    "4.7 打满的 20 条": "**6/20 = 30.0%**"
+   },
+   "★fisher_one_sided": "**p = 0.00077**",
+   "★verdict": "★★★ **完全分离**: 4.7 答完的 40 条里薄类 **0 条**; 打满的 20 条里薄类 **6 条**。Fisher 单侧 p = **0.00077**。\n⇒ **打满不是随机故障, 是对薄类的结构性失败。** 加预算(6000→16000)没有消除它, **只是把它证明了**。",
+   "★the_lost_thin_samples": [
+    {
+     "id": "1o4zw2l",
+     "knot": "suspend",
+     "chars": 315
+    },
+    {
+     "id": "1dvb6uu",
+     "knot": "suspend",
+     "chars": 159
+    },
+    {
+     "id": "1pvei2l",
+     "knot": "reward",
+     "chars": 269
+    },
+    {
+     "id": "1rzu2q0",
+     "knot": "itch",
+     "chars": 528
+    },
+    {
+     "id": "1t71hs9",
+     "knot": "suspend",
+     "chars": 545
+    },
+    {
+     "id": "1gtpk4w",
+     "knot": "belong",
+     "chars": 232
+    }
+   ],
+   "★★they_are_short_not_long": "★★ 被丢的薄类样本长度是 **159~545 字符**(全池中位 ~530) —— **不是因为文本长, 是因为判断难**。⇒ 4.7 在**边界样本上推理不收敛**, 而边界样本恰恰是锚例最该覆盖的。"
+  },
+  "★★★practical_conclusion": "★★★ **`glm-4.7-flash` 不能当第二个标注者。**\n⇒ 跨家族真值只剩 **`glm-4.5-flash` 单模型**(它 60/60 全成功), **而单模型不构成共识** —— 预注册的 truth_rule(「两个 GLM 一致」)**执行不下去**。\n★ 所以本轮**没有**产出可用的锚例真值。产出的是: ①一个可靠的单模型标注器(4.5) ②一条关于 4.7 的硬结论 ③下一步的正确形状。",
+  "★★next_step_that_actually_helps_the_owner": "★ 用 **4.5 单模型**批量标更多候选(已发起 240 篇), 然后**按结分层**取, 把 owner 要做的事从「读 60 篇自己判九分类」降成「**复核候选标签**」。\n★★ 真值仍标 **`single_cross_family_model`**(比 consensus 更弱), 待人复核。**不得**在未经确认前替换 anchors.json。"
+ },
+ "round3_bulk_single_model": {
+  "★why_single_model": "★★ round2 证明 `glm-4.7-flash` **不能当第二个标注者**(对薄类结构性失败, Fisher p=0.00077)。⇒ 预注册的 truth_rule(两模型一致)**执行不下去**, 降级为 **`glm-4.5-flash` 单模型**。真值标签相应从 `cross_family_model_consensus` 降为 **`single_cross_family_model`** —— **更弱**。",
+  "design": {
+   "n_candidates": 240,
+   "model": "glm-4.5-flash",
+   "max_tokens": 6000,
+   "concurrency": 3,
+   "★checkpoint": "**逐条落盘 + 断点续跑**(第一版只在最后写一次, 3.5 小时的活挂了全丢)",
+   "★sampling_rule_frozen": "未用且未标过的 613 篇里, 按 sha256(post_id + 'anchor2026b') 排序取前 240"
+  },
+  "★★★coverage_achieved": {
+   "n_parsed": 200,
+   "n_failed": 40,
+   "by_knot": {
+    "pain_seek": 118,
+    "display": 42,
+    "suspend": 10,
+    "injustice": 8,
+    "belong": 7,
+    "audit": 7,
+    "itch": 5,
+    "reward": 2,
+    "inertia": 1
+   },
+   "n_knots": 9,
+   "★result": "★★★ **覆盖全 9 个结** —— 分层抽样这条路走得通。对照: round1+2 的双模型一致只覆盖 **2** 个结。"
+  },
+  "★★the_remaining_gap_is_now_a_computable_number": {
+   "缺口": {
+    "inertia": 2,
+    "reward": 1
+   },
+   "最稀的类": "**inertia** 1/200 = 0.50%",
+   "★projection": "★★ 要让最稀的 inertia 凑到 3 条, 期望需标 **~600** 条; 当前已标 200 条有效 ⇒ **还需 ~400 条**, 按 36s/条 ≈ **4.0 小时**。",
+   "★★but_that_is_the_wrong_move": "★★★ **不建议硬凑。** 理由: inertia 在帖子上 0.5%、reward 1% —— 这不是抽样不够, 是**这两个结在帖子这个单元上本来就极稀**(inertia 的行为定义是「**缺席本身**+替代行为」, reward 是「致谢/闭合」—— **两者都是回复行为, 不是发帖行为**)。\n★ 这与 belong 的情况**正好相反**: belong 定义写「自我暴露式**发帖**」, 所以它在帖子上活了(7/200);而 reward/inertia 定义指向**回复**, 所以它们在帖子上死。\n⇒ **正确做法是给 reward/inertia 从评论语料取锚例**, 而不是在帖子里多抽 400 条。★★ 这是今天「单元错配」那条发现的**直接应用** —— 它第一次产生了可执行的后果。"
+  },
+  "★★the_failure_rate_needs_its_own_check": {
+   "failed": "40/240 = 16.7%, finish 全是 err",
+   "长度": "成功中位 446 vs 失败中位 527",
+   "★时间聚集性": "**39 段 · 最长 2 连 · 0 段 >=3 连** ⇒ **分散出现, 「限流窗口」解释被证伪**",
+   "★my_hypothesis_was_wrong": "★★ 我先假设失败是**限流窗口**(与内容无关), 但聚集性检验**证伪**了它。失败的**更长**(527 vs 446) ⇒ 更像**超时**(长文本→更多 reasoning→超过 420s), 而这与 4.7 那次**机理部分相同**: 都是「难/长的样本失败」。\n⇒ **可能又有同一族的选择偏倚**。已用 timeout 900s 重跑那 40 条, 用 Fisher 检验重跑批与首轮批的薄类占比。"
+  }
+ }
+}

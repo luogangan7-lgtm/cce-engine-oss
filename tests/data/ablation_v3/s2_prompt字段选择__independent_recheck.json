@@ -1,0 +1,792 @@
+{
+ "block": "ABLATION_V3_INDEPENDENT_RECHECK",
+ "cluster": "s2_prompt字段选择",
+ "role": "独立复核者(默认立场: 上一轮判决是错的, 直到验不出错)",
+ "verdict_on_the_verdicts": "9/9 判决词(全 INCONCLUSIVE)全部维持; 3 条支撑性论断被推翻或更正; 新发现 2 个量具缺陷(引用扫描自污染 · 反向到达守卫对 typical_codes 失效)。",
+ "★1_失明是结构性的_不是装置缺陷": {
+  "上一轮的说法": "★★★装置缺陷报告 —— 错的是把 harness 用在 prompt 字段簇上而不先测灵敏度",
+  "我实测": {
+   "重放面 _build_stage2_prompt 调用次数": 0,
+   "真生产路径(不走 <PROMPT> 捷径, 真跑 stage2(), call_model 桩化为与 prompt 无关的定值)": {
+    "每臂 _build_stage2_prompt 调用次数": {
+     "ctl_noop": 6,
+     "ctl_whitespace": 6,
+     "ctl_garbage": 6,
+     "key_drop": 6,
+     "signature_drop": 6,
+     "typical_codes_drop": 6,
+     "behavior_drop": 6,
+     "trunc_off": 6,
+     "levers_drop": 6
+    },
+    "每臂实际 prompt 长度(证明变异真的到达出站请求)": {
+     "ctl_noop": [
+      3386,
+      3766,
+      3780,
+      3791,
+      3805,
+      3818
+     ],
+     "ctl_whitespace": [
+      3387,
+      3767,
+      3781,
+      3792,
+      3806,
+      3819
+     ],
+     "ctl_garbage": [
+      7
+     ],
+     "key_drop": [
+      3326,
+      3706,
+      3720,
+      3731,
+      3745,
+      3758
+     ],
+     "signature_drop": [
+      2125,
+      2505,
+      2519,
+      2530,
+      2544,
+      2557
+     ],
+     "typical_codes_drop": [
+      2839,
+      3219,
+      3233,
+      3244,
+      3258,
+      3271
+     ],
+     "behavior_drop": [
+      2966,
+      3346,
+      3360,
+      3371,
+      3385,
+      3398
+     ],
+     "trunc_off": [
+      3394,
+      3774,
+      3788,
+      3799,
+      3813,
+      3826
+     ],
+     "levers_drop": [
+      3371,
+      3751,
+      3765,
+      3776,
+      3790,
+      3803
+     ]
+    },
+    "每臂 L1/L2 是否改变": {
+     "ctl_noop": false,
+     "ctl_whitespace": false,
+     "ctl_garbage": false,
+     "key_drop": false,
+     "signature_drop": false,
+     "typical_codes_drop": false,
+     "behavior_drop": false,
+     "trunc_off": false,
+     "levers_drop": false
+    }
+   }
+  },
+  "结论": "把 <PROMPT> 捷径换成真生产路径后, _build_stage2_prompt 被调用 6 次/臂、prompt 逐臂确实不同(ctl_garbage 全部 7 字), L1/L2 **仍然逐臂全 false**。⇒ 失明不是 harness 写法问题, 是**任何零 API 装置的结构性不可测**: prompt 内容的唯一消费者是远端模型。上一轮的 limits 说对了这一点, 但标题把「结构上不可能」写成了「装置缺陷」, 导致可执行教训指向一个不存在的修法。"
+ },
+ "★2_引用扫描自污染(新发现的量具缺陷)": {
+  "现象": "上一轮把 118KB 产物写进 tests/data/ablation_v3/, 而该目录**在扫描面内**(tests/ + .json)。",
+  "实测": {
+   "key": {
+    "with_ablation_v3_artifacts": [
+     762,
+     262
+    ],
+    "without_ablation_v3_artifacts": [
+     702,
+     225
+    ]
+   },
+   "name": {
+    "with_ablation_v3_artifacts": [
+     673,
+     60
+    ],
+    "without_ablation_v3_artifacts": [
+     625,
+     51
+    ]
+   },
+   "family": {
+    "with_ablation_v3_artifacts": [
+     799,
+     67
+    ],
+    "without_ablation_v3_artifacts": [
+     668,
+     42
+    ]
+   },
+   "signature": {
+    "with_ablation_v3_artifacts": [
+     208,
+     111
+    ],
+    "without_ablation_v3_artifacts": [
+     116,
+     37
+    ]
+   },
+   "typical_codes": {
+    "with_ablation_v3_artifacts": [
+     97,
+     30
+    ],
+    "without_ablation_v3_artifacts": [
+     72,
+     20
+    ]
+   },
+   "behavior": {
+    "with_ablation_v3_artifacts": [
+     197,
+     54
+    ],
+    "without_ablation_v3_artifacts": [
+     136,
+     24
+    ]
+   },
+   "levers_not_knots": {
+    "with_ablation_v3_artifacts": [
+     34,
+     34
+    ],
+    "without_ablation_v3_artifacts": [
+     25,
+     25
+    ]
+   },
+   "_build_stage2_prompt": {
+    "with_ablation_v3_artifacts": [
+     52,
+     52
+    ],
+    "without_ablation_v3_artifacts": [
+     26,
+     26
+    ]
+   }
+  },
+  "后果": "剔除 ablation_v3 产物后, 我的 coarse/strict 与上一轮**逐个数字完全一致** (key 702/225 · name 625/51 · family 668/42 · signature 116/37 · typical_codes 72/20 · behavior 136/24 · levers_not_knots 25/25 · _build_stage2_prompt 26/26) ⇒ 上一轮的数字没错, 它是**落盘前**扫的。但下一个 agent 扫同样的符号会拿到虚高值(_build_stage2_prompt 26→52 翻倍, signature 116→208)。⇒ scan_refs 必须排除 tests/data/ablation_v3/。"
+ },
+ "★3_退化通道守卫对 typical_codes 实测失效(推翻上一轮的支撑论断)": {
+  "上一轮的说法": "typical_codes 的 deletable_reason: 「tests/test_cce_descriptive_exemption_vs_reach.py 就是为『有人把它从生产 prompt 拿掉、而一致性闸永远不会发现』这条无人看守的退化通道建的守卫」",
+  "我实测": {
+   "typical_codes_drop(整段 典型codes={...}; 从 prompt 移除, 占 16.155%) 下该守卫": "全绿(2 条断言都 pass)",
+   "同臂重算后的 per_field": "与基线**逐键相同** —— knots[].typical_codes 仍记 PROD_ONLY",
+   "根因(实跑拿到的断言原文)": "probes/taxonomy_field_reach_ledger.py:230 的自校验 KNOWN 里硬钉了 knots[].typical_codes=PROD_ONLY / family=PROD_ONLY / levers_not_knots=PROD_ONLY / signature=BOTH / behavior=BOTH。字段一离开 prompt, 自校验先 assert 并**拒绝落盘** ⇒ 台账停在旧值 ⇒ 读台账的 descriptive_exemption 守卫读到的是**陈旧数据**, 恒绿。",
+   "反例(守卫确实会响的那个字段)": "knots[].name 不在自校验 KNOWN 里 ⇒ 台账被改写成 GATE_ONLY ⇒ name_drop 与 name_inject 下该守卫 2 条断言**都红**(我实测)。"
+  },
+  "结论": "该守卫只对 name 生效, 对 typical_codes 不生效。CI 仍会红(经 taxonomy_field_reach 的探针自校验), 所以不是无人发现, 但**上一轮指认的那条守卫不是把关的那一条**。⇒ 这是 owner 该知道的一条: 「反向退化守卫」与「探针自校验」谁先响, 决定了台账是新是旧。"
+ },
+ "★4_L4_计数更正": {
+  "方法": "每臂一棵**全新**工作树(不复用, 规避上一轮自报的 artifact 交叉污染) + 子进程内经 -c bootstrap 装 socket 绊线(上一轮承认绊线管不到 subprocess) + -ra 同时捕 FAILED 与 ERROR(只用 -rf 会漏掉模块级 assert 脚本的收集错误)。扫描面 = 上一轮点名的 10 个测试文件。基线与 ctl_noop 均 33 passed / 0 红。",
+  "ctl_whitespace 基线红集(4)": [
+   "tests/test_cce_abstention.py",
+   "tests/test_cce_draw_ledger.py",
+   "tests/test_cce_hash_scope.py",
+   "tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation"
+  ],
+  "★逐臂净新增(扣 whitespace)": {
+   "_base": [],
+   "ctl_noop": [],
+   "ctl_whitespace": [],
+   "signature_drop": [
+    "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+    "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+    "tests/test_cce_measurement_system.py",
+    "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+    "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+   ],
+   "behavior_drop": [
+    "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+    "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+    "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+    "tests/test_cce_rule_delivery_completeness.py::test_it_checks_the_final_outbound_request_not_an_imitation",
+    "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+   ],
+   "trunc_off": [
+    "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial"
+   ],
+   "ctl_garbage": [
+    "tests/test_cce_gate_prompt_version_label.py::test_production_by_contrast_injects_the_live_version",
+    "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+    "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+    "tests/test_cce_measurement_system.py",
+    "tests/test_cce_rule_delivery_completeness.py::test_content_completeness_distinguishes_missing_from_partial",
+    "tests/test_cce_rule_delivery_completeness.py::test_it_checks_the_final_outbound_request_not_an_imitation"
+   ],
+   "key_drop": [
+    "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+   ],
+   "key_inject": [
+    "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+   ],
+   "name_drop": [
+    "tests/test_cce_descriptive_exemption_vs_reach.py::test_the_intersection_is_exactly_the_two_known_fields",
+    "tests/test_cce_descriptive_exemption_vs_reach.py::test_the_two_fields_still_actually_reach_the_prompt",
+    "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+    "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+    "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+   ],
+   "name_inject": [
+    "tests/test_cce_descriptive_exemption_vs_reach.py::test_the_intersection_is_exactly_the_two_known_fields",
+    "tests/test_cce_descriptive_exemption_vs_reach.py::test_the_two_fields_still_actually_reach_the_prompt",
+    "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+   ],
+   "family_drop": [
+    "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+    "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+    "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+   ],
+   "typical_codes_drop": [
+    "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+    "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+    "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+   ],
+   "levers_drop": [
+    "tests/test_cce_gate_vs_production_prompt.py::test_field_table_is_recomputed_not_copied",
+    "tests/test_cce_gate_vs_production_prompt.py::test_the_difference_is_two_way_not_containment",
+    "tests/test_cce_taxonomy_field_reach.py::test_the_ledger_is_recomputed_not_copied"
+   ]
+  },
+  "与上一轮对照": {
+   "完全一致": [
+    "ctl_garbage=6(逐条同名)",
+    "key_drop=1",
+    "key_inject=1",
+    "family_drop=3",
+    "typical_codes_drop=3",
+    "levers_drop=3",
+    "signature_drop=5",
+    "behavior_drop=5",
+    "ctl_whitespace 4 条红集逐条同名"
+   ],
+   "★被我推翻": {
+    "name_drop": "上一轮记 3(且自扣 2 条为 | 分隔符混淆) —— 实测 5: 多出 descriptive_exemption_vs_reach ×2。",
+    "name_inject": "上一轮记「干净估计 1 条」—— 实测 3: taxonomy_field_reach + descriptive_exemption_vs_reach ×2。name 的字段特异信号被**低报**了。",
+    "trunc_off": "上一轮记可归因 2(rule_delivery + taxonomy_field_reach) —— 实测 **1**。taxonomy_field_reach 在 trunc_off 下**全绿**(我单跑该文件 11 passed), 这是正确的: 关掉截断不改变**哪些字段**到达 prompt, 只改变 behavior 送多少字。"
+   },
+   "被我证实的上一轮自我更正": "上一轮说 signature/behavior/levers 六臂各虚增 2 条 descriptive_exemption 红是工作树污染 —— 我用全新树复跑, 这三类臂**确实 0 条** descriptive_exemption 红。自我更正成立。"
+  },
+  "判决影响": "零。L4 里唯一的字段分辨信号仍全部来自台账/送达簿记闸, 对「承重吗」判据自证。"
+ },
+ "★5_工况复核": {
+  "我自己现算": {
+   "archived_stage2_instrument_hash": {
+    "0e9ca1d4e7a2f180": 2,
+    "565470cf26c16d01": 20
+   },
+   "archived_s2_prompt_sha256": {
+    "b8d0f60d66d10f12": 22
+   },
+   "current_equals_any_archived_stage2_hash": false
+  },
+  "逐项复现上一轮": {
+   "corpus_sha256": "8226cd11ee4593a08ed356aa1085acce3c9aea2f287ae0ae544ee2e48c355ac7",
+   "k_distribution": {
+    "3": 20,
+    "5": 2
+   },
+   "s1_temperature_distribution": {
+    "0.0": 22,
+    "0.15": 2,
+    "0.3": 22,
+    "0.6": 22,
+    "0.9": 2
+   },
+   "n_archive_files": 22,
+   "n_replayed_draws": 110,
+   "profile 条数": 1
+  },
+  "★上一轮少报的一条": "「profile 单一, 22/22 完全一致」只对**顶层 instrument 描述串**成立。stage2 读数的 instrument_hash 实测是 {565470cf26c16d01: 20, 0e9ca1d4e7a2f180: 2}(随 k=3/5 分裂), 且**两者都不等于当前代码现算的仪器** —— 唯一差异字段是 s1_prompt_sha256 eadcdcdac46a5180→61fe230f5c588c1f(gen4→gen6 口径扩大), 这条边在 SCOPE_WIDENINGS 里具名登记并可运行时自证, 所以标定仍可搬。⇒ 「改 s2 prompt 会让 22 份存量不可比」这个价签成立, 但**换代这件事已经发生过一次**, 当时靠一条具名豁免边接上; s2 prompt 的内容变更**没有**这样的豁免通道(内容真的变了, 不是口径变了)。"
+ },
+ "★6_逐条判决复核结果": "见 verdicts_recheck",
+ "verdicts_recheck": [
+  {
+   "component": "_build_stage2_prompt 整体(ctl_garbage)",
+   "was": "INCONCLUSIVE",
+   "now": "INCONCLUSIVE(维持)",
+   "why": "我用真生产路径复跑: 6 次调用/臂, prompt 3386→7 字, L1/L2 仍全 false。失明属实且更严重(结构性)。deletable=false 的理由来自调用图不是消融 —— 符合 M5。"
+  },
+  {
+   "component": "knots[].key",
+   "was": "INCONCLUSIVE",
+   "now": "INCONCLUSIVE(维持)",
+   "why": "prompt 3386→3326(减 60 字 = 9 个 key 长度和, 我独立算得同数); 残留 key 实测恰为 {reward, inertia, audit}(与上一轮逐个相同); L4 净新增 1 条 taxonomy_field_reach, 判据自证。"
+  },
+  {
+   "component": "knots[].name",
+   "was": "INCONCLUSIVE",
+   "now": "INCONCLUSIVE(维持, 但证据更正)",
+   "why": "L1/L2 维持; **L4 可归因红从 1 更正为 3** —— descriptive_exemption_vs_reach 的两条断言在 name_drop/name_inject 下都红(上一轮漏计)。sum(len(name))=54, name_drop 减 63 字= 54 + 9 个 | ⇒ 上一轮自报的分隔符混淆属实。"
+  },
+  {
+   "component": "knots[].family",
+   "was": "INCONCLUSIVE",
+   "now": "INCONCLUSIVE(维持)",
+   "why": "减 27 字(0.797%)与 L4 3 条均复现。family 经 derived_layers 的第二条通道(不经 prompt)属实且与本簇无关 —— 两条通道未被折叠, 正确。"
+  },
+  {
+   "component": "knots[].signature",
+   "was": "INCONCLUSIVE",
+   "now": "INCONCLUSIVE(维持)",
+   "why": "减 1261 字 = 37.242%(我独立算得同数); L4 5 条逐条同名。measurement_system 的循环性属实: 该测试在 :50 改 knots[0].signature 后断言 instrument_hash 必变 —— 按 M2 是 L3 重言。"
+  },
+  {
+   "component": "knots[].typical_codes",
+   "was": "INCONCLUSIVE",
+   "now": "INCONCLUSIVE(维持, 支撑论断被推翻)",
+   "why": "★ 「descriptive_exemption_vs_reach 是这条退化通道的守卫」**实测为假**: typical_codes_drop 下该守卫全绿(见 ★3)。减 547 字 = 16.155% 与 L4 3 条复现。"
+  },
+  {
+   "component": "knots[].behavior",
+   "was": "INCONCLUSIVE",
+   "now": "INCONCLUSIVE(维持)",
+   "why": "减 420 字 = 12.404%; L4 5 条逐条同名(含 rule_delivery 两条送达簿记断言)。"
+  },
+  {
+   "component": "behavior[:60] 硬编码截断",
+   "was": "INCONCLUSIVE",
+   "now": "INCONCLUSIVE(维持, L4 计数更正)",
+   "why": "9 个 behavior 实测长度 {inertia:68, audit:53, display:46, pain_seek:45, reward:45, belong:38, suspend:32, injustice:28, itch:28} ⇒ 仅 1/9 触发, M8 保险丝形状属实; trunc_off 只找回 8 字(0.236%)复现。★ 但可归因红是 **1 不是 2** —— taxonomy_field_reach 在 trunc_off 下全绿。「把截断记为缺陷的闸」与「修掉截断就翻红的闸」是同一条断言 —— 我实跑确认 rule_delivery_completeness.py:45 的断言原文正是「★ inertia.behavior 的截断没被判成 PARTIAL」, 该发现成立。"
+  },
+  {
+   "component": "levers_not_knots",
+   "was": "INCONCLUSIVE",
+   "now": "INCONCLUSIVE(维持, 另有第二层失明未报)",
+   "why": "减 15 字(= len('、'.join(4 个杠杆名)), 0.443%)与 L4 3 条复现。★ 上一轮漏报: 重放的 _row_to_draw 只重建 knots, **levers_present 与 notes 被整段丢弃**, 且 observe_stage2 根本不观测 levers_present —— 而 levers_present 正是 levers_not_knots 在 prompt 里最直接驱动的输出字段。本簇对它是**两层失明叠加**。"
+  }
+ ],
+ "deletable_字段独立性检查": "9/9 的 deletable 都是 false, 且都**不是**从 verdict 推导的 —— 整体项走调用图, name/family/typical_codes/behavior/levers 各有字段特异的第二理由。★ 唯一可挑的: 8/9 条的主理由是「换代价签」, 而上一轮自己已实测该价签对加一个空格同样成立(我复现: calibration_transfers base=True → ctl_whitespace=False → signature_drop=False, 逐位相同) ⇒ 用它当删除理由, 会让本簇的 deletable 永远为 false、不可证伪。上一轮明写了这一点, 算自觉, 但理由排序仍把不可证伪的那条放在了首位。",
+ "生产P_与_验收闸G_是否混判": "没有混判。台账 per_field 我独立复核: family/typical_codes/levers_not_knots=PROD_ONLY, key/name/signature/behavior=BOTH, 与上一轮逐条一致, 且判决文里两侧分开陈述。",
+ "file_integrity": {
+  "before": {
+   "/Volumes/data/cce-engine/scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "/Volumes/data/cce-engine/config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "/Volumes/data/cce-engine/config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "/Volumes/data/cce-engine/accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "after": {
+   "/Volumes/data/cce-engine/scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "/Volumes/data/cce-engine/config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "/Volumes/data/cce-engine/config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "/Volumes/data/cce-engine/accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "identical": true,
+  "note": "与上一轮记录的 sha_before/sha_after 两组**全部相同**; 我全程未写仓内任何被测文件。"
+ },
+ "tripwire": {
+  "my_process": [],
+  "harness": [],
+  "subprocess": "L4 的 pytest 子进程经 python -c bootstrap 在 import pytest 之前替换 socket.socket.connect, 全程无 OFFLINE TRIPWIRE 异常; 只给假 key。"
+ },
+ "positive_control_rerun_in_my_process": {
+  "passed": true,
+  "failed_gates": [],
+  "gates": {
+   "dead_swap_not_load_bearing": true,
+   "dead_absurd_injection_still_no_diff": true,
+   "liquid_L1_changed": true,
+   "liquid_changed_broadly": true,
+   "noop_no_diff": true,
+   "determinism": true,
+   "tags_indexed": true,
+   "tripwire_never_tripped": true,
+   "repo_files_untouched": true,
+   "L3_is_tautology_confirmed": true,
+   "dead_constant_is_UNREACHABLE_not_NO_CONSUMER": true
+  }
+ },
+ "my_arms_L1L2_L3": {
+  "ctl_noop": {
+   "prompt_chars": 3386,
+   "pct_of_prompt_removed": 0.0,
+   "prompt_sha16": "b8d0f60d66d10f12",
+   "prompt_actually_changed": false,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "77966bb8bd703ad9",
+   "L3_changed_TAUTOLOGY": false
+  },
+  "ctl_whitespace": {
+   "prompt_chars": 3387,
+   "pct_of_prompt_removed": -0.03,
+   "prompt_sha16": "34a21fec2267308d",
+   "prompt_actually_changed": true,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "ab4bf26881c9f501",
+   "L3_changed_TAUTOLOGY": true
+  },
+  "ctl_garbage": {
+   "prompt_chars": 7,
+   "pct_of_prompt_removed": 99.793,
+   "prompt_sha16": "2e08694a7ebcdc2b",
+   "prompt_actually_changed": true,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "9c6e72d518bda4ad",
+   "L3_changed_TAUTOLOGY": true
+  },
+  "key_drop": {
+   "prompt_chars": 3326,
+   "pct_of_prompt_removed": 1.772,
+   "prompt_sha16": "3581fec2bb199d0d",
+   "prompt_actually_changed": true,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "82f92e2f3abb777e",
+   "L3_changed_TAUTOLOGY": true
+  },
+  "key_inject": {
+   "prompt_chars": 3443,
+   "pct_of_prompt_removed": -1.683,
+   "prompt_sha16": "6431989adb9ea6fa",
+   "prompt_actually_changed": true,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "911f5e00fee022fe",
+   "L3_changed_TAUTOLOGY": true
+  },
+  "name_drop": {
+   "prompt_chars": 3323,
+   "pct_of_prompt_removed": 1.861,
+   "prompt_sha16": "8dd9d93a6b090268",
+   "prompt_actually_changed": true,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "6fabae6de08e3073",
+   "L3_changed_TAUTOLOGY": true
+  },
+  "name_inject": {
+   "prompt_chars": 3386,
+   "pct_of_prompt_removed": 0.0,
+   "prompt_sha16": "6833e9ec62cc51e3",
+   "prompt_actually_changed": true,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "e6f30235b1648fe1",
+   "L3_changed_TAUTOLOGY": true
+  },
+  "family_drop": {
+   "prompt_chars": 3359,
+   "pct_of_prompt_removed": 0.797,
+   "prompt_sha16": "c1f32280eba962cc",
+   "prompt_actually_changed": true,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "1c89111f4c4eb52a",
+   "L3_changed_TAUTOLOGY": true
+  },
+  "family_inject": {
+   "prompt_chars": 3386,
+   "pct_of_prompt_removed": 0.0,
+   "prompt_sha16": "9ca4234a394d2bb9",
+   "prompt_actually_changed": true,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "3a31249f7ac3b083",
+   "L3_changed_TAUTOLOGY": true
+  },
+  "signature_drop": {
+   "prompt_chars": 2125,
+   "pct_of_prompt_removed": 37.242,
+   "prompt_sha16": "5c0100aab5cded4e",
+   "prompt_actually_changed": true,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "c7662c5e9903972c",
+   "L3_changed_TAUTOLOGY": true
+  },
+  "signature_inject": {
+   "prompt_chars": 2287,
+   "pct_of_prompt_removed": 32.457,
+   "prompt_sha16": "6f35899b86635afd",
+   "prompt_actually_changed": true,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "9ea3a9d8722be547",
+   "L3_changed_TAUTOLOGY": true
+  },
+  "typical_codes_drop": {
+   "prompt_chars": 2839,
+   "pct_of_prompt_removed": 16.155,
+   "prompt_sha16": "7c00d2870f54cf90",
+   "prompt_actually_changed": true,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "c22627502bdeb3f4",
+   "L3_changed_TAUTOLOGY": true
+  },
+  "typical_codes_inject": {
+   "prompt_chars": 3028,
+   "pct_of_prompt_removed": 10.573,
+   "prompt_sha16": "daa627da42eb44f2",
+   "prompt_actually_changed": true,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "795c36ceb80dbe56",
+   "L3_changed_TAUTOLOGY": true
+  },
+  "behavior_drop": {
+   "prompt_chars": 2966,
+   "pct_of_prompt_removed": 12.404,
+   "prompt_sha16": "6984ed6501f45bea",
+   "prompt_actually_changed": true,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "8ebc5eb447b27124",
+   "L3_changed_TAUTOLOGY": true
+  },
+  "behavior_inject": {
+   "prompt_chars": 3119,
+   "pct_of_prompt_removed": 7.885,
+   "prompt_sha16": "f12a8fc0b014a385",
+   "prompt_actually_changed": true,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "f7e69aec81ef13bd",
+   "L3_changed_TAUTOLOGY": true
+  },
+  "trunc_off": {
+   "prompt_chars": 3394,
+   "pct_of_prompt_removed": -0.236,
+   "prompt_sha16": "ae066bf671a0f294",
+   "prompt_actually_changed": true,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "bb391adf413dc59a",
+   "L3_changed_TAUTOLOGY": true
+  },
+  "trunc_to_1": {
+   "prompt_chars": 3020,
+   "pct_of_prompt_removed": 10.809,
+   "prompt_sha16": "ae168c3ada80334f",
+   "prompt_actually_changed": true,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "3bc3abdf0345136e",
+   "L3_changed_TAUTOLOGY": true
+  },
+  "levers_drop": {
+   "prompt_chars": 3371,
+   "pct_of_prompt_removed": 0.443,
+   "prompt_sha16": "4d9e419971f70b3f",
+   "prompt_actually_changed": true,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "7d40db2b28be1750",
+   "L3_changed_TAUTOLOGY": true
+  },
+  "levers_inject": {
+   "prompt_chars": 3380,
+   "pct_of_prompt_removed": 0.177,
+   "prompt_sha16": "cd3edeefaf5701e9",
+   "prompt_actually_changed": true,
+   "L1_changed": false,
+   "L1_surfaces_changed": {
+    "stage1": false,
+    "reach": false,
+    "stage2": false
+   },
+   "L2_changed": false,
+   "L2_surfaces_changed": {
+    "stage1": false,
+    "stage2": false
+   },
+   "L3_instrument_hash": "f98eaeea5a4fb53a",
+   "L3_changed_TAUTOLOGY": true
+  }
+ },
+ "calibration_transfers": {
+  "base": true,
+  "ctl_noop": true,
+  "ctl_whitespace": false,
+  "signature_drop": false,
+  "levers_drop": false
+ },
+ "工作目录": "/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/s2prompt_recheck_63074"
+}

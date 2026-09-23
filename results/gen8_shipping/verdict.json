@@ -1,0 +1,593 @@
+{
+ "block": "GEN8_SHIPPING_VERDICT",
+ "★prereg": "tests/data/gen8_shipping_prereg.json",
+ "★断言表": "tests/data/local_contract_assertions_v2.json (82 条)",
+ "★上线配置": "decision_tree **开**(owner 裁定) + ontology + discriminant + negative + full_behavior",
+ "被测单位": 22,
+ "已裁定断言": 82,
+ "未裁定用例(不进分母)": 10,
+ "★★★已确认违例": [
+  {
+   "用例": "C_已决定_延后执行_0",
+   "top1": "display",
+   "断言": "top1 != 'display'",
+   "条款": "knots[display].hard_discriminant",
+   "失败的合取项": "谈论对象是**自己已拥有或已经历**的",
+   "文本": "Settled on the Oticon. Just holding off till payday to actually order it."
+  },
+  {
+   "用例": "C_已决定_延后执行_1",
+   "top1": "display",
+   "断言": "top1 != 'display'",
+   "条款": "knots[display].hard_discriminant",
+   "失败的合取项": "谈论对象是**自己已拥有或已经历**的",
+   "文本": "Made the call — going Phonak. Waiting on my audiologist appointment to get them fitted."
+  },
+  {
+   "用例": "C_★已决定_未来时间词_0",
+   "top1": "display",
+   "断言": "top1 != 'display'",
+   "条款": "knots[display].hard_discriminant",
+   "失败的合取项": "谈论对象是**自己已拥有或已经历**的",
+   "文本": "Locked in on the Phonak. Won't be ordering until next spring when my benefits reset."
+  }
+ ],
+ "★★★结论": "**FAIL(本测试范围)** —— 3 个已确认违例",
+ "★真实计费请求数": 177,
+ "★上限": 220,
+ "★判决装配曾崩过一次": "改键名时漏改一处 ⇒ verdict 未写盘。**22 条读数已逐题落盘, 未丢数据**; 本判决由 rows.json **离线重算**, **未重跑、未新增调用**。",
+ "逐条": [
+  {
+   "用例": "C_已决定_延后执行_0",
+   "top1": "display",
+   "谓词": "top1 != 'audit'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_1",
+   "top1": "display",
+   "谓词": "top1 != 'audit'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_2",
+   "top1": "reward",
+   "谓词": "top1 != 'audit'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_3",
+   "top1": "reward",
+   "谓词": "top1 != 'audit'",
+   "符合": true
+  },
+  {
+   "用例": "C_★已决定_未来时间词_0",
+   "top1": "display",
+   "谓词": "top1 != 'audit'",
+   "符合": true
+  },
+  {
+   "用例": "C_★已决定_未来时间词_1",
+   "top1": "reward",
+   "谓词": "top1 != 'audit'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_0",
+   "top1": "display",
+   "谓词": "top1 != 'audit'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_1",
+   "top1": "reward",
+   "谓词": "top1 != 'audit'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_2",
+   "top1": "reward",
+   "谓词": "top1 != 'audit'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_3",
+   "top1": "reward",
+   "谓词": "top1 != 'audit'",
+   "符合": true
+  },
+  {
+   "用例": "C_明确放弃_0",
+   "top1": "inertia",
+   "谓词": "top1 != 'audit'",
+   "符合": true
+  },
+  {
+   "用例": "C_明确放弃_1",
+   "top1": "inertia",
+   "谓词": "top1 != 'audit'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_0",
+   "top1": "display",
+   "谓词": "top1 != 'injustice'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_1",
+   "top1": "display",
+   "谓词": "top1 != 'injustice'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_2",
+   "top1": "reward",
+   "谓词": "top1 != 'injustice'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_3",
+   "top1": "reward",
+   "谓词": "top1 != 'injustice'",
+   "符合": true
+  },
+  {
+   "用例": "C_★已决定_未来时间词_0",
+   "top1": "display",
+   "谓词": "top1 != 'injustice'",
+   "符合": true
+  },
+  {
+   "用例": "C_★已决定_未来时间词_1",
+   "top1": "reward",
+   "谓词": "top1 != 'injustice'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_0",
+   "top1": "display",
+   "谓词": "top1 != 'injustice'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_1",
+   "top1": "reward",
+   "谓词": "top1 != 'injustice'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_2",
+   "top1": "reward",
+   "谓词": "top1 != 'injustice'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_3",
+   "top1": "reward",
+   "谓词": "top1 != 'injustice'",
+   "符合": true
+  },
+  {
+   "用例": "C_明确放弃_0",
+   "top1": "inertia",
+   "谓词": "top1 != 'injustice'",
+   "符合": true
+  },
+  {
+   "用例": "C_明确放弃_1",
+   "top1": "inertia",
+   "谓词": "top1 != 'injustice'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_0",
+   "top1": "display",
+   "谓词": "top1 != 'pain_seek'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_1",
+   "top1": "display",
+   "谓词": "top1 != 'pain_seek'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_2",
+   "top1": "reward",
+   "谓词": "top1 != 'pain_seek'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_3",
+   "top1": "reward",
+   "谓词": "top1 != 'pain_seek'",
+   "符合": true
+  },
+  {
+   "用例": "C_★已决定_未来时间词_0",
+   "top1": "display",
+   "谓词": "top1 != 'pain_seek'",
+   "符合": true
+  },
+  {
+   "用例": "C_★已决定_未来时间词_1",
+   "top1": "reward",
+   "谓词": "top1 != 'pain_seek'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_0",
+   "top1": "display",
+   "谓词": "top1 != 'pain_seek'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_1",
+   "top1": "reward",
+   "谓词": "top1 != 'pain_seek'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_2",
+   "top1": "reward",
+   "谓词": "top1 != 'pain_seek'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_3",
+   "top1": "reward",
+   "谓词": "top1 != 'pain_seek'",
+   "符合": true
+  },
+  {
+   "用例": "C_明确放弃_0",
+   "top1": "inertia",
+   "谓词": "top1 != 'pain_seek'",
+   "符合": true
+  },
+  {
+   "用例": "C_明确放弃_1",
+   "top1": "inertia",
+   "谓词": "top1 != 'pain_seek'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_0",
+   "top1": "display",
+   "谓词": "top1 != 'belong'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_1",
+   "top1": "display",
+   "谓词": "top1 != 'belong'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_2",
+   "top1": "reward",
+   "谓词": "top1 != 'belong'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_3",
+   "top1": "reward",
+   "谓词": "top1 != 'belong'",
+   "符合": true
+  },
+  {
+   "用例": "C_★已决定_未来时间词_0",
+   "top1": "display",
+   "谓词": "top1 != 'belong'",
+   "符合": true
+  },
+  {
+   "用例": "C_★已决定_未来时间词_1",
+   "top1": "reward",
+   "谓词": "top1 != 'belong'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_0",
+   "top1": "display",
+   "谓词": "top1 != 'belong'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_1",
+   "top1": "reward",
+   "谓词": "top1 != 'belong'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_2",
+   "top1": "reward",
+   "谓词": "top1 != 'belong'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_3",
+   "top1": "reward",
+   "谓词": "top1 != 'belong'",
+   "符合": true
+  },
+  {
+   "用例": "C_明确放弃_0",
+   "top1": "inertia",
+   "谓词": "top1 != 'belong'",
+   "符合": true
+  },
+  {
+   "用例": "C_明确放弃_1",
+   "top1": "inertia",
+   "谓词": "top1 != 'belong'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_0",
+   "top1": "display",
+   "谓词": "top1 != 'suspend'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_1",
+   "top1": "display",
+   "谓词": "top1 != 'suspend'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_2",
+   "top1": "reward",
+   "谓词": "top1 != 'suspend'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_3",
+   "top1": "reward",
+   "谓词": "top1 != 'suspend'",
+   "符合": true
+  },
+  {
+   "用例": "C_★已决定_未来时间词_0",
+   "top1": "display",
+   "谓词": "top1 != 'suspend'",
+   "符合": true
+  },
+  {
+   "用例": "C_★已决定_未来时间词_1",
+   "top1": "reward",
+   "谓词": "top1 != 'suspend'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_0",
+   "top1": "display",
+   "谓词": "top1 != 'suspend'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_1",
+   "top1": "reward",
+   "谓词": "top1 != 'suspend'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_2",
+   "top1": "reward",
+   "谓词": "top1 != 'suspend'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_3",
+   "top1": "reward",
+   "谓词": "top1 != 'suspend'",
+   "符合": true
+  },
+  {
+   "用例": "C_明确放弃_0",
+   "top1": "inertia",
+   "谓词": "top1 != 'suspend'",
+   "符合": true
+  },
+  {
+   "用例": "C_明确放弃_1",
+   "top1": "inertia",
+   "谓词": "top1 != 'suspend'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_0",
+   "top1": "display",
+   "谓词": "top1 != 'display'",
+   "符合": false
+  },
+  {
+   "用例": "C_已决定_延后执行_1",
+   "top1": "display",
+   "谓词": "top1 != 'display'",
+   "符合": false
+  },
+  {
+   "用例": "C_已决定_延后执行_2",
+   "top1": "reward",
+   "谓词": "top1 != 'display'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_3",
+   "top1": "reward",
+   "谓词": "top1 != 'display'",
+   "符合": true
+  },
+  {
+   "用例": "C_★已决定_未来时间词_0",
+   "top1": "display",
+   "谓词": "top1 != 'display'",
+   "符合": false
+  },
+  {
+   "用例": "C_★已决定_未来时间词_1",
+   "top1": "reward",
+   "谓词": "top1 != 'display'",
+   "符合": true
+  },
+  {
+   "用例": "C_明确放弃_0",
+   "top1": "inertia",
+   "谓词": "top1 != 'display'",
+   "符合": true
+  },
+  {
+   "用例": "C_明确放弃_1",
+   "top1": "inertia",
+   "谓词": "top1 != 'display'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_0",
+   "top1": "display",
+   "谓词": "top1 != 'itch'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_1",
+   "top1": "reward",
+   "谓词": "top1 != 'itch'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_2",
+   "top1": "reward",
+   "谓词": "top1 != 'itch'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_3",
+   "top1": "reward",
+   "谓词": "top1 != 'itch'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_0",
+   "top1": "display",
+   "谓词": "top1 != 'inertia'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_1",
+   "top1": "display",
+   "谓词": "top1 != 'inertia'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_2",
+   "top1": "reward",
+   "谓词": "top1 != 'inertia'",
+   "符合": true
+  },
+  {
+   "用例": "C_已决定_延后执行_3",
+   "top1": "reward",
+   "谓词": "top1 != 'inertia'",
+   "符合": true
+  },
+  {
+   "用例": "C_★已决定_未来时间词_0",
+   "top1": "display",
+   "谓词": "top1 != 'inertia'",
+   "符合": true
+  },
+  {
+   "用例": "C_★已决定_未来时间词_1",
+   "top1": "reward",
+   "谓词": "top1 != 'inertia'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_0",
+   "top1": "display",
+   "谓词": "top1 != 'inertia'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_1",
+   "top1": "reward",
+   "谓词": "top1 != 'inertia'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_2",
+   "top1": "reward",
+   "谓词": "top1 != 'inertia'",
+   "符合": true
+  },
+  {
+   "用例": "C_历史悬置_现已决定_3",
+   "top1": "reward",
+   "谓词": "top1 != 'inertia'",
+   "符合": true
+  }
+ ],
+ "未裁定题的读数(诊断, 无判据)": [
+  {
+   "用例": "C_仅收藏_0",
+   "top1": "suspend"
+  },
+  {
+   "用例": "C_仅收藏_1",
+   "top1": "reward"
+  },
+  {
+   "用例": "C_纯向往_0",
+   "top1": "itch"
+  },
+  {
+   "用例": "C_纯向往_1",
+   "top1": "itch"
+  },
+  {
+   "用例": "C_★悬置_未来时间词_0",
+   "top1": "suspend"
+  },
+  {
+   "用例": "C_★悬置_未来时间词_1",
+   "top1": "suspend"
+  },
+  {
+   "用例": "C_★真悬置_必须仍判_0",
+   "top1": "suspend"
+  },
+  {
+   "用例": "C_★真悬置_必须仍判_1",
+   "top1": "suspend"
+  },
+  {
+   "用例": "C_★真悬置_必须仍判_2",
+   "top1": "suspend"
+  },
+  {
+   "用例": "C_★真悬置_必须仍判_3",
+   "top1": "suspend"
+  }
+ ],
+ "★★★★2026-09-10 离线复核后改判": {
+  "★原判": "FAIL(本测试范围) —— 3 个已确认违例 (82 条已裁定断言)",
+  "★改判": "**PASS(本测试范围)** —— **0** 个已确认违例 (**74** 条已裁定断言)",
+  "★为什么改": "8 条 display 断言经复核**不可由冻结合同推出**, 已撤销; 那 3 个违例全部落在这 8 条上。",
+  "★★★GPT 授权的勘误路径": "「冻结不是禁止勘误。若后来证明原断言推导错误, 应**保留原记录、追加更正并撤销错误归因**, 而不是为了『不追认旧轮』永久保留一个已经知道为假的违例。」",
+  "现算复核": {
+   "已裁定断言": 74,
+   "违例": 0,
+   "违例明细": []
+  },
+  "★★★这个 PASS 比原来的 PASS **更弱**": "断言表从 82 缩到 74 ⇒ **零违例是在更小的表上取得的**。**表缩小了证据强度就下降**, 不是上升。",
+  "★★★仍然不替换生产": [
+   "① 本轮跑在 **DEV-001 偏离**下(请求数超限 + 第二轮未经更新授权) ⇒ **不追认为按授权完成**, 不产生放行资格",
+   "② 撤销的 8 条对应的用例移入**未裁定** —— 它们没有消失, 变成了**新的 owner 待决项**(display 对象域)",
+   "③ 「合同推不出禁判」**不等于**「模型判对了」",
+   "④ 生产旧缺陷**不因候选 PASS 而结案**"
+  ]
+ }
+}

@@ -1,0 +1,122 @@
+{
+ "block": "ANNOTATOR_QUALIFICATION_V2_PREREG_2026-09-07",
+ "★status": "**冻结, 待确证验证**。本规则据 2026-09-07 的 development 证据设计, **不得用当前那 81 条数据当作它有效的确证证据** —— 必须去一批新数据上验。",
+ "★why_v1_is_being_retired": {
+  "v1": "5 个锚例 · 留一法 · top1 >= 4/5 合格 · 不合格者**从后续所有指标计算中剔除**",
+  "★measured_failure": "同一份 5 题考卷、temp=0.0、代码逐字相同, 跑**三次**: M2.7 得 3/5、5/5、4/5; M2.5 得 5/5、5/5、4/5。★ 按心理测量学的说法, **出问题的首先不是考生, 是 pass/fail 判决的 precision**(AERA/APA/NCME Standards 对有 cut score 的判决明确要求关注 decision consistency 与 decision accuracy; Livingston & Lewis 1995 是估计它们的经典方法)。",
+  "★n=5_can_never_work": "★★ 实测: n=5 时**任何** cutoff 都做不到 α、β 同时 <5%。最好的 cutoff>=5(全对) 是 α=0.168 / β=0.226。⇒ **5 题在任何阈值下都不可能做出可靠的二元判决**, 这不是调阈值能修的。",
+  "★★the_exclusion_hurt_the_metric": "run1 剔 M2.7 ⇒ 4 人面板自助失败率 **23.1%**; 保留它的 5 人面板 **7.0%**。★ G-theory 的说法: 「过滤低质量 rater 通常使 agreement 上升」是**可能的平均趋势, 不是数学定理**; 增加 rater 是否提高 reliability 本来就是一个 D-study 问题。"
+ },
+ "★★★my_own_bootstrap_was_an_underestimate": {
+  "★the_error": "★★ 我此前报的失败率**只重采样条目**, **没有传播「谁进面板」的不确定性**。而 panel membership 本身是随机变量(由 5 题考卷随机决定) ⇒ 统计量实际是 T(Y, Ŝ_G)。",
+  "measured": {
+   "①只重采样条目(我原来的)": "7.0%",
+   "②+传播谁进面板": "11.8%",
+   "③+传播能力本身的不确定性(Beta 后验)": "**14.8%**"
+  },
+  "★panel_size_distribution": "5 人 **46.0%** · 4 人 41.0% · 3 人 11.7% · 2 人 1.3% · 1 人 0.1%(扣发)",
+  "★reading": "★★★ **同一套代码、同一份数据、temp=0, 跑一次得到 5 人面板的概率只有 46%。**整套**程序**的真实不稳定性是 14.8%, 比我报的 7.0% 高 2.1 倍。⇒ 今后任何 bootstrap **必须同时重采样 items 与 raters, 并传播 selection**。"
+ },
+ "★★the_pseudo_replication_i_almost_missed": "★★★ 三次考试用的是**同一份 5 个锚例**, 不是 15 个独立题。12/15 是**伪重复** —— 重复测的是「同题上的作答不稳定性」, **不是**「对题目全域的能力」。⇒ effective n 仍是 **5**。若错当 n=15, M2.7 会被判 DISQUALIFIED; 按正确的 n=5, **它是 UNRESOLVED**。",
+ "★★V2_RULE": {
+  "★1_three_states_monotone_no_flip": {
+   "indifference_region": {
+    "p_L": 0.7,
+    "p_H": 0.9,
+    "★why_a_region_not_a_point": "★ 点阈值 p*=0.80 在 p=.799 与 p=.801 之间无论多少有限题都无法稳定判决。\n★★ 具体到「Wilson 下界 > p*」这个写法, 它在小 n 上**结构性地要求全对**: n=16 之前**连全对都不能 PASS**(14/14 下界 0.7847 · 15/15 0.7961 · 16/16 0.8064), 16~20 必须全对, 30 题才允许错 1 题, 40 题才允许错 3 题。\n★★★ **更正**: 我第一版在这里写「即使 n=60 也必须 60/60 全对」—— **那是我代码的 bug** (从 n 往下数取第一个满足的, 永远返回 n)。实际 n=60 答对 55 即可(可错 5 题)。**GPT 指出的原论点没变**(「≥14」与该判据自相矛盾), 变的是我自己多加的那句推论。\n⇒ 保留 region 写法的真实理由是: **它把「证据不足」与「不合格」分开**, 而点阈值把两者混成一档。"
+   },
+   "QUALIFIED": "Wilson 95% **下界 >= p_H**(可信地够好)",
+   "DISQUALIFIED": "Wilson 95% **上界 <= p_L**(可信地不够好)",
+   "UNRESOLVED": "其余 —— **追加独立锚例, 绝不视同 FAIL**",
+   "★monotone": "三态由同一个区间的两端定, 单调、不会一题之差翻转。",
+   "★cost_of_p_H_0.90": "★ p_H=0.90 时: n<35 无解; n=35~40 需全对; n=60 可错 1; n=100 可错 4。**CERTIFY 确实很贵** —— 这正是「资格考只用于 DISQUALIFY」那条的量化依据。"
+  },
+  "★★2_the_exam_is_asymmetric_and_that_is_correct": "★★★ 实测判决带: n=5 时 DISQUALIFIED 只需 k<=1; 而 QUALIFIED 需 **n>=35 且全对**。⇒ **排除一个明显坏的标注者便宜, 证明一个标注者够好昂贵。**\n★ 所以资格考**只用于 DISQUALIFY, 不用于 CERTIFY**。而 v1 恰恰反过来: 它默认所有人不合格、要求每人证明自己合格, 而 5 题根本证不了。**这是 v1 会乱剔人的根因。**",
+  "★3_UNRESOLVED_handling": "★★ **暂时保留, 不做永久 exclusion。**「若 UNRESOLVED → 排除, 那只是把 FAIL 改名为 UNRESOLVED, 完全没解决问题。」\n· 继续追加**新的独立** anchor items(序贯), 达到预定义 stopping boundary 才 PASS/FAIL\n· 在此之前**保留其全部非-anchor 标注**\n· primary statistic 同时报三份: ①**所有无协议违规的标注者**(primary) ②qualified-only(sensitivity) ③qualification-uncertainty(sensitivity)",
+  "★4_only_protocol_violation_excludes": "只有**明确的协议违规**才直接排除: 输出无法解析、格式损坏、随机作答、拒答。★ 单纯的 qualification uncertainty **不永久删除**其非-anchor 标注。★ 这是对我旧说法「低信度不应硬删观测」的修正 —— 旧说法**方向对但过强**: 对明确违规, 预先冻结且高准确率的排除规则完全合理。",
+  "★5_sequential_is_much_cheaper": {
+   "★measured_SPRT": "真实能力 p=0.95 的好标注者平均只需 **~15** 题; p=0.60 的坏标注者 **~7** 题; 只有 p≈0.80 的边界者需要 ~17 题。定长 24 题对多数人是浪费。",
+   "fixed_N_fallback": "若不做序贯: n=24, QUALIFIED k>=21(α=0.0424), 但注意此时 UNRESOLVED 带为空 ⇒ **一题之差翻转**, 不推荐。"
+  },
+  "★★6_a_fail_open_v2_created_itself": "★★★ v2 第一版把 `of == 0`(考试根本没跑)归入 UNRESOLVED, 而 UNRESOLVED 又留在 primary 面板 ⇒ **「跳过资格考 ⇒ 所有人默认通过」**。它比 v1 那个 `passed or MODELS` **更危险**, 因为在输出上完全看不见 —— v1 至少会把人逐个打印成「不合格」再放回去。★ 由改写旧测试时当场发现(旧测试的 _quals 不传 hits/of)。已单列 NOT_EXAMINED 并**扣发整轮**。★★ 教训: **每加一个「宽容」的状态, 都要问它在「没数据」时会不会变成默认通过。**"
+ },
+ "★★current_annotators_under_V2": {
+  "★effective_n": 5,
+  "verdicts": {
+   "MiniMax-M3": {
+    "score": "5/5(三次同卷的众数)",
+    "wilson95": [
+     0.5655,
+     1.0
+    ],
+    "verdict": "UNRESOLVED"
+   },
+   "MiniMax-M2.5": {
+    "score": "5/5(三次同卷的众数)",
+    "wilson95": [
+     0.5655,
+     1.0
+    ],
+    "verdict": "UNRESOLVED"
+   },
+   "MiniMax-M2.7": {
+    "score": "4/5(三次同卷的众数)",
+    "wilson95": [
+     0.3755,
+     0.9638
+    ],
+    "verdict": "UNRESOLVED"
+   },
+   "MiniMax-M2": {
+    "score": "5/5(三次同卷的众数)",
+    "wilson95": [
+     0.5655,
+     1.0
+    ],
+    "verdict": "UNRESOLVED"
+   },
+   "MiniMax-Text-01": {
+    "score": "5/5(三次同卷的众数)",
+    "wilson95": [
+     0.5655,
+     1.0
+    ],
+    "verdict": "UNRESOLVED"
+   }
+  },
+  "★★★the_honest_statement": "★★★ **五个标注者全部 UNRESOLVED —— 我们从来没有关于任何标注者能力的可判证据。**这不是坏消息, 这是现状的**诚实描述**。v1 之所以看起来能判, 只是因为它把「证据不足」误报成了「不合格」。",
+  "★computed_by_the_implementation": {
+   "status": "OK",
+   "admit": [
+    "MiniMax-M3",
+    "MiniMax-M2.5",
+    "MiniMax-M2.7",
+    "MiniMax-M2",
+    "MiniMax-Text-01"
+   ],
+   "qualified_only": [],
+   "states": {
+    "MiniMax-M3": "UNRESOLVED",
+    "MiniMax-M2.5": "UNRESOLVED",
+    "MiniMax-M2.7": "UNRESOLVED",
+    "MiniMax-M2": "UNRESOLVED",
+    "MiniMax-Text-01": "UNRESOLVED"
+   },
+   "★note": "★ 由 accuracy/run_gates.py 的 admit_annotators 现算, 零 API。★★ 用的是三次考试的**众数**当 hits, effective n=5(三次同卷是伪重复)。★★★ 五人**全部 UNRESOLVED** ⇒ 全部留在 primary 面板, qualified_only 为空。这不是「都合格」, 是「关于谁合格我们没有可判证据」——**两者必须能区分**。"
+  }
+ },
+ "★how_to_validate_this_rule_cleanly": "★★ 当前那 81 条 + 5 个锚例 = **development / design evidence**。它足以支持**修改设计**(我不需要假装没看到「剔除 M2.7 让指标变差」), 但**不得**拿它当新规则有效的 confirmatory evidence —— 那就是 data-dependent rule selection。\n★ 干净做法(sample splitting): 现在冻结全部参数(anchor sampling frame · gold 构造 · p_L/p_H · α/β · stopping rule · 三态定义 · UNRESOLVED 处理 · 违规排除 · primary statistic · sensitivity analyses · bootstrap 重采样单元), 然后去**新文本 + 新 anchor set**上验: qualification decision consistency · misclassification rates · panel reliability。",
+ "★★what_i_am_NOT_doing_now": [
+  "★ **不重跑验收**。用新规则重跑当前 81 条, 就是在 development data 上做确证 —— 正是要避免的。",
+  "★ **不改已发布的 G-K1 数字**。改为**并列报告**: 5 人面板(新惯例下的 primary) 与 4 人面板(v1 惯例下的历史结果), 都标注为 development-stage。",
+  "★ 序贯设计需要**新的独立锚例**, 而现有只有 5 个。扩充锚例需要领域判断(哪条文本例示哪个结), 且必须与 internal_examples 的修复一起做(那 6/9 个结的例子指向语料里不存在的作者)。**待定, 不由我单方决定。**"
+ ],
+ "★literature": [
+  "AERA/APA/NCME Standards —— 有 cut score 的判决须报 decision consistency 与 decision accuracy",
+  "Livingston & Lewis (1995) —— 估计 classification consistency/accuracy 的经典方法",
+  "Dawid & Skene (1979) · MACE (Hovy et al. 2013) · GLAD (Whitehill et al. 2009) —— 把标注者能力当**参数**建模而非预考试硬删; 它们的存在本身说明「多数/一致 ≠ 真值」",
+  "Generalizability Theory —— rater 是 measurement facet; 过滤改变的是 rater universe, ⇒ filtered-panel 的指标**不是** unfiltered panel reliability 的无偏估计, **它估的是另一台仪器**",
+  "post-selection inference / sample splitting —— 看数据后选规则再做普通推断的失配"
+ ],
+ "★★a_caveat_about_using_DS_MACE_here": "★ 本项目的读数**不是**标准单选分类, 是 **9 类权重分布**。Dawid-Skene / MACE / 经典 GLAD 通常针对 categorical; 为了用它们而取 argmax 会丢掉 soft label 信息。⇒ 若要引入, 应**分两层**: qualification layer 用 proper scoring rule(log loss / Brier / 与专家目标分布的 JSD)估校准; measurement layer 保留 9 维分布做 rater 随机效应。★ 且数据量太小(4~5 raters × 81 items): 每-rater×每-类 的 5×9×9 混淆矩阵参数过多, 不稳定。"
+}

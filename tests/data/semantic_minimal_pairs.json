@@ -1,0 +1,4309 @@
+{
+ "block": "SEMANTIC_MINIMAL_PAIRS",
+ "★★★这份东西是什么": "**五类语义关系的最小对照**, 用来量化**现有验证器**在每一类上的**错误放行率**。每对两版**只在目标关系上不同**, 各配一张**形式完全合规**的证书(span 逐字 · object 逐字 · 两支同对象 · kind 在枚举内 · 残余超阈值)。pos 版期望通过; neg 版**若也通过 = 一次错误放行**。",
+ "★★★它测的是什么_不测什么": "测的是**验证器的语义盲区**, **不是**模型的错误率 —— 证书是**手构的探针**, 不经模型。★ 这与库内那条「自检样本必须经由真实采集流程产出」**不冲突**: 那条约束的是「验证采集协议可不可用」; 这里验的是**验证器本身**, 手构探针正是合法手段(2026-09-13 的零调用反例用的就是同一手法)。",
+ "★★★依据分层(我已经三次把读法说成字面_这里逐条标)": {
+  "**合同明文**": "否定辖域 · 归属 · 时态 —— 合同原文直接支持(「自己已拥有或已经历」「若谈的是期望中未得之物→itch」)。",
+  "**解释(合同没明说)**": "引用层级 · 类型成员资格 —— 合同**没有**定义「输出」是否含转述, 也**没有**定义五类各自的成立条件。★ 这两格的 neg 判定**依赖解释**; 若解释被推翻, 对应的对**自动作废**, 且**不得**拿已跑的读数去救。"
+ },
+ "★合同原文(逐字)": "输出**新信息增量**(具体型号/数据/使用细节/纠错/结构化经验)且谈论对象是**自己已拥有或已经历**的。无质询句;若出现对某方真实性/资历的质询→audit;若谈的是期望中未得之物→itch。",
+ "pairs": [
+  {
+   "cls": "否定辖域",
+   "id": "NEG-1",
+   "攻": "Q",
+   "pos": {
+    "text": "I have owned and tried the Oticon More 1. It gives me about 14 hours on a charge.",
+    "A": [
+     "It gives me about 14 hours on a charge",
+     "the Oticon More 1",
+     "数据"
+    ],
+    "B": [
+     "owned and tried the Oticon More 1",
+     "the Oticon More 1"
+    ]
+   },
+   "neg": {
+    "text": "I have never owned or tried the Oticon More 1. It gives me about 14 hours on a charge.",
+    "A": [
+     "It gives me about 14 hours on a charge",
+     "the Oticon More 1",
+     "数据"
+    ],
+    "B": [
+     "owned or tried the Oticon More 1",
+     "the Oticon More 1"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "Q = 已拥有 **或** 已经历, 是**析取**。neg 版用 never + or 把**两支同时**否定(析取的否定是合取) ⇒ Q 不成立。pos 版两支都成立。★ 差异不能只插一个 never: 只否一支时另一支仍是**沉默**, 而沉默不是否定(2026-09-10 撤销那批断言正是这个理由) ⇒ 该关系所需的最小差异就是 never + and→or。",
+   "★验证器为什么看不见": "B 支片段在两版**都逐字存在**且对象相同; 差别只在片段**外面**那个 never。"
+  },
+  {
+   "cls": "否定辖域",
+   "id": "NEG-2",
+   "攻": "Q",
+   "pos": {
+    "text": "I own the Widex Moment Sheer and I have worn it. The app pairs straight to the TV Connector.",
+    "A": [
+     "The app pairs straight to the TV Connector",
+     "the Widex Moment Sheer",
+     "使用细节"
+    ],
+    "B": [
+     "I own the Widex Moment Sheer and I have worn it",
+     "the Widex Moment Sheer"
+    ]
+   },
+   "neg": {
+    "text": "I do not own the Widex Moment Sheer and I have never worn it. The app pairs straight to the TV Connector.",
+    "A": [
+     "The app pairs straight to the TV Connector",
+     "the Widex Moment Sheer",
+     "使用细节"
+    ],
+    "B": [
+     "own the Widex Moment Sheer and I have never worn it",
+     "the Widex Moment Sheer"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "同 NEG-1: 两支同时否定(do not own / never worn) ⇒ Q 不成立。",
+   "★验证器为什么看不见": "B 支片段仍逐字存在; do not / never 落在片段边界之外或之内都不改变逐字核对的结果。"
+  },
+  {
+   "cls": "归属",
+   "id": "ATT-1",
+   "攻": "Q",
+   "pos": {
+    "text": "I get about 14 hours on a charge from the Oticon More 1 I own.",
+    "A": [
+     "about 14 hours on a charge",
+     "the Oticon More 1",
+     "数据"
+    ],
+    "B": [
+     "the Oticon More 1 I own",
+     "the Oticon More 1"
+    ]
+   },
+   "neg": {
+    "text": "My brother gets about 14 hours on a charge from the Oticon More 1 he owns.",
+    "A": [
+     "about 14 hours on a charge",
+     "the Oticon More 1",
+     "数据"
+    ],
+    "B": [
+     "the Oticon More 1 he owns",
+     "the Oticon More 1"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "合同要求「谈论对象是**自己**已拥有或已经历的」。neg 版的拥有者是 brother ⇒ Q 不成立。",
+   "★验证器为什么看不见": "逐字核对只问「这段字在不在原文里」, 不问**谁**是主语。I own / he owns 两者都是逐字存在的合法片段。"
+  },
+  {
+   "cls": "归属",
+   "id": "ATT-2",
+   "攻": "Q",
+   "pos": {
+    "text": "The Signia Pure Charge&Go AX I wear needs its wax guards changed every four weeks.",
+    "A": [
+     "needs its wax guards changed every four weeks",
+     "The Signia Pure Charge&Go AX",
+     "使用细节"
+    ],
+    "B": [
+     "The Signia Pure Charge&Go AX I wear",
+     "The Signia Pure Charge&Go AX"
+    ]
+   },
+   "neg": {
+    "text": "The Signia Pure Charge&Go AX my wife wears needs its wax guards changed every four weeks.",
+    "A": [
+     "needs its wax guards changed every four weeks",
+     "The Signia Pure Charge&Go AX",
+     "使用细节"
+    ],
+    "B": [
+     "The Signia Pure Charge&Go AX my wife wears",
+     "The Signia Pure Charge&Go AX"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "neg 版佩戴者是 wife ⇒ 不是自己已拥有或已经历 ⇒ Q 不成立。",
+   "★验证器为什么看不见": "两版的 B 支片段都含型号名、都逐字存在、规范化后对象相同。"
+  },
+  {
+   "cls": "时态",
+   "id": "TNS-1",
+   "攻": "Q",
+   "pos": {
+    "text": "I bought the Oticon More 1 last spring. It gives me about 14 hours on a charge.",
+    "A": [
+     "It gives me about 14 hours on a charge",
+     "the Oticon More 1",
+     "数据"
+    ],
+    "B": [
+     "I bought the Oticon More 1 last spring",
+     "the Oticon More 1"
+    ]
+   },
+   "neg": {
+    "text": "I will buy the Oticon More 1 next spring. It gives me about 14 hours on a charge.",
+    "A": [
+     "It gives me about 14 hours on a charge",
+     "the Oticon More 1",
+     "数据"
+    ],
+    "B": [
+     "buy the Oticon More 1 next spring",
+     "the Oticon More 1"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "合同**明文**写「若谈的是**期望中未得之物**→itch」。neg 版是未来时, 该物尚未取得 ⇒ 既不满足 Q, 也被合同显式路由出 display。",
+   "★验证器为什么看不见": "bought / will buy 的差别是**时态**, 而逐字核对没有时态概念。"
+  },
+  {
+   "cls": "时态",
+   "id": "TNS-2",
+   "攻": "Q",
+   "pos": {
+    "text": "I have the ReSound Nexia now. The app lets me turn off battery optimisation.",
+    "A": [
+     "The app lets me turn off battery optimisation",
+     "the ReSound Nexia",
+     "使用细节"
+    ],
+    "B": [
+     "I have the ReSound Nexia now",
+     "the ReSound Nexia"
+    ]
+   },
+   "neg": {
+    "text": "I will have the ReSound Nexia soon. The app lets me turn off battery optimisation.",
+    "A": [
+     "The app lets me turn off battery optimisation",
+     "the ReSound Nexia",
+     "使用细节"
+    ],
+    "B": [
+     "have the ReSound Nexia soon",
+     "the ReSound Nexia"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "同 TNS-1: 未来时 ⇒ 期望中未得之物 ⇒ 合同明文路由到 itch。",
+   "★验证器为什么看不见": "have / will have 的差别在片段边界外。"
+  },
+  {
+   "cls": "引用层级",
+   "id": "CIT-1",
+   "攻": "P",
+   "pos": {
+    "text": "The Oticon More 1 gives 14 hours on a charge. I have owned it since last spring.",
+    "A": [
+     "The Oticon More 1 gives 14 hours on a charge",
+     "The Oticon More 1",
+     "数据"
+    ],
+    "B": [
+     "I have owned it since last spring",
+     "The Oticon More 1"
+    ]
+   },
+   "neg": {
+    "text": "Someone on here claimed the Oticon More 1 gives 14 hours on a charge. I have owned it since last spring.",
+    "A": [
+     "the Oticon More 1 gives 14 hours on a charge",
+     "the Oticon More 1",
+     "数据"
+    ],
+    "B": [
+     "I have owned it since last spring",
+     "the Oticon More 1"
+    ]
+   },
+   "依据": "**解释(合同没明说)**",
+   "推导": "合同写「**输出**新信息增量」。neg 版那句是**转述别人的主张**, 说话人并未输出它。★★★ 但合同**没有定义**「输出」是否包含转述 ⇒ **这一格依赖解释, 不是明文**。★ **推翻条件**: 若裁定转述也算输出, 本对**自动作废**, 不得拿已跑的读数去救。",
+   "★验证器为什么看不见": "「Someone on here claimed」在引用片段**之外**; 片段本身逐字存在。"
+  },
+  {
+   "cls": "引用层级",
+   "id": "CIT-2",
+   "攻": "P",
+   "pos": {
+    "text": "The Jabra Enhance Select 500 pairs to two devices at once. I have used it for months.",
+    "A": [
+     "The Jabra Enhance Select 500 pairs to two devices at once",
+     "The Jabra Enhance Select 500",
+     "使用细节"
+    ],
+    "B": [
+     "I have used it for months",
+     "The Jabra Enhance Select 500"
+    ]
+   },
+   "neg": {
+    "text": "The ad claims the Jabra Enhance Select 500 pairs to two devices at once. I have used it for months.",
+    "A": [
+     "the Jabra Enhance Select 500 pairs to two devices at once",
+     "the Jabra Enhance Select 500",
+     "使用细节"
+    ],
+    "B": [
+     "I have used it for months",
+     "the Jabra Enhance Select 500"
+    ]
+   },
+   "依据": "**解释(合同没明说)**",
+   "推导": "合同写「**输出**新信息增量」。neg 版那句是**转述广告的主张**, 说话人并未输出它。★★★ 但合同**没有定义**「输出」是否包含转述 ⇒ **这一格依赖解释, 不是明文**。★ **推翻条件**: 若裁定转述也算输出, 本对**自动作废**, 不得拿已跑的读数去救。",
+   "★验证器为什么看不见": "「The ad claims」在片段之外。"
+  },
+  {
+   "cls": "类型成员资格",
+   "id": "TYP-1",
+   "攻": "P",
+   "pos": {
+    "text": "Wax guards on the Signia Pure Charge&Go AX go every four weeks, not eight. I own it.",
+    "A": [
+     "go every four weeks, not eight",
+     "the Signia Pure Charge&Go AX",
+     "纠错"
+    ],
+    "B": [
+     "I own it",
+     "the Signia Pure Charge&Go AX"
+    ]
+   },
+   "neg": {
+    "text": "Wax guards on the Signia Pure Charge&Go AX go every four weeks. I own it.",
+    "A": [
+     "go every four weeks",
+     "the Signia Pure Charge&Go AX",
+     "纠错"
+    ],
+    "B": [
+     "I own it",
+     "the Signia Pure Charge&Go AX"
+    ]
+   },
+   "依据": "**解释(合同没明说)**",
+   "推导": "kind 声明为**纠错**。pos 版有「, not eight」= 纠正了一个说法; neg 版**没有纠正任何东西**, 只是陈述一个周期 ⇒ kind 声明与实际不符。★★★ 合同只**列出**五类, **没有定义**每一类的成立条件 ⇒ **这一格依赖解释**。★ **推翻条件**: 若裁定「陈述一个周期」也算纠错, 本对**自动作废**, 不得拿已跑的读数去救。",
+   "★验证器为什么看不见": "资格层只核 kind **在不在枚举里**, 不核它**是不是真的那一类**。"
+  },
+  {
+   "cls": "类型成员资格",
+   "id": "TYP-2",
+   "攻": "P",
+   "pos": {
+    "text": "The Oticon More 1 gives me about 14 hours on a charge. I own it.",
+    "A": [
+     "gives me about 14 hours on a charge",
+     "The Oticon More 1",
+     "数据"
+    ],
+    "B": [
+     "I own it",
+     "The Oticon More 1"
+    ]
+   },
+   "neg": {
+    "text": "The Oticon More 1 gives me good battery life. I own it.",
+    "A": [
+     "gives me good battery life",
+     "The Oticon More 1",
+     "数据"
+    ],
+    "B": [
+     "I own it",
+     "The Oticon More 1"
+    ]
+   },
+   "依据": "**解释(合同没明说)**",
+   "推导": "kind 声明为**数据**。pos 版有数值「about 14 hours」; neg 版「good battery life」**没有任何数值** ⇒ 不构成数据。★★★ 合同只**列出**五类, **没有定义**每一类的成立条件 ⇒ **这一格依赖解释**。★ **推翻条件**: 若裁定「good battery life」也算数据, 本对**自动作废**, 不得拿已跑的读数去救。",
+   "★验证器为什么看不见": "同 TYP-1 —— 枚举成员资格是个字符串比对, 与片段内容无关。"
+  }
+ ],
+ "★★★contract_pairs 是什么_为什么不并进 pairs": "**合同条款对照** —— 与上面五类**不是一回事**, 所以**单列**, 不并进 pairs。★ 上面五类测的是**语言学关系**(否定辖域/归属/时态/引用层级/类型成员资格); 这一节测的是**某一条合同条款本身是否可被观察到** —— 目前只有一条: **附件 A**。★★ **单列的三个实际理由**: ① `pairs` 那 10 对与 tests/data/claim_frame_annotations.json 的 38 条标注是 **r4 的对照基准**, 而 r4 预注册按 sha8 **5a018edd** 钉死了那份金标 —— 往里加一条就改哈希, **等于事后动已付费那一轮的基准**; ② 因此本节的槽位标注**自带在每一对里**(`frames` 字段), **一个字都不写进冻结金标**; ③ 上界探针只遍历冻结金标的 annotations ⇒ **上界读数 4/10 → 0/10 逐字不受影响**, r4 的三臂对照仍然可比。 ★★★ **2026-09-15 重造(v2, 24 对)**: 造法**照真实证书学** —— pos/neg **共用同一句式模板**, 只在「是否给出关于对象的新信息」上差; 词数对齐; 系动词/介词/程度词/末词大写在两版上同分布; 避免 neg 独有词汇(注意**子串**: 搜索器用子串匹配, 'ear' 会命中 'hearing', 'and' 命中 'standard')。★★ **分成调整集(16) + 留出集(8)**: 只在调整集上看搜索结果并迭代, **留出集只搜一次**。实测留出集 p0=**0.375** 高于调整集的 0.312 ⇒ **调整集确实被拟合了**, 所以 p0 取**留出集**那个(保守)。★★★ 验收锚点来自**真实证书**(冻结族最佳净增益 **0**), 不是「让搜索器找不到」—— 后者没有停止规则, 对越来越大的族做极大化最终能打散任何对照集。",
+ "contract_pairs": [
+  {
+   "cls": "标识复述",
+   "id": "ANX-01",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I've worn the Oticon More 1 since March. The More 1 cuts out on cold mornings.",
+    "A": [
+     "The More 1 cuts out on cold mornings",
+     "Oticon More 1",
+     "使用细节"
+    ],
+    "B": [
+     "I've worn the Oticon More 1 since March",
+     "Oticon More 1"
+    ]
+   },
+   "neg": {
+    "text": "I've worn the Oticon More 1 since March. The More 1 goes in behind the ear.",
+    "A": [
+     "The More 1 goes in behind the ear",
+     "Oticon More 1",
+     "使用细节"
+    ],
+    "B": [
+     "I've worn the Oticon More 1 since March",
+     "Oticon More 1"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-02",
+   "攻": "P",
+   "★复述形态": "型号名里编码的规格",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I've had these Signia Pure 312 AX for a year. They run flat during long streaming sessions.",
+    "A": [
+     "They run flat during long streaming sessions",
+     "Signia Pure 312 AX",
+     "使用细节"
+    ],
+    "B": [
+     "I've had these Signia Pure 312 AX for a year",
+     "Signia Pure 312 AX"
+    ]
+   },
+   "neg": {
+    "text": "I've had these Signia Pure 312 AX for a year. They run off size 312 batteries only.",
+    "A": [
+     "They run off size 312 batteries only",
+     "Signia Pure 312 AX",
+     "使用细节"
+    ],
+    "B": [
+     "I've had these Signia Pure 312 AX for a year",
+     "Signia Pure 312 AX"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「型号名里编码的规格」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-03",
+   "攻": "P",
+   "★复述形态": "型号名的一部分",
+   "★分组": "调整集",
+   "pos": {
+    "text": "Mine is a Phonak Audeo B90. It drops calls during the phone handoff.",
+    "A": [
+     "It drops calls during the phone handoff",
+     "Phonak Audeo B90",
+     "使用细节"
+    ],
+    "B": [
+     "Mine is a Phonak Audeo B90",
+     "Phonak Audeo B90"
+    ]
+   },
+   "neg": {
+    "text": "Mine is a Phonak Audeo B90. It comes from the Phonak Audeo line.",
+    "A": [
+     "It comes from the Phonak Audeo line",
+     "Phonak Audeo B90",
+     "使用细节"
+    ],
+    "B": [
+     "Mine is a Phonak Audeo B90",
+     "Phonak Audeo B90"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「型号名的一部分」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-04",
+   "攻": "P",
+   "★复述形态": "只指认+品牌",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I wear the ReSound Nexia 9 daily. What I get is a hiss in quiet rooms.",
+    "A": [
+     "What I get is a hiss in quiet rooms",
+     "ReSound Nexia 9",
+     "使用细节"
+    ],
+    "B": [
+     "I wear the ReSound Nexia 9 daily",
+     "ReSound Nexia 9"
+    ]
+   },
+   "neg": {
+    "text": "I wear the ReSound Nexia 9 daily. What I wear is a pair by that brand.",
+    "A": [
+     "What I wear is a pair by that brand",
+     "ReSound Nexia 9",
+     "使用细节"
+    ],
+    "B": [
+     "I wear the ReSound Nexia 9 daily",
+     "ReSound Nexia 9"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「只指认+品牌」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-05",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I picked up a Widex Moment 440 last spring. The thing squeals during long family meals.",
+    "A": [
+     "The thing squeals during long family meals",
+     "Widex Moment 440",
+     "使用细节"
+    ],
+    "B": [
+     "I picked up a Widex Moment 440 last spring",
+     "Widex Moment 440"
+    ]
+   },
+   "neg": {
+    "text": "I picked up a Widex Moment 440 last spring. The thing rests against my skin all day.",
+    "A": [
+     "The thing rests against my skin all day",
+     "Widex Moment 440",
+     "使用细节"
+    ],
+    "B": [
+     "I picked up a Widex Moment 440 last spring",
+     "Widex Moment 440"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-06",
+   "攻": "P",
+   "★复述形态": "型号名的一部分",
+   "★分组": "调整集",
+   "pos": {
+    "text": "My Starkey Genesis AI 24 sits in my right ear. These clog every three weeks in winter.",
+    "A": [
+     "These clog every three weeks in winter",
+     "Starkey Genesis AI 24",
+     "使用细节"
+    ],
+    "B": [
+     "My Starkey Genesis AI 24 sits in my right ear",
+     "Starkey Genesis AI 24"
+    ]
+   },
+   "neg": {
+    "text": "My Starkey Genesis AI 24 sits in my right ear. These belong to the Genesis AI range.",
+    "A": [
+     "These belong to the Genesis AI range",
+     "Starkey Genesis AI 24",
+     "使用细节"
+    ],
+    "B": [
+     "My Starkey Genesis AI 24 sits in my right ear",
+     "Starkey Genesis AI 24"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「型号名的一部分」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-07",
+   "攻": "P",
+   "★复述形态": "型号名的一部分",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I use an Oticon Ruby 1 every day. Mine whistle after about four hours.",
+    "A": [
+     "Mine whistle after about four hours",
+     "Oticon Ruby 1",
+     "使用细节"
+    ],
+    "B": [
+     "I use an Oticon Ruby 1 every day",
+     "Oticon Ruby 1"
+    ]
+   },
+   "neg": {
+    "text": "I use an Oticon Ruby 1 every day. Mine shipped in a Ruby box.",
+    "A": [
+     "Mine shipped in a Ruby box",
+     "Oticon Ruby 1",
+     "使用细节"
+    ],
+    "B": [
+     "I use an Oticon Ruby 1 every day",
+     "Oticon Ruby 1"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「型号名的一部分」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-08",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I got the Jabra Enhance Select 500 in June. The left one lost sync with my phone.",
+    "A": [
+     "The left one lost sync with my phone",
+     "Jabra Enhance Select 500",
+     "使用细节"
+    ],
+    "B": [
+     "I got the Jabra Enhance Select 500 in June",
+     "Jabra Enhance Select 500"
+    ]
+   },
+   "neg": {
+    "text": "I got the Jabra Enhance Select 500 in June. The left one pairs over a radio link.",
+    "A": [
+     "The left one pairs over a radio link",
+     "Jabra Enhance Select 500",
+     "使用细节"
+    ],
+    "B": [
+     "I got the Jabra Enhance Select 500 in June",
+     "Jabra Enhance Select 500"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-09",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I've had a Phonak Naida P90 for two years. It needs a dry brick at night.",
+    "A": [
+     "It needs a dry brick at night",
+     "Phonak Naida P90",
+     "使用细节"
+    ],
+    "B": [
+     "I've had a Phonak Naida P90 for two years",
+     "Phonak Naida P90"
+    ]
+   },
+   "neg": {
+    "text": "I've had a Phonak Naida P90 for two years. It needs a battery like the rest now.",
+    "A": [
+     "It needs a battery like the rest now",
+     "Phonak Naida P90",
+     "使用细节"
+    ],
+    "B": [
+     "I've had a Phonak Naida P90 for two years",
+     "Phonak Naida P90"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-10",
+   "攻": "P",
+   "★复述形态": "只指认标识",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I wear the Signia Active Pro at work. The app shows drain in the red.",
+    "A": [
+     "The app shows drain in the red",
+     "Signia Active Pro",
+     "使用细节"
+    ],
+    "B": [
+     "I wear the Signia Active Pro at work",
+     "Signia Active Pro"
+    ]
+   },
+   "neg": {
+    "text": "I wear the Signia Active Pro at work. The app shows the model name on screen.",
+    "A": [
+     "The app shows the model name on screen",
+     "Signia Active Pro",
+     "使用细节"
+    ],
+    "B": [
+     "I wear the Signia Active Pro at work",
+     "Signia Active Pro"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「只指认标识」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-11",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I've used the Oticon Real 1 since spring. They pick up wind badly on the bus.",
+    "A": [
+     "They pick up wind badly on the bus",
+     "Oticon Real 1",
+     "使用细节"
+    ],
+    "B": [
+     "I've used the Oticon Real 1 since spring",
+     "Oticon Real 1"
+    ]
+   },
+   "neg": {
+    "text": "I've used the Oticon Real 1 since spring. They pick up sound then amplify it.",
+    "A": [
+     "They pick up sound then amplify it",
+     "Oticon Real 1",
+     "使用细节"
+    ],
+    "B": [
+     "I've used the Oticon Real 1 since spring",
+     "Oticon Real 1"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-12",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I have a Widex Smart RIC in each ear. I lose the right one on calls.",
+    "A": [
+     "I lose the right one on calls",
+     "Widex Smart RIC",
+     "使用细节"
+    ],
+    "B": [
+     "I have a Widex Smart RIC in each ear",
+     "Widex Smart RIC"
+    ]
+   },
+   "neg": {
+    "text": "I have a Widex Smart RIC in each ear. I use them for hearing loss now.",
+    "A": [
+     "I use them for hearing loss now",
+     "Widex Smart RIC",
+     "使用细节"
+    ],
+    "B": [
+     "I have a Widex Smart RIC in each ear",
+     "Widex Smart RIC"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-13",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I've worn the ReSound Omnia 9 all year. The dome splits along the outer rim.",
+    "A": [
+     "The dome splits along the outer rim",
+     "ReSound Omnia 9",
+     "使用细节"
+    ],
+    "B": [
+     "I've worn the ReSound Omnia 9 all year",
+     "ReSound Omnia 9"
+    ]
+   },
+   "neg": {
+    "text": "I've worn the ReSound Omnia 9 all year. The dome fits into the canal opening.",
+    "A": [
+     "The dome fits into the canal opening",
+     "ReSound Omnia 9",
+     "使用细节"
+    ],
+    "B": [
+     "I've worn the ReSound Omnia 9 all year",
+     "ReSound Omnia 9"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-14",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I wear a Starkey Evolv AI most days. Speech in cafes reaches my ear late.",
+    "A": [
+     "Speech in cafes reaches my ear late",
+     "Starkey Evolv AI",
+     "使用细节"
+    ],
+    "B": [
+     "I wear a Starkey Evolv AI most days",
+     "Starkey Evolv AI"
+    ]
+   },
+   "neg": {
+    "text": "I wear a Starkey Evolv AI most days. Speech goes through the aid every time.",
+    "A": [
+     "Speech goes through the aid every time",
+     "Starkey Evolv AI",
+     "使用细节"
+    ],
+    "B": [
+     "I wear a Starkey Evolv AI most days",
+     "Starkey Evolv AI"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-15",
+   "攻": "P",
+   "★复述形态": "品牌",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I've had the Phonak Lumity L90 since May. It cut my tinnitus by half.",
+    "A": [
+     "It cut my tinnitus by half",
+     "Phonak Lumity L90",
+     "使用细节"
+    ],
+    "B": [
+     "I've had the Phonak Lumity L90 since May",
+     "Phonak Lumity L90"
+    ]
+   },
+   "neg": {
+    "text": "I've had the Phonak Lumity L90 since May. It came in a Phonak case.",
+    "A": [
+     "It came in a Phonak case",
+     "Phonak Lumity L90",
+     "使用细节"
+    ],
+    "B": [
+     "I've had the Phonak Lumity L90 since May",
+     "Phonak Lumity L90"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品牌」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-16",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I use a Signia Styletto IX daily. Charging stalls at the amber light.",
+    "A": [
+     "Charging stalls at the amber light",
+     "Signia Styletto IX",
+     "使用细节"
+    ],
+    "B": [
+     "I use a Signia Styletto IX daily",
+     "Signia Styletto IX"
+    ]
+   },
+   "neg": {
+    "text": "I use a Signia Styletto IX daily. Charging works with any usual charger.",
+    "A": [
+     "Charging works with any usual charger",
+     "Signia Styletto IX",
+     "使用细节"
+    ],
+    "B": [
+     "I use a Signia Styletto IX daily",
+     "Signia Styletto IX"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "HLD-1",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "留出集",
+   "pos": {
+    "text": "I've used the Phonak Virto M since April. The shell rubs my skin on hot days.",
+    "A": [
+     "The shell rubs my skin on hot days",
+     "Phonak Virto M",
+     "使用细节"
+    ],
+    "B": [
+     "I've used the Phonak Virto M since April",
+     "Phonak Virto M"
+    ]
+   },
+   "neg": {
+    "text": "I've used the Phonak Virto M since April. The shell moulds to my canal shape over months.",
+    "A": [
+     "The shell moulds to my canal shape over months",
+     "Phonak Virto M",
+     "使用细节"
+    ],
+    "B": [
+     "I've used the Phonak Virto M since April",
+     "Phonak Virto M"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "HLD-2",
+   "攻": "P",
+   "★复述形态": "型号名里编码的规格",
+   "★分组": "留出集",
+   "pos": {
+    "text": "I wear a Unitron Moxi Jump R daily. It gives six hours in noisy rooms.",
+    "A": [
+     "It gives six hours in noisy rooms",
+     "Unitron Moxi Jump R",
+     "使用细节"
+    ],
+    "B": [
+     "I wear a Unitron Moxi Jump R daily",
+     "Unitron Moxi Jump R"
+    ]
+   },
+   "neg": {
+    "text": "I wear a Unitron Moxi Jump R daily. It charges via a cradle like others.",
+    "A": [
+     "It charges via a cradle like others",
+     "Unitron Moxi Jump R",
+     "使用细节"
+    ],
+    "B": [
+     "I wear a Unitron Moxi Jump R daily",
+     "Unitron Moxi Jump R"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「型号名里编码的规格」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "HLD-3",
+   "攻": "P",
+   "★复述形态": "型号名的一部分",
+   "★分组": "留出集",
+   "pos": {
+    "text": "I've had the Bernafon Alpha XT since June. The left one cuts during phone calls.",
+    "A": [
+     "The left one cuts during phone calls",
+     "Bernafon Alpha XT",
+     "使用细节"
+    ],
+    "B": [
+     "I've had the Bernafon Alpha XT since June",
+     "Bernafon Alpha XT"
+    ]
+   },
+   "neg": {
+    "text": "I've had the Bernafon Alpha XT since June. The left one sits in the Alpha family.",
+    "A": [
+     "The left one sits in the Alpha family",
+     "Bernafon Alpha XT",
+     "使用细节"
+    ],
+    "B": [
+     "I've had the Bernafon Alpha XT since June",
+     "Bernafon Alpha XT"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「型号名的一部分」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "HLD-4",
+   "攻": "P",
+   "★复述形态": "只指认+品牌",
+   "★分组": "留出集",
+   "pos": {
+    "text": "Mine are Rexton Reach 60 aids. What I notice is a buzz at low volume.",
+    "A": [
+     "What I notice is a buzz at low volume",
+     "Rexton Reach 60",
+     "使用细节"
+    ],
+    "B": [
+     "Mine are Rexton Reach 60 aids",
+     "Rexton Reach 60"
+    ]
+   },
+   "neg": {
+    "text": "Mine are Rexton Reach 60 aids. What I own is a pair from Rexton.",
+    "A": [
+     "What I own is a pair from Rexton",
+     "Rexton Reach 60",
+     "使用细节"
+    ],
+    "B": [
+     "Mine are Rexton Reach 60 aids",
+     "Rexton Reach 60"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「只指认+品牌」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "HLD-5",
+   "攻": "P",
+   "★复述形态": "型号名的一部分",
+   "★分组": "留出集",
+   "pos": {
+    "text": "I use the Beltone Imagine 17 at home. They drain fast on the bus home.",
+    "A": [
+     "They drain fast on the bus home",
+     "Beltone Imagine 17",
+     "使用细节"
+    ],
+    "B": [
+     "I use the Beltone Imagine 17 at home",
+     "Beltone Imagine 17"
+    ]
+   },
+   "neg": {
+    "text": "I use the Beltone Imagine 17 at home. They sit inside the Imagine product line.",
+    "A": [
+     "They sit inside the Imagine product line",
+     "Beltone Imagine 17",
+     "使用细节"
+    ],
+    "B": [
+     "I use the Beltone Imagine 17 at home",
+     "Beltone Imagine 17"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「型号名的一部分」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "HLD-6",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "留出集",
+   "pos": {
+    "text": "I've worn a Sonic Radiant 100 for months. Wind noise ruins speech on buses.",
+    "A": [
+     "Wind noise ruins speech on buses",
+     "Sonic Radiant 100",
+     "使用细节"
+    ],
+    "B": [
+     "I've worn a Sonic Radiant 100 for months",
+     "Sonic Radiant 100"
+    ]
+   },
+   "neg": {
+    "text": "I've worn a Sonic Radiant 100 for months. Sound passes through the device now.",
+    "A": [
+     "Sound passes through the device now",
+     "Sonic Radiant 100",
+     "使用细节"
+    ],
+    "B": [
+     "I've worn a Sonic Radiant 100 for months",
+     "Sonic Radiant 100"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "HLD-7",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "留出集",
+   "pos": {
+    "text": "I got the Audio Service Mood 3 last year. Feedback starts ten minutes into calls.",
+    "A": [
+     "Feedback starts ten minutes into calls",
+     "Audio Service Mood 3",
+     "使用细节"
+    ],
+    "B": [
+     "I got the Audio Service Mood 3 last year",
+     "Audio Service Mood 3"
+    ]
+   },
+   "neg": {
+    "text": "I got the Audio Service Mood 3 last year. Amplification happens inside the small casing.",
+    "A": [
+     "Amplification happens inside the small casing",
+     "Audio Service Mood 3",
+     "使用细节"
+    ],
+    "B": [
+     "I got the Audio Service Mood 3 last year",
+     "Audio Service Mood 3"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "HLD-8",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "留出集",
+   "pos": {
+    "text": "I wear the Hansaton sound SHD daily. The dome loosens after a few hours.",
+    "A": [
+     "The dome loosens after a few hours",
+     "Hansaton sound SHD",
+     "使用细节"
+    ],
+    "B": [
+     "I wear the Hansaton sound SHD daily",
+     "Hansaton sound SHD"
+    ]
+   },
+   "neg": {
+    "text": "I wear the Hansaton sound SHD daily. The dome seals against the skin for hours.",
+    "A": [
+     "The dome seals against the skin for hours",
+     "Hansaton sound SHD",
+     "使用细节"
+    ],
+    "B": [
+     "I wear the Hansaton sound SHD daily",
+     "Hansaton sound SHD"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。"
+  }
+ ],
+ "★★★附件 A 在这套最小对照上零覆盖(2026-09-14 登记)": "owner 2026-09-14 裁定**附件 A 升为合同**(增量必须含关于 x 的陈述, 且不能由 x 的公开标识本身推出)。★★★ 但**这套最小对照的五类里没有一类依据附件 A** —— 否定辖域/归属/时态走合同原文, 引用层级走「输出是否含转述」的解释, 类型成员资格走「五类各自的成立条件」的解释。⇒ **附件 A 这条在本套上零覆盖**, 升合同**不改变**本套的上界(实测 4/10 → 0/10 逐字不变)。★ 它是在**真实证书回放**上起作用的(r1/NEGP-1 与 r3/MIS-4, 「只用合同明文」阴性拦住 1/3 → **3/3**)。★★ **缺口**: 该补一对「只复述/指认标识」的最小对照, 让附件 A 在本套上也可测。★★★ **2026-09-15 已补, 但补在别处**: 见本文件的 `contract_pairs`(ANX-1/ANX-2) 与 results/annex_a_coverage.json。**没有并进上面那 10 对** —— 并进去要改冻结金标(r4 按 sha8 5a018edd 钉死), 等于事后动已付费那一轮的基准。⇒ 本条登记的事实**仍然成立且不撤销**: **`pairs` 这 10 对上, 附件 A 依然零覆盖, 上界仍是 4/10 → 0/10**。补上的是**另一节**的覆盖, 不是这一节的。",
+ "★★★contract_pairs_v1_已撤回(2026-09-15)": {
+  "★为什么撤回": "原 6 对**全部**是「X is Y」教科书式定义句(6/6 含系动词 · 5/6 不含介词), 而 r1/r2/r3 真实证书里的复述是「**泛泛提及 / 只指认 / 说一件从品类或型号名就能推出的事**」(`wearing hearing aids for a good while now` 无系动词含介词; `What I actually wear is an old pair from before all this` 有系动词**也含介词**)。⇒ **那套对照测的是「定义句 vs 描述句」这个句法区分, 不是合同条款**。实证: 冻结族(标准闭类词表 ≤3 合取, 378 条)在原 6 对上最佳 **5/6 · 误伤 0/24 · 净 +5** ⇒ p0=5/6 ⇒ **门不可达**; 同一条规则在**真实证书**上 **0/2 · 净 0**(results/shallow_rule_on_real_certs.json)。",
+  "★不删除": "留档以备追溯 —— results/annex_a_coverage.json 与 results/shallow_cue_arm.json 的历史读数建立在它们上面。",
+  "pairs": [
+   {
+    "cls": "标识复述",
+    "id": "ANX-1",
+    "攻": "P",
+    "pos": {
+     "text": "Mine is a Phonak Audeo B90. The aid drops Bluetooth calls hourly.",
+     "A": [
+      "The aid drops Bluetooth calls hourly",
+      "Phonak Audeo B90",
+      "使用细节"
+     ],
+     "B": [
+      "Mine is a Phonak Audeo B90",
+      "Phonak Audeo B90"
+     ]
+    },
+    "neg": {
+     "text": "Mine is a Phonak Audeo B90. The aid is a hearing aid.",
+     "A": [
+      "The aid is a hearing aid",
+      "Phonak Audeo B90",
+      "使用细节"
+     ],
+     "B": [
+      "Mine is a Phonak Audeo B90",
+      "Phonak Audeo B90"
+     ]
+    },
+    "依据": "**合同明文**",
+    "推导": "附件 A(owner 2026-09-14 **已裁定升为合同**): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能由 x 的公开标识(型号名、品类名)本身推出**。neg 版的 A 支说的是「它是一副助听器」—— 这**能由型号名 Phonak Audeo B90 本身推出**, ⇒ 不是关于它的新陈述, 只是**复述品类标识** ⇒ 不产生增量。pos 版「每小时掉一次蓝牙」**推不出来** ⇒ 是增量。★ 差异**只落在 A 支的谓语**上: 两版的 Q 支(「Mine is a Phonak Audeo B90」)**逐字相同**, 所以放行与否只能归因于**增量是否成立**这一条。",
+    "★验证器为什么看不见": "A 支片段在两版都**逐字存在**、object 相同、kind 都在枚举内、两支同对象、残余长度也相同 —— 现有资格层验的**每一项形式条件都满足**。差别是**语义的**: 那句话有没有告诉你关于这副机器的任何事。",
+    "frames": {
+     "pos": {
+      "A": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "OF_DECLARED_KIND",
+       "possession": "OWNED"
+      },
+      "B": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "OWNERSHIP",
+       "possession": "OWNED"
+      }
+     },
+     "neg": {
+      "A": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "RESTATES_IDENTIFIER",
+       "possession": "OWNED"
+      },
+      "B": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "OWNERSHIP",
+       "possession": "OWNED"
+      }
+     }
+    },
+    "★标注理由": "neg 版 A 支的 predicate 标 **RESTATES_IDENTIFIER**(只复述/指认标识), 其余五槽位两版**完全相同** —— 标注差异只有一格, 与文本差异(只有 A 支谓语)一一对应。",
+    "★★★正字法共线_2026-09-15 评审实跑抓到": "**原文本有缺陷, 已改**。旧版 pos 用实义动词句(「It drops…」/「They hiss…」)、neg 用系动词+品类名(「It is a hearing aid」/「They are Signia Pure aids」) ⇒ 全批 24 条 A 支片段里**只有这两条 neg 含 aid**。★★★ 280-agent 评审里一个 agent **实跑**证明: 一行 `'aid' in span.lower()` 就能拿到本轮**全部** ANX 信号, 并让一整套降级条件沉默。⇒ **表层正字法线索与目标信号完全共线**。★ 已改法: **让 pos 版也含品类词**(「The aid drops…」/「These aids hiss…」), 打掉「单词存在性」这条最廉价的线索。★★ **没消干净, 如实登记**: 「只复述标识」在语言上天然是**系动词 + 名词短语**, neg 版的 aid 出现次数仍比 pos 多一次。**这类共线消不干净** —— 所以真正的解法不是改文本, 而是 **probes/shallow_cue_arm.py 那条浅层线索臂**: 任何臂只有**超过它**才谈得上读懂语义, 只超过零基线只证明它读了文本。 ★★★ **2026-09-15 第三次调整(必须声明): 这一次是在**看过 best_shallow_rule_search 的结果之后**做的。** 改法: ANX-2/4/6 的 **pos 也改成系动词句**(同时**保持具体使用细节**这一性质, 没有退化成泛泛评价), 把 'are'/'is' 这两条 token 规则的净增益压下去。★★ **为什么这不是「按考生答案出题」**: 调数据让**模型**看起来好才是作弊; 这里调数据让**浅层规则**看起来差, 方向是**让实验更难**, 且模型还没看过任何一条。★★★ **但它仍是用结果调数据, 所以必须报调整前后两组数, 且只调这一次** —— 无限迭代下去就是在拟合搜索器。"
+   },
+   {
+    "cls": "标识复述",
+    "id": "ANX-2",
+    "攻": "P",
+    "pos": {
+     "text": "I've had these Signia Pure 312 AX for a year. These aids are dead by lunchtime.",
+     "A": [
+      "These aids are dead by lunchtime",
+      "Signia Pure 312 AX",
+      "使用细节"
+     ],
+     "B": [
+      "I've had these Signia Pure 312 AX for a year",
+      "Signia Pure 312 AX"
+     ]
+    },
+    "neg": {
+     "text": "I've had these Signia Pure 312 AX for a year. These aids are Signia Pure aids.",
+     "A": [
+      "These aids are Signia Pure aids",
+      "Signia Pure 312 AX",
+      "使用细节"
+     ],
+     "B": [
+      "I've had these Signia Pure 312 AX for a year",
+      "Signia Pure 312 AX"
+     ]
+    },
+    "依据": "**合同明文**",
+    "推导": "同 ANX-1, 换一种复述形态: neg 版说的是「它们是 Signia Pure 助听器」—— **品牌 + 型号系列 + 品类**, 三样**全部包含在公开标识 Signia Pure 312 AX 里**, 推得出来 ⇒ 复述, 不是增量。★ 之所以要第二对: ANX-1 复述的是**品类**, ANX-2 复述的是**品牌+系列** —— 一对只测得到一种复述形态, 判据若只认某一种就会被单对放过。",
+    "★验证器为什么看不见": "同 ANX-1: 形式条件全满足。★ 这一对还额外说明 —— neg 版 A 支片段里**逐字包含**「Signia Pure」, 与 object 字面重叠, 现有层的对象一致性检查**反而更容易通过**。",
+    "frames": {
+     "pos": {
+      "A": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "OF_DECLARED_KIND",
+       "possession": "OWNED"
+      },
+      "B": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "OWNERSHIP",
+       "possession": "OWNED"
+      }
+     },
+     "neg": {
+      "A": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "RESTATES_IDENTIFIER",
+       "possession": "OWNED"
+      },
+      "B": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "OWNERSHIP",
+       "possession": "OWNED"
+      }
+     }
+    },
+    "★标注理由": "同 ANX-1: 只有 neg 版 A 支的 predicate 一格不同。",
+    "★★★正字法共线_2026-09-15 评审实跑抓到": "**原文本有缺陷, 已改**。旧版 pos 用实义动词句(「It drops…」/「They hiss…」)、neg 用系动词+品类名(「It is a hearing aid」/「They are Signia Pure aids」) ⇒ 全批 24 条 A 支片段里**只有这两条 neg 含 aid**。★★★ 280-agent 评审里一个 agent **实跑**证明: 一行 `'aid' in span.lower()` 就能拿到本轮**全部** ANX 信号, 并让一整套降级条件沉默。⇒ **表层正字法线索与目标信号完全共线**。★ 已改法: **让 pos 版也含品类词**(「The aid drops…」/「These aids hiss…」), 打掉「单词存在性」这条最廉价的线索。★★ **没消干净, 如实登记**: 「只复述标识」在语言上天然是**系动词 + 名词短语**, neg 版的 aid 出现次数仍比 pos 多一次。**这类共线消不干净** —— 所以真正的解法不是改文本, 而是 **probes/shallow_cue_arm.py 那条浅层线索臂**: 任何臂只有**超过它**才谈得上读懂语义, 只超过零基线只证明它读了文本。 ★★★ **2026-09-15 第三次调整(必须声明): 这一次是在**看过 best_shallow_rule_search 的结果之后**做的。** 改法: ANX-2/4/6 的 **pos 也改成系动词句**(同时**保持具体使用细节**这一性质, 没有退化成泛泛评价), 把 'are'/'is' 这两条 token 规则的净增益压下去。★★ **为什么这不是「按考生答案出题」**: 调数据让**模型**看起来好才是作弊; 这里调数据让**浅层规则**看起来差, 方向是**让实验更难**, 且模型还没看过任何一条。★★★ **但它仍是用结果调数据, 所以必须报调整前后两组数, 且只调这一次** —— 无限迭代下去就是在拟合搜索器。"
+   },
+   {
+    "cls": "标识复述",
+    "id": "ANX-3",
+    "攻": "P",
+    "★复述形态": "复述型号名本身",
+    "pos": {
+     "text": "I picked up a Widex Moment 440 last spring. It is too loud outdoors.",
+     "A": [
+      "It is too loud outdoors",
+      "Widex Moment 440",
+      "使用细节"
+     ],
+     "B": [
+      "I picked up a Widex Moment 440 last spring",
+      "Widex Moment 440"
+     ]
+    },
+    "neg": {
+     "text": "I picked up a Widex Moment 440 last spring. It is the Moment 440.",
+     "A": [
+      "It is the Moment 440",
+      "Widex Moment 440",
+      "使用细节"
+     ],
+     "B": [
+      "I picked up a Widex Moment 440 last spring",
+      "Widex Moment 440"
+     ]
+    },
+    "依据": "**合同明文**",
+    "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能由 x 的公开标识本身推出**。neg 版把**型号名本身**再说一遍 ——「它是 Moment 440」**逐字**由公开标识推出, 零增量。★ 这是最直白的一种复述, 也是 r3/MIS-4 真实发生过的那种形态(只指认对象)。 pos 版给的是**推不出来的**具体使用情况 ⇒ 是增量。★ 差异只落在 A 支谓语上, 两版的 Q 支逐字相同。",
+    "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的**每一项形式条件都满足**。",
+    "frames": {
+     "pos": {
+      "A": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "OF_DECLARED_KIND",
+       "possession": "OWNED"
+      },
+      "B": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "OWNERSHIP",
+       "possession": "OWNED"
+      }
+     },
+     "neg": {
+      "A": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "RESTATES_IDENTIFIER",
+       "possession": "OWNED"
+      },
+      "B": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "OWNERSHIP",
+       "possession": "OWNED"
+      }
+     }
+    },
+    "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同 —— 标注差异只有一格。",
+    "★★★正字法共线_2026-09-15 评审实跑抓到": "**原文本有缺陷, 已改**。旧版 pos 用实义动词句(「It drops…」/「They hiss…」)、neg 用系动词+品类名(「It is a hearing aid」/「They are Signia Pure aids」) ⇒ 全批 24 条 A 支片段里**只有这两条 neg 含 aid**。★★★ 280-agent 评审里一个 agent **实跑**证明: 一行 `'aid' in span.lower()` 就能拿到本轮**全部** ANX 信号, 并让一整套降级条件沉默。⇒ **表层正字法线索与目标信号完全共线**。★ 已改法: **让 pos 版也含品类词**(「The aid drops…」/「These aids hiss…」), 打掉「单词存在性」这条最廉价的线索。★★ **没消干净, 如实登记**: 「只复述标识」在语言上天然是**系动词 + 名词短语**, neg 版的 aid 出现次数仍比 pos 多一次。**这类共线消不干净** —— 所以真正的解法不是改文本, 而是 **probes/shallow_cue_arm.py 那条浅层线索臂**: 任何臂只有**超过它**才谈得上读懂语义, 只超过零基线只证明它读了文本。 ★★★ **2026-09-15 第二次扩充时的做法**: 六对的表层特征**刻意分散** —— 含 aid 的只有 ANX-1/2(且两版都含); ANX-3/5 的 **pos 也用系动词**(打掉「系动词」这条规则); ANX-4 用 device 而不是 aid。★★ 但**手工对称化只能消掉我想得到的特征** ⇒ 真正的把关是 probes/best_shallow_rule_search.py: **机械搜遍**所有单 token 规则, 报最佳净增益。 ★★★ **2026-09-15 第三次调整(必须声明): 这一次是在**看过 best_shallow_rule_search 的结果之后**做的。** 改法: ANX-2/4/6 的 **pos 也改成系动词句**(同时**保持具体使用细节**这一性质, 没有退化成泛泛评价), 把 'are'/'is' 这两条 token 规则的净增益压下去。★★ **为什么这不是「按考生答案出题」**: 调数据让**模型**看起来好才是作弊; 这里调数据让**浅层规则**看起来差, 方向是**让实验更难**, 且模型还没看过任何一条。★★★ **但它仍是用结果调数据, 所以必须报调整前后两组数, 且只调这一次** —— 无限迭代下去就是在拟合搜索器。"
+   },
+   {
+    "cls": "标识复述",
+    "id": "ANX-4",
+    "攻": "P",
+    "★复述形态": "复述通用品类词(不含 aid)",
+    "pos": {
+     "text": "My Starkey Genesis AI 24 sits in my right ear. It is dead by mid-afternoon.",
+     "A": [
+      "It is dead by mid-afternoon",
+      "Starkey Genesis AI 24",
+      "使用细节"
+     ],
+     "B": [
+      "My Starkey Genesis AI 24 sits in my right ear",
+      "Starkey Genesis AI 24"
+     ]
+    },
+    "neg": {
+     "text": "My Starkey Genesis AI 24 sits in my right ear. It is a hearing device.",
+     "A": [
+      "It is a hearing device",
+      "Starkey Genesis AI 24",
+      "使用细节"
+     ],
+     "B": [
+      "My Starkey Genesis AI 24 sits in my right ear",
+      "Starkey Genesis AI 24"
+     ]
+    },
+    "依据": "**合同明文**",
+    "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能由 x 的公开标识本身推出**。neg 复述**品类**, 但**换了个词**(device 而不是 aid) —— 专门用来打掉「aid 这个 token」那条浅层规则。 pos 版给的是**推不出来的**具体使用情况 ⇒ 是增量。★ 差异只落在 A 支谓语上, 两版的 Q 支逐字相同。",
+    "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的**每一项形式条件都满足**。",
+    "frames": {
+     "pos": {
+      "A": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "OF_DECLARED_KIND",
+       "possession": "OWNED"
+      },
+      "B": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "OWNERSHIP",
+       "possession": "OWNED"
+      }
+     },
+     "neg": {
+      "A": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "RESTATES_IDENTIFIER",
+       "possession": "OWNED"
+      },
+      "B": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "OWNERSHIP",
+       "possession": "OWNED"
+      }
+     }
+    },
+    "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同 —— 标注差异只有一格。",
+    "★★★正字法共线_2026-09-15 评审实跑抓到": "**原文本有缺陷, 已改**。旧版 pos 用实义动词句(「It drops…」/「They hiss…」)、neg 用系动词+品类名(「It is a hearing aid」/「They are Signia Pure aids」) ⇒ 全批 24 条 A 支片段里**只有这两条 neg 含 aid**。★★★ 280-agent 评审里一个 agent **实跑**证明: 一行 `'aid' in span.lower()` 就能拿到本轮**全部** ANX 信号, 并让一整套降级条件沉默。⇒ **表层正字法线索与目标信号完全共线**。★ 已改法: **让 pos 版也含品类词**(「The aid drops…」/「These aids hiss…」), 打掉「单词存在性」这条最廉价的线索。★★ **没消干净, 如实登记**: 「只复述标识」在语言上天然是**系动词 + 名词短语**, neg 版的 aid 出现次数仍比 pos 多一次。**这类共线消不干净** —— 所以真正的解法不是改文本, 而是 **probes/shallow_cue_arm.py 那条浅层线索臂**: 任何臂只有**超过它**才谈得上读懂语义, 只超过零基线只证明它读了文本。 ★★★ **2026-09-15 第二次扩充时的做法**: 六对的表层特征**刻意分散** —— 含 aid 的只有 ANX-1/2(且两版都含); ANX-3/5 的 **pos 也用系动词**(打掉「系动词」这条规则); ANX-4 用 device 而不是 aid。★★ 但**手工对称化只能消掉我想得到的特征** ⇒ 真正的把关是 probes/best_shallow_rule_search.py: **机械搜遍**所有单 token 规则, 报最佳净增益。 ★★★ **2026-09-15 第三次调整(必须声明): 这一次是在**看过 best_shallow_rule_search 的结果之后**做的。** 改法: ANX-2/4/6 的 **pos 也改成系动词句**(同时**保持具体使用细节**这一性质, 没有退化成泛泛评价), 把 'are'/'is' 这两条 token 规则的净增益压下去。★★ **为什么这不是「按考生答案出题」**: 调数据让**模型**看起来好才是作弊; 这里调数据让**浅层规则**看起来差, 方向是**让实验更难**, 且模型还没看过任何一条。★★★ **但它仍是用结果调数据, 所以必须报调整前后两组数, 且只调这一次** —— 无限迭代下去就是在拟合搜索器。"
+   },
+   {
+    "cls": "标识复述",
+    "id": "ANX-5",
+    "攻": "P",
+    "★复述形态": "复述品牌",
+    "pos": {
+     "text": "I've used these ReSound Nexia 9 since June. They are useless in wind.",
+     "A": [
+      "They are useless in wind",
+      "ReSound Nexia 9",
+      "使用细节"
+     ],
+     "B": [
+      "I've used these ReSound Nexia 9 since June",
+      "ReSound Nexia 9"
+     ]
+    },
+    "neg": {
+     "text": "I've used these ReSound Nexia 9 since June. They are made by ReSound.",
+     "A": [
+      "They are made by ReSound",
+      "ReSound Nexia 9",
+      "使用细节"
+     ],
+     "B": [
+      "I've used these ReSound Nexia 9 since June",
+      "ReSound Nexia 9"
+     ]
+    },
+    "依据": "**合同明文**",
+    "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能由 x 的公开标识本身推出**。neg 复述**品牌**——「ReSound 做的」由标识「ReSound Nexia 9」逐字推出。★ pos 版**同样用系动词**(They are useless…)且是真陈述 ⇒ 专门打掉「系动词」那条浅层规则。 pos 版给的是**推不出来的**具体使用情况 ⇒ 是增量。★ 差异只落在 A 支谓语上, 两版的 Q 支逐字相同。",
+    "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的**每一项形式条件都满足**。",
+    "frames": {
+     "pos": {
+      "A": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "OF_DECLARED_KIND",
+       "possession": "OWNED"
+      },
+      "B": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "OWNERSHIP",
+       "possession": "OWNED"
+      }
+     },
+     "neg": {
+      "A": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "RESTATES_IDENTIFIER",
+       "possession": "OWNED"
+      },
+      "B": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "OWNERSHIP",
+       "possession": "OWNED"
+      }
+     }
+    },
+    "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同 —— 标注差异只有一格。",
+    "★★★正字法共线_2026-09-15 评审实跑抓到": "**原文本有缺陷, 已改**。旧版 pos 用实义动词句(「It drops…」/「They hiss…」)、neg 用系动词+品类名(「It is a hearing aid」/「They are Signia Pure aids」) ⇒ 全批 24 条 A 支片段里**只有这两条 neg 含 aid**。★★★ 280-agent 评审里一个 agent **实跑**证明: 一行 `'aid' in span.lower()` 就能拿到本轮**全部** ANX 信号, 并让一整套降级条件沉默。⇒ **表层正字法线索与目标信号完全共线**。★ 已改法: **让 pos 版也含品类词**(「The aid drops…」/「These aids hiss…」), 打掉「单词存在性」这条最廉价的线索。★★ **没消干净, 如实登记**: 「只复述标识」在语言上天然是**系动词 + 名词短语**, neg 版的 aid 出现次数仍比 pos 多一次。**这类共线消不干净** —— 所以真正的解法不是改文本, 而是 **probes/shallow_cue_arm.py 那条浅层线索臂**: 任何臂只有**超过它**才谈得上读懂语义, 只超过零基线只证明它读了文本。 ★★★ **2026-09-15 第二次扩充时的做法**: 六对的表层特征**刻意分散** —— 含 aid 的只有 ANX-1/2(且两版都含); ANX-3/5 的 **pos 也用系动词**(打掉「系动词」这条规则); ANX-4 用 device 而不是 aid。★★ 但**手工对称化只能消掉我想得到的特征** ⇒ 真正的把关是 probes/best_shallow_rule_search.py: **机械搜遍**所有单 token 规则, 报最佳净增益。 ★★★ **2026-09-15 第三次调整(必须声明): 这一次是在**看过 best_shallow_rule_search 的结果之后**做的。** 改法: ANX-2/4/6 的 **pos 也改成系动词句**(同时**保持具体使用细节**这一性质, 没有退化成泛泛评价), 把 'are'/'is' 这两条 token 规则的净增益压下去。★★ **为什么这不是「按考生答案出题」**: 调数据让**模型**看起来好才是作弊; 这里调数据让**浅层规则**看起来差, 方向是**让实验更难**, 且模型还没看过任何一条。★★★ **但它仍是用结果调数据, 所以必须报调整前后两组数, 且只调这一次** —— 无限迭代下去就是在拟合搜索器。"
+   },
+   {
+    "cls": "标识复述",
+    "id": "ANX-6",
+    "攻": "P",
+    "★复述形态": "复述型号名里已编码的规格",
+    "pos": {
+     "text": "I wear the Oticon Ruby 1 miniRITE R daily. They are dead after six hours.",
+     "A": [
+      "They are dead after six hours",
+      "Oticon Ruby 1 miniRITE R",
+      "使用细节"
+     ],
+     "B": [
+      "I wear the Oticon Ruby 1 miniRITE R daily",
+      "Oticon Ruby 1 miniRITE R"
+     ]
+    },
+    "neg": {
+     "text": "I wear the Oticon Ruby 1 miniRITE R daily. They are rechargeable units.",
+     "A": [
+      "They are rechargeable units",
+      "Oticon Ruby 1 miniRITE R",
+      "使用细节"
+     ],
+     "B": [
+      "I wear the Oticon Ruby 1 miniRITE R daily",
+      "Oticon Ruby 1 miniRITE R"
+     ]
+    },
+    "依据": "**合同明文**",
+    "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能由 x 的公开标识本身推出**。★★★ 最精细的一种: 「可充电」由型号名**末尾那个 R**(miniRITE **R**)推出。⇒ 说明附件 A 说的「公开标识」**包括型号里编码的信息**, 不只是品牌和品类。 pos 版给的是**推不出来的**具体使用情况 ⇒ 是增量。★ 差异只落在 A 支谓语上, 两版的 Q 支逐字相同。",
+    "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的**每一项形式条件都满足**。",
+    "frames": {
+     "pos": {
+      "A": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "OF_DECLARED_KIND",
+       "possession": "OWNED"
+      },
+      "B": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "OWNERSHIP",
+       "possession": "OWNED"
+      }
+     },
+     "neg": {
+      "A": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "RESTATES_IDENTIFIER",
+       "possession": "OWNED"
+      },
+      "B": {
+       "speaker": "SELF",
+       "polarity": "ASSERTED",
+       "time": "PAST_OR_PRESENT",
+       "citation": "DIRECT",
+       "predicate": "OWNERSHIP",
+       "possession": "OWNED"
+      }
+     }
+    },
+    "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同 —— 标注差异只有一格。",
+    "★★★正字法共线_2026-09-15 评审实跑抓到": "**原文本有缺陷, 已改**。旧版 pos 用实义动词句(「It drops…」/「They hiss…」)、neg 用系动词+品类名(「It is a hearing aid」/「They are Signia Pure aids」) ⇒ 全批 24 条 A 支片段里**只有这两条 neg 含 aid**。★★★ 280-agent 评审里一个 agent **实跑**证明: 一行 `'aid' in span.lower()` 就能拿到本轮**全部** ANX 信号, 并让一整套降级条件沉默。⇒ **表层正字法线索与目标信号完全共线**。★ 已改法: **让 pos 版也含品类词**(「The aid drops…」/「These aids hiss…」), 打掉「单词存在性」这条最廉价的线索。★★ **没消干净, 如实登记**: 「只复述标识」在语言上天然是**系动词 + 名词短语**, neg 版的 aid 出现次数仍比 pos 多一次。**这类共线消不干净** —— 所以真正的解法不是改文本, 而是 **probes/shallow_cue_arm.py 那条浅层线索臂**: 任何臂只有**超过它**才谈得上读懂语义, 只超过零基线只证明它读了文本。 ★★★ **2026-09-15 第二次扩充时的做法**: 六对的表层特征**刻意分散** —— 含 aid 的只有 ANX-1/2(且两版都含); ANX-3/5 的 **pos 也用系动词**(打掉「系动词」这条规则); ANX-4 用 device 而不是 aid。★★ 但**手工对称化只能消掉我想得到的特征** ⇒ 真正的把关是 probes/best_shallow_rule_search.py: **机械搜遍**所有单 token 规则, 报最佳净增益。 ★★★ **2026-09-15 第三次调整(必须声明): 这一次是在**看过 best_shallow_rule_search 的结果之后**做的。** 改法: ANX-2/4/6 的 **pos 也改成系动词句**(同时**保持具体使用细节**这一性质, 没有退化成泛泛评价), 把 'are'/'is' 这两条 token 规则的净增益压下去。★★ **为什么这不是「按考生答案出题」**: 调数据让**模型**看起来好才是作弊; 这里调数据让**浅层规则**看起来差, 方向是**让实验更难**, 且模型还没看过任何一条。★★★ **但它仍是用结果调数据, 所以必须报调整前后两组数, 且只调这一次** —— 无限迭代下去就是在拟合搜索器。"
+   }
+  ]
+ },
+ "★★★contract_pairs_v4 是什么_为什么并列不覆盖": "2026-09-23 重建。v3 的 A 支与真实 Reddit 含品牌句在 12 条表层轴上平均偏离 14 点(末词大写 30 / 系动词 26 / 首词限定词 25 / 时段 19) ⇒ 读数不得外推到自然语料。v4 只重写 A 支, 把表层分布配到真实语料上(平均偏离 1.8 点), **金标 frames 一格未动**。 **不覆盖 v3**: r5(68 次已付费)与 annex_a_coverage/shallow_cue_arm 的读数都建立在 v3 上, 其 sha 被闸钉死。 之后新一轮该用 v4; 已付费轮次继续引用 v3。见 results/contract_pairs_v4_check.json。 ★ v4.1(同日): 冻结族只查闭类词, 单 token 开放族里 like/any/model/unit 曾集中在 neg 侧(净 +6), 已配平到 v3 水平(3)。",
+ "contract_pairs_v4": [
+  {
+   "cls": "标识复述",
+   "id": "ANX-01",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I've worn the Oticon More 1 since March Cold mornings are when the More cuts out at each ear",
+    "A": [
+     "Cold mornings are when the More cuts out at each ear",
+     "Oticon More 1",
+     "使用细节"
+    ],
+    "B": [
+     "I've worn the Oticon More 1 since March",
+     "Oticon More 1"
+    ]
+   },
+   "neg": {
+    "text": "I've worn the Oticon More 1 since March Behind the ear is where the More sits when worn",
+    "A": [
+     "Behind the ear is where the More sits when worn",
+     "Oticon More 1",
+     "使用细节"
+    ],
+    "B": [
+     "I've worn the Oticon More 1 since March",
+     "Oticon More 1"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-02",
+   "攻": "P",
+   "★复述形态": "型号名里编码的规格",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I've had these Signia Pure 312 AX for a year Streams drain the 312 AX in about four calls on Zoom",
+    "A": [
+     "Streams drain the 312 AX in about four calls on Zoom",
+     "Signia Pure 312 AX",
+     "使用细节"
+    ],
+    "B": [
+     "I've had these Signia Pure 312 AX for a year",
+     "Signia Pure 312 AX"
+    ]
+   },
+   "neg": {
+    "text": "I've had these Signia Pure 312 AX for a year Size 312 cells power the 312 AX in about four models from Phonak",
+    "A": [
+     "Size 312 cells power the 312 AX in about four models from Phonak",
+     "Signia Pure 312 AX",
+     "使用细节"
+    ],
+    "B": [
+     "I've had these Signia Pure 312 AX for a year",
+     "Signia Pure 312 AX"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「型号名里编码的规格」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-03",
+   "攻": "P",
+   "★复述形态": "型号名的一部分",
+   "★分组": "调整集",
+   "pos": {
+    "text": "Mine is a Phonak Audeo B90 The B90 dropped three calls today during the phone handoff",
+    "A": [
+     "The B90 dropped three calls today during the phone handoff",
+     "Phonak Audeo B90",
+     "使用细节"
+    ],
+    "B": [
+     "Mine is a Phonak Audeo B90",
+     "Phonak Audeo B90"
+    ]
+   },
+   "neg": {
+    "text": "Mine is a Phonak Audeo B90 The B90 belongs to the Audeo line alongside three more lineup mates",
+    "A": [
+     "The B90 belongs to the Audeo line alongside three more lineup mates",
+     "Phonak Audeo B90",
+     "使用细节"
+    ],
+    "B": [
+     "Mine is a Phonak Audeo B90",
+     "Phonak Audeo B90"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「型号名的一部分」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-04",
+   "攻": "P",
+   "★复述形态": "只指认+品牌",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I wear the ReSound Nexia 9 daily Quiet rooms are where the Nexia keeps hissing in both ears for two of us",
+    "A": [
+     "Quiet rooms are where the Nexia keeps hissing in both ears for two of us",
+     "ReSound Nexia 9",
+     "使用细节"
+    ],
+    "B": [
+     "I wear the ReSound Nexia 9 daily",
+     "ReSound Nexia 9"
+    ]
+   },
+   "neg": {
+    "text": "I wear the ReSound Nexia 9 daily Both ears are where the Nexia keeps sitting for two of us",
+    "A": [
+     "Both ears are where the Nexia keeps sitting for two of us",
+     "ReSound Nexia 9",
+     "使用细节"
+    ],
+    "B": [
+     "I wear the ReSound Nexia 9 daily",
+     "ReSound Nexia 9"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「只指认+品牌」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-05",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I picked up a Widex Moment 440 last spring Long family meals make the Moment squeal twice at Nonna's",
+    "A": [
+     "Long family meals make the Moment squeal twice at Nonna's",
+     "Widex Moment 440",
+     "使用细节"
+    ],
+    "B": [
+     "I picked up a Widex Moment 440 last spring",
+     "Widex Moment 440"
+    ]
+   },
+   "neg": {
+    "text": "I picked up a Widex Moment 440 last spring Skin contact makes the Moment warm twice over on pairs from Widex",
+    "A": [
+     "Skin contact makes the Moment warm twice over on pairs from Widex",
+     "Widex Moment 440",
+     "使用细节"
+    ],
+    "B": [
+     "I picked up a Widex Moment 440 last spring",
+     "Widex Moment 440"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-06",
+   "攻": "P",
+   "★复述形态": "型号名的一部分",
+   "★分组": "调整集",
+   "pos": {
+    "text": "My Starkey Genesis AI 24 sits in my right ear Every three weeks in winter wax clogs the Genesis domes",
+    "A": [
+     "Every three weeks in winter wax clogs the Genesis domes",
+     "Starkey Genesis AI 24",
+     "使用细节"
+    ],
+    "B": [
+     "My Starkey Genesis AI 24 sits in my right ear",
+     "Starkey Genesis AI 24"
+    ]
+   },
+   "neg": {
+    "text": "My Starkey Genesis AI 24 sits in my right ear Every three weeks in winter the Genesis still counts as one more Genesis sibling",
+    "A": [
+     "Every three weeks in winter the Genesis still counts as one more Genesis sibling",
+     "Starkey Genesis AI 24",
+     "使用细节"
+    ],
+    "B": [
+     "My Starkey Genesis AI 24 sits in my right ear",
+     "Starkey Genesis AI 24"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「型号名的一部分」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-07",
+   "攻": "P",
+   "★复述形态": "型号名的一部分",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I use an Oticon Ruby 1 every day Late sessions are what set the Ruby whistling",
+    "A": [
+     "Late sessions are what set the Ruby whistling",
+     "Oticon Ruby 1",
+     "使用细节"
+    ],
+    "B": [
+     "I use an Oticon Ruby 1 every day",
+     "Oticon Ruby 1"
+    ]
+   },
+   "neg": {
+    "text": "I use an Oticon Ruby 1 every day Ruby boxes are what the Ruby came shipping in",
+    "A": [
+     "Ruby boxes are what the Ruby came shipping in",
+     "Oticon Ruby 1",
+     "使用细节"
+    ],
+    "B": [
+     "I use an Oticon Ruby 1 every day",
+     "Oticon Ruby 1"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「型号名的一部分」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-08",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I got the Jabra Enhance Select 500 in June Twice today the left Enhance lost sync with Bluetooth",
+    "A": [
+     "Twice today the left Enhance lost sync with Bluetooth",
+     "Jabra Enhance Select 500",
+     "使用细节"
+    ],
+    "B": [
+     "I got the Jabra Enhance Select 500 in June",
+     "Jabra Enhance Select 500"
+    ]
+   },
+   "neg": {
+    "text": "I got the Jabra Enhance Select 500 in June Over a radio link the left Enhance pairs twice with Bluetooth",
+    "A": [
+     "Over a radio link the left Enhance pairs twice with Bluetooth",
+     "Jabra Enhance Select 500",
+     "使用细节"
+    ],
+    "B": [
+     "I got the Jabra Enhance Select 500 in June",
+     "Jabra Enhance Select 500"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-09",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I've had a Phonak Naida P90 for two years The P90 needs a dry brick or it crackles like static by 9",
+    "A": [
+     "The P90 needs a dry brick or it crackles like static by 9",
+     "Phonak Naida P90",
+     "使用细节"
+    ],
+    "B": [
+     "I've had a Phonak Naida P90 for two years",
+     "Phonak Naida P90"
+    ]
+   },
+   "neg": {
+    "text": "I've had a Phonak Naida P90 for two years The P90 needs a battery like 9 more across ranges",
+    "A": [
+     "The P90 needs a battery like 9 more across ranges",
+     "Phonak Naida P90",
+     "使用细节"
+    ],
+    "B": [
+     "I've had a Phonak Naida P90 for two years",
+     "Phonak Naida P90"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-10",
+   "攻": "P",
+   "★复述形态": "只指认标识",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I wear the Signia Active Pro at work Red is what the app shows as Active Pro drain",
+    "A": [
+     "Red is what the app shows as Active Pro drain",
+     "Signia Active Pro",
+     "使用细节"
+    ],
+    "B": [
+     "I wear the Signia Active Pro at work",
+     "Signia Active Pro"
+    ]
+   },
+   "neg": {
+    "text": "I wear the Signia Active Pro at work Name tag is what the app shows as Active Pro label",
+    "A": [
+     "Name tag is what the app shows as Active Pro label",
+     "Signia Active Pro",
+     "使用细节"
+    ],
+    "B": [
+     "I wear the Signia Active Pro at work",
+     "Signia Active Pro"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「只指认标识」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-11",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I've used the Oticon Real 1 since spring On the bus the Real keeps picking up wind like crazy, worse than any Kirkland",
+    "A": [
+     "On the bus the Real keeps picking up wind like crazy, worse than any Kirkland",
+     "Oticon Real 1",
+     "使用细节"
+    ],
+    "B": [
+     "I've used the Oticon Real 1 since spring",
+     "Oticon Real 1"
+    ]
+   },
+   "neg": {
+    "text": "I've used the Oticon Real 1 since spring On the bus the Real keeps picking up sound like any Kirkland",
+    "A": [
+     "On the bus the Real keeps picking up sound like any Kirkland",
+     "Oticon Real 1",
+     "使用细节"
+    ],
+    "B": [
+     "I've used the Oticon Real 1 since spring",
+     "Oticon Real 1"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-12",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I have a Widex Smart RIC in each ear On calls the right RIC really drops out 2 or 3 times",
+    "A": [
+     "On calls the right RIC really drops out 2 or 3 times",
+     "Widex Smart RIC",
+     "使用细节"
+    ],
+    "B": [
+     "I have a Widex Smart RIC in each ear",
+     "Widex Smart RIC"
+    ]
+   },
+   "neg": {
+    "text": "I have a Widex Smart RIC in each ear For sound loss the 2 RIC aids really do the usual job",
+    "A": [
+     "For sound loss the 2 RIC aids really do the usual job",
+     "Widex Smart RIC",
+     "使用细节"
+    ],
+    "B": [
+     "I have a Widex Smart RIC in each ear",
+     "Widex Smart RIC"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-13",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I've worn the ReSound Omnia 9 all year Split domes are what the Omnia produces, outer rim first",
+    "A": [
+     "Split domes are what the Omnia produces, outer rim first",
+     "ReSound Omnia 9",
+     "使用细节"
+    ],
+    "B": [
+     "I've worn the ReSound Omnia 9 all year",
+     "ReSound Omnia 9"
+    ]
+   },
+   "neg": {
+    "text": "I've worn the ReSound Omnia 9 all year Canal openings are what the Omnia domes fit",
+    "A": [
+     "Canal openings are what the Omnia domes fit",
+     "ReSound Omnia 9",
+     "使用细节"
+    ],
+    "B": [
+     "I've worn the ReSound Omnia 9 all year",
+     "ReSound Omnia 9"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-14",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I wear a Starkey Evolv AI most days Cafe speech keeps reaching the Evolv a beat late, like with Signia",
+    "A": [
+     "Cafe speech keeps reaching the Evolv a beat late, like with Signia",
+     "Starkey Evolv AI",
+     "使用细节"
+    ],
+    "B": [
+     "I wear a Starkey Evolv AI most days",
+     "Starkey Evolv AI"
+    ]
+   },
+   "neg": {
+    "text": "I wear a Starkey Evolv AI most days Cafe speech keeps passing through the Evolv every time, like with Signia",
+    "A": [
+     "Cafe speech keeps passing through the Evolv every time, like with Signia",
+     "Starkey Evolv AI",
+     "使用细节"
+    ],
+    "B": [
+     "I wear a Starkey Evolv AI most days",
+     "Starkey Evolv AI"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-15",
+   "攻": "P",
+   "★复述形态": "品牌",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I've had the Phonak Lumity L90 since May Tinnitus faded a lot with it",
+    "A": [
+     "Tinnitus faded a lot with it",
+     "Phonak Lumity L90",
+     "使用细节"
+    ],
+    "B": [
+     "I've had the Phonak Lumity L90 since May",
+     "Phonak Lumity L90"
+    ]
+   },
+   "neg": {
+    "text": "I've had the Phonak Lumity L90 since May Phonak case came along with it",
+    "A": [
+     "Phonak case came along with it",
+     "Phonak Lumity L90",
+     "使用细节"
+    ],
+    "B": [
+     "I've had the Phonak Lumity L90 since May",
+     "Phonak Lumity L90"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品牌」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "ANX-16",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "调整集",
+   "pos": {
+    "text": "I use a Signia Styletto IX daily Any amber light is what stalls Styletto charge",
+    "A": [
+     "Any amber light is what stalls Styletto charge",
+     "Signia Styletto IX",
+     "使用细节"
+    ],
+    "B": [
+     "I use a Signia Styletto IX daily",
+     "Signia Styletto IX"
+    ]
+   },
+   "neg": {
+    "text": "I use a Signia Styletto IX daily Any usual charger is what Styletto charge accepts",
+    "A": [
+     "Any usual charger is what Styletto charge accepts",
+     "Signia Styletto IX",
+     "使用细节"
+    ],
+    "B": [
+     "I use a Signia Styletto IX daily",
+     "Signia Styletto IX"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "HLD-1",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "留出集",
+   "pos": {
+    "text": "I've used the Phonak Virto M since April Heat makes the Virto shell rub raw against skin like sandpaper, worse than Oticon",
+    "A": [
+     "Heat makes the Virto shell rub raw against skin like sandpaper, worse than Oticon",
+     "Phonak Virto M",
+     "使用细节"
+    ],
+    "B": [
+     "I've used the Phonak Virto M since April",
+     "Phonak Virto M"
+    ]
+   },
+   "neg": {
+    "text": "I've used the Phonak Virto M since April Daily use makes the Virto shell mould to the canal, like Oticon",
+    "A": [
+     "Daily use makes the Virto shell mould to the canal, like Oticon",
+     "Phonak Virto M",
+     "使用细节"
+    ],
+    "B": [
+     "I've used the Phonak Virto M since April",
+     "Phonak Virto M"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "HLD-2",
+   "攻": "P",
+   "★复述形态": "型号名里编码的规格",
+   "★分组": "留出集",
+   "pos": {
+    "text": "I wear a Unitron Moxi Jump R daily Rooms with 40 people are what make the Moxi fade fast",
+    "A": [
+     "Rooms with 40 people are what make the Moxi fade fast",
+     "Unitron Moxi Jump R",
+     "使用细节"
+    ],
+    "B": [
+     "I wear a Unitron Moxi Jump R daily",
+     "Unitron Moxi Jump R"
+    ]
+   },
+   "neg": {
+    "text": "I wear a Unitron Moxi Jump R daily Cradles are what the Moxi charges in with 40 more pieces",
+    "A": [
+     "Cradles are what the Moxi charges in with 40 more pieces",
+     "Unitron Moxi Jump R",
+     "使用细节"
+    ],
+    "B": [
+     "I wear a Unitron Moxi Jump R daily",
+     "Unitron Moxi Jump R"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「型号名里编码的规格」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "HLD-3",
+   "攻": "P",
+   "★复述形态": "型号名的一部分",
+   "★分组": "留出集",
+   "pos": {
+    "text": "I've had the Bernafon Alpha XT since June Phone calls cut the left Alpha out after 20 minutes",
+    "A": [
+     "Phone calls cut the left Alpha out after 20 minutes",
+     "Bernafon Alpha XT",
+     "使用细节"
+    ],
+    "B": [
+     "I've had the Bernafon Alpha XT since June",
+     "Bernafon Alpha XT"
+    ]
+   },
+   "neg": {
+    "text": "I've had the Bernafon Alpha XT since June Alpha family membership stays on the left Alpha after 20 minutes",
+    "A": [
+     "Alpha family membership stays on the left Alpha after 20 minutes",
+     "Bernafon Alpha XT",
+     "使用细节"
+    ],
+    "B": [
+     "I've had the Bernafon Alpha XT since June",
+     "Bernafon Alpha XT"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「型号名的一部分」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "HLD-4",
+   "攻": "P",
+   "★复述形态": "只指认+品牌",
+   "★分组": "留出集",
+   "pos": {
+    "text": "Mine are Rexton Reach 60 aids At any volume the Reach keeps buzzing, unlike Signia",
+    "A": [
+     "At any volume the Reach keeps buzzing, unlike Signia",
+     "Rexton Reach 60",
+     "使用细节"
+    ],
+    "B": [
+     "Mine are Rexton Reach 60 aids",
+     "Rexton Reach 60"
+    ]
+   },
+   "neg": {
+    "text": "Mine are Rexton Reach 60 aids At any volume the Reach keeps making a pair from Rexton",
+    "A": [
+     "At any volume the Reach keeps making a pair from Rexton",
+     "Rexton Reach 60",
+     "使用细节"
+    ],
+    "B": [
+     "Mine are Rexton Reach 60 aids",
+     "Rexton Reach 60"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「只指认+品牌」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "HLD-5",
+   "攻": "P",
+   "★复述形态": "型号名的一部分",
+   "★分组": "留出集",
+   "pos": {
+    "text": "I use the Beltone Imagine 17 at home Bus rides home are what drains the Imagine fastest",
+    "A": [
+     "Bus rides home are what drains the Imagine fastest",
+     "Beltone Imagine 17",
+     "使用细节"
+    ],
+    "B": [
+     "I use the Beltone Imagine 17 at home",
+     "Beltone Imagine 17"
+    ]
+   },
+   "neg": {
+    "text": "I use the Beltone Imagine 17 at home Imagine product line is what lists the Imagine entry",
+    "A": [
+     "Imagine product line is what lists the Imagine entry",
+     "Beltone Imagine 17",
+     "使用细节"
+    ],
+    "B": [
+     "I use the Beltone Imagine 17 at home",
+     "Beltone Imagine 17"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「型号名的一部分」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "HLD-6",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "留出集",
+   "pos": {
+    "text": "I've worn a Sonic Radiant 100 for months The Radiant lets bus wind ruin speech for me on any trip",
+    "A": [
+     "The Radiant lets bus wind ruin speech for me on any trip",
+     "Sonic Radiant 100",
+     "使用细节"
+    ],
+    "B": [
+     "I've worn a Sonic Radiant 100 for months",
+     "Sonic Radiant 100"
+    ]
+   },
+   "neg": {
+    "text": "I've worn a Sonic Radiant 100 for months The Radiant passes sound through to me on any trip",
+    "A": [
+     "The Radiant passes sound through to me on any trip",
+     "Sonic Radiant 100",
+     "使用细节"
+    ],
+    "B": [
+     "I've worn a Sonic Radiant 100 for months",
+     "Sonic Radiant 100"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "HLD-7",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "留出集",
+   "pos": {
+    "text": "I got the Audio Service Mood 3 last year Feedback starts screaming from the Mood a few calls in, never from Widex",
+    "A": [
+     "Feedback starts screaming from the Mood a few calls in, never from Widex",
+     "Audio Service Mood 3",
+     "使用细节"
+    ],
+    "B": [
+     "I got the Audio Service Mood 3 last year",
+     "Audio Service Mood 3"
+    ]
+   },
+   "neg": {
+    "text": "I got the Audio Service Mood 3 last year Amplification keeps happening inside the Mood casing a few calls in, same for Widex",
+    "A": [
+     "Amplification keeps happening inside the Mood casing a few calls in, same for Widex",
+     "Audio Service Mood 3",
+     "使用细节"
+    ],
+    "B": [
+     "I got the Audio Service Mood 3 last year",
+     "Audio Service Mood 3"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  },
+  {
+   "cls": "标识复述",
+   "id": "HLD-8",
+   "攻": "P",
+   "★复述形态": "品类通用属性",
+   "★分组": "留出集",
+   "pos": {
+    "text": "I wear the Hansaton sound SHD daily Dome loosens pretty fast on me",
+    "A": [
+     "Dome loosens pretty fast on me",
+     "Hansaton sound SHD",
+     "使用细节"
+    ],
+    "B": [
+     "I wear the Hansaton sound SHD daily",
+     "Hansaton sound SHD"
+    ]
+   },
+   "neg": {
+    "text": "I wear the Hansaton sound SHD daily Dome seals pretty well on me",
+    "A": [
+     "Dome seals pretty well on me",
+     "Hansaton sound SHD",
+     "使用细节"
+    ],
+    "B": [
+     "I wear the Hansaton sound SHD daily",
+     "Hansaton sound SHD"
+    ]
+   },
+   "依据": "**合同明文**",
+   "推导": "附件 A(owner 2026-09-14 已裁定升为合同): 増量相对 x 成立 ⟺ 文本含**关于 x 的陈述**, 且该陈述**不能**由 x 的公开标识本身推出。neg 版给的是「品类通用属性」—— 推得出来 ⇒ 不产生增量; pos 版给的是**推不出来**的具体使用情况 ⇒ 是增量。★ pos 与 neg **共用同一句式模板**, 差异只落在「是否给出关于对象的新信息」。",
+   "★验证器为什么看不见": "A 支片段在两版都逐字存在、object 相同、kind 在枚举内、两支同对象 —— 现有资格层验的每一项形式条件都满足。",
+   "frames": {
+    "pos": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OF_DECLARED_KIND",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    },
+    "neg": {
+     "A": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "RESTATES_IDENTIFIER",
+      "possession": "OWNED"
+     },
+     "B": {
+      "speaker": "SELF",
+      "polarity": "ASSERTED",
+      "time": "PAST_OR_PRESENT",
+      "citation": "DIRECT",
+      "predicate": "OWNERSHIP",
+      "possession": "OWNED"
+     }
+    }
+   },
+   "★标注理由": "neg 版 A 支 predicate 标 RESTATES_IDENTIFIER, 其余五槽位两版完全相同。",
+   "★v4 改了什么": "只重写 A 支(增量句), 第一句/B 支/frames/对象/kind/分组/复述形态与 v3 逐字相同。v4.1: 配平了单 token 开放族里的泄漏(like/any/model/unit/ear)。"
+  }
+ ]
+}

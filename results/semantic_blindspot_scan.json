@@ -1,0 +1,252 @@
+{
+ "block": "SEMANTIC_BLINDSPOT_SCAN",
+ "★零调用": "本扫描**不发起任何模型调用**。证书是手构探针。",
+ "source": "tests/data/semantic_minimal_pairs.json",
+ "★★★逐类错误放行": {
+  "否定辖域": {
+   "错误放行": "2/2",
+   "对照有效": "2/2",
+   "依据": "**合同明文**"
+  },
+  "归属": {
+   "错误放行": "2/2",
+   "对照有效": "2/2",
+   "依据": "**合同明文**"
+  },
+  "时态": {
+   "错误放行": "2/2",
+   "对照有效": "2/2",
+   "依据": "**合同明文**"
+  },
+  "引用层级": {
+   "错误放行": "2/2",
+   "对照有效": "2/2",
+   "依据": "**解释(合同没明说)**"
+  },
+  "类型成员资格": {
+   "错误放行": "2/2",
+   "对照有效": "2/2",
+   "依据": "**解释(合同没明说)**"
+  }
+ },
+ "★★★合计": {
+  "错误放行": "10/10",
+  "对照有效": "10/10"
+ },
+ "★★★退化的对(pos 都没通过, 这一对测不出东西)": "无",
+ "★★★怎么读": "这是**验证器的语义盲区**, 不是模型的错误率。「错误放行 k/n」= 在 n 对最小对照里, 有 k 对的**不支持版**也被验证器放行。★ 分母是我构造的对照, **不是**自然语料 ⇒ 不得当成误报率。",
+ "★★★依据分层": "否定辖域/归属/时态 = **合同明文**支持; 引用层级/类型成员资格 = **依赖解释**(合同没定义「输出」是否含转述, 也没定义五类各自的成立条件) ⇒ 后两类的 neg 判定若被推翻, 对应的对**自动作废**。",
+ "rows": [
+  {
+   "id": "NEG-1",
+   "cls": "否定辖域",
+   "攻": "Q",
+   "依据": "**合同明文**",
+   "pos": {
+    "text": "I have owned and tried the Oticon More 1. It gives me about 14 hours on a charge.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "neg": {
+    "text": "I have never owned or tried the Oticon More 1. It gives me about 14 hours on a charge.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "★错误放行": true,
+   "★对照有效": true
+  },
+  {
+   "id": "NEG-2",
+   "cls": "否定辖域",
+   "攻": "Q",
+   "依据": "**合同明文**",
+   "pos": {
+    "text": "I own the Widex Moment Sheer and I have worn it. The app pairs straight to the TV Connector.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "neg": {
+    "text": "I do not own the Widex Moment Sheer and I have never worn it. The app pairs straight to the TV Connector.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "★错误放行": true,
+   "★对照有效": true
+  },
+  {
+   "id": "ATT-1",
+   "cls": "归属",
+   "攻": "Q",
+   "依据": "**合同明文**",
+   "pos": {
+    "text": "I get about 14 hours on a charge from the Oticon More 1 I own.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "neg": {
+    "text": "My brother gets about 14 hours on a charge from the Oticon More 1 he owns.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "★错误放行": true,
+   "★对照有效": true
+  },
+  {
+   "id": "ATT-2",
+   "cls": "归属",
+   "攻": "Q",
+   "依据": "**合同明文**",
+   "pos": {
+    "text": "The Signia Pure Charge&Go AX I wear needs its wax guards changed every four weeks.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "neg": {
+    "text": "The Signia Pure Charge&Go AX my wife wears needs its wax guards changed every four weeks.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "★错误放行": true,
+   "★对照有效": true
+  },
+  {
+   "id": "TNS-1",
+   "cls": "时态",
+   "攻": "Q",
+   "依据": "**合同明文**",
+   "pos": {
+    "text": "I bought the Oticon More 1 last spring. It gives me about 14 hours on a charge.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "neg": {
+    "text": "I will buy the Oticon More 1 next spring. It gives me about 14 hours on a charge.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "★错误放行": true,
+   "★对照有效": true
+  },
+  {
+   "id": "TNS-2",
+   "cls": "时态",
+   "攻": "Q",
+   "依据": "**合同明文**",
+   "pos": {
+    "text": "I have the ReSound Nexia now. The app lets me turn off battery optimisation.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "neg": {
+    "text": "I will have the ReSound Nexia soon. The app lets me turn off battery optimisation.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "★错误放行": true,
+   "★对照有效": true
+  },
+  {
+   "id": "CIT-1",
+   "cls": "引用层级",
+   "攻": "P",
+   "依据": "**解释(合同没明说)**",
+   "pos": {
+    "text": "The Oticon More 1 gives 14 hours on a charge. I have owned it since last spring.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "neg": {
+    "text": "Someone on here claimed the Oticon More 1 gives 14 hours on a charge. I have owned it since last spring.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "★错误放行": true,
+   "★对照有效": true
+  },
+  {
+   "id": "CIT-2",
+   "cls": "引用层级",
+   "攻": "P",
+   "依据": "**解释(合同没明说)**",
+   "pos": {
+    "text": "The Jabra Enhance Select 500 pairs to two devices at once. I have used it for months.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "neg": {
+    "text": "The ad claims the Jabra Enhance Select 500 pairs to two devices at once. I have used it for months.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "★错误放行": true,
+   "★对照有效": true
+  },
+  {
+   "id": "TYP-1",
+   "cls": "类型成员资格",
+   "攻": "P",
+   "依据": "**解释(合同没明说)**",
+   "pos": {
+    "text": "Wax guards on the Signia Pure Charge&Go AX go every four weeks, not eight. I own it.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "neg": {
+    "text": "Wax guards on the Signia Pure Charge&Go AX go every four weeks. I own it.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "★错误放行": true,
+   "★对照有效": true
+  },
+  {
+   "id": "TYP-2",
+   "cls": "类型成员资格",
+   "攻": "P",
+   "依据": "**解释(合同没明说)**",
+   "pos": {
+    "text": "The Oticon More 1 gives me about 14 hours on a charge. I own it.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "neg": {
+    "text": "The Oticon More 1 gives me good battery life. I own it.",
+    "state": "CITED_SEMANTICS_UNVERIFIED",
+    "通过": true,
+    "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。"
+   },
+   "★错误放行": true,
+   "★对照有效": true
+  }
+ ],
+ "★★★度量灵敏度(镜像变异实测_零调用_未动仓)": {
+  "为什么要做": "一个恒报 10/10 的度量测不出任何改进。必须先证明**它能观察到改进**, 否则以后拿它当基线是假基线。",
+  "做法": "把仓镜像到 scratchpad, 给 qualify() 临时加一条**只拦否定辖域**的规则, 重跑扫描, 再还原。",
+  "结果": {
+   "基线": "合计 10/10 · 逐类 2/2 2/2 2/2 2/2 2/2",
+   "加了只拦否定辖域那一条": "合计 **8/10** · 否定辖域 **0/2** · 其余四类 **2/2 一个没动**",
+   "还原后": "合计 10/10(逐字回到基线)"
+  },
+  "★★★它当场演示了库里那条警告": "库里明写过「**不加否定词正则**: 逐字核对验不了的至少五类, **补一类会留着其余四类却制造「已关住」的错觉**」。⇒ 合计从 10 降到 8 **看起来像进步**, 而**逐类表立刻暴露其余四类原封未动**。★ 这正是外部评估说「**分别看五类关系的错误放行, 而非总正确率**」为什么是对的。",
+  "★这不是建议加那条规则": "镜像变异只用来验度量灵敏度。真加否定词正则**仍然被库内禁止**, 理由同上。"
+ }
+}

@@ -1,0 +1,757 @@
+{
+ "block": "SLOT_FILLING_RESULT_R4",
+ "prereg": "tests/data/slot_filling_prereg_r4.json",
+ "model": "M3",
+ "★实际执行数": 20,
+ "★硬上限": 20,
+ "★重试": 0,
+ "调用或格式失败": 0,
+ "★★★三臂对照(同一批 items · 同一套打分)": {
+  "模型": {
+   "逐槽位": {
+    "speaker": {
+     "敏感": "20/20",
+     "装饰": "20 格 —— **不计分**(判据不读 · 金标是填充值)"
+    },
+    "polarity": {
+     "敏感": "40/40"
+    },
+    "time": {
+     "敏感": "20/20",
+     "装饰": "20 格 —— **不计分**(判据不读 · 金标是填充值)"
+    },
+    "citation": {
+     "敏感": "20/20",
+     "装饰": "20 格 —— **不计分**(判据不读 · 金标是填充值)"
+    },
+    "possession": {
+     "敏感": "14/20",
+     "装饰": "20 格 —— **不计分**(判据不读 · 金标是填充值)"
+    },
+    "predicate": {
+     "敏感": "18/20"
+    }
+   },
+   "端到端": {
+    "只用合同明文": {
+     "阴性被放行": "4/10",
+     "对照通过": "10/10"
+    },
+    "明文+解释": {
+     "阴性被放行": "2/10",
+     "对照通过": "10/10"
+    }
+   },
+   "★端到端可用": "20/20",
+   "非法取值": 0,
+   "构造失败": 0
+  },
+  "金标(上界)": {
+   "逐槽位": {
+    "speaker": {
+     "敏感": "20/20",
+     "装饰": "20 格 —— **不计分**(判据不读 · 金标是填充值)"
+    },
+    "polarity": {
+     "敏感": "40/40"
+    },
+    "time": {
+     "敏感": "20/20",
+     "装饰": "20 格 —— **不计分**(判据不读 · 金标是填充值)"
+    },
+    "citation": {
+     "敏感": "20/20",
+     "装饰": "20 格 —— **不计分**(判据不读 · 金标是填充值)"
+    },
+    "possession": {
+     "敏感": "20/20",
+     "装饰": "20 格 —— **不计分**(判据不读 · 金标是填充值)"
+    },
+    "predicate": {
+     "敏感": "20/20"
+    }
+   },
+   "端到端": {
+    "只用合同明文": {
+     "阴性被放行": "4/10",
+     "对照通过": "10/10"
+    },
+    "明文+解释": {
+     "阴性被放行": "0/10",
+     "对照通过": "10/10"
+    }
+   },
+   "★端到端可用": "20/20",
+   "非法取值": 0,
+   "构造失败": 0
+  },
+  "零基线(常数多数类填充)": {
+   "逐槽位": {
+    "speaker": {
+     "敏感": "18/20",
+     "装饰": "20 格 —— **不计分**(判据不读 · 金标是填充值)"
+    },
+    "polarity": {
+     "敏感": "38/40"
+    },
+    "time": {
+     "敏感": "18/20",
+     "装饰": "20 格 —— **不计分**(判据不读 · 金标是填充值)"
+    },
+    "citation": {
+     "敏感": "18/20",
+     "装饰": "20 格 —— **不计分**(判据不读 · 金标是填充值)"
+    },
+    "possession": {
+     "敏感": "16/20",
+     "装饰": "20 格 —— **不计分**(判据不读 · 金标是填充值)"
+    },
+    "predicate": {
+     "敏感": "18/20"
+    }
+   },
+   "端到端": {
+    "只用合同明文": {
+     "阴性被放行": "10/10",
+     "对照通过": "10/10"
+    },
+    "明文+解释": {
+     "阴性被放行": "10/10",
+     "对照通过": "10/10"
+    }
+   },
+   "★端到端可用": "20/20",
+   "非法取值": 0,
+   "构造失败": 0
+  }
+ },
+ "★★★零基线是什么": "**完全不读文本**, 每格都填多数类(SELF/ASSERTED/PAST_OR_PRESENT/DIRECT/OWNED/OF_DECLARED_KIND)。★ 金标取值极度倾斜(38:2 一类), 没有这条基线, 「逐槽位准确率 93%」**毫无意义**。**模型必须显著优于它, 才说明它在读文本。**",
+ "★★★敏感格与装饰格": "**敏感格**由判据结构决定: _p 只用 polarity/citation/predicate; _q 只用 polarity/speaker/time/possession。其余是**装饰格**, 填对填错**都不进端到端**。⇒ 分开报, 否则装饰格会把真实能力稀释掉。",
+ "★★★非法取值单列": "枚举外取值**另计**, 当作未填(UNSPECIFIED)进判据, **不许**混进「被拦住」—— 否则「复现上界」可以由若干个非法取值伪造出来。",
+ "★★★两档都报": "只用合同明文 / 明文+解释 **分开报, 不许合并** —— r3/MIS-4 的头条结论就挂在「只用明文」那一档上。",
+ "★★★判读降级(测量前冻结)": "无",
+ "★★★不得据此说": [
+  "**不得**把逐槽位准确率读成「模型能不能做这个任务」—— 只测了 20 条构造文本、给定片段。",
+  "**不得**把端到端放行数读成自然语料误报率。",
+  "**不得**据此改金标 —— 金标在 r4 之前已冻结, 且已用于上界测量。测量后改金标就是调结果。",
+  "**不得**据此改命题框架层的判据 —— 本轮测的是**标注**, 不是判据。",
+  "**不得**说「跑了完整 CCE」—— 本轮只调一次抽取器填槽位, 不跑 stage1/stage2。"
+ ],
+ "★★★已知局限(测量前写下)": [
+  "① **槽位取值枚举必须给模型看**(否则它不知道选项) ⇒ 残余同源: 本轮测的是「**填得对不对**」, **不是**「知不知道有哪些选项」。",
+  "② **UNSPECIFIED 必须是可选项** —— 否则模型被迫猜, 那会把 fail-closed 破坏掉。但这也意味着模型可以用它**逃避判断**, D2 就是防这个。",
+  "③ 金标是**我做的**。若金标本身错了, 本轮测的就是「模型与我的分歧」而不是「模型的错误」。★ 缓解: 金标的 10 对推导已过闸(差异最小性 · 依据分层 · 解释类带推翻条件), 但**这不等于它对**。",
+  "④ **predicate 那个槽位最难** —— 它要求判断「这段话是不是所声明的那类增量」, 正是 MIS-4 出错的地方。预期它的准确率最低; 若不是, 那本身是读数。",
+  "⑤ n=1 每条 · 零重试 ⇒ 单条翻转就改变计数。r3 已实测同一仪器重测一致率只有 **60%** ⇒ **本轮任何一个数都是单次运行读数**, 引用时必须带这一条。",
+  "⑥ **两条证据在同一次调用里填** ⇒ 可能有顺序效应(第二条被第一条带偏)。本轮**不区分**这个。",
+  "⑦ 提示词给了 span **没给 object**, 而 possession 问的是「就这条片段所谈的那个东西而言」 ⇒ A 支的 possession 在很多条上**本就答不出来**。★ 缓解: possession 对 A 支是**装饰格**(_p 不用它), 不进敏感格准确率, 也不进端到端。",
+  "⑧ ★★★ **装饰格不计分**。判据不读 A 支的 possession/speaker/time, 而金标在这些格上是**填充值** —— 实测 A 支有 **8 格与文本直接矛盾**(如 NEG-1/neg 文本写 never owned or tried, A 支金标却是 OWNED), 且 **possession 是负鉴别力**: 按文本实读 34/40 **低于**完全不读的 36/40。⇒ 本轮**只报敏感格准确率**, 装饰格只报格数并标明不计分。",
+  "⑨ ★★★ **ONE_NEGATED 与 EXPERIENCED 这两个取值在本轮 20 条里 0 次是正确答案** —— 提示词把它们摆进枚举, 却**无从被 exercise**。这与 r2「资格层一次都没被 exercise」是**同型**。★ ONE_NEGATED 正是库内 2026-09-10 最值钱那条教训(沉默不是否定 ⇒ 证据不足)的编码, 本轮**测不到它**。★ 不加用例的理由: 金标已冻结且已用于上界测量, 加用例要改金标 ⇒ 留给下一轮。",
+  "⑩ ★★★ **predicate 测的不是能力, 是「与一份没给模型看的解释的一致度」** —— 提示词给了 kind 名字, 但**从不定义**五类各自的成立条件; 而金标那两条 NOT_OF_DECLARED_KIND 依赖的正是项目自己的解释(数据须有数值 · 纠错须纠正某说法), 且那两条**自带推翻条件**。⇒ predicate 的数**不得读成模型判类属的能力**。"
+ ],
+ "★★★本轮不设达标线": "这是**首次测量**, 没有先验。设阈值就是拍脑袋, 而且会诱使事后改线。⇒ 只报数 + 与上界对比, **不判 PASS/FAIL**。",
+ "★这些数是什么不是什么": "是**这 20 条我构造的最小对照上**、**给定片段时**的槽位标注表现。**不是**自然语料上的; **不是**端到端抽取的; n=1 每条, 零重试 ⇒ **不做任何统计检验**。",
+ "elapsed_s": 210.2,
+ "rows": [
+  {
+   "id": "ATT-2/neg",
+   "cls": "归属",
+   "side": "neg",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "OTHER",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "UNSPECIFIED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "OTHER",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "UNSPECIFIED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": false,
+   "明文+解释": false,
+   "敏感格全对": false
+  },
+  {
+   "id": "TNS-1/neg",
+   "cls": "时态",
+   "side": "neg",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "EXPERIENCED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "FUTURE",
+     "citation": "DIRECT",
+     "possession": "UNSPECIFIED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": false,
+   "明文+解释": false,
+   "敏感格全对": true
+  },
+  {
+   "id": "ATT-2/pos",
+   "cls": "归属",
+   "side": "pos",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "OTHER",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "UNSPECIFIED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "EXPERIENCED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": true,
+   "明文+解释": true,
+   "敏感格全对": false
+  },
+  {
+   "id": "ATT-1/neg",
+   "cls": "归属",
+   "side": "neg",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "OTHER",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "UNSPECIFIED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "OTHER",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "UNSPECIFIED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": false,
+   "明文+解释": false,
+   "敏感格全对": false
+  },
+  {
+   "id": "NEG-1/neg",
+   "cls": "否定辖域",
+   "side": "neg",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "BOTH_NEGATED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "SELF",
+     "polarity": "NEGATED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "BOTH_NEGATED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": false,
+   "明文+解释": false,
+   "敏感格全对": true
+  },
+  {
+   "id": "NEG-2/pos",
+   "cls": "否定辖域",
+   "side": "pos",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "OTHER",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "UNSPECIFIED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "OWNED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": true,
+   "明文+解释": true,
+   "敏感格全对": true
+  },
+  {
+   "id": "TYP-1/pos",
+   "cls": "类型成员资格",
+   "side": "pos",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "OTHER",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "UNSPECIFIED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "OWNED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": true,
+   "明文+解释": true,
+   "敏感格全对": true
+  },
+  {
+   "id": "TYP-2/neg",
+   "cls": "类型成员资格",
+   "side": "neg",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "EXPERIENCED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "OWNED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": true,
+   "明文+解释": true,
+   "敏感格全对": false
+  },
+  {
+   "id": "CIT-1/pos",
+   "cls": "引用层级",
+   "side": "pos",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "UNSPECIFIED",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "UNSPECIFIED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "OWNED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": true,
+   "明文+解释": true,
+   "敏感格全对": true
+  },
+  {
+   "id": "NEG-2/neg",
+   "cls": "否定辖域",
+   "side": "neg",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "OTHER",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "UNSPECIFIED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "SELF",
+     "polarity": "NEGATED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "BOTH_NEGATED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": false,
+   "明文+解释": false,
+   "敏感格全对": true
+  },
+  {
+   "id": "TNS-1/pos",
+   "cls": "时态",
+   "side": "pos",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "OWNED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "OWNED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": true,
+   "明文+解释": true,
+   "敏感格全对": true
+  },
+  {
+   "id": "ATT-1/pos",
+   "cls": "归属",
+   "side": "pos",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "UNSPECIFIED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "OWNED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": true,
+   "明文+解释": true,
+   "敏感格全对": true
+  },
+  {
+   "id": "TNS-2/pos",
+   "cls": "时态",
+   "side": "pos",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "OWNED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "OWNED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": true,
+   "明文+解释": true,
+   "敏感格全对": true
+  },
+  {
+   "id": "TYP-2/pos",
+   "cls": "类型成员资格",
+   "side": "pos",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "EXPERIENCED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "OWNED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": true,
+   "明文+解释": true,
+   "敏感格全对": true
+  },
+  {
+   "id": "CIT-2/neg",
+   "cls": "引用层级",
+   "side": "neg",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "OTHER",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "REPORTED",
+     "possession": "UNSPECIFIED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "EXPERIENCED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": true,
+   "明文+解释": false,
+   "敏感格全对": false
+  },
+  {
+   "id": "TYP-1/neg",
+   "cls": "类型成员资格",
+   "side": "neg",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "OTHER",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "UNSPECIFIED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "OWNED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": true,
+   "明文+解释": true,
+   "敏感格全对": false
+  },
+  {
+   "id": "NEG-1/pos",
+   "cls": "否定辖域",
+   "side": "pos",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "OWNED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "OWNED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": true,
+   "明文+解释": true,
+   "敏感格全对": true
+  },
+  {
+   "id": "TNS-2/neg",
+   "cls": "时态",
+   "side": "neg",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "UNSPECIFIED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "FUTURE",
+     "citation": "DIRECT",
+     "possession": "OWNED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": false,
+   "明文+解释": false,
+   "敏感格全对": false
+  },
+  {
+   "id": "CIT-2/pos",
+   "cls": "引用层级",
+   "side": "pos",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "UNSPECIFIED",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "UNSPECIFIED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "EXPERIENCED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": true,
+   "明文+解释": true,
+   "敏感格全对": false
+  },
+  {
+   "id": "CIT-1/neg",
+   "cls": "引用层级",
+   "side": "neg",
+   "调用成功": true,
+   "模型原样": {
+    "片段一": {
+     "speaker": "OTHER",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "REPORTED",
+     "possession": "UNSPECIFIED",
+     "predicate": "OF_DECLARED_KIND"
+    },
+    "片段二": {
+     "speaker": "SELF",
+     "polarity": "ASSERTED",
+     "time": "PAST_OR_PRESENT",
+     "citation": "DIRECT",
+     "possession": "OWNED",
+     "predicate": null
+    }
+   },
+   "非法取值": 0,
+   "构造成功": true,
+   "只用合同明文": true,
+   "明文+解释": false,
+   "敏感格全对": true
+  }
+ ],
+ "★★★这一轮到底发现了什么": {
+  "① 模型显著优于零基线_但没到上界": "阴性放行: 金标(上界) **0/10** · 零基线(完全不读文本) **10/10** · **模型 2/10**。⇒ **模型确实在读文本**(D5 未触发), 但**标注误差有实际代价**: 2 条本该拦住的被放行。",
+  "②★★★ 四个「表层语义」槽位满分, 两个「判断类」槽位失效": {
+   "满分(且优于零基线)": "speaker 20/20 · polarity 40/40 · time 20/20 · citation 20/20 —— **否定辖域 / 归属 / 时态 / 引用层级 四类全部填对**。",
+   "★★★ predicate 18/20 = 零基线 18/20": "**与完全不读文本的常数填充持平 ⇒ 零增益。**",
+   "★★★ possession 14/20 < 零基线 16/20": "**低于**不读文本的基线 ⇒ **负增益**。"
+  },
+  "③★★★ 端到端漏的那两条正好是 predicate 那一类": "TYP-1/neg 与 TYP-2/neg —— **类型成员资格**。⇒ 四个表层槽位全对, 却仍漏 2 条, **全部归因于 predicate**。",
+  "★★★④ 三条线索在这里闭环": "· **r3**: 真实模型产出的唯一一次语义错误证书(MIS-4), 问题是「把对象指认当成使用细节」= **predicate**; · **回放**: 那条证书**只有依赖解释的规则**才拦得住, 合同明文拦不住; · **r4**: 模型自己填 predicate **与不读文本持平**, 端到端**正好漏在这一类**。⇒ 三条独立线索指向**同一个点**: **判「这段增量是不是所声明的那一类」这件事, 模型做不了, 而合同又没定义它。**",
+  "★★★⑤ 但 predicate 这个数不得读成「模型能力差」": "提示词给了 kind 名字, 却**从不定义**五类各自的成立条件(局限⑩)。金标那两条 NOT_OF_DECLARED_KIND 依赖的是**项目自己的解释**(数据须有数值 · 纠错须纠正某说法), 且那两条**自带推翻条件**。⇒ 本轮 predicate 测的是「**与一份没给模型看的解释的一致度**」。★ 换句话说: **不是模型判不出, 是没人告诉它判据是什么** —— 而那份判据至今仍是 owner 可推翻的提案。"
+ },
+ "★★★本轮暴露但**不得事后补**的判据缺口": "现有 D5 只看**端到端**(模型阴性放行 == 零基线才触发), 而本轮**逐槽位**上 predicate **与零基线持平**、possession **低于零基线** —— 这两种「单槽位零增益/负增益」**现有降级一条都没响**。★★★ **不在本轮补** —— 测量后改判据就是调结果。如实登记为**下一轮的预注册要加的降级条件**: 「某敏感槽位的准确率 ≤ 零基线 ⇒ 该槽位这一轮零增益, 它的数不得读成能力」。",
+ "★★★这一轮**不**支持什么": [
+  "**不得**把「模型 2/10」读成自然语料上的错误率 —— 只测了 20 条我构造的最小对照、且**给定片段**。",
+  "**不得**把四个满分槽位读成「模型能做语义标注」—— 最小对照每对只在一个关系上不同, 那是**最容易**的形态。",
+  "**不得**把 predicate 18/20 读成能力 —— 它测的是与一份**没给模型看**的解释的一致度。",
+  "**不得**把 possession 的负增益单独解读 —— 它对 A 支是装饰格, 敏感格只有 B 支 20 个, n 太小。",
+  "**不得**据此改金标或改判据 —— 金标已冻结(sha 5a018edd)且已用于上界测量。",
+  "★ **n=1 每条 · 零重试**; r3 实测同一仪器重测一致率只有 **60%** ⇒ **本轮每个数都是单次运行读数**。"
+ ]
+}

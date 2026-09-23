@@ -1,0 +1,549 @@
+{
+ "block": "EXTRACTOR_COUNTEREXAMPLE_RESULT_R2",
+ "prereg": "tests/data/extractor_counterexample_prereg_r2.json",
+ "templates": "tests/data/extractor_counterexample_templates_r2.json",
+ "model": "M3",
+ "★实际执行数": 16,
+ "★硬上限": 16,
+ "★重试": 0,
+ "调用或格式失败": 0,
+ "★★★最终判读": "COUNTEREXAMPLE_FOUND **但判读已降级, verdict 不得单独引用**: D6 缺P阴性 这一臂**一次都没被资格层裁决过** ⇒ 该臂的 0 不代表任何事(★ 预注册指认的**承重臂**是缺P阴性) | D6 否定Q阴性 这一臂**一次都没被资格层裁决过** ⇒ 该臂的 0 不代表任何事(★ 预注册指认的**承重臂**是缺P阴性)",
+ "★★★verdict(原始_不得单独引用)": "COUNTEREXAMPLE_FOUND",
+ "★★★判读降级(测量前冻结的条件)": [
+  "D6 缺P阴性 这一臂**一次都没被资格层裁决过** ⇒ 该臂的 0 不代表任何事(★ 预注册指认的**承重臂**是缺P阴性)",
+  "D6 否定Q阴性 这一臂**一次都没被资格层裁决过** ⇒ 该臂的 0 不代表任何事(★ 预注册指认的**承重臂**是缺P阴性)"
+ ],
+ "★★★逐臂": {
+  "缺P阴性": {
+   "n": 4,
+   "结局": {
+    "REFUSED_RIGHT_CONJUNCT": 4
+   },
+   "交卷": "0/4",
+   "拒答": "4/4(其中命名对了 4)",
+   "★被资格层裁决过": "0/4",
+   "★p_challenge(分母=被裁决过的)": "0/0 —— **资格层一次都没裁决过**"
+  },
+  "否定Q阴性": {
+   "n": 4,
+   "结局": {
+    "REFUSED_RIGHT_CONJUNCT": 4
+   },
+   "交卷": "0/4",
+   "拒答": "4/4(其中命名对了 4)",
+   "★被资格层裁决过": "0/4",
+   "★p_challenge(分母=被裁决过的)": "0/0 —— **资格层一次都没裁决过**"
+  },
+  "对象错配阴性": {
+   "n": 4,
+   "结局": {
+    "REFUSED_RIGHT_CONJUNCT": 1,
+    "REFUSED_OTHER": 1,
+    "UPGRADED": 1,
+    "MALFORMED": 1
+   },
+   "交卷": "2/4",
+   "拒答": "2/4(其中命名对了 1)",
+   "★被资格层裁决过": "1/4",
+   "★p_challenge(分母=被裁决过的)": "1/1"
+  }
+ },
+ "阴性合计": {
+  "n": 12,
+  "结局": {
+   "REFUSED_RIGHT_CONJUNCT": 9,
+   "REFUSED_OTHER": 1,
+   "UPGRADED": 1,
+   "MALFORMED": 1
+  },
+  "交卷": "2/12",
+  "拒答": "10/12(其中命名对了 9)",
+  "★被资格层裁决过": "1/12",
+  "★p_challenge(分母=被裁决过的)": "1/1"
+ },
+ "正证据对照": {
+  "n": 4,
+  "结局": {
+   "UPGRADED": 3,
+   "MALFORMED": 1
+  },
+  "交卷": "4/4",
+  "拒答": "0/4(其中命名对了 0)",
+  "★被资格层裁决过": "3/4",
+  "★p_challenge(分母=被裁决过的)": "3/3"
+ },
+ "★★★承重臂是哪一臂": "**缺P阴性**。那一臂的共享对象名确实存在, 通不过只能靠 P 的五类判断; 对象错配臂可能被逐字要求暗示(已知局限①), 它的干净通过**不算强证据**。",
+ "★★★不得据此说": [
+  "**不得**把 STABLE 读成「拒答可靠」—— 可重现 ≠ 正确, 更 ≠ 在自然语料上可靠。",
+  "**不得**用 r3 的读数去**改** r2 的结果文件里的任何数 —— 那是测量后改读数。只能**加注**。",
+  "**不得**把重测一致率当成准确率或信度(ICC 那类)—— 每条只重测 1 次, 什么都估不出。",
+  "**不得**据此改判据、改模板、改合同。",
+  "**不得**拿 r3 的解析容错能力去回溯重算 r2 那条解析失败的行 —— r2 的读数按它当时的冻结规则定死。"
+ ],
+ "★★★已知局限(两轮评审确认_测量前写下)": [
+  "① **逐字要求可能暗示**模型去找共享名字 ⇒ 对象错配臂的干净通过不算强证据。本轮真正承重的阴性臂是**缺P阴性**(那里共享对象名确实存在, 通不过只能靠语义)。",
+  "② **判别式整段给模型看**(含「无质询句;…→audit;…→itch」两条路由) —— 那是被核验的合同, 必须给。⇒ 模型可能用**路由**去拒答而不是用两个必要条件。本轮的 why_not 机械读法只核「命名了哪一支」, 覆盖不到这个。",
+  "③ **increment_kind 的残余同源**: 五个词仍随判别式原文进入上下文 ⇒ 该闸的约束力只到「有没有正确对应」, 不到「知不知道有哪几类」。",
+  "④ **对照臂通过不证明模型做了语义判断** —— 四条对照都被写成「型号名在两半同形出现」,一个句法启发式也能过。已由 MIS-1 打破共线来部分缓解(该启发式会在 MIS-1 上误判), 但缓解不等于消除。",
+  "⑤ **对照臂四条句式骨架相近**(都是「自述拥有/经历 + 裸型号名作主语的增量句」)。「结构互异」那道闸比的是**人手写的标签**, 不是文本本身 —— 机器核不了句式多样性, 这里如实登记。",
+  "⑥ **why_not 的机械读法只验命名了哪一支, 不验推理对不对** —— 与逐字引文核对是同一类局限(2026-09-13 零调用反例已证)。REFUSED_RIGHT_CONJUNCT **不是**「模型判对了」。",
+  "⑦ **provenance 机器证不了**: 「从零重写」只能由「r1 模型选中的 span 一个都不存活」这条不变量证明**那个具体的坏做法**没发生, 不能证明我完全没参照 r1。",
+  "⑧ n=1 每条 · 零重试 · 16 条构造题 ⇒ 能支持的最强结论只到「**这 16 条构造题上**」。"
+ ],
+ "★★★结局分类法": {
+  "★为什么不按「够不够得着 qualify()」切": "第二轮评审实测: qualify() 里有四条**非语义**出口(合取项缺支撑 / 未指名对象 / 增量支没写种类 / 只复述标识符)会被记成「格式合规但没通过语义」; 而 r1 的死因(粒度失配)换成**逐字方面名词**('a charge'/'wax guards'/'its app')后整批落进这一格, 两条降级一条都不响, 输出「判决按字面读」⇒ **旧故障被洗成干净结果**。",
+  "REFUSED_RIGHT_CONJUNCT": "拒答, 且 why_not 命名了构造规则声明失败的那一支。★★★ 在阴性上**正确拒答就是期望行为**, 不是「没测到」。",
+  "REFUSED_OTHER": "拒答, 但没命名对(或没给理由)。",
+  "MALFORMED": "span/object 非逐字 · supports 无效 · kind 不在枚举内 · evidence 形状错。",
+  "COVERAGE_FAIL": "合取项缺支撑 · 未指名对象 · 增量支没写种类 · **只复述标识符**(附件 A)。",
+  "OBJECT_MISMATCH_GRANULARITY": "P2 失败, 且两个 object 里**至少一个不在该模板测量前声明的对象集合里** ⇒ 模型指到了档案没预期的东西(部件/属性/别的名词) ⇒ **与 r1 同因的通道故障**。★ 判据**不是**子串关系 —— 逐字约束之后, 「方面」是个独立名词, 不含对象名, 子串测不到。",
+  "OBJECT_MISMATCH_DISTINCT": "P2 失败, 且两个 object **都在**声明集合里 ⇒ 模型确实指到了那两个不同的物 ⇒ 这正是对象错配臂期望的结局。",
+  "UPGRADED": "通过整套验证器。**阴性上出现即错误升格见证**。",
+  "★p_challenge 的分母": "**被资格层裁决过的**那些(COVERAGE_FAIL / GRANULARITY / DISTINCT / UPGRADED), 不是「全部成功阴性」。r1 的 0/12 里实际只有 1 次被裁决过。"
+ },
+ "★★★拒答怎么读": "在阴性上**正确拒答就是期望行为**, 不是「没测到」。REFUSED_RIGHT_CONJUNCT 只说明它**命名了该指向的那一支**, **不说明**推理对 —— 与逐字引文核对是同一类局限。",
+ "★这个数不是什么": "它是**构造阴性上的**错误升格比例; **不是**自然评论总体误报率, **也不是**「所有已生成证据中不支持的比例」。阳性文本上的证书也可能引用错误只是碰巧结论成立, 本指标捕捉不到那类。",
+ "elapsed_s": 117.0,
+ "rows": [
+  {
+   "id": "NEGQ-1",
+   "arm": "否定Q阴性",
+   "结构": "规格书转述",
+   "预期": "**不得**升格。",
+   "★构造规则声明失败的那一支": "Q",
+   "outcome": "REFUSED_RIGHT_CONJUNCT",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型判**不支持**; why_not=\"条件 B 不满足:文本明确写明 'I have never owned or tried the Oticon Intent',谈论对象并非自己已拥有或已经历之物,而是期望中未得之物,应判为 itch 而非 displa\"",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "evidence": [],
+    "why_not": "条件 B 不满足:文本明确写明 'I have never owned or tried the Oticon Intent',谈论对象并非自己已拥有或已经历之物,而是期望中未得之物,应判为 itch 而非 display。"
+   }
+  },
+  {
+   "id": "POS-4",
+   "arm": "正证据对照",
+   "结构": "借用机 —— 走 Q 的**已经历**那一支",
+   "预期": "**应当**存在合法完整证书。",
+   "★构造规则声明失败的那一支": null,
+   "outcome": "UPGRADED",
+   "Z": 1,
+   "资格层": "CITED_SEMANTICS_UNVERIFIED",
+   "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。",
+   "调用成功": true,
+   "模型原样": {
+    "supported": true,
+    "evidence": [
+     {
+      "span": "I wore the ReSound Nexia as a loaner for two weeks",
+      "supports": "B",
+      "object": "ReSound Nexia",
+      "increment_kind": null
+     },
+     {
+      "span": "The ReSound Nexia kept dropping the left side in its app until I turned off battery optimisation",
+      "supports": "A",
+      "object": "ReSound Nexia",
+      "increment_kind": "使用细节"
+     }
+    ],
+    "why_not": null
+   }
+  },
+  {
+   "id": "NEGP-1",
+   "arm": "缺P阴性",
+   "结构": "一句自述",
+   "预期": "**不得**升格。",
+   "★构造规则声明失败的那一支": "P",
+   "outcome": "REFUSED_RIGHT_CONJUNCT",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型判**不支持**; why_not=\"条件 A 不满足:文本仅说'wearing hearing aids for a good while now',没有提供任何具体型号、数据、使用细节、纠错或结构化经验,属于一般性陈述,无新信息增量。\"",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "evidence": [],
+    "why_not": "条件 A 不满足:文本仅说'wearing hearing aids for a good while now',没有提供任何具体型号、数据、使用细节、纠错或结构化经验,属于一般性陈述,无新信息增量。"
+   }
+  },
+  {
+   "id": "POS-2",
+   "arm": "正证据对照",
+   "结构": "纠正流传说法(非针对人) + 使用细节",
+   "预期": "**应当**存在合法完整证书。",
+   "★构造规则声明失败的那一支": null,
+   "outcome": "UPGRADED",
+   "Z": 1,
+   "资格层": "CITED_SEMANTICS_UNVERIFIED",
+   "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。",
+   "调用成功": true,
+   "模型原样": {
+    "supported": true,
+    "evidence": [
+     {
+      "span": "the Phonak Audeo Lumity does not need a Roger receiver for TV audio",
+      "supports": "A",
+      "object": "Phonak Audeo Lumity",
+      "increment_kind": "纠错"
+     },
+     {
+      "span": "I have worn the Phonak Audeo Lumity since my fitting",
+      "supports": "B",
+      "object": "Phonak Audeo Lumity",
+      "increment_kind": null
+     }
+    ],
+    "why_not": null
+   }
+  },
+  {
+   "id": "POS-3",
+   "arm": "正证据对照",
+   "结构": "结构化经验三连 + 纠错",
+   "预期": "**应当**存在合法完整证书。",
+   "★构造规则声明失败的那一支": null,
+   "outcome": "UPGRADED",
+   "Z": 1,
+   "资格层": "CITED_SEMANTICS_UNVERIFIED",
+   "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。",
+   "调用成功": true,
+   "模型原样": {
+    "supported": true,
+    "evidence": [
+     {
+      "span": "I own the Signia Pure Charge&Go AX",
+      "supports": "B",
+      "object": "Signia Pure Charge&Go AX",
+      "increment_kind": null
+     },
+     {
+      "span": "its wax guards changed every four weeks not eight",
+      "supports": "A",
+      "object": "Signia Pure Charge&Go AX",
+      "increment_kind": "纠错"
+     },
+     {
+      "span": "wants a dry cloth in the charger before the aids go back in",
+      "supports": "A",
+      "object": "Signia Pure Charge&Go AX",
+      "increment_kind": "使用细节"
+     },
+     {
+      "span": "makes you start the Bluetooth handoff from the phone side",
+      "supports": "A",
+      "object": "Signia Pure Charge&Go AX",
+      "increment_kind": "使用细节"
+     }
+    ],
+    "why_not": null
+   }
+  },
+  {
+   "id": "NEGP-3",
+   "arm": "缺P阴性",
+   "结构": "平铺跟帖 + 附带自述",
+   "预期": "**不得**升格。",
+   "★构造规则声明失败的那一支": "P",
+   "outcome": "REFUSED_RIGHT_CONJUNCT",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型判**不支持**; why_not='缺少条件 A：文本未输出任何新信息增量（无具体型号、数据、使用细节、纠错或结构化经验），仅表示认同和困惑。'",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "evidence": [],
+    "why_not": "缺少条件 A：文本未输出任何新信息增量（无具体型号、数据、使用细节、纠错或结构化经验），仅表示认同和困惑。"
+   }
+  },
+  {
+   "id": "MIS-1",
+   "arm": "对象错配阴性",
+   "结构": "他人的机器 + 自己的模糊机器",
+   "预期": "**不得**升格。",
+   "★构造规则声明失败的那一支": "SAME_OBJECT",
+   "outcome": "REFUSED_RIGHT_CONJUNCT",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型判**不支持**; why_not=\"条件 B 不满足:文本的具体型号与数据(16 小时续航等)都指向 'My brother's Phonak Audeo Sphere',谈论对象是**兄弟的**设备而非说话人自己已拥有/已经历的;说话人自己的设备仅被含糊\"",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "evidence": [],
+    "why_not": "条件 B 不满足:文本的具体型号与数据(16 小时续航等)都指向 'My brother's Phonak Audeo Sphere',谈论对象是**兄弟的**设备而非说话人自己已拥有/已经历的;说话人自己的设备仅被含糊称作 'something far simpler',既无新信息增量也非具体型号,因此 A 与 B 无法在同一个谈论对象上同时成立。"
+   }
+  },
+  {
+   "id": "MIS-3",
+   "arm": "对象错配阴性",
+   "结构": "配偶的机器 + 自己的长期佩戴(两半紧挨)",
+   "预期": "**不得**升格。",
+   "★构造规则声明失败的那一支": "SAME_OBJECT",
+   "outcome": "REFUSED_OTHER",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型判**不支持**; why_not=\"文本谈论的对象是'妻子的 ReSound Omnia 9'及其 TV streamer 固件问题,这是妻子的设备,并非说话人自己已拥有或已经历的;虽然说话人提到自己戴过助听器,但讨论的具体对象(ReSound Omnia\"",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "evidence": [],
+    "why_not": "文本谈论的对象是'妻子的 ReSound Omnia 9'及其 TV streamer 固件问题,这是妻子的设备,并非说话人自己已拥有或已经历的;虽然说话人提到自己戴过助听器,但讨论的具体对象(ReSound Omnia 9 + 固件更新细节)属于他人所有,不满足条件 B。"
+   }
+  },
+  {
+   "id": "POS-1",
+   "arm": "正证据对照",
+   "结构": "单句自述 + 数据",
+   "预期": "**应当**存在合法完整证书。",
+   "★构造规则声明失败的那一支": null,
+   "outcome": "MALFORMED",
+   "Z": 0,
+   "资格层": null,
+   "why": "证书构造即被拒(span 非逐字 / kind 不在枚举内): ★★★ 增量种类 '具体型号/数据/使用细节/纠错/结构化经验' **不在合同枚举里** ['具体型号', '数据', '使用细节', '纠错', '结构化经验'] —— 合同枚举过的种类之外不算增量, 不许自己加一种。",
+   "调用成功": true,
+   "模型原样": {
+    "supported": true,
+    "evidence": [
+     {
+      "span": "has been mine since last spring",
+      "supports": "B",
+      "object": "Oticon More 1",
+      "increment_kind": null
+     },
+     {
+      "span": "gives me about 14 hours on a charge",
+      "supports": "A",
+      "object": "Oticon More 1",
+      "increment_kind": "具体型号/数据/使用细节/纠错/结构化经验"
+     },
+     {
+      "span": "maybe two hours of streaming in there",
+      "supports": "A",
+      "object": "Oticon More 1",
+      "increment_kind": "具体型号/数据/使用细节/纠错/结构化经验"
+     }
+    ],
+    "why_not": null
+   }
+  },
+  {
+   "id": "MIS-4",
+   "arm": "对象错配阴性",
+   "结构": "参数对比 + 自述旧机",
+   "预期": "**不得**升格。",
+   "★构造规则声明失败的那一支": "SAME_OBJECT",
+   "outcome": "UPGRADED",
+   "Z": 1,
+   "资格层": "CITED_SEMANTICS_UNVERIFIED",
+   "why": "每个必要条件都有**可指名原文片段**的正面证据支撑; 且它们**落在同一个对象**上(P2), 增量支已指名合同枚举的种类且超出对象标识本身。",
+   "调用成功": true,
+   "模型原样": {
+    "supported": true,
+    "evidence": [
+     {
+      "span": "What I actually wear is an old pair from before all this",
+      "supports": "A",
+      "object": "an old pair",
+      "increment_kind": "使用细节"
+     },
+     {
+      "span": "What I actually wear",
+      "supports": "B",
+      "object": "an old pair",
+      "increment_kind": null
+     }
+    ],
+    "why_not": null
+   }
+  },
+  {
+   "id": "NEGP-2",
+   "arm": "缺P阴性",
+   "结构": "共情式跟帖",
+   "预期": "**不得**升格。",
+   "★构造规则声明失败的那一支": "P",
+   "outcome": "REFUSED_RIGHT_CONJUNCT",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型判**不支持**; why_not=\"虽然 'I've got a pair myself' 满足条件 B(谈论对象是自己已拥有的),但整段文本仅是一句泛化附和,没有输出任何具体型号、数据、使用细节、纠错或结构化经验,不满足条件 A。\"",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "evidence": [],
+    "why_not": "虽然 'I've got a pair myself' 满足条件 B(谈论对象是自己已拥有的),但整段文本仅是一句泛化附和,没有输出任何具体型号、数据、使用细节、纠错或结构化经验,不满足条件 A。"
+   }
+  },
+  {
+   "id": "NEGQ-3",
+   "arm": "否定Q阴性",
+   "结构": "先划来源边界, 再给信息(跨句辖域)",
+   "预期": "**不得**升格。",
+   "★构造规则声明失败的那一支": "Q",
+   "outcome": "REFUSED_RIGHT_CONJUNCT",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型判**不支持**; why_not=\"条件 B 不满足:文本明确表示'I've never had a set and never had one in my ear',谈论对象是未拥有/未经历的 Starkey Genesis AI,属于'期望中未得之物'\"",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "evidence": [],
+    "why_not": "条件 B 不满足:文本明确表示'I've never had a set and never had one in my ear',谈论对象是未拥有/未经历的 Starkey Genesis AI,属于'期望中未得之物'而非自己已拥有或已经历之物。"
+   }
+  },
+  {
+   "id": "NEGP-4",
+   "arm": "缺P阴性",
+   "结构": "经历声明, 零细节",
+   "预期": "**不得**升格。",
+   "★构造规则声明失败的那一支": "P",
+   "outcome": "REFUSED_RIGHT_CONJUNCT",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型判**不支持**; why_not=\"条件 A 不满足:文本明确说 'none of this is new to me',即声明自己并未输出任何新信息增量,而判别式要求必须输出新信息增量。\"",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "evidence": [],
+    "why_not": "条件 A 不满足:文本明确说 'none of this is new to me',即声明自己并未输出任何新信息增量,而判别式要求必须输出新信息增量。"
+   }
+  },
+  {
+   "id": "NEGQ-2",
+   "arm": "否定Q阴性",
+   "结构": "转述验配师, 否定夹在破折号里",
+   "预期": "**不得**升格。",
+   "★构造规则声明失败的那一支": "Q",
+   "outcome": "REFUSED_RIGHT_CONJUNCT",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型判**不支持**; why_not=\"条件 B 不满足:说话人明确表示 'I've not worn them and never owned a pair',所谈论的 Widex Moment Sheer 并非自己已拥有或已经历之物,只是转述听力师告知的信\"",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "evidence": [],
+    "why_not": "条件 B 不满足:说话人明确表示 'I've not worn them and never owned a pair',所谈论的 Widex Moment Sheer 并非自己已拥有或已经历之物,只是转述听力师告知的信息。"
+   }
+  },
+  {
+   "id": "NEGQ-4",
+   "arm": "否定Q阴性",
+   "结构": "冒号清单, 否定作前置限定",
+   "预期": "**不得**升格。",
+   "★构造规则声明失败的那一支": "Q",
+   "outcome": "REFUSED_RIGHT_CONJUNCT",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型判**不支持**; why_not=\"条件 B 不满足:原文明确说 'I don't own these and have never tried them',谈论对象并非自己已拥有或已经历的。\"",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "evidence": [],
+    "why_not": "条件 B 不满足:原文明确说 'I don't own these and have never tried them',谈论对象并非自己已拥有或已经历的。"
+   }
+  },
+  {
+   "id": "MIS-2",
+   "arm": "对象错配阴性",
+   "结构": "诊所展示机 + 自己的旧机",
+   "预期": "**不得**升格。",
+   "★构造规则声明失败的那一支": "SAME_OBJECT",
+   "outcome": "MALFORMED",
+   "Z": 0,
+   "资格层": null,
+   "why": "证书构造即被拒(span 非逐字 / kind 不在枚举内): ★★★ 增量种类 '具体型号/数据' **不在合同枚举里** ['具体型号', '数据', '使用细节', '纠错', '结构化经验'] —— 合同枚举过的种类之外不算增量, 不许自己加一种。",
+   "调用成功": true,
+   "模型原样": {
+    "supported": true,
+    "evidence": [
+     {
+      "span": "runs on the same chip as the Phonak Paradise",
+      "supports": "A",
+      "object": "Unitron Moxi Blu",
+      "increment_kind": "具体型号/数据"
+     },
+     {
+      "span": "has tap control on the left aid only",
+      "supports": "A",
+      "object": "Unitron Moxi Blu",
+      "increment_kind": "使用细节"
+     },
+     {
+      "span": "on display at the clinic",
+      "supports": "B",
+      "object": "Unitron Moxi Blu",
+      "increment_kind": null
+     }
+    ],
+    "why_not": null
+   }
+  }
+ ],
+ "★★★逐条比对": {
+  "比对点": "15/16",
+  "翻转数 k": 6,
+  "一致率": "9/15 = 60%",
+  "翻转明细": {
+   "POS-2": {
+    "r2": "OBJECT_MISMATCH_GRANULARITY",
+    "r3": "UPGRADED"
+   },
+   "POS-3": {
+    "r2": "OBJECT_MISMATCH_GRANULARITY",
+    "r3": "UPGRADED"
+   },
+   "MIS-1": {
+    "r2": "REFUSED_OTHER",
+    "r3": "REFUSED_RIGHT_CONJUNCT"
+   },
+   "POS-1": {
+    "r2": "UPGRADED",
+    "r3": "MALFORMED"
+   },
+   "MIS-4": {
+    "r2": "REFUSED_RIGHT_CONJUNCT",
+    "r3": "UPGRADED"
+   },
+   "MIS-2": {
+    "r2": "REFUSED_OTHER",
+    "r3": "MALFORMED"
+   }
+  },
+  "未变": [
+   "MIS-3",
+   "NEGP-1",
+   "NEGP-2",
+   "NEGP-4",
+   "NEGQ-1",
+   "NEGQ-2",
+   "NEGQ-3",
+   "NEGQ-4",
+   "POS-4"
+  ],
+  "不进分母": "NEGP-3 —— r2 那次**解析失败**(模型在 why_not 里写了未转义双引号)。★ r3 这次它成功了并判 REFUSED_RIGHT_CONJUNCT ⇒ 那次失败是**偶然**。★★ 但**不得**拿这个去回溯重算 r2 的读数(预注册明禁) —— r2 按它当时的冻结规则定死。"
+ },
+ "★★★verdict(重测)": "UNSTABLE_6",
+ "★★★这一轮到底发现了什么": {
+  "★★★① r2 的「12/12 拒答」是**单次运行读数**, 而且不稳": "**MIS-4 从 REFUSED_RIGHT_CONJUNCT 翻成 UPGRADED** —— 同一文本、同一提示词、同一温度、同一种子, 只隔几小时。r2 里它的 why_not 是「条件 A 和条件 B 未能同时落在同一对象上」(完全正确的推理); r3 里它**交了卷并且通过了整套机械验证器**。⇒ **这是一次确定的错误升格见证**, 而它是**重测**抓到的, 不是设计更难的题抓到的。★★★ 从此引用 r2 的任何一格都必须带上 k=6 这个重测翻转数。",
+  "★★★② r2 对「对照 2/4」的机制解释**是运气不是机制**": "r2 里 POS-2 / POS-3 判 GRANULARITY, 我当时解释成「模型给了多于必要的证据 ⇒ P2 对全部证据求对象集合 ⇒ 多给反而被拦」。r3 里这两条**都翻成 UPGRADED**(对照 2/4 → 3/4)。⇒ 那个解释描述的是**那一次**发生了什么, **不是**一条稳定机制。★ 而 r3 初版曾打算据此改协议(「每支恰好一条证据」) —— 幸好那版设计因别的理由被否决了: **为一个不稳定的观察去改被测行为, 会把噪声固化成设计**。",
+  "★★★③ 第三轮评审测量前的预测又应验了": "它在 r2 投料前就写过: 「increment_kind 是唯一零格式容差的字段, 而判别式里五类是**斜杠连写**的 ⇒ 模型抄成『具体型号/数据』是可预期的, 对照臂可能整批 MALFORMED」。r2 没发生; **r3 发生了两次**(POS-1 与 MIS-2 都因 kind='具体型号/数据' 判 MALFORMED)。⇒ 那条预测是对的, 只是 r2 那次没抽到。**这本身又是一个「单次读数不可靠」的实例**。",
+  "★★★④ 稳的是哪些": "**否定Q 阴性 4/4 逐条未变**(全部 REFUSED_RIGHT_CONJUNCT) · **缺P 阴性 3/3 已比对的未变**。翻转全部集中在 **对象错配臂(3/4)** 与 **对照臂(3/4)**。⇒ 「抽取器拒答」这件事在**否定Q**上看起来稳, 在**对象错配**上不稳。"
+ },
+ "★★★已知局限(测量前写下)": [
+  "① 每条只重测 **1 次** ⇒ 一致就是一致, 不一致就是不一致, **没有区间**。",
+  "② temperature=0.0 **不保证**确定性(服务端批处理、浮点、模型版本都可能变) ⇒ **k >= 1 不能单独归因于模型随机性**, 也可能是服务端变更。本轮**区分不了**这两者。",
+  "③ 时间间隔只有几小时 ⇒ 测不到跨天/跨版本的漂移。",
+  "④ r2 有一条解析失败(NEGP-3)。r3 走的是**同一份代码**(r2 版 _parse, **没有**容错) ⇒ 若它再次失败, 那本身是一个重现; 若这次成功了, 说明那次失败是偶然的。两种都是读数。"
+ ],
+ "★★★这不能区分什么": "temperature=0.0 **不保证**确定性 —— 服务端批处理、浮点、模型版本都可能变。⇒ k=6 **不能单独归因于模型随机性**, 也可能是服务端在这几小时里变了。本轮**区分不了**这两者。★ 但无论哪个原因, 结论相同: **r2 的逐条读数不可作为单次定论引用**。",
+ "★★★这次升格的证书长什么样(MIS-4, 逐字)": {
+  "文本": "The Oticon Real 1 is listed at 21 hours and the Real 3 at the same, which surprised me. What I actually wear is an old pair from before all this.",
+  "A 支(信息增量)": "span='What I actually wear is an old pair from before all this' · object='an old pair' · kind='使用细节'",
+  "B 支(已拥有或已经历)": "span='What I actually wear' · object='an old pair'",
+  "★★★为什么它形式完全合规": "span 逐字 ✓ · object 逐字 ✓ · 两支**同一对象** ✓ · kind 在合同枚举内 ✓ · 去掉对象标识后残余远超 2 字符(附件 A)✓ ⇒ **整套机械验证器一道都拦不住**。",
+  "★★★为什么它语义是错的": "「我现在戴的是一副从前的旧机」**没有给出关于那副旧机的任何陈述** —— 没有型号、没有数据、没有使用细节、没有纠错、没有结构化经验。它只是**指认了那个对象**。把「我戴的是它」当成「关于它的使用细节」, 正是库内那条教训: **不能把「对象相关的事实」当作「关于对象的信息增量」**。",
+  "★★★它的意义": "这是本项目**第一次用真实模型输出**证明「形式合规、语义错误的证书会被实际签发, 并穿过整套机械验证器」。2026-09-13 的零调用反例证明了该通道**存在**; r2 证明了抽取器**大多数时候拒答**; **r3 证明了它会走**。★ 而且它是**重测**抓到的 —— 同一条题, r2 那次它拒答得完全正确。",
+  "★不得据此说": "n=1。**不得**由此估任何发生率。它证明的是**存在性**, 不是频率。"
+ }
+}

@@ -1,0 +1,303 @@
+{
+ "block": "SEED_PROBE",
+ "date": "2026-09-17",
+ "★★★这个探针写于 2026-08-18, 今天第一次跑": "写完放了一个月 —— results/ 无产物, 库内零结论。",
+ "★预算": {
+  "本轮": 22,
+  "分组": {
+   "D temp=0.0 无seed": 6,
+   "A temp=0.6 无seed": 6,
+   "B temp=0.6 seed=42": 6,
+   "C temp=0.6 seed=999": 4
+  },
+  "之前已用": 136,
+  "合计": 158
+ },
+ "★★★判据(写于 2026-08-18, 今天一字未动)": "组内 uniq==1 ⇒ 该配置下确定; B(seed=42) 与 C(seed=999) **两组都确定且互不相同** ⇒ seed 生效; B==C 或组内不确定 ⇒ **seed 未被端点采纳**。",
+ "★官方文档(2026-09-17 自查 platform.minimax.io/docs/api-reference/text-chat-openai)": "请求参数 12 个: model/service_tier/messages/thinking/reasoning_split/stream/stream_options/max_completion_tokens/temperature/top_p/tools/max_tokens —— **无 seed**。响应字段 id/choices/created/model/object/usage/input_sensitive/input_sensitive_type/output_sensitive/output_sensitive_type/base_resp —— **无 system_fingerprint**。对 temperature=0 **无任何可复现性承诺**(只说 lower values produce more deterministic output)。",
+ "★★★为什么文档已说无 seed 还要实测": "**「文档没写」不等于「端点不支持」** —— OpenAI 兼容端点可能静默接受未文档化的参数。C 组(seed=999)正是为区分这两种情况设的**反向测试**。⇒ 跑完把「文档推断」升级为「实测」, 那才是向供应商提问时拿得出的硬证据。",
+ "逐组不同输出数": {
+  "D temp=0.0 无seed": 5,
+  "A temp=0.6 无seed": 5,
+  "B temp=0.6 seed=42": 5,
+  "C temp=0.6 seed=999": 4
+ },
+ "逐组样本数": {
+  "D temp=0.0 无seed": 6,
+  "A temp=0.6 无seed": 6,
+  "B temp=0.6 seed=42": 6,
+  "C temp=0.6 seed=999": 4
+ },
+ "B(seed=42) 取值集合": [
+  "{\"curiosity\": 0.25, \"regret\": 0.5, \"resolve\": 0.25}",
+  "{\"curiosity\": 0.3, \"regret\": 0.55, \"resolve\": 0.15}",
+  "{\"curiosity\": 0.35, \"regret\": 0.5, \"resolve\": 0.15}",
+  "{\"curiosity\": 0.4, \"regret\": 0.45, \"resolve\": 0.15}",
+  "{\"curiosity\": 0.4, \"regret\": 0.5, \"resolve\": 0.1}"
+ ],
+ "C(seed=999) 取值集合": [
+  "{\"curiosity\": 0.25, \"regret\": 0.6, \"resolve\": 0.15}",
+  "{\"curiosity\": 0.25, \"regret\": 0.65, \"resolve\": 0.1}",
+  "{\"curiosity\": 0.35, \"regret\": 0.5, \"resolve\": 0.15}",
+  "{\"curiosity\": 0.45, \"regret\": 0.45, \"resolve\": 0.1}"
+ ],
+ "★★★反向测试结论": "⚠️ 组内已不确定 ⇒ **seed 未生效**, 反向测试不适用",
+ "★★★边界": "① 这是**单一 prompt · 单一模型**的读数, 不得外推到所有调用形态; ② **确定性是「可复现」的仪器属性** —— 即便 seed 生效, 也不解决当前卡住的三条路(那些是**效度**问题: 模型填不出 predicate); ③ n=6/6/6/4 很小, 「组内确定」只说明这几次没抖, 不是保证。",
+ "rows": {
+  "D temp=0.0 无seed": [
+   {
+    "raw": "{\"regret\":0.55,\"curiosity\":0.25,\"resolve\":0.20}",
+    "json": {
+     "regret": 0.55,
+     "curiosity": 0.25,
+     "resolve": 0.2
+    },
+    "fin": "stop",
+    "base_resp": 0
+   },
+   {
+    "raw": "{\"regret\":0.55,\"curiosity\":0.30,\"resolve\":0.15}",
+    "json": {
+     "regret": 0.55,
+     "curiosity": 0.3,
+     "resolve": 0.15
+    },
+    "fin": "stop",
+    "base_resp": 0
+   },
+   {
+    "raw": "{\"regret\":0.55,\"curiosity\":0.30,\"resolve\":0.15}",
+    "json": {
+     "regret": 0.55,
+     "curiosity": 0.3,
+     "resolve": 0.15
+    },
+    "fin": "stop",
+    "base_resp": 0
+   },
+   {
+    "raw": "{\"regret\":0.72,\"curiosity\":0.20,\"resolve\":0.08}",
+    "json": {
+     "regret": 0.72,
+     "curiosity": 0.2,
+     "resolve": 0.08
+    },
+    "fin": "stop",
+    "base_resp": 0
+   },
+   {
+    "raw": "{\"regret\":0.50,\"curiosity\":0.30,\"resolve\":0.20}",
+    "json": {
+     "regret": 0.5,
+     "curiosity": 0.3,
+     "resolve": 0.2
+    },
+    "fin": "stop",
+    "base_resp": 0
+   },
+   {
+    "raw": "{\"regret\":0.55,\"curiosity\":0.40,\"resolve\":0.05}",
+    "json": {
+     "regret": 0.55,
+     "curiosity": 0.4,
+     "resolve": 0.05
+    },
+    "fin": "stop",
+    "base_resp": 0
+   }
+  ],
+  "A temp=0.6 无seed": [
+   {
+    "raw": "{\"regret\":0.55,\"curiosity\":0.35,\"resolve\":0.10}",
+    "json": {
+     "regret": 0.55,
+     "curiosity": 0.35,
+     "resolve": 0.1
+    },
+    "fin": "stop",
+    "base_resp": 0
+   },
+   {
+    "raw": "{\"regret\":0.55,\"curiosity\":0.30,\"resolve\":0.15}",
+    "json": {
+     "regret": 0.55,
+     "curiosity": 0.3,
+     "resolve": 0.15
+    },
+    "fin": "stop",
+    "base_resp": 0
+   },
+   {
+    "raw": "{\"regret\":0.58,\"curiosity\":0.27,\"resolve\":0.15}",
+    "json": {
+     "regret": 0.58,
+     "curiosity": 0.27,
+     "resolve": 0.15
+    },
+    "fin": "stop",
+    "base_resp": 0
+   },
+   {
+    "raw": "{\"regret\":0.65,\"curiosity\":0.25,\"resolve\":0.10}",
+    "json": {
+     "regret": 0.65,
+     "curiosity": 0.25,
+     "resolve": 0.1
+    },
+    "fin": "stop",
+    "base_resp": 0
+   },
+   {
+    "raw": "{\"regret\":0.55,\"curiosity\":0.30,\"resolve\":0.15}",
+    "json": {
+     "regret": 0.55,
+     "curiosity": 0.3,
+     "resolve": 0.15
+    },
+    "fin": "stop",
+    "base_resp": 0
+   },
+   {
+    "raw": "{\"regret\":0.50,\"curiosity\":0.30,\"resolve\":0.20}",
+    "json": {
+     "regret": 0.5,
+     "curiosity": 0.3,
+     "resolve": 0.2
+    },
+    "fin": "stop",
+    "base_resp": 0
+   }
+  ],
+  "B temp=0.6 seed=42": [
+   {
+    "raw": "{\"regret\":0.45,\"curiosity\":0.40,\"resolve\":0.15}",
+    "json": {
+     "regret": 0.45,
+     "curiosity": 0.4,
+     "resolve": 0.15
+    },
+    "fin": "stop",
+    "base_resp": 0
+   },
+   {
+    "raw": "{\"regret\":0.55,\"curiosity\":0.30,\"resolve\":0.15}",
+    "json": {
+     "regret": 0.55,
+     "curiosity": 0.3,
+     "resolve": 0.15
+    },
+    "fin": "stop",
+    "base_resp": 0
+   },
+   {
+    "raw": "{\"regret\":0.50,\"curiosity\":0.25,\"resolve\":0.25}",
+    "json": {
+     "regret": 0.5,
+     "curiosity": 0.25,
+     "resolve": 0.25
+    },
+    "fin": "stop",
+    "base_resp": 0
+   },
+   {
+    "raw": "{\"regret\":0.50,\"curiosity\":0.40,\"resolve\":0.10}",
+    "json": {
+     "regret": 0.5,
+     "curiosity": 0.4,
+     "resolve": 0.1
+    },
+    "fin": "stop",
+    "base_resp": 0
+   },
+   {
+    "raw": "{\"regret\":0.55,\"curiosity\":0.30,\"resolve\":0.15}",
+    "json": {
+     "regret": 0.55,
+     "curiosity": 0.3,
+     "resolve": 0.15
+    },
+    "fin": "stop",
+    "base_resp": 0
+   },
+   {
+    "raw": "{\"regret\":0.50,\"curiosity\":0.35,\"resolve\":0.15}",
+    "json": {
+     "regret": 0.5,
+     "curiosity": 0.35,
+     "resolve": 0.15
+    },
+    "fin": "stop",
+    "base_resp": 0
+   }
+  ],
+  "C temp=0.6 seed=999": [
+   {
+    "raw": "{\"regret\":0.45,\"curiosity\":0.45,\"resolve\":0.10}",
+    "json": {
+     "regret": 0.45,
+     "curiosity": 0.45,
+     "resolve": 0.1
+    },
+    "fin": "stop",
+    "base_resp": 0
+   },
+   {
+    "raw": "{\"regret\":0.50,\"curiosity\":0.35,\"resolve\":0.15}",
+    "json": {
+     "regret": 0.5,
+     "curiosity": 0.35,
+     "resolve": 0.15
+    },
+    "fin": "stop",
+    "base_resp": 0
+   },
+   {
+    "raw": "{\"regret\":0.65,\"curiosity\":0.25,\"resolve\":0.10}",
+    "json": {
+     "regret": 0.65,
+     "curiosity": 0.25,
+     "resolve": 0.1
+    },
+    "fin": "stop",
+    "base_resp": 0
+   },
+   {
+    "raw": "{\"regret\":0.60,\"curiosity\":0.25,\"resolve\":0.15}",
+    "json": {
+     "regret": 0.6,
+     "curiosity": 0.25,
+     "resolve": 0.15
+    },
+    "fin": "stop",
+    "base_resp": 0
+   }
+  ]
+ },
+ "★★★★★ D 组(temp=0.0)才是头条": {
+  "读数": "同一 prompt · temperature=0.0 · **6 次调用 → 5 种不同输出**。**零失败**(每次 base_resp=0 · finish_reason=stop)。",
+  "★为什么它比 seed 那部分更要紧": "**D 组正是 CCE 实际使用的调用形态**(s2 就是 temp=0 无 seed)。⇒ 它说明**不确定性不在 CCE 链路里, 在模型本身**。",
+  "★★★它排除了一个此前排除不掉的解释": "r3(2026-09-14)实测同一仪器重测一致率 60%, 但那轮**两次测量相隔几小时** ⇒ 当时明写「k=6 **不能单独归因于模型随机性**(也可能是服务端变更), 本轮区分不了」。★★ 本探针的 6 次是**同一时刻、同一 prompt、并发发出**的 ⇒ **服务端变更这个解释被排除**, 剩下的就是**模型/推理栈自身的非确定性**。",
+  "逐组成对一致率": {
+   "D temp=0.0 无seed": "1/15 = 7%",
+   "A temp=0.6 无seed": "1/15 = 7%",
+   "B temp=0.6 seed=42": "1/15 = 7%",
+   "C temp=0.6 seed=999": "0/6 = 0%"
+  },
+  "★★★不得与 r3 的 60% 直接比": "r3 测的是**整条证书的判决**(离散, 取值很少); 本探针测的是**三个两位小数的连续权重**(取值空间大得多) ⇒ 一致率天然更低。**两个数不可比**, 它们回答的是不同粒度的问题。★ 能比的只有**方向**: 两者都指向「temp=0 不保证可复现」。"
+ },
+ "★★★seed 的结论(实测, 不是文档推断)": {
+  "读数": "B(seed=42) 6 次 **5 种不同**; C(seed=999) 4 次 **4 种全不同** ⇒ **组内就不确定**。",
+  "★结论": "**MiniMax 端点不采纳 seed** —— 这现在是**实测**, 不再是从「文档没写」推断的。",
+  "★为什么这条值得花 22 次": "向供应商提问时, 「你们的文档没写 seed」与「我们实测发过 seed, 输出照样每次不同」**是两种分量完全不同的证据**。"
+ },
+ "★★★temp=0 与 temp=0.6 分得开吗": {
+  "点估计": "D(temp=0.0) 成对一致 **1/15**; A(temp=0.6) 成对一致 **1/15** —— **看起来一样**。",
+  "Clopper-Pearson 95%(现算)": {
+   "D 1/15": "[0.002, 0.319]",
+   "A 1/15": "[0.002, 0.319]"
+  },
+  "★★★不许说「没有差别」": "n=6(成对 15 对)时, 1/15 的 95% 区间是 [0.002, 0.319] —— **宽得几乎覆盖整个低值区**。⇒ 正确的说法是「**这批数据分不出 temp=0 与 temp=0.6 的差别**」, **不是**「两者没有差别」。★ 这正是 2026-09-17 刚更正过的那个毛病(4/24 与 6/24 在 n=24 上分不开, 却写成了「比…还少」)。**同一个错不许在同一天犯第二次。**",
+  "★能说的只有一句": "**temp=0 在这个端点、这个 prompt 上, 没有把输出变成可复现的。** 这一句**不依赖**与 temp=0.6 的比较 —— 它只需要 D 组自己的 5/6 不同。",
+  "★成对一致率不该单独引用": "成对一致率与「不同输出数」是**同一批数据的两种读法**, 不是两个独立证据。"
+ }
+}

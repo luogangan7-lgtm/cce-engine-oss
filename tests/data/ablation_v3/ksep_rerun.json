@@ -1,0 +1,3976 @@
+{
+ "block": "KSEP_ABLATION_V3_RERUN",
+ "schema_version": 3,
+ "rerun_reason": "v2 的三条 ksep 判决标了 ★needs_rerun: 审计期间并行 agent 改了 tests/data/phase2/panel_analysis.json(+948/−316)。",
+ "harness": "probes/ablation_harness_v3.py (复用, 未改)",
+ "R1_offline": {
+  "tripwire_armed_before_any_target_import": true,
+  "tripwire_scope": "覆盖: 本进程内**经 socket.socket.connect 新建**的连接(含 urllib/requests/http.client)。 **不覆盖**: ① 进入本上下文**之前已建立**的连接 ② 不走 socket 的传输(共享内存 / 本机文件 / unix pipe 以外的自带通道) ③ **子进程**(subprocess / os.system 另起进程, 有自己的 socket 模块) ④ **C 扩展自带的网络栈**(不经 Python socket 对象) ⑤ 本进程外的任何东西。 ⇒ 证据只能说「**本进程内经 socket 新建的连接被拦截, 且整段运行中一次都没被触发**」, **不能**说「全进程所有网络出口都已关闭」。"
+ },
+ "R3_offrepo": "本文件与本次产物**不含**任何仓外识别层路径(仓内闸 tests/test_cce_no_offrepo_dependency.py 判的那条)。★ 原措辞把那条路径字面写了出来, 自己会被闸判红 —— 已改为不写字面量。",
+ "methodology": "M1 先验收判官再用判官 · M2 L3(instrument_hash)是重言零证据力 · M3 按 tag 索引重放(不用共享迭代器)且扫描面含 accuracy/ · M4 引用计数报粗计与严计两个数 · M5 判决词表 LOAD_BEARING_L2 / LOAD_BEARING_L1_ONLY / UNREACHABLE / NO_CONSUMER / COULD_NOT_RUN / CIRCULAR / INCONCLUSIVE, deletable 是独立字段不由 verdict 推导 · M6 凡判无差异必跑荒谬值注入臂 · M7 工况(market/profile/k分布/语料sha/时点)随判决同行 · M8 存量消融天然把保险丝判成装饰: NO_CONSUMER 必须区分真死与本工况未触发",
+ "evidence_scope": "本装置能支持的结论**仅限**: 在**存量语料重放 + 内存内源码变异**这一工况下, 某常量/字段是否改变数值输出(L1)与判决面(L2)。它**不能**证明: 真实模型的语义判断准确率 · 重复稳定性 · 线上工况下的行为 · 该常量在**其它 k / 其它 market / 其它 profile** 下是否承重。",
+ "corpus_lock": {
+  "tests/data/phase2/panel_analysis.json": "73961043421c71f1c47a7abc0ae1719cf5069d9e11c94600653dd9adedc2dc0c",
+  "tests/data/phase2/panel_checkpoint.jsonl": "d4907b3a1782a6be0f9fa177ec378336dffce6259604c7b6755cb13f556db9b2",
+  "tests/data/phase2/panel_manifest.json": "4b18618f2d76b9d1a793c5b40b6e17d6cb5c09b7a179fe42d578a89498b271c2",
+  "tests/data/phase2b/panel_analysis.json": "8cb494c4f5068cd97d1eb7e41c756feb17eaca5aaa9cd1f34ef259b38e016f75",
+  "tests/data/phase2b/panel_checkpoint.jsonl": "d770ad799ad6e3977f29d5a14aa4cc90bcda246b739775a9041d72fad71638df",
+  "tests/data/phase2b/panel_manifest.json": "7233b97d195069639f0ab9f1d5f857386d15f6a31bc768c0dc5d9120f1475d4c",
+  "tests/data/live_r8_calibration_20260819.json": "af2ecd03811cdb158350716c6b418ffe4b66db7392d3936ebfc59f608c92b4ce"
+ },
+ "corpus_lock_note": "★ panel_analysis.json 是 phase2_analyze.py 的**产物**, 不是它的输入。真正的输入是 panel_checkpoint.jsonl + panel_manifest.json —— 本轮两条基线臂都从输入现算, 不读任何存盘产物 ⇒ 即使产物曾被污染也不进判决路径。",
+ "positive_control_M1_harness": {
+  "passed": true,
+  "failed_gates": [],
+  "gates": {
+   "dead_swap_not_load_bearing": true,
+   "dead_absurd_injection_still_no_diff": true,
+   "liquid_L1_changed": true,
+   "liquid_changed_broadly": true,
+   "noop_no_diff": true,
+   "determinism": true,
+   "tags_indexed": true,
+   "tripwire_never_tripped": true,
+   "repo_files_untouched": true,
+   "L3_is_tautology_confirmed": true,
+   "dead_constant_is_UNREACHABLE_not_NO_CONSUMER": true
+  },
+  "target": "scripts/cce_knot_classify.py",
+  "note": "判官(装置)验收。未通过则**不得出任何判决**。"
+ },
+ "baseline": {
+  "n_contrasts": {
+   "phase2": {
+    "primary": 157,
+    "sensitivity": 159
+   },
+   "phase2b": {
+    "primary": 110,
+    "sensitivity": 154
+   }
+  },
+  "n_separated": {
+   "phase2/primary": {
+    "A1": 23,
+    "A2": 22,
+    "A3": 19,
+    "B1": 7,
+    "B2": 3
+   },
+   "phase2/sensitivity": {
+    "A1": 23,
+    "A2": 23,
+    "A3": 19,
+    "B1": 7,
+    "B2": 3
+   },
+   "phase2b/primary": {
+    "A1": 11,
+    "A2": 13,
+    "A3": 6,
+    "B1": 5,
+    "B2": 0
+   },
+   "phase2b/sensitivity": {
+    "A1": 20,
+    "A2": 20,
+    "A3": 20,
+    "B1": 7,
+    "B2": 0
+   }
+  },
+  "L1_sha": "2449144987875f25",
+  "L2_sha": "7e98487d7157b6c8"
+ },
+ "baseline_vs_stored_product": {
+  "per_label": [
+   {
+    "label": "primary",
+    "n_stored": 157,
+    "n_recomputed": 157,
+    "identical": true,
+    "n_differing": 0
+   },
+   {
+    "label": "sensitivity",
+    "n_stored": 159,
+    "n_recomputed": 159,
+    "identical": true,
+    "n_differing": 0
+   }
+  ],
+  "meaning": "基线现算 == 存盘 panel_analysis.json ⇒ 当前仓里的产物与当前语料自洽, 即污染确已被还原且没有残留。不一致则说明存盘产物仍是脏的。"
+ },
+ "positive_control_M1_ksep": {
+  "arms": {
+   "noop": {
+    "L1_fields_changed": {},
+    "L1_rows_changed": 0,
+    "L1_n_rows": 580,
+    "L2_verdict_flips": 0,
+    "L2_n_rows": 580,
+    "L2_summary_changed": [],
+    "n_contrasts_base": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "n_contrasts_abl": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "findings_delta": {
+     "phase2/primary": [
+      1,
+      1
+     ],
+     "phase2/sensitivity": [
+      2,
+      2
+     ],
+     "phase2b/primary": [
+      0,
+      0
+     ],
+     "phase2b/sensitivity": [
+      1,
+      1
+     ]
+    },
+    "n_separated_base": {
+     "phase2/primary": {
+      "A1": 23,
+      "A2": 22,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 74
+     },
+     "phase2/sensitivity": {
+      "A1": 23,
+      "A2": 23,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 75
+     },
+     "phase2b/primary": {
+      "A1": 11,
+      "A2": 13,
+      "A3": 6,
+      "B1": 5,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 35
+     },
+     "phase2b/sensitivity": {
+      "A1": 20,
+      "A2": 20,
+      "A3": 20,
+      "B1": 7,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 67
+     }
+    },
+    "n_separated_abl": {
+     "phase2/primary": {
+      "A1": 23,
+      "A2": 22,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 74
+     },
+     "phase2/sensitivity": {
+      "A1": 23,
+      "A2": 23,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 75
+     },
+     "phase2b/primary": {
+      "A1": 11,
+      "A2": 13,
+      "A3": 6,
+      "B1": 5,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 35
+     },
+     "phase2b/sensitivity": {
+      "A1": 20,
+      "A2": 20,
+      "A3": 20,
+      "B1": 7,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 67
+     }
+    },
+    "L1_changed": false,
+    "L2_changed": false,
+    "src_sha16": "8a6db2345ef3e795"
+   },
+   "dead_knob_intensity_tol": {
+    "L1_fields_changed": {},
+    "L1_rows_changed": 0,
+    "L1_n_rows": 580,
+    "L2_verdict_flips": 0,
+    "L2_n_rows": 580,
+    "L2_summary_changed": [],
+    "n_contrasts_base": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "n_contrasts_abl": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "findings_delta": {
+     "phase2/primary": [
+      1,
+      1
+     ],
+     "phase2/sensitivity": [
+      2,
+      2
+     ],
+     "phase2b/primary": [
+      0,
+      0
+     ],
+     "phase2b/sensitivity": [
+      1,
+      1
+     ]
+    },
+    "n_separated_base": {
+     "phase2/primary": {
+      "A1": 23,
+      "A2": 22,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 74
+     },
+     "phase2/sensitivity": {
+      "A1": 23,
+      "A2": 23,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 75
+     },
+     "phase2b/primary": {
+      "A1": 11,
+      "A2": 13,
+      "A3": 6,
+      "B1": 5,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 35
+     },
+     "phase2b/sensitivity": {
+      "A1": 20,
+      "A2": 20,
+      "A3": 20,
+      "B1": 7,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 67
+     }
+    },
+    "n_separated_abl": {
+     "phase2/primary": {
+      "A1": 23,
+      "A2": 22,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 74
+     },
+     "phase2/sensitivity": {
+      "A1": 23,
+      "A2": 23,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 75
+     },
+     "phase2b/primary": {
+      "A1": 11,
+      "A2": 13,
+      "A3": 6,
+      "B1": 5,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 35
+     },
+     "phase2b/sensitivity": {
+      "A1": 20,
+      "A2": 20,
+      "A3": 20,
+      "B1": 7,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 67
+     }
+    },
+    "L1_changed": false,
+    "L2_changed": false,
+    "src_sha16": "88960ca2987fefca"
+   },
+   "liquid_T_scale": {
+    "L1_fields_changed": {
+     "T": 580,
+     "null_max": 578
+    },
+    "L1_rows_changed": 580,
+    "L1_n_rows": 580,
+    "L2_verdict_flips": 0,
+    "L2_n_rows": 580,
+    "L2_summary_changed": [
+     "phase2/primary",
+     "phase2/sensitivity",
+     "phase2b/primary",
+     "phase2b/sensitivity"
+    ],
+    "n_contrasts_base": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "n_contrasts_abl": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "findings_delta": {
+     "phase2/primary": [
+      1,
+      1
+     ],
+     "phase2/sensitivity": [
+      2,
+      2
+     ],
+     "phase2b/primary": [
+      0,
+      0
+     ],
+     "phase2b/sensitivity": [
+      1,
+      1
+     ]
+    },
+    "n_separated_base": {
+     "phase2/primary": {
+      "A1": 23,
+      "A2": 22,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 74
+     },
+     "phase2/sensitivity": {
+      "A1": 23,
+      "A2": 23,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 75
+     },
+     "phase2b/primary": {
+      "A1": 11,
+      "A2": 13,
+      "A3": 6,
+      "B1": 5,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 35
+     },
+     "phase2b/sensitivity": {
+      "A1": 20,
+      "A2": 20,
+      "A3": 20,
+      "B1": 7,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 67
+     }
+    },
+    "n_separated_abl": {
+     "phase2/primary": {
+      "A1": 23,
+      "A2": 22,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 74
+     },
+     "phase2/sensitivity": {
+      "A1": 23,
+      "A2": 23,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 75
+     },
+     "phase2b/primary": {
+      "A1": 11,
+      "A2": 13,
+      "A3": 6,
+      "B1": 5,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 35
+     },
+     "phase2b/sensitivity": {
+      "A1": 20,
+      "A2": 20,
+      "A3": 20,
+      "B1": 7,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 67
+     }
+    },
+    "L1_changed": true,
+    "L2_changed": true,
+    "src_sha16": "3b12ff68932cbea9"
+   }
+  },
+  "gates": {
+   "noop_no_diff": true,
+   "dead_knob_no_diff": true,
+   "liquid_L1_changed_broadly": true
+  },
+  "note": "死旋钮 = reproducibility(intensity_tol) —— 本工况下 phase2_analyze 与 live_r8 都不调 reproducibility() ⇒ 它必须零改变(否则判据是重言)。液性臂 = _T 除数 ×3 ⇒ 全部 T 必须改变(否则消融面没接上)。",
+  "passed": true
+ },
+ "apparatus_accepted": true,
+ "verdict_1_enumeration": {
+  "arms": {
+   "rule_T_gt_0": {
+    "L1_fields_changed": {},
+    "L1_rows_changed": 0,
+    "L1_n_rows": 580,
+    "L2_verdict_flips": 329,
+    "L2_n_rows": 580,
+    "L2_summary_changed": [
+     "phase2/primary",
+     "phase2/primary/manski",
+     "phase2/sensitivity",
+     "phase2/sensitivity/manski",
+     "phase2b/primary",
+     "phase2b/primary/manski",
+     "phase2b/sensitivity",
+     "phase2b/sensitivity/manski"
+    ],
+    "n_contrasts_base": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "n_contrasts_abl": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "findings_delta": {
+     "phase2/primary": [
+      1,
+      1
+     ],
+     "phase2/sensitivity": [
+      2,
+      2
+     ],
+     "phase2b/primary": [
+      0,
+      0
+     ],
+     "phase2b/sensitivity": [
+      1,
+      1
+     ]
+    },
+    "n_separated_base": {
+     "phase2/primary": {
+      "A1": 23,
+      "A2": 22,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 74
+     },
+     "phase2/sensitivity": {
+      "A1": 23,
+      "A2": 23,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 75
+     },
+     "phase2b/primary": {
+      "A1": 11,
+      "A2": 13,
+      "A3": 6,
+      "B1": 5,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 35
+     },
+     "phase2b/sensitivity": {
+      "A1": 20,
+      "A2": 20,
+      "A3": 20,
+      "B1": 7,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 67
+     }
+    },
+    "n_separated_abl": {
+     "phase2/primary": {
+      "A1": 29,
+      "A2": 25,
+      "A3": 20,
+      "B1": 26,
+      "B2": 28,
+      "L0b": 29,
+      "TOTAL": 157
+     },
+     "phase2/sensitivity": {
+      "A1": 29,
+      "A2": 26,
+      "A3": 20,
+      "B1": 27,
+      "B2": 28,
+      "L0b": 29,
+      "TOTAL": 159
+     },
+     "phase2b/primary": {
+      "A1": 15,
+      "A2": 18,
+      "A3": 7,
+      "B1": 24,
+      "B2": 17,
+      "L0b": 29,
+      "TOTAL": 110
+     },
+     "phase2b/sensitivity": {
+      "A1": 26,
+      "A2": 29,
+      "A3": 21,
+      "B1": 26,
+      "B2": 23,
+      "L0b": 29,
+      "TOTAL": 154
+     }
+    },
+    "L1_changed": false,
+    "L2_changed": true,
+    "src_sha16": "b79093a7535abcaf"
+   },
+   "rule_T_gt_null_median": {
+    "L1_fields_changed": {},
+    "L1_rows_changed": 0,
+    "L1_n_rows": 580,
+    "L2_verdict_flips": 195,
+    "L2_n_rows": 580,
+    "L2_summary_changed": [
+     "phase2/primary",
+     "phase2/primary/manski",
+     "phase2/sensitivity",
+     "phase2/sensitivity/manski",
+     "phase2b/primary",
+     "phase2b/primary/manski",
+     "phase2b/sensitivity",
+     "phase2b/sensitivity/manski"
+    ],
+    "n_contrasts_base": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "n_contrasts_abl": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "findings_delta": {
+     "phase2/primary": [
+      1,
+      1
+     ],
+     "phase2/sensitivity": [
+      2,
+      2
+     ],
+     "phase2b/primary": [
+      0,
+      0
+     ],
+     "phase2b/sensitivity": [
+      1,
+      1
+     ]
+    },
+    "n_separated_base": {
+     "phase2/primary": {
+      "A1": 23,
+      "A2": 22,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 74
+     },
+     "phase2/sensitivity": {
+      "A1": 23,
+      "A2": 23,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 75
+     },
+     "phase2b/primary": {
+      "A1": 11,
+      "A2": 13,
+      "A3": 6,
+      "B1": 5,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 35
+     },
+     "phase2b/sensitivity": {
+      "A1": 20,
+      "A2": 20,
+      "A3": 20,
+      "B1": 7,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 67
+     }
+    },
+    "n_separated_abl": {
+     "phase2/primary": {
+      "A1": 29,
+      "A2": 24,
+      "A3": 20,
+      "B1": 24,
+      "B2": 11,
+      "L0b": 17,
+      "TOTAL": 125
+     },
+     "phase2/sensitivity": {
+      "A1": 29,
+      "A2": 25,
+      "A3": 20,
+      "B1": 25,
+      "B2": 11,
+      "L0b": 17,
+      "TOTAL": 127
+     },
+     "phase2b/primary": {
+      "A1": 12,
+      "A2": 16,
+      "A3": 7,
+      "B1": 20,
+      "B2": 9,
+      "L0b": 13,
+      "TOTAL": 77
+     },
+     "phase2b/sensitivity": {
+      "A1": 23,
+      "A2": 27,
+      "A3": 21,
+      "B1": 22,
+      "B2": 11,
+      "L0b": 13,
+      "TOTAL": 117
+     }
+    },
+    "L1_changed": false,
+    "L2_changed": true,
+    "src_sha16": "3ddcaa78ce8f2ddf"
+   },
+   "enum_truncated_to_8": {
+    "L1_fields_changed": {
+     "__row_missing__": 580
+    },
+    "L1_rows_changed": 580,
+    "L1_n_rows": 580,
+    "L2_verdict_flips": 580,
+    "L2_n_rows": 580,
+    "L2_summary_changed": [
+     "phase2/primary",
+     "phase2/primary/manski",
+     "phase2/sensitivity",
+     "phase2/sensitivity/manski",
+     "phase2b/primary",
+     "phase2b/primary/manski",
+     "phase2b/sensitivity",
+     "phase2b/sensitivity/manski"
+    ],
+    "n_contrasts_base": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "n_contrasts_abl": {
+     "phase2/primary": 0,
+     "phase2/sensitivity": 0,
+     "phase2b/primary": 0,
+     "phase2b/sensitivity": 0
+    },
+    "findings_delta": {
+     "phase2/primary": [
+      1,
+      158
+     ],
+     "phase2/sensitivity": [
+      2,
+      161
+     ],
+     "phase2b/primary": [
+      0,
+      110
+     ],
+     "phase2b/sensitivity": [
+      1,
+      155
+     ]
+    },
+    "n_separated_base": {
+     "phase2/primary": {
+      "A1": 23,
+      "A2": 22,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 74
+     },
+     "phase2/sensitivity": {
+      "A1": 23,
+      "A2": 23,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 75
+     },
+     "phase2b/primary": {
+      "A1": 11,
+      "A2": 13,
+      "A3": 6,
+      "B1": 5,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 35
+     },
+     "phase2b/sensitivity": {
+      "A1": 20,
+      "A2": 20,
+      "A3": 20,
+      "B1": 7,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 67
+     }
+    },
+    "n_separated_abl": {
+     "phase2/primary": {
+      "A1": null,
+      "A2": null,
+      "A3": null,
+      "B1": null,
+      "B2": null,
+      "L0b": null,
+      "TOTAL": 0
+     },
+     "phase2/sensitivity": {
+      "A1": null,
+      "A2": null,
+      "A3": null,
+      "B1": null,
+      "B2": null,
+      "L0b": null,
+      "TOTAL": 0
+     },
+     "phase2b/primary": {
+      "A1": null,
+      "A2": null,
+      "A3": null,
+      "B1": null,
+      "B2": null,
+      "L0b": null,
+      "TOTAL": 0
+     },
+     "phase2b/sensitivity": {
+      "A1": null,
+      "A2": null,
+      "A3": null,
+      "B1": null,
+      "B2": null,
+      "L0b": null,
+      "TOTAL": 0
+     }
+    },
+    "L1_changed": true,
+    "L2_changed": true,
+    "src_sha16": "51e84853fd604d71"
+   },
+   "INJECT_const_NOT_SEPARATED": {
+    "L1_fields_changed": {},
+    "L1_rows_changed": 0,
+    "L1_n_rows": 580,
+    "L2_verdict_flips": 251,
+    "L2_n_rows": 580,
+    "L2_summary_changed": [
+     "phase2/primary",
+     "phase2/primary/manski",
+     "phase2/sensitivity",
+     "phase2/sensitivity/manski",
+     "phase2b/primary",
+     "phase2b/primary/manski",
+     "phase2b/sensitivity",
+     "phase2b/sensitivity/manski"
+    ],
+    "n_contrasts_base": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "n_contrasts_abl": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "findings_delta": {
+     "phase2/primary": [
+      1,
+      1
+     ],
+     "phase2/sensitivity": [
+      2,
+      2
+     ],
+     "phase2b/primary": [
+      0,
+      0
+     ],
+     "phase2b/sensitivity": [
+      1,
+      1
+     ]
+    },
+    "n_separated_base": {
+     "phase2/primary": {
+      "A1": 23,
+      "A2": 22,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 74
+     },
+     "phase2/sensitivity": {
+      "A1": 23,
+      "A2": 23,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 75
+     },
+     "phase2b/primary": {
+      "A1": 11,
+      "A2": 13,
+      "A3": 6,
+      "B1": 5,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 35
+     },
+     "phase2b/sensitivity": {
+      "A1": 20,
+      "A2": 20,
+      "A3": 20,
+      "B1": 7,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 67
+     }
+    },
+    "n_separated_abl": {
+     "phase2/primary": {
+      "A1": 0,
+      "A2": 0,
+      "A3": 0,
+      "B1": 0,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 0
+     },
+     "phase2/sensitivity": {
+      "A1": 0,
+      "A2": 0,
+      "A3": 0,
+      "B1": 0,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 0
+     },
+     "phase2b/primary": {
+      "A1": 0,
+      "A2": 0,
+      "A3": 0,
+      "B1": 0,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 0
+     },
+     "phase2b/sensitivity": {
+      "A1": 0,
+      "A2": 0,
+      "A3": 0,
+      "B1": 0,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 0
+     }
+    },
+    "L1_changed": false,
+    "L2_changed": true,
+    "src_sha16": "9aef73b83c65e405"
+   }
+  }
+ },
+ "verdict_2_p_value": {
+  "arms": {
+   "p_boolean_rank1": {
+    "L1_fields_changed": {
+     "p": 578
+    },
+    "L1_rows_changed": 578,
+    "L1_n_rows": 580,
+    "L2_verdict_flips": 0,
+    "L2_n_rows": 580,
+    "L2_summary_changed": [],
+    "n_contrasts_base": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "n_contrasts_abl": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "findings_delta": {
+     "phase2/primary": [
+      1,
+      1
+     ],
+     "phase2/sensitivity": [
+      2,
+      2
+     ],
+     "phase2b/primary": [
+      0,
+      0
+     ],
+     "phase2b/sensitivity": [
+      1,
+      1
+     ]
+    },
+    "n_separated_base": {
+     "phase2/primary": {
+      "A1": 23,
+      "A2": 22,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 74
+     },
+     "phase2/sensitivity": {
+      "A1": 23,
+      "A2": 23,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 75
+     },
+     "phase2b/primary": {
+      "A1": 11,
+      "A2": 13,
+      "A3": 6,
+      "B1": 5,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 35
+     },
+     "phase2b/sensitivity": {
+      "A1": 20,
+      "A2": 20,
+      "A3": 20,
+      "B1": 7,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 67
+     }
+    },
+    "n_separated_abl": {
+     "phase2/primary": {
+      "A1": 23,
+      "A2": 22,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 74
+     },
+     "phase2/sensitivity": {
+      "A1": 23,
+      "A2": 23,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 75
+     },
+     "phase2b/primary": {
+      "A1": 11,
+      "A2": 13,
+      "A3": 6,
+      "B1": 5,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 35
+     },
+     "phase2b/sensitivity": {
+      "A1": 20,
+      "A2": 20,
+      "A3": 20,
+      "B1": 7,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 67
+     }
+    },
+    "L1_changed": true,
+    "L2_changed": false,
+    "src_sha16": "588dc65e9da76b18"
+   },
+   "INJECT_p_const_0999": {
+    "L1_fields_changed": {
+     "p": 580
+    },
+    "L1_rows_changed": 580,
+    "L1_n_rows": 580,
+    "L2_verdict_flips": 251,
+    "L2_n_rows": 580,
+    "L2_summary_changed": [
+     "phase2/primary",
+     "phase2/primary/manski",
+     "phase2/sensitivity",
+     "phase2/sensitivity/manski",
+     "phase2b/primary",
+     "phase2b/primary/manski",
+     "phase2b/sensitivity",
+     "phase2b/sensitivity/manski"
+    ],
+    "n_contrasts_base": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "n_contrasts_abl": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "findings_delta": {
+     "phase2/primary": [
+      1,
+      1
+     ],
+     "phase2/sensitivity": [
+      2,
+      2
+     ],
+     "phase2b/primary": [
+      0,
+      0
+     ],
+     "phase2b/sensitivity": [
+      1,
+      1
+     ]
+    },
+    "n_separated_base": {
+     "phase2/primary": {
+      "A1": 23,
+      "A2": 22,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 74
+     },
+     "phase2/sensitivity": {
+      "A1": 23,
+      "A2": 23,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 75
+     },
+     "phase2b/primary": {
+      "A1": 11,
+      "A2": 13,
+      "A3": 6,
+      "B1": 5,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 35
+     },
+     "phase2b/sensitivity": {
+      "A1": 20,
+      "A2": 20,
+      "A3": 20,
+      "B1": 7,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 67
+     }
+    },
+    "n_separated_abl": {
+     "phase2/primary": {
+      "A1": 0,
+      "A2": 0,
+      "A3": 0,
+      "B1": 0,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 0
+     },
+     "phase2/sensitivity": {
+      "A1": 0,
+      "A2": 0,
+      "A3": 0,
+      "B1": 0,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 0
+     },
+     "phase2b/primary": {
+      "A1": 0,
+      "A2": 0,
+      "A3": 0,
+      "B1": 0,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 0
+     },
+     "phase2b/sensitivity": {
+      "A1": 0,
+      "A2": 0,
+      "A3": 0,
+      "B1": 0,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 0
+     }
+    },
+    "L1_changed": true,
+    "L2_changed": true,
+    "src_sha16": "e486b90165d6c9c5"
+   },
+   "INJECT_p_const_0": {
+    "L1_fields_changed": {
+     "p": 580
+    },
+    "L1_rows_changed": 580,
+    "L1_n_rows": 580,
+    "L2_verdict_flips": 329,
+    "L2_n_rows": 580,
+    "L2_summary_changed": [
+     "phase2/primary",
+     "phase2/primary/manski",
+     "phase2/sensitivity",
+     "phase2/sensitivity/manski",
+     "phase2b/primary",
+     "phase2b/primary/manski",
+     "phase2b/sensitivity",
+     "phase2b/sensitivity/manski"
+    ],
+    "n_contrasts_base": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "n_contrasts_abl": {
+     "phase2/primary": 157,
+     "phase2/sensitivity": 159,
+     "phase2b/primary": 110,
+     "phase2b/sensitivity": 154
+    },
+    "findings_delta": {
+     "phase2/primary": [
+      1,
+      1
+     ],
+     "phase2/sensitivity": [
+      2,
+      2
+     ],
+     "phase2b/primary": [
+      0,
+      0
+     ],
+     "phase2b/sensitivity": [
+      1,
+      1
+     ]
+    },
+    "n_separated_base": {
+     "phase2/primary": {
+      "A1": 23,
+      "A2": 22,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 74
+     },
+     "phase2/sensitivity": {
+      "A1": 23,
+      "A2": 23,
+      "A3": 19,
+      "B1": 7,
+      "B2": 3,
+      "L0b": 0,
+      "TOTAL": 75
+     },
+     "phase2b/primary": {
+      "A1": 11,
+      "A2": 13,
+      "A3": 6,
+      "B1": 5,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 35
+     },
+     "phase2b/sensitivity": {
+      "A1": 20,
+      "A2": 20,
+      "A3": 20,
+      "B1": 7,
+      "B2": 0,
+      "L0b": 0,
+      "TOTAL": 67
+     }
+    },
+    "n_separated_abl": {
+     "phase2/primary": {
+      "A1": 29,
+      "A2": 25,
+      "A3": 20,
+      "B1": 26,
+      "B2": 28,
+      "L0b": 29,
+      "TOTAL": 157
+     },
+     "phase2/sensitivity": {
+      "A1": 29,
+      "A2": 26,
+      "A3": 20,
+      "B1": 27,
+      "B2": 28,
+      "L0b": 29,
+      "TOTAL": 159
+     },
+     "phase2b/primary": {
+      "A1": 15,
+      "A2": 18,
+      "A3": 7,
+      "B1": 24,
+      "B2": 17,
+      "L0b": 29,
+      "TOTAL": 110
+     },
+     "phase2b/sensitivity": {
+      "A1": 26,
+      "A2": 29,
+      "A3": 21,
+      "B1": 26,
+      "B2": 23,
+      "L0b": 29,
+      "TOTAL": 154
+     }
+    },
+    "L1_changed": true,
+    "L2_changed": true,
+    "src_sha16": "85e1a74168bb51e8"
+   }
+  }
+ },
+ "verdict_3_alpha": {
+  "face_separation": {
+   "real_consumer_arms": {
+    "alpha_p_floor_1_over_35": {
+     "L1_fields_changed": {},
+     "L1_rows_changed": 0,
+     "L1_n_rows": 580,
+     "L2_verdict_flips": 0,
+     "L2_n_rows": 580,
+     "L2_summary_changed": [],
+     "n_contrasts_base": {
+      "phase2/primary": 157,
+      "phase2/sensitivity": 159,
+      "phase2b/primary": 110,
+      "phase2b/sensitivity": 154
+     },
+     "n_contrasts_abl": {
+      "phase2/primary": 157,
+      "phase2/sensitivity": 159,
+      "phase2b/primary": 110,
+      "phase2b/sensitivity": 154
+     },
+     "findings_delta": {
+      "phase2/primary": [
+       1,
+       1
+      ],
+      "phase2/sensitivity": [
+       2,
+       2
+      ],
+      "phase2b/primary": [
+       0,
+       0
+      ],
+      "phase2b/sensitivity": [
+       1,
+       1
+      ]
+     },
+     "n_separated_base": {
+      "phase2/primary": {
+       "A1": 23,
+       "A2": 22,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 74
+      },
+      "phase2/sensitivity": {
+       "A1": 23,
+       "A2": 23,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 75
+      },
+      "phase2b/primary": {
+       "A1": 11,
+       "A2": 13,
+       "A3": 6,
+       "B1": 5,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 35
+      },
+      "phase2b/sensitivity": {
+       "A1": 20,
+       "A2": 20,
+       "A3": 20,
+       "B1": 7,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 67
+      }
+     },
+     "n_separated_abl": {
+      "phase2/primary": {
+       "A1": 23,
+       "A2": 22,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 74
+      },
+      "phase2/sensitivity": {
+       "A1": 23,
+       "A2": 23,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 75
+      },
+      "phase2b/primary": {
+       "A1": 11,
+       "A2": 13,
+       "A3": 6,
+       "B1": 5,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 35
+      },
+      "phase2b/sensitivity": {
+       "A1": 20,
+       "A2": 20,
+       "A3": 20,
+       "B1": 7,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 67
+      }
+     },
+     "L1_changed": false,
+     "L2_changed": false,
+     "src_sha16": "7eeb0d55f554acf5"
+    },
+    "alpha_0_02_below_p_floor": {
+     "L1_fields_changed": {
+      "__row_missing__": 580
+     },
+     "L1_rows_changed": 580,
+     "L1_n_rows": 580,
+     "L2_verdict_flips": 580,
+     "L2_n_rows": 580,
+     "L2_summary_changed": [
+      "phase2/primary",
+      "phase2/primary/manski",
+      "phase2/sensitivity",
+      "phase2/sensitivity/manski",
+      "phase2b/primary",
+      "phase2b/primary/manski",
+      "phase2b/sensitivity",
+      "phase2b/sensitivity/manski"
+     ],
+     "n_contrasts_base": {
+      "phase2/primary": 157,
+      "phase2/sensitivity": 159,
+      "phase2b/primary": 110,
+      "phase2b/sensitivity": 154
+     },
+     "n_contrasts_abl": {
+      "phase2/primary": 0,
+      "phase2/sensitivity": 0,
+      "phase2b/primary": 0,
+      "phase2b/sensitivity": 0
+     },
+     "findings_delta": {
+      "phase2/primary": [
+       1,
+       158
+      ],
+      "phase2/sensitivity": [
+       2,
+       161
+      ],
+      "phase2b/primary": [
+       0,
+       110
+      ],
+      "phase2b/sensitivity": [
+       1,
+       155
+      ]
+     },
+     "n_separated_base": {
+      "phase2/primary": {
+       "A1": 23,
+       "A2": 22,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 74
+      },
+      "phase2/sensitivity": {
+       "A1": 23,
+       "A2": 23,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 75
+      },
+      "phase2b/primary": {
+       "A1": 11,
+       "A2": 13,
+       "A3": 6,
+       "B1": 5,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 35
+      },
+      "phase2b/sensitivity": {
+       "A1": 20,
+       "A2": 20,
+       "A3": 20,
+       "B1": 7,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 67
+      }
+     },
+     "n_separated_abl": {
+      "phase2/primary": {
+       "A1": null,
+       "A2": null,
+       "A3": null,
+       "B1": null,
+       "B2": null,
+       "L0b": null,
+       "TOTAL": 0
+      },
+      "phase2/sensitivity": {
+       "A1": null,
+       "A2": null,
+       "A3": null,
+       "B1": null,
+       "B2": null,
+       "L0b": null,
+       "TOTAL": 0
+      },
+      "phase2b/primary": {
+       "A1": null,
+       "A2": null,
+       "A3": null,
+       "B1": null,
+       "B2": null,
+       "L0b": null,
+       "TOTAL": 0
+      },
+      "phase2b/sensitivity": {
+       "A1": null,
+       "A2": null,
+       "A3": null,
+       "B1": null,
+       "B2": null,
+       "L0b": null,
+       "TOTAL": 0
+      }
+     },
+     "L1_changed": true,
+     "L2_changed": true,
+     "src_sha16": "6127b6f5be66dcc9"
+    },
+    "alpha_0_03": {
+     "L1_fields_changed": {},
+     "L1_rows_changed": 0,
+     "L1_n_rows": 580,
+     "L2_verdict_flips": 0,
+     "L2_n_rows": 580,
+     "L2_summary_changed": [],
+     "n_contrasts_base": {
+      "phase2/primary": 157,
+      "phase2/sensitivity": 159,
+      "phase2b/primary": 110,
+      "phase2b/sensitivity": 154
+     },
+     "n_contrasts_abl": {
+      "phase2/primary": 157,
+      "phase2/sensitivity": 159,
+      "phase2b/primary": 110,
+      "phase2b/sensitivity": 154
+     },
+     "findings_delta": {
+      "phase2/primary": [
+       1,
+       1
+      ],
+      "phase2/sensitivity": [
+       2,
+       2
+      ],
+      "phase2b/primary": [
+       0,
+       0
+      ],
+      "phase2b/sensitivity": [
+       1,
+       1
+      ]
+     },
+     "n_separated_base": {
+      "phase2/primary": {
+       "A1": 23,
+       "A2": 22,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 74
+      },
+      "phase2/sensitivity": {
+       "A1": 23,
+       "A2": 23,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 75
+      },
+      "phase2b/primary": {
+       "A1": 11,
+       "A2": 13,
+       "A3": 6,
+       "B1": 5,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 35
+      },
+      "phase2b/sensitivity": {
+       "A1": 20,
+       "A2": 20,
+       "A3": 20,
+       "B1": 7,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 67
+      }
+     },
+     "n_separated_abl": {
+      "phase2/primary": {
+       "A1": 23,
+       "A2": 22,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 74
+      },
+      "phase2/sensitivity": {
+       "A1": 23,
+       "A2": 23,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 75
+      },
+      "phase2b/primary": {
+       "A1": 11,
+       "A2": 13,
+       "A3": 6,
+       "B1": 5,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 35
+      },
+      "phase2b/sensitivity": {
+       "A1": 20,
+       "A2": 20,
+       "A3": 20,
+       "B1": 7,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 67
+      }
+     },
+     "L1_changed": false,
+     "L2_changed": false,
+     "src_sha16": "67d634c84804eb87"
+    },
+    "alpha_0_055": {
+     "L1_fields_changed": {},
+     "L1_rows_changed": 0,
+     "L1_n_rows": 580,
+     "L2_verdict_flips": 0,
+     "L2_n_rows": 580,
+     "L2_summary_changed": [],
+     "n_contrasts_base": {
+      "phase2/primary": 157,
+      "phase2/sensitivity": 159,
+      "phase2b/primary": 110,
+      "phase2b/sensitivity": 154
+     },
+     "n_contrasts_abl": {
+      "phase2/primary": 157,
+      "phase2/sensitivity": 159,
+      "phase2b/primary": 110,
+      "phase2b/sensitivity": 154
+     },
+     "findings_delta": {
+      "phase2/primary": [
+       1,
+       1
+      ],
+      "phase2/sensitivity": [
+       2,
+       2
+      ],
+      "phase2b/primary": [
+       0,
+       0
+      ],
+      "phase2b/sensitivity": [
+       1,
+       1
+      ]
+     },
+     "n_separated_base": {
+      "phase2/primary": {
+       "A1": 23,
+       "A2": 22,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 74
+      },
+      "phase2/sensitivity": {
+       "A1": 23,
+       "A2": 23,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 75
+      },
+      "phase2b/primary": {
+       "A1": 11,
+       "A2": 13,
+       "A3": 6,
+       "B1": 5,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 35
+      },
+      "phase2b/sensitivity": {
+       "A1": 20,
+       "A2": 20,
+       "A3": 20,
+       "B1": 7,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 67
+      }
+     },
+     "n_separated_abl": {
+      "phase2/primary": {
+       "A1": 23,
+       "A2": 22,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 74
+      },
+      "phase2/sensitivity": {
+       "A1": 23,
+       "A2": 23,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 75
+      },
+      "phase2b/primary": {
+       "A1": 11,
+       "A2": 13,
+       "A3": 6,
+       "B1": 5,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 35
+      },
+      "phase2b/sensitivity": {
+       "A1": 20,
+       "A2": 20,
+       "A3": 20,
+       "B1": 7,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 67
+      }
+     },
+     "L1_changed": false,
+     "L2_changed": false,
+     "src_sha16": "075e00d074bfe241"
+    },
+    "alpha_2_over_35": {
+     "L1_fields_changed": {},
+     "L1_rows_changed": 0,
+     "L1_n_rows": 580,
+     "L2_verdict_flips": 27,
+     "L2_n_rows": 580,
+     "L2_summary_changed": [
+      "phase2/primary",
+      "phase2/primary/manski",
+      "phase2/sensitivity",
+      "phase2/sensitivity/manski",
+      "phase2b/primary",
+      "phase2b/primary/manski",
+      "phase2b/sensitivity",
+      "phase2b/sensitivity/manski"
+     ],
+     "n_contrasts_base": {
+      "phase2/primary": 157,
+      "phase2/sensitivity": 159,
+      "phase2b/primary": 110,
+      "phase2b/sensitivity": 154
+     },
+     "n_contrasts_abl": {
+      "phase2/primary": 157,
+      "phase2/sensitivity": 159,
+      "phase2b/primary": 110,
+      "phase2b/sensitivity": 154
+     },
+     "findings_delta": {
+      "phase2/primary": [
+       1,
+       1
+      ],
+      "phase2/sensitivity": [
+       2,
+       2
+      ],
+      "phase2b/primary": [
+       0,
+       0
+      ],
+      "phase2b/sensitivity": [
+       1,
+       1
+      ]
+     },
+     "n_separated_base": {
+      "phase2/primary": {
+       "A1": 23,
+       "A2": 22,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 74
+      },
+      "phase2/sensitivity": {
+       "A1": 23,
+       "A2": 23,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 75
+      },
+      "phase2b/primary": {
+       "A1": 11,
+       "A2": 13,
+       "A3": 6,
+       "B1": 5,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 35
+      },
+      "phase2b/sensitivity": {
+       "A1": 20,
+       "A2": 20,
+       "A3": 20,
+       "B1": 7,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 67
+      }
+     },
+     "n_separated_abl": {
+      "phase2/primary": {
+       "A1": 25,
+       "A2": 23,
+       "A3": 20,
+       "B1": 8,
+       "B2": 5,
+       "L0b": 0,
+       "TOTAL": 81
+      },
+      "phase2/sensitivity": {
+       "A1": 25,
+       "A2": 24,
+       "A3": 20,
+       "B1": 9,
+       "B2": 5,
+       "L0b": 0,
+       "TOTAL": 83
+      },
+      "phase2b/primary": {
+       "A1": 11,
+       "A2": 15,
+       "A3": 6,
+       "B1": 6,
+       "B2": 0,
+       "L0b": 1,
+       "TOTAL": 39
+      },
+      "phase2b/sensitivity": {
+       "A1": 21,
+       "A2": 25,
+       "A3": 20,
+       "B1": 8,
+       "B2": 0,
+       "L0b": 1,
+       "TOTAL": 75
+      }
+     },
+     "L1_changed": false,
+     "L2_changed": true,
+     "src_sha16": "619b5c3d8b11b191"
+    },
+    "alpha_0_06": {
+     "L1_fields_changed": {},
+     "L1_rows_changed": 0,
+     "L1_n_rows": 580,
+     "L2_verdict_flips": 27,
+     "L2_n_rows": 580,
+     "L2_summary_changed": [
+      "phase2/primary",
+      "phase2/primary/manski",
+      "phase2/sensitivity",
+      "phase2/sensitivity/manski",
+      "phase2b/primary",
+      "phase2b/primary/manski",
+      "phase2b/sensitivity",
+      "phase2b/sensitivity/manski"
+     ],
+     "n_contrasts_base": {
+      "phase2/primary": 157,
+      "phase2/sensitivity": 159,
+      "phase2b/primary": 110,
+      "phase2b/sensitivity": 154
+     },
+     "n_contrasts_abl": {
+      "phase2/primary": 157,
+      "phase2/sensitivity": 159,
+      "phase2b/primary": 110,
+      "phase2b/sensitivity": 154
+     },
+     "findings_delta": {
+      "phase2/primary": [
+       1,
+       1
+      ],
+      "phase2/sensitivity": [
+       2,
+       2
+      ],
+      "phase2b/primary": [
+       0,
+       0
+      ],
+      "phase2b/sensitivity": [
+       1,
+       1
+      ]
+     },
+     "n_separated_base": {
+      "phase2/primary": {
+       "A1": 23,
+       "A2": 22,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 74
+      },
+      "phase2/sensitivity": {
+       "A1": 23,
+       "A2": 23,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 75
+      },
+      "phase2b/primary": {
+       "A1": 11,
+       "A2": 13,
+       "A3": 6,
+       "B1": 5,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 35
+      },
+      "phase2b/sensitivity": {
+       "A1": 20,
+       "A2": 20,
+       "A3": 20,
+       "B1": 7,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 67
+      }
+     },
+     "n_separated_abl": {
+      "phase2/primary": {
+       "A1": 25,
+       "A2": 23,
+       "A3": 20,
+       "B1": 8,
+       "B2": 5,
+       "L0b": 0,
+       "TOTAL": 81
+      },
+      "phase2/sensitivity": {
+       "A1": 25,
+       "A2": 24,
+       "A3": 20,
+       "B1": 9,
+       "B2": 5,
+       "L0b": 0,
+       "TOTAL": 83
+      },
+      "phase2b/primary": {
+       "A1": 11,
+       "A2": 15,
+       "A3": 6,
+       "B1": 6,
+       "B2": 0,
+       "L0b": 1,
+       "TOTAL": 39
+      },
+      "phase2b/sensitivity": {
+       "A1": 21,
+       "A2": 25,
+       "A3": 20,
+       "B1": 8,
+       "B2": 0,
+       "L0b": 1,
+       "TOTAL": 75
+      }
+     },
+     "L1_changed": false,
+     "L2_changed": true,
+     "src_sha16": "6ced8ba293e8c9da"
+    },
+    "alpha_3_over_35": {
+     "L1_fields_changed": {},
+     "L1_rows_changed": 0,
+     "L1_n_rows": 580,
+     "L2_verdict_flips": 55,
+     "L2_n_rows": 580,
+     "L2_summary_changed": [
+      "phase2/primary",
+      "phase2/primary/manski",
+      "phase2/sensitivity",
+      "phase2/sensitivity/manski",
+      "phase2b/primary",
+      "phase2b/primary/manski",
+      "phase2b/sensitivity",
+      "phase2b/sensitivity/manski"
+     ],
+     "n_contrasts_base": {
+      "phase2/primary": 157,
+      "phase2/sensitivity": 159,
+      "phase2b/primary": 110,
+      "phase2b/sensitivity": 154
+     },
+     "n_contrasts_abl": {
+      "phase2/primary": 157,
+      "phase2/sensitivity": 159,
+      "phase2b/primary": 110,
+      "phase2b/sensitivity": 154
+     },
+     "findings_delta": {
+      "phase2/primary": [
+       1,
+       1
+      ],
+      "phase2/sensitivity": [
+       2,
+       2
+      ],
+      "phase2b/primary": [
+       0,
+       0
+      ],
+      "phase2b/sensitivity": [
+       1,
+       1
+      ]
+     },
+     "n_separated_base": {
+      "phase2/primary": {
+       "A1": 23,
+       "A2": 22,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 74
+      },
+      "phase2/sensitivity": {
+       "A1": 23,
+       "A2": 23,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 75
+      },
+      "phase2b/primary": {
+       "A1": 11,
+       "A2": 13,
+       "A3": 6,
+       "B1": 5,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 35
+      },
+      "phase2b/sensitivity": {
+       "A1": 20,
+       "A2": 20,
+       "A3": 20,
+       "B1": 7,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 67
+      }
+     },
+     "n_separated_abl": {
+      "phase2/primary": {
+       "A1": 26,
+       "A2": 24,
+       "A3": 20,
+       "B1": 12,
+       "B2": 5,
+       "L0b": 1,
+       "TOTAL": 88
+      },
+      "phase2/sensitivity": {
+       "A1": 26,
+       "A2": 25,
+       "A3": 20,
+       "B1": 13,
+       "B2": 5,
+       "L0b": 1,
+       "TOTAL": 90
+      },
+      "phase2b/primary": {
+       "A1": 11,
+       "A2": 15,
+       "A3": 6,
+       "B1": 10,
+       "B2": 1,
+       "L0b": 3,
+       "TOTAL": 46
+      },
+      "phase2b/sensitivity": {
+       "A1": 21,
+       "A2": 25,
+       "A3": 20,
+       "B1": 12,
+       "B2": 1,
+       "L0b": 3,
+       "TOTAL": 82
+      }
+     },
+     "L1_changed": false,
+     "L2_changed": true,
+     "src_sha16": "3eebfcbfdce56220"
+    },
+    "alpha_0_10": {
+     "L1_fields_changed": {},
+     "L1_rows_changed": 0,
+     "L1_n_rows": 580,
+     "L2_verdict_flips": 55,
+     "L2_n_rows": 580,
+     "L2_summary_changed": [
+      "phase2/primary",
+      "phase2/primary/manski",
+      "phase2/sensitivity",
+      "phase2/sensitivity/manski",
+      "phase2b/primary",
+      "phase2b/primary/manski",
+      "phase2b/sensitivity",
+      "phase2b/sensitivity/manski"
+     ],
+     "n_contrasts_base": {
+      "phase2/primary": 157,
+      "phase2/sensitivity": 159,
+      "phase2b/primary": 110,
+      "phase2b/sensitivity": 154
+     },
+     "n_contrasts_abl": {
+      "phase2/primary": 157,
+      "phase2/sensitivity": 159,
+      "phase2b/primary": 110,
+      "phase2b/sensitivity": 154
+     },
+     "findings_delta": {
+      "phase2/primary": [
+       1,
+       1
+      ],
+      "phase2/sensitivity": [
+       2,
+       2
+      ],
+      "phase2b/primary": [
+       0,
+       0
+      ],
+      "phase2b/sensitivity": [
+       1,
+       1
+      ]
+     },
+     "n_separated_base": {
+      "phase2/primary": {
+       "A1": 23,
+       "A2": 22,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 74
+      },
+      "phase2/sensitivity": {
+       "A1": 23,
+       "A2": 23,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 75
+      },
+      "phase2b/primary": {
+       "A1": 11,
+       "A2": 13,
+       "A3": 6,
+       "B1": 5,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 35
+      },
+      "phase2b/sensitivity": {
+       "A1": 20,
+       "A2": 20,
+       "A3": 20,
+       "B1": 7,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 67
+      }
+     },
+     "n_separated_abl": {
+      "phase2/primary": {
+       "A1": 26,
+       "A2": 24,
+       "A3": 20,
+       "B1": 12,
+       "B2": 5,
+       "L0b": 1,
+       "TOTAL": 88
+      },
+      "phase2/sensitivity": {
+       "A1": 26,
+       "A2": 25,
+       "A3": 20,
+       "B1": 13,
+       "B2": 5,
+       "L0b": 1,
+       "TOTAL": 90
+      },
+      "phase2b/primary": {
+       "A1": 11,
+       "A2": 15,
+       "A3": 6,
+       "B1": 10,
+       "B2": 1,
+       "L0b": 3,
+       "TOTAL": 46
+      },
+      "phase2b/sensitivity": {
+       "A1": 21,
+       "A2": 25,
+       "A3": 20,
+       "B1": 12,
+       "B2": 1,
+       "L0b": 3,
+       "TOTAL": 82
+      }
+     },
+     "L1_changed": false,
+     "L2_changed": true,
+     "src_sha16": "79cac6cdba7fb95d"
+    },
+    "alpha_0_20": {
+     "L1_fields_changed": {},
+     "L1_rows_changed": 0,
+     "L1_n_rows": 580,
+     "L2_verdict_flips": 103,
+     "L2_n_rows": 580,
+     "L2_summary_changed": [
+      "phase2/primary",
+      "phase2/primary/manski",
+      "phase2/sensitivity",
+      "phase2/sensitivity/manski",
+      "phase2b/primary",
+      "phase2b/primary/manski",
+      "phase2b/sensitivity",
+      "phase2b/sensitivity/manski"
+     ],
+     "n_contrasts_base": {
+      "phase2/primary": 157,
+      "phase2/sensitivity": 159,
+      "phase2b/primary": 110,
+      "phase2b/sensitivity": 154
+     },
+     "n_contrasts_abl": {
+      "phase2/primary": 157,
+      "phase2/sensitivity": 159,
+      "phase2b/primary": 110,
+      "phase2b/sensitivity": 154
+     },
+     "findings_delta": {
+      "phase2/primary": [
+       1,
+       1
+      ],
+      "phase2/sensitivity": [
+       2,
+       2
+      ],
+      "phase2b/primary": [
+       0,
+       0
+      ],
+      "phase2b/sensitivity": [
+       1,
+       1
+      ]
+     },
+     "n_separated_base": {
+      "phase2/primary": {
+       "A1": 23,
+       "A2": 22,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 74
+      },
+      "phase2/sensitivity": {
+       "A1": 23,
+       "A2": 23,
+       "A3": 19,
+       "B1": 7,
+       "B2": 3,
+       "L0b": 0,
+       "TOTAL": 75
+      },
+      "phase2b/primary": {
+       "A1": 11,
+       "A2": 13,
+       "A3": 6,
+       "B1": 5,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 35
+      },
+      "phase2b/sensitivity": {
+       "A1": 20,
+       "A2": 20,
+       "A3": 20,
+       "B1": 7,
+       "B2": 0,
+       "L0b": 0,
+       "TOTAL": 67
+      }
+     },
+     "n_separated_abl": {
+      "phase2/primary": {
+       "A1": 29,
+       "A2": 24,
+       "A3": 20,
+       "B1": 16,
+       "B2": 8,
+       "L0b": 7,
+       "TOTAL": 104
+      },
+      "phase2/sensitivity": {
+       "A1": 29,
+       "A2": 25,
+       "A3": 20,
+       "B1": 17,
+       "B2": 8,
+       "L0b": 7,
+       "TOTAL": 106
+      },
+      "phase2b/primary": {
+       "A1": 12,
+       "A2": 15,
+       "A3": 6,
+       "B1": 13,
+       "B2": 2,
+       "L0b": 4,
+       "TOTAL": 52
+      },
+      "phase2b/sensitivity": {
+       "A1": 23,
+       "A2": 26,
+       "A3": 20,
+       "B1": 15,
+       "B2": 4,
+       "L0b": 4,
+       "TOTAL": 92
+      }
+     },
+     "L1_changed": false,
+     "L2_changed": true,
+     "src_sha16": "b76bbcbc907fb711"
+    }
+   },
+   "scan_R4_probes": {
+    "n_pairs": 7,
+    "pairs": [
+     "length_null_arm:BASE|FILL",
+     "length_null_arm:BASE|PAD",
+     "length_null_arm:FILL|PAD",
+     "equal_length:A|B",
+     "discriminability:T0|T1",
+     "discriminability:T0|T2",
+     "discriminability:T1|T2"
+    ],
+    "verdict_changes_vs_alpha": {
+     "0.005": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.01": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.02": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.0285714286": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.03": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.04": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.05": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.055": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.0571428571": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.06": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.1": {
+      "n_changed": 1,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|PAD"
+      ]
+     },
+     "0.2": {
+      "n_changed": 1,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|PAD"
+      ]
+     }
+    },
+    "p_changes_vs_alpha": {
+     "0.005": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.01": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.02": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.0285714286": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.03": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.04": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.05": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.055": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.0571428571": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.06": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.1": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.2": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     }
+    },
+    "n_splits": [
+     35
+    ],
+    "at_alpha_005": [
+     {
+      "pair": "length_null_arm:BASE|FILL",
+      "v": "SEPARATED",
+      "T": 0.20777777777777778,
+      "p": 0.02857142857142857,
+      "n_splits": 35,
+      "p_floor": 0.02857142857142857
+     },
+     {
+      "pair": "length_null_arm:BASE|PAD",
+      "v": "NOT_SEPARATED",
+      "T": 0.10791666666666669,
+      "p": 0.08571428571428572,
+      "n_splits": 35,
+      "p_floor": 0.02857142857142857
+     },
+     {
+      "pair": "length_null_arm:FILL|PAD",
+      "v": "SEPARATED",
+      "T": 0.17402777777777778,
+      "p": 0.02857142857142857,
+      "n_splits": 35,
+      "p_floor": 0.02857142857142857
+     },
+     {
+      "pair": "equal_length:A|B",
+      "v": "COULD_NOT_RUN",
+      "err": "equal_length:A|B: 重复响应指纹 ['a7c8c6dc0f51100b'] —— 疑似缓存, 本次重测无效"
+     },
+     {
+      "pair": "discriminability:T0|T1",
+      "v": "COULD_NOT_RUN",
+      "err": "discriminability:T0|T1: 重复响应指纹 ['a7c8c6dc0f51100b'] —— 疑似缓存, 本次重测无效"
+     },
+     {
+      "pair": "discriminability:T0|T2",
+      "v": "COULD_NOT_RUN",
+      "err": "discriminability:T0|T2: 重复响应指纹 ['a7c8c6dc0f51100b'] —— 疑似缓存, 本次重测无效"
+     },
+     {
+      "pair": "discriminability:T1|T2",
+      "v": "SEPARATED",
+      "T": 0.41097222222222224,
+      "p": 0.02857142857142857,
+      "n_splits": 35,
+      "p_floor": 0.02857142857142857
+     }
+    ]
+   },
+   "scan_R8_live": {
+    "n_pairs": 3,
+    "pairs": [
+     "T0|T0b",
+     "T0|T1",
+     "T0b|T1"
+    ],
+    "verdict_changes_vs_alpha": {
+     "0.005": {
+      "n_changed": 0,
+      "n_total": 3,
+      "changed": []
+     },
+     "0.01": {
+      "n_changed": 0,
+      "n_total": 3,
+      "changed": []
+     },
+     "0.02": {
+      "n_changed": 0,
+      "n_total": 3,
+      "changed": []
+     },
+     "0.0285714286": {
+      "n_changed": 0,
+      "n_total": 3,
+      "changed": []
+     },
+     "0.03": {
+      "n_changed": 0,
+      "n_total": 3,
+      "changed": []
+     },
+     "0.04": {
+      "n_changed": 0,
+      "n_total": 3,
+      "changed": []
+     },
+     "0.05": {
+      "n_changed": 0,
+      "n_total": 3,
+      "changed": []
+     },
+     "0.055": {
+      "n_changed": 0,
+      "n_total": 3,
+      "changed": []
+     },
+     "0.0571428571": {
+      "n_changed": 0,
+      "n_total": 3,
+      "changed": []
+     },
+     "0.06": {
+      "n_changed": 0,
+      "n_total": 3,
+      "changed": []
+     },
+     "0.1": {
+      "n_changed": 0,
+      "n_total": 3,
+      "changed": []
+     },
+     "0.2": {
+      "n_changed": 0,
+      "n_total": 3,
+      "changed": []
+     }
+    },
+    "p_at_alpha_005": [
+     {
+      "pair": "T0|T0b",
+      "p": 0.8351204351204351,
+      "v": "NOT_SEPARATED",
+      "n_splits": 6435
+     },
+     {
+      "pair": "T0|T1",
+      "p": 0.0001554001554001554,
+      "v": "SEPARATED",
+      "n_splits": 6435
+     },
+     {
+      "pair": "T0b|T1",
+      "p": 0.0001554001554001554,
+      "v": "SEPARATED",
+      "n_splits": 6435
+     }
+    ]
+   }
+  },
+  "face_equivalence": {
+   "margin_used": 0.06278,
+   "margin_source": "cce_ksep.PAIR1_NULL_CALIBRATION_STATISTIC['value'] —— 真实 verdict3 调用点(length_null_arm / filler_screen)传的就是它",
+   "scan_R4_probes": {
+    "upper_changes_vs_alpha": {
+     "0.005": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.01": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.02": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.0285714286": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.03": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.04": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.05": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.055": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.0571428571": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.06": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.1": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.2": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     }
+    },
+    "eq_verdict_changes_vs_alpha": {
+     "0.005": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.01": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.02": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.0285714286": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.03": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.04": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.05": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.055": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.0571428571": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.06": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.1": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.2": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     }
+    },
+    "v3_verdict_changes_vs_alpha": {
+     "0.005": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.01": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.02": {
+      "n_changed": 4,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.0285714286": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.03": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.04": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.05": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.055": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.0571428571": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.06": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.1": {
+      "n_changed": 1,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|PAD"
+      ]
+     },
+     "0.2": {
+      "n_changed": 1,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|PAD"
+      ]
+     }
+    },
+    "at_alpha_005": [
+     {
+      "pair": "length_null_arm:BASE|FILL",
+      "eq_v": "ABOVE_CALIBRATION_MARGIN",
+      "upper": 0.22583,
+      "n_boot": 65536,
+      "v3": "SEPARATED",
+      "sep_v": "SEPARATED",
+      "T": 0.20777777777777778
+     },
+     {
+      "pair": "length_null_arm:BASE|PAD",
+      "eq_v": "ABOVE_CALIBRATION_MARGIN",
+      "upper": 0.16153,
+      "n_boot": 65536,
+      "v3": "UNDERPOWERED",
+      "sep_v": "NOT_SEPARATED",
+      "T": 0.10791666666666669
+     },
+     {
+      "pair": "length_null_arm:FILL|PAD",
+      "eq_v": "ABOVE_CALIBRATION_MARGIN",
+      "upper": 0.23236,
+      "n_boot": 65536,
+      "v3": "SEPARATED",
+      "sep_v": "SEPARATED",
+      "T": 0.17402777777777778
+     },
+     {
+      "pair": "equal_length:A|B",
+      "eq_v": "COULD_NOT_RUN",
+      "v3": "COULD_NOT_RUN",
+      "err": "equal_length:A|B: 重复响应指纹 ['a7c8c6dc0f51100b'] —— 疑似缓存, 本次重测无效"
+     },
+     {
+      "pair": "discriminability:T0|T1",
+      "eq_v": "COULD_NOT_RUN",
+      "v3": "COULD_NOT_RUN",
+      "err": "discriminability:T0|T1: 重复响应指纹 ['a7c8c6dc0f51100b'] —— 疑似缓存, 本次重测无效"
+     },
+     {
+      "pair": "discriminability:T0|T2",
+      "eq_v": "COULD_NOT_RUN",
+      "v3": "COULD_NOT_RUN",
+      "err": "discriminability:T0|T2: 重复响应指纹 ['a7c8c6dc0f51100b'] —— 疑似缓存, 本次重测无效"
+     },
+     {
+      "pair": "discriminability:T1|T2",
+      "eq_v": "ABOVE_CALIBRATION_MARGIN",
+      "upper": 0.42806,
+      "n_boot": 65536,
+      "v3": "SEPARATED",
+      "sep_v": "SEPARATED",
+      "T": 0.41097222222222224
+     }
+    ]
+   },
+   "scan_R8_live": {
+    "infeasible": {
+     "T0|T0b": {
+      "R": 8,
+      "n_bootstrap_pairs": 281474976710656,
+      "status": "STRUCTURALLY_INFEASIBLE"
+     },
+     "T0|T1": {
+      "R": 8,
+      "n_bootstrap_pairs": 281474976710656,
+      "status": "STRUCTURALLY_INFEASIBLE"
+     },
+     "T0b|T1": {
+      "R": 8,
+      "n_bootstrap_pairs": 281474976710656,
+      "status": "STRUCTURALLY_INFEASIBLE"
+     }
+    },
+    "note": "R=8 上 equivalence() 的穷举自助是 8^16 ≈ 2.8e14 对 ⇒ **结构上不可执行**, 不是本装置跑不动。⇒ alpha 的等价面在 R=8 工况下**不存在**。",
+    "upper_changes_vs_alpha": null
+   },
+   "infeasible_R4": {},
+   "scan_R4_production_readings": {
+    "n_pairs": 580,
+    "note": "★ 这 580 对是生产 separation() 实际收到的读数, 但 phase2_analyze **不调** equivalence() ⇒ 这不是真实消费者面, 是把等价面撑到可判规模的**同语料延伸**。equivalence() 的真实消费者是 verdict3 的两个调用点(length_null_arm / filler_screen_and_repeat), 存量只有 4 条可跑对。",
+    "margin": 0.06278,
+    "upper_changes_vs_alpha": {
+     "0.0285714286": {
+      "n_changed": 580,
+      "n_total": 580,
+      "changed": [
+       "phase2/primary#0:L0|L0b",
+       "phase2/primary#1:L0|A1",
+       "phase2/primary#2:L0|A2",
+       "phase2/primary#3:L0|B1",
+       "phase2/primary#4:L0|B2",
+       "phase2/primary#5:L0|L0b",
+       "phase2/primary#6:L0|A1",
+       "phase2/primary#7:L0|A2",
+       "phase2/primary#8:L0|A3",
+       "phase2/primary#9:L0|B2",
+       "phase2/primary#10:L0|L0b",
+       "phase2/primary#11:L0|A1"
+      ]
+     },
+     "0.03": {
+      "n_changed": 580,
+      "n_total": 580,
+      "changed": [
+       "phase2/primary#0:L0|L0b",
+       "phase2/primary#1:L0|A1",
+       "phase2/primary#2:L0|A2",
+       "phase2/primary#3:L0|B1",
+       "phase2/primary#4:L0|B2",
+       "phase2/primary#5:L0|L0b",
+       "phase2/primary#6:L0|A1",
+       "phase2/primary#7:L0|A2",
+       "phase2/primary#8:L0|A3",
+       "phase2/primary#9:L0|B2",
+       "phase2/primary#10:L0|L0b",
+       "phase2/primary#11:L0|A1"
+      ]
+     },
+     "0.05": {
+      "n_changed": 0,
+      "n_total": 580,
+      "changed": []
+     },
+     "0.1": {
+      "n_changed": 580,
+      "n_total": 580,
+      "changed": [
+       "phase2/primary#0:L0|L0b",
+       "phase2/primary#1:L0|A1",
+       "phase2/primary#2:L0|A2",
+       "phase2/primary#3:L0|B1",
+       "phase2/primary#4:L0|B2",
+       "phase2/primary#5:L0|L0b",
+       "phase2/primary#6:L0|A1",
+       "phase2/primary#7:L0|A2",
+       "phase2/primary#8:L0|A3",
+       "phase2/primary#9:L0|B2",
+       "phase2/primary#10:L0|L0b",
+       "phase2/primary#11:L0|A1"
+      ]
+     },
+     "0.2": {
+      "n_changed": 580,
+      "n_total": 580,
+      "changed": [
+       "phase2/primary#0:L0|L0b",
+       "phase2/primary#1:L0|A1",
+       "phase2/primary#2:L0|A2",
+       "phase2/primary#3:L0|B1",
+       "phase2/primary#4:L0|B2",
+       "phase2/primary#5:L0|L0b",
+       "phase2/primary#6:L0|A1",
+       "phase2/primary#7:L0|A2",
+       "phase2/primary#8:L0|A3",
+       "phase2/primary#9:L0|B2",
+       "phase2/primary#10:L0|L0b",
+       "phase2/primary#11:L0|A1"
+      ]
+     }
+    },
+    "eq_verdict_changes_vs_alpha": {
+     "0.0285714286": {
+      "n_changed": 22,
+      "n_total": 580,
+      "changed": [
+       "phase2/primary#26:L0|B1",
+       "phase2/primary#44:L0|B1",
+       "phase2/primary#80:L0|B2",
+       "phase2/primary#86:L0|B2",
+       "phase2/primary#116:L0|B1",
+       "phase2/primary#136:L0|L0b",
+       "phase2/primary#140:L0|B2",
+       "phase2/primary#141:L0|L0b",
+       "phase2/sensitivity#184:L0|B1",
+       "phase2/sensitivity#202:L0|B1",
+       "phase2/sensitivity#238:L0|B2",
+       "phase2/sensitivity#244:L0|B2"
+      ]
+     },
+     "0.03": {
+      "n_changed": 22,
+      "n_total": 580,
+      "changed": [
+       "phase2/primary#26:L0|B1",
+       "phase2/primary#44:L0|B1",
+       "phase2/primary#80:L0|B2",
+       "phase2/primary#86:L0|B2",
+       "phase2/primary#116:L0|B1",
+       "phase2/primary#136:L0|L0b",
+       "phase2/primary#140:L0|B2",
+       "phase2/primary#141:L0|L0b",
+       "phase2/sensitivity#184:L0|B1",
+       "phase2/sensitivity#202:L0|B1",
+       "phase2/sensitivity#238:L0|B2",
+       "phase2/sensitivity#244:L0|B2"
+      ]
+     },
+     "0.05": {
+      "n_changed": 0,
+      "n_total": 580,
+      "changed": []
+     },
+     "0.1": {
+      "n_changed": 32,
+      "n_total": 580,
+      "changed": [
+       "phase2/primary#5:L0|L0b",
+       "phase2/primary#34:L0|B1",
+       "phase2/primary#61:L0|A1",
+       "phase2/primary#113:L0|A1",
+       "phase2/primary#118:L0|L0b",
+       "phase2/primary#128:L0|B1",
+       "phase2/primary#134:L0|B1",
+       "phase2/primary#151:L0|B2",
+       "phase2/sensitivity#162:L0|L0b",
+       "phase2/sensitivity#192:L0|B1",
+       "phase2/sensitivity#219:L0|A1",
+       "phase2/sensitivity#271:L0|A1"
+      ]
+     },
+     "0.2": {
+      "n_changed": 69,
+      "n_total": 580,
+      "changed": [
+       "phase2/primary#5:L0|L0b",
+       "phase2/primary#9:L0|B2",
+       "phase2/primary#34:L0|B1",
+       "phase2/primary#61:L0|A1",
+       "phase2/primary#81:L0|L0b",
+       "phase2/primary#87:L0|L0b",
+       "phase2/primary#108:L0|L0b",
+       "phase2/primary#111:L0|B2",
+       "phase2/primary#113:L0|A1",
+       "phase2/primary#118:L0|L0b",
+       "phase2/primary#122:L0|B1",
+       "phase2/primary#123:L0|B2"
+      ]
+     }
+    },
+    "boundary_distance": {
+     "margin": 0.06278,
+     "n_upper_below_margin_at_alpha_005": 132,
+     "upper_min": 0.02403,
+     "upper_median": 0.09736,
+     "upper_max": 0.43542,
+     "meaning": "所有 upper 都远在 margin 之上 ⇒ 等价判决不在边界附近, alpha 怎么动都翻不了它。**这是语料位置造成的不敏感, 不是 alpha 在等价面上结构性无效** —— 换一份 upper 贴近 margin 的语料, 同一个 alpha 立刻承重。"
+    }
+   },
+   "scan_R4_probe_own_fingerprints": {
+    "n_pairs": 7,
+    "caveat": "★ 探针自己传的是合成指纹(length_null_arm.py:89 `f\"{n}{i}\"`; equal_length_control.py:119 `knots+|i`) ⇒ **绕过了 _check 的缓存伪影守卫**。用内容指纹时 equal_length:A|B 与 discriminability:T0|* 被正确拒绝(A 臂有 3 条逐字相同的读数)。此块只为撑规模, 不作为判决主证据。",
+    "upper_changes_vs_alpha": {
+     "0.005": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.01": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.02": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.0285714286": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.03": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.04": {
+      "n_changed": 6,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.05": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.055": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.0571428571": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.06": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.1": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.2": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     }
+    },
+    "eq_verdict_changes_vs_alpha": {
+     "0.005": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.01": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.02": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.0285714286": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.03": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.04": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.05": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.055": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.0571428571": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.06": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.1": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.2": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     }
+    },
+    "v3_verdict_changes_vs_alpha": {
+     "0.005": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.01": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.02": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.0285714286": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.03": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.04": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.05": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.055": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.0571428571": {
+      "n_changed": 1,
+      "n_total": 7,
+      "changed": [
+       "discriminability:T0|T1"
+      ]
+     },
+     "0.06": {
+      "n_changed": 1,
+      "n_total": 7,
+      "changed": [
+       "discriminability:T0|T1"
+      ]
+     },
+     "0.1": {
+      "n_changed": 2,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|PAD",
+       "discriminability:T0|T1"
+      ]
+     },
+     "0.2": {
+      "n_changed": 2,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|PAD",
+       "discriminability:T0|T1"
+      ]
+     }
+    },
+    "sep_verdict_changes_vs_alpha": {
+     "0.005": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.01": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.02": {
+      "n_changed": 7,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|FILL",
+       "length_null_arm:BASE|PAD",
+       "length_null_arm:FILL|PAD",
+       "equal_length:A|B",
+       "discriminability:T0|T1",
+       "discriminability:T0|T2",
+       "discriminability:T1|T2"
+      ]
+     },
+     "0.0285714286": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.03": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.04": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.05": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.055": {
+      "n_changed": 0,
+      "n_total": 7,
+      "changed": []
+     },
+     "0.0571428571": {
+      "n_changed": 1,
+      "n_total": 7,
+      "changed": [
+       "discriminability:T0|T1"
+      ]
+     },
+     "0.06": {
+      "n_changed": 1,
+      "n_total": 7,
+      "changed": [
+       "discriminability:T0|T1"
+      ]
+     },
+     "0.1": {
+      "n_changed": 2,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|PAD",
+       "discriminability:T0|T1"
+      ]
+     },
+     "0.2": {
+      "n_changed": 2,
+      "n_total": 7,
+      "changed": [
+       "length_null_arm:BASE|PAD",
+       "discriminability:T0|T1"
+      ]
+     }
+    }
+   }
+  },
+  "face_guard": {
+   "rule": "cce_ksep.py:415 `if p_floor > alpha: raise ValueError`",
+   "refusals_by_alpha": {
+    "0.005": {
+     "n_refused": 7,
+     "n_pairs": 10
+    },
+    "0.01": {
+     "n_refused": 7,
+     "n_pairs": 10
+    },
+    "0.02": {
+     "n_refused": 7,
+     "n_pairs": 10
+    },
+    "0.0285714286": {
+     "n_refused": 3,
+     "n_pairs": 10
+    },
+    "0.03": {
+     "n_refused": 3,
+     "n_pairs": 10
+    },
+    "0.05": {
+     "n_refused": 3,
+     "n_pairs": 10
+    }
+   },
+   "meaning": "alpha 在这里不是判决线而是**设计可行性闸**: 调低到 p_floor 之下, 整个比较被拒绝执行(phase2_analyze 会把它记成 DEGENERATE_READOUT)。"
+  }
+ },
+ "tripwire_tripped_during_run": [],
+ "file_integrity": {
+  "before": {
+   "/Volumes/data/cce-engine/scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "/Volumes/data/cce-engine/config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "/Volumes/data/cce-engine/config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "/Volumes/data/cce-engine/accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "/Volumes/data/cce-engine/scripts/cce_ksep.py": "ffd5d26a7e0cb29b6fd13a83a9c27955316a9e4f653709b99abddfc9f59063f4",
+   "/Volumes/data/cce-engine/probes/phase2_analyze.py": "84aef3055ba8bb85aff32d9c490a040da4b609e3494d2bf931c96910566bcaf4",
+   "/Volumes/data/cce-engine/probes/ablation_harness_v3.py": "db00b095cf408a0018c537c0a719159b081f0427b32fc7018b3cf991d487e871",
+   "/Volumes/data/cce-engine/tests/data/phase2/panel_analysis.json": "73961043421c71f1c47a7abc0ae1719cf5069d9e11c94600653dd9adedc2dc0c",
+   "/Volumes/data/cce-engine/tests/data/phase2/panel_checkpoint.jsonl": "d4907b3a1782a6be0f9fa177ec378336dffce6259604c7b6755cb13f556db9b2",
+   "/Volumes/data/cce-engine/tests/data/phase2/panel_manifest.json": "4b18618f2d76b9d1a793c5b40b6e17d6cb5c09b7a179fe42d578a89498b271c2",
+   "/Volumes/data/cce-engine/tests/data/phase2b/panel_analysis.json": "8cb494c4f5068cd97d1eb7e41c756feb17eaca5aaa9cd1f34ef259b38e016f75",
+   "/Volumes/data/cce-engine/tests/data/phase2b/panel_checkpoint.jsonl": "d770ad799ad6e3977f29d5a14aa4cc90bcda246b739775a9041d72fad71638df",
+   "/Volumes/data/cce-engine/tests/data/phase2b/panel_manifest.json": "7233b97d195069639f0ab9f1d5f857386d15f6a31bc768c0dc5d9120f1475d4c",
+   "/Volumes/data/cce-engine/tests/data/live_r8_calibration_20260819.json": "af2ecd03811cdb158350716c6b418ffe4b66db7392d3936ebfc59f608c92b4ce"
+  },
+  "after": {
+   "/Volumes/data/cce-engine/scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "/Volumes/data/cce-engine/config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "/Volumes/data/cce-engine/config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "/Volumes/data/cce-engine/accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+   "/Volumes/data/cce-engine/scripts/cce_ksep.py": "ffd5d26a7e0cb29b6fd13a83a9c27955316a9e4f653709b99abddfc9f59063f4",
+   "/Volumes/data/cce-engine/probes/phase2_analyze.py": "84aef3055ba8bb85aff32d9c490a040da4b609e3494d2bf931c96910566bcaf4",
+   "/Volumes/data/cce-engine/probes/ablation_harness_v3.py": "db00b095cf408a0018c537c0a719159b081f0427b32fc7018b3cf991d487e871",
+   "/Volumes/data/cce-engine/tests/data/phase2/panel_analysis.json": "73961043421c71f1c47a7abc0ae1719cf5069d9e11c94600653dd9adedc2dc0c",
+   "/Volumes/data/cce-engine/tests/data/phase2/panel_checkpoint.jsonl": "d4907b3a1782a6be0f9fa177ec378336dffce6259604c7b6755cb13f556db9b2",
+   "/Volumes/data/cce-engine/tests/data/phase2/panel_manifest.json": "4b18618f2d76b9d1a793c5b40b6e17d6cb5c09b7a179fe42d578a89498b271c2",
+   "/Volumes/data/cce-engine/tests/data/phase2b/panel_analysis.json": "8cb494c4f5068cd97d1eb7e41c756feb17eaca5aaa9cd1f34ef259b38e016f75",
+   "/Volumes/data/cce-engine/tests/data/phase2b/panel_checkpoint.jsonl": "d770ad799ad6e3977f29d5a14aa4cc90bcda246b739775a9041d72fad71638df",
+   "/Volumes/data/cce-engine/tests/data/phase2b/panel_manifest.json": "7233b97d195069639f0ab9f1d5f857386d15f6a31bc768c0dc5d9120f1475d4c",
+   "/Volumes/data/cce-engine/tests/data/live_r8_calibration_20260819.json": "af2ecd03811cdb158350716c6b418ffe4b66db7392d3936ebfc59f608c92b4ce"
+  },
+  "identical": true,
+  "changed": []
+ },
+ "decided_at": "2026-09-11T18:22:23",
+ "corpus_provenance": {
+  "question": "改动前后能不能做前后对比?",
+  "answer": "可以 —— 但不是「拿到污染版再 diff」, 而是**证明当前语料就是污染前那一份**。",
+  "evidence": [
+   {
+    "claim": "panel_analysis.json 在 git 里是干净的(worktree == HEAD blob)",
+    "how": "git status --short 为空; worktree sha256 == HEAD blob sha256",
+    "worktree_sha256": "73961043421c71f1c47a7abc0ae1719cf5069d9e11c94600653dd9adedc2dc0c",
+    "head_blob_sha256": "73961043421c71f1c47a7abc0ae1719cf5069d9e11c94600653dd9adedc2dc0c",
+    "identical": true
+   },
+   {
+    "claim": "最后一次改动它的提交早于污染日(2026-09-06)",
+    "last_commit": "a50bcb6 2026-08-22 15:35:41 +0800 外审第四轮落地: 定性改写为 representation-sensitive contrast detector; Manski 界; 分端点状态"
+   },
+   {
+    "claim": "真正的输入(panel_checkpoint.jsonl / panel_manifest.json)同样 git 干净",
+    "checkpoint_last_commit": "01e601d 2026-08-22 13:43:02 +0800",
+    "manifest_last_commit": "f9454d4 2026-08-22 12:57:29 +0800"
+   },
+   {
+    "claim": "从输入现算的基线**逐条等于**存盘产物 ⇒ 污染零残留, 输入与产物自洽",
+    "detail": [
+     {
+      "label": "primary",
+      "n_stored": 157,
+      "n_recomputed": 157,
+      "identical": true,
+      "n_differing": 0
+     },
+     {
+      "label": "sensitivity",
+      "n_stored": 159,
+      "n_recomputed": 159,
+      "identical": true,
+      "n_differing": 0
+     }
+    ]
+   },
+   {
+    "claim": "★ 本轮基线的 headline 数 与 v2 自己引用的基线数**完全相同** ⇒ 语料没变",
+    "this_run": {
+     "phase2/primary n_separated": 74,
+     "phase2b/primary n_separated": 35
+    },
+    "v2_quoted": {
+     "phase2/primary": "74→158",
+     "phase2b/primary": "35→110"
+    },
+    "match": "两个基线数(74 / 35)逐字命中; v2 的消融后数 158 与本轮 157 差 1 —— 157 = phase2/primary 的 n_contrasts 上限(T>0 下全部分离), 158 在结构上不可能 ⇒ 是 v2 的计数错, 不是语料差异。"
+   }
+  ],
+  "cannot_do": "污染版 panel_analysis.json **不可恢复**: 它从未被 commit, 已被 git checkout 丢弃, git stash 为空, 仓内无备份副本。⇒ 无法给出「污染版 vs 干净版」的逐字节 diff; 能给的是「当前 == 污染前」的三重证明(上表)。",
+  "conclusion": "本轮判决建立在与 v2 **同一份**语料上 ⇒ 判决差异**不能**归因于语料。"
+ },
+ "verdicts": [
+  {
+   "component": "separation() 精确置换枚举 (C(2R,R)/2 个二分构型 + T 比较)",
+   "face": "统计判据层",
+   "verdict": "LOAD_BEARING_L2",
+   "verdict_v2": "LOAD_BEARING_L2",
+   "changed_from_v2": false,
+   "separation_face": {
+    "L1": "0/580 —— 换判决规则不动 T / p / null_max 的数值。只看 L1 会把它判成不承重。",
+    "L2": {
+     "rule_T_gt_0 (完全不枚举)": "翻 329/580; n_separated phase2/primary 74→157, phase2b/primary 35→110",
+     "rule_T_gt_null_median": "翻 195/580; 74→125, 35→77",
+     "enum_truncated_to_8 (真的拆掉枚举)": "p_floor=1/8 > alpha ⇒ **580/580 比较被拒绝执行**, 四个面 n_contrasts 全部 →0, findings 从 1/2/0/1 涨到 158/161/110/155",
+     "M6 注入 (verdict 恒 NOT_SEPARATED)": "翻 251/580 ⇒ 判决面确实接在这里, 无差异不是没接线"
+    }
+   },
+   "equivalence_face": "不接触 —— equivalence() 用穷举自助(R^R × R^R), 不走置换枚举。本组件在等价面上不存在。",
+   "deletable": false,
+   "evidence_path": "tests/data/ablation_v3/ksep_rerun.json#verdict_1_enumeration"
+  },
+  {
+   "component": "separation() 返回的 p 数值本身",
+   "face": "统计判据层",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "verdict_v2": "LOAD_BEARING_L1_ONLY",
+   "changed_from_v2": false,
+   "separation_face": {
+    "L1": "p_boolean_rank1(只保留「是不是唯一最大」这 1 bit): **578/580 的 p 改变**; 未变的 2 条基线 p 恰为 1.0。",
+    "L2": "**0/580** 判决翻转; summary / manski_bounds / n_separated 四个面**逐字节不变**(74→74, 35→35)。",
+    "M6_injection": "p≡0.999 翻 251/580(全灭); p≡0.0 翻 329/580(全亮) ⇒ p 确实接在判决上, L2=0 不是没接线。",
+    "structural_reason": "R=4 ⇒ n_splits=C(8,4)/2=35, p ∈ {k/35}; verdict ⟺ p ≤ 0.05 ⟺ k=1。判决只需要 p 的 1 个比特, 其余数值是**给人读的**, 不进任何下游分支。"
+   },
+   "equivalence_face": "不接触 —— equivalence() 不读 p。",
+   "deletable": false,
+   "deletable_why": "L2 不变但它是唯一可审计的统计强度读数; 删掉判决不变, 读者会失去「离判决线多远」这一信息。",
+   "evidence_path": "tests/data/ablation_v3/ksep_rerun.json#verdict_2_p_value"
+  },
+  {
+   "component": "alpha = 0.05",
+   "face": "统计判据层 —— ★ 三个面, 必须分开报",
+   "verdict": "LOAD_BEARING_L2",
+   "verdict_v2": "LOAD_BEARING_L1_ONLY",
+   "changed_from_v2": true,
+   "cause_of_change": "上一轮判错了(臂设计不足), **不是**语料变了 —— 见 corpus_provenance。",
+   "separation_face": {
+    "verdict": "LOAD_BEARING_L2",
+    "L1": "0/580 —— alpha 不进入统计量, T / p / n_splits / null_max 逐值不变。",
+    "L2_plateau": "alpha ∈ [1/35, 2/35) = [0.028571, 0.057143) 上 **0/580**。平台宽度恰好**一个 p 粒度**; 0.05 距右沿只有 +14%。",
+    "L2_off_plateau": {
+     "alpha=2/35=0.05714": "翻 27/580 (74→81, 35→39)",
+     "alpha=0.06": "翻 27/580",
+     "alpha=3/35=0.08571": "翻 55/580 (74→88, 35→46)",
+     "alpha=0.10": "翻 55/580",
+     "alpha=0.20": "翻 103/580 (74→104, 35→52)"
+    },
+    "★why_v2_got_it_wrong": "v2 只把 alpha **往下**扰动到 0.028571(=p_floor), 那一点正落在平台内 ⇒ 观测到 0 改变, 于是把**平台**读成了**死面**。单向单点扰动不足以判一个阈值常量。"
+   },
+   "guard_face": {
+    "verdict": "LOAD_BEARING_L2 (最剧烈的一面)",
+    "rule": "cce_ksep.py:415 `if p_floor > alpha: raise ValueError`",
+    "evidence": "alpha=0.02 (< p_floor=1/35): **580/580 比较被拒绝**, 四个面 n_contrasts 全部 →0。R=4 的 7 条探针对同样 7/7 被拒; R=8 的 3 条不受影响(p_floor=1/6435)。",
+    "meaning": "alpha 在这里不是判决线而是**设计可行性闸** —— 调低一点点就把整个比较判为不可执行。"
+   },
+   "equivalence_face": {
+    "verdict": "LOAD_BEARING_L2 (同语料延伸面) / INCONCLUSIVE (真实消费者面, n=4 太小)",
+    "L1": "580/580 的 upper 在**每一个**非基线 alpha 上都改变(100%)。",
+    "L2": {
+     "alpha=1/35": "22/580",
+     "alpha=0.03": "22/580",
+     "alpha=0.10": "32/580",
+     "alpha=0.20": "69/580"
+    },
+    "boundary": "margin=0.06278 (= PAIR1_NULL_CALIBRATION_STATISTIC, 真实 verdict3 调用点传的就是它); upper 的 min/median/max = 0.02403 / 0.09736 / 0.43542; 132/580 条的 upper 落在 margin 之下 ⇒ 边界附近确有人口, 所以 L2 会翻。",
+    "real_consumer_caveat": "equivalence() 的真实消费者是 verdict3 的两个调用点(probes/length_null_arm.py, probes/filler_screen_and_repeat.py)。它们的存量语料按**内容指纹**只剩 4 条可跑对, 且 4 条的 upper 全部远高于 margin ⇒ 那 4 条上 L2=0/4。**n=4 判不了 L2, 记 INCONCLUSIVE, 不得读成「等价面不承重」。**",
+    "R8": "R=8 上 equivalence() 的穷举自助是 8^16 ≈ 2.8e14 对 ⇒ **结构上不可执行**, 等价面在 R=8 工况下**不存在**(不是本装置跑不动)。"
+   },
+   "★verdict_on_the_R2_claim": "任务给的 R2 结论「alpha 是 L2, 但承重的是 equivalence() 不是 separation()」—— **前半对, 后半错**。equivalence() 面确实 L2(22–69/580); 但 separation() 面**同样是 L2**(27–103/580), 它只是坐在一个一粒度宽的平台上。「一个死一个活」的说法本身就是另一次单点扰动造成的错读。",
+   "deletable": false,
+   "evidence_path": "tests/data/ablation_v3/ksep_rerun.json#verdict_3_alpha"
+  }
+ ],
+ "incidental_defects_found": [
+  {
+   "where": "probes/length_null_arm.py:98",
+   "what": "`KS.separation(..., margin=ME, margin_is_sesoi=False, ...)` —— separation() 的签名是 (A, B, fpA, fpB, alpha, sesoi, nameA, nameB), **没有** margin / margin_is_sesoi ⇒ 该行必然 TypeError。这条探针在这一步跑不过。",
+   "action": "本轮**不修**(超出重跑范围, 且 R2 要求不动仓内文件)。单独提。"
+  },
+  {
+   "where": "probes/length_null_arm.py:89 · probes/equal_length_control.py:119",
+   "what": "传的是合成指纹(`f\"{n}{i}\"` / `knots+|i`) ⇒ **绕过 _check 的缓存伪影守卫**。改用内容指纹后 equal_length:A|B 与 discriminability:T0|T1 / T0|T2 被正确拒绝 —— equal_length 的 A 臂有 **3 条逐字相同的读数**(pain_seek=0.92)。",
+   "action": "本轮**不修**。但它意味着 equivalence() 的真实消费者面比看上去小得多(7 对 → 4 对)。"
+  }
+ ],
+ "what_this_cannot_show": [
+  "只在存量语料上重放 ⇒ 不能证明真实模型的语义判断准确率或重复稳定性。",
+  "R=4 是本工况的主体(580/580 生产对比 + 7 条探针对); R=8 只有 3 条且 p 全部远离判决线 ⇒ R=8 上的 alpha 判决记 INCONCLUSIVE, **不是**「R=8 上 alpha 不承重」。",
+  "语料是合成的、单语种、单主题(见 v2 ★corpus_caveat), 本判决不外推到中文 / agent_memory profile / v5 媒体批次。",
+  "宽等价面(580 对)不是真实消费者面 —— phase2_analyze 不调 equivalence()。它是同语料延伸。"
+ ],
+ "rewritten_at": "2026-09-11T18:24:13"
+}

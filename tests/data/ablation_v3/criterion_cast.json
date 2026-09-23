@@ -1,0 +1,917 @@
+{
+ "block": "CRITERION_CAST_V1",
+ "generated_by": "scripts/cce_criterion_cast.py",
+ "★边界(不可越)": "本产物**只铸判据、只做影响分析**。**不**替 owner 上调或下调任何生产判据。★★★ **「噪声大」只说明判据测不准, 不说明结果该往有利方向读。** 判据冻结在先, 两个方向都得认: 不许拿噪声把 FAIL 读成 PASS, 也不许拿噪声把 PASS 读成 FAIL。",
+ "★本产物不含任何仓外识别层路径": true,
+ "★仓内被测文件一字未改": "见 sources_sha256; 消融只做内存内源码替换, 从不写回",
+ "measured_inputs": {
+  "p_hat_AA_240trials": 0.0048,
+  "p_display_single_rep_flip": 0.0625,
+  "indifference_region": [
+   0.7,
+   0.9
+  ],
+  "alpha": 0.05,
+  "beta": 0.2,
+  "★这些数不是本轮测的": "引用自既有实测, 本工具零 API, 未重测"
+ },
+ "closed_form_checks": {
+  "A>=0.95 ⟺ q>=?": {
+   "A": 0.95,
+   "categories": 2,
+   "attainable": true,
+   "q_closed_form": 0.9743416490252569,
+   "q_numeric_bisection": 0.9743416490250638,
+   "closed_vs_numeric_absdiff": 1.9306778398231472e-13,
+   "agreement_at_q": 0.95,
+   "★读法": "「一致率 >= 0.95」实际等价于要求单次重复的主类别概率 q >= 0.9743"
+  },
+  "A>=0.95 ⟺ q>=? (9 结)": {
+   "A": 0.95,
+   "categories": 9,
+   "attainable": true,
+   "q_closed_form": 0.9746381878989089,
+   "q_numeric_bisection": 0.9746381878992703,
+   "closed_vs_numeric_absdiff": 3.6137759451548845e-13,
+   "agreement_at_q": 0.9500000000000002,
+   "★读法": "「一致率 >= 0.95」实际等价于要求单次重复的主类别概率 q >= 0.9746"
+  },
+  "modal_bias n=8 pure 50/50": {
+   "n": 8,
+   "categories": 2,
+   "probs": [
+    0.5,
+    0.5
+   ],
+   "E_mode_count": 5.09375,
+   "E_mode_share": 0.63671875,
+   "naive_floor_1_over_k": 0.5,
+   "upward_bias_vs_1_over_k": 0.13671875,
+   "P_all_same": 0.0078125,
+   "★读法": "n=8、2 类时众数占比的期望是 0.6367, 而不是 0.5000 —— 高出 0.1367 全部来自「众数是看完数据才挑的」"
+  },
+  "modal_bias n=8 uniform over 9 knots": {
+   "n": 8,
+   "categories": 9,
+   "probs": [
+    0.111111,
+    0.111111,
+    0.111111,
+    0.111111,
+    0.111111,
+    0.111111,
+    0.111111,
+    0.111111,
+    0.111111
+   ],
+   "E_mode_count": 2.48823021851073,
+   "E_mode_share": 0.31102877731384126,
+   "naive_floor_1_over_k": 0.1111111111111111,
+   "upward_bias_vs_1_over_k": 0.19991766620273016,
+   "P_all_same": 2.0907515812876884e-07,
+   "★读法": "n=8、9 类时众数占比的期望是 0.3110, 而不是 0.1111 —— 高出 0.1999 全部来自「众数是看完数据才挑的」"
+  },
+  "modal_bias n=28 pure 50/50": {
+   "n": 28,
+   "categories": 2,
+   "probs": [
+    0.5,
+    0.5
+   ],
+   "E_mode_count": 16.09224373102188,
+   "E_mode_share": 0.5747229903936386,
+   "naive_floor_1_over_k": 0.5,
+   "upward_bias_vs_1_over_k": 0.07472299039363861,
+   "P_all_same": 7.450580596923828e-09,
+   "★读法": "n=28、2 类时众数占比的期望是 0.5747, 而不是 0.5000 —— 高出 0.0747 全部来自「众数是看完数据才挑的」"
+  },
+  "zero_tolerance_8of8_q_for_80pct": 0.9724924724664561
+ },
+ "cast_recommended": {
+  "q_bad": 0.7,
+  "q_good": 0.9,
+  "alpha_target": 0.05,
+  "beta_target": 0.2,
+  "n": 28,
+  "c": 24,
+  "rule": "PASS ⟺ modal >= 24/28",
+  "alpha_achieved": 0.047426891734416075,
+  "beta_achieved": 0.14211190470823606,
+  "power_achieved": 0.8578880952917639,
+  "method": "exact binomial (no normal approximation)"
+ },
+ "cast_grid": {
+  "alpha=0.05,beta=0.2": {
+   "q_bad": 0.7,
+   "q_good": 0.9,
+   "alpha_target": 0.05,
+   "beta_target": 0.2,
+   "n": 28,
+   "c": 24,
+   "rule": "PASS ⟺ modal >= 24/28",
+   "alpha_achieved": 0.047426891734416075,
+   "beta_achieved": 0.14211190470823606,
+   "power_achieved": 0.8578880952917639,
+   "method": "exact binomial (no normal approximation)"
+  },
+  "alpha=0.05,beta=0.1": {
+   "q_bad": 0.7,
+   "q_good": 0.9,
+   "alpha_target": 0.05,
+   "beta_target": 0.1,
+   "n": 37,
+   "c": 31,
+   "rule": "PASS ⟺ modal >= 31/37",
+   "alpha_achieved": 0.04396716675493082,
+   "beta_achieved": 0.07108505827175716,
+   "power_achieved": 0.9289149417282428,
+   "method": "exact binomial (no normal approximation)"
+  },
+  "alpha=0.01,beta=0.2": {
+   "q_bad": 0.7,
+   "q_good": 0.9,
+   "alpha_target": 0.01,
+   "beta_target": 0.2,
+   "n": 44,
+   "c": 38,
+   "rule": "PASS ⟺ modal >= 38/44",
+   "alpha_achieved": 0.009975842867627151,
+   "beta_achieved": 0.14562602474533104,
+   "power_achieved": 0.854373975254669,
+   "method": "exact binomial (no normal approximation)"
+  },
+  "alpha=0.1,beta=0.2": {
+   "q_bad": 0.7,
+   "q_good": 0.9,
+   "alpha_target": 0.1,
+   "beta_target": 0.2,
+   "n": 21,
+   "c": 18,
+   "rule": "PASS ⟺ modal >= 18/21",
+   "alpha_achieved": 0.08560570284215224,
+   "beta_achieved": 0.1519653105719549,
+   "power_achieved": 0.848034689428045,
+   "method": "exact binomial (no normal approximation)"
+  }
+ },
+ "noise_floor_headline": {
+  "★单次偏离率 1/16 ⇒ 单臂(8/8 零容差)翻掉的概率": 0.4032805261667818,
+  "★纯噪声期望达标臂数(8 臂)": 4.773755790665746,
+  "★达标臂数的 95% 噪声带": [
+   2,
+   7
+  ],
+  "★读法": "4/8 与 6/8 之差完全落在这条带内 ⇒ **这两个计数在当前判据下不可区分**。这只是说判据测不准, **不是**说 6/8 该被读成通过。"
+ },
+ "criteria_table": [
+  {
+   "key": "playbook_atomic_0.95_n8",
+   "criterion_text": "playbook 原子判据: 8 个臂里 >=7 个达标; **单臂达标 = n=8 次重复全部同值**(0.95 线)",
+   "locus": "tests/data/phase2/playbook_mode_prereg.json (criterion) + probes/k1_gate.py:75",
+   "shape": "modal",
+   "operating_chars": {
+    "n": 8,
+    "c": 8,
+    "q_needed_for_50pct_pass": 0.9170040432049973,
+    "q_needed_for_80pct_pass": 0.9724924724664561,
+    "P_pass_at_q_bad": 0.05764800999999997,
+    "P_pass_at_q_good": 0.4304672100000001,
+    "P_fail_at_q_good": 0.5695327899999999,
+    "P_fail_at_AA_noise_floor": 0.03776103613543644,
+    "P_fail_at_display_flip_rate": 0.4032805261667818
+   },
+   "implied_q": "要 50% 把握通过需 q>=0.9170; 要 80% 把握通过需 q>=0.9725 (朴素读法 c/n=1.000 严重低估)",
+   "noise_floor": {
+    "display_flip_1_16": {
+     "p_single_rep_deviation": 0.0625,
+     "n": 8,
+     "c": 8,
+     "arms": 8,
+     "mode": "scatter",
+     "per_arm_pass_prob": 0.5967194738332182,
+     "per_arm_flip_prob": 0.4032805261667818,
+     "expected_arms_passing": 4.773755790665746,
+     "arms_passing_95_noise_band": [
+      2,
+      7
+     ],
+     "pmf_arms_passing": [
+      0.0007,
+      0.008282,
+      0.042889,
+      0.126921,
+      0.234751,
+      0.277882,
+      0.205586,
+      0.086914,
+      0.016075
+     ],
+     "arms_min": 7,
+     "P_criterion_passes_under_noise": 0.10298919196894107
+    },
+    "AA_p_hat_0.0048": {
+     "p_single_rep_deviation": 0.0048,
+     "n": 8,
+     "c": 8,
+     "arms": 8,
+     "mode": "scatter",
+     "per_arm_pass_prob": 0.9622389638645635,
+     "per_arm_flip_prob": 0.037761036135436465,
+     "expected_arms_passing": 7.697911710916508,
+     "arms_passing_95_noise_band": [
+      6,
+      8
+     ],
+     "pmf_arms_passing": [
+      0.0,
+      0.0,
+      0.0,
+      4e-06,
+      0.000122,
+      0.002487,
+      0.031692,
+      0.230736,
+      0.73496
+     ],
+     "arms_min": 7,
+     "P_criterion_passes_under_noise": 0.9656951956822286
+    }
+   },
+   "two_level_cast": {
+    "per_arm_rule": "modal >= 8/8",
+    "arms": 8,
+    "per_arm_pass_at_q_bad": 0.05764800999999997,
+    "per_arm_pass_at_q_good": 0.4304672100000001,
+    "arms_threshold_meeting_alpha": 3,
+    "arms_threshold_meeting_both": null,
+    "★": "**8 个臂不够** —— 在 α=0.05, β=0.2 下无可行的臂数阈值; 要么加臂, 要么把单臂 n 从 8 抬到 cast 给的 n",
+    "operating_curve": [
+     {
+      "t": 1,
+      "P_pass_at_q_bad": 0.3781219672134421,
+      "P_pass_at_q_good": 0.9889299428253312
+     },
+     {
+      "t": 2,
+      "P_pass_at_q_bad": 0.0737768271104553,
+      "P_pass_at_q_good": 0.9219937212740467
+     },
+     {
+      "t": 3,
+      "P_pass_at_q_bad": 0.008613149915504714,
+      "P_pass_at_q_good": 0.7449214408757017
+     },
+     {
+      "t": 4,
+      "P_pass_at_q_bad": 0.0006404255950068462,
+      "P_pass_at_q_good": 0.47725007287101384
+     },
+     {
+      "t": 5,
+      "P_pass_at_q_bad": 3.076527668552549e-05,
+      "P_pass_at_q_good": 0.22435913093362936
+     },
+     {
+      "t": 6,
+      "P_pass_at_q_bad": 9.286937524831041e-07,
+      "P_pass_at_q_good": 0.07144606236729388
+     },
+     {
+      "t": 7,
+      "P_pass_at_q_bad": 1.607317676284889e-08,
+      "P_pass_at_q_good": 0.013658290395210278
+     },
+     {
+      "t": 8,
+      "P_pass_at_q_bad": 1.2197604876358308e-10,
+      "P_pass_at_q_good": 0.0011790184577738605
+     }
+    ]
+   },
+   "two_level_current": {
+    "current_rule": "arms >= 7/8, 单臂 modal >= 8/8",
+    "P_whole_criterion_PASS_at_q_bad": 1.607317676284889e-08,
+    "P_whole_criterion_FAIL_at_q_good": 0.9863417096047897
+   },
+   "false_pos_at_noise_floor": "P(单臂 PASS | q=0.70)=0.0576; P(整条判据 PASS | 每臂 q=0.70)=0.0000; P(整条判据 PASS | 纯噪声单次偏离率 1/16)=0.1030",
+   "false_neg": "P(单臂 FAIL | q=0.90)=0.5695; P(单臂 FAIL | 实测 A/A 底噪 q=0.9952)=0.0378; P(单臂 FAIL | display 单次偏离 1/16)=0.4033; P(整条判据 FAIL | 每臂 q=0.90)=0.9863",
+   "noise_band_on_arm_count": "单次偏离率 1/16 下, 8 个臂的达标数期望 4.77, 95% 噪声带 [2, 7] ⇒ 该带内的计数之差**不可解读**",
+   "suggested_exact_binomial": "单臂 PASS ⟺ modal >= 24/28 (α_achieved=0.0474, β_achieved=0.1421, 区分 q<=0.70 与 q>=0.90); 两层: 在现行单臂规则 modal>=8/8 下 **8 个臂不够** —— 在 α=0.05, β=0.2 下无可行的臂数阈值; 要么加臂, 要么把单臂 n 从 8 抬到 cast 给的 n"
+  },
+  {
+   "key": "playbook_mode_share_7of8",
+   "criterion_text": "playbook v2 预注册: 单文本 mode_share >= 0.875(7/8) @ n=8, 且 8 个文本里 >=7 个达标",
+   "locus": "tests/data/phase2/playbook_mode_prereg.json:criterion.mode_share_min=0.875",
+   "shape": "modal",
+   "operating_chars": {
+    "n": 8,
+    "c": 7,
+    "q_needed_for_50pct_pass": 0.798868807395138,
+    "q_needed_for_80pct_pass": 0.8956271735937662,
+    "P_pass_at_q_bad": 0.2552983299999999,
+    "P_pass_at_q_good": 0.81310473,
+    "P_fail_at_q_good": 0.18689526999999992,
+    "P_fail_at_AA_noise_floor": 0.0006328446036845853,
+    "P_fail_at_display_flip_rate": 0.08503014012239873
+   },
+   "implied_q": "要 50% 把握通过需 q>=0.7989; 要 80% 把握通过需 q>=0.8956 (朴素读法 c/n=0.875 严重低估)",
+   "noise_floor": {
+    "display_flip_1_16": {
+     "p_single_rep_deviation": 0.0625,
+     "n": 8,
+     "c": 7,
+     "arms": 8,
+     "mode": "scatter",
+     "per_arm_pass_prob": 0.9149698598776013,
+     "per_arm_flip_prob": 0.08503014012239873,
+     "expected_arms_passing": 7.31975887902081,
+     "arms_passing_95_noise_band": [
+      6,
+      8
+     ],
+     "pmf_arms_passing": [
+      0.0,
+      0.0,
+      9e-06,
+      0.000191,
+      0.002565,
+      0.022077,
+      0.11878,
+      0.365183,
+      0.491195
+     ],
+     "arms_min": 7,
+     "P_criterion_passes_under_noise": 0.8563782873147577
+    },
+    "AA_p_hat_0.0048": {
+     "p_single_rep_deviation": 0.0048,
+     "n": 8,
+     "c": 7,
+     "arms": 8,
+     "mode": "scatter",
+     "per_arm_pass_prob": 0.9993671553963152,
+     "per_arm_flip_prob": 0.0006328446036848456,
+     "expected_arms_passing": 7.994937243170521,
+     "arms_passing_95_noise_band": [
+      8,
+      8
+     ],
+     "pmf_arms_passing": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.1e-05,
+      0.00504,
+      0.994948
+     ],
+     "arms_min": 7,
+     "P_criterion_passes_under_noise": 0.9999888145684837
+    }
+   },
+   "two_level_cast": {
+    "per_arm_rule": "modal >= 7/8",
+    "arms": 8,
+    "per_arm_pass_at_q_bad": 0.2552983299999999,
+    "per_arm_pass_at_q_good": 0.81310473,
+    "arms_threshold_meeting_alpha": 5,
+    "arms_threshold_meeting_both": 5,
+    "★": "arms >= 5/8",
+    "operating_curve": [
+     {
+      "t": 1,
+      "P_pass_at_q_bad": 0.9054070821634917,
+      "P_pass_at_q_good": 0.9999985113709764
+     },
+     {
+      "t": 2,
+      "P_pass_at_q_bad": 0.6459806307256938,
+      "P_pass_at_q_good": 0.9999467000522485
+     },
+     {
+      "t": 3,
+      "P_pass_at_q_bad": 0.33470297596410914,
+      "P_pass_at_q_good": 0.9991577656980601
+     },
+     {
+      "t": 4,
+      "P_pass_at_q_bad": 0.12127881262914822,
+      "P_pass_at_q_good": 0.9922931055592564
+     },
+     {
+      "t": 5,
+      "P_pass_at_q_bad": 0.029821329256875927,
+      "P_pass_at_q_good": 0.9549614516555504
+     },
+     {
+      "t": 6,
+      "P_pass_at_q_bad": 0.004738594828799381,
+      "P_pass_at_q_good": 0.8250296695710647
+     },
+     {
+      "t": 7,
+      "P_pass_at_q_bad": 0.0004391683139364265,
+      "P_pass_at_q_good": 0.5423897006991275
+     },
+     {
+      "t": 8,
+      "P_pass_at_q_bad": 1.804611794456157e-05,
+      "P_pass_at_q_good": 0.19106093539371655
+     }
+    ]
+   },
+   "two_level_current": {
+    "current_rule": "arms >= 7/8, 单臂 modal >= 7/8",
+    "P_whole_criterion_PASS_at_q_bad": 0.0004391683139364265,
+    "P_whole_criterion_FAIL_at_q_good": 0.45761029930087255
+   },
+   "false_pos_at_noise_floor": "P(单臂 PASS | q=0.70)=0.2553; P(整条判据 PASS | 每臂 q=0.70)=0.0004; P(整条判据 PASS | 纯噪声单次偏离率 1/16)=0.8564",
+   "false_neg": "P(单臂 FAIL | q=0.90)=0.1869; P(单臂 FAIL | 实测 A/A 底噪 q=0.9952)=0.0006; P(单臂 FAIL | display 单次偏离 1/16)=0.0850; P(整条判据 FAIL | 每臂 q=0.90)=0.4576",
+   "noise_band_on_arm_count": "单次偏离率 1/16 下, 8 个臂的达标数期望 7.32, 95% 噪声带 [6, 8] ⇒ 该带内的计数之差**不可解读**",
+   "suggested_exact_binomial": "单臂 PASS ⟺ modal >= 24/28 (α_achieved=0.0474, β_achieved=0.1421, 区分 q<=0.70 与 q>=0.90); 两层: 在现行单臂规则 modal>=7/8 下 arms >= 5/8"
+  },
+  {
+   "key": "k1_pairwise_agreement_0.95",
+   "criterion_text": "K1 ③: 稳定出现的结, 逐对容差一致率 A(0.10) >= 0.95 @ n=8",
+   "locus": "probes/k1_gate.py:75 (CRIT['agreement_min']=0.95)",
+   "shape": "pairwise_A",
+   "equivalent_q": {
+    "2": {
+     "A": 0.95,
+     "categories": 2,
+     "attainable": true,
+     "q_closed_form": 0.9743416490252569,
+     "q_numeric_bisection": 0.9743416490250638,
+     "closed_vs_numeric_absdiff": 1.9306778398231472e-13,
+     "agreement_at_q": 0.95,
+     "★读法": "「一致率 >= 0.95」实际等价于要求单次重复的主类别概率 q >= 0.9743"
+    },
+    "9": {
+     "A": 0.95,
+     "categories": 9,
+     "attainable": true,
+     "q_closed_form": 0.9746381878989089,
+     "q_numeric_bisection": 0.9746381878992703,
+     "closed_vs_numeric_absdiff": 3.6137759451548845e-13,
+     "agreement_at_q": 0.9500000000000002,
+     "★读法": "「一致率 >= 0.95」实际等价于要求单次重复的主类别概率 q >= 0.9746"
+    }
+   },
+   "implied_q": "k=2: q>=0.9743; k=9: q>=0.9746 —— 与 n=8 零容差线要求的 q 几乎同数, 不是一条宽松的工程线",
+   "operating_chars": {
+    "n": 8,
+    "c": 8,
+    "q_needed_for_50pct_pass": 0.9170040432049973,
+    "q_needed_for_80pct_pass": 0.9724924724664561,
+    "P_pass_at_q_bad": 0.05764800999999997,
+    "P_pass_at_q_good": 0.4304672100000001,
+    "P_fail_at_q_good": 0.5695327899999999,
+    "P_fail_at_AA_noise_floor": 0.03776103613543644,
+    "P_fail_at_display_flip_rate": 0.4032805261667818
+   },
+   "noise_floor": {
+    "display_flip_1_16": {
+     "p_single_rep_deviation": 0.0625,
+     "n": 8,
+     "c": 8,
+     "arms": 1,
+     "mode": "scatter",
+     "per_arm_pass_prob": 0.5967194738332182,
+     "per_arm_flip_prob": 0.4032805261667818,
+     "expected_arms_passing": 0.5967194738332182,
+     "arms_passing_95_noise_band": [
+      0,
+      1
+     ],
+     "pmf_arms_passing": [
+      0.403281,
+      0.596719
+     ]
+    }
+   },
+   "false_pos_at_noise_floor": "P(PASS | q=0.70)=0.057648",
+   "false_neg": "P(FAIL | q=0.90)=0.5695; P(FAIL | display 单次偏离 1/16)=0.4033",
+   "suggested_exact_binomial": "PASS ⟺ modal >= 24/28 —— 若坚持 0.95 的一致率语义, 请改写成对 q 的直陈(q>=0.9743), 否则读者会把它当宽松线"
+  },
+  {
+   "key": "k1_top1_agree_7of8",
+   "criterion_text": "K1 ④: top-1 结一致率 >= 7/8 @ n=8",
+   "locus": "probes/k1_gate.py:77 (CRIT['top1_agree_min']=7)",
+   "shape": "modal",
+   "operating_chars": {
+    "n": 8,
+    "c": 7,
+    "q_needed_for_50pct_pass": 0.798868807395138,
+    "q_needed_for_80pct_pass": 0.8956271735937662,
+    "P_pass_at_q_bad": 0.2552983299999999,
+    "P_pass_at_q_good": 0.81310473,
+    "P_fail_at_q_good": 0.18689526999999992,
+    "P_fail_at_AA_noise_floor": 0.0006328446036845853,
+    "P_fail_at_display_flip_rate": 0.08503014012239873
+   },
+   "implied_q": "要 50% 把握通过需 q>=0.7989; 要 80% 把握通过需 q>=0.8956 (朴素读法 c/n=0.875 严重低估)",
+   "noise_floor": {
+    "display_flip_1_16": {
+     "p_single_rep_deviation": 0.0625,
+     "n": 8,
+     "c": 7,
+     "arms": 1,
+     "mode": "scatter",
+     "per_arm_pass_prob": 0.9149698598776013,
+     "per_arm_flip_prob": 0.08503014012239873,
+     "expected_arms_passing": 0.9149698598776013,
+     "arms_passing_95_noise_band": [
+      0,
+      1
+     ],
+     "pmf_arms_passing": [
+      0.08503,
+      0.91497
+     ]
+    },
+    "AA_p_hat_0.0048": {
+     "p_single_rep_deviation": 0.0048,
+     "n": 8,
+     "c": 7,
+     "arms": 1,
+     "mode": "scatter",
+     "per_arm_pass_prob": 0.9993671553963152,
+     "per_arm_flip_prob": 0.0006328446036848456,
+     "expected_arms_passing": 0.9993671553963152,
+     "arms_passing_95_noise_band": [
+      1,
+      1
+     ],
+     "pmf_arms_passing": [
+      0.000633,
+      0.999367
+     ]
+    }
+   },
+   "false_pos_at_noise_floor": "P(单臂 PASS | q=0.70)=0.2553",
+   "false_neg": "P(单臂 FAIL | q=0.90)=0.1869; P(单臂 FAIL | 实测 A/A 底噪 q=0.9952)=0.0006; P(单臂 FAIL | display 单次偏离 1/16)=0.0850",
+   "noise_band_on_arm_count": "单次偏离率 1/16 下, 1 个臂的达标数期望 0.91, 95% 噪声带 [0, 1] ⇒ 该带内的计数之差**不可解读**",
+   "suggested_exact_binomial": "单臂 PASS ⟺ modal >= 24/28 (α_achieved=0.0474, β_achieved=0.1421, 区分 q<=0.70 与 q>=0.90)"
+  },
+  {
+   "key": "k1_occurrence_agree_7of8",
+   "criterion_text": "K1 ②: 每个结的出现率一致率 >= 7/8 @ n=8",
+   "locus": "probes/k1_gate.py:84 (CRIT['occurrence_agree_min']=7)",
+   "shape": "modal",
+   "operating_chars": {
+    "n": 8,
+    "c": 7,
+    "q_needed_for_50pct_pass": 0.798868807395138,
+    "q_needed_for_80pct_pass": 0.8956271735937662,
+    "P_pass_at_q_bad": 0.2552983299999999,
+    "P_pass_at_q_good": 0.81310473,
+    "P_fail_at_q_good": 0.18689526999999992,
+    "P_fail_at_AA_noise_floor": 0.0006328446036845853,
+    "P_fail_at_display_flip_rate": 0.08503014012239873
+   },
+   "implied_q": "要 50% 把握通过需 q>=0.7989; 要 80% 把握通过需 q>=0.8956 (朴素读法 c/n=0.875 严重低估)",
+   "noise_floor": {
+    "display_flip_1_16": {
+     "p_single_rep_deviation": 0.0625,
+     "n": 8,
+     "c": 7,
+     "arms": 9,
+     "mode": "scatter",
+     "per_arm_pass_prob": 0.9149698598776013,
+     "per_arm_flip_prob": 0.08503014012239873,
+     "expected_arms_passing": 8.234728738898411,
+     "arms_passing_95_noise_band": [
+      6,
+      9
+     ],
+     "pmf_arms_passing": [
+      0.0,
+      0.0,
+      1e-06,
+      2.4e-05,
+      0.000393,
+      0.004224,
+      0.0303,
+      0.139732,
+      0.375898,
+      0.449429
+     ],
+     "arms_min": 9,
+     "P_criterion_passes_under_noise": 0.4494290010629677
+    },
+    "AA_p_hat_0.0048": {
+     "p_single_rep_deviation": 0.0048,
+     "n": 8,
+     "c": 7,
+     "arms": 9,
+     "mode": "scatter",
+     "per_arm_pass_prob": 0.9993671553963152,
+     "per_arm_flip_prob": 0.0006328446036848456,
+     "expected_arms_passing": 8.994304398566836,
+     "arms_passing_95_noise_band": [
+      9,
+      9
+     ],
+     "pmf_arms_passing": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.4e-05,
+      0.005667,
+      0.994319
+     ],
+     "arms_min": 9,
+     "P_criterion_passes_under_noise": 0.9943187950198117
+    }
+   },
+   "two_level_cast": {
+    "per_arm_rule": "modal >= 7/8",
+    "arms": 9,
+    "per_arm_pass_at_q_bad": 0.2552983299999999,
+    "per_arm_pass_at_q_good": 0.81310473,
+    "arms_threshold_meeting_alpha": 6,
+    "arms_threshold_meeting_both": 6,
+    "★": "arms >= 6/9",
+    "operating_curve": [
+     {
+      "t": 1,
+      "P_pass_at_q_bad": 0.9295564961169795,
+      "P_pass_at_q_good": 0.9999997217822768
+     },
+     {
+      "t": 2,
+      "P_pass_at_q_bad": 0.7122117705355897,
+      "P_pass_at_q_good": 0.9999888280805737
+     },
+     {
+      "t": 3,
+      "P_pass_at_q_bad": 0.4141716413910582,
+      "P_pass_at_q_good": 0.9997992519531101
+     },
+     {
+      "t": 4,
+      "P_pass_at_q_bad": 0.17576564511021095,
+      "P_pass_at_q_good": 0.9978747931879602
+     },
+     {
+      "t": 5,
+      "P_pass_at_q_bad": 0.0531702720278198,
+      "P_pass_at_q_good": 0.9853159960233768
+     },
+     {
+      "t": 6,
+      "P_pass_at_q_bad": 0.011142175040120827,
+      "P_pass_at_q_good": 0.9306778161612893
+     },
+     {
+      "t": 7,
+      "P_pass_at_q_bad": 0.0015368047231386585,
+      "P_pass_at_q_good": 0.7722055962759525
+     },
+     {
+      "t": 8,
+      "P_pass_at_q_bad": 0.00012555791130721734,
+      "P_pass_at_q_good": 0.47672801624860617
+     },
+     {
+      "t": 9,
+      "P_pass_at_q_bad": 4.6071437742296e-06,
+      "P_pass_at_q_good": 0.15535255028685532
+     }
+    ]
+   },
+   "two_level_current": {
+    "current_rule": "arms >= 9/9, 单臂 modal >= 7/8",
+    "P_whole_criterion_PASS_at_q_bad": 4.6071437742296e-06,
+    "P_whole_criterion_FAIL_at_q_good": 0.8446474497131448
+   },
+   "false_pos_at_noise_floor": "P(单臂 PASS | q=0.70)=0.2553; P(整条判据 PASS | 每臂 q=0.70)=0.0000; P(整条判据 PASS | 纯噪声单次偏离率 1/16)=0.4494",
+   "false_neg": "P(单臂 FAIL | q=0.90)=0.1869; P(单臂 FAIL | 实测 A/A 底噪 q=0.9952)=0.0006; P(单臂 FAIL | display 单次偏离 1/16)=0.0850; P(整条判据 FAIL | 每臂 q=0.90)=0.8446",
+   "noise_band_on_arm_count": "单次偏离率 1/16 下, 9 个臂的达标数期望 8.23, 95% 噪声带 [6, 9] ⇒ 该带内的计数之差**不可解读**",
+   "suggested_exact_binomial": "单臂 PASS ⟺ modal >= 24/28 (α_achieved=0.0474, β_achieved=0.1421, 区分 q<=0.70 与 q>=0.90); 两层: 在现行单臂规则 modal>=7/8 下 arms >= 6/9"
+  },
+  {
+   "key": "gk1_top2_hit_0.80",
+   "criterion_text": "G-K1 主判之一: 核心面板两两对的 **平均 top2 命中 >= 0.80**",
+   "locus": "accuracy/run_gates.py:658",
+   "shape": "proportion",
+   "operating_chars": {
+    "n": 73,
+    "c": 59,
+    "q_needed_for_50pct_pass": 0.7999850979927032,
+    "q_needed_for_80pct_pass": 0.8372257352616543,
+    "P_pass_at_q_bad": 0.02584102264127822,
+    "P_pass_at_q_good": 0.9947465752631024,
+    "P_fail_at_q_good": 0.005253424736897626,
+    "P_fail_at_AA_noise_floor": 1.8523261971657876e-20,
+    "P_fail_at_display_flip_rate": 3.9110533080225805e-05
+   },
+   "implied_q": "单对 n≈73: 阈值 0.8 离散后 = 59/73; 要 80% 把握通过需 q>=0.8372",
+   "false_pos_at_noise_floor": "单对 P(PASS | q=0.70)=0.025841 (≈0 ⇒ 对「单对」而言这条线其实很有力)",
+   "false_neg": "单对 P(FAIL | q=0.90)=0.0053; 实测 0.9042 ⇒ 余量 +0.1042",
+   "suggested_exact_binomial": "单对: PASS ⟺ modal >= 24/28 即可; 但**聚合层不可照搬** —— 6 个对共享标注者与题目, 不是 6×73 个独立伯努利。聚合判据需 cluster bootstrap 或按**标注者**重抽的置换检验, 有效 n 远小于 438",
+   "★caveat": "非独立: 6 个两两对由 4 名标注者生成, 且逐题共享。exact binomial 只对**单对**成立。"
+  },
+  {
+   "key": "gk1_mean_JS_0.25",
+   "criterion_text": "G-K1 主判之二: 核心面板两两对的 **平均 JS <= 0.25**",
+   "locus": "accuracy/run_gates.py:658",
+   "shape": "continuous",
+   "implied_q": "不适用 —— JS 是连续量, 没有「每次重复的成败」这个二项事件",
+   "false_pos_at_noise_floor": "无二项解。**已有实测**: 自助重抽下越 0.25 线的概率 v1=7.3% → v2=35.5%, 点估计余量 0.031→0.0078 ⇒ PASS 不是二值事实",
+   "false_neg": "无二项解; 同上, 由自助区间给出(v2 的 95%CI [0.1999, 0.2846] 已横跨 0.25)",
+   "suggested_exact_binomial": "★ **不要铸成二项** —— 正确升级是把判据写成区间判据: 「cluster bootstrap 95%CI **上界** <= 0.25」而不是「点估计 <= 0.25」。把现有的越线概率并列报告制度化。",
+   "★caveat": "在噪声连续量上设布尔闸, 与库内『全占比原则』直接冲突。"
+  },
+  {
+   "key": "annotator_qual_v1_4of5",
+   "criterion_text": "标注者资格考 v1: hits >= 4 / 5 判 qualified",
+   "locus": "accuracy/run_gates.py:422",
+   "shape": "modal",
+   "operating_chars": {
+    "n": 5,
+    "c": 4,
+    "q_needed_for_50pct_pass": 0.6861898295442188,
+    "q_needed_for_80pct_pass": 0.8313911510408616,
+    "P_pass_at_q_bad": 0.5282199999999999,
+    "P_pass_at_q_good": 0.9185399999999999,
+    "P_fail_at_q_good": 0.08145999999999998,
+    "P_fail_at_AA_noise_floor": 0.00022819611243184376,
+    "P_fail_at_display_flip_rate": 0.034404754638671875
+   },
+   "implied_q": "要 50% 把握通过需 q>=0.6862; 要 80% 把握通过需 q>=0.8314 (朴素读法 c/n=0.800 严重低估)",
+   "noise_floor": {
+    "display_flip_1_16": {
+     "p_single_rep_deviation": 0.0625,
+     "n": 5,
+     "c": 4,
+     "arms": 1,
+     "mode": "scatter",
+     "per_arm_pass_prob": 0.9655952453613281,
+     "per_arm_flip_prob": 0.034404754638671875,
+     "expected_arms_passing": 0.9655952453613281,
+     "arms_passing_95_noise_band": [
+      0,
+      1
+     ],
+     "pmf_arms_passing": [
+      0.034405,
+      0.965595
+     ]
+    },
+    "AA_p_hat_0.0048": {
+     "p_single_rep_deviation": 0.0048,
+     "n": 5,
+     "c": 4,
+     "arms": 1,
+     "mode": "scatter",
+     "per_arm_pass_prob": 0.999771803887568,
+     "per_arm_flip_prob": 0.00022819611243196647,
+     "expected_arms_passing": 0.999771803887568,
+     "arms_passing_95_noise_band": [
+      1,
+      1
+     ],
+     "pmf_arms_passing": [
+      0.000228,
+      0.999772
+     ]
+    }
+   },
+   "false_pos_at_noise_floor": "P(单臂 PASS | q=0.70)=0.5282",
+   "false_neg": "P(单臂 FAIL | q=0.90)=0.0815; P(单臂 FAIL | 实测 A/A 底噪 q=0.9952)=0.0002; P(单臂 FAIL | display 单次偏离 1/16)=0.0344",
+   "noise_band_on_arm_count": "单次偏离率 1/16 下, 1 个臂的达标数期望 0.97, 95% 噪声带 [0, 1] ⇒ 该带内的计数之差**不可解读**",
+   "suggested_exact_binomial": "单臂 PASS ⟺ modal >= 24/28 (α_achieved=0.0474, β_achieved=0.1421, 区分 q<=0.70 与 q>=0.90)"
+  },
+  {
+   "key": "annotator_qual_v2_wilson",
+   "criterion_text": "标注者资格考 v2 三态: Wilson 95% 下界 >= 0.90 判 QUALIFIED; 上界 <= 0.70 判 DISQUALIFIED",
+   "locus": "accuracy/run_gates.py:427 (QUAL_P_LOW, QUAL_P_HIGH = 0.70, 0.90)",
+   "shape": "wilson",
+   "implied_q": "n=5 时 Wilson 下界 >= 0.9 需全对且 n>=35 ⇒ CERTIFY 在 n=5 上**不可达**; DISQUALIFY 只需 k<=1",
+   "clopper_pearson_n5": {
+    "0": [
+     0.0,
+     0.521824
+    ],
+    "1": [
+     0.005051,
+     0.716418
+    ],
+    "2": [
+     0.052745,
+     0.853367
+    ],
+    "3": [
+     0.146633,
+     0.947255
+    ],
+    "4": [
+     0.283582,
+     0.994949
+    ],
+    "5": [
+     0.478176,
+     1.0
+    ]
+   },
+   "false_pos_at_noise_floor": "按设计不可能 CERTIFY ⇒ 假阳为 0; 代价全在 UNRESOLVED",
+   "false_neg": "P(DISQUALIFIED | q=0.90) = P(k<=1) = 0.000460 —— 很小, 方向正确",
+   "suggested_exact_binomial": "★ 这一条**已经是对的形状**(三态 + 区间), 只建议把 Wilson 换成 Clopper-Pearson(精确, 小 n 下不越界); 若要 CERTIFY 可达, 按 cast 需 n=28, c=24"
+  },
+  {
+   "key": "gk2_rho_0.30",
+   "criterion_text": "G-K2: Spearman rho >= 0.30 且 p < 0.05(已冻结不可判)",
+   "locus": "accuracy/run_gates.py:751",
+   "shape": "inferential",
+   "implied_q": "不适用 —— 相关系数判据, 已自带 p 值",
+   "false_pos_at_noise_floor": "已由 p<0.05 控制(名义); 但 rho>=0.30 这一半是**效应量线**, 无检定力声明",
+   "false_neg": "未算 —— 需先声明 rho 的 indifference region(现无)",
+   "suggested_exact_binomial": "不适用。建议补的是**检定力声明**: 给定 n 与目标 rho, 报 1−β; 现状是「显著即通过」而没说它能测多小的效应"
+  },
+  {
+   "key": "t2_control_c1_0.75",
+   "criterion_text": "t2 空转对照 C1: 空转版胜率 >= 0.75 ⇒ t2 全部结论作废; <= 0.6 ⇒ 可信度提高",
+   "locus": "accuracy/t2_control.py:98",
+   "shape": "proportion_runtime_n",
+   "implied_q": "阈值 0.75; n 由运行时 low 篇数决定 ⇒ **判据的操作特性随样本漂移**",
+   "false_pos_at_noise_floor": "无法计算 —— n 不在判据里, 这本身就是缺陷",
+   "false_neg": "同上",
+   "suggested_exact_binomial": "把 n 写进判据。若目标是区分 q<=0.6(无偏好) 与 q>=0.75(有偏好), 按 cast: PASS ⟺ modal >= 44/62"
+  },
+  {
+   "key": "reply_need_reach_0.5",
+   "criterion_text": "回帖闸: need 层触达率 >= 0.5",
+   "locus": "scripts/reply_loop.py:144 · scripts/reply_batch.py:73",
+   "shape": "continuous_boolgate",
+   "implied_q": "不适用 —— 连续量上的布尔闸",
+   "false_pos_at_noise_floor": "未测量 —— 该量的重测噪声从未估计过",
+   "false_neg": "未测量",
+   "suggested_exact_binomial": "★ 先估这个连续量自己的重测噪声(A/A), 再决定它配不配有阈值。在没有噪声估计的连续量上设布尔闸 = 库内『全占比原则』点名的错误写法"
+  },
+  {
+   "key": "v4_layer_reproducible",
+   "criterion_text": "v4 层可复现: top 一致 >= 0.7 且 mean JS <= 0.30 判「可复现」",
+   "locus": "scripts/exp_v4_full_validation.py:741",
+   "shape": "continuous_boolgate",
+   "implied_q": "不适用 —— 连续量上的布尔闸",
+   "false_pos_at_noise_floor": "未测量 —— 该量的重测噪声从未估计过",
+   "false_neg": "未测量",
+   "suggested_exact_binomial": "★ 先估这个连续量自己的重测噪声(A/A), 再决定它配不配有阈值。在没有噪声估计的连续量上设布尔闸 = 库内『全占比原则』点名的错误写法"
+  }
+ ],
+ "★零API证据": {
+  "绊线": "socket.socket.connect 在生成期即被替换为抛错的 guard",
+  "绊线是否被触发": [],
+  "★作用域(如实写, 不夸大)": "只覆盖本进程内**经 socket.socket.connect 新建**的连接。不覆盖: 已建立连接 · 不走 socket 的传输 · 子进程 · C 扩展自带网络栈。",
+  "★本工具不 import 任何被测生产模块": "纯 stdlib 数学; 判据字面量由 LITERAL_PINS 在测试里钉住"
+ },
+ "★反向测试": {
+  "位置": "tests/test_cce_criterion_cast.py",
+  "机制": "内存内源码字符串替换后 exec, 每个变异断言恰好命中一次, exec 前后比对 sha256",
+  "已证见红(6/6)": [
+   "equivalent_q 取下根 ⇒ A>=0.95 的 0.974 交叉验证变红",
+   "modal_bias 用均值替众数 ⇒ n=8 的 0.6367 退化到 0.5, 变红",
+   "cast 改正态近似 ⇒ 铸出 (n,c)=(29,25) 而非 (28,24), 变红",
+   "binom_sf 差一(含等号上尾写成严格大于) ⇒ 铸出 (1,1), 变红",
+   "noise_floor 丢掉臂这一层 ⇒ 期望达标臂数 4.8 变红",
+   "modal_bias 丢掉多项式系数 ⇒ 期望 0.0273, 变红"
+  ]
+ },
+ "★与已知值的交叉验证": {
+  "A>=0.95 ⟺ q>=0.974": {
+   "已知": 0.974,
+   "本工具独立算出": 0.974342
+  },
+  "n=8 纯 50/50 的 E[众数占比]=0.6367": {
+   "已知": 0.6367,
+   "本工具独立算出": 0.636719
+  },
+  "exact binomial @ q .70/.90, α.05 β.20 ⇒ n=28, modal>=24": {
+   "已知": "n=28, c=24",
+   "本工具独立算出": "n=28, c=24"
+  },
+  "单次偏离 1/16 ⇒ 单臂翻掉 ≈40%": {
+   "已知": "约 40%",
+   "本工具独立算出": 0.4033
+  },
+  "纯噪声期望达标臂数 ≈4.8/8": {
+   "已知": 4.8,
+   "本工具独立算出": 4.774
+  }
+ },
+ "sources_sha256": {
+  "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065",
+  "accuracy/t2_control.py": "33d47d079aca10ce10738faace81669b2b3e3ee4d158002438779b003137dcb6",
+  "probes/k1_gate.py": "7c347cc8d0a41f6cfe75659a34312899984156b637cf6286440a9b8dec32d39b",
+  "scripts/exp_v4_full_validation.py": "f934b56b01b6b6b217007c34713470ce053e75343941665ca3e12f3f584194c0",
+  "scripts/reply_loop.py": "e3bcc33d6f5d242937bfd4493edae0b2af880197e2a4b4a98b8084ce61ffd1ed",
+  "tests/data/phase2/playbook_mode_prereg.json": "9b93aaeedb05c9499b99302ad227969b1493dff8c233e833fa0cba5cb284c3e3"
+ }
+}

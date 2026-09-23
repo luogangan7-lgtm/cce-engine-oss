@@ -1,0 +1,322 @@
+{
+ "block": "EXTRACTOR_COUNTEREXAMPLE_RESULT",
+ "prereg": "tests/data/extractor_counterexample_prereg.json",
+ "model": "M3",
+ "★实际执行数": 16,
+ "★硬上限": 16,
+ "★重试": 0,
+ "调用或格式失败": 0,
+ "p_challenge": "0/12",
+ "正证据成功": "0/4",
+ "★★★verdict": "DEGENERATE_ON_CONTROLS",
+ "★这个数不是什么": "它是**构造阴性上的**错误升格比例; **不是**自然评论总体误报率, **也不是**「所有已生成证据中不支持的比例」。阳性文本上的证书也可能引用错误只是碰巧结论成立, 本指标捕捉不到那类。",
+ "elapsed_s": 132.0,
+ "rows": [
+  {
+   "id": "NEGQ-1",
+   "arm": "否定Q阴性",
+   "结构": "规格书转述",
+   "预期": "**不得**升格。",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型自己判**不支持**",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "increment": null,
+    "owned_or_experienced": null,
+    "why_not": "文本明确写到 \"I have never owned or tried the Oticon Intent\",不满足「自己已拥有或已经历」这一必要条件,虽然有来自 spec sheet 的数据增量,但谈论对象并非本人持有/体验之物,不应判为 display。"
+   }
+  },
+  {
+   "id": "POS-4",
+   "arm": "正证据对照",
+   "结构": "借用机 —— 走 Q 的**已经历**那一支",
+   "预期": "**应当**存在合法完整证书。",
+   "Z": 0,
+   "资格层": "UNCONFIRMED_CANDIDATE",
+   "why": "两个必要条件落在**不同对象**上: ['the loaner ReSound Nexia', 'the loaner ReSound Nexia (personally worn)'] ⇒ 不得升格。★★★ `∃x[P(x) ∧ Q(x)]` 与 `(∃x P(x)) ∧ (∃y Q(y))` **不等价** —— 「说了个型号」＋「用过别的东西」不能凑成一个 display。★ 本模块**不做",
+   "调用成功": true,
+   "模型原样": {
+    "supported": true,
+    "increment": {
+     "span": "Speech in the car was noticeably better, though the app kept dropping the left side until I turned off battery optimisation",
+     "kind": "使用细节",
+     "about": "the loaner ReSound Nexia"
+    },
+    "owned_or_experienced": {
+     "span": "I wore a loaner pair of ReSound Nexia for the two weeks",
+     "about": "the loaner ReSound Nexia (personally worn)"
+    },
+    "why_not": null
+   }
+  },
+  {
+   "id": "NEGP-1",
+   "arm": "缺P阴性",
+   "结构": "一句自述",
+   "预期": "**不得**升格。",
+   "Z": 0,
+   "资格层": "UNCONFIRMED_CANDIDATE",
+   "why": "两个必要条件落在**不同对象**上: ['自己佩戴助听器的时长/使用情况', '自己正在佩戴的助听器'] ⇒ 不得升格。★★★ `∃x[P(x) ∧ Q(x)]` 与 `(∃x P(x)) ∧ (∃y Q(y))` **不等价** —— 「说了个型号」＋「用过别的东西」不能凑成一个 display。★ 本模块**不做**别名归并(「the Oticon」与「Oticon More」在这里是两个对象",
+   "调用成功": true,
+   "模型原样": {
+    "supported": true,
+    "increment": {
+     "span": "wearing hearing aids for a good while now",
+     "kind": "使用细节",
+     "about": "自己佩戴助听器的时长/使用情况"
+    },
+    "owned_or_experienced": {
+     "span": "I've been wearing hearing aids",
+     "about": "自己正在佩戴的助听器"
+    },
+    "why_not": null
+   }
+  },
+  {
+   "id": "POS-2",
+   "arm": "正证据对照",
+   "结构": "纠正一个流传说法(非针对人)",
+   "预期": "**应当**存在合法完整证书。",
+   "Z": 0,
+   "资格层": "UNCONFIRMED_CANDIDATE",
+   "why": "两个必要条件落在**不同对象**上: ['Phonak Audeo Lumity 助听器的 TV 音频连接配置(澄清常见误区)', '用户自己那副助听器与 TV Connector 的配对设置经历'] ⇒ 不得升格。★★★ `∃x[P(x) ∧ Q(x)]` 与 `(∃x P(x)) ∧ (∃y Q(y))` **不等价** —— 「说了个型号」＋「用过别的东西」不能凑成一个 display。★ ",
+   "调用成功": true,
+   "模型原样": {
+    "supported": true,
+    "increment": {
+     "span": "the Phonak Audeo Lumity doesn't need a Roger receiver for TV audio",
+     "kind": "纠错",
+     "about": "Phonak Audeo Lumity 助听器的 TV 音频连接配置(澄清常见误区)"
+    },
+    "owned_or_experienced": {
+     "span": "Mine pair straight to the TV Connector, I set that up myself the week I got them",
+     "about": "用户自己那副助听器与 TV Connector 的配对设置经历"
+    },
+    "why_not": null
+   }
+  },
+  {
+   "id": "POS-3",
+   "arm": "正证据对照",
+   "结构": "清单式结构化经验",
+   "预期": "**应当**存在合法完整证书。",
+   "Z": 0,
+   "资格层": "UNCONFIRMED_CANDIDATE",
+   "why": "两个必要条件落在**不同对象**上: ['Signia Pure Charge&Go AX 助听器本体', 'Signia Pure Charge&Go AX 的 wax guards 更换周期'] ⇒ 不得升格。★★★ `∃x[P(x) ∧ Q(x)]` 与 `(∃x P(x)) ∧ (∃y Q(y))` **不等价** —— 「说了个型号」＋「用过别的东西」不能凑成一个 display。★ 本",
+   "调用成功": true,
+   "模型原样": {
+    "supported": true,
+    "increment": {
+     "span": "wax guards go every four weeks not eight",
+     "kind": "纠错",
+     "about": "Signia Pure Charge&Go AX 的 wax guards 更换周期"
+    },
+    "owned_or_experienced": {
+     "span": "my Signia Pure Charge&Go AX",
+     "about": "Signia Pure Charge&Go AX 助听器本体"
+    },
+    "why_not": null
+   }
+  },
+  {
+   "id": "NEGP-3",
+   "arm": "缺P阴性",
+   "结构": "设问 + 附带自述",
+   "预期": "**不得**升格。",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型自己判**不支持**",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "increment": null,
+    "owned_or_experienced": null,
+    "why_not": "文本中只有对线程难以理解的抱怨和质询(「Is anyone else finding this thread hard to follow?」),并未输出任何具体型号、数据、使用细节、纠错或结构化经验等新信息增量。"
+   }
+  },
+  {
+   "id": "MIS-1",
+   "arm": "对象错配阴性",
+   "结构": "他人的机器 + 自己的模糊机器",
+   "预期": "**不得**升格。",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型自己判**不支持**",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "increment": null,
+    "owned_or_experienced": null,
+    "why_not": "新信息增量(Phonak Audeo Sphere 型号 + 16 小时续航)讲的是哥哥的助听器,不是说话人自己拥有的;说话人自己的设备仅以'something far simpler'一笔带过,无具体型号、数据或使用细节,未构成新信息增量。"
+   }
+  },
+  {
+   "id": "MIS-3",
+   "arm": "对象错配阴性",
+   "结构": "配偶的机器 + 自己的长期佩戴(两半紧挨)",
+   "预期": "**不得**升格。",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型自己判**不支持**",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "increment": null,
+    "owned_or_experienced": null,
+    "why_not": "新信息增量(ReSound Omnia 9 需要固件更新才能让 TV streamer 保持连接)谈论的是妻子的设备,而非本人已拥有或已经历的对象;本人佩戴助听器虽被提及,但未输出任何关于自身助听器的具体型号/数据/使用细节/纠错/结构化经验等增量信息。"
+   }
+  },
+  {
+   "id": "POS-1",
+   "arm": "正证据对照",
+   "结构": "平铺自述",
+   "预期": "**应当**存在合法完整证书。",
+   "Z": 0,
+   "资格层": "UNCONFIRMED_CANDIDATE",
+   "why": "两个必要条件落在**不同对象**上: ['Oticon More 1 助听器', 'Oticon More 1 助听器的电池续航表现'] ⇒ 不得升格。★★★ `∃x[P(x) ∧ Q(x)]` 与 `(∃x P(x)) ∧ (∃y Q(y))` **不等价** —— 「说了个型号」＋「用过别的东西」不能凑成一个 display。★ 本模块**不做**别名归并(「the Oticon」与「Otic",
+   "调用成功": true,
+   "模型原样": {
+    "supported": true,
+    "increment": {
+     "span": "Battery runs about 14 hours for me with maybe two hours of streaming in there.",
+     "kind": "数据",
+     "about": "Oticon More 1 助听器的电池续航表现"
+    },
+    "owned_or_experienced": {
+     "span": "I've had the Oticon More 1 since last spring",
+     "about": "Oticon More 1 助听器"
+    },
+    "why_not": null
+   }
+  },
+  {
+   "id": "MIS-4",
+   "arm": "对象错配阴性",
+   "结构": "设问 + 参数对比 + 自述旧机",
+   "预期": "**不得**升格。",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型自己判**不支持**",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "increment": null,
+    "owned_or_experienced": null,
+    "why_not": "首句 'Has anyone compared these?' 是质询句,违反 display 判别式中「无质询句」的必要条件。"
+   }
+  },
+  {
+   "id": "NEGP-2",
+   "arm": "缺P阴性",
+   "结构": "共情式跟帖",
+   "预期": "**不得**升格。",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型自己判**不支持**",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "increment": null,
+    "owned_or_experienced": null,
+    "why_not": "文本未输出任何新信息增量(无具体型号、数据、使用细节、纠错或结构化经验),仅用 'a pair' 泛指并表达共情,不满足 display 的必要条件。"
+   }
+  },
+  {
+   "id": "NEGQ-3",
+   "arm": "否定Q阴性",
+   "结构": "先划来源边界, 再给信息(跨句辖域)",
+   "预期": "**不得**升格。",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型自己判**不支持**",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "increment": null,
+    "owned_or_experienced": null,
+    "why_not": "说话者明确表示从未拥有或佩戴过 Starkey Genesis AI('I've never had a set and never had one in my ear'),不满足'自己已拥有或已经历'这一必要条件。"
+   }
+  },
+  {
+   "id": "NEGP-4",
+   "arm": "缺P阴性",
+   "结构": "经历声明, 零细节",
+   "预期": "**不得**升格。",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型自己判**不支持**",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "increment": null,
+    "owned_or_experienced": null,
+    "why_not": "文本明确说'none of this is new to me',即输出方自己否定了任何新信息增量的存在,未提供任何具体型号、数据、使用细节、纠错或结构化经验,不符合'输出新信息增量'这一必要条件。"
+   }
+  },
+  {
+   "id": "NEGQ-2",
+   "arm": "否定Q阴性",
+   "结构": "转述验配师, 否定夹在破折号里",
+   "预期": "**不得**升格。",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型自己判**不支持**",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "increment": null,
+    "owned_or_experienced": null,
+    "why_not": "文本明确说「I've not worn them and never owned a pair」,不满足「自己已拥有或已经历」这一必要条件,信息仅来自听力师转述。"
+   }
+  },
+  {
+   "id": "NEGQ-4",
+   "arm": "否定Q阴性",
+   "结构": "冒号清单, 否定作前置限定",
+   "预期": "**不得**升格。",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型自己判**不支持**",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "increment": null,
+    "owned_or_experienced": null,
+    "why_not": "文本明确声明「I don't own these and have never tried them」,谈论对象并非自己已拥有或已经历的,不符合 owned_or_experienced 条件。"
+   }
+  },
+  {
+   "id": "MIS-2",
+   "arm": "对象错配阴性",
+   "结构": "诊所展示机 + 自己的旧机",
+   "预期": "**不得**升格。",
+   "Z": 0,
+   "资格层": null,
+   "why": "模型自己判**不支持**",
+   "调用成功": true,
+   "模型原样": {
+    "supported": false,
+    "increment": null,
+    "owned_or_experienced": null,
+    "why_not": "新信息增量(芯片/单击控制)谈论的是诊所展示机,不是说话人自己拥有/使用的;而'Mine are a much older pair'虽涉及自有的旧款,但并未对该款输出任何新信息增量,二者指向不同对象,increment 与 owned_or_experienced 无法同时落在同一对象上。"
+   }
+  }
+ ],
+ "★★★怎么读这个判决": "**DEGENERATE_ON_CONTROLS** —— 按冻结规则: 未发现错误升格, 但正证据对照**也全部**不能提供有效证书 ⇒ **没有证明这是一条有用的确认路径**。★★★ 阴性 0/12 **不是**「抽取器安全」的证据: 五张被交出的证书(4 正 + 1 阴)**全部**死于同一个结构原因, 与语义无关 ⇒ 这一轮基本**没测到**要测的东西。",
+ "★★★退化的单一原因": {
+  "现象": "模型把 about 填成**这段片段讲的是哪个方面**(「Oticon More 1 助听器**的电池续航表现**」), 而不是**对象身份**(「Oticon More 1」)。两支于是必然不同字符串。",
+  "为什么全中": "P2 做的是**逐字相等**且**刻意不做别名归并**(fail-closed 选漏判)。而这里比的根本不是别名 —— 是 **X** 与 **X 的某个方面**, 粒度不一致。这是别名问题的**超集**。",
+  "★这不是 P2 判错": "P2 拿到的两个字符串确实不同, 它按定义该拦。**错在采集协议**: 让产出方用**自由文本**描述对象, 等于把「是不是同一个 x」交给了措辞。",
+  "★★★这是同一个 probe 今天的**第二次**协议层错误": "第一次(零调用自检抓到): 只收**一个** object 字段再贴到两支上 ⇒ P2 结构上不可能失败。修完变成: 两支各自自由填 ⇒ P2 结构上几乎必然失败。**两次都是协议层把被测的那一支变成了恒真或恒假** —— 模块本身两次都没错。",
+  "★不能怎么修": "**不许**把 P2 放松成子串/模糊匹配 —— 那会把 MIS 那一格(「说了个型号」＋「用过别的东西」)重新放进来, 而那正是 P2 存在的理由。",
+  "★该怎么修(**需要新预注册, 本轮预算已用尽 16/16**)": "要求 about 也是**原文里的逐字片段** ⇒ 比较变成「文本片段 vs 文本片段」而不是「措辞 vs 措辞」。★ 这**仍然**不完备(不同片段可指同一物), 但把自由度收回到文本内。"
+ },
+ "★事后观察(**不是**预注册指标, 不得当结论用)": {
+  "模型自己拒了 11/12 个阴性": "NEGQ×4 · NEGP×3 · MIS×4 都返回 supported=false。★ 这**不能**当成「抽取器把关住了」—— 本轮的采集协议、提示词措辞、n=1、零重试, 都没有为这个数设计过。",
+  "★★★NEGP-1 是一个**被误伤挡下的**候选反例": "文本「I've been wearing hearing aids for a good while now.」, 模型判 supported=true, 增量支引用「wearing hearing aids for a good while now」并指名种类 **使用细节**。按预注册的推导, 该片段**不含**任何使用细节(它是一个模糊时长陈述), 五类皆✗。⇒ 若 about 协议没坏, 这一条**很可能**就是一次确定的错误升格见证。★ 但它**实际**是被 P2 以**无关原因**拦下的 ⇒ **不计入 p_challenge**, 只登记为「本轮没测成」。",
+  "★这条为什么必须写下来": "不写, 下一轮会把 0/12 读成阴性干净; 写了, 下一轮知道**至少有一个格子曾经要亮**。"
+ },
+ "★★★控制臂救了这次判读": "如果这轮**只有 12 条阴性**, 0/12 会被读成 NO_COUNTEREXAMPLE —— 而真相是仪器根本没工作。**正证据对照不是用来抵消阴性错误的, 它是用来发现「这台仪器这轮是死的」的。** 这是本轮最硬的产出。"
+}

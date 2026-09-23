@@ -1,0 +1,35 @@
+{
+ "block": "UNIT_LABEL_2x2_PREREG_2026-09-07",
+ "★frozen_before_arm3_runs": "第三臂**一次调用都没发**时写入。",
+ "★the_confound_this_separates": "★★ Run A(评论) vs Run B(帖子) 同时变了**两件事**: ①语料的**文体** ②prompt 里那句「给你一条**评论**」的**真假**。⇒ belong 从 0/81 涨到 7/81, **无法归因**到哪一件。",
+ "design_2x2": {
+  "cell_1_comments_label_评论": {
+   "status": "✅ 已跑 = Run A",
+   "belong_共识": "0/81",
+   "note": "标签**真**"
+  },
+  "cell_2_posts_label_评论": {
+   "status": "✅ 已跑 = Run B",
+   "belong_共识": "7/81",
+   "note": "标签**假**(把帖子叫成评论)"
+  },
+  "cell_3_posts_label_帖子": {
+   "status": "★ 待跑(405 次调用)",
+   "note": "标签**真** —— 与 cell_2 只差那两个字"
+  },
+  "cell_4_comments_label_帖子": {
+   "status": "不跑",
+   "★why": "把评论叫成帖子, 是**故意说假话**。它能测标签的纯效应, 但代价是给标注者一条已知为假的前提, 而本仓的语料里评论与帖子结构差异明显(有无标题), 模型很可能识破 ⇒ 测到的是「识破率」不是标签效应。★ cell_2 已经提供了「标签为假」的那一半, 且方向更有意义(真实用例就是拿现成 prompt 跑新语料)。"
+  }
+ },
+ "★what_the_comparison_buys": "**cell_3 − cell_2** = **prompt 里那两个字的纯效应**(语料完全相同, 只差 unit 标签)。\n**cell_2 − cell_1** = 语料文体 + 标签真假的**合并效应**(已测: belong 0→7)。\n⇒ 若 cell_3 的 belong 显著高于 cell_2 ⇒ **那两个字在压制 belong**, 单元措辞是因果的。\n⇒ 若 cell_3 ≈ cell_2 ⇒ 标签无效应, belong 的复活**全部**来自语料文体。",
+ "★falsifiable_predictions": {
+  "C1": "**cell_3 的 belong 共识 argmax > 7/81。** 依据: 分类学写 belong=「自我暴露式**发帖**」, 把标签改成「帖子」应当**解除**那条相反指示。★ 若反而更低, 说明我对机制的理解是错的, 如实记。",
+  "C2": "**display 的共识占比会继续下降**(评论 32/81 → 帖子标签下更低)。依据: display 的 behavior 写「**评论区**最高质量UGC主力」, 标签从「评论」换成「帖子」会削弱那条线索。Run B 已从 32 掉到 13, 预测 cell_3 更低。",
+  "C3": "**G-K1 的两个指标变化幅度小于 belong 的变化幅度。** 即: 单元标签主要重排**类的分布**, 而不是改变**标注者之间的一致性**。★ 若一致性也大幅变, 说明标签动摇的是整个任务定义, 那 2×2 的可比性本身要打折。"
+ },
+ "★what_it_still_does_not_answer": [
+  "★ 四条推 belong→display 的通道里, 本设计只动了**第 2 条**(DIST_TMPL 的单元标签)。第 1 条(KNOT_BRIEF 注入 behavior)、第 3 条(决策树位次)、第 4 条(belong 自己的负例是一条显式改判指令) **都没动**。⇒ 即使 cell_3 证实标签有效应, 也只证明了四分之一。",
+  "★ 第 4 条最值得下一步做: belong 的 negative_examples_prompt 写「自报身份但主体是输出经验增量(那是display)」, 而 display 没有对称的让位说明 —— **这是分类学里一处不对称的改判指令**。"
+ ]
+}

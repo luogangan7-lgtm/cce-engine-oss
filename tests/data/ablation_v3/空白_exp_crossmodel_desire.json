@@ -1,0 +1,1871 @@
+{
+ "block": "ABLATION_V3_CLUSTER_空白_exp_crossmodel_desire",
+ "cluster": "空白_exp_crossmodel_desire",
+ "target": "scripts/exp_crossmodel_desire.py (624 行)",
+ "decided_at": "2026-09-11T21:04:09",
+ "methodology": "M1 先验收判官再用判官 · M2 L3(instrument_hash)是重言零证据力 · M3 按 tag 索引重放(不用共享迭代器)且扫描面含 accuracy/ · M4 引用计数报粗计与严计两个数 · M5 判决词表 LOAD_BEARING_L2 / LOAD_BEARING_L1_ONLY / UNREACHABLE / NO_CONSUMER / COULD_NOT_RUN / CIRCULAR / INCONCLUSIVE, deletable 是独立字段不由 verdict 推导 · M6 凡判无差异必跑荒谬值注入臂 · M7 工况(market/profile/k分布/语料sha/时点)随判决同行 · M8 存量消融天然把保险丝判成装饰: NO_CONSUMER 必须区分真死与本工况未触发",
+ "evidence_scope": "本装置能支持的结论**仅限**: 在**存量语料重放 + 内存内源码变异**这一工况下, 某常量/字段是否改变数值输出(L1)与判决面(L2)。它**不能**证明: 真实模型的语义判断准确率 · 重复稳定性 · 线上工况下的行为 · 该常量在**其它 k / 其它 market / 其它 profile** 下是否承重。",
+ "observable_note": "★ 只用 L1(数值输出改变) 与 L2(判决改变)。**明确排除 L3 = instrument_hash**: 它覆盖 ontology_version / s1_prompt_sha256 / s2_prompt_sha256 / model / endpoint / sampling_policy, 改**任何**被覆盖的常量它都会变, **包括改一个永不取用的死常量** ⇒ 用它判必然 100% 承重, 是重言。",
+ "replay_note": "★ 按 **tag** 索引, **不是**共享迭代器。`_stage2_aggregate` 用 ThreadPoolExecutor(5) 并发调 `_stage2_draw(prompt, taxo, f'd{i}')`; 若 stub 写成 `it=iter(draws); next(it)`, 线程抢迭代器 ⇒ draw 与序号随机错配 ⇒ **纯文档字段也会被判成 L1 变化**(上一轮 changelog_* 被判 1/8~5/8 随机数)。",
+ "scan_surface": {
+  "dirs": [
+   "scripts",
+   "probes",
+   "accuracy",
+   "tests",
+   ".github",
+   "config"
+  ],
+  "suffixes": [
+   ".py",
+   ".json",
+   ".yml",
+   ".yaml",
+   ".md",
+   ".txt",
+   ".sh"
+  ],
+  "blind_spot_note": "扫描面**不含**仓外任何目录, 也不含 .git/ 与 __pycache__/。它是**词碰撞统计**, 不是调用图: 动态 getattr / 字符串拼出来的键 / 经 JSON 传给外部工具的字段, 本扫描**看不见**。"
+ },
+ "operating_point": {
+  "market": "★ 更正上一轮: 仓内**确实存在** market —— 实扫 61 处命中(scripts/cce_strategy_gate.py:100/113/140 · scripts/cce_outbound_guard.py:286/309/343/361 等), 且有环境变量 CCE_MARKET (scripts/cce_strategy_gate.py:140 `market=os.environ.get('CCE_MARKET','intl')`)。本轮工况: CCE_MARKET **未设** ⇒ 走默认 'intl'。本簇的判决面(instrument/K1/出口闸/线上请求面)不经 cce_strategy_gate, 故 market 对本簇判决无输入; 但**不得**据此说「仓内无 market」。",
+  "profile": [
+   "{\"stage1\": \"exp_v4_full_validation(frozen, M3)\", \"stage2\": \"knot_taxonomy v1.3.1 (M3)\", \"taxonomy_status\": \"v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注\"}"
+  ],
+  "n_archive_files": 22,
+  "k_distribution": {
+   "3": 20,
+   "5": 2
+  },
+  "n_draws_per_file": {
+   "5": 22
+  },
+  "s1_temperature_distribution": {
+   "0.0": 22,
+   "0.15": 2,
+   "0.3": 22,
+   "0.6": 22,
+   "0.9": 2
+  },
+  "corpus_sha256": "8226cd11ee4593a08ed356aa1085acce3c9aea2f287ae0ae544ee2e48c355ac7",
+  "decided_at": "2026-09-11T21:04:09",
+  "drift_rule": "以上任一项变化 ⇒ 基于本工况的判决当场失效, 必须重跑。",
+  "M8_structural_bias": "只在存量数据上做的消融**天然把所有保险丝判成装饰** —— 保险丝的定义就是「平时永远不动」。故 NO_CONSUMER 必须区分「真死」与「在本存量工况下没被触发」(后者应判 UNREACHABLE 并写明复活条件)。",
+  "CCE_MEASUREMENT_MODEL": "未设 ⇒ 默认 'M3'(scripts/cce_knot_classify.py:63)",
+  "CCE_MARKET": "未设 ⇒ cce_strategy_gate 默认 'intl'",
+  "VSE_ROOT": "未设",
+  "ALIYUN_API_BASE / ZHIPU_API_BASE / DEEPSEEK_API_BASE": "未设(前两者 ⇒ base='')",
+  "ks_observed": [
+   3,
+   5
+  ],
+  "production_instrument": "d4cce4c745f3f991(基线现算, 与 cce_core_manifest.instrument_expected 相符)",
+  "n_arms": 33,
+  "n_L4_arms": 34
+ },
+ "★Core身份先验": {
+  "manifest 判据": "config/cce_core_manifest.json:criterion = 「改它之后, 已采集的原始 raw draw 还能不能用」",
+  "核验结果": "身份成立, 但**成立的理由与 manifest 钉的东西不是一回事**。",
+  "① 真正决定仪器身份的只有 2 行": "MODELS['M3']['model'](:37) → instrument_id().spec['model'] · MODELS['M3']['base'](:38) → spec['endpoint'], 二者都在 _INSTRUMENT_FIELDS 里。实测: 改任一行, instrument_hash d4cce4c745f3f991 → 8ed986350835f720 / 0b0d088915493130, K1 判定路由查不到 ⇒ **生产 top1 扣发**。",
+  "② 另有 3 处按「draw 还能不能用」判据同样是 Core, 但仪器指纹**看不见**": "call_model(:114) —— 产 draw 的管道本身; 第 22 行 extract_json_robust 再导出 —— 解释 draw 的解析器; js_divergence(:349) —— stage1 噪声底扣发的度量。三者都不进 instrument spec ⇒ 换掉它们, 指纹一字不变而 draw 的产生与解读全变。这与仓内已记录的「标签空间是反的」同型。",
+  "③ manifest 钉的是整文件 sha": "⇒ 灵敏度 100% / 特异度 0: 删一行注释与改 model 名在闸看来一模一样。且本文件的依赖 scripts/calibration_framework.py **不在** core_files 里 —— 解析器可被静默替换而 Core 闸零反应(本轮组合臂已证明那条边真的喂到 _stage2_draw)。",
+  "④ 未跑过的那一半": "run_smoke/run_full/analyze/write_report/build_prompt/TAXONOMY/normalize_dist/top_k/_comments_block 构成的「4 模型交叉共识批次」从未运行: results/crossmodel_*.json 全仓不存在, .github/workflows 零引用。它们被 Core 的 sha 钉保护着, 但没有任何行为闸。"
+ },
+ "★★装置增补_本簇专用": {
+  "为什么必须增补": "共享装置 ablation_harness_v3.observe_stage2 把 `_stage2_draw` **整个 stub 掉**按 tag 重放存量 draw ⇒ 它对 call_model / extract_json_robust **结构上失明**。只看那一面, 本簇最承重的两条会被判成 NO_CONSUMER —— 与 CE-3 里 _stage1_template 被误判成 NO_CONSUMER 完全同型。",
+  "F8_真实_stage2_draw与聚合": "不 stub _stage2_draw, 把 MINIMAX_API_KEY **移除**(call_model 在发请求**之前**早退, 零 socket), RAW_DIR 重定向到临时目录。基线: draw=None / 聚合 RuntimeError; call_model 注入臂: draw={'knots':[{'key':'display','intensity':0.99}]} / 聚合 measurement_status='qualified'。",
+  "F9_线上请求面": "只把 XM.requests 换成记录型桩(以及 time.sleep 置空), **不碰被测代码**。观测「这段代码会往外发什么」: url / payload / 重试次数 / 分支走向。五个子探针: 正常响应 · 风控响应(input_sensitive) · 只有 reasoning_content 的响应 · 传输故障 · KimiK3。它把 max_tokens/append_path/key_env/force_temp/重试预算/风控分支/reasoning 兜底 从「离线不可测」变成可测, 且绊线全程 tripped==[]。",
+  "F3b_s1噪声底扣发": "出口闸 F3 的 s1_readout 由**实测 within_js** 驱动(复刻 cce_full_run.s1:220-232 的扣发逻辑), 而不是喂一个写死的 manifest —— 否则出口闸对 js_divergence 结构上失明。这是 CE-3 那个坑的同型防范。"
+ },
+ "positive_control": {
+  "harness_positive_control_passed": true,
+  "failed_gates": [],
+  "gates": {
+   "dead_swap_not_load_bearing": true,
+   "dead_absurd_injection_still_no_diff": true,
+   "liquid_L1_changed": true,
+   "liquid_changed_broadly": true,
+   "noop_no_diff": true,
+   "determinism": true,
+   "tags_indexed": true,
+   "tripwire_never_tripped": true,
+   "repo_files_untouched": true,
+   "L3_is_tautology_confirmed": true,
+   "dead_constant_is_UNREACHABLE_not_NO_CONSUMER": true
+  },
+  "dead_constant_verdict": "UNREACHABLE(本工况 k≤5 下第 6/7 档永不取用; k≥6 即复活 —— 实证见 checks.dead_constant_revives_at_k)。M5 词表下**不是** NO_CONSUMER, 更**不是**承重。",
+  "dead_constant_revives_at_k": {
+   "k": 7,
+   "base_temps": [
+    0.0,
+    0.3,
+    0.6,
+    0.9,
+    0.15,
+    0.45,
+    0.75
+   ],
+   "dead_arm_temps": [
+    0.0,
+    0.3,
+    0.6,
+    0.9,
+    0.15,
+    999.0,
+    -999.0
+   ],
+   "L1_changed_at_this_k": true
+  },
+  "liquid_arm": {
+   "L1_changed": true,
+   "L2_changed": true,
+   "L1_surfaces_changed": {
+    "stage1": true,
+    "reach": true,
+    "stage2": false
+   },
+   "L2_surfaces_changed": {
+    "stage1": true,
+    "stage2": false
+   },
+   "n_unreachable_archived_draws": 22
+  },
+  "dead_arms": {
+   "dead_swap": {
+    "L1_changed": false,
+    "L2_changed": false
+   },
+   "dead_absurd": {
+    "L1_changed": false,
+    "L2_changed": false
+   }
+  },
+  "★stage2面液性臂": {
+   "what": "内存副本 taxonomy: 所有 family=='推动' 的结改为 '阻挡'(derived_layers 的 fam_of 真消费该键)",
+   "changed": true
+  },
+  "★stage2面液性臂_第二版(改 knot key)": {
+   "what": "内存副本 taxonomy: 每个 knot key 加后缀 _LIQ999",
+   "changed": "EXC:StopIteration"
+  },
+  "★本簇自己的液性臂(证明消融面确实接上)": {
+   "m3_model / m3_base": "F1/F2/F3 三个 CE-3 面全翻, instrument_hash 变, top1 扣发",
+   "js_div_absurd / js_div_dead": "stage1_L1 + F3b + F3 出口闸变, 且**双向**(0.0 解禁 / 999.0 全扣)",
+   "call_model_nokey_inject": "F8 真实 draw 与聚合判决变"
+  },
+  "determinism": {
+   "determinism_same_chain_twice": true,
+   "determinism_fresh_chain": true
+  },
+  "ctl_noop_arm": {
+   "L1_changed": false,
+   "L2_changed": false,
+   "control_face_changed": false,
+   "L4_reds": 0
+  },
+  "tripwire": {
+   "scope": "覆盖: 本进程内**经 socket.socket.connect 新建**的连接(含 urllib/requests/http.client)。 **不覆盖**: ① 进入本上下文**之前已建立**的连接 ② 不走 socket 的传输(共享内存 / 本机文件 / unix pipe 以外的自带通道) ③ **子进程**(subprocess / os.system 另起进程, 有自己的 socket 模块) ④ **C 扩展自带的网络栈**(不经 Python socket 对象) ⑤ 本进程外的任何东西。 ⇒ 证据只能说「**本进程内经 socket 新建的连接被拦截, 且整段运行中一次都没被触发**」, **不能**说「全进程所有网络出口都已关闭」。",
+   "tripped": [],
+   "supp2_tripped": [],
+   "supp3_tripped": []
+  }
+ },
+ "file_integrity": {
+  "before": {
+   "/Volumes/data/cce-engine/scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "/Volumes/data/cce-engine/config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "/Volumes/data/cce-engine/config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "/Volumes/data/cce-engine/accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "after": {
+   "/Volumes/data/cce-engine/scripts/cce_knot_classify.py": "f2cef2f99c949a75c1bfec650907ecbae73f4921e28f77f0e6fdf1ddd94ab44b",
+   "/Volumes/data/cce-engine/config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
+   "/Volumes/data/cce-engine/config/cce_core_manifest.json": "9d9e122966b753f8cb9d115d220ef1995dcc77944e380b5d448aa53c0626ba25",
+   "/Volumes/data/cce-engine/accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
+  },
+  "identical": true
+ },
+ "L4_method": {
+  "surface": "54 个测试文件 —— exp_crossmodel_desire 的**反向依赖传递闭包**内的全部 tests/(AST import 图算出, 名单见 L4_surface)",
+  "n_tests": 113,
+  "injection": "pytest 插件 PYTEST_PLUGINS=ablinject 在**收集之前**把内存变异后的模块塞进 sys.modules。仓内文件一字不改, 变异源码只落在 scratchpad。",
+  "control": "ctl_noop 臂(只在 import 行尾加一条注释), 实测 0 红 ⇒ 净新增以它为基准",
+  "noise": "★ _pristine 与 cosine_absurd 各出现 1 条 `ERROR tests/test_cce_chain_conformance.py - AssertionError: 基线必须绿: ['P1 ...`, 而其余 32 臂(含 ctl_noop)全绿 ⇒ 判定为与本消融无关的**抖动**, 不计入净新增。未进一步定位(不在本簇范围)。",
+  "per_arm": {
+   "DESIRES_absurd": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "ROOT_env_del": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "TAXONOMY_absurd": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "_pristine": {
+    "n_reds": 1,
+    "reds": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ],
+    "disappeared_vs_pristine": []
+   },
+   "analyze_raise": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "build_cases_empty": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "build_prompt_absurd": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "call_model_nokey_inject": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "call_model_reasoning_del": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "call_model_retries_1": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "call_model_sensitive_del": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "cosine_absurd": {
+    "n_reds": 1,
+    "reds": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ],
+    "disappeared_vs_pristine": []
+   },
+   "ctl_noop": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "deepseek_model": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "extract_json_robust_none": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "header_lie_comment_del": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "js_div_absurd": {
+    "n_reds": 1,
+    "reds": [
+     "FAILED tests/test_cce_js_metric_definition.py::test_the_two_implementations_agree_bit_for_bit"
+    ],
+    "net_new_vs_pristine": [
+     "FAILED tests/test_cce_js_metric_definition.py::test_the_two_implementations_agree_bit_for_bit"
+    ],
+    "net_new_vs_noop": [
+     "FAILED tests/test_cce_js_metric_definition.py::test_the_two_implementations_agree_bit_for_bit"
+    ],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "js_div_dead": {
+    "n_reds": 1,
+    "reds": [
+     "FAILED tests/test_cce_js_metric_definition.py::test_the_two_implementations_agree_bit_for_bit"
+    ],
+    "net_new_vs_pristine": [
+     "FAILED tests/test_cce_js_metric_definition.py::test_the_two_implementations_agree_bit_for_bit"
+    ],
+    "net_new_vs_noop": [
+     "FAILED tests/test_cce_js_metric_definition.py::test_the_two_implementations_agree_bit_for_bit"
+    ],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "kimi_force_temp": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "kimi_model": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "kimi_unavailable_del": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "m3_append_path": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "m3_base": {
+    "n_reds": 4,
+    "reds": [
+     "ERROR tests/test_cce_abstention.py",
+     "ERROR tests/test_cce_core_boundary.py",
+     "ERROR tests/test_cce_draw_ledger.py",
+     "FAILED tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation"
+    ],
+    "net_new_vs_pristine": [
+     "ERROR tests/test_cce_abstention.py",
+     "ERROR tests/test_cce_core_boundary.py",
+     "ERROR tests/test_cce_draw_ledger.py",
+     "FAILED tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation"
+    ],
+    "net_new_vs_noop": [
+     "ERROR tests/test_cce_abstention.py",
+     "ERROR tests/test_cce_core_boundary.py",
+     "ERROR tests/test_cce_draw_ledger.py",
+     "FAILED tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation"
+    ],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "m3_key_env": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "m3_max_tokens": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "m3_model": {
+    "n_reds": 4,
+    "reds": [
+     "ERROR tests/test_cce_abstention.py",
+     "ERROR tests/test_cce_core_boundary.py",
+     "ERROR tests/test_cce_draw_ledger.py",
+     "FAILED tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation"
+    ],
+    "net_new_vs_pristine": [
+     "ERROR tests/test_cce_abstention.py",
+     "ERROR tests/test_cce_core_boundary.py",
+     "ERROR tests/test_cce_draw_ledger.py",
+     "FAILED tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation"
+    ],
+    "net_new_vs_noop": [
+     "ERROR tests/test_cce_abstention.py",
+     "ERROR tests/test_cce_core_boundary.py",
+     "ERROR tests/test_cce_draw_ledger.py",
+     "FAILED tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation"
+    ],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "makedirs_del": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "normalize_dist_none": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "qwen37max_model": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "requests_import_del": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "run_full_raise": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "run_smoke_raise": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "top_k_absurd": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "write_report_raise": {
+    "n_reds": 0,
+    "reds": [],
+    "net_new_vs_pristine": [],
+    "net_new_vs_noop": [],
+    "disappeared_vs_pristine": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   }
+  }
+ },
+ "L4_surface": [
+  "tests/test_cce_abstention.py",
+  "tests/test_cce_acceptance_gate_failopen.py",
+  "tests/test_cce_align_root_guard.py",
+  "tests/test_cce_anchors_independent_of_corpus.py",
+  "tests/test_cce_attempt_ledger.py",
+  "tests/test_cce_causal_grade.py",
+  "tests/test_cce_chain_conformance.py",
+  "tests/test_cce_core_boundary.py",
+  "tests/test_cce_draw_ledger.py",
+  "tests/test_cce_fingerprint_coverage.py",
+  "tests/test_cce_gate_prompt_version_label.py",
+  "tests/test_cce_gate_protocol_version.py",
+  "tests/test_cce_gate_vs_production_prompt.py",
+  "tests/test_cce_gk3_not_a_tautology.py",
+  "tests/test_cce_hash_scope.py",
+  "tests/test_cce_internal_examples.py",
+  "tests/test_cce_js_metric_definition.py",
+  "tests/test_cce_k1_k5_instrument.py",
+  "tests/test_cce_k1_readout_forms.py",
+  "tests/test_cce_k1_v2.py",
+  "tests/test_cce_knot_caveat.py",
+  "tests/test_cce_knot_stability.py",
+  "tests/test_cce_measurement_system.py",
+  "tests/test_cce_media_ingest_envelope_loop.py",
+  "tests/test_cce_media_ingest_production.py",
+  "tests/test_cce_observation_gap.py",
+  "tests/test_cce_only_bookmark_conflict.py",
+  "tests/test_cce_operational_ledger_key.py",
+  "tests/test_cce_panel_ordering.py",
+  "tests/test_cce_phase2_manifest.py",
+  "tests/test_cce_playbook_atoms_a1a2.py",
+  "tests/test_cce_playbook_hit.py",
+  "tests/test_cce_playbook_mode.py",
+  "tests/test_cce_preparation_bridge.py",
+  "tests/test_cce_prompt_template_args.py",
+  "tests/test_cce_qualification_margin.py",
+  "tests/test_cce_qualification_premise_revised.py",
+  "tests/test_cce_qualification_v2.py",
+  "tests/test_cce_reply_alignment_withheld.py",
+  "tests/test_cce_response_chain.py",
+  "tests/test_cce_retired_chain_removed.py",
+  "tests/test_cce_rule_delivery_completeness.py",
+  "tests/test_cce_second_exclusion_channel.py",
+  "tests/test_cce_stage2_candidate.py",
+  "tests/test_cce_stimulus_blinding.py",
+  "tests/test_cce_structural_gate.py",
+  "tests/test_cce_submission.py",
+  "tests/test_cce_submission_media_roundtrip.py",
+  "tests/test_cce_support_publication.py",
+  "tests/test_cce_taxonomy_field_reach.py",
+  "tests/test_cce_usable_routing.py",
+  "tests/test_cce_withholding_and_labels.py",
+  "tests/test_cce_within_js_gate.py",
+  "tests/test_reply_loop_parallel.py"
+ ],
+ "ref_counts_M4": {
+  "exp_crossmodel_desire": {
+   "coarse": 48,
+   "strict": 1
+  },
+  "call_model": {
+   "coarse": 68,
+   "strict": 3
+  },
+  "MODELS": {
+   "coarse": 126,
+   "strict": 10
+  },
+  "DESIRES": {
+   "coarse": 74,
+   "strict": 1
+  },
+  "js_divergence": {
+   "coarse": 20,
+   "strict": 0
+  },
+  "cosine": {
+   "coarse": 4,
+   "strict": 0
+  },
+  "normalize_dist": {
+   "coarse": 2,
+   "strict": 0
+  },
+  "top_k": {
+   "coarse": 6,
+   "strict": 0
+  },
+  "build_cases": {
+   "coarse": 7,
+   "strict": 0
+  },
+  "build_prompt": {
+   "coarse": 29,
+   "strict": 13
+  },
+  "TAXONOMY": {
+   "coarse": 4,
+   "strict": 1
+  },
+  "analyze": {
+   "coarse": 2,
+   "strict": 0
+  },
+  "write_report": {
+   "coarse": 4,
+   "strict": 0
+  },
+  "run_full": {
+   "coarse": 10,
+   "strict": 0
+  },
+  "run_smoke": {
+   "coarse": 10,
+   "strict": 0
+  },
+  "_comments_block": {
+   "coarse": 3,
+   "strict": 0
+  },
+  "extract_json_robust": {
+   "coarse": 71,
+   "strict": 4
+  },
+  "MiniMax-M3": {
+   "coarse": 94,
+   "strict": 1
+  },
+  "force_temp": {
+   "coarse": 2,
+   "strict": 0
+  },
+  "append_path": {
+   "coarse": 10,
+   "strict": 0
+  },
+  "max_tokens": {
+   "coarse": 53,
+   "strict": 0
+  },
+  "key_env": {
+   "coarse": 13,
+   "strict": 0
+  },
+  "unavailable": {
+   "coarse": 8,
+   "strict": 1
+  }
+ },
+ "source_text_gate_M3_3": {
+  "baseline_check_ok": true,
+  "baseline_errors": [],
+  "pinned_sha16": "0e0e9d64b48fbade",
+  "live_sha16": "0e0e9d64b48fbade",
+  "pin_matches_disk": true,
+  "positive_control_wrong_pin_turns_red": true,
+  "positive_control_error": [
+   "scripts/exp_crossmodel_desire.py: pinned 0000000000000000 != live 0e0e9d64b48fbade, 而 instrument_generation 仍是 6 且无 refactor_log 记录 —— **静默换仪器**"
+  ],
+  "discriminating_power": "★ 这条闸只比**整文件 sha256[:16]**。⇒ 本簇 33 个臂若落到磁盘, 它**全部**转红, 包括只删一行注释的 header_lie_comment_del 与改一个永不取用的 KimiK3 model 名。它区分不了「改了决定仪器身份的 model 名」与「删了一行注释」—— 灵敏度 100%, 特异度 0。",
+  "invisible_to_memory_ablation": "★★ M3-③: 它从**磁盘**读文件字节。本轮全部消融都在内存里做, 磁盘一字未动 ⇒ 实测 L4 里它**一次都不会转红**, 因此实测 L4 对本簇**系统性低报**。"
+ },
+ "shared_mutable_MODELS_finding": {
+  "max_tokens_solo_import": {
+   "M3": 12000,
+   "Qwen3.8": 6000,
+   "GLM5.2": 6000,
+   "KimiK3": 6000,
+   "Qwen3.7max": 6000,
+   "DeepSeek": 6000,
+   "GLM47": 8000,
+   "GLM45air": 8000,
+   "Qwen3.7plus": 6000
+  },
+  "max_tokens_after_chain_import": {
+   "M3": 8000,
+   "Qwen3.8": 8000,
+   "GLM5.2": 8000,
+   "KimiK3": 8000,
+   "Qwen3.7max": 8000,
+   "DeepSeek": 8000,
+   "GLM47": 8000,
+   "GLM45air": 8000,
+   "Qwen3.7plus": 8000
+  },
+  "who_overwrites": [
+   "scripts/exp_v4_causal_chain.py:60  for _mk in MODELS: MODELS[_mk]['max_tokens']=8000",
+   "scripts/exp_v4_full_validation.py:62  同上"
+  ],
+  "note": "★★ MODELS 以**引用**被导出, 两个同为 Core 的同伴模块在 import 期把**每个**模型的 max_tokens 覆写成 8000。⇒ 本文件里 M3 那条 `\"max_tokens\": 12000`(带 2026-07-23 「消除 finish_reason=length 截断」的修复注释)在**任何 import 过 exp_v4_* 的进程里都是死值**, 生产链(cce_knot_classify / cce_full_run)全部属于这一类。只有**只 import 本文件**的 probes/phase2_* 才拿得到 12000 ⇒ 同一个常量在不同入口意义不同。"
+ },
+ "verdicts": [
+  {
+   "component": "MODELS[\"M3\"][\"model\"] = \"MiniMax-M3\"",
+   "locus": "scripts/exp_crossmodel_desire.py:37",
+   "consumer_side": "P",
+   "verdict": "LOAD_BEARING_L2",
+   "changed": true,
+   "deletable": false,
+   "deletable_reason": "它是 instrument_id().spec['model'], 进 _INSTRUMENT_FIELDS ⇒ 决定 instrument_hash; 删/改即换仪器, 已采集 raw draw 作废。",
+   "ref_count_coarse": 94,
+   "ref_count_strict": 1,
+   "L1_changed": "F9 线上请求面 payload.model 变 ABSURD-MODEL-999",
+   "L2_changed": "instrument_hash d4cce4c745f3f991→8ed986350835f720 · same_physical_instrument(live,PROD)=True→False · calibration_transfers True→False · verdict_path_for(live)=k1_reliability_verdict.json→None · layer_status.top1.usable True→False · 出口闸 usable 2→1(s2.distribution.top1 从 usable 落进 withheld), withheld 8→9",
+   "injection_test": "ABSURD-MODEL-999(荒谬值), 三个 CE-3 面全翻",
+   "L4_measured": {
+    "arm": "m3_model",
+    "n_reds": 4,
+    "net_new_vs_ctl_noop": [
+     "ERROR tests/test_cce_abstention.py",
+     "ERROR tests/test_cce_core_boundary.py",
+     "ERROR tests/test_cce_draw_ledger.py",
+     "FAILED tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation"
+    ]
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "config/cce_core_manifest.json:core_files 的整文件 sha256[:16]=0e0e9d64b48fbade 钉住本文件文本; 落到磁盘必红(阳性对照已实证), 但内存变异对它不可见 ⇒ 实测 L4 低报了它。★ 注意: 实测到的 4 条净新增红**不是**这条 sha 闸, 而是**现算仪器哈希**那几条断言 (test_cce_core_boundary 的 _live['instrument_hash']==d4cce4c745f3f991 / test_cce_draw_ledger 「仪器指纹变了」 / test_cce_abstention 的 calibration changed=['s1_prompt_...'] / test_cce_playbook_atoms_a1a2::test_instrument_did_not_change_generation)。",
+   "evidence": "{\"arm\": {\"instrument_hash\": \"8ed986350835f720\", \"verdict_path_for_live\": null, \"top1_usable_live\": false, \"calibration_transfers\": false, \"withheld_count\": 9, \"F3_exit\": {\"status\": \"OK\", \"instrument_hash\": \"8ed986350835f720\", \"usable_keys\": [\"s1.tops.need\"], \"withheld_keys\": [\"s1.tops.action\", \"s1.tops.desire\", \"s1.tops.emotion\", \"s2.distribution.intensity\", \"s2.distribution.knot_weight\", \"s2.distribution.top1\", \"s2.drive_brake\", \"s2.families\", \"s2.playbook_primary\"], \"usable_count\": 1, \"withheld_count\": 9, \"withheld_reason_top1\": \"仪器 '8ed986350835f720' 没有登记的 K1 判定 —— **标定不可跨仪器搬**, 缺判定不等于判定通过, 一律扣发。已登记的仪器: ['0e9ca1d4e7a2f180', '565470cf26c16d01']\"}}, \"wire\": {\"M3\": {\"base\": {\"n_http\": 1, \"url\": \"https://api.minimaxi.com/v1/text/chatcompletion_v2\", \"payload\": {\"model\": \"MiniMax-M3\", \"messages\": [{\"role\": \"user\", \"content\": \"PROBE\"}], \"max_tokens\": 12000, \"temperature\": 0.0}, \"error\": \"None\"}, \"arm\": {\"n_http\": 1, \"url\": \"https://api.minimaxi.com/v1/text/chatcompletion_v2\", \"payload\": {\"model\": \"ABSURD-MODEL-999\", \"messages\": [{\"role\": \"user\", \"content\": \"PROBE\"}], \"max_tokens\": 12000, \"temperature\": 0.0}, \"error\": \"None\"}}}}",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "MODELS[\"M3\"][\"base\"] = \"https://api.minimaxi.com/v1/text/chatcompletion_v2\"",
+   "locus": "scripts/exp_crossmodel_desire.py:38",
+   "consumer_side": "P",
+   "verdict": "LOAD_BEARING_L2",
+   "changed": true,
+   "deletable": false,
+   "deletable_reason": "它是 instrument_id().spec['endpoint'], 同样进 _INSTRUMENT_FIELDS。",
+   "ref_count_coarse": 126,
+   "ref_count_strict": 10,
+   "L1_changed": "F9 payload 的 url 变 https://absurd-999.invalid/v1",
+   "L2_changed": "instrument_hash →0b0d088915493130, 其余三面与 m3_model 同形(top1 扣发)",
+   "injection_test": "https://absurd-999.invalid/v1(荒谬值, 从未发出请求 —— requests 被桩掉, 绊线 tripped==[])",
+   "L4_measured": {
+    "arm": "m3_base",
+    "n_reds": 4,
+    "net_new_vs_ctl_noop": [
+     "ERROR tests/test_cce_abstention.py",
+     "ERROR tests/test_cce_core_boundary.py",
+     "ERROR tests/test_cce_draw_ledger.py",
+     "FAILED tests/test_cce_playbook_atoms_a1a2.py::test_instrument_did_not_change_generation"
+    ]
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "同上(整文件 sha 钉 + 现算仪器哈希断言)。",
+   "evidence": "{\"instrument_hash\": \"0b0d088915493130\", \"verdict_path_for_live\": null, \"top1_usable_live\": false, \"calibration_transfers\": false, \"withheld_count\": 9}",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "MODELS[\"M3\"][\"key_env\"] = \"MINIMAX_API_KEY\"",
+   "locus": "scripts/exp_crossmodel_desire.py:39",
+   "consumer_side": "P",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "changed": true,
+   "deletable": false,
+   "deletable_reason": "改它 ⇒ call_model 在**任何**带 key 的生产运行里一律早退, 一次请求都发不出。",
+   "ref_count_coarse": 13,
+   "ref_count_strict": 0,
+   "L1_changed": "F9: n_http 1→0 · n_calls 1→0 · error None→'missing env ABSURD_KEY_ENV_999' · content 有→空",
+   "L2_changed": "无(instrument_hash 不含 key_env; 离线重放面不变)",
+   "injection_test": "key_env→ABSURD_KEY_ENV_999(桩里只给基线那 5 个 key_env 放假 key, 故该臂确实取不到)",
+   "L4_measured": {
+    "arm": "m3_key_env",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "整文件 sha 钉会红; 内存变异对它不可见。除此之外仓内无任何闸看 key_env。",
+   "evidence": "{\"M3\": {\"base\": {\"n_http\": 1, \"url\": \"https://api.minimaxi.com/v1/text/chatcompletion_v2\", \"payload\": {\"model\": \"MiniMax-M3\", \"messages\": [{\"role\": \"user\", \"content\": \"PROBE\"}], \"max_tokens\": 12000, \"temperature\": 0.0}, \"error\": \"None\"}, \"arm\": {\"n_http\": 0, \"url\": null, \"payload\": null, \"error\": \"missing env ABSURD_KEY_ENV_999\"}}}",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "MODELS[\"M3\"][\"append_path\"] = False",
+   "locus": "scripts/exp_crossmodel_desire.py:40",
+   "consumer_side": "P",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "changed": true,
+   "deletable": false,
+   "deletable_reason": "决定 url 是否再拼 /chat/completions; MiniMax 的 base 已是完整端点。",
+   "ref_count_coarse": 10,
+   "ref_count_strict": 0,
+   "L1_changed": "F9: url 从 .../chatcompletion_v2 变 .../chatcompletion_v2/chat/completions(四个子探针一致)",
+   "L2_changed": "无",
+   "injection_test": "False→True",
+   "L4_measured": {
+    "arm": "m3_append_path",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "仅整文件 sha 钉(内存不可见)。无专门闸。",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "MODELS[\"M3\"][\"max_tokens\"] = 12000 (带 2026-07-23「消除 finish_reason=length 截断」修复注释)",
+   "locus": "scripts/exp_crossmodel_desire.py:41",
+   "consumer_side": "P",
+   "verdict": "UNREACHABLE",
+   "changed": false,
+   "deletable": false,
+   "deletable_reason": "在**只 import 本文件**的入口(probes/phase2_*)里仍被取用, 删了那些入口会变 KeyError。",
+   "unreachable_condition": "★★ 生产链里它是死值: scripts/exp_v4_causal_chain.py:60 与 scripts/exp_v4_full_validation.py:62 各有一句 `for _mk in MODELS: MODELS[_mk]['max_tokens'] = 8000` —— MODELS 是**以引用导出的共享可变字典**, 任何 import 过 exp_v4_* 的进程(cce_knot_classify / cce_full_run / 全部 accuracy/)拿到的都是 8000。复活条件: 只 import exp_crossmodel_desire 而**不** import exp_v4_*(实测 probes/phase2_generate_stimuli 这一类) ——此工况下 12000→10 立刻改变 F9 payload.max_tokens(实测)。",
+   "ref_count_coarse": 53,
+   "ref_count_strict": 0,
+   "L1_changed": "整链工况: 0 面变化(被 8000 覆写); 单文件工况: F9 payload.max_tokens 12000→10",
+   "L2_changed": "无(max_tokens 不在 instrument spec 里)",
+   "injection_test": "12000→10(该文件自己的注释说明 max_tokens 给小会得到「静默的空 content」)",
+   "L4_measured": {
+    "arm": "m3_max_tokens",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "仅整文件 sha 钉(内存不可见)。**没有任何闸**钉住 max_tokens 的值, 也没有闸钉住「同伴模块不得覆写 MODELS」。",
+   "evidence": "{\"shared_mutable_MODELS\": {\"max_tokens_solo_import\": {\"M3\": 12000, \"Qwen3.8\": 6000, \"GLM5.2\": 6000, \"KimiK3\": 6000, \"Qwen3.7max\": 6000, \"DeepSeek\": 6000, \"GLM47\": 8000, \"GLM45air\": 8000, \"Qwen3.7plus\": 6000}, \"max_tokens_after_chain_import\": {\"M3\": 8000, \"Qwen3.8\": 8000, \"GLM5.2\": 8000, \"KimiK3\": 8000, \"Qwen3.7max\": 8000, \"DeepSeek\": 8000, \"GLM47\": 8000, \"GLM45air\": 8000, \"Qwen3.7plus\": 8000}, \"who_overwrites\": [\"scripts/exp_v4_causal_chain.py:60  for _mk in MODELS: MODELS[_mk]['max_tokens']=8000\", \"scripts/exp_v4_full_validation.py:62  同上\"], \"note\": \"★★ MODELS 以**引用**被导出, 两个同为 Core 的同伴模块在 import 期把**每个**模型的 max_tokens 覆写成 8000。⇒ 本文件里 M3 那条 `\\\"max_tokens\\\": 12000`(带 2026-07-23 「消除 finish_reason=length 截断」的修复注释)在**任何 import 过 exp_v4_* 的进程里都是死值**, 生产链(cce_knot_classify / cce_full_run)全部属于这一类。只有**只 import 本文件**的 probes/phase2_* 才拿得到 12000 ⇒ 同一个常量在不同入口意义不同。\"}, \"solo_wire_diff\": {\"M3\": {\"base\": {\"n_http\": 1, \"url\": \"https://api.minimaxi.com/v1/text/chatcompletion_v2\", \"payload\": {\"model\": \"MiniMax-M3\", \"messages\": [{\"role\": \"user\", \"content\": \"PROBE\"}], \"max_tokens\": 12000, \"temperature\": 0.0}, \"error\": \"None\"}, \"arm\": {\"n_http\": 1, \"url\": \"https://api.minimaxi.com/v1/text/chatcompletion_v2\", \"payload\": {\"model\": \"MiniMax-M3\", \"messages\": [{\"role\": \"user\", \"content\": \"PROBE\"}], \"max_tokens\": 10, \"temperature\": 0.0}, \"error\": \"None\"}}}}",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "MODELS 的 8 个非 M3 条目 (Qwen3.8 / GLM5.2 / KimiK3 / Qwen3.7max / DeepSeek / GLM47 / GLM45air / Qwen3.7plus)",
+   "locus": "scripts/exp_crossmodel_desire.py:43-112",
+   "consumer_side": "P",
+   "verdict": "UNREACHABLE",
+   "changed": false,
+   "deletable": false,
+   "deletable_reason": "probes/phase2_generate_stimuli 的 GENERATORS / VERIFIER_OF 与 tests/test_cce_phase2_manifest 都按 key 取它们; 删 key 会 KeyError。",
+   "unreachable_condition": "生产测量模型由 CCE_MEASUREMENT_MODEL 决定, 默认 'M3' ⇒ instrument_id 只读 MODELS['M3']。复活条件: ① 设 CCE_MEASUREMENT_MODEL 指向其它 key ② 跑 probes/phase2_* 刺激生成/盲验 ③ 跑 accuracy/ 的多模型臂。实测: 把 kimi-k3 / qwen3.7-max / deepseek-chat 的 model 名换成 ABSURD-999, 生产十个观测面**一个都不变**, 但对应模型自己的 F9 payload.model 当场变。",
+   "ref_count_coarse": 126,
+   "ref_count_strict": 10,
+   "L1_changed": "生产面 0; 对应模型的 F9 payload.model 变(kimi_model / qwen37max_model / deepseek_model 三臂实测)",
+   "L2_changed": "无",
+   "injection_test": "逐条换成 ABSURD-999",
+   "L4_measured": {
+    "arms": [
+     {
+      "arm": "kimi_model",
+      "n_reds": 0,
+      "net_new_vs_ctl_noop": []
+     },
+     {
+      "arm": "qwen37max_model",
+      "n_reds": 0,
+      "net_new_vs_ctl_noop": []
+     },
+     {
+      "arm": "deepseek_model",
+      "n_reds": 0,
+      "net_new_vs_ctl_noop": []
+     }
+    ]
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "★ tests/test_cce_phase2_manifest.py:36-39 与 tests/test_cce_stimulus_blinding.py:27-38 **确实**读 MODELS[k]['model'] 做跨家族不等断言 —— 但它们比的是**生成器 vs 测量模型是否同名**, 把 kimi-k3 换成 ABSURD-999 仍然 ≠ MiniMax-M3 ⇒ 断言照样过。实测净新增红 0。⇒ 这两条闸只守「不许同名」, **不守模型身份本身**。",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "MODELS[\"KimiK3\"][\"force_temp\"] = 1.0",
+   "locus": "scripts/exp_crossmodel_desire.py:62",
+   "consumer_side": "P",
+   "verdict": "UNREACHABLE",
+   "changed": false,
+   "deletable": false,
+   "deletable_reason": "删了会让 KimiK3 发 temperature=0.0, 而该模型只允许 1.0 —— 一旦 KimiK3 复用即失效。",
+   "unreachable_condition": "KimiK3 自带 'unavailable': 'owner 未订阅(2026-08-19)', 不进任何现役流程。复活条件: 订阅恢复且 KimiK3 进 GENERATORS/VERIFIER_OF 或 CCE_MEASUREMENT_MODEL。实测 1.0→0.0 使 F9.ok_kimi payload.temperature 1.0→0.0, 生产面 0 变化。",
+   "ref_count_coarse": 2,
+   "ref_count_strict": 0,
+   "L1_changed": "F9.ok_kimi payload.temperature 1.0→0.0(生产面不变)",
+   "L2_changed": "无",
+   "injection_test": "force_temp 1.0→0.0",
+   "L4_measured": {
+    "arm": "kimi_force_temp",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "仅整文件 sha 钉。无专门闸。",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "MODELS[\"KimiK3\"][\"unavailable\"] 标记",
+   "locus": "scripts/exp_crossmodel_desire.py:65",
+   "consumer_side": "G",
+   "verdict": "UNREACHABLE",
+   "changed": false,
+   "deletable": false,
+   "deletable_reason": "它是 tests/test_cce_stimulus_blinding.py:36 那条「不许悄悄把停用模型接回现役流程」的**唯一**依据。",
+   "unreachable_condition": "那条断言写成 `\"unavailable\" not in MODELS['KimiK3'] or 'KimiK3' not in GENERATORS|VERIFIER_OF` —— 当前 KimiK3 不在 GENERATORS/VERIFIER_OF, **第二个析取项恒真** ⇒ 删掉 unavailable 标记闸照样绿(实测净新增红 0)。复活条件: KimiK3 被写进 GENERATORS 或 VERIFIER_OF 的那一刻。⇒ 这是 M8 说的那种保险丝: 平时永远不动, 但不是装饰。",
+   "ref_count_coarse": 8,
+   "ref_count_strict": 1,
+   "L1_changed": "无(生产面与 F9 全不变)",
+   "L2_changed": "无",
+   "injection_test": "整行删除(实测 'unavailable' in MODELS['KimiK3'] True→False)",
+   "L4_measured": {
+    "arm": "kimi_unavailable_del",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "仅整文件 sha 钉。",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "call_model() 函数整体(LLM 调用管道)",
+   "locus": "scripts/exp_crossmodel_desire.py:114-160",
+   "consumer_side": "P",
+   "verdict": "LOAD_BEARING_L2",
+   "changed": true,
+   "deletable": false,
+   "deletable_reason": "scripts/cce_knot_classify.py:53 直接 import 它, :866 在 _stage2_draw 里调它; 另有 cce_full_run:133 · distill_subjects:102 · simulate_subjects:17 · accuracy/ 12 个文件。删 = 拆 s2 抽样管道。",
+   "ref_count_coarse": 68,
+   "ref_count_strict": 3,
+   "L1_changed": "F8 真实 _stage2_draw: None→{'knots':[{'key':'display','intensity':0.99}]}",
+   "L2_changed": "F8 _stage2_aggregate: RuntimeError('5 次抽样全部失败')→measurement_status='qualified', knots=['display'], top1_mode='display'",
+   "injection_test": "把缺 key 早退分支的返回值换成一段合法 JSON(离线可达, 零 socket) ⇒ 下游 draw 与聚合判决全变。★ 这一面是专为本簇加的: 共享装置 observe_stage2 会把 _stage2_draw 整个 stub 掉, 对 call_model **结构上失明** —— 只看那一面会把 call_model 判成 NO_CONSUMER。",
+   "L4_measured": {
+    "arm": "call_model_nokey_inject",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "整文件 sha 钉(内存不可见)。另: tests/test_cce_module_boundary.py:42-64 的 PER_FILE 钉住**消费者**`cce_knot_classify: exp_crossmodel_desire: ['MODELS','call_model']` —— 但它只做 AST import 面比对, **不检查符号是否真的存在于本模块**(只 assert 文件存在), 故删掉 call_model 本体它不会红。",
+   "evidence": "{\"F8\": {\"F8_draw\": {\"draw\": {\"knots\": [{\"key\": \"display\", \"intensity\": 0.99}], \"_weight_shim_fired\": false}}, \"F8_agg\": {\"measurement_status\": \"qualified\", \"knot_keys\": [\"display\"], \"intensity\": {\"display\": 0.99}, \"top1_mode\": \"display\"}}, \"baseline_F8\": {\"draw\": {\"draw\": null}, \"agg\": {\"EXC\": \"RuntimeError: stage2 3 次抽样全部失败(raw 已存)\"}}}",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "call_model 的 MiniMax 风控早退分支 `if data.get('input_sensitive') or data.get('output_sensitive')`",
+   "locus": "scripts/exp_crossmodel_desire.py:136-140",
+   "consumer_side": "P",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "changed": true,
+   "deletable": false,
+   "deletable_reason": "它把确定性拦截与可重试故障分开(2026-07-23 修的 TypeError 盲重试)。删了会让风控响应走进 choices=None 分支, 静默返回空 content 且 error=None ⇒ 下游把「被风控拦了」读成「模型说不出话」。",
+   "ref_count_coarse": 68,
+   "ref_count_strict": 3,
+   "L1_changed": "F9.sensitive 子探针: error 'SENSITIVE_BLOCKED input_type=7'→None · meta.sensitive True→None",
+   "L2_changed": "无(离线重放面不经此路)",
+   "injection_test": "分支条件改成 `if False`(等价删除); 用桩响应 {'input_sensitive':True,'choices':None} 触发",
+   "L4_measured": {
+    "arm": "call_model_sensitive_del",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "仅整文件 sha 钉。**全仓无任何测试**覆盖 call_model 的风控分支。",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "call_model 的 reasoning_content 兜底 `if not content.strip() and msg.get('reasoning_content')`",
+   "locus": "scripts/exp_crossmodel_desire.py:145-146",
+   "consumer_side": "P",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "changed": true,
+   "deletable": false,
+   "deletable_reason": "推理模型(glm-4.5-air / glm-4.6v)把答案留在 reasoning_content; 删了对这些模型恒返回空串。",
+   "ref_count_coarse": 68,
+   "ref_count_strict": 3,
+   "L1_changed": "F9.reasoning_only 子探针: content 'THINKING-999'→'   '",
+   "L2_changed": "无",
+   "injection_test": "分支条件改成 `if False`",
+   "L4_measured": {
+    "arm": "call_model_reasoning_del",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "仅整文件 sha 钉。全仓无测试覆盖。",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "call_model 的重试预算 max_retries=3 与 time.sleep(4)",
+   "locus": "scripts/exp_crossmodel_desire.py:114,160",
+   "consumer_side": "P",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "changed": true,
+   "deletable": false,
+   "deletable_reason": "决定瞬时传输故障下的实际调用次数与耗时预算。",
+   "ref_count_coarse": 68,
+   "ref_count_strict": 3,
+   "L1_changed": "F9.transport_error 子探针: n_calls 3→1 · n_http 3→1",
+   "L2_changed": "无",
+   "injection_test": "max_retries 3→1; 传输故障由桩 requests 抛 ConnectionError 模拟(零 socket)",
+   "L4_measured": {
+    "arm": "call_model_retries_1",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "仅整文件 sha 钉。全仓无测试覆盖。",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "`import requests`(传输绑定)",
+   "locus": "scripts/exp_crossmodel_desire.py:19",
+   "consumer_side": "P",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "changed": true,
+   "deletable": false,
+   "deletable_reason": "全模块唯一的 HTTP 出口。",
+   "ref_count_coarse": 2,
+   "ref_count_strict": 0,
+   "L1_changed": "臂(requests=None): call_model 返回 content='' · error=\"AttributeError: 'NoneType' object has no attribute 'post'\" · n_calls=3",
+   "L2_changed": "未测(见 faces_blind)",
+   "injection_test": "requests=None; 基线侧的对照(不桩 requests 真发一次 HTTP)被 R1 禁止 ⇒ **单边证据**",
+   "L4_measured": {
+    "arm": "requests_import_del",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "仅整文件 sha 钉。",
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile",
+    "blind::F9 线上请求面(该面本身要把 XM.requests 换成桩, 结构上看不见 requests=None)",
+    "blind::基线侧不桩 requests 的真实往返(R1 禁止)"
+   ],
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ]
+  },
+  {
+   "component": "第 22 行再导出 `from calibration_framework import extract_json_robust`",
+   "locus": "scripts/exp_crossmodel_desire.py:22",
+   "consumer_side": "P",
+   "verdict": "LOAD_BEARING_L2",
+   "changed": true,
+   "deletable": false,
+   "deletable_reason": "cce_knot_classify:50 经 exp_v4_full_validation 拿到的就是**本模块这一个绑定**(实测 KC.extract_json_robust is XM.extract_json_robust == True)。",
+   "ref_count_coarse": 71,
+   "ref_count_strict": 4,
+   "L1_changed": "组合臂 A(call_model 注入合法 JSON) vs B(同注入 + 本行置空): _stage2_draw 从出 draw 变 None",
+   "L2_changed": "B 臂 _stage2_aggregate 从 measurement_status='qualified' 变 RuntimeError(全部抽样失败)",
+   "injection_test": "★ **单独**消融本行看不出差异 —— 因为离线基线本就缺 key、call_model 返回空串, 解析器换成什么都解不出东西。必须先用 call_model 注入臂把上游打通, 才看得见这条边。这正是「注入检验跑在看不见消费者的面上」那类假阴性, 已用组合臂排除。",
+   "L4_measured": {
+    "arm": "extract_json_robust_none",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "整文件 sha 钉(内存不可见)。★ tests/test_cce_module_boundary.py 的循环里有 `if f.name.startswith('exp_'): continue` ⇒ 本文件被**整体跳过**, 这条 `from calibration_framework import ...` 的边**完全不在守卫视野内**; 且 calibration_framework.py 本身**不在** config/cce_core_manifest.json:core_files 里。",
+   "evidence": "{\"A_inject_only\": {\"label\": \"call_model 注入合法 JSON\", \"draw\": {\"knots\": [{\"key\": \"display\", \"intensity\": 0.99}], \"_weight_shim_fired\": false}, \"agg\": {\"measurement_status\": \"qualified\", \"knots\": [\"display\"]}, \"provenance\": {\"KC.extract_json_robust_is_XM_binding\": true, \"XM.extract_json_robust_repr\": \"<function extract_json_robust at 0x1091d5430>\"}}, \"B_inject_plus_parser_dead\": {\"label\": \"call_model 注入 + 第22行解析器再导出置空\", \"draw\": null, \"agg\": {\"EXC\": \"RuntimeError\"}, \"provenance\": {\"KC.extract_json_robust_is_XM_binding\": true, \"XM.extract_json_robust_repr\": \"<function <lambda> at 0x1093077f0>\"}}, \"C_baseline\": {\"label\": \"基线\", \"draw\": null, \"agg\": {\"EXC\": \"RuntimeError\"}, \"provenance\": {\"KC.extract_json_robust_is_XM_binding\": true, \"XM.extract_json_robust_repr\": \"<function extract_json_robust at 0x10939bed0>\"}}, \"verdict_hint\": {\"A_vs_B_changed\": true, \"note\": \"★ A 与 B 唯一差别是第 22 行的再导出。若 A 出 draw 而 B 出 None, 则这条**再导出边**确实经 exp_v4_full_validation 转手喂到 cce_knot_classify._stage2_draw —— 单独消融它之所以看不出差异, 是因为基线本身就解析不出东西(离线缺 key), 不是因为它没有消费者。\"}}",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "js_divergence(p, q) —— 生产 within_js 的度量实现",
+   "locus": "scripts/exp_crossmodel_desire.py:349-359",
+   "consumer_side": "P",
+   "verdict": "LOAD_BEARING_L2",
+   "changed": true,
+   "deletable": false,
+   "deletable_reason": "cce_knot_classify:50 经 exp_v4_full_validation 导入, :247 用它算 stage1 的 within_js; 那是 cce_full_run.s1 噪声底扣发的唯一输入。",
+   "ref_count_coarse": 20,
+   "ref_count_strict": 0,
+   "L1_changed": "stage1_L1 面变(L1_within_js 与 L1_layers_sha 均变)。dead 臂(恒 0.0): within_js 全 0.0; absurd 臂(恒 999.0): within_js 全 999.0",
+   "L2_changed": "出口闸 withheld 集合双向翻转 —— 基线 usable 2 / withheld 8; js=0.0 臂 usable 5 / withheld 5(四层 s1 top **全部解禁**, 噪声底形同虚设); js=999 臂 usable 1 / withheld 9(连 s1.tops.need 也被扣发)。★ 0.0 方向是 **fail-open**: 一个恒 0 的度量会让噪声底闸永不触发。",
+   "injection_test": "双臂: 恒 0.0(fail-open 方向) 与 恒 999.0(fail-closed 方向), 两边都改变出口闸判决",
+   "L4_measured": {
+    "arm": "js_div_absurd",
+    "n_reds": 1,
+    "net_new_vs_ctl_noop": [
+     "FAILED tests/test_cce_js_metric_definition.py::test_the_two_implementations_agree_bit_for_bit"
+    ]
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "整文件 sha 钉(内存不可见)。★ 实测净新增 1 条红, 且只有 `test_cce_js_metric_definition.py::test_the_two_implementations_agree_bit_for_bit` 这一条 —— 同文件另外两条(test_fixed_vectors / test_it_is_the_divergence_not_the_sqrt)只测**闸那一份** run_gates.js_div, 对生产这一份结构上失明。⇒ 生产 JS 实现的唯一守卫是「两份实现必须逐位一致」这条**交叉**闸。",
+   "evidence": "{\"dead\": {\"F3b\": {\"within_js\": {\"desire_vec\": 0.0, \"need_vec\": 0.0, \"emotion_vec\": 0.0, \"action_vec\": 0.0}, \"over_noise_floor\": null, \"tops_after_withholding\": {\"desire\": \"控制欲\", \"need\": \"N12_情感联结\", \"emotion\": \"nostalgia怀旧\", \"action\": \"attend关注\"}, \"tops_withheld\": null}, \"F3_exit\": {\"status\": \"OK\", \"instrument_hash\": \"d4cce4c745f3f991\", \"usable_keys\": [\"s1.tops.action\", \"s1.tops.desire\", \"s1.tops.emotion\", \"s1.tops.need\", \"s2.distribution.top1\"], \"withheld_keys\": [\"s2.distribution.intensity\", \"s2.distribution.knot_weight\", \"s2.drive_brake\", \"s2.families\", \"s2.playbook_primary\"], \"usable_count\": 5, \"withheld_count\": 5, \"withheld_reason_top1\": \"None\"}}, \"absurd\": {\"F3b\": {\"within_js\": {\"desire_vec\": 999.0, \"need_vec\": 999.0, \"emotion_vec\": 999.0, \"action_vec\": 999.0}, \"over_noise_floor\": {\"desire_vec\": 999.0, \"need_vec\": 999.0, \"emotion_vec\": 999.0, \"action_vec\": 999.0}, \"tops_after_withholding\": {\"desire\": null, \"need\": null, \"emotion\": null, \"action\": null}, \"tops_withheld\": {\"desire\": \"desire_vec within_js=999.0 > 0.12\", \"need\": \"need_vec within_js=999.0 > 0.161\", \"emotion\": \"emotion_vec within_js=999.0 > 0.157\", \"action\": \"action_vec within_js=999.0 > 0.125\"}}, \"F3_exit\": {\"status\": \"OK\", \"instrument_hash\": \"d4cce4c745f3f991\", \"usable_keys\": [\"s2.distribution.top1\"], \"withheld_keys\": [\"s1.tops.action\", \"s1.tops.desire\", \"s1.tops.emotion\", \"s1.tops.need\", \"s2.distribution.intensity\", \"s2.distribution.knot_weight\", \"s2.drive_brake\", \"s2.families\", \"s2.playbook_primary\"], \"usable_count\": 1, \"withheld_count\": 9, \"withheld_reason_top1\": \"None\"}}, \"baseline_F3\": {\"status\": \"OK\", \"instrument_hash\": \"d4cce4c745f3f991\", \"usable_keys\": [\"s1.tops.need\", \"s2.distribution.top1\"], \"withheld_keys\": [\"s1.tops.action\", \"s1.tops.desire\", \"s1.tops.emotion\", \"s2.distribution.intensity\", \"s2.distribution.knot_weight\", \"s2.drive_brake\", \"s2.families\", \"s2.playbook_primary\"], \"usable_count",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "DESIRES = 欲望 9 类名单(模块级)",
+   "locus": "scripts/exp_crossmodel_desire.py:30",
+   "consumer_side": "P",
+   "verdict": "LOAD_BEARING_L1_ONLY",
+   "changed": true,
+   "deletable": false,
+   "deletable_reason": "scripts/reply_loop.py:18 与 accuracy/ 8 个文件直接 import; reply_loop.py:27 在**模块级**把它焊进 LAYERS。",
+   "ref_count_coarse": 74,
+   "ref_count_strict": 1,
+   "L1_changed": "reply_loop.LAYERS['desire_vec'] 与 layer_reach(...) 的逐维 dim 标签全变(A999/B999/...)",
+   "L2_changed": "无 —— 生产 stage1 的 DESIRES **不是**这一份: cce_knot_classify:50 从 exp_v4_full_validation 拿, 后者读 config/desire_taxonomy.json。两份逐字相同但无任何闸钉住它们必须相同。",
+   "injection_test": "9 个名字全换成 A999..I999",
+   "L4_measured": {
+    "arm": "DESIRES_absurd",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "仅整文件 sha 钉。**没有任何闸**断言 exp_crossmodel_desire.DESIRES == config/desire_taxonomy.json:canonical。",
+   "evidence": "{\"offline_consumer\": {\"baseline\": {\"LAYERS_desire_labels\": [\"拥有欲\", \"成为欲\", \"摆脱欲\", \"确认欲\", \"超越欲\", \"归属欲\", \"控制欲\", \"安全感欲\", \"向往欲\"], \"layer_reach\": {\"显著维\": 3, \"触达数\": 2, \"触达率\": 0.667, \"饱和\": false, \"★饱和说明\": null, \"逐维\": [{\"dim\": \"拥有欲\", \"对方\": 0.3, \"我方\": 0.05, \"触达\": false, \"缺口\": 0.1}, {\"dim\": \"成为欲\", \"对方\": 0.25, \"我方\": 0.3, \"触达\": true, \"缺口\": 0.0}, {\"dim\": \"摆脱欲\", \"对方\": 0.2, \"我方\": 0.25, \"触达\": true, \"缺口\": 0.0}]}}, \"arm_DESIRES_absurd\": {\"LAYERS_desire_labels\": [\"A999\", \"B999\", \"C999\", \"D999\", \"E999\", \"F999\", \"G999\", \"H999\", \"I999\"], \"layer_reach\": {\"显著维\": 3, \"触达数\": 2, \"触达率\": 0.667, \"饱和\": false, \"★饱和说明\": null, \"逐维\": [{\"dim\": \"A999\", \"对方\": 0.3, \"我方\": 0.05, \"触达\": false, \"缺口\": 0.1}, {\"dim\": \"B999\", \"对方\": 0.25, \"我方\": 0.3, \"触达\": true, \"缺口\": 0.0}, {\"dim\": \"C999\", \"对方\": 0.2, \"我方\": 0.25, \"触达\": true, \"缺口\": 0.0}]}}, \"changed\": true, \"note\": \"★ accuracy/ 的 8 个 DESIRES 消费者全部把它塞进 prompt 模板后交给 call_model ⇒ 离线不可达; chain_ablation/chain_validity 的用法在 main() 里且前置 subprocess 跑模型 ⇒ 同样不可达。**唯一离线可达的消费者是 scripts/reply_loop.py 的模块级 LAYERS 与 layer_reach 的维度标签。**\"}, \"duplication\": {\"exp_crossmodel_desire.DESIRES\": [\"拥有欲\", \"成为欲\", \"摆脱欲\", \"确认欲\", \"超越欲\", \"归属欲\", \"控制欲\", \"安全感欲\", \"向往欲\"], \"config/desire_taxonomy.json:canonical\": [\"拥有欲\", \"成为欲\", \"摆脱欲\", \"确认欲\", \"超越欲\", \"归属欲\", \"控制欲\", \"安全感欲\", \"向往欲\"], \"identical\": true, \"note\": \"★ 生产 stage1 的 DESIRES 来自 exp_v4_full_validation(读 config/desire_taxonomy.json), **不是**本文件这一份。本文件这份只被 accuracy/ 的 8 个脚本与 reply_loop 使用。两份逐字相同, 但没有任何闸钉住它们必须相同。\"}}",
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile",
+    "blind::accuracy/ 的 8 个消费者(DESIRES 只进 prompt 模板后交给 call_model ⇒ 离线不可达)",
+    "blind::chain_ablation/chain_validity 的用法(在 main() 里且前置 subprocess 跑模型)"
+   ],
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ]
+  },
+  {
+   "component": "cosine(p, q)",
+   "locus": "scripts/exp_crossmodel_desire.py:361-365",
+   "consumer_side": "P",
+   "verdict": "UNREACHABLE",
+   "changed": false,
+   "deletable": false,
+   "deletable_reason": "★ 删它会立刻打断 exp_v4_causal_chain / exp_v4_full_validation 的顶层 `from exp_crossmodel_desire import (...)` ⇒ cce_knot_classify import 失败 ⇒ 整链死。",
+   "unreachable_condition": "唯一消费者是 exp_v4_causal_chain / exp_v4_full_validation 的 analyze_* 系列, 全部在跑完模型批次之后才执行。复活条件: 跑 exp_v4_full_validation / exp_v4_causal_chain 的全量批次(需真 key + 网络)。",
+   "ref_count_coarse": 4,
+   "ref_count_strict": 0,
+   "L1_changed": "0 面(十个观测面全不变)",
+   "L2_changed": "0 面",
+   "injection_test": "恒返回 999.0",
+   "L4_measured": {
+    "arm": "cosine_absurd",
+    "n_reds": 1,
+    "net_new_vs_ctl_noop": [
+     "ERROR tests/test_cce_chain_conformance.py"
+    ]
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "仅 config/cce_core_manifest.json 的整文件 sha 钉(内存变异对它不可见)。无任何行为闸。",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "normalize_dist(raw)",
+   "locus": "scripts/exp_crossmodel_desire.py:331-352",
+   "consumer_side": "P",
+   "verdict": "UNREACHABLE",
+   "changed": false,
+   "deletable": true,
+   "deletable_reason": "在本工况下无消费者, 且无外部 import(实测导入面只含 call_model/MODELS/DESIRES/js_divergence/build_cases/cosine/extract_json_robust)。**但删它等于删掉「4 模型交叉共识真值锚」这个从未跑过的能力**, 属于产品决策不是技术结论 —— deletable=True 只表示「删了本工况下没有任何东西会变」。",
+   "unreachable_condition": "只被本文件 run_full 调用。复活条件: python3 scripts/exp_crossmodel_desire.py(全量批次)。",
+   "ref_count_coarse": 2,
+   "ref_count_strict": 0,
+   "L1_changed": "0 面(十个观测面全不变)",
+   "L2_changed": "0 面",
+   "injection_test": "恒返回 None",
+   "L4_measured": {
+    "arm": "normalize_dist_none",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "仅 config/cce_core_manifest.json 的整文件 sha 钉(内存变异对它不可见)。无任何行为闸。",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "top_k(vec, k=2)",
+   "locus": "scripts/exp_crossmodel_desire.py:367-369",
+   "consumer_side": "P",
+   "verdict": "UNREACHABLE",
+   "changed": false,
+   "deletable": true,
+   "deletable_reason": "在本工况下无消费者, 且无外部 import(实测导入面只含 call_model/MODELS/DESIRES/js_divergence/build_cases/cosine/extract_json_robust)。**但删它等于删掉「4 模型交叉共识真值锚」这个从未跑过的能力**, 属于产品决策不是技术结论 —— deletable=True 只表示「删了本工况下没有任何东西会变」。",
+   "unreachable_condition": "只被本文件 run_full / analyze 调用。复活条件同 run_full。",
+   "ref_count_coarse": 6,
+   "ref_count_strict": 0,
+   "L1_changed": "0 面(十个观测面全不变)",
+   "L2_changed": "0 面",
+   "injection_test": "恒返回 ['ABSURD','ABSURD']",
+   "L4_measured": {
+    "arm": "top_k_absurd",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "仅 config/cce_core_manifest.json 的整文件 sha 钉(内存变异对它不可见)。无任何行为闸。",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "TAXONOMY(欲望9类定义正文) 与 build_prompt(case_input)",
+   "locus": "scripts/exp_crossmodel_desire.py:300-329",
+   "consumer_side": "P",
+   "verdict": "UNREACHABLE",
+   "changed": false,
+   "deletable": true,
+   "deletable_reason": "在本工况下无消费者, 且无外部 import(实测导入面只含 call_model/MODELS/DESIRES/js_divergence/build_cases/cosine/extract_json_robust)。**但删它等于删掉「4 模型交叉共识真值锚」这个从未跑过的能力**, 属于产品决策不是技术结论 —— deletable=True 只表示「删了本工况下没有任何东西会变」。",
+   "unreachable_condition": "只被本文件 run_full / run_smoke 调用。★ 注意: 生产 s1 指纹哈希的那个 build_prompt 是 **exp_v4_full_validation.build_prompt**, 不是本文件这一个。复活条件同 run_full。",
+   "ref_count_coarse": 4,
+   "ref_count_strict": 1,
+   "L1_changed": "0 面(十个观测面全不变)",
+   "L2_changed": "0 面",
+   "injection_test": "TAXONOMY 整体覆写为 'ABSURD-999' + build_prompt 恒返回 'ABSURD-999'",
+   "L4_measured": {
+    "arm": "TAXONOMY_absurd",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "仅 config/cce_core_manifest.json 的整文件 sha 钉(内存变异对它不可见)。无任何行为闸。",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "build_cases() / _load() / _comments_block()",
+   "locus": "scripts/exp_crossmodel_desire.py:166-296",
+   "consumer_side": "P",
+   "verdict": "UNREACHABLE",
+   "changed": false,
+   "deletable": false,
+   "deletable_reason": "★ 删它会立刻打断 exp_v4_causal_chain / exp_v4_full_validation 的顶层 `from exp_crossmodel_desire import (...)` ⇒ cce_knot_classify import 失败 ⇒ 整链死。",
+   "unreachable_condition": "build_cases 被 exp_v4_* 以 import 方式持有, 但只在它们的 run_full/run_stability 里调用(需模型)。复活条件: 跑 exp_v4 全量批次, 或 python3 scripts/exp_crossmodel_desire.py。",
+   "ref_count_coarse": 7,
+   "ref_count_strict": 0,
+   "L1_changed": "0 面(十个观测面全不变)",
+   "L2_changed": "0 面",
+   "injection_test": "恒返回 {}",
+   "L4_measured": {
+    "arm": "build_cases_empty",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "仅 config/cce_core_manifest.json 的整文件 sha 钉(内存变异对它不可见)。无任何行为闸。",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "analyze(cases, per, model_stats) 与 write_report(...)",
+   "locus": "scripts/exp_crossmodel_desire.py:430-624",
+   "consumer_side": "P",
+   "verdict": "UNREACHABLE",
+   "changed": false,
+   "deletable": true,
+   "deletable_reason": "在本工况下无消费者, 且无外部 import(实测导入面只含 call_model/MODELS/DESIRES/js_divergence/build_cases/cosine/extract_json_robust)。**但删它等于删掉「4 模型交叉共识真值锚」这个从未跑过的能力**, 属于产品决策不是技术结论 —— deletable=True 只表示「删了本工况下没有任何东西会变」。",
+   "unreachable_condition": "只被本文件 run_full 调用。复活条件同 run_full。",
+   "ref_count_coarse": 2,
+   "ref_count_strict": 0,
+   "L1_changed": "0 面(十个观测面全不变)",
+   "L2_changed": "0 面",
+   "injection_test": "analyze / write_report 入口即 raise RuntimeError",
+   "L4_measured": {
+    "arm": "analyze_raise",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "仅 config/cce_core_manifest.json 的整文件 sha 钉(内存变异对它不可见)。无任何行为闸。",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "run_smoke() / run_full() / `__main__` 分派",
+   "locus": "scripts/exp_crossmodel_desire.py:390-428,620-624",
+   "consumer_side": "P",
+   "verdict": "UNREACHABLE",
+   "changed": false,
+   "deletable": true,
+   "deletable_reason": "在本工况下无消费者, 且无外部 import(实测导入面只含 call_model/MODELS/DESIRES/js_divergence/build_cases/cosine/extract_json_robust)。**但删它等于删掉「4 模型交叉共识真值锚」这个从未跑过的能力**, 属于产品决策不是技术结论 —— deletable=True 只表示「删了本工况下没有任何东西会变」。",
+   "unreachable_condition": "★ 实证从未跑过: results/crossmodel_*.json 与 results/crossmodel_ALL.json **全仓不存在**, results/calibration/ 下只有 json_extract_failures.log, .github/workflows/ 里**零处**引用本文件。复活条件: 手工执行 python3 scripts/exp_crossmodel_desire.py(需 4 家 provider 的真 key)。",
+   "ref_count_coarse": 10,
+   "ref_count_strict": 0,
+   "L1_changed": "0 面(十个观测面全不变)",
+   "L2_changed": "0 面",
+   "injection_test": "run_full / run_smoke 入口即 raise RuntimeError",
+   "L4_measured": {
+    "arm": "run_full_raise",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "仅 config/cce_core_manifest.json 的整文件 sha 钉(内存变异对它不可见)。无任何行为闸。",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "ROOT = os.environ.get('VSE_ROOT') or <repo root>",
+   "locus": "scripts/exp_crossmodel_desire.py:24",
+   "consumer_side": "P",
+   "verdict": "UNREACHABLE",
+   "changed": false,
+   "deletable": false,
+   "deletable_reason": "VSE_ROOT 一旦被设(CI/容器里换根目录), 去掉它会让 RESULTS/CAL 与 _load 全部指错地方。",
+   "unreachable_condition": "本工况 VSE_ROOT 未设 ⇒ 两分支同值。复活条件: 设 VSE_ROOT。实测设成空临时目录后, 基线 ROOT=该临时目录, 臂 ROOT=/Volumes/data/cce-engine ⇒ 当场分叉。",
+   "ref_count_coarse": null,
+   "ref_count_strict": null,
+   "L1_changed": "默认工况 0 面; VSE_ROOT 工况下 ROOT 值分叉(实测)",
+   "L2_changed": "无",
+   "injection_test": "删掉 env 分支只留 __file__ 推导",
+   "L4_measured": {
+    "arm": "ROOT_env_del",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "仅整文件 sha 钉。",
+   "evidence": "{\"VSE_ROOT_set__baseline_ROOT\": \"/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/xmd_32167/freshroot\", \"VSE_ROOT_set__CAL_created\": true, \"VSE_ROOT_set__arm_ROOT\": \"/Volumes/data/cce-engine\", \"VSE_ROOT_arm_changes_ROOT\": true, \"makedirs_del__CAL_created\": false, \"makedirs_del__arm_changes_fs\": true, \"note\": \"★ 这两条在默认工况(VSE_ROOT 未设 + results/calibration 已存在)下**结构上不可能有差异**; 换成 VSE_ROOT 指向空目录后差异立刻出现 ⇒ 是 UNREACHABLE(本工况未触发), 不是 NO_CONSUMER。\"}",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "os.makedirs(CAL, exist_ok=True)(import 期副作用)",
+   "locus": "scripts/exp_crossmodel_desire.py:27",
+   "consumer_side": "P",
+   "verdict": "UNREACHABLE",
+   "changed": false,
+   "deletable": false,
+   "deletable_reason": "write_report 直接往 CAL 里写; 目录不存在时删了它会 FileNotFoundError。",
+   "unreachable_condition": "本工况 results/calibration/ 已存在 ⇒ exist_ok 路径无差异。复活条件: 新 checkout / VSE_ROOT 指向空目录 —— 实测此时基线创建该目录、臂不创建。",
+   "ref_count_coarse": null,
+   "ref_count_strict": null,
+   "L1_changed": "默认工况 0 面; 空根目录工况下文件系统状态分叉(实测)",
+   "L2_changed": "无",
+   "injection_test": "整行换成 pass",
+   "L4_measured": {
+    "arm": "makedirs_del",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "仅整文件 sha 钉。",
+   "evidence": "{\"VSE_ROOT_set__baseline_ROOT\": \"/private/tmp/claude-501/-Volumes-data/26ef083d-bece-4549-9176-b9e294bb2117/scratchpad/xmd_32167/freshroot\", \"VSE_ROOT_set__CAL_created\": true, \"VSE_ROOT_set__arm_ROOT\": \"/Volumes/data/cce-engine\", \"VSE_ROOT_arm_changes_ROOT\": true, \"makedirs_del__CAL_created\": false, \"makedirs_del__arm_changes_fs\": true, \"note\": \"★ 这两条在默认工况(VSE_ROOT 未设 + results/calibration 已存在)下**结构上不可能有差异**; 换成 VSE_ROOT 指向空目录后差异立刻出现 ⇒ 是 UNREACHABLE(本工况未触发), 不是 NO_CONSUMER。\"}",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "文件头「⚠️ 名字骗人: 这不是实验脚本, 是生产内核」注释块 + 模块 docstring",
+   "locus": "scripts/exp_crossmodel_desire.py:2-17",
+   "consumer_side": "G",
+   "verdict": "NO_CONSUMER",
+   "changed": false,
+   "deletable": false,
+   "deletable_reason": "运行时零消费者, 但它是本仓 2026-09-01 那次误判(把 exp_* 当「实验脚本占仓库过半」清理)之后立的**唯一**防再犯装置, 且全仓**没有任何测试**断言它存在(实测 grep 只命中三个 exp_* 文件自身)。删它没有任何闸会响 —— 这恰恰是不该删的理由。",
+   "ref_count_coarse": 48,
+   "ref_count_strict": 1,
+   "L1_changed": "0 面",
+   "L2_changed": "0 面",
+   "injection_test": "整行删除(等价注入: 注释是纯文本, 删除即最强扰动)",
+   "unreachable_condition": null,
+   "L4_measured": {
+    "arm": "header_lie_comment_del",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "★★ **唯一**会因它变红的是 config/cce_core_manifest.json 的整文件 sha 钉, 而那条闸对内存变异结构失明。⇒ 本条的实测 L4=0 是**结构性低报**: 落到磁盘它必红, 但红的理由与「改了决定仪器身份的 model 名」完全一样。",
+   "faces_observed": [
+    "F1_仪器身份与标定继承",
+    "F2_K1扣发路由",
+    "F3_出口闸withheld",
+    "F3b_s1噪声底扣发",
+    "F4a_stage1_L1",
+    "F4b_stage1_L2",
+    "F4c_reach",
+    "F4d_stage2重放",
+    "F8_真实_stage2_draw与聚合",
+    "F9_线上请求面"
+   ],
+   "faces_blind": [
+    "blind::真实模型的语义判断(R1 零 API, 结构上测不到)",
+    "blind::磁盘源码文本闸(M3-③: 本轮全部变异在内存, 磁盘一字未动)",
+    "blind::其它 k / 其它 market(CCE_MARKET) / 其它 profile"
+   ]
+  },
+  {
+   "component": "G 侧闸: config/cce_core_manifest.json:core_files['scripts/exp_crossmodel_desire.py'] = 0e0e9d64b48fbade(整文件 sha256[:16])",
+   "locus": "config/cce_core_manifest.json:20 · scripts/cce_core_boundary.py:35-52 · tests/test_cce_core_boundary.py",
+   "consumer_side": "G",
+   "verdict": "LOAD_BEARING_L2",
+   "changed": true,
+   "deletable": false,
+   "deletable_reason": "它是 Core 边界闸对本文件的**唯一**钉子; 删了「静默换仪器」就没人拦。",
+   "ref_count_coarse": 48,
+   "ref_count_strict": 1,
+   "L1_changed": "pin 改成 0*16 后 check() 由 ok=True 变 ok=False, 报「静默换仪器」(阳性对照实测)",
+   "L2_changed": "CI 红/绿翻转",
+   "injection_test": "把 pin 换成 0000000000000000(只改临时副本, 仓内 manifest 一字未动) ⇒ 闸当场红",
+   "L4_measured": {
+    "arm": "gate_positive_control",
+    "n_reds": 1,
+    "net_new_vs_ctl_noop": [
+     "scripts/cce_core_boundary.check(临时 manifest) → ok=False"
+    ]
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "★★★ 本条**就是**那条钉源码文本的闸。它比的是磁盘字节 ⇒ 对本轮 33 个内存臂**一次都不会响**。灵敏度 100%(任何一个字节都红), 特异度 0(区分不了「改 model 名」与「删一行注释」)。",
+   "evidence": "{\"baseline_check_ok\": true, \"baseline_errors\": [], \"pinned_sha16\": \"0e0e9d64b48fbade\", \"live_sha16\": \"0e0e9d64b48fbade\", \"pin_matches_disk\": true, \"positive_control_wrong_pin_turns_red\": true, \"positive_control_error\": [\"scripts/exp_crossmodel_desire.py: pinned 0000000000000000 != live 0e0e9d64b48fbade, 而 instrument_generation 仍是 6 且无 refactor_log 记录 —— **静默换仪器**\"], \"discriminating_power\": \"★ 这条闸只比**整文件 sha256[:16]**。⇒ 本簇 33 个臂若落到磁盘, 它**全部**转红, 包括只删一行注释的 header_lie_comment_del 与改一个永不取用的 KimiK3 model 名。它区分不了「改了决定仪器身份的 model 名」与「删了一行注释」—— 灵敏度 100%, 特异度 0。\", \"invisible_to_memory_ablation\": \"★★ M3-③: 它从**磁盘**读文件字节。本轮全部消融都在内存里做, 磁盘一字未动 ⇒ 实测 L4 里它**一次都不会转红**, 因此实测 L4 对本簇**系统性低报**。\"}",
+   "faces_observed": [
+    "G面::cce_core_boundary.check() 的 ok/errors",
+    "G面::pin vs 磁盘现算 sha16"
+   ],
+   "faces_blind": [
+    "blind::本闸对内存变异结构失明(M3-③)",
+    "blind::它无法区分改动的性质(只比整文件字节)"
+   ]
+  },
+  {
+   "component": "G 侧缺口: tests/test_cce_module_boundary.py 对本文件**整体跳过**",
+   "locus": "tests/test_cce_module_boundary.py:74-76 `for f in SCRIPTS.glob('*.py'): if f.name.startswith('exp_'): continue`",
+   "consumer_side": "G",
+   "verdict": "NO_CONSUMER",
+   "changed": false,
+   "deletable": false,
+   "deletable_reason": "PER_FILE 对**消费者**那一面仍在起作用, 不能删; 缺的是对 exp_* 自身导入面的覆盖。",
+   "ref_count_coarse": 48,
+   "ref_count_strict": 1,
+   "L1_changed": "不适用",
+   "L2_changed": "不适用",
+   "injection_test": "把第 22 行 `from calibration_framework import extract_json_robust` 整条换成 `extract_json_robust = lambda *a, **k: None` ⇒ 本闸**零反应**(实测净新增红 0), 而组合臂已证明这条边真的喂到 _stage2_draw。",
+   "L4_measured": {
+    "arm": "extract_json_robust_none",
+    "n_reds": 0,
+    "net_new_vs_ctl_noop": []
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "本闸读的是磁盘源码的 AST(imports_from 里 path.read_text), 属于钉源码文本那一类; 但因为 `if f.name.startswith('exp_'): continue`, 它**即使**落到磁盘也照样看不见本文件的导入面。⇒ 这不是内存消融的失明, 是闸自己的覆盖洞。",
+   "faces_observed": [
+    "G面::test_cce_module_boundary 的 actual==PER_FILE 断言",
+    "G面::L4 净新增红"
+   ],
+   "faces_blind": [
+    "blind::exp_* 文件自身的导入面(闸的循环直接 continue 掉)"
+   ]
+  },
+  {
+   "component": "C 侧: 生产 js_divergence(吃列表) 与 闸 run_gates.js_div(吃字典) 的两份实现耦合",
+   "locus": "tests/test_cce_js_metric_definition.py::test_the_two_implementations_agree_bit_for_bit",
+   "consumer_side": "C",
+   "verdict": "LOAD_BEARING_L2",
+   "changed": true,
+   "deletable": false,
+   "deletable_reason": "它是**唯一**能看见生产那份 js_divergence 被改的闸。",
+   "ref_count_coarse": 20,
+   "ref_count_strict": 0,
+   "L1_changed": "生产实现恒 0.0 或恒 999.0 时, 两份实现的逐位比对 |a-b|<1e-12 破裂",
+   "L2_changed": "CI 红",
+   "injection_test": "js_divergence 恒 0.0 / 恒 999.0 两臂, 均触发该条(且只触发该条)",
+   "L4_measured": {
+    "dead": {
+     "arm": "js_div_dead",
+     "n_reds": 1,
+     "net_new_vs_ctl_noop": [
+      "FAILED tests/test_cce_js_metric_definition.py::test_the_two_implementations_agree_bit_for_bit"
+     ]
+    },
+    "absurd": {
+     "arm": "js_div_absurd",
+     "n_reds": 1,
+     "net_new_vs_ctl_noop": [
+      "FAILED tests/test_cce_js_metric_definition.py::test_the_two_implementations_agree_bit_for_bit"
+     ]
+    }
+   },
+   "L4_source_text_gates_invisible_to_memory_ablation": "本条是**行为闸**不是源码文本闸, 内存注入对它完全可见(实测已红)。同文件另两条 test_fixed_vectors / test_it_is_the_divergence_not_the_sqrt 只测 run_gates.js_div, 对生产那一份结构上失明 —— 若哪天这条交叉比对被删, 生产 JS 就完全无闸。",
+   "faces_observed": [
+    "C面::test_the_two_implementations_agree_bit_for_bit 的红绿",
+    "F4a_stage1_L1",
+    "F3b_s1噪声底扣发",
+    "F3_出口闸withheld"
+   ],
+   "faces_blind": [
+    "blind::真实模型上 within_js 的分布(R1)"
+   ]
+  }
+ ],
+ "limits": [
+  "★ 穷举漏项(逐条列出, 不装作没有): ① MODELS 的 Qwen3.8 / GLM5.2 / GLM47 / GLM45air / Qwen3.7plus 五条**没有**逐条做臂 —— 非 M3 那条判决是靠 KimiK3 / Qwen3.7max / DeepSeek 三条臂 + 全 9 模型 F9 基线面**推的**, 不是逐条实测。② 非 M3 条目的 key_env / append_path / max_tokens 子键未单独消融。③ build_cases 里那 9 条素材字面量(IT_ad_goods / IT_life_kitchen / IT_life_roomtour / IT_kn_health / CM_food / CM_knowledge / DLG_dashewan / DLG_tangguo / VID_mc_xiongchu / VID_perfect_mv)未逐条消融, 只整函数置空。④ analyze() 内部的判据阈值(anchor strong 需 mode_n>=3 · split 的 [2,2] 规则 · per_class_std · overconfidence gap · model_to_consensus)未逐个消融, 只整函数 raise。⑤ js_divergence 内部 kl() 的 `if ai>0 and bi>0` 零守卫、normalize_dist 的「键带修饰做包含匹配」兜底分支、call_model 的 timeout=300 与 `body=r.text[:300]` 错误体截断, 三处未单独做臂。⑥ _load / _comments_block 未单独做臂(折进 build_cases 那条)。⑦ 第 21 行 sys.path.insert 未做臂。",
+  "R1 零 API ⇒ 本轮**没有任何**结论涉及真实模型的语义判断、重复稳定性、provider 端行为。F9「线上请求面」把 XM.requests 换成记录型桩, 它证明的是「这段代码**会发出**什么」, **不**证明 provider 收到后会怎样。",
+  "F8 走的是 call_model 缺 key 早退这一条离线可达路径; 真正的 HTTP 往返(以及它上面的 max_tokens 截断、风控实际行为、重试真实耗时)**结构上不可达**。",
+  "L4 面是 54 个测试文件 / 113 条用例(exp_crossmodel_desire 的反向依赖传递闭包), **不是**全量 161 文件 / 409 用例。闭包外的测试不 import 本模块, 内存注入对它们本就不可见; 但**经 subprocess 另起进程跑 cce_knot_classify.py 的测试同样看不见注入** —— 两个方向都有盲区, 净新增红因此是**下界**。",
+  "M3-③: 本轮 33 个臂全部在内存里做, 磁盘一字未动 ⇒ 钉源码文本的闸(config/cce_core_manifest.json 的整文件 sha 钉 · tests/test_cce_module_boundary.py 的 AST 扫描)在实测 L4 里**一次都没响**。落到磁盘时前者对**每一个臂**都会红。实测 L4 对本簇系统性低报。",
+  "工况单一: 存量语料 22 份 / k∈{3,5} / CCE_MEASUREMENT_MODEL 未设(M3) / CCE_MARKET 未设(默认 intl) / VSE_ROOT 未设 / ALIYUN_API_BASE 与 ZHIPU_API_BASE 未设。任一项变化本轮判决当场失效。",
+  "L4 里 _pristine 与 cosine_absurd 各出现 1 条 `ERROR tests/test_cce_chain_conformance.py`, 而 ctl_noop 与其余 31 臂全绿 ⇒ 按抖动处理, **未定位根因**(不在本簇范围)。若它其实是顺序/并发敏感的真缺陷, 本轮 L4 的基线选择(以 ctl_noop 为准)仍然成立, 但那条抖动值得单开。",
+  "positive_control 的 stage2 面液性臂跑了两版: family 翻转版 changed=True(装置接上); knot key 加后缀版抛 StopIteration(**未定位**)。结论只靠第一版。",
+  "deletable=True 只出现在「从未运行过的 4 模型交叉共识批次」那一组(normalize_dist / top_k / TAXONOMY+build_prompt / analyze+write_report / run_full+run_smoke)。它的含义是**在本工况下删了没有任何观测面会变**, 不是产品建议 —— 删它等于删掉一个已写好但从未跑过的能力。",
+  "本轮**没有**去核对 tests/data/ablation_verdicts_v3.json(只读, 未改), 因此没有与既有 160 条判决做去重/冲突检查; 合并由收口 agent 做。"
+ ]
+}

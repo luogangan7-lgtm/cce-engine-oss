@@ -1,0 +1,238 @@
+{
+ "block": "TAXONOMY_FIELD_REACH_LEDGER",
+ "★zero_api": "现算两侧真实 prompt 再做字面子串检测, 零 API。",
+ "★what_it_is_not": "**不是消融**。只答「字面进不进 prompt」, 不答「删了读数变不变」。⇒ 给的是**下界**: NEITHER 一定**不影响模型的判读行为**(但可能影响构念定义与结论用途, 见第二个轴); BOTH/GATE_ONLY 未必有影响。",
+ "per_field": {
+  "knots[].behavior": "BOTH",
+  "knots[].composition_note": "NEITHER",
+  "knots[].cost_tier": "NEITHER",
+  "knots[].cost_tier_note": "NEITHER",
+  "knots[].cross_turn_strategy": "NEITHER",
+  "knots[].evidence_level": "NEITHER",
+  "knots[].family": "PROD_ONLY",
+  "knots[].hard_discriminant": "NEITHER",
+  "knots[].internal_examples": "NEITHER",
+  "knots[].key": "BOTH",
+  "knots[].name": "BOTH",
+  "knots[].negative_examples_prompt": "GATE_ONLY",
+  "knots[].playbook": "NEITHER",
+  "knots[].signature": "BOTH",
+  "knots[].typical_codes": "PROD_ONLY",
+  "version": "PROD_ONLY",
+  "frozen_at": "NEITHER",
+  "status": "NEITHER",
+  "source": "NEITHER",
+  "definition_of_knot": "NEITHER",
+  "identity_criterion": "NEITHER",
+  "extra_appraisal_slots": "NEITHER",
+  "levers_not_knots": "PROD_ONLY",
+  "extension_slots_pending_data": "NEITHER",
+  "changelog_1_1_0": "NEITHER",
+  "changelog_1_1_1": "NEITHER",
+  "annotation_protocol": "GATE_ONLY",
+  "changelog_1_2_0": "NEITHER",
+  "changelog_1_3_0": "NEITHER",
+  "changelog_1_3_1": "NEITHER",
+  "changelog_1_3_1_b": "NEITHER",
+  "changelog_2026_09_05_atoms_a1a2": "NEITHER",
+  "changelog_2026_09_07_acceptance_rerun": "NEITHER",
+  "changelog_2026_09_07_gk3_revoked": "NEITHER",
+  "changelog_2026_09_07_qualification_is_a_coin_flip": "NEITHER",
+  "changelog_2026_09_07_repeatability_external_belong": "NEITHER",
+  "★qualification_premise_of_the_2026-09-07_PASS_is_revised": "NEITHER"
+ },
+ "★★判据": "**主判据 = prompt 构造器源码里取了哪个键**(AST/正则现算)。字面子串法降为交叉核对 —— 它答的是「这个字段的文字出现了吗」, 而**文字会重叠**: `changelog_1_3_0` 逐字引用决策树原文、`cost_tier` 的「高成本」也在 behavior 里, 两者都被子串法误判为到达。",
+ "★★★两种判法不一致的字段(不静默择一, 摆出来)": {
+  "extra_appraisal_slots": {
+   "源码读取(主判据)": "NEITHER",
+   "字面子串(交叉核对)": "BOTH"
+  },
+  "version": {
+   "源码读取(主判据)": "PROD_ONLY",
+   "字面子串(交叉核对)": "NEITHER"
+  },
+  "changelog_1_3_0": {
+   "源码读取(主判据)": "NEITHER",
+   "字面子串(交叉核对)": "BOTH"
+  },
+  "annotation_protocol": {
+   "源码读取(主判据)": "GATE_ONLY",
+   "字面子串(交叉核对)": "BOTH"
+  },
+  "knots[].cost_tier": {
+   "源码读取(主判据)": "NEITHER",
+   "字面子串(交叉核对)": "GATE_ONLY"
+  }
+ },
+ "buckets": {
+  "BOTH": [
+   "knots[].behavior",
+   "knots[].key",
+   "knots[].name",
+   "knots[].signature"
+  ],
+  "GATE_ONLY": [
+   "annotation_protocol",
+   "knots[].negative_examples_prompt"
+  ],
+  "NEITHER": [
+   "changelog_1_1_0",
+   "changelog_1_1_1",
+   "changelog_1_2_0",
+   "changelog_1_3_0",
+   "changelog_1_3_1",
+   "changelog_1_3_1_b",
+   "changelog_2026_09_05_atoms_a1a2",
+   "changelog_2026_09_07_acceptance_rerun",
+   "changelog_2026_09_07_gk3_revoked",
+   "changelog_2026_09_07_qualification_is_a_coin_flip",
+   "changelog_2026_09_07_repeatability_external_belong",
+   "definition_of_knot",
+   "extension_slots_pending_data",
+   "extra_appraisal_slots",
+   "frozen_at",
+   "identity_criterion",
+   "knots[].composition_note",
+   "knots[].cost_tier",
+   "knots[].cost_tier_note",
+   "knots[].cross_turn_strategy",
+   "knots[].evidence_level",
+   "knots[].hard_discriminant",
+   "knots[].internal_examples",
+   "knots[].playbook",
+   "source",
+   "status",
+   "★qualification_premise_of_the_2026-09-07_PASS_is_revised"
+  ],
+  "PROD_ONLY": [
+   "knots[].family",
+   "knots[].typical_codes",
+   "levers_not_knots",
+   "version"
+  ]
+ },
+ "★★★NEITHER_的第二个轴": {
+  "★why": "不进 prompt **不等于**测量无关。按「规定构念边界 / 影响实际程序 / 影响结果用途」再分一次。★ 本轴人判、可被反驳; 闸只保证每个 NEITHER 都有归类, 不保证归类对。",
+  "分类": {
+   "knots[].composition_note": {
+    "轴": "规定构念边界",
+    "说明": "组合/顺序约束, 属构念定义。"
+   },
+   "knots[].cost_tier": {
+    "轴": "规定构念边界",
+    "说明": "成本档是构念的一部分(行为成本), 但其文字已包含在 behavior 里, 单独字段不进 prompt。"
+   },
+   "knots[].cost_tier_note": {
+    "轴": "规定构念边界",
+    "说明": "同上的说明。"
+   },
+   "knots[].cross_turn_strategy": {
+    "轴": "规定构念边界",
+    "说明": "跨轮次规则 —— 单文本判官**结构上看不到**, 所以正当地不进 prompt; 但它是构念的一部分。"
+   },
+   "knots[].evidence_level": {
+    "轴": "影响结果用途",
+    "说明": "该类的证据等级标注 —— 决定结论能被引用到多强, 不进 prompt。"
+   },
+   "knots[].hard_discriminant": {
+    "轴": "规定构念边界",
+    "说明": "★★ **规定构念边界**(它是九类判别的人读定义), 但**不进任何 prompt** ⇒ 它约束的是**人怎么理解这个类**, 不是模型怎么判。⇒ 拿它解释模型行为=假因果; 但拿它当构念定义的真值**是正当的**。"
+   },
+   "knots[].internal_examples": {
+    "轴": "影响结果用途",
+    "说明": "人读例子; 已实测七个里六个不在语料中(见 test_cce_internal_examples)。不进 prompt, 但被引用为「这个类长什么样」。"
+   },
+   "knots[].playbook": {
+    "轴": "影响结果用途",
+    "说明": "下游 manipulation 建议, 由 manifest 第五条路专门管辖。不进 prompt, 但**改变三个下游读数测的是什么**。"
+   },
+   "frozen_at": {
+    "轴": "影响结果用途",
+    "说明": "冻结时间, 版本追溯用。"
+   },
+   "status": {
+    "轴": "影响结果用途",
+    "说明": "★★ 整个分类学的**现状与作用域声明** —— 它决定所有结论能被引用到多强。不进 prompt, 但**测量学上最要紧的字段之一**。"
+   },
+   "source": {
+    "轴": "影响结果用途",
+    "说明": "来源出处。"
+   },
+   "definition_of_knot": {
+    "轴": "规定构念边界",
+    "说明": "**结的定义本身**。不进 prompt, 但它是整个分类学的构念根。"
+   },
+   "identity_criterion": {
+    "轴": "规定构念边界",
+    "说明": "同一性判据 —— 决定「两个类算不算同一个」。"
+   },
+   "extra_appraisal_slots": {
+    "轴": "规定构念边界",
+    "说明": "附加评价维度。"
+   },
+   "extension_slots_pending_data": {
+    "轴": "影响结果用途",
+    "说明": "待扩展槽位 —— 决定「哪些还没被覆盖」。"
+   },
+   "changelog_1_1_0": {
+    "轴": "均不",
+    "说明": "变更历史 —— 不规定构念、不影响程序、不影响结论用途。**这一格才是真正的『测量无关』。**"
+   },
+   "changelog_1_1_1": {
+    "轴": "均不",
+    "说明": "变更历史 —— 不规定构念、不影响程序、不影响结论用途。**这一格才是真正的『测量无关』。**"
+   },
+   "changelog_1_2_0": {
+    "轴": "均不",
+    "说明": "变更历史 —— 不规定构念、不影响程序、不影响结论用途。**这一格才是真正的『测量无关』。**"
+   },
+   "changelog_1_3_0": {
+    "轴": "均不",
+    "说明": "变更历史 —— 不规定构念、不影响程序、不影响结论用途。**这一格才是真正的『测量无关』。**"
+   },
+   "changelog_1_3_1": {
+    "轴": "均不",
+    "说明": "变更历史 —— 不规定构念、不影响程序、不影响结论用途。**这一格才是真正的『测量无关』。**"
+   },
+   "changelog_1_3_1_b": {
+    "轴": "均不",
+    "说明": "变更历史 —— 不规定构念、不影响程序、不影响结论用途。**这一格才是真正的『测量无关』。**"
+   },
+   "changelog_2026_09_05_atoms_a1a2": {
+    "轴": "均不",
+    "说明": "变更历史 —— 不规定构念、不影响程序、不影响结论用途。**这一格才是真正的『测量无关』。**"
+   },
+   "changelog_2026_09_07_acceptance_rerun": {
+    "轴": "均不",
+    "说明": "变更历史 —— 不规定构念、不影响程序、不影响结论用途。**这一格才是真正的『测量无关』。**"
+   },
+   "changelog_2026_09_07_gk3_revoked": {
+    "轴": "均不",
+    "说明": "变更历史 —— 不规定构念、不影响程序、不影响结论用途。**这一格才是真正的『测量无关』。**"
+   },
+   "changelog_2026_09_07_qualification_is_a_coin_flip": {
+    "轴": "均不",
+    "说明": "变更历史 —— 不规定构念、不影响程序、不影响结论用途。**这一格才是真正的『测量无关』。**"
+   },
+   "changelog_2026_09_07_repeatability_external_belong": {
+    "轴": "均不",
+    "说明": "变更历史 —— 不规定构念、不影响程序、不影响结论用途。**这一格才是真正的『测量无关』。**"
+   },
+   "★qualification_premise_of_the_2026-09-07_PASS_is_revised": {
+    "轴": "均不",
+    "说明": "变更历史 —— 不规定构念、不影响程序、不影响结论用途。**这一格才是真正的『测量无关』。**"
+   }
+  },
+  "未归类": [],
+  "★统计": {
+   "规定构念边界": 8,
+   "影响结果用途": 7,
+   "均不": 12
+  },
+  "★★★结论": "**只有 changelog 类是真正的测量无关。** 其余要么规定构念边界、要么影响结论用途。⇒ 原表那句「NEITHER 一定没影响」**说过头了**。正确说法: **NEITHER 一定不影响模型的判读行为, 但可能影响构念定义与结论的可引用范围。**"
+ },
+ "★★NEITHER_是最要紧的一格": "两边都不进的字段**不可能**解释模型行为。★ 2026-09-08 我就是拿 NEITHER 格的 `hard_discriminant` 写了 suspend 的病因, 而那个短语模型一次都没见过 —— 一条讲得通但为假的因果。",
+ "★GATE_ONLY_的含义": "改它 = **只改验收闸**, 生产分类器一个字不变, `instrument_hash` 也不变。⇒ 换代路由不能走「递增 instrument_generation」那条。",
+ "★how_to_use": "改任何分类学字段之前, 先在本表里查它落在哪一格。**这是三次假因果的直接对策。**",
+ "★★★granularity_limit_do_not_over_read": "★ 粒度是「顶层字段」与「knots[].字段」两层, **不拆嵌套**。⇒ `annotation_protocol` 判 GATE_ONLY, 指的是**这个容器里有东西**进闸(decision_tree_prompt), **不等于**它每个子字段都进 —— 同一个容器里的 `gate_record` / `anchor_source` / `version` 一个都不进 prompt。★★ 拿容器的格子去推子字段, 就是本表要防的那类假因果的**变体**。要判子字段, 单独查。"
+}
