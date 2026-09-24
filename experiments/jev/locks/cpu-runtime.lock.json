@@ -1,0 +1,21 @@
+{
+ "schema": "cce.jev.cpu-runtime.v1",
+ "status": "REQUIRES_GITHUB_PREPARE",
+ "runner": "ubuntu-24.04",
+ "base_image": "python:3.11-slim-bookworm",
+ "base_image_digest": "sha256:a36c24f9cbdf4fd0f52d67f0823eeac19c2028c637cecc392d97f980d4fec56b",
+ "base_image_digest_note": "manifest-list digest read from Docker Hub API 2026-09-24 (amd64 image sha256:4b4c524dc3dce996864e030c7bd9c6b0e517597189fee48f48e05b499442444b)",
+ "dockerfile": "experiments/jev/runtime/Dockerfile.cpu",
+ "dependency_spec": "experiments/jev/runtime/runtime-cpu.in",
+ "dependency_lock": "experiments/jev/locks/runtime-cpu.lock.txt",
+ "dependency_lock_sha256": null,
+ "decider_install": {"source": "git+https://github.com/Mapika/decider@7840bb93597e9ba60bf796b4cefbcc5192e5adfb", "install": "--no-deps at image build (deps listed explicitly in runtime-cpu.in)", "installed_record_sha256": null, "note": "wheel bytes are not reproducible across builds (mtimes); identity = pinned commit + installed RECORD hash observed by prepare"},
+ "dependency_metadata_patch": {"flash-linear-attention": "excluded from the CPU runtime (GPU/triton kernels); transformers' torch fallback is used. Recorded here as the only dependency deviation from upstream pyproject; verified by prepare import smoke + first GitHub forward."},
+ "observed_image_id": null,
+ "device": "cpu",
+ "dtype": "float32",
+ "threads": 3,
+ "container": {"cpus": 3, "memory": "12g", "memory_swap": "12g", "pids_limit": 256, "tmpfs_tmp": "256m", "network": "none", "read_only": true, "cap_drop": "ALL", "no_new_privileges": true, "user": "1001:1001"},
+ "env_whitelist": ["GITHUB_ACTIONS", "RUNNER_ENVIRONMENT", "GITHUB_REPOSITORY", "GITHUB_WORKFLOW_REF", "GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_SHA", "GITHUB_JOB", "RUNNER_NAME", "RUNNER_ARCH", "RUNNER_OS", "HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE", "HF_HUB_DISABLE_TELEMETRY", "TOKENIZERS_PARALLELISM", "OMP_NUM_THREADS", "MKL_NUM_THREADS", "CCE_JEV_IMAGE_ID"],
+ "note": "prepare 在 GitHub 生成 runtime-cpu.lock.txt(精确版本 + wheel hash)与 decider wheel sha256; 评审后提交并把 status 改 READY, 同时回填 dependency_lock_sha256。observed_image_id 每次 eval 现记, 不当既定值。"
+}

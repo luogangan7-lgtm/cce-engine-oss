@@ -1,0 +1,20 @@
+{
+ "task_id": "s0_context.v1",
+ "taxonomy": "config/context_taxonomy.json",
+ "taxonomy_schema_version": "0.1.0",
+ "taxonomy_sha256": "c024e5557551f4bbda8428cfbbbd39f5d39b27ebf155b3870cabd2ce9ecfd558",
+ "question_type": "choice",
+ "question_template": "scripts/cce_s0_jev.jev_questions — 逐字相同(experiments/jev/tests/test_compile_context.py 核), 使 Jev 重测证据(results/s0_retest.json)对候选可比",
+ "candidate_order": "taxonomy values 原序, 无 unknown 别名的面追加 未知",
+ "unknown_token": "未知",
+ "unknown_aliases": ["未提及"],
+ "unknown_rule": "每题 unknown 有且只有一个候选表示; 未提及/未知 保留原始返回, 映射只在报告层",
+ "state_shape": "str: 完整文本(无 [:2000] 切片)",
+ "preparation_id": "full_text.v1",
+ "legacy_preparation": {"id": "text_2000.v0", "note": "生产 s0 用 text[:2000]; 若要与旧读数比较重放, 另设 preparation_id 并同时保存原文/有效文本哈希, 不把制备差异归因于模型"},
+ "provenance": {"DECLARED": "调用方合法声明, 模型不覆盖, 不生成模型行", "MODEL_CANDIDATE": "未声明且 readable_from_text ∈ {true, partial}: 生成 Choice 问题", "UNOBSERVABLE": "未声明且 readable_from_text=false: 记 unknown, 不调模型", "INVALID_INPUT": "声明 key/value 不合法: 输入失败, 不猜测修复"},
+ "layout": "state_first, independent rows (one question per row), micro-batch 1",
+ "single_choice_caveat": "现有取值可能同时成立(如 预算受限 与 有决定权); 本合同遵循已冻结的单选读出, 不宣布互斥; 多标签需另改合同",
+ "no_threshold": "不按 confidence>=X 发放生产资格; 保存完整分布; 候选判断 ≠ 获准采用",
+ "writes": "reports/<run-id>/s0_candidates.jsonl 等; 绝不写 s0_context.json / manifest qualified·usable / cce_population 输入 / complete=true"
+}

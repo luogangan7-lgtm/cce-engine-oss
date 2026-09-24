@@ -1,0 +1,13 @@
+# CPU runtime dependency spec for the Decider candidate container. Resolved ONLY on a GitHub-hosted runner by
+# cce-jev-prepare.yml into locks/runtime-cpu.lock.txt (exact versions + sha256 hashes). Never resolved or installed locally.
+#
+# Upstream decider-ai 1.1.3 declares: torch, transformers>=5, flash-linear-attention, numpy<2, huggingface_hub.
+# Deviation (recorded in locks/cpu-runtime.lock.json): flash-linear-attention is excluded from the CPU runtime
+# (GPU/triton kernels); the decider wheel is installed --no-deps, its runtime deps are listed here explicitly.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+transformers>=5
+numpy<2
+huggingface_hub
+safetensors
+tokenizers
