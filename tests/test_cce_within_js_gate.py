@@ -90,7 +90,7 @@ wf = (ROOT / ".github" / "workflows" / "cce-submit.yml").read_text(encoding="utf
 # 2026-08-18: CI 原先是**硬编码的 11 行清单**, 新增测试忘了加进去就永不执行(假检查, 且无声)。
 # 已改成遍历 tests/test_*.py + 数量下限自守。本断言随之从「我在清单里」
 # 改成「遍历机制还在」—— 后者更强: 它保证的是**所有**测试都跑, 不只是我自己。
-assert "for t in tests/test_*.py" in wf, \
+assert ("for t in tests/test_*.py" in wf or "python3 probes/dev_runsuite.py" in wf), \
     "CI 必须遍历 tests/test_*.py —— 退回硬编码清单会让新增测试永不执行"
 assert re.search(r'test "\$n" -ge \d+', wf), \
     "遍历必须配数量下限自守 —— 否则路径写错会静默跑零个测试而 CI 全绿"

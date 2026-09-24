@@ -15,7 +15,7 @@ def test_workflow_contract_step_uses_runsuite_not_bare_loop():
 
 def test_runsuite_routes_pytest_style_to_pytest_and_exits_nonzero_on_red():
     s = importlib.util.spec_from_file_location("_rs", ROOT / "probes/dev_runsuite.py"); src = (ROOT / "probes/dev_runsuite.py").read_text(encoding="utf-8")
-    assert "sys.exit(1 if real else 0)" in src
+    assert "sys.exit(1 if real else 0)" in src and 'glob("test_*.py")' in src   # 遍历同一集合 tests/test_*.py, 不退回硬编码清单
     with tempfile.TemporaryDirectory() as tmp:
         a = pathlib.Path(tmp) / "test_a.py"; a.write_text("def test_x():\n    assert True\n", encoding="utf-8")
         b = pathlib.Path(tmp) / "test_b.py"; b.write_text("assert 1 == 1\n", encoding="utf-8")

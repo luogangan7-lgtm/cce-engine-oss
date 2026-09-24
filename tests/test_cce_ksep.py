@@ -112,7 +112,7 @@ if FIX.exists():
 
 # ── 8. CI 自防 ──────────────────────────────────────────────────────────────
 wf = (ROOT / ".github" / "workflows" / "cce-submit.yml").read_text(encoding="utf-8")
-assert "for t in tests/test_*.py" in wf, \
+assert ("for t in tests/test_*.py" in wf or "python3 probes/dev_runsuite.py" in wf), \
     "CI 必须遍历 tests/test_*.py —— 退回硬编码清单会让新增测试永不执行"
 assert re.search(r'test "\$n" -ge \d+', wf), \
     "遍历必须配数量下限自守 —— 否则路径写错会静默跑零个测试而 CI 全绿"
