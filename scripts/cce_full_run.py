@@ -321,22 +321,34 @@ def s2(ctx):
             #   证据片段的产出方 = s2 模型给的 evidence_quote(本来就在产出里, 此前无人核它是否逐字在原文)。
             #   但 s2 协议不产出「片段支撑哪一支 + 关于哪个对象」⇒ 资格层**只能**给 ③ 候选, 永不升格 ——
             #   这是 fail-closed 的诊断字段, **不改任何判决**; 想升格得走 r2 式引用证书协议(另立)。
-            "label_qualification": _s2_label_qualification(ctx, knots)}
+            "label_qualification": _s2_label_qualification(ctx, knots, top1_stable)}
 
 
-def _s2_label_qualification(ctx, knots):
-    """top-1 结的合同层资格: 状态恒为候选(协议缺口), 附带 evidence_quote 逐字核。"""
+def _s2_label_qualification(ctx, knots, top1_stable=None):
+    """top-1 结的合同层资格。默认: 恒候选(协议缺口), 附 evidence_quote 逐字核。
+
+    ★ 2026-09-24 owner「接吧」(预注册 v3 ad5deee4 判 ADOPT_SHADOW): 影子段 —— 环境开关 CCE_CITATION_CERT=1 **且** top-1 是 display
+      **且** top1_stable is True(与 playbook_primary 同门槛)时, 发 2 张引用证书(scripts/cce_citation_certificate.shadow_certificates),
+      两张都 UPGRADED 且见证交集非空 ⇒ state 升到 ③′ CITED_UNVERIFIED; 否则维持候选并写明 decision。
+      开关关 ⇒ 与今日行为逐字节相同; citable_as_confirmed 恒 False; 证书记录落 s2b_citation.json(无原文, 只 sha16)。
+    """
     from cce_label_qualification import qualify, is_citable_as_confirmed
     if not knots:
         return None
     text = open(ctx["text_file"], encoding="utf-8").read()
     quote = (knots[0].get("evidence_quote") or "").strip()
     q = qualify(knots[0]["key"], text, evidence=None, required_conjuncts=None)
-    return {"knot": knots[0]["key"], "state": q["state"], "citable_as_confirmed": is_citable_as_confirmed(q),
-            "evidence_quote_verbatim": bool(quote) and quote in text,
-            "why": q["why"],
-            "★协议缺口": "s2 只产出 evidence_quote, 没有「支撑哪一支」与「关于哪个对象」⇒ 资格层无法升格; 本字段是诊断, 不改判决。"}
-
+    out = {"knot": knots[0]["key"], "state": q["state"], "citable_as_confirmed": is_citable_as_confirmed(q),
+           "evidence_quote_verbatim": bool(quote) and quote in text,
+           "why": q["why"],
+           "★协议缺口": "s2 只产出 evidence_quote, 没有「支撑哪一支」与「关于哪个对象」⇒ 资格层无法升格; 本字段是诊断, 不改判决。"}
+    if os.environ.get("CCE_CITATION_CERT") == "1" and knots[0]["key"] == "display" and top1_stable is True:
+        from cce_citation_certificate import shadow_certificates
+        sc = shadow_certificates(text)
+        json.dump(sc, open(f"{ctx['outdir']}/s2b_citation.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        out.update({"state": sc["state"], "citable_as_confirmed": False, "s2b_decision": sc["decision"], "s2b_witness_sha16": sc["witness_sha16"], "s2b_calls": sc["calls"], "s2b_file": "s2b_citation.json",
+                    "★协议缺口": "影子段已发证书(2 张, 见 s2b_citation.json): ③′ = 出处可核·语义未验; ④ 仍不可达。"})
+    return out
 
 
 def _unscored_guidance(taxo, knot_key):

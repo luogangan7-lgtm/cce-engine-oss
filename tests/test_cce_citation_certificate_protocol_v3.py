@@ -62,4 +62,4 @@ def test_v2_product_untouched_and_not_wired():
     assert v2["★★★判决(按预注册规则现算)"] == "STOP" and "M5 修复(仅 v3)" not in v2["★★★指标"]
     assert PRE3["supersedes"]["sha"] == hashlib.sha256((ROOT / "tests/data/citation_certificate_production_prereg.json").read_text(encoding="utf-8").encode()).hexdigest()[:16]
     assert PRE3["★预算硬上限"]["证书调用"] == 176 and "未执行" in PRE3["★★★status"] and "5–12%" in PRE3["★★★决策规则(测量前冻结)"]["★预测(先写)"]
-    src = (ROOT / "scripts/cce_full_run.py").read_text(encoding="utf-8"); assert "CCE_CITATION_CERT" not in src and "s2b" not in src
+    src = (ROOT / "scripts/cce_full_run.py").read_text(encoding="utf-8"); assert "CCE_CITATION_CERT" in src and "shadow_certificates" in src   # ★ 2026-09-24 ADOPT_SHADOW + owner「接吧」⇒ 已接线(默认关)

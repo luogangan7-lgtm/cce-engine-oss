@@ -38,6 +38,9 @@ def imports_from(path, prefix):
 #    从 cce_response_chain 删掉 EMOTIONS，因 cce_full_run 也导入它，并集不变 ⇒ 仍绿。
 #    **聚合掩盖了细节。** 改为逐文件 —— 任一文件的依赖变化都必须重新报数。
 PER_FILE = {
+    # ★ 2026-09-24 引用证书影子段(owner「接吧」): 生产不许 import 探针 ⇒ 验证器逐字复制进生产模块, 它只走 call_model 一条边。
+    "cce_citation_certificate.py": {
+        "exp_crossmodel_desire": ["call_model"]},
     "cce_full_run.py": {
         "exp_crossmodel_desire": ["call_model"],
         "exp_v4_causal_chain": ["EMOTIONS"],

@@ -31,5 +31,5 @@ def test_rules_frozen_and_production_not_wired():
     assert "citable_as_confirmed **恒 False**" in P["★★★影子段 s2b 的形状(接线时照此, 现在不接)"]["★不变量"]
     assert "未执行" in P["★★★status"] and "生产未接线" in P["★★★status"]
     src = (ROOT / "scripts/cce_full_run.py").read_text(encoding="utf-8")
-    assert "CCE_CITATION_CERT" not in src and "s2b" not in src, "★ 预注册未执行/未判 ADOPT 前不许接线"
+    assert "CCE_CITATION_CERT" in src and "shadow_certificates" in src   # ★ 2026-09-24 ADOPT_SHADOW + owner「接吧」⇒ 已接线(默认关), "★ 预注册未执行/未判 ADOPT 前不许接线"
     assert any("MIS-4" in x for x in P["★★★不得据此说"])

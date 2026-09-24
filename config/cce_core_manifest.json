@@ -1627,6 +1627,27 @@
     "不得说可判率 60% 门在 95% 水平上确立(CP 下界 0.54)。",
     "不得把 v2→v3 的 M1 差读成协议效应。"
    ]
+  },
+  {
+   "date": "2026-09-24",
+   "event": "CITATION_CERTIFICATE_SHADOW_STAGE_WIRED_OWNER_NOD",
+   "file": "scripts/cce_citation_certificate.py",
+   "to_sha": "172f533f0b32e442",
+   "also": {
+    "scripts/cce_full_run.py": "0b50a4fdac1c8e49"
+   },
+   "reason": "owner「接吧」(v3 试点 ADOPT_SHADOW 之后)。生产不许 import 探针 ⇒ 新建生产模块: 验证器由 r2 探针 AST 切片**逐字复制**(闸逐函数比对), 采集 v3 同源, shadow_certificates 两张并发一致才升 ③′。s2 内环境开关 CCE_CITATION_CERT(默认关), 仅 display ∧ top1_stable is True 触发; 不加新 stage(manifest.chain 不变); 产物 s2b_citation.json 无原文; citable_as_confirmed 恒 False。",
+   "behavior_evidence": [
+    "tests/test_cce_s2b_citation_shadow.py",
+    "tests/test_cce_module_boundary.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 仪器确实没变(core_files sha 不动), 变的是 s2 产出面(开关开时): 接线闸五条(关=同今日零调用 · 开+一致⇒③′/不一致⇒候选+DISAGREE · citable 恒 False · 非 display/不稳零调用 · 产物无原文) + 验证器逐字==r2 + prompt_v3 sha==预注册 v3 + 修复 ≤2 次; 变异 6/6 抓到且首红对号; 生产依赖面按文件重新报数(cce_citation_certificate→call_model)。",
+   "route": "**生产接线(非 core_files, instrument_generation 不变), 默认关, 零调用**。线上要开由 owner 设 CCE_CITATION_CERT=1(workflows 未改)。★ 开了之后每条 display∧稳定 的链多 2–4 次 MiniMax 调用、约 +25 s(试点中位)。",
+   "★不得据此说": [
+    "不得说 ③′ = 语义正确(MIS-4 类照过); ④ 未实现。",
+    "不得说可判率 60% 门在 95% 水平确立。",
+    "不得说全链更准/更快。"
+   ]
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",

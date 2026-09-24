@@ -37,4 +37,4 @@ def test_no_text_in_product_and_production_still_not_wired():
         assert r["ptr"].startswith("corpus/") or len(r["ptr"]) == 16
     s = json.dumps(R, ensure_ascii=False); assert "span" not in s.lower().replace("n_evidence", "") or "\"span\"" not in s
     assert "apikey_" not in s
-    src = (ROOT / "scripts/cce_full_run.py").read_text(encoding="utf-8"); assert "CCE_CITATION_CERT" not in src and "s2b" not in src
+    src = (ROOT / "scripts/cce_full_run.py").read_text(encoding="utf-8"); assert "CCE_CITATION_CERT" in src and "shadow_certificates" in src   # ★ 2026-09-24 ADOPT_SHADOW + owner「接吧」⇒ 已接线(默认关)

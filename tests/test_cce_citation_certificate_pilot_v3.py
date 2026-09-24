@@ -36,4 +36,4 @@ def test_same_material_as_v2_and_no_text_and_not_wired():
             assert set(c) == full or (c["outcome"] == "CALL_FAIL" and set(c) == full - {"reason_codes_first"}), set(c)
             assert all(len(w) == 16 for w in c["witness"])
     s = json.dumps(R, ensure_ascii=False); assert "apikey_" not in s and '"span"' not in s and '"object"' not in s and '"why"' not in s
-    src = (ROOT / "scripts/cce_full_run.py").read_text(encoding="utf-8"); assert "CCE_CITATION_CERT" not in src and "s2b" not in src
+    src = (ROOT / "scripts/cce_full_run.py").read_text(encoding="utf-8"); assert "CCE_CITATION_CERT" in src and "shadow_certificates" in src   # ★ 2026-09-24 ADOPT_SHADOW + owner「接吧」⇒ 已接线(默认关)
