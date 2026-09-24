@@ -29,7 +29,7 @@ def sha16(s): return hashlib.sha256(s.encode("utf-8")).hexdigest()[:16]
 
 
 def preflight(pre, r2, LQ):
-    proto = pre["★★★协议(逐字沿用 r2, 由闸现算比对)"]
+    proto = pre["★★★协议(逐字沿用 r2, 由闸现算比对)" if PROTOCOL == "v2" else "★★★协议 v3(由闸现算比对)"]
     want = sha16(r2.PROMPT % (r2.DISC, "")) if PROTOCOL == "v2" else sha16(P3.prompt_v3(""))
     assert want == proto["prompt_sha(模板, text 置空)"], "★★★ prompt 与预注册不符 —— 未发起任何调用"
     assert sha16(inspect.getsource(r2._judge)) == proto["_judge 源码 sha"], "★★★ _judge 与预注册不符 —— 未发起任何调用"
@@ -39,7 +39,7 @@ def preflight(pre, r2, LQ):
 
 
 def load_texts(pre):
-    mat = pre["★★★试点材料(指针+sha, 冻结)"]; out = []
+    mat = pre.get("★★★试点材料(指针+sha, 冻结)") or pre["★★★试点材料(指针+sha, 冻结, 与 v1 相同)"]; out = []
     for it in mat["A · 归档里 s2 top-1=display 且原文可找回"]["items"]:
         items = json.loads((ROOT / it["text_source"]).read_text(encoding="utf-8")); items = items if isinstance(items, list) else items.get("items")
         t = items[it["item_index"]]["text"]; assert sha16(t) == it["input_sha"], "★★★ 归档文本与预注册 sha 不符 —— 停"
@@ -87,7 +87,7 @@ def one_cert(text, r2, LQ, call_model, model, ledger, cap):
             if (meta2 or {}).get("error") != "CAP_HIT":   # 撞上限 ⇒ 修复没发, 不计次不标修复
                 calls += 1; sec += sec2; repaired = True
                 obj = r2._parse(raw2) if raw2 and raw2.strip() and not (meta2 or {}).get("error") else None
-        if obj is None: return {"outcome": "CALL_FAIL", "state": None, "sec": sec, "witness": [], "n_evidence": 0, "reason_codes": codes_first or [], "repaired": repaired, "calls": calls}
+        if obj is None: return {"outcome": "CALL_FAIL", "state": None, "sec": sec, "witness": [], "n_evidence": 0, "reason_codes": codes_first or [], "reason_codes_first": (codes_first if PROTOCOL == "v3" else None), "repaired": repaired, "calls": calls}
     if PROTOCOL == "v3":
         codes_first = P3.reason_codes(obj, text) if codes_first is None else codes_first
         if codes_first and calls < 2:

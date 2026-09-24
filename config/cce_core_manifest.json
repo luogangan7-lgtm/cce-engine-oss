@@ -1607,6 +1607,26 @@
     "不得说协议 v3 已验证 —— 只是预注册。",
     "不得把修复重问读成语义改善。"
    ]
+  },
+  {
+   "date": "2026-09-24",
+   "event": "CITATION_CERTIFICATE_PILOT_V3_96_CALLS_VERDICT_ADOPT_SHADOW",
+   "file": "results/citation_certificate_pilot_v3.json",
+   "to_sha": "87fb05e75f256d3e",
+   "also": {
+    "probes/citation_certificate_pilot_run.py": "030571c0a9ecc119"
+   },
+   "reason": "按预注册 v3(ad5deee4) 跑: 44 文本 × 2 张 × ≤2 次, 实际 96/176 次。判决 **ADOPT_SHADOW**: M1 可判率 29/41 = 70.7% CP95 [0.54, 0.84](点估计过 60% 门, CP 下界未过); M4 MALFORMED(终态) 3/41 = 7.3% ≤ 10%; M3 代价中位 25.3 s ≤ 45; M2 升格 5/41。M5: 84 张里首答有格式码 8(span 非逐字 6 · JSON 2), 修复救回 2。",
+   "behavior_evidence": [
+    "tests/test_cce_citation_certificate_pilot_v3.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 生产未变(闸断言未接线); 判决由预注册 sha(投料前冻结)+ evaluate/combine 逐行现算把守, 每张 ≤2 次且总数=逐张求和, 材料指针集与 v2 逐条相同。",
+   "route": "**度量面 · 96 次真调用(订阅) · 生产未接线**。★ 预测对照: M4 5–12% 应验(7.3%); M1「不会改善」未应验(70.7% 高于 55–65%), 但与 v2 的 CP 大幅重叠, 不得说协议提高了可判率。★ 接影子段(默认关)要 **owner 点头**(预注册明写), 且接线闸五条要齐。★ 本轮执行器 CALL_FAIL 分支漏 reason_codes_first 键(1 张), 已修、产物不回改。",
+   "★不得据此说": [
+    "不得说 ③′ 语义正确(MIS-4 类照过); citable_as_confirmed 仍恒 False。",
+    "不得说可判率 60% 门在 95% 水平上确立(CP 下界 0.54)。",
+    "不得把 v2→v3 的 M1 差读成协议效应。"
+   ]
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",
