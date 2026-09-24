@@ -134,7 +134,8 @@ FROZEN_SHA8 = {
         # ★ 2026-09-24 第四次: 追加 CITATION_CERTIFICATE_PROTOCOL_V3_REASON_CODES_PREREG_V3。摘掉那条重算 = b637385e6f49bd75, 与上一钉逐字节相同。
         # ★ 2026-09-24 第五次: 追加 CITATION_CERTIFICATE_PILOT_V3_96_CALLS_VERDICT_ADOPT_SHADOW。摘掉那条重算 = cb1729c8c373bd69, 与上一钉逐字节相同。
         # ★ 2026-09-24 第六次: 追加 CITATION_CERTIFICATE_SHADOW_STAGE_WIRED_OWNER_NOD。摘掉那条重算 = 32f7127d71a6f954, 与上一钉逐字节相同。
-    "config/cce_core_manifest.json": "35822b781d695238",
+        # ★ 2026-09-24 第七次: 追加 CITATION_CERTIFICATE_SHADOW_SWITCHED_ON_ONLINE_OUTBOUND。摘掉那条重算 = 35822b781d695238, 与上一钉逐字节相同。
+    "config/cce_core_manifest.json": "ce9420bf492cb8cb",
     "accuracy/run_gates.py": "b758e6676a94acf3",
 }
 

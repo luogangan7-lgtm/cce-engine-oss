@@ -1726,7 +1726,7 @@
  "★frozen_files_sha256": {
   "scripts/cce_knot_classify.py": "0a740ba16e80dc54af920ce9536be50ae26590e0946064db062981b5ca75a9a5",
   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
-  "config/cce_core_manifest.json": "35822b781d69523826e7998620b5343a1f8d4e1c588343ef542171a092470e87",
+  "config/cce_core_manifest.json": "ce9420bf492cb8cbe1d514355c7fa08637f7cec96f2898ec74c7c7d573a77734",
   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
  },
  "★frozen_files_verdict": "第一轮开工前与收工后各算一次, 逐一相同。**第二轮(2026-09-11)出过一起事故并已还原**: 19:40:25 scripts/cce_knot_classify.py 被 L4 农场经 symlink 写穿真仓, 追加两行(空行 + `# refactor log reverse test`), sha f2cef2f99c949a75… → ad6503a8db0e871d…, 仓自己的 CORE_BOUNDARY 闸当场转红。造成它的 agent 已逐字节剥掉后缀 b'\\n# refactor log reverse test\\n' 并与并行 agent 的 pristine 副本逐行 diff 确认, `python3 scripts/cce_core_boundary.py` 重跑 = CORE_BOUNDARY_PASS。★ 收口时我自己第三次重算四个冻结件 sha256, 与 ★frozen_files_sha256 逐一相同(见 ★frozen_files_recheck_this_round)。★ 因此: 若某个产物的 file_integrity 报 sha_after=ad6503a8…, 那是事故窗口内的读数, **已失效**; 一律按 f2cef2f99c949a75… 比对。根因与修法见 ★claims_exceeding_evidence 的 CE-17(L4 农场必须实拷贝, 禁止 symlink)。",

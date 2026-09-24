@@ -184,6 +184,9 @@ jobs:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
           CCE_ALIGN_THETA: ${{ vars.CCE_ALIGN_THETA || '0.35' }}
+          # 2026-09-24 owner「线上开吧」: 引用证书影子段(仅 s2 top-1=display 且 top1_stable 时发 2 张证书, 升 ③′ 不改判决)。
+          # 仓库变量 CCE_CITATION_CERT 设为 0 即关; 未设 = 开。只在出站两档开, subject_chain 步骤未开。
+          CCE_CITATION_CERT: ${{ vars.CCE_CITATION_CERT || '1' }}
         run: |
           python3 scripts/cce_full_run.py \
             --mode "$(cat run/mode)" \

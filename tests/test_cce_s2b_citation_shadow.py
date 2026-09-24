@@ -76,3 +76,14 @@ def test_repair_reask_bounded_to_two_calls(monkeypatch):
     bad = GOOD.replace('"数据"', '"数据/使用细节"'); answers = [bad, GOOD, bad, GOOD]   # 每张: 首答格式错 → 修复 → 好
     out, s2b, calls = _run_s2(monkeypatch, True, answers=answers)
     assert len(calls) == 4 and all(c["calls"] == 2 and c["repaired"] for c in s2b["certs"]) and out["label_qualification"]["s2b_calls"] == 4 and out["label_qualification"]["state"] == "CITED_UNVERIFIED"
+
+
+def test_online_switch_is_on_only_in_outbound_chain_step_and_overridable():
+    """★ 2026-09-24 owner「线上开吧」: 出站链步骤 env 带 CCE_CITATION_CERT(vars 可覆盖, 默认 '1'); subject_chain 步骤不带(暂不开); 其余 workflow 不带。"""
+    wf = (ROOT / ".github/workflows/cce-submit.yml").read_text(encoding="utf-8")
+    steps = wf.split("      - name: ")
+    outbound = [s for s in steps if s.startswith("Run profile-frozen CCE chain")]; assert len(outbound) == 1
+    assert "CCE_CITATION_CERT: ${{ vars.CCE_CITATION_CERT || '1' }}" in outbound[0]
+    others = [s for s in steps if "cce_full_run.py" in s and not s.startswith("Run profile-frozen CCE chain")]
+    assert others and all("CCE_CITATION_CERT" not in s for s in others), "★ subject_chain 步骤不该开"
+    for f in ("chain.yml", "accuracy.yml"): assert "CCE_CITATION_CERT" not in (ROOT / ".github/workflows" / f).read_text(encoding="utf-8")

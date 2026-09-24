@@ -1648,6 +1648,22 @@
     "不得说可判率 60% 门在 95% 水平确立。",
     "不得说全链更准/更快。"
    ]
+  },
+  {
+   "date": "2026-09-24",
+   "event": "CITATION_CERTIFICATE_SHADOW_SWITCHED_ON_ONLINE_OUTBOUND",
+   "file": ".github/workflows/cce-submit.yml",
+   "to_sha": "eba277e5f77088a7",
+   "reason": "owner「线上开吧」。cce-submit.yml「Run profile-frozen CCE chain」步骤(outbound_post/outbound_reply)env 加 CCE_CITATION_CERT = vars.CCE_CITATION_CERT || '1' —— 仓库变量设 0 即关, 不用改代码。subject_chain 步骤(观测响应, 8 路并行)**未开**: 那边每 run 多 8×(2–4) 次调用, 先看出站链的真实 s2b 记录再定。chain.yml / accuracy.yml 不带。",
+   "behavior_evidence": [
+    "tests/test_cce_s2b_citation_shadow.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 仪器没变; 变的是线上一个环境变量。闸按 workflow 步骤切片核: 只有出站链步骤带开关且可由 vars 覆盖, subject_chain 与其他 workflow 不带。★ 线上真实效果要看下一次出站 run 的产物里有没有 s2b_citation.json(只在 top-1=display∧稳定时才有)。",
+   "route": "**线上配置(非 core_files)**, 零调用。代价: 命中时每条链 +2–4 次 MiniMax、约 +25 s。",
+   "★不得据此说": [
+    "不得说线上已产出 ③′ —— 要等真实 run。",
+    "不得说 ③′ = 语义正确。"
+   ]
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",
