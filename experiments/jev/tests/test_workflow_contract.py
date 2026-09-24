@@ -83,13 +83,20 @@ def test_prepare_and_eval_are_manual_single_permit_and_split_permissions():
     assert "check-upload" in ev and "if: always()" in ev and "retention-days: 7" in ev
 
 
-def test_locks_are_consistent_and_not_ready_yet():
+def test_locks_are_consistent_and_ready_after_github_prepare():
     L = ROOT / "experiments" / "jev" / "locks"
     src = json.loads((L / "model.source.lock.json").read_text(encoding="utf-8"))
     assets = json.loads((L / "model.assets.lock.json").read_text(encoding="utf-8"))
     rt = json.loads((L / "cpu-runtime.lock.json").read_text(encoding="utf-8"))
-    assert assets["revision"] == src["revision"] and assets["status"] == "REQUIRES_GITHUB_PREPARE" and assets["files"] == {}
-    assert rt["status"] == "REQUIRES_GITHUB_PREPARE" and rt["dependency_lock_sha256"] is None and not (L / "runtime-cpu.lock.txt").exists()
+    import hashlib
+    assert assets["revision"] == src["revision"] and assets["status"] == "READY" and set(assets["files"]) == set(src["files"])
+    for name, spec in src["files"].items():           # 资产锁与源锁元数据锚点一致(GitHub 自算 sha == HF LFS sha)
+        assert assets["files"][name]["size"] == spec["size"], name
+        if spec["anchor"]["kind"] == "lfs_sha256":
+            assert assets["files"][name]["sha256"] == spec["anchor"]["value"], name
+    assert rt["status"] == "READY" and rt["dependency_lock_sha256"] == hashlib.sha256((L / "runtime-cpu.lock.txt").read_bytes()).hexdigest()
+    dep = (L / "runtime-cpu.lock.txt").read_text(encoding="utf-8")
+    assert "torch==2.14.0+cpu" in dep and "--hash=sha256:" in dep and "flash-linear-attention" not in dep and "triton" not in dep
     assert rt["base_image_digest"].startswith("sha256:") and rt["base_image_digest"] in (ROOT / "experiments" / "jev" / "runtime" / "Dockerfile.cpu").read_text()
     for pf in (ROOT / "experiments" / "jev" / "permits").glob("*.json"):      # 许可只能带 owner 批准引用, 单次, 有期限
         pm = json.loads(pf.read_text(encoding="utf-8"))

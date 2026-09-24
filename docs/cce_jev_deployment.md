@@ -5,7 +5,7 @@ Status ladder (each level is reported separately, never inferred from the next):
 | level | meaning | how it is proven |
 |---|---|---|
 | CODE_READY | contracts, compiler, guard, budget, coverage, adapter, 3 workflows, pure tests | `cce-jev-contract.yml` green; `tests/test_cce_jev_boundary.py` green in the existing suite |
-| ASSET_LOCK_READY | `locks/model.assets.lock.json` READY + `runtime-cpu.lock.txt` + `cpu-runtime.lock.json` READY, all generated on a GitHub runner and reviewed | prepare run URL + committed locks |
+| ASSET_LOCK_READY ✅ 2026-09-25 | `locks/model.assets.lock.json` READY + `runtime-cpu.lock.txt` + `cpu-runtime.lock.json` READY, generated on a GitHub runner and reviewed | prepare run https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/36032048288 (4 min 05 s job; 3.78 GB downloaded in 25 s; 0 forwards; torch 2.14.0+cpu / transformers 5.17.0; container network blocked) |
 | GITHUB_RUNTIME_SMOKE_PASSED | one real load + ≥1 real forward on `ubuntu-24.04`, network isolation verified, report artifact | eval run URL, `execution_receipt.json` |
 | S0_CANDIDATE_AVAILABLE | `reports/<run>/s0_candidates.jsonl` with full distributions for a registered suite | eval artifact |
 | SEMANTIC_ACCEPTANCE_PENDING | smoke semantic assertions evaluated; 2 items never prove accuracy | `report.json.semantic_acceptance` |

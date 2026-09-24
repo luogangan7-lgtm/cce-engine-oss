@@ -1,6 +1,6 @@
 {
  "schema": "cce.jev.cpu-runtime.v1",
- "status": "REQUIRES_GITHUB_PREPARE",
+ "status": "READY",
  "runner": "ubuntu-24.04",
  "base_image": "python:3.11-slim-bookworm",
  "base_image_digest": "sha256:a36c24f9cbdf4fd0f52d67f0823eeac19c2028c637cecc392d97f980d4fec56b",
@@ -8,14 +8,63 @@
  "dockerfile": "experiments/jev/runtime/Dockerfile.cpu",
  "dependency_spec": "experiments/jev/runtime/runtime-cpu.in",
  "dependency_lock": "experiments/jev/locks/runtime-cpu.lock.txt",
- "dependency_lock_sha256": null,
- "decider_install": {"source": "git+https://github.com/Mapika/decider@7840bb93597e9ba60bf796b4cefbcc5192e5adfb", "install": "--no-deps at image build (deps listed explicitly in runtime-cpu.in)", "installed_record_sha256": null, "note": "wheel bytes are not reproducible across builds (mtimes); identity = pinned commit + installed RECORD hash observed by prepare"},
- "dependency_metadata_patch": {"flash-linear-attention": "excluded from the CPU runtime (GPU/triton kernels); transformers' torch fallback is used. Recorded here as the only dependency deviation from upstream pyproject; verified by prepare import smoke + first GitHub forward."},
- "observed_image_id": null,
+ "dependency_lock_sha256": "68cf22eec1e30439e48e74303f82d579de49902740c43eb2baf2f2a870a0ef72",
+ "decider_install": {
+  "source": "git+https://github.com/Mapika/decider@7840bb93597e9ba60bf796b4cefbcc5192e5adfb",
+  "install": "--no-deps at image build (deps listed explicitly in runtime-cpu.in)",
+  "installed_record_sha256": "dc3c26499abd6b268006b692730dff518a01375620537a7f06d2ebd4e11706a2",
+  "note": "wheel bytes are not reproducible across builds (mtimes); identity = pinned commit + installed RECORD hash observed by prepare"
+ },
+ "dependency_metadata_patch": {
+  "flash-linear-attention": "excluded from the CPU runtime (GPU/triton kernels); transformers' torch fallback is used. Recorded here as the only dependency deviation from upstream pyproject; verified by prepare import smoke + first GitHub forward."
+ },
+ "observed_image_id": {
+  "prepare_run_36032048288": "sha256:254f63306fc4f661a5a301073d2a72c73358ea67b37ce1bae22461c1929dfbc0",
+  "note": "observed build id, not a fixed identity; each eval records its own"
+ },
  "device": "cpu",
  "dtype": "float32",
  "threads": 3,
- "container": {"cpus": 3, "memory": "12g", "memory_swap": "12g", "pids_limit": 256, "tmpfs_tmp": "256m", "network": "none", "read_only": true, "cap_drop": "ALL", "no_new_privileges": true, "user": "1001:1001"},
- "env_whitelist": ["GITHUB_ACTIONS", "RUNNER_ENVIRONMENT", "GITHUB_REPOSITORY", "GITHUB_WORKFLOW_REF", "GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_SHA", "GITHUB_JOB", "RUNNER_NAME", "RUNNER_ARCH", "RUNNER_OS", "HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE", "HF_HUB_DISABLE_TELEMETRY", "TOKENIZERS_PARALLELISM", "OMP_NUM_THREADS", "MKL_NUM_THREADS", "CCE_JEV_IMAGE_ID"],
- "note": "prepare 在 GitHub 生成 runtime-cpu.lock.txt(精确版本 + wheel hash)与 decider wheel sha256; 评审后提交并把 status 改 READY, 同时回填 dependency_lock_sha256。observed_image_id 每次 eval 现记, 不当既定值。"
+ "container": {
+  "cpus": 3,
+  "memory": "12g",
+  "memory_swap": "12g",
+  "pids_limit": 256,
+  "tmpfs_tmp": "256m",
+  "network": "none",
+  "read_only": true,
+  "cap_drop": "ALL",
+  "no_new_privileges": true,
+  "user": "1001:1001"
+ },
+ "env_whitelist": [
+  "GITHUB_ACTIONS",
+  "RUNNER_ENVIRONMENT",
+  "GITHUB_REPOSITORY",
+  "GITHUB_WORKFLOW_REF",
+  "GITHUB_RUN_ID",
+  "GITHUB_RUN_ATTEMPT",
+  "GITHUB_SHA",
+  "GITHUB_JOB",
+  "RUNNER_NAME",
+  "RUNNER_ARCH",
+  "RUNNER_OS",
+  "HF_HUB_OFFLINE",
+  "TRANSFORMERS_OFFLINE",
+  "HF_HUB_DISABLE_TELEMETRY",
+  "TOKENIZERS_PARALLELISM",
+  "OMP_NUM_THREADS",
+  "MKL_NUM_THREADS",
+  "CCE_JEV_IMAGE_ID"
+ ],
+ "note": "prepare 在 GitHub 生成 runtime-cpu.lock.txt(精确版本 + wheel hash)与 decider wheel sha256; 评审后提交并把 status 改 READY, 同时回填 dependency_lock_sha256。observed_image_id 每次 eval 现记, 不当既定值。",
+ "observed_versions": {
+  "torch": "2.14.0+cpu",
+  "transformers": "5.17.0",
+  "decider-ai": "1.1.3",
+  "python": "3.11 (python:3.11-slim-bookworm)",
+  "cuda_available": false
+ },
+ "network_isolation_smoke": "container --network none: socket connect 1.1.1.1:443 → blocked:OSError (prepare run 36032048288)",
+ "prepare_run": "https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/36032048288"
 }

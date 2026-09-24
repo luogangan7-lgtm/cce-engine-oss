@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """桥闸: 把 experiments/jev/tests 接进既有测试发现路径(tests/test_cce_*.py ⇒ dev_runsuite / CI contract job 都会跑到)。
-守: ① 子套件真被发现且全绿、零 skip ② 本机 guard 拒绝 ③ 全仓 requirements 不含模型依赖 ④ 仓内锁未 READY、无预批许可。"""
+守: ① 子套件真被发现且全绿、零 skip ② 本机 guard 拒绝 ③ 全仓 requirements 不含模型依赖 ④ 资产锁由 GitHub prepare 生成并经评审、许可带 owner 引用。"""
 import json
 import os
 import subprocess
@@ -35,7 +35,8 @@ def test_local_guard_and_repo_boundaries():
         assert e.code == "EXECUTION_LOCATION_FORBIDDEN"
     req = (ROOT / "requirements.txt").read_text(encoding="utf-8").lower()
     assert "torch" not in req and "transformers" not in req and "decider" not in req
-    assert json.loads((JEV / "locks" / "model.assets.lock.json").read_text(encoding="utf-8"))["status"] == "REQUIRES_GITHUB_PREPARE"
+    al = json.loads((JEV / "locks" / "model.assets.lock.json").read_text(encoding="utf-8"))
+    assert al["status"] == "READY" and al.get("generated_by", "").startswith("cce-jev-prepare.yml") and al["reviewed"]["run"].startswith("https://github.com/")
     for pf in (JEV / "permits").glob("*.json"):
         assert json.loads(pf.read_text(encoding="utf-8"))["owner_approval_reference"].strip(), pf.name
     assert not list(ROOT.rglob("*.safetensors")) and not list(ROOT.rglob("*.gguf"))

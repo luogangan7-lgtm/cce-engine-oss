@@ -66,7 +66,7 @@ def test_lock_not_ready_or_wrong_revision_refused(tmp_path):
     with pytest.raises(JevError) as e:
         SA.verify_bundle(d, {**lock, "revision": "0" * 40}, SRC)
     assert e.value.code == "MODEL_VERSION_MISMATCH"
-    assert SA.assets_lock()["status"] == "REQUIRES_GITHUB_PREPARE"      # 仓内锁尚未 READY: 本地绝不手填
+    assert SA.assets_lock()["generated_by"].startswith("cce-jev-prepare.yml")   # 仓内 READY 锁来自 GitHub prepare, 非本地手填
 
 
 def test_decider_config_strict(tmp_path):
