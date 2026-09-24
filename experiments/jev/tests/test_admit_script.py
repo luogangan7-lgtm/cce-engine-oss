@@ -73,12 +73,29 @@ def test_permit_content_refusals(tmp_path, permit_file, over, code):
     assert not (tmp_path / "receipt.json").exists()
 
 
-def test_eval_permit_refused_while_locks_not_ready(tmp_path, permit_file):
-    permit_file.write_text(json.dumps(_permit(mode="eval", workflow_id="cce-jev-eval.yml", suite_id="s0-smoke-v1",
-                                              suite_sha256=_sha(JEV / "suites" / "s0-smoke-v1.jsonl"), asset_lock_sha256=_sha(JEV / "locks" / "model.assets.lock.json"),
-                                              runtime_lock_sha256="x", resource_policy="cpu_smoke.json", resource_policy_sha256=_sha(JEV / "policies" / "cpu_smoke.json"))))
-    p = _run(_env(tmp_path, MODE="eval", SUITE_ID="s0-smoke-v1", GITHUB_WORKFLOW_REF="luogangan7-lgtm/cce-engine-oss/.github/workflows/cce-jev-eval.yml@refs/heads/master"))
-    assert p.returncode == 3 and "PERMIT_NOT_APPROVED" in p.stderr and "READY" in p.stderr, p.stderr
+def _eval_permit(**over):
+    return _permit(mode="eval", workflow_id="cce-jev-eval.yml", suite_id="s0-smoke-v1", suite_sha256=_sha(JEV / "suites" / "s0-smoke-v1.jsonl"),
+                   asset_lock_sha256=_sha(JEV / "locks" / "model.assets.lock.json"), runtime_lock_sha256=_sha(JEV / "locks" / "runtime-cpu.lock.txt"),
+                   resource_policy="cpu_smoke.json", resource_policy_sha256=_sha(JEV / "policies" / "cpu_smoke.json"), **over)
+
+
+EVAL_ENV = dict(MODE="eval", SUITE_ID="s0-smoke-v1", GITHUB_WORKFLOW_REF="luogangan7-lgtm/cce-engine-oss/.github/workflows/cce-jev-eval.yml@refs/heads/master")
+
+
+@pytest.mark.parametrize("over,needle", [
+    ({"runtime_lock_sha256": "x"}, "runtime lock"), ({"asset_lock_sha256": "0" * 64}, "asset lock"),
+    ({"suite_sha256": "0" * 64}, "suite_sha256"), ({"suite_id": "other-suite"}, "suite_id"),
+])
+def test_eval_permit_refused_when_any_lock_or_suite_binding_differs(tmp_path, permit_file, over, needle):
+    permit_file.write_text(json.dumps(_eval_permit(**over)))
+    p = _run(_env(tmp_path, **EVAL_ENV))
+    assert p.returncode == 3 and "PERMIT_NOT_APPROVED" in p.stderr and needle in p.stderr, p.stderr
+
+
+def test_eval_permit_bound_to_committed_locks_reaches_ref_creation(tmp_path, permit_file):
+    permit_file.write_text(json.dumps(_eval_permit()))
+    p = _run(_env(tmp_path, **EVAL_ENV))          # 全部绑定通过 → 唯一 ref 创建(不可达 API ⇒ 按已消耗)
+    assert p.returncode == 3 and "treating permit as consumed" in p.stderr, p.stderr
 
 
 def test_valid_prepare_permit_reaches_ref_creation_and_unknown_network_is_treated_as_consumed(tmp_path, permit_file):
