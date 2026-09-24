@@ -131,7 +131,8 @@ FROZEN_SHA8 = {
         # ★ 2026-09-24: 追加 R3_ACCEPTANCE_GAPS_12_BEHAVIOR_GATES_ADDED。摘掉那条重算 = 0fdc0d07dc206b75, 与上一钉逐字节相同。
         # ★ 2026-09-24 第二次: 追加 CITATION_CERTIFICATE_PRODUCTION_PREREG_REGISTERED。摘掉那条重算 = c85c748f698fccfb, 与上一钉逐字节相同。
         # ★ 2026-09-24 第三次: 追加 CITATION_CERTIFICATE_PILOT_88_CALLS_VERDICT_STOP。摘掉那条重算 = a90901195b3a9a68, 与上一钉逐字节相同。
-    "config/cce_core_manifest.json": "b637385e6f49bd75",
+        # ★ 2026-09-24 第四次: 追加 CITATION_CERTIFICATE_PROTOCOL_V3_REASON_CODES_PREREG_V3。摘掉那条重算 = b637385e6f49bd75, 与上一钉逐字节相同。
+    "config/cce_core_manifest.json": "cb1729c8c373bd69",
     "accuracy/run_gates.py": "b758e6676a94acf3",
 }
 

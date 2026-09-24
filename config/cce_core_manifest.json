@@ -1586,6 +1586,27 @@
     "不得把 4 张 ③′ 读成语义正确。",
     "不得把 M1 点估计 58.5% 当结论, 区间 [0.42, 0.74]。"
    ]
+  },
+  {
+   "date": "2026-09-24",
+   "event": "CITATION_CERTIFICATE_PROTOCOL_V3_REASON_CODES_PREREG_V3",
+   "file": "probes/citation_certificate_protocol_v3.py",
+   "to_sha": "169e6215809c69af",
+   "also": {
+    "probes/citation_certificate_pilot_run.py": "a44dd3a9af46603b",
+    "tests/data/citation_certificate_production_prereg_v3.json": "ad5deee4e8989a19"
+   },
+   "reason": "v2 试点 STOP(MALFORMED 24%) 之后: ①执行器加 MALFORMED **原因码**(reason_codes 纯函数, 只回码不回文本, 产物可存) ②采集协议 v3 三处改动(kind 菜单由判别式括号机械导出并明示只填一个 · 逐字=连续子串复制粘贴明示 · 一次结构化修复重问只回错误码) —— 验证器 _judge/qualify/P2 一字不动 ③预注册 v3(取代 v1 协议部分, 材料/判决线/影子段继承, 上限 176, 预测 M4 5–12%、M1 仍 55–65% ⇒ 大概率 NEEDS_N3)。",
+   "behavior_evidence": [
+    "tests/test_cce_citation_certificate_protocol_v3.py",
+    "tests/test_cce_citation_certificate_pilot.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 生产未变(闸断言未接线); 变的是采集面: 闸核菜单==INCREMENT_KINDS 且由合同文本导出、prompt_v3 只多一行且判别式原样、修复提示不含判据、reason_codes 逐族真闸(7 族+干净)、执行器 v3 修复路径最多 2 次且撞上限不发不计、v2 产物 sha/判决未改。",
+   "route": "**度量面 · 零调用 · 预注册 v3 未执行**。执行要 owner「跑」(≤176 次订阅)。★ v2 试点没存原因码, v3 的族分布依据是 r2 两轮(5/4/2 于 34 张), 已如实标注。",
+   "★不得据此说": [
+    "不得说协议 v3 已验证 —— 只是预注册。",
+    "不得把修复重问读成语义改善。"
+   ]
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",

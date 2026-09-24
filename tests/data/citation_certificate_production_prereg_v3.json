@@ -1,0 +1,404 @@
+{
+ "block": "CITATION_CERTIFICATE_PRODUCTION_PREREG_V3",
+ "date": "2026-09-24",
+ "supersedes": {
+  "prereg": "tests/data/citation_certificate_production_prereg.json",
+  "sha": "45aee33c716de139",
+  "★继承": "材料 A/B · 影子段形状 · 判决线阈值 · 不得据此说; **只换采集协议**"
+ },
+ "★★★status": "**REGISTERED · 未执行 · 生产未接线** —— 执行要 owner 一句「跑」(硬上限 176 次 MiniMax 订阅)。",
+ "★为什么有 v3": "v2 试点(88 次)判 STOP: M4 MALFORMED 率 24.4% > 10%。r2 真实语料两轮能拆出的 MALFORMED 族: kind 多重命中 5 · span 非逐字 4 · object 缺/非逐字 2(/34 张交卷) ⇒ 最大一族是**采集面**问题(没给菜单、没明示逐字), 不是验证器问题。★ v2 试点产物没存原因码(保护原文), 这一族分布来自 r2 而非 v2 —— 如实标注。",
+ "★★★协议 v3(由闸现算比对)": {
+  "prompt": "probes/citation_certificate_protocol_v3.prompt_v3(text) = r2.PROMPT 三处改动",
+  "prompt_sha(模板, text 置空)": "8afa367967d6d9d2",
+  "①kind 菜单(由判别式括号机械导出)": [
+   "具体型号",
+   "数据",
+   "使用细节",
+   "纠错",
+   "结构化经验"
+  ],
+  "②逐字明示": "连续子串·复制粘贴; 找不到 ⇒ supported=false",
+  "③修复重问": "仅当首答有格式码; 只回传错误码(不含判据/对错); 每张证书最多 2 次调用; 修复后仍按同一 _judge 判",
+  "错误码集": [
+   "E_JSON",
+   "E_EVIDENCE_SHAPE",
+   "E_SUPPORTS_INVALID",
+   "E_SPAN_NOT_VERBATIM",
+   "E_OBJECT_NOT_VERBATIM",
+   "E_KIND_NOT_IN_MENU",
+   "E_KIND_MULTI",
+   "E_KIND_ON_B"
+  ],
+  "机械验证器": "probes/extractor_counterexample_run_r2._judge **一字不动**",
+  "_judge 源码 sha": "5c689b08d49d14ea",
+  "P2 绑定": "witness_intersection",
+  "★不放松什么": "逐字判据、kind 枚举、P2 见证交集、附件 A 复述闸全部原样; 修复重问不给模型任何判据文字, 只说「哪个字段格式不对」。"
+ },
+ "★★★影子段 s2b 的形状": {
+  "触发": "仅当 s2 top-1 == display 且 top1_stable is True(与 playbook_primary 同门槛); 其他结 NOT_APPLICABLE(它们没有合同合取项)。",
+  "调用": "同一文本发 **2 张证书**(temperature=0, 同 prompt, 并发); 每张各自过 _judge。",
+  "升格规则": "两张都 UPGRADED **且** 两张的 P2 见证集合交集非空 ⇒ label_qualification.state = CITED_UNVERIFIED(③′); 否则维持 UNCONFIRMED_CANDIDATE 并写明 DISAGREE / BOTH_NOT_UPGRADED / CALL_FAIL。",
+  "★不变量": "citable_as_confirmed **恒 False**(④ 需确定性识别器, 未实现); 除 label_qualification 外 manifest 其他字段逐字节不变(由闸守); 开关 CCE_CITATION_CERT 默认关, 关时行为与今日完全相同。",
+  "记账": "每张证书的 outcome / 见证 / 逐字核 / 耗时 落 s2b_citation.json; 原文不落产物(生产产物本来含 input, 但证书 span 只记 sha16)。"
+ },
+ "★★★试点材料(指针+sha, 冻结, 与 v1 相同)": {
+  "A · 归档里 s2 top-1=display 且原文可找回": {
+   "n_texts": 2,
+   "★读法": "同一文本被多次 run 命中, 按文本去重; n 太小只作描述, 不进判决",
+   "items": [
+    {
+     "input_sha": "0a20cbda72888761",
+     "text_source": "archive/32095782756/cce-submission-source__items.json",
+     "item_index": 4,
+     "n_chars": 1125,
+     "readouts": [
+      "archive/32095782756/cce-item-4-32095782756__s1_readout.json",
+      "archive/32095782756/cce-item-5-32095782756__s1_readout.json",
+      "archive/32095782756/cce-item-7-32095782756__s1_readout.json",
+      "archive/32096357295/cce-item-4-32096357295__s1_readout.json",
+      "archive/32096357295/cce-item-5-32096357295__s1_readout.json",
+      "archive/32096357295/cce-item-6-32096357295__s1_readout.json",
+      "archive/32096357295/cce-item-7-32096357295__s1_readout.json",
+      "archive/32099546100/cce-item-0-32099546100__s1_readout.json",
+      "archive/32111177990/cce-item-0-32111177990__s1_readout.json",
+      "archive/32113950638/cce-item-0-32113950638__s1_readout.json",
+      "archive/32114744002/cce-item-1-32114744002__s1_readout.json",
+      "archive/32114744002/cce-item-2-32114744002__s1_readout.json",
+      "archive/32114744002/cce-item-6-32114744002__s1_readout.json",
+      "archive/32114744002/cce-item-7-32114744002__s1_readout.json",
+      "archive/32126692815/cce-item-0-32126692815__s1_readout.json"
+     ]
+    },
+    {
+     "input_sha": "4c4ca86353f91af8",
+     "text_source": "archive/33842088048/cce-submission-source__items.json",
+     "item_index": 4,
+     "n_chars": 366,
+     "readouts": [
+      "archive/33842088048/cce-subject-item-4-33842088048__s1_readout.json"
+     ]
+    }
+   ]
+  },
+  "B · real_corpus_pilot 冻结 42 条(top-1 未知)": {
+   "n": 42,
+   "★读法": "协议稳定性的主材料; 与 r1/r2 同指针 ⇒ 可与 r2 的单张结局对照(可比不可合)",
+   "items": [
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 0,
+     "sha256": "c30c63ee1017e6b710ee5cab2baef17b834e853264f5726595606c0ea52e4999",
+     "n_chars": 135
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 1,
+     "sha256": "e2841664aa50b9a08af4e82323b425e2366a528a9239c71df411f4f407f81dd1",
+     "n_chars": 806
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 2,
+     "sha256": "4ff59bbc60311ce790bbdb1d3977bbf1498a9c8be878f3440818fbc97d2574fd",
+     "n_chars": 521
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 3,
+     "sha256": "58c2aa3a7c5238a8dbc643cfdba139d06daf2e951312fd41e9ba6998b7fd1e68",
+     "n_chars": 667
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 6,
+     "sha256": "3817c8c83a63d6d96298d612b6cb00dafb2c3802973bbf2a392458b7b671f8f8",
+     "n_chars": 695
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 8,
+     "sha256": "a2977d83f5addfced6803b8420ae053c92f6c460b1f3cf2eda44c8e36efa79fb",
+     "n_chars": 197
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 9,
+     "sha256": "a8a243d20785865fc60e61c5651dd2c08e0451bd62fe0d159d1de8f9d3855040",
+     "n_chars": 83
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 10,
+     "sha256": "354ce1e521dc97580ca32fec9de395d0f4f915b52846b21783f7a7746bb677af",
+     "n_chars": 1128
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 12,
+     "sha256": "92b419f528a3f54e4c90a605e611915b6e2dd8bdbd64a7f12e17cfbb42b111e7",
+     "n_chars": 222
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 16,
+     "sha256": "630edee31716c4070dbcee506b51261cd442e447808d242d9e5e009b68d2994e",
+     "n_chars": 538
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 17,
+     "sha256": "be88919eb61a1051ed6b3013c3a2ec71a980173461d2791cdeeeeac3d23cec98",
+     "n_chars": 244
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 20,
+     "sha256": "b35eaa97d35106f818c55510969ce9fb141eb2de2a6e06eadf1e22b37c469c41",
+     "n_chars": 741
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 34,
+     "sha256": "412717ea155614b91e9e15546ca103dce82b4feb5a4246707ad35604d4cb3b17",
+     "n_chars": 553
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 37,
+     "sha256": "da15c3725705534cbdea491b855cbb410bebd55be48504f69cd03034921fcb43",
+     "n_chars": 1209
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 38,
+     "sha256": "d951b5d7b28e407eb8444d34b1f30cb1366993bac0553285dcd5f463f91bb168",
+     "n_chars": 1233
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 40,
+     "sha256": "faac072dfb431ba20577ac49fc0aca84ccda8ed615f6e405123978e8868baad8",
+     "n_chars": 1440
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 42,
+     "sha256": "b0f72f2642401a7f6b4390d364300ebcb3605a02c103bf85373c628c23f02008",
+     "n_chars": 186
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 43,
+     "sha256": "0af8c25580da23cbe42a3fdba3bf14f94df99d4627bd0d04116842ead6dc6db2",
+     "n_chars": 234
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 47,
+     "sha256": "12846dc027af38b07202e93c14da1f9eb5732e21e59a3d2271a7cefb89e2bbe0",
+     "n_chars": 222
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 52,
+     "sha256": "24b7d2743247e20b676ed5c76680ae68981c4232b50b6722a7a0c2bd04812fe9",
+     "n_chars": 961
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 53,
+     "sha256": "e987607d40768014c28455225d717818138b50d346f203bc3b09fe75c9c8a147",
+     "n_chars": 227
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 54,
+     "sha256": "0de4b0c920ad6ecde2a8a0e7092ac1c4e3bd7f71be56522817755769b385e1d8",
+     "n_chars": 397
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 55,
+     "sha256": "48fe4a53b61c71b25e1f5c29c0d9bf42d516fa2f9872221e41b681eb14720d9f",
+     "n_chars": 1551
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 56,
+     "sha256": "7d78c59139e729d831920d9b4ddb427599416d9b319c47fe54df474fdf5e0d49",
+     "n_chars": 1596
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 58,
+     "sha256": "669a11cebbe6000326fe240580c80f9a3091c925f714b5dcc17356c9788830d5",
+     "n_chars": 511
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 60,
+     "sha256": "b5240bba55a1d8073b3ff6dc9cc38dd4c504085f6d86670f0f910d2e4119bfd8",
+     "n_chars": 366
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 62,
+     "sha256": "97c21562819b802d4d154b4ed7c1774058350c4fbd1525fe0fd566e4ba9a96da",
+     "n_chars": 1207
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 63,
+     "sha256": "c41748c9a313f741631f0aa78718a93dde84412e97185953fba7971f3665a652",
+     "n_chars": 170
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 64,
+     "sha256": "ce724332cf43eead7442d5142dccd76f789ebc9ac21717ab26799422a5cd0bd5",
+     "n_chars": 489
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 67,
+     "sha256": "624fff3e04df1b08b22fd49d011c06c5d0c5c40cf951dab217290f4d213ab138",
+     "n_chars": 650
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 68,
+     "sha256": "470007d65e446f070b6dce4a5aa8f294e29cae336fa1ffe4c103693cecfd795b",
+     "n_chars": 535
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 69,
+     "sha256": "5fbc8187ef5a57b171f46262376c2df7db764696cce41db3b8caab10797232f0",
+     "n_chars": 172
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 73,
+     "sha256": "357b6ab25686d82a92b78c3916d2db860f7d0972a779b703df7e4f723f3d2d33",
+     "n_chars": 1574
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 78,
+     "sha256": "4bab149d67c4f317d5f0903ea5a7e814ef39963e5005f87a062c4b554b8a59cc",
+     "n_chars": 1579
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 81,
+     "sha256": "5474424d728cbfa3b314d4bb1f0db868e5ad07f4e2f8ff062e13bec19cb48721",
+     "n_chars": 484
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 83,
+     "sha256": "22c8a601c6bbcb4cf0e7e8a938f20dc0cd2f5f631e0ff62908a2f8eaebfa72a2",
+     "n_chars": 127
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 84,
+     "sha256": "ee88f46adfe4aee5c7b584c8e8f253ef09e9005df0464979c7df6fc3a45afc65",
+     "n_chars": 162
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 86,
+     "sha256": "5a85a7f9be686bd8691c45ecdaae3e21b80c849adc46bc143f22ff07e87a32cc",
+     "n_chars": 91
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 90,
+     "sha256": "84972b2aaa7cfbe643663e87d2729306838206d67aea192f502e8b97770f52f8",
+     "n_chars": 3135
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 94,
+     "sha256": "c421a684cfae1acbf0d725aeb2602cf8cdfcf64b2518cf874a4177175185efc8",
+     "n_chars": 196
+    },
+    {
+     "file": "corpus/reddit_hearingaids_audience_v2.txt",
+     "line_index": 95,
+     "sha256": "78eeeef98b065a70b46e30d5a8f6b7e17631c27a06664a2d9b881dc4885fbb37",
+     "n_chars": 1732
+    },
+    {
+     "file": "corpus/reddit_hearingaids_utterances.txt",
+     "line_index": 8,
+     "sha256": "69d0e83bba4cbbe418789389b3a22cdd13c67ae4ec0110967992ed35ba965a9b",
+     "n_chars": 136
+    }
+   ]
+  },
+  "★为什么不是「先跑 s1/s2 找 display 文本」": "那要 42×2 次 knot_classify(≈672 次调用)只为选材; 本预注册问的是证书协议的稳定性与代价, 与文本是不是 display 无关(触发门槛由零调用闸守)。"
+ },
+ "★预算硬上限": {
+  "证书调用": 176,
+  "构成": "(2 + 42) × 2 张 × 最多 2 次(首答 + 修复)",
+  "撞上即停": true,
+  "★预计": "≈ 88 + 首答有格式码的张数(v2 里约 1/4 文本至少一张) ≈ 100–110"
+ },
+ "★★★判据(测量前冻结)": {
+  "M1 可判率": "B 层里两张结局同类(同为 UPGRADED / 同为非 UPGRADED)的比例; 报 Clopper-Pearson 95%。",
+  "M2 升格率": "B 层里两张都 UPGRADED 且见证交集非空的比例(= 生产会升到 ③′ 的比例)。",
+  "M3 代价": "每条 max(两张耗时) 的中位数(并发发 ⇒ 增加的墙钟 ≈ 这个数)。",
+  "M4 MALFORMED 率": "两张里任一 MALFORMED 的条数 / n。",
+  "★与 r2 对照": "B 层单张结局分布 vs results/real_corpus_pilot_r2.json 的 v2 口径(20/42 PASS) —— 只看方向, 不合并。",
+  "M5 修复(新增, 描述性)": "首答有格式码的证书数 · 修复后仍 MALFORMED 数 · 首答/终态原因码族分布 —— 不进判决, 用来定位下一步改哪一族。",
+  "★M4 的口径": "按**终态**(修复后)算 —— 修复是协议的一部分。首答 MALFORMED 率另报, 供与 v2 对照。"
+ },
+ "★★★决策规则(测量前冻结)": {
+  "ADOPT_SHADOW": "M1 ≥ 60% 且 M4 ≤ 10% 且 M3 ≤ 45 s ⇒ 接影子段(默认关, owner 开)。",
+  "NEEDS_N3": "M1 < 60% 且 M4 ≤ 10% ⇒ 单靠两张判不动, 另立 n=3 多数票预注册(不在本轮加)。",
+  "STOP": "M4 > 10% ⇒ 协议在生产文本上不够格式稳定, 不接; 先修采集协议。",
+  "COST_BLOCK": "M3 > 45 s ⇒ 即使 ADOPT 也只能异步(不阻塞发布), 另立设计。",
+  "★n=42 的分辨率": "M1 判 60% 门: 25/42 通过(CP 下界 0.43), 22/42 不过 —— 区间宽, 结论句必须带区间; 不许拿点估计说「稳定」。",
+  "★预测(先写)": "M4(终态)由 24% 降到 **5–12%**(菜单+只填一个 消掉 kind 族; 修复重问只能救回一部分 span/object 族); M1 可判率**不会**因协议 v3 明显改善(它来自模型在 supported 上的不一致, 与格式无关), 仍 ≈ 55–65% ⇒ 即使 M4 过门, 大概率落 **NEEDS_N3**。若 M4 仍 >10% ⇒ 剩下的族是 span/object 非逐字, 那是模型改写倾向, 下一步该换「先让模型指定 span 起止词再机械截取」的协议, 不是再改措辞。"
+ },
+ "★★★与 v2 试点的对照(可比不可合)": {
+  "v2 M1": {
+   "k": 24,
+   "n": 41,
+   "p": 0.5854,
+   "CP95": [
+    0.4211,
+    0.7368
+   ]
+  },
+  "v2 M2": {
+   "k": 4,
+   "n": 41,
+   "p": 0.0976
+  },
+  "v2 M3": 19.82,
+  "v2 M4": {
+   "k": 10,
+   "n": 41,
+   "p": 0.2439
+  },
+  "★读法": "同材料、不同协议、不同时间 ⇒ 方向可比, 数不可合; r3 已证同协议重测就有 40% 翻转。"
+ },
+ "★★★不得据此说": [
+  "不得说升到 ③′ 的读数「语义正确」—— MIS-4 类(形式合规·语义错误)照样过, ④ 仍不可达。",
+  "不得说「验证器守得住」。",
+  "不得把 A 层 n=2 的数当结论。",
+  "不得把本轮当 r2/r3 的重复测量(P2 口径已变)。",
+  "不得把修复重问的成功读成「模型会了」—— 它只是把格式错的答案改成格式对的, 语义同前。"
+ ],
+ "★接线闸(接线时必须齐)": [
+  "tests: 开关关 ⇒ manifest 逐字节同今日",
+  "开关开 + 两张桩证书一致 ⇒ ③′; 不一致 ⇒ 候选并写 DISAGREE",
+  "citable_as_confirmed 恒 False",
+  "非 display 或 top1_stable 非 True ⇒ 不发证书(零调用)",
+  "产物无原文 span(只 sha16)"
+ ]
+}
