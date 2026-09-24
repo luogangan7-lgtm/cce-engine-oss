@@ -249,7 +249,10 @@ def test_the_attempt_ledger_reports_attempts_not_just_successes():
     assert blk, "★ 尝试账本更正被删了"
     assert "268" in json.dumps(blk, ensure_ascii=False), "★ 总尝试数 268 不见了"
     assert "事后" in blk["★★重试规则是事前还是事后"],         "★★ 必须承认重试规则是**事后**新增的 —— 不许继续挂「完全按原预注册执行」"
-    assert "首轮最坏界必须保留" in blk, "★ 首轮最坏界不许从证据历史里消失"
+    # ★ 2026-09-24 修: 产物里的键是「★首轮最坏界必须保留」(带 ★), 原断言按**精确键名**查 ⇒ 证据在却恒红;
+    #   这条红自 86e8051 起就存在, 被空跑的 runner 盖了两周(见 lesson「dev_runsuite 空跑」)。改为按键名子串查, 并核值非空。
+    _wc = [k for k in blk if "首轮最坏界必须保留" in k]
+    assert _wc and "最坏界" in str(blk[_wc[0]]), "★ 首轮最坏界不许从证据历史里消失"
 
 
 def _reverse_checks():
