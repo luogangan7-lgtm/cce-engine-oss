@@ -12,6 +12,8 @@
 | `cce_chain_architecture_v3_1.md` | **现行 · 链路架构** | v3.1 修正 v3 的矫枉过正：禁止「均值冒充人群」不等于禁止合成人群。 |
 | `cce_workflow_spec_v1.md` | **现行 · 提交协议** | 唯一生产入口 = 公开仓 `cce-engine-oss` 的 `.github/workflows/cce-submit.yml`（已与注册表核对一致）。 |
 | `cce_skill_architecture_v1.md` | **现行 · Skill 入口** | Skill 是薄入口：读注册表、判路由、调 GitHub 权威入口，不复制测量引擎。 |
+| `cce_jev_deployment.md` | **现行 · Decider 候选部署** | 本地 Jev(Mapika/decider-2b v10)只在 GitHub 托管 runner 跑的候选测量入口: 状态阶梯、三个 workflow、执行边界、什么没做。2026-09-24。 |
+| `cce_jev_acceptance.md` | **现行 · Decider 候选验收矩阵** | §13.1 每条纯测试对应的注错与拒绝码; GitHub smoke 验收项(尚未执行)。2026-09-24。 |
 | `cce_chain_architecture_v3.md` | 已被取代 → `cce_chain_architecture_v3_1.md` | v3 正确禁止均值冒充人群，但错在没有正式合成 Population Subject。 |
 | `cce_chain_architecture_v2.md` | 已被取代 → `cce_chain_architecture_v3.md` | 平台/社区边界仍有效；「主体只在测量下游形成」已被 v3 修正。 |
 | `cce_foundation_architecture_v1_2026-08-13.md` | 部分被取代 → `cce_chain_architecture_v3.md` | post6 实证审计部分**保留**；通用架构边界已由 v3 接管。 |

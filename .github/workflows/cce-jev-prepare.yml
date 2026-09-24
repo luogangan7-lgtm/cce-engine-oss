@@ -1,0 +1,129 @@
+name: CCE Decider Prepare
+
+# Manual, single-permit. On a GitHub-hosted runner only: verify the pinned model files, resolve the CPU dependency lock,
+# build the runtime image, run an offline import smoke (model_forwards = 0), download + hash the model bundle, save it to
+# the Actions cache, and upload ONLY small lock proposals / receipts. Nothing here modifies master.
+on:
+  workflow_dispatch:
+    inputs:
+      permit_id:
+        description: "Single-use prepare permit id (experiments/jev/permits/<id>.json, approved by the owner)"
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cce-decider-prepare
+  cancel-in-progress: false
+
+jobs:
+  admit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write   # only for the atomic consumed-permit ref
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - name: Admit permit (atomic single-use ref, no model code)
+        env:
+          PERMIT_ID: ${{ inputs.permit_id }}
+          MODE: prepare
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RECEIPT_OUT: admission_receipt.json
+        run: python3 .github/scripts/cce_jev_admit.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: cce-jev-admission-${{ github.run_id }}
+          path: admission_receipt.json
+          retention-days: 7
+          if-no-files-found: error
+
+  prepare:
+    needs: admit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    permissions:
+      contents: read
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      TOKENIZERS_PARALLELISM: "false"
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: cce-jev-admission-${{ github.run_id }}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+      - name: Runner identity, disk and download plan (before any download)
+        run: |
+          echo "runner=$RUNNER_NAME arch=$RUNNER_ARCH os=$RUNNER_OS env=$RUNNER_ENVIRONMENT run=$GITHUB_RUN_ID attempt=$GITHUB_RUN_ATTEMPT"
+          nproc; free -g; df -h "$RUNNER_TEMP" .
+          docker version --format '{{.Server.Version}}'
+          python3 experiments/jev/cli.py check-locks
+          python3 experiments/jev/cli.py prepare --receipt admission_receipt.json --dest "$RUNNER_TEMP/bundle" --out prepare-out --plan-only
+      - name: Resolve CPU runtime lock (exact versions + hashes)
+        run: |
+          python -m pip install "pip<26" "pip-tools>=7,<8"
+          pip-compile --generate-hashes --strip-extras --output-file prepare-out/runtime-cpu.lock.txt experiments/jev/runtime/runtime-cpu.in
+          sha256sum prepare-out/runtime-cpu.lock.txt | tee prepare-out/runtime-cpu.lock.sha256
+      - name: Build CPU runtime image from recipe (no weights inside)
+        env:
+          DECIDER_REF: ${{ github.sha }}
+        run: |
+          DECIDER_REF="$(python3 -c "import json;print(json.load(open('experiments/jev/locks/model.source.lock.json'))['source_revision'])")"
+          cp prepare-out/runtime-cpu.lock.txt experiments/jev/runtime/runtime-cpu.lock.txt
+          docker build --pull -f experiments/jev/runtime/Dockerfile.cpu --build-arg "DECIDER_REF=$DECIDER_REF" -t cce-jev-cpu:prepare experiments/jev/runtime
+          docker image inspect --format '{{.Id}}' cce-jev-cpu:prepare | tee prepare-out/image_id.txt
+          docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges --user 1001:1001 cce-jev-cpu:prepare \
+            -c "import sys, socket, importlib.metadata as m, hashlib; \
+                d=m.distribution('decider-ai'); rec=[f for f in d.files if f.name=='RECORD'][0]; \
+                print('decider-ai', d.version, 'RECORD_sha256', hashlib.sha256(rec.read_binary()).hexdigest()); \
+                import torch, transformers; print('torch', torch.__version__, 'transformers', transformers.__version__, 'cuda', torch.cuda.is_available()); \
+                s=socket.socket(); s.settimeout(3); \
+                (lambda: (s.connect(('1.1.1.1',443)), sys.exit('NETWORK REACHABLE')))() if False else None; \
+                import contextlib; \
+                r='blocked'; \
+                exec('try:\n    s.connect((\"1.1.1.1\",443)); r=\"REACHABLE\"\nexcept OSError as e:\n    r=\"blocked:\"+type(e).__name__'); \
+                print('network', r); sys.exit(0 if r!='REACHABLE' else 2)" | tee prepare-out/import_smoke.txt
+          docker run --rm cce-jev-cpu:prepare -c "print(open('/opt/sbom.txt').read())" > prepare-out/sbom.txt
+      - name: Download + hash the pinned model bundle (model_forwards = 0)
+        run: |
+          python -m pip install "huggingface_hub>=0.34,<1"
+          python3 experiments/jev/cli.py prepare --receipt admission_receipt.json --dest "$RUNNER_TEMP/bundle" --out prepare-out
+          ls -la "$RUNNER_TEMP/bundle"; du -sh "$RUNNER_TEMP/bundle"; df -h "$RUNNER_TEMP"
+      - name: Whitelist check before cache save (only the locked file list)
+        run: |
+          python3 - <<'EOF'
+          import json, os, sys
+          lock = json.load(open('experiments/jev/locks/model.source.lock.json'))['files']
+          present = sorted(f for f in os.listdir(os.environ['RUNNER_TEMP'] + '/bundle') if not f.startswith('.'))
+          extra = sorted(set(present) - set(lock)); missing = sorted(set(lock) - set(present))
+          print('present', present); sys.exit(1 if extra or missing else 0)
+          EOF
+      - name: Save model bundle to Actions cache (public assets only, exact key)
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ${{ runner.temp }}/bundle
+          key: cce-jev-bundle-${{ hashFiles('experiments/jev/locks/model.source.lock.json') }}-x64
+      - name: Upload small lock proposals + receipts only
+        if: always()
+        run: |
+          rm -f experiments/jev/runtime/runtime-cpu.lock.txt
+          python3 experiments/jev/cli.py check-upload --root prepare-out
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: cce-jev-prepare-${{ github.run_id }}
+          path: prepare-out
+          retention-days: 7
+          if-no-files-found: error
