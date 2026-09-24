@@ -1546,6 +1546,25 @@
     "不得说这 12 个位点「已验证正确」—— 闸守的是「改了会红」, 不是「现在的值对」。",
     "不得把 UNREACHABLE 保险丝的闸读成它被触发过。"
    ]
+  },
+  {
+   "date": "2026-09-24",
+   "event": "CITATION_CERTIFICATE_PRODUCTION_PREREG_REGISTERED",
+   "file": "tests/data/citation_certificate_production_prereg.json",
+   "to_sha": "45aee33c716de139",
+   "also": {
+    "probes/citation_certificate_production_prereg.py": "631bbd108589dcfe"
+   },
+   "reason": "引用证书协议(r2 式, P2 v2)接进生产的**影子段 s2b** 预注册: 仅 display 且 top1_stable is True 触发; n=2 张证书都 UPGRADED 且见证交集非空才升 ③′ CITED_UNVERIFIED; citable_as_confirmed 恒 False; 开关默认关。试点材料 A(归档 display 可找回文本 2) + B(real_corpus 冻结 42), 上限 88 次; 判决线 M1≥60%/M4≤10%/M3≤45s 与预测(≈55–65%)先于数据冻结。",
+   "behavior_evidence": [
+    "tests/test_cce_citation_certificate_production_prereg.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 本条只登记预注册, 生产**未接线**(闸断言 cce_full_run 无 CCE_CITATION_CERT/s2b); 协议 prompt sha 与 _judge 源码 sha 由闸从 r2 模块现算比对, 试点材料由 archive/冻结集现算且只有指针。",
+   "route": "**度量面 · 零调用 · 预注册(未执行)**。执行要 owner 一句「跑」(88 次 MiniMax 订阅); 接线要 ADOPT_SHADOW + owner 点头。",
+   "★不得据此说": [
+    "不得说证书协议已进生产。",
+    "不得说 ③′ 表示语义正确(MIS-4 类照过)。"
+   ]
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",

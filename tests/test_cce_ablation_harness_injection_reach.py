@@ -129,7 +129,8 @@ FROZEN_SHA8 = {
         # ★ 2026-09-23 第十二次: 追加 FIVE_KINDS_ANNEX_D_CANDIDATE_AND_S2_LABEL_QUALIFICATION_WIRED。摘掉那条重算 = a4e3455aaf509c7a, 与上一钉逐字节相同。
         # ★ 2026-09-23 第十三次: 追加 ABLATION_V3_ROUND3_CHAIN_STAGES_S0_S2_S3_OVERLAP_XM_JUDGED(消融第三轮 32 条判决登记)。摘掉那条重算 = 44c06d8db21d43c0, 与上一钉逐字节相同。
         # ★ 2026-09-24: 追加 R3_ACCEPTANCE_GAPS_12_BEHAVIOR_GATES_ADDED。摘掉那条重算 = 0fdc0d07dc206b75, 与上一钉逐字节相同。
-    "config/cce_core_manifest.json": "c85c748f698fccfb",
+        # ★ 2026-09-24 第二次: 追加 CITATION_CERTIFICATE_PRODUCTION_PREREG_REGISTERED。摘掉那条重算 = c85c748f698fccfb, 与上一钉逐字节相同。
+    "config/cce_core_manifest.json": "a90901195b3a9a68",
     "accuracy/run_gates.py": "b758e6676a94acf3",
 }
 
