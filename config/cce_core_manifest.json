@@ -1565,6 +1565,27 @@
     "不得说证书协议已进生产。",
     "不得说 ③′ 表示语义正确(MIS-4 类照过)。"
    ]
+  },
+  {
+   "date": "2026-09-24",
+   "event": "CITATION_CERTIFICATE_PILOT_88_CALLS_VERDICT_STOP",
+   "file": "probes/citation_certificate_pilot_run.py",
+   "to_sha": "3d93c96873b78fff",
+   "also": {
+    "results/citation_certificate_pilot.json": "e789ea201f186e04"
+   },
+   "reason": "按预注册 45aee33c 跑引用证书试点: 44 文本 × 2 张 = 88 次 MiniMax(撞上限即停, 实际 88)。判决 **STOP**: M4 MALFORMED 率 24.4% > 10%; M1 可判率 24/41 = 58.5% CP95 [0.42, 0.74](预测 55–65%, 应验); M2 升格率 4/41; M3 代价中位 19.8 s(p90 51.9)。",
+   "behavior_evidence": [
+    "tests/test_cce_citation_certificate_pilot.py",
+    "tests/test_cce_citation_certificate_production_prereg.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 生产未变(闸断言未接线); 变的是「接不接」的判决, 由预注册 sha(投料前冻结)+ evaluate()/combine() 纯函数逐行现算把守, 判决规则四向真闸。",
+   "route": "**度量面 · 88 次真调用(订阅) · 生产未接线**。★ 局限: 产物为保护原文没存 MALFORMED 的原因码(span/object 非逐字 · supports/kind 非法 · 形状错), 下一版执行器必须存原因码(不含文本); 试点无模板声明对象 ⇒ P2_FAIL 不分 GRANULARITY/DISTINCT。",
+   "★不得据此说": [
+    "不得说引用证书协议不可行 —— STOP 说的是「在生产文本上格式稳定性不够, 先修采集协议」。",
+    "不得把 4 张 ③′ 读成语义正确。",
+    "不得把 M1 点估计 58.5% 当结论, 区间 [0.42, 0.74]。"
+   ]
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",

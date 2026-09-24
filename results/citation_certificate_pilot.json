@@ -1,0 +1,1387 @@
+{
+ "block": "CITATION_CERTIFICATE_PILOT",
+ "date": "2026-09-24",
+ "★预注册 sha(投料前冻结)": "45aee33c716de139",
+ "model": "M3",
+ "★实际调用": 88,
+ "★硬上限": 88,
+ "★墙钟 s": 390.0,
+ "★文本间并发": 3,
+ "★★★指标": {
+  "n_B(去 CALL_FAIL)": 41,
+  "B CALL_FAIL 条数": 1,
+  "M1 可判率": {
+   "k": 24,
+   "n": 41,
+   "p": 0.5854,
+   "CP95": [
+    0.4211,
+    0.7368
+   ]
+  },
+  "M2 升格率": {
+   "k": 4,
+   "n": 41,
+   "p": 0.0976
+  },
+  "M3 代价 median(max 两张 s)": 19.82,
+  "M3 p90": 51.89,
+  "M4 MALFORMED 率": {
+   "k": 10,
+   "n": 41,
+   "p": 0.2439
+  },
+  "B 决定分布": {
+   "BOTH_NOT_UPGRADED": 19,
+   "DISAGREE": 17,
+   "CITED_UNVERIFIED": 4,
+   "CALL_FAIL": 1,
+   "BOTH_UPGRADED_NO_COMMON_WITNESS": 1
+  },
+  "B 单张结局分布": {
+   "REFUSED_OTHER": 16,
+   "COVERAGE_FAIL": 19,
+   "MALFORMED": 14,
+   "UPGRADED": 27,
+   "CALL_FAIL": 1,
+   "P2_FAIL": 7
+  },
+  "A 层(描述, 不进判决)": [
+   {
+    "ptr": "0a20cbda72888761",
+    "决定": "DISAGREE",
+    "outcomes": [
+     "UPGRADED",
+     "MALFORMED"
+    ]
+   },
+   {
+    "ptr": "4c4ca86353f91af8",
+    "决定": "DISAGREE",
+    "outcomes": [
+     "UPGRADED",
+     "MALFORMED"
+    ]
+   }
+  ]
+ },
+ "★★★判决(按预注册规则现算)": "STOP",
+ "★判决线": {
+  "ADOPT_SHADOW": "M1 ≥ 60% 且 M4 ≤ 10% 且 M3 ≤ 45 s ⇒ 接影子段(默认关, owner 开)。",
+  "NEEDS_N3": "M1 < 60% 且 M4 ≤ 10% ⇒ 单靠两张判不动, 另立 n=3 多数票预注册(不在本轮加)。",
+  "STOP": "M4 > 10% ⇒ 协议在生产文本上不够格式稳定, 不接; 先修采集协议。",
+  "COST_BLOCK": "M3 > 45 s ⇒ 即使 ADOPT 也只能异步(不阻塞发布), 另立设计。",
+  "★n=42 的分辨率": "M1 判 60% 门: 25/42 通过(CP 下界 0.43), 22/42 不过 —— 区间宽, 结论句必须带区间; 不许拿点估计说「稳定」。",
+  "★预测(先写)": "按 r3 的 60% 一致率, M1 预期 ≈ 55–65%, 大概率落在 NEEDS_N3 与 ADOPT 之间 —— 写在这里防事后包装。"
+ },
+ "★怎么读": [
+  "M1 带 CP95; n=42 分辨率有限, 结论句必须带区间。",
+  "③′ 不等于语义正确(MIS-4 类照过); citable_as_confirmed 仍恒 False。",
+  "A 层 n=2 只作描述。",
+  "P2_FAIL 合记 GRANULARITY/DISTINCT(试点无模板声明对象)。"
+ ],
+ "★隐私": "产物只有指针/sha16/结局/耗时, 无原文 span/object/why。",
+ "rows": [
+  {
+   "层": "A",
+   "ptr": "0a20cbda72888761",
+   "text_sha16": "0a20cbda72888761",
+   "n_chars": 1125,
+   "certs": [
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 54.58,
+     "witness": [
+      "dca83e717b1f64eb"
+     ],
+     "n_evidence": 4
+    },
+    {
+     "outcome": "MALFORMED",
+     "state": null,
+     "sec": 54.86,
+     "witness": [],
+     "n_evidence": 3
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": true,
+   "sec_max": 54.86,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "A",
+   "ptr": "4c4ca86353f91af8",
+   "text_sha16": "4c4ca86353f91af8",
+   "n_chars": 366,
+   "certs": [
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 14.26,
+     "witness": [
+      "a3da56e094875724",
+      "bc0a8b77da088a6f"
+     ],
+     "n_evidence": 4
+    },
+    {
+     "outcome": "MALFORMED",
+     "state": null,
+     "sec": 13.19,
+     "witness": [],
+     "n_evidence": 4
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": true,
+   "sec_max": 14.26,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "text_sha16": "c30c63ee1017e6b7",
+   "n_chars": 135,
+   "certs": [
+    {
+     "outcome": "REFUSED_OTHER",
+     "state": null,
+     "sec": 10.84,
+     "witness": [],
+     "n_evidence": 0
+    },
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 18.64,
+     "witness": [],
+     "n_evidence": 3
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 18.64,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "text_sha16": "e2841664aa50b9a0",
+   "n_chars": 806,
+   "certs": [
+    {
+     "outcome": "MALFORMED",
+     "state": null,
+     "sec": 12.01,
+     "witness": [],
+     "n_evidence": 5
+    },
+    {
+     "outcome": "MALFORMED",
+     "state": null,
+     "sec": 7.66,
+     "witness": [],
+     "n_evidence": 6
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": true,
+   "sec_max": 12.01,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "text_sha16": "4ff59bbc60311ce7",
+   "n_chars": 521,
+   "certs": [
+    {
+     "outcome": "MALFORMED",
+     "state": null,
+     "sec": 10.18,
+     "witness": [],
+     "n_evidence": 4
+    },
+    {
+     "outcome": "MALFORMED",
+     "state": null,
+     "sec": 12.51,
+     "witness": [],
+     "n_evidence": 4
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": true,
+   "sec_max": 12.51,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "text_sha16": "58c2aa3a7c5238a8",
+   "n_chars": 667,
+   "certs": [
+    {
+     "outcome": "MALFORMED",
+     "state": null,
+     "sec": 25.37,
+     "witness": [],
+     "n_evidence": 5
+    },
+    {
+     "outcome": "MALFORMED",
+     "state": null,
+     "sec": 18.29,
+     "witness": [],
+     "n_evidence": 3
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": true,
+   "sec_max": 25.37,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "text_sha16": "3817c8c83a63d6d9",
+   "n_chars": 695,
+   "certs": [
+    {
+     "outcome": "REFUSED_OTHER",
+     "state": null,
+     "sec": 10.52,
+     "witness": [],
+     "n_evidence": 0
+    },
+    {
+     "outcome": "REFUSED_OTHER",
+     "state": null,
+     "sec": 19.98,
+     "witness": [],
+     "n_evidence": 0
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 19.98,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "text_sha16": "a2977d83f5addfce",
+   "n_chars": 197,
+   "certs": [
+    {
+     "outcome": "REFUSED_OTHER",
+     "state": null,
+     "sec": 8.11,
+     "witness": [],
+     "n_evidence": 0
+    },
+    {
+     "outcome": "REFUSED_OTHER",
+     "state": null,
+     "sec": 7.13,
+     "witness": [],
+     "n_evidence": 0
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 8.11,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "text_sha16": "a8a243d20785865f",
+   "n_chars": 83,
+   "certs": [
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 18.65,
+     "witness": [
+      "da6fc09f8c9aeec9"
+     ],
+     "n_evidence": 2
+    },
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 7.53,
+     "witness": [],
+     "n_evidence": 4
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 18.65,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "text_sha16": "354ce1e521dc9758",
+   "n_chars": 1128,
+   "certs": [
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 28.79,
+     "witness": [
+      "9d4ea4922dd26ea2"
+     ],
+     "n_evidence": 5
+    },
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 49.63,
+     "witness": [],
+     "n_evidence": 5
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 49.63,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "text_sha16": "92b419f528a3f54e",
+   "n_chars": 222,
+   "certs": [
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 8.69,
+     "witness": [
+      "89b7076f02a80826"
+     ],
+     "n_evidence": 3
+    },
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 51.89,
+     "witness": [],
+     "n_evidence": 3
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 51.89,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "text_sha16": "630edee31716c407",
+   "n_chars": 538,
+   "certs": [
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 16.16,
+     "witness": [
+      "7c31d252b10665cb"
+     ],
+     "n_evidence": 3
+    },
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 66.29,
+     "witness": [
+      "7c31d252b10665cb"
+     ],
+     "n_evidence": 4
+    }
+   ],
+   "决定": "CITED_UNVERIFIED",
+   "可判(两张同类)": true,
+   "升格": true,
+   "MALFORMED_any": false,
+   "sec_max": 66.29,
+   "共同见证 sha16": [
+    "7c31d252b10665cb"
+   ]
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "text_sha16": "be88919eb61a1051",
+   "n_chars": 244,
+   "certs": [
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 11.57,
+     "witness": [],
+     "n_evidence": 3
+    },
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 8.66,
+     "witness": [],
+     "n_evidence": 4
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 11.57,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "text_sha16": "b35eaa97d35106f8",
+   "n_chars": 741,
+   "certs": [
+    {
+     "outcome": "MALFORMED",
+     "state": null,
+     "sec": 60.85,
+     "witness": [],
+     "n_evidence": 3
+    },
+    {
+     "outcome": "MALFORMED",
+     "state": null,
+     "sec": 65.31,
+     "witness": [],
+     "n_evidence": 2
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": true,
+   "sec_max": 65.31,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "text_sha16": "412717ea155614b9",
+   "n_chars": 553,
+   "certs": [
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 8.11,
+     "witness": [
+      "fc850ffd0f579b85"
+     ],
+     "n_evidence": 4
+    },
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 25.6,
+     "witness": [
+      "fc850ffd0f579b85"
+     ],
+     "n_evidence": 4
+    }
+   ],
+   "决定": "CITED_UNVERIFIED",
+   "可判(两张同类)": true,
+   "升格": true,
+   "MALFORMED_any": false,
+   "sec_max": 25.6,
+   "共同见证 sha16": [
+    "fc850ffd0f579b85"
+   ]
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "text_sha16": "da15c3725705534c",
+   "n_chars": 1209,
+   "certs": [
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 8.14,
+     "witness": [
+      "5e161f5444d360e8"
+     ],
+     "n_evidence": 3
+    },
+    {
+     "outcome": "MALFORMED",
+     "state": null,
+     "sec": 15.53,
+     "witness": [],
+     "n_evidence": 5
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": true,
+   "sec_max": 15.53,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "text_sha16": "d951b5d7b28e407e",
+   "n_chars": 1233,
+   "certs": [
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 16.57,
+     "witness": [
+      "9293a1631b245830"
+     ],
+     "n_evidence": 3
+    },
+    {
+     "outcome": "MALFORMED",
+     "state": null,
+     "sec": 29.81,
+     "witness": [],
+     "n_evidence": 4
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": true,
+   "sec_max": 29.81,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "text_sha16": "faac072dfb431ba2",
+   "n_chars": 1440,
+   "certs": [
+    {
+     "outcome": "REFUSED_OTHER",
+     "state": null,
+     "sec": 19.82,
+     "witness": [],
+     "n_evidence": 0
+    },
+    {
+     "outcome": "REFUSED_OTHER",
+     "state": null,
+     "sec": 13.27,
+     "witness": [],
+     "n_evidence": 0
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 19.82,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "text_sha16": "b0f72f2642401a7f",
+   "n_chars": 186,
+   "certs": [
+    {
+     "outcome": "REFUSED_OTHER",
+     "state": null,
+     "sec": 8.21,
+     "witness": [],
+     "n_evidence": 0
+    },
+    {
+     "outcome": "REFUSED_OTHER",
+     "state": null,
+     "sec": 19.53,
+     "witness": [],
+     "n_evidence": 0
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 19.53,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "text_sha16": "0af8c25580da23cb",
+   "n_chars": 234,
+   "certs": [
+    {
+     "outcome": "REFUSED_OTHER",
+     "state": null,
+     "sec": 6.6,
+     "witness": [],
+     "n_evidence": 0
+    },
+    {
+     "outcome": "REFUSED_OTHER",
+     "state": null,
+     "sec": 5.17,
+     "witness": [],
+     "n_evidence": 0
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 6.6,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "text_sha16": "12846dc027af38b0",
+   "n_chars": 222,
+   "certs": [
+    {
+     "outcome": "REFUSED_OTHER",
+     "state": null,
+     "sec": 30.07,
+     "witness": [],
+     "n_evidence": 0
+    },
+    {
+     "outcome": "CALL_FAIL",
+     "state": null,
+     "sec": 8.53,
+     "witness": [],
+     "n_evidence": 0
+    }
+   ],
+   "决定": "CALL_FAIL",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 30.07,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "text_sha16": "24b7d2743247e20b",
+   "n_chars": 961,
+   "certs": [
+    {
+     "outcome": "P2_FAIL",
+     "state": "UNCONFIRMED_CANDIDATE",
+     "sec": 19.54,
+     "witness": [],
+     "n_evidence": 6
+    },
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 16.46,
+     "witness": [],
+     "n_evidence": 9
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 19.54,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:53",
+   "text_sha16": "e987607d40768014",
+   "n_chars": 227,
+   "certs": [
+    {
+     "outcome": "P2_FAIL",
+     "state": "UNCONFIRMED_CANDIDATE",
+     "sec": 59.29,
+     "witness": [],
+     "n_evidence": 3
+    },
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 27.03,
+     "witness": [
+      "8b3795aa25390811"
+     ],
+     "n_evidence": 2
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 59.29,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:54",
+   "text_sha16": "0de4b0c920ad6ecd",
+   "n_chars": 397,
+   "certs": [
+    {
+     "outcome": "P2_FAIL",
+     "state": "UNCONFIRMED_CANDIDATE",
+     "sec": 16.29,
+     "witness": [],
+     "n_evidence": 2
+    },
+    {
+     "outcome": "P2_FAIL",
+     "state": "UNCONFIRMED_CANDIDATE",
+     "sec": 16.45,
+     "witness": [],
+     "n_evidence": 2
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 16.45,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:55",
+   "text_sha16": "48fe4a53b61c71b2",
+   "n_chars": 1551,
+   "certs": [
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 22.22,
+     "witness": [],
+     "n_evidence": 7
+    },
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 10.21,
+     "witness": [],
+     "n_evidence": 6
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 22.22,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:56",
+   "text_sha16": "7d78c59139e729d8",
+   "n_chars": 1596,
+   "certs": [
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 30.99,
+     "witness": [
+      "fb76de9ae2b3e895"
+     ],
+     "n_evidence": 4
+    },
+    {
+     "outcome": "P2_FAIL",
+     "state": "UNCONFIRMED_CANDIDATE",
+     "sec": 37.4,
+     "witness": [],
+     "n_evidence": 3
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 37.4,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:58",
+   "text_sha16": "669a11cebbe60003",
+   "n_chars": 511,
+   "certs": [
+    {
+     "outcome": "REFUSED_OTHER",
+     "state": null,
+     "sec": 17.78,
+     "witness": [],
+     "n_evidence": 0
+    },
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 25.67,
+     "witness": [
+      "b1cbf18cbd0e0fe5"
+     ],
+     "n_evidence": 3
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 25.67,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:60",
+   "text_sha16": "b5240bba55a1d807",
+   "n_chars": 366,
+   "certs": [
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 13.6,
+     "witness": [],
+     "n_evidence": 4
+    },
+    {
+     "outcome": "REFUSED_OTHER",
+     "state": null,
+     "sec": 12.85,
+     "witness": [],
+     "n_evidence": 0
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 13.6,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:62",
+   "text_sha16": "97c21562819b802d",
+   "n_chars": 1207,
+   "certs": [
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 24.06,
+     "witness": [],
+     "n_evidence": 5
+    },
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 15.47,
+     "witness": [
+      "95f04f6a01a2bf2a"
+     ],
+     "n_evidence": 6
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 24.06,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:63",
+   "text_sha16": "c41748c9a313f741",
+   "n_chars": 170,
+   "certs": [
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 23.77,
+     "witness": [],
+     "n_evidence": 4
+    },
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 12.72,
+     "witness": [],
+     "n_evidence": 3
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 23.77,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:64",
+   "text_sha16": "ce724332cf43eead",
+   "n_chars": 489,
+   "certs": [
+    {
+     "outcome": "MALFORMED",
+     "state": null,
+     "sec": 8.84,
+     "witness": [],
+     "n_evidence": 3
+    },
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 9.31,
+     "witness": [
+      "9fc60b910226dd74"
+     ],
+     "n_evidence": 3
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": true,
+   "sec_max": 9.31,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:67",
+   "text_sha16": "624fff3e04df1b08",
+   "n_chars": 650,
+   "certs": [
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 8.96,
+     "witness": [],
+     "n_evidence": 4
+    },
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 25.94,
+     "witness": [
+      "b7c9206b170c6001"
+     ],
+     "n_evidence": 5
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 25.94,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:68",
+   "text_sha16": "470007d65e446f07",
+   "n_chars": 535,
+   "certs": [
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 15.35,
+     "witness": [
+      "0c79542acf4370bf"
+     ],
+     "n_evidence": 3
+    },
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 26.32,
+     "witness": [
+      "be30b8a03d205f11"
+     ],
+     "n_evidence": 2
+    }
+   ],
+   "决定": "BOTH_UPGRADED_NO_COMMON_WITNESS",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 26.32,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:69",
+   "text_sha16": "5fbc8187ef5a57b1",
+   "n_chars": 172,
+   "certs": [
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 7.84,
+     "witness": [
+      "2600192db8af84ff"
+     ],
+     "n_evidence": 3
+    },
+    {
+     "outcome": "MALFORMED",
+     "state": null,
+     "sec": 5.78,
+     "witness": [],
+     "n_evidence": 3
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": true,
+   "sec_max": 7.84,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:73",
+   "text_sha16": "357b6ab25686d82a",
+   "n_chars": 1574,
+   "certs": [
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 33.71,
+     "witness": [],
+     "n_evidence": 6
+    },
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 22.44,
+     "witness": [
+      "d46adb6c0d49586d"
+     ],
+     "n_evidence": 6
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 33.71,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:78",
+   "text_sha16": "4bab149d67c4f317",
+   "n_chars": 1579,
+   "certs": [
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 31.13,
+     "witness": [
+      "8ab038e14f587efa",
+      "ddf09597238e6f56"
+     ],
+     "n_evidence": 5
+    },
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 65.92,
+     "witness": [
+      "8ab038e14f587efa"
+     ],
+     "n_evidence": 3
+    }
+   ],
+   "决定": "CITED_UNVERIFIED",
+   "可判(两张同类)": true,
+   "升格": true,
+   "MALFORMED_any": false,
+   "sec_max": 65.92,
+   "共同见证 sha16": [
+    "8ab038e14f587efa"
+   ]
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:81",
+   "text_sha16": "5474424d728cbfa3",
+   "n_chars": 484,
+   "certs": [
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 41.58,
+     "witness": [],
+     "n_evidence": 3
+    },
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 31.87,
+     "witness": [],
+     "n_evidence": 3
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 41.58,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:83",
+   "text_sha16": "22c8a601c6bbcb4c",
+   "n_chars": 127,
+   "certs": [
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 12.08,
+     "witness": [
+      "44e0d0c3bd16dc0a"
+     ],
+     "n_evidence": 2
+    },
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 18.54,
+     "witness": [],
+     "n_evidence": 4
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 18.54,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:84",
+   "text_sha16": "ee88f46adfe4aee5",
+   "n_chars": 162,
+   "certs": [
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 14.16,
+     "witness": [
+      "6ee0eb490ff83210",
+      "a5e8214b2bdb1670"
+     ],
+     "n_evidence": 4
+    },
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 9.05,
+     "witness": [
+      "6ee0eb490ff83210"
+     ],
+     "n_evidence": 2
+    }
+   ],
+   "决定": "CITED_UNVERIFIED",
+   "可判(两张同类)": true,
+   "升格": true,
+   "MALFORMED_any": false,
+   "sec_max": 14.16,
+   "共同见证 sha16": [
+    "6ee0eb490ff83210"
+   ]
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:86",
+   "text_sha16": "5a85a7f9be686bd8",
+   "n_chars": 91,
+   "certs": [
+    {
+     "outcome": "MALFORMED",
+     "state": null,
+     "sec": 6.77,
+     "witness": [],
+     "n_evidence": 2
+    },
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 11.24,
+     "witness": [
+      "9d4ea4922dd26ea2"
+     ],
+     "n_evidence": 2
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": true,
+   "sec_max": 11.24,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:90",
+   "text_sha16": "84972b2aaa7cfbe6",
+   "n_chars": 3135,
+   "certs": [
+    {
+     "outcome": "P2_FAIL",
+     "state": "UNCONFIRMED_CANDIDATE",
+     "sec": 17.14,
+     "witness": [],
+     "n_evidence": 5
+    },
+    {
+     "outcome": "COVERAGE_FAIL",
+     "state": null,
+     "sec": 37.49,
+     "witness": [],
+     "n_evidence": 5
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 37.49,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:94",
+   "text_sha16": "c421a684cfae1acb",
+   "n_chars": 196,
+   "certs": [
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 19.07,
+     "witness": [
+      "5e89e9d8544af15b"
+     ],
+     "n_evidence": 3
+    },
+    {
+     "outcome": "P2_FAIL",
+     "state": "UNCONFIRMED_CANDIDATE",
+     "sec": 19.2,
+     "witness": [],
+     "n_evidence": 3
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 19.2,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:95",
+   "text_sha16": "78eeeef98b065a70",
+   "n_chars": 1732,
+   "certs": [
+    {
+     "outcome": "UPGRADED",
+     "state": "CITED_SEMANTICS_UNVERIFIED",
+     "sec": 11.38,
+     "witness": [
+      "c8c5cd71ff68a788"
+     ],
+     "n_evidence": 6
+    },
+    {
+     "outcome": "MALFORMED",
+     "state": null,
+     "sec": 8.47,
+     "witness": [],
+     "n_evidence": 6
+    }
+   ],
+   "决定": "DISAGREE",
+   "可判(两张同类)": false,
+   "升格": false,
+   "MALFORMED_any": true,
+   "sec_max": 11.38,
+   "共同见证 sha16": []
+  },
+  {
+   "层": "B",
+   "ptr": "corpus/reddit_hearingaids_utterances.txt:8",
+   "text_sha16": "69d0e83bba4cbbe4",
+   "n_chars": 136,
+   "certs": [
+    {
+     "outcome": "REFUSED_OTHER",
+     "state": null,
+     "sec": 6.34,
+     "witness": [],
+     "n_evidence": 0
+    },
+    {
+     "outcome": "REFUSED_OTHER",
+     "state": null,
+     "sec": 6.64,
+     "witness": [],
+     "n_evidence": 0
+    }
+   ],
+   "决定": "BOTH_NOT_UPGRADED",
+   "可判(两张同类)": true,
+   "升格": false,
+   "MALFORMED_any": false,
+   "sec_max": 6.64,
+   "共同见证 sha16": []
+  }
+ ]
+}
