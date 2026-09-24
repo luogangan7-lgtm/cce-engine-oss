@@ -1527,6 +1527,25 @@
     "不得把 NO_CONSUMER(P 侧)读成可删: 32 行里 deletable=True 只有 2 条(v3-338 ctx['reader_cce'] · v3-339 未用 import re), 其余 NO_CONSUMER 都有 G 侧闸或 owner 决定钉着。",
     "不得说读者基线「进了判决」: v3-332/337/338 合读 = 读者读数只到 manifest 为止, 链上零判决消费者。"
    ]
+  },
+  {
+   "date": "2026-09-24",
+   "event": "R3_ACCEPTANCE_GAPS_12_BEHAVIOR_GATES_ADDED",
+   "file": "tests/test_cce_r3_acceptance_gaps.py",
+   "to_sha": "d71476415da03dae",
+   "also": {
+    "tests/data/ablation_v3/r3_acceptance_gaps_mutation.json": "2ed4c133c8b82498"
+   },
+   "reason": "消融 r3 浮出 12 个「承重(L2/L1_ONLY)或保险丝(UNREACHABLE)却零行为闸」位点(s0 ×7 · s2 ×4 · exp_crossmodel_desire ×1)。逐个补行为闸(v3-314 内部不变量保险丝用 AST 守 raise); 生产代码零改动。",
+   "behavior_evidence": [
+    "tests/test_cce_r3_acceptance_gaps.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 这次仪器与生产都没变, 变的是「改了会不会有闸红」: 变异验证**复用 r3 各臂的 patch(old→new)**逐臂套用, 12/12 被抓到且每次首红都是对应 gap 的那条用例(tests/data/ablation_v3/r3_acceptance_gaps_mutation.json), 每臂后逐字节还原并核 sha。",
+   "route": "**闸补齐(非 core_files, instrument_generation 不变), 零调用**。判决表新增 ★acceptance_gaps_closed_2026_09_24(ids 与 r3 产物现算一致, 闸核)。",
+   "★不得据此说": [
+    "不得说这 12 个位点「已验证正确」—— 闸守的是「改了会红」, 不是「现在的值对」。",
+    "不得把 UNREACHABLE 保险丝的闸读成它被触发过。"
+   ]
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",

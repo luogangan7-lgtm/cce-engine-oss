@@ -1,0 +1,93 @@
+{
+ "block": "R3_ACCEPTANCE_GAPS_MUTATION",
+ "date": "2026-09-24",
+ "★方法": "逐臂套用 r3 产物 arms[].patch(old→new)(XM_E3 无 patch 记录, 手工删 sys.path.insert 行), 只跑 tests/test_cce_r3_acceptance_gaps.py, 期望红; 每臂后逐字节还原并核 sha。",
+ "caught": 12,
+ "total": 12,
+ "per_gap": {
+  "v3-312": {
+   "arm": "S0_A3_read_overrides_declared",
+   "result": "RED(抓到)",
+   "first_red": [
+    "FAILED tests/test_cce_r3_acceptance_gaps.py::test_declared_wins_even_if_backend_also_returns_that_key__v3_312"
+   ]
+  },
+  "v3-313": {
+   "arm": "S0_A4_illegal_value_not_mapped_to_unknown",
+   "result": "RED(抓到)",
+   "first_red": [
+    "FAILED tests/test_cce_r3_acceptance_gaps.py::test_illegal_backend_value_maps_to_unknown_not_readout__v3_313"
+   ]
+  },
+  "v3-314": {
+   "arm": "S0_A5_miss_guard_removed",
+   "result": "RED(抓到)",
+   "first_red": [
+    "FAILED tests/test_cce_r3_acceptance_gaps.py::test_miss_guard_still_raises_structurally__v3_314"
+   ]
+  },
+  "v3-315": {
+   "arm": "S0_A6_fill_zero_guard_removed",
+   "result": "RED(抓到)",
+   "first_red": [
+    "FAILED tests/test_cce_r3_acceptance_gaps.py::test_all_unknown_and_no_declaration_refuses__v3_315"
+   ]
+  },
+  "v3-316": {
+   "arm": "S0_A7_context_append_removed",
+   "result": "RED(抓到)",
+   "first_red": [
+    "FAILED tests/test_cce_r3_acceptance_gaps.py::test_context_gets_situation_appended__v3_316"
+   ]
+  },
+  "v3-317": {
+   "arm": "S0_A8_body_not_truncated",
+   "result": "RED(抓到)",
+   "first_red": [
+    "FAILED tests/test_cce_r3_acceptance_gaps.py::test_body_sent_to_backend_is_truncated_to_2000__v3_317"
+   ]
+  },
+  "v3-320": {
+   "arm": "S0_A12_backend_called_even_if_nothing_to_read",
+   "result": "RED(抓到)",
+   "first_red": [
+    "FAILED tests/test_cce_r3_acceptance_gaps.py::test_backend_not_called_when_everything_declared__v3_320"
+   ]
+  },
+  "v3-323": {
+   "arm": "S2_B2_taxo_guard_removed",
+   "result": "RED(抓到)",
+   "first_red": [
+    "FAILED tests/test_cce_r3_acceptance_gaps.py::test_taxonomy_version_drift_raises__v3_323"
+   ]
+  },
+  "v3-324": {
+   "arm": "S2_B3_top1_is_not_False",
+   "result": "RED(抓到)",
+   "first_red": [
+    "FAILED tests/test_cce_r3_acceptance_gaps.py::test_playbook_only_when_top1_stable_is_exactly_true__v3_324"
+   ]
+  },
+  "v3-325": {
+   "arm": "S2_B4_withheld_reason_collapsed",
+   "result": "RED(抓到)",
+   "first_red": [
+    "FAILED tests/test_cce_r3_acceptance_gaps.py::test_two_withheld_reasons_stay_distinct__v3_325"
+   ]
+  },
+  "v3-326": {
+   "arm": "S2_B5_playbook_cut_10",
+   "result": "RED(抓到)",
+   "first_red": [
+    "FAILED tests/test_cce_r3_acceptance_gaps.py::test_playbook_primary_cut_at_120__v3_326"
+   ]
+  },
+  "v3-340": {
+   "arm": "XM_E3_syspath_insert_removed",
+   "result": "RED(抓到)",
+   "first_red": [
+    "FAILED tests/test_cce_r3_acceptance_gaps.py::test_xm_imports_from_any_cwd_without_pythonpath__v3_340"
+   ]
+  }
+ }
+}
