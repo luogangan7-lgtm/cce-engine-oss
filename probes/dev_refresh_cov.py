@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """开发工具(零 API): 按 ablation_verdicts_v3.json 的 scope_rule 现算覆盖率并回写 ★coverage 段。**每次新增/删除 scope 内文件后必须跑**, 否则 test_cce_ablation_verdicts_v3 的 scope_files/scope_lines 现算闸红。"""
 import json, pathlib, os
-ROOT=pathlib.Path("/Volumes/data/cce-engine"); P=ROOT/"tests/data/ablation_verdicts_v3.json"
+ROOT=pathlib.Path(__file__).resolve().parents[1]; P=ROOT/"tests/data/ablation_verdicts_v3.json"
 doc=json.loads(P.read_text(encoding="utf-8")); rule=doc["★coverage"]["scope_rule"]; out=[]
 for d in rule["dirs_recursive_py"]:
     for r,_,fs in os.walk(ROOT/d):

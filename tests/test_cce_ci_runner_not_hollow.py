@@ -21,3 +21,22 @@ def test_runsuite_routes_pytest_style_to_pytest_and_exits_nonzero_on_red():
         b = pathlib.Path(tmp) / "test_b.py"; b.write_text("assert 1 == 1\n", encoding="utf-8")
         ns = {}; exec(compile("import re, sys\n" + src.split("def cmd(t):")[0].split("\n")[-1] + "def cmd(t):" + src.split("def cmd(t):")[1].split("\n")[0], "cmd", "exec"), ns)
         assert "pytest" in " ".join(ns["cmd"](a)) and "pytest" not in " ".join(ns["cmd"](b))
+
+
+def test_runsuite_has_no_machine_path_and_refuses_zero_tests():
+    """★ 2026-09-24 第二次空跑(公仓 PR run 36017702484): ROOT 写死 /Volumes/data/cce-engine ⇒ runner 上 0 个测试 ⇒「绿 0/红 0」恒绿。
+    守: ① probes/ 与 workflows 里不许出现本机绝对路径 ② 真跑一份复制到临时目录的 runsuite: 空 tests/ 必须非零退出, 有一个 pytest 风格测试时报 绿 1。"""
+    for rel in ("probes/dev_runsuite.py", "probes/dev_refresh_cov.py", ".github/workflows/cce-submit.yml"):
+        assert "/Volumes/data" not in (ROOT / rel).read_text(encoding="utf-8"), rel
+    src = (ROOT / "probes/dev_runsuite.py").read_text(encoding="utf-8")
+    with tempfile.TemporaryDirectory() as tmp:
+        root = pathlib.Path(tmp); (root / "probes").mkdir(); (root / "tests").mkdir()
+        rs = root / "probes" / "dev_runsuite.py"; rs.write_text(src, encoding="utf-8")
+        p = subprocess.run([sys.executable, str(rs)], capture_output=True, text=True, cwd=tmp, timeout=120)
+        assert p.returncode != 0 and "空跑" in p.stdout, (p.returncode, p.stdout)
+        (root / "tests" / "test_one.py").write_text("def test_x():\n    assert True\n", encoding="utf-8")
+        p = subprocess.run([sys.executable, str(rs)], capture_output=True, text=True, cwd=tmp, timeout=300)
+        assert p.returncode == 0 and "绿 1 / 红 0" in p.stdout, (p.returncode, p.stdout, p.stderr)
+        (root / "tests" / "test_two.py").write_text("def test_y():\n    assert False\n", encoding="utf-8")
+        p = subprocess.run([sys.executable, str(rs)], capture_output=True, text=True, cwd=tmp, timeout=300)
+        assert p.returncode == 1 and "真红 1" in p.stdout, (p.returncode, p.stdout)

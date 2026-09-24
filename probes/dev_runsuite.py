@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """开发工具(零 API): 并行跑全部 tests/test_*.py(有 def test_ 的走 pytest, 其余脚本跑), 红的串行复验, 只报真红。用法: python3 probes/dev_runsuite.py"""
 import subprocess, pathlib, concurrent.futures as cf, sys
-ROOT=pathlib.Path("/Volumes/data/cce-engine"); tests=sorted((ROOT/"tests").glob("test_*.py"))
+ROOT=pathlib.Path(__file__).resolve().parents[1]; tests=sorted((ROOT/"tests").glob("test_*.py"))
+# ★ 2026-09-24 第二次空跑: ROOT 曾写死本机绝对路径 ⇒ 公仓/私仓 CI runner 上 glob 为空 ⇒「绿 0 / 红 0」退出 0, contract job 恒绿。找不到测试必须非零退出。
+if not tests: print("[空跑] %s 下找不到 tests/test_*.py —— 拒绝当绿"%ROOT); sys.exit(2)
 # ★ 2026-09-24 修: 有 `def test_` 的文件(pytest 风格)用 `python3 -B tests/test_x.py` 是**空跑**(0 断言执行, 恒绿; 模块级断言式的文件脚本跑才对) ——
 #   消融第三轮的 L4 农场沿用本脚本的跑法, 把 test_cce_stage_overlap / test_cce_s0_wiring 这类真正守行为的闸整批漏掉。有 `def test_` 的一律走 pytest, 其余脚本跑。
 import re
