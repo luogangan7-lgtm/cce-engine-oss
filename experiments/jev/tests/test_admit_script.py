@@ -74,9 +74,11 @@ def test_permit_content_refusals(tmp_path, permit_file, over, code):
 
 
 def _eval_permit(**over):
-    return _permit(mode="eval", workflow_id="cce-jev-eval.yml", suite_id="s0-smoke-v1", suite_sha256=_sha(JEV / "suites" / "s0-smoke-v1.jsonl"),
-                   asset_lock_sha256=_sha(JEV / "locks" / "model.assets.lock.json"), runtime_lock_sha256=_sha(JEV / "locks" / "runtime-cpu.lock.txt"),
-                   resource_policy="cpu_smoke.json", resource_policy_sha256=_sha(JEV / "policies" / "cpu_smoke.json"), **over)
+    base = dict(mode="eval", workflow_id="cce-jev-eval.yml", suite_id="s0-smoke-v1", suite_sha256=_sha(JEV / "suites" / "s0-smoke-v1.jsonl"),
+                asset_lock_sha256=_sha(JEV / "locks" / "model.assets.lock.json"), runtime_lock_sha256=_sha(JEV / "locks" / "runtime-cpu.lock.txt"),
+                resource_policy="cpu_smoke.json", resource_policy_sha256=_sha(JEV / "policies" / "cpu_smoke.json"))
+    base.update(over)
+    return _permit(**base)
 
 
 EVAL_ENV = dict(MODE="eval", SUITE_ID="s0-smoke-v1", GITHUB_WORKFLOW_REF="luogangan7-lgtm/cce-engine-oss/.github/workflows/cce-jev-eval.yml@refs/heads/master")
