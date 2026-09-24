@@ -19,3 +19,4 @@ for t,_ in red:
     if p.returncode: real.append((t,p.stdout+p.stderr))
 print("[串行复验后] 真红 %d"%len(real))
 for t,out in real: print("\n### %s\n%s"%(t.name,"\n".join(out.strip().splitlines()[-6:])))
+sys.exit(1 if real else 0)   # ★ CI 用: 有真红就非零退出

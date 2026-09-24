@@ -66,7 +66,9 @@ jobs:
           n=$(ls tests/test_*.py | wc -l)
           echo "发现 $n 个测试文件"
           test "$n" -ge 80 || { echo "❌ 只发现 $n 个(少于登记数), 路径或文件出了问题"; exit 1; }
-          for t in tests/test_*.py; do echo "--- $t"; PYTHONDONTWRITEBYTECODE=1 python3 "$t"; done
+          # ★ 2026-09-24: 原 `python3 tests/test_x.py` 循环对 pytest 风格文件(有 def test_)是**空跑**(0 断言恒绿), 遇 `import pytest` 直接崩。
+          #   改跑 dev_runsuite: pytest 风格走 pytest, 脚本式照旧; 红的串行复验, 有真红退出 1。
+          PYTHONDONTWRITEBYTECODE=1 python3 probes/dev_runsuite.py
 
       # P1 本体迁移闸。原验收标准「旧名在生产路径 grep 命中==0」写错了且不可达 ——
       # 它把「仍在使用的旧本体 / 冻结证据 / 黑名单哨兵 / 同名异义 / 语料自己的英文单词」
