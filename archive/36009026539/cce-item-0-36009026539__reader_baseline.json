@@ -1,0 +1,812 @@
+{
+ "input_sha": "297291a67762932b",
+ "run_at": "2026-09-24T13:58:06",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用。**G-K1 的两项指标达标, 但「资格考生效」这个前提已于 2026-09-08 撤销**(五名标注者按 v2 三态判据**全部 UNRESOLVED**, 从未被有效认证; 且那次的 4 人面板是一次**抽签**剔除 M2.7 的结果, 而保留它的 5 人面板更稳): 核心面板 4 人 top2=0.904≥0.8 · 平均JS=0.2321≤0.25 · κ=0.618 参考项; M2.7 因锚例考 3/5 被剔除。★★ **2026-09-07 晚同代码同数据重跑, M2.7 得 5/5, 五人全合格** ⇒ **temp=0 下资格考不可复现**。该闸 5 个锚例、阈值 4/5, 在真实能力 p∈[0.34,0.93](宽 0.59) 区间内基本是抽签; 3/5 与 5/5 的 Wilson 区间重叠 [0.566,0.882], **统计上不矛盾** —— 矛盾的是拿它们做二值判决。要以 5%/5% 误判率区分「该落榜」与「该合格」需 **>=14~49 条锚例**。⇒ **「M2.7 不合格」是一次抽样结果, 不是模型的稳定属性**; 依赖它的结论(含 run1 的 4 人面板 G-K1)须标注为单次抽样。详见 tests/data/qualification_exam_resolution.json 产物 accuracy/out/gates_result.json)。**G-K2 只记录不判决**(本轮 ρ=0.652 p<0.001 macro-recall=0.62, 按其自身判据为通过; 但 2026-08-07 已把它正式定性为「不可判」并冻结 N≥150 复测, 本轮 n=81 <150, 故**不据此改判**)。**G-K3 撤销原判并重定义**: 原「签名两两可分」判据经 2026-09-07 对抗核验判**重言(YES_TAUTOLOGY)** —— 它只在两行签名逐字全等时才红, 且距离可被无成本刷高(给任一格加括号后缀即可), 与消融审计判零证据力的 L3 哈希同型。**库内 2026-08-07 那三个 ✅ 一并撤销**(它在 G-K1❌ G-K2❌ 的同一次运行里是绿的 ⇒ 零灵敏度)。重定义为 **G-K3-min 类实现台账**(probes/gk3_class_realization_ledger.py, 零 API): 判决 **WITHHELD_DEAD_CLASSES** —— ★ **belong 是死类**(共识 argmax 0/78, 逐标注者 top1 0/308, 激活仅 2/78), 36 对中 11 对无证据、25 对仅出剖面、**0 对判通过**。★ 该台账的 PASS 分支**源码级不存在**: 它吃的是 G-K1 的标注产物(同一批标注者/语料/prompt, 且读数被 signature 引导过), 能证伪「某类没被实现」, 永远不能证成「九类分得开」—— 后者需要一台不看 taxonomy 的盲观测仪器, 本仓没有。**重复性已验**(2026-09-07 同语料第二次独立运行 + 对条目自助重采样 B=10000): ★★ **「通过」不是二值事实** —— JS 的自助 95%CI **[0.190, 0.280] 跨过阈值 0.25**, 用 run1 那个 4 人面板重抽 **23% 不过**(5 人面板 7%), 且失败**全部来自 JS**(top2 一次没败)。跨运行差只有抽样 SE 的 0.71×/0.08× ⇒ **主噪声来自样本, 加样本量有用, 加重复次数用处小**。**外部效度已测**(换成版内他人**帖子** 81 篇, 帖子 id 与验收语料零重叠): top2=0.878✅ · JS=0.2458✅, **但余量只剩 0.0042(薄 7.4 倍), 自助 42% 不过** ⇒ 正确表述是「**外部效度未被证伪, 但远未被确立**」。★★★ 且**类空间塌陷更严重**(头两类共识占比 63%→**76.5%**, pain_seek 独占 60%) ⇒ **塌陷是仪器的性质, 不是语料的性质**。⇒ 结论引用仍须带「未验」标注, 但**不得再说 G-K1 未跑**。 ★★ 另: G-K1 在混淆方向上**结构性盲** —— 实测两结永远 50/50 完全不可分的退化面板, 在 G-K1 判据下拿 top2=1.0/JS=0.0 **满分通过**(判据问「A 的 top1 在不在 B 的 top2 里」, 被系统混淆的两结永远并列进同一 top2 ⇒ **混淆是加分项**; κ 会掉到 0 但它是参考项, 进不了 pass)。⇒ 「G-K1 通过」不蕴含「九个结分得开」。 ★ 且 G-K1 通过卡在 JS 上很紧: 余量 0.0179 只有跨对 SD 的 **0.55 倍**(top2 是 2.85 倍)。 ★★★ **belong 的「死类」判定已撤销。** 它在评论上共识 argmax 0/81, 但换成**帖子**后 **7/81 = 8.6%**(Wilson CI [4.3%,16.8%], 与评论上的上界 3.63% **不重叠**), 逐标注者 top1 从 2 涨到 35。根因是**采样框错配**: belong 按分类学自己的定义活在「自我暴露式**发帖**」, 而语料是**评论**, 且标注 prompt **逐字**说「给你一条评论」、同时告诉模型 display 是「**评论区**最高质量UGC主力」。判别效度研究(理论驱动挑战集 105 条 + 阴性近似对照 89 条, 判据发起前冻结)判 **RETAIN_as_core**: k=10>=7 · Fisher p=0.0102 · 10 个不同作者零聚类, 零模型概率 0.039%。**不删、不合并。**"
+ },
+ "stage1": {
+  "operational": {
+   "attempts": [
+    {
+     "draw": 1,
+     "temperature": 0.3,
+     "attempt": 1,
+     "status": "SUCCESS",
+     "error_class": null
+    },
+    {
+     "draw": 2,
+     "temperature": 0.6,
+     "attempt": 1,
+     "status": "SUCCESS",
+     "error_class": null
+    },
+    {
+     "draw": 0,
+     "temperature": 0.0,
+     "attempt": 1,
+     "status": "SUCCESS",
+     "error_class": null
+    }
+   ],
+   "n_attempts": 3,
+   "n_draws": 3,
+   "first_attempt_success": 3,
+   "first_attempt_success_rate": 1.0,
+   "n_infra_failed": 0,
+   "n_parse_failed": 0,
+   "retry_policy": "fixed 3 attempts per draw, **not** classified by error type yet",
+   "caveat": "PARSE_FAILED 是**仪器行为**不是基础设施 —— 当前实现对它也重试, 等于条件化于『最终给出可解析读数』。先记录频率, 再决定是否分流。"
+  },
+  "preparation_id": "prep_86c7c7545d75",
+  "structural_gate": {
+   "gate_version": "1.0.0",
+   "verdict": "MEASURE",
+   "span_counts": {
+    "PERSONAL": 1,
+    "NONPERSONAL": 0,
+    "AMBIGUOUS": 0
+   },
+   "chars_in": 251,
+   "chars_kept": 251,
+   "chars_dropped": 0
+  },
+  "k_requested": 3,
+  "k_attempted": 3,
+  "k_valid": 3,
+  "k_abstained": 0,
+  "k_ok": 3,
+  "n_abstain": 0,
+  "abstained": false,
+  "measurement_status": "qualified",
+  "layers": {
+   "desire_vec": [
+    0.03333333333333333,
+    0.016666666666666666,
+    0.35000000000000003,
+    0.15,
+    0.0,
+    0.03333333333333333,
+    0.16666666666666666,
+    0.2333333333333333,
+    0.016666666666666666
+   ],
+   "need_vec": [
+    0.3166666666666667,
+    0.2166666666666667,
+    0.0,
+    0.03333333333333334,
+    0.0,
+    0.26666666666666666,
+    0.08333333333333333,
+    0.0,
+    0.0,
+    0.049999999999999996,
+    0.03333333333333333,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.0,
+    0.0,
+    0.0,
+    0.06666666666666667,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.07666666666666667,
+    0.2733333333333334,
+    0.20000000000000004,
+    0.3833333333333333
+   ],
+   "action_vec": [
+    0.05000000000000001,
+    0.31666666666666665,
+    0.20000000000000004,
+    0.11666666666666665,
+    0.25,
+    0.06666666666666667,
+    0.0
+   ]
+  },
+  "tops": {
+   "desire": "摆脱欲",
+   "need": "N01_确定性",
+   "emotion": "anger愤怒",
+   "action": "avoidance回避"
+  },
+  "draws": [
+   {
+    "from_temperature": 0.0,
+    "abstained": false,
+    "desire_vec": [
+     0.0,
+     0.0,
+     0.4,
+     0.25,
+     0.0,
+     0.05,
+     0.1,
+     0.2,
+     0.0
+    ],
+    "need_vec": [
+     0.30000000000000004,
+     0.20000000000000004,
+     0.0,
+     0.10000000000000002,
+     0.0,
+     0.30000000000000004,
+     0.10000000000000002,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emotion_vec": [
+     0.0,
+     0.0,
+     0.0,
+     0.05,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.08,
+     0.27,
+     0.2,
+     0.4
+    ],
+    "action_vec": [
+     0.0,
+     0.3,
+     0.2,
+     0.0,
+     0.35,
+     0.15,
+     0.0
+    ],
+    "tops": {
+     "desire": "摆脱欲",
+     "need": "N01_确定性",
+     "emotion": "anger愤怒",
+     "action": "agonistic对抗"
+    },
+    "appraisal": {
+     "goal_relevance": 0.92,
+     "congruence_direction": "威胁",
+     "need_status": "未满足",
+     "goal_congruence": "负",
+     "coping_potential": "低",
+     "note": "情境直接命中核心需求(听力+金钱+确定感三件同时受阻),而 audiologist 的'正常'判定又让唯一权威渠道失效:方向=威胁、状态=未满足、应对潜能=低(已找专业人士无果,自主排查也撞墙),故 goal_congruence 为负、强度高,直接推动负情绪爆发而非正情绪。"
+    }
+   },
+   {
+    "from_temperature": 0.3,
+    "abstained": false,
+    "desire_vec": [
+     0.0,
+     0.0,
+     0.35,
+     0.15,
+     0.0,
+     0.0,
+     0.2,
+     0.3,
+     0.0
+    ],
+    "need_vec": [
+     0.3,
+     0.25,
+     0.0,
+     0.0,
+     0.0,
+     0.3,
+     0.0,
+     0.0,
+     0.0,
+     0.15,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emotion_vec": [
+     0.0,
+     0.0,
+     0.0,
+     0.1,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.05,
+     0.25,
+     0.2,
+     0.4
+    ],
+    "action_vec": [
+     0.05,
+     0.35,
+     0.1,
+     0.25,
+     0.25,
+     0.0,
+     0.0
+    ],
+    "tops": {
+     "desire": "摆脱欲",
+     "need": "N01_确定性",
+     "emotion": "anger愤怒",
+     "action": "avoidance回避"
+    },
+    "appraisal": {
+     "goal_relevance": 0.95,
+     "congruence_direction": "威胁",
+     "need_status": "未满足",
+     "goal_congruence": "负",
+     "coping_potential": "低",
+     "note": "目标高度相关(关系到听力健康+大额支出)；方向是'威胁'——产品每日失效=阻断了'买完就能用'的核心目标；需求未被满足(发帖本身就是在求答案，未得到解决)；应对潜能低(已经花了一轮钱+专家不接招+自己缺乏判断技术故障的能力)，三者叠加产出强烈的负情绪与回避/对抗倾向。"
+    }
+   },
+   {
+    "from_temperature": 0.6,
+    "abstained": false,
+    "desire_vec": [
+     0.1,
+     0.05,
+     0.3,
+     0.05,
+     0.0,
+     0.05,
+     0.2,
+     0.2,
+     0.05
+    ],
+    "need_vec": [
+     0.35,
+     0.2,
+     0.0,
+     0.0,
+     0.0,
+     0.2,
+     0.15,
+     0.0,
+     0.0,
+     0.0,
+     0.1,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emotion_vec": [
+     0.0,
+     0.0,
+     0.0,
+     0.05,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.1,
+     0.3,
+     0.2,
+     0.35
+    ],
+    "action_vec": [
+     0.1,
+     0.3,
+     0.3,
+     0.1,
+     0.15,
+     0.05,
+     0.0
+    ],
+    "tops": {
+     "desire": "摆脱欲",
+     "need": "N01_确定性",
+     "emotion": "anger愤怒",
+     "action": "attend关注"
+    },
+    "appraisal": {
+     "goal_relevance": 0.95,
+     "congruence_direction": "威胁",
+     "need_status": "未满足",
+     "goal_congruence": "负",
+     "coping_potential": "中",
+     "note": "目标高度相关(每天都依赖的设备失效)；方向=威胁(验配师说'正常'等于把问题门关上，钱已花但功能没拿到)；需求当场未满足(没拿到真答案、没拿到能用的设备)；应对潜能中等——能上网比型号、能发帖求助，但自我评估'don't want to spend again'显示行动信心不足，因此情绪偏负且偏fear/anger混合而非纯relief。"
+    }
+   }
+  ],
+  "appraisal": {
+   "goal_relevance": 0.92,
+   "congruence_direction": "威胁",
+   "need_status": "未满足",
+   "goal_congruence": "负",
+   "coping_potential": "低",
+   "note": "情境直接命中核心需求(听力+金钱+确定感三件同时受阻),而 audiologist 的'正常'判定又让唯一权威渠道失效:方向=威胁、状态=未满足、应对潜能=低(已找专业人士无果,自主排查也撞墙),故 goal_congruence 为负、强度高,直接推动负情绪爆发而非正情绪。"
+  },
+  "chain_trace": "摆脱欲+确认欲+安全感欲 →(高价助听器左侧每日 4pm 死亡 + audiologist 推诿'正常'的情境)→ N01_确定性 + N06_摆脱痛苦 + N02_掌控局面(以 N07_占有资源、N04_理解世界为辅)→ 评价:威胁方向+未满足+低应对潜能 → 负向 goal_congruence 触发 anger 主导 + fear/sadness → 行动倾向以 agonistic 对抗(发帖求证)与 avoidance 回避(准备放弃)为主,辅以 attend 关注(比对新款)与 interrupt 中断(中止使用)",
+  "single_draw": {
+   "appraisal": {
+    "goal_relevance": 0.92,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "低",
+    "note": "情境直接命中核心需求(听力+金钱+确定感三件同时受阻),而 audiologist 的'正常'判定又让唯一权威渠道失效:方向=威胁、状态=未满足、应对潜能=低(已找专业人士无果,自主排查也撞墙),故 goal_congruence 为负、强度高,直接推动负情绪爆发而非正情绪。"
+   },
+   "chain_trace": "摆脱欲+确认欲+安全感欲 →(高价助听器左侧每日 4pm 死亡 + audiologist 推诿'正常'的情境)→ N01_确定性 + N06_摆脱痛苦 + N02_掌控局面(以 N07_占有资源、N04_理解世界为辅)→ 评价:威胁方向+未满足+低应对潜能 → 负向 goal_congruence 触发 anger 主导 + fear/sadness → 行动倾向以 agonistic 对抗(发帖求证)与 avoidance 回避(准备放弃)为主,辅以 attend 关注(比对新款)与 interrupt 中断(中止使用)",
+   "from_temperature": 0.0,
+   "caveat": "单次抽样(温度阶梯第一档), 不是 K 次聚合; 与 layers/tops 不同口径, 不得并列引用"
+  },
+  "_provenance": {
+   "aggregated": [
+    "layers",
+    "tops",
+    "within_js"
+   ],
+   "single_draw": [
+    "appraisal",
+    "chain_trace"
+   ],
+   "n": 3
+  },
+  "within_js": {
+   "desire_vec": 0.1258,
+   "need_vec": 0.1666,
+   "emotion_vec": 0.0089,
+   "action_vec": 0.1679
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "pain_seek",
+    "intensity": 0.88,
+    "support": 1.0,
+    "occur": 5,
+    "n": 5,
+    "support_ci95": [
+     0.5655,
+     1.0
+    ],
+    "support_majority": true,
+    "weight": 0.3259,
+    "name": "痛点·求解结",
+    "family": "推动",
+    "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+    "behavior_predicted": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)",
+    "evidence_quote": "Honestly I'm about ready to give up on these. Paid a fortune, and the left one dies by 4pm every single day. The audiologist says it's normal. Is it?",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "中",
+     "time": "现在",
+     "attribution": "system/none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "摆脱欲",
+    "need_code": "N06",
+    "freshness_days_hint": 45
+   },
+   {
+    "key": "audit",
+    "intensity": 0.72,
+    "support": 1.0,
+    "occur": 5,
+    "n": 5,
+    "support_ci95": [
+     0.5655,
+     1.0
+    ],
+    "support_majority": true,
+    "weight": 0.2667,
+    "name": "验真·审计结",
+    "family": "阻挡",
+    "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』)",
+    "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前",
+    "evidence_quote": "The audiologist says it's normal. Is it?",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "other_agent",
+     "target_layer": "epistemic_trust"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N01",
+    "freshness_days_hint": 45
+   },
+   {
+    "key": "suspend",
+    "intensity": 0.6,
+    "support": 1.0,
+    "occur": 5,
+    "n": 5,
+    "support_ci95": [
+     0.5655,
+     1.0
+    ],
+    "support_majority": true,
+    "weight": 0.2222,
+    "name": "悬置·焦虑结",
+    "family": "阻挡",
+    "playbook": "给判据+零成本测试塌缩不确定性+如实说trade;不推购买。反杠杆=零风险承诺/样品/证言",
+    "behavior_predicted": "质询通道·中成本:连环规格质询/征证言/比价/收藏不买/明确不动",
+    "evidence_quote": "I'm comparing the new models but I don't want to spend again if it's just going to be the same story.",
+    "signature": {
+     "congruence": "促进与威胁并存",
+     "need_status": "未满足",
+     "coping": "不确定",
+     "time": "未来",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N01",
+    "freshness_days_hint": 45
+   },
+   {
+    "key": "injustice",
+    "intensity": 0.3,
+    "support": 1.0,
+    "occur": 5,
+    "n": 5,
+    "support_ci95": [
+     0.5655,
+     1.0
+    ],
+    "support_majority": true,
+    "weight": 0.1111,
+    "name": "不平·问责结",
+    "family": "推动",
+    "playbook": "承认合理性;把问责导向能落地的路径(症状不方案/建案号);绝不替责任方辩护",
+    "behavior_predicted": "施压通道·高成本公开:公开信/差评/拉同盟;不求助,施压",
+    "evidence_quote": "Paid a fortune",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "已发生",
+     "coping": "中",
+     "time": "过去",
+     "attribution": "other_agent",
+     "target_layer": "fairness"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N09",
+    "freshness_days_hint": 45
+   },
+   {
+    "key": "inertia",
+    "intensity": 0.2,
+    "support": 0.6,
+    "occur": 3,
+    "n": 5,
+    "support_ci95": [
+     0.2307,
+     0.8824
+    ],
+    "support_majority": true,
+    "weight": 0.0741,
+    "name": "惯性·缺席结",
+    "family": "阻挡",
+    "playbook": "只有精确命中其机制才值得触碰;给『一步且可逆』的最小改变;绝不布道",
+    "behavior_predicted": "缺席本身+替代行为(伪装/微笑点头)+认命句(but I understand it now);内容精确命中机制才开口,开口即高质量个案",
+    "evidence_quote": "Honestly I'm about ready to give up on these",
+    "signature": {
+     "congruence": "无激活",
+     "need_status": "现状部分满足为默认",
+     "coping": "极低",
+     "time": "无限期现在",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "控制欲(被压抑)",
+    "need_code": "N02",
+    "freshness_days_hint": 60
+   }
+  ],
+  "measurement_status": "qualified",
+  "n_abstain": 0,
+  "draw_ledger": [
+   {
+    "draw_id": 0,
+    "knot_vector": {
+     "pain_seek": 0.88,
+     "injustice": 0.22,
+     "belong": 0.0,
+     "reward": 0.0,
+     "display": 0.0,
+     "itch": 0.0,
+     "suspend": 0.6,
+     "inertia": 0.0,
+     "audit": 0.72
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "pain_seek"
+   },
+   {
+    "draw_id": 1,
+    "knot_vector": {
+     "pain_seek": 0.8,
+     "injustice": 0.48,
+     "belong": 0.0,
+     "reward": 0.0,
+     "display": 0.0,
+     "itch": 0.0,
+     "suspend": 0.72,
+     "inertia": 0.15,
+     "audit": 0.65
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "pain_seek"
+   },
+   {
+    "draw_id": 2,
+    "knot_vector": {
+     "pain_seek": 0.88,
+     "injustice": 0.42,
+     "belong": 0.0,
+     "reward": 0.0,
+     "display": 0.0,
+     "itch": 0.0,
+     "suspend": 0.52,
+     "inertia": 0.22,
+     "audit": 0.68
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "pain_seek"
+   },
+   {
+    "draw_id": 3,
+    "knot_vector": {
+     "pain_seek": 0.8,
+     "injustice": 0.22,
+     "belong": 0.0,
+     "reward": 0.0,
+     "display": 0.0,
+     "itch": 0.0,
+     "suspend": 0.74,
+     "inertia": 0.0,
+     "audit": 0.73
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "pain_seek"
+   },
+   {
+    "draw_id": 4,
+    "knot_vector": {
+     "pain_seek": 0.88,
+     "injustice": 0.3,
+     "belong": 0.0,
+     "reward": 0.0,
+     "display": 0.0,
+     "itch": 0.0,
+     "suspend": 0.55,
+     "inertia": 0.2,
+     "audit": 0.8
+    },
+    "weight_shim_fired": false,
+    "abstained": false,
+    "top1": "pain_seek"
+   }
+  ],
+  "intensity": {
+   "pain_seek": 0.88,
+   "audit": 0.72,
+   "suspend": 0.6,
+   "injustice": 0.3,
+   "inertia": 0.2
+  },
+  "families": {
+   "推动": {
+    "mass": 0.88,
+    "composition": {
+     "pain_seek": 0.7458,
+     "injustice": 0.2542
+    },
+    "members_active": 2
+   },
+   "阻挡": {
+    "mass": 0.72,
+    "composition": {
+     "audit": 0.4737,
+     "suspend": 0.3947,
+     "inertia": 0.1316
+    },
+    "members_active": 3
+   }
+  },
+  "drive_brake": {
+   "drive_mass": 0.88,
+   "brake_mass": 0.72,
+   "quadrant": "high_drive/high_brake",
+   "note": "象限切点 0.5 是量纲中点, 不是校准阈值; 仅作分类标签, 不得作判据"
+  },
+  "levers_present": [
+   "fear_of_repeat_loss(用户自身风险叙事,非内容侧投放)",
+   "好奇缺口（\"Is it?\"开放式质询）",
+   "比价/参照对比（\"comparing the new models\"）"
+  ],
+  "notes": "pain_seek 主导(高成本求助通道全开:症状详述+已试权威+比价中);audit 紧随其后质疑 audiologist 判定;后者失信让唯一权威渠道失效,触发 suspend 阻断换机决策;无内容侧杠杆——这是用户原帖而非营销内容。",
+  "sampling": {
+   "n_requested": 5,
+   "n_ok": 5,
+   "top1_mode": "pain_seek",
+   "top1_mode_share": 1.0,
+   "top1_unanimous": true,
+   "top1_stable": true,
+   "top1_draws": [
+    "pain_seek",
+    "pain_seek",
+    "pain_seek",
+    "pain_seek",
+    "pain_seek"
+   ],
+   "caveat_unanimous": "★ 2026-09-06 起 top1_unanimous 在可投票 draw < 2 时返回 **None**(不可判), 不再恒真 —— 一个观测点上观察不到一致性。且 P≈p^n 随 n 单调下降 ⇒ 跨不同 n 比较必须用 top1_mode_share, 不能用 unanimous",
+   "max_range": 0.26,
+   "per_knot": {
+    "injustice": {
+     "occur": 5,
+     "n": 5,
+     "support": 1.0,
+     "intensity": 0.3,
+     "median": 0.3,
+     "min": 0.22,
+     "max": 0.48,
+     "range": 0.26
+    },
+    "audit": {
+     "occur": 5,
+     "n": 5,
+     "support": 1.0,
+     "intensity": 0.72,
+     "median": 0.72,
+     "min": 0.65,
+     "max": 0.8,
+     "range": 0.15
+    },
+    "pain_seek": {
+     "occur": 5,
+     "n": 5,
+     "support": 1.0,
+     "intensity": 0.88,
+     "median": 0.88,
+     "min": 0.8,
+     "max": 0.88,
+     "range": 0.08
+    },
+    "inertia": {
+     "occur": 3,
+     "n": 5,
+     "support": 0.6,
+     "intensity": 0.2,
+     "median": 0.2,
+     "min": 0.15,
+     "max": 0.22,
+     "range": 0.07
+    },
+    "suspend": {
+     "occur": 5,
+     "n": 5,
+     "support": 1.0,
+     "intensity": 0.6,
+     "median": 0.6,
+     "min": 0.52,
+     "max": 0.74,
+     "range": 0.22
+    }
+   }
+  },
+  "caveat": "单次抽样不是测量: 本结果为 n 次抽样的逐结中位数; top1_stable=false 时首结身份本身不可复现, 不得作断言依据",
+  "instrument": {
+   "instrument_hash": "d4cce4c745f3f991",
+   "qualification_policy_hash": "b41ef5217a77d311",
+   "spec": {
+    "ontology_version": "1.3.1",
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s2_prompt_sha256": "b8d0f60d66d10f12",
+    "model": "MiniMax-M3",
+    "endpoint": "https://api.minimaxi.com/v1/text/chatcompletion_v2",
+    "sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "aggregation_policy": {
+     "support_rule": "occur * 2 > n",
+     "intensity_stat": "median_of_nonzero",
+     "composition": "within_family_then_global_weight",
+     "abstention": "empty_knots_is_abstain_v1"
+    },
+    "qualification_policy": {
+     "k_valid_min": 2,
+     "insufficient_replicates": "WITHHOLD",
+     "abstain_semantics": "empty_knots_is_abstain_v1",
+     "statuses": [
+      "qualified",
+      "abstain",
+      "insufficient_replicates"
+     ],
+     "margin": {
+      "F_max": 0.0,
+      "U_max": 0.05,
+      "bound": "exact_one_sided_95_upper",
+      "provenance": "ENGINEERING_BUDGET",
+      "concentration_flag": {
+       "per_base_unqualified_min": 2,
+       "per_base_reps": 4,
+       "effect": "ADOPT_WITH_RESTRICTIONS"
+      },
+      "why_concentration": "总体 4% 但全集中在一种表达形式, 会被均值洗掉 ⇒ 必须另报 U_by_base"
+     }
+    }
+   },
+   "preparation_id": "prep_86c7c7545d75",
+   "measurement_procedure_id": "mp_85d5dcd6bb6fda0f",
+   "hash_scope": {
+    "instrument": [
+     "ontology_version",
+     "s1_prompt_sha256",
+     "s2_prompt_sha256",
+     "model",
+     "endpoint",
+     "sampling_policy"
+    ],
+    "qualification_policy": [
+     "aggregation_policy",
+     "qualification_policy"
+    ],
+    "measurement_procedure": [
+     "instrument_hash",
+     "preparation_id",
+     "qualification_policy_hash"
+    ],
+    "criterion": "改它之后已采集的 raw draw 还能不能用"
+   }
+  },
+  "s1_pairing": "round_robin_over_3_s1_draws"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1 两项指标达标但**面板从未被有效认证**(v2 三态下五人全 UNRESOLVED); **belong 在评论上是单元错配非死类** · G-K3 原判已撤销(重言) · G-K2 不可判 · **外部效度未被证伪但远未确立** · **类空间塌陷是仪器性质** —— 引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}
