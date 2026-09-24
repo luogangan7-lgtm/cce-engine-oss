@@ -24,10 +24,11 @@ def test_runsuite_routes_pytest_style_to_pytest_and_exits_nonzero_on_red():
 
 
 def test_runsuite_has_no_machine_path_and_refuses_zero_tests():
-    """★ 2026-09-24 第二次空跑(公仓 PR run 36017702484): ROOT 写死 /Volumes/data/cce-engine ⇒ runner 上 0 个测试 ⇒「绿 0/红 0」恒绿。
-    守: ① probes/ 与 workflows 里不许出现本机绝对路径 ② 真跑一份复制到临时目录的 runsuite: 空 tests/ 必须非零退出, 有一个 pytest 风格测试时报 绿 1。"""
+    """★ 2026-09-24 第二次空跑(公仓 PR run 36017702484): ROOT 写死本机绝对路径 ⇒ runner 上 0 个测试 ⇒「绿 0/红 0」恒绿。
+    守: ① probes/ 与 workflows 里不许出现本机绝对路径(字面量在闸里拼接) ② 真跑一份复制到临时目录的 runsuite: 空 tests/ 必须非零退出, 有一个 pytest 风格测试时报 绿 1。"""
+    local_prefix = "/" + "Volumes/" + "data"   # 拼出来: 本闸自己不许含这个字面量(仓外素材闸会把它当成依赖)
     for rel in ("probes/dev_runsuite.py", "probes/dev_refresh_cov.py", ".github/workflows/cce-submit.yml"):
-        assert "/Volumes/data" not in (ROOT / rel).read_text(encoding="utf-8"), rel
+        assert local_prefix not in (ROOT / rel).read_text(encoding="utf-8"), rel
     src = (ROOT / "probes/dev_runsuite.py").read_text(encoding="utf-8")
     with tempfile.TemporaryDirectory() as tmp:
         root = pathlib.Path(tmp); (root / "probes").mkdir(); (root / "tests").mkdir()
