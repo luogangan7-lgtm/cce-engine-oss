@@ -89,7 +89,10 @@ with tempfile.TemporaryDirectory() as td:
     info = c2pa.C2paSignerInfo(alg=b"es256", sign_cert=pem, private_key=key, ta_url=None)
     b = c2pa.Builder({"claim_generator_info": [{"name": "cce-ci", "version": "1"}],
                       "assertions": [{"label": "c2pa.actions",
-                                      "data": {"actions": [{"action": "c2pa.created"}]}}]})
+                                      # ★ 2026-09-24: c2pa-python 0.37.12 起 c2pa.created 必须带 digitalSourceType(0.37.8 不要求);
+                                      #   CI runner 解析到新版后本夹具在 sign 处炸, 红掉整个 contract job。补字段, 两版都过。
+                                      "data": {"actions": [{"action": "c2pa.created",
+                                                            "digitalSourceType": "http://cv.iptc.org/newscodes/digitalsourcetype/digitalCreation"}]}}]})
     with open(plain, "rb") as s, open(signed, "wb+") as d:
         b.sign(c2pa.Signer.from_info(info), "image/png", s, d)
     assert c2pa.Reader(signed).is_embedded(), "★ 签名没嵌进去, 后面这条断言就是空的"
