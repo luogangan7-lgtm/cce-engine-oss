@@ -254,6 +254,8 @@ jobs:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
           CCE_ALIGN_THETA: ${{ vars.CCE_ALIGN_THETA || '0.35' }}
+          # 2026-09-24 owner「subject_chain 也开吧」: 与出站链同一个仓库变量, 设 0 即全关。8 路并行 × 命中时每条 +2–4 次调用。
+          CCE_CITATION_CERT: ${{ vars.CCE_CITATION_CERT || '1' }}
         run: |
           python3 scripts/cce_full_run.py --mode "$(cat run/mode)" --text-file run/input.txt \
             --context "$(cat run/context)" --outdir run/out \

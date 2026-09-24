@@ -78,12 +78,12 @@ def test_repair_reask_bounded_to_two_calls(monkeypatch):
     assert len(calls) == 4 and all(c["calls"] == 2 and c["repaired"] for c in s2b["certs"]) and out["label_qualification"]["s2b_calls"] == 4 and out["label_qualification"]["state"] == "CITED_UNVERIFIED"
 
 
-def test_online_switch_is_on_only_in_outbound_chain_step_and_overridable():
-    """★ 2026-09-24 owner「线上开吧」: 出站链步骤 env 带 CCE_CITATION_CERT(vars 可覆盖, 默认 '1'); subject_chain 步骤不带(暂不开); 其余 workflow 不带。"""
+def test_online_switch_on_in_both_chain_steps_and_overridable():
+    """★ 2026-09-24 owner「线上开吧」+「subject_chain 也开吧」: cce-submit.yml 里**两个**跑 cce_full_run 的步骤都带 CCE_CITATION_CERT(同一仓库变量, 默认 '1', 设 0 全关); chain.yml / accuracy.yml 不带。"""
     wf = (ROOT / ".github/workflows/cce-submit.yml").read_text(encoding="utf-8")
-    steps = wf.split("      - name: ")
-    outbound = [s for s in steps if s.startswith("Run profile-frozen CCE chain")]; assert len(outbound) == 1
-    assert "CCE_CITATION_CERT: ${{ vars.CCE_CITATION_CERT || '1' }}" in outbound[0]
-    others = [s for s in steps if "cce_full_run.py" in s and not s.startswith("Run profile-frozen CCE chain")]
-    assert others and all("CCE_CITATION_CERT" not in s for s in others), "★ subject_chain 步骤不该开"
+    steps = [s for s in wf.split("      - name: ") + wf.split("      - id: ") if "cce_full_run.py" in s]
+    names = [s.splitlines()[0] for s in steps]
+    assert any(n.startswith("Run profile-frozen CCE chain") for n in names) and any("Run response measurement chain" in s for s in steps), names
+    for s in steps: assert "CCE_CITATION_CERT: ${{ vars.CCE_CITATION_CERT || '1' }}" in s, s.splitlines()[0]
+    assert wf.count("CCE_CITATION_CERT: ${{ vars.CCE_CITATION_CERT || '1' }}") == 2
     for f in ("chain.yml", "accuracy.yml"): assert "CCE_CITATION_CERT" not in (ROOT / ".github/workflows" / f).read_text(encoding="utf-8")

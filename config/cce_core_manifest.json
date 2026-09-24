@@ -1664,6 +1664,21 @@
     "不得说线上已产出 ③′ —— 要等真实 run。",
     "不得说 ③′ = 语义正确。"
    ]
+  },
+  {
+   "date": "2026-09-24",
+   "event": "CITATION_CERTIFICATE_SHADOW_SWITCHED_ON_SUBJECT_CHAIN_TOO",
+   "file": ".github/workflows/cce-submit.yml",
+   "to_sha": "6b891d58b5d55816",
+   "reason": "owner「subject_chain 也开吧」。「Run response measurement chain」步骤(subject_chain, matrix max-parallel 8)env 加同一个 CCE_CITATION_CERT = vars || '1'。代价: 每 run 最多 8 项 × 命中时 2–4 次 MiniMax(只在 s2 top-1=display 且稳定时命中)。",
+   "behavior_evidence": [
+    "tests/test_cce_s2b_citation_shadow.py"
+   ],
+   "★evidence_is_required_because": "「仪器哈希没变」**不足以**证明行为没变 —— 仪器没变; 变的是线上环境变量的覆盖面。闸核: cce-submit.yml 两个跑 cce_full_run 的步骤都带且恰好 2 处, chain.yml/accuracy.yml 不带。",
+   "route": "**线上配置(非 core_files)**, 零调用。仓库变量 CCE_CITATION_CERT=0 一处全关。",
+   "★不得据此说": [
+    "不得说线上已产出 ③′(要等 run)。"
+   ]
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",
