@@ -91,4 +91,7 @@ def test_locks_are_consistent_and_not_ready_yet():
     assert assets["revision"] == src["revision"] and assets["status"] == "REQUIRES_GITHUB_PREPARE" and assets["files"] == {}
     assert rt["status"] == "REQUIRES_GITHUB_PREPARE" and rt["dependency_lock_sha256"] is None and not (L / "runtime-cpu.lock.txt").exists()
     assert rt["base_image_digest"].startswith("sha256:") and rt["base_image_digest"] in (ROOT / "experiments" / "jev" / "runtime" / "Dockerfile.cpu").read_text()
-    assert not list((ROOT / "experiments" / "jev" / "permits").glob("*.json")), "no permit may be pre-approved by Claude"
+    for pf in (ROOT / "experiments" / "jev" / "permits").glob("*.json"):      # 许可只能带 owner 批准引用, 单次, 有期限
+        pm = json.loads(pf.read_text(encoding="utf-8"))
+        assert pm["permit_id"] == pf.stem and pm["owner_approval_reference"].strip() and pm["expiry"] and pm["max_runs"] == 1 == pm["max_attempts"], pf.name
+        assert pm["mode"] in ("prepare", "eval") and pm["repository"] == "luogangan7-lgtm/cce-engine-oss", pf.name

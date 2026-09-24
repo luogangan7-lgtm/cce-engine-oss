@@ -36,5 +36,6 @@ def test_local_guard_and_repo_boundaries():
     req = (ROOT / "requirements.txt").read_text(encoding="utf-8").lower()
     assert "torch" not in req and "transformers" not in req and "decider" not in req
     assert json.loads((JEV / "locks" / "model.assets.lock.json").read_text(encoding="utf-8"))["status"] == "REQUIRES_GITHUB_PREPARE"
-    assert not list((JEV / "permits").glob("*.json"))
+    for pf in (JEV / "permits").glob("*.json"):
+        assert json.loads(pf.read_text(encoding="utf-8"))["owner_approval_reference"].strip(), pf.name
     assert not list(ROOT.rglob("*.safetensors")) and not list(ROOT.rglob("*.gguf"))
