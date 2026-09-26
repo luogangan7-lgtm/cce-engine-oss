@@ -32,3 +32,20 @@ def test_escape_and_size_and_secret(tmp_path):
         with pytest.raises(JevError) as e:
             check_upload(tmp_path, [f], 10 ** 6)
         assert "secret" in e.value.detail
+
+
+
+def test_verbatim_input_leak_gate_positive_and_negative_controls(tmp_path):
+    import json as _j
+    from experiments.jev.report import text_leaks
+    body = "I have worn my aids for six years and the new ones finally fit without whistling at all during calls."
+    clean = tmp_path / "report.json"; clean.write_text(_j.dumps({"item_id": "x:1", "selected": "未知", "p": [0.2, 0.8]}), encoding="utf-8")
+    assert check_upload(tmp_path, [clean], 10 ** 6, forbidden_texts=[body]) == ["report.json"]             # 反向: 干净报告不误报
+    planted = tmp_path / "predictions.jsonl"
+    for payload in (body[10:40], body[30:60].replace(" ", "  "), _j.dumps({"detail": body[5:45]})):         # 原样 / 多空格 / JSON 转义内嵌
+        planted.write_text(_j.dumps({"note": payload}) + "\n", encoding="utf-8")
+        try:
+            check_upload(tmp_path, [clean, planted], 10 ** 6, forbidden_texts=[body]); raise AssertionError("planted leak passed")
+        except JevError as e:
+            assert e.code == "OUTPUT_INVALID" and "verbatim input text" in e.detail and body[10:30] not in e.detail
+    assert text_leaks("unrelated words only", [body]) == 0 and text_leaks(body[:23], [body]) == 0          # 窗口 24: 23 字符不算

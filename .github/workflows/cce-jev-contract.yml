@@ -9,12 +9,16 @@ on:
       - ".github/workflows/cce-jev-*.yml"
       - ".github/scripts/cce_jev_admit.py"
       - "tests/test_cce_jev_boundary.py"
+      - "corpus/**"
+      - "tests/data/real_corpus_pilot_prereg.json"
   pull_request:
     paths:
       - "experiments/jev/**"
       - ".github/workflows/cce-jev-*.yml"
       - ".github/scripts/cce_jev_admit.py"
       - "tests/test_cce_jev_boundary.py"
+      - "corpus/**"
+      - "tests/data/real_corpus_pilot_prereg.json"
 
 permissions:
   contents: read
@@ -38,7 +42,7 @@ jobs:
         run: python -m pip install "pytest>=8,<9"
       - name: Pure contract tests (fake backend, fake tokenizer, no network)
         run: |
-          python -m pytest experiments/jev/tests tests/test_cce_jev_boundary.py -q -p no:cacheprovider -rs --junitxml=jev-junit.xml
+          python -m pytest experiments/jev/tests tests/test_cce_jev_boundary.py -q -p no:cacheprovider -rs --assert=plain --junitxml=jev-junit.xml
       - name: Tests were discovered and none skipped
         run: python experiments/jev/junit_gate.py jev-junit.xml 40
       - name: Lock and workflow pins are consistent

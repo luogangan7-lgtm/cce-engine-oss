@@ -35,8 +35,51 @@ def coverage(expected: list, results: list) -> dict:
     return {"expected": len(exp_keys), "final": len(results), "by_status": dict(sorted(counts.items())), "coverage_status": "COMPLETE"}
 
 
-def check_upload(root, paths, max_total_bytes: int) -> list:
-    """上传前白名单: 目录不越界 · 禁模型扩展名/tokenizer 资产 · 总大小 · 文本内无秘密。返回相对路径。"""
+LEAK_WINDOW = 24
+
+
+def _json_strings(o, out):
+    if isinstance(o, str):
+        out.append(o)
+    elif isinstance(o, dict):
+        for k, v in o.items():
+            out.append(str(k)); _json_strings(v, out)
+    elif isinstance(o, list):
+        for v in o:
+            _json_strings(v, out)
+
+
+def _surface(p: Path) -> str:
+    """文件的可读表面: 原始文本 + (JSON/JSONL 时)解码后的全部字符串 —— 转义过的原文也要抓到。"""
+    raw = p.read_text(encoding="utf-8", errors="replace")
+    parts = [raw]
+    try:
+        docs = [json.loads(raw)] if p.suffix == ".json" else [json.loads(l) for l in raw.splitlines() if l.strip()] if p.suffix == ".jsonl" else []
+        for d in docs:
+            _json_strings(d, parts)
+    except ValueError:
+        pass
+    return "\n".join(parts)
+
+
+def text_leaks(surface: str, forbidden_texts, window: int = LEAK_WINDOW) -> int:
+    """任一输入文本的任一长度 window 的连续片段出现在 surface 里的次数(不返回片段本身 —— 报告泄漏不许复述泄漏)。"""
+    if not forbidden_texts:
+        return 0
+    shingles = {surface[i:i + window] for i in range(max(0, len(surface) - window + 1))}
+    hits = 0
+    for t in forbidden_texts:
+        t = " ".join(str(t).split())
+        for i in range(0, max(0, len(t) - window + 1)):
+            w = t[i:i + window]
+            if w.strip() and not w.replace(" ", "").isdigit() and w in shingles:
+                hits += 1
+                break
+    return hits
+
+
+def check_upload(root, paths, max_total_bytes: int, forbidden_texts=()) -> list:
+    """上传前白名单: 目录不越界 · 禁模型扩展名/tokenizer 资产 · 总大小 · 文本内无秘密 · 无输入原文(24 字符窗)。返回相对路径。"""
     root = Path(root).resolve()
     rel, total = [], 0
     for p in paths:
@@ -54,6 +97,9 @@ def check_upload(root, paths, max_total_bytes: int) -> list:
             m = SECRET_RE.search(p.read_text(encoding="utf-8", errors="replace"))
             if m:
                 raise JevError("OUTPUT_INVALID", f"{p.name}: secret-shaped token ({m.group(0)[:6]}…)")
+            n = text_leaks(" ".join(_surface(p).split()), forbidden_texts)
+            if n:
+                raise JevError("OUTPUT_INVALID", f"{p.name}: contains verbatim input text from {n} item(s)")
         rel.append(str(p.relative_to(root)))
     return rel
 
@@ -80,7 +126,7 @@ def summary_md(report: dict) -> str:
         L += ["## timing (s)", ""] + [f"- {k}: {v}" for k, v in t.items()] + [""]
     if report.get("failures"):
         L += ["## failures", ""] + [f"- `{f.get('code')}`: {f.get('detail', '')[:300]}" for f in report["failures"]] + [""]
-    L += ["_Infrastructure success and business acceptance are reported separately; 2 smoke items never prove accuracy._", ""]
+    L += ["_Infrastructure success and business acceptance are reported separately; items without gold are REVIEW_REQUIRED and never count as accuracy._", ""]
     return "\n".join(L)
 
 

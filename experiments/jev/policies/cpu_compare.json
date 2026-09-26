@@ -1,0 +1,35 @@
+{
+ "policy_id": "cpu_compare.v1",
+ "mode": "eval",
+ "runner": "ubuntu-24.04",
+ "github_hosted_cpu_runs": 1,
+ "run_attempts": 1,
+ "paid_gpu": 0,
+ "paid_model_api": 0,
+ "auto_retry_or_model_switch": 0,
+ "max_items": 54,
+ "max_questions": 272,
+ "max_rows": 272,
+ "max_forwards": 272,
+ "max_row_tokens": 2048,
+ "max_padded_tokens": 278528,
+ "model_loads": 1,
+ "container": {
+  "cpus": 3,
+  "memory": "12g",
+  "memory_swap": "12g",
+  "pids_limit": 256,
+  "tmpfs_tmp": "256m"
+ },
+ "model_load_plus_infer_deadline_s": 3000,
+ "job_timeout_min": 90,
+ "max_download_bytes": 8589934592,
+ "dependency_or_image_bytes_plan": 3221225472,
+ "report_max_bytes": 20971520,
+ "retention_days": 7,
+ "note": "对比运行上限(owner 2026-09-27「做吧，然后做对比测试」)。计划 269 行 = 42 条×5 面 + smoke 9 + 复跑 10 条×5; 行长按 chars/4 估 ≤~800 token, 硬闸仍 2048。容器与 smoke 相同(3 核/12 GiB/禁 swap)。时限按 smoke 实测 ~0.0076 s/token 斜率外推约 25–30 min, 取 3000 s 载入+推理、90 min job。GitHub 托管 CPU, 公开仓免费; 0 付费 GPU/API; 模型载入 1 次; 缓存命中则 0 下载。",
+ "task": "s0_context.v2",
+ "suite_ids": [
+  "s0-compare-v1"
+ ]
+}

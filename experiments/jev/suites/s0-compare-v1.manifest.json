@@ -1,0 +1,30 @@
+{
+ "suite_id": "s0-compare-v1",
+ "suite_sha256": "3718ebbe2f9e4a14aea87f8ef6d8001d8d79b3669dd23b59f3ad6a8d51545486",
+ "items": 54,
+ "task": "s0_context.v2",
+ "policy": "cpu_compare.json",
+ "prereg_sha256": "c0e764c366667b810fe79c3c28fbb4950a371662c997f80917ad27e909204db4",
+ "prereg": "tests/data/jev_decider_vs_retest_prereg.json",
+ "model_questions": 269,
+ "expected_rows": 486,
+ "composition": {
+  "compare": "42 条 = tests/data/real_corpus_pilot_prereg.json 冻结输入集, 原序, 按指针(text_ref), text_2000.v0",
+  "smoke": "s0-smoke-v1 的 2 条原样(inline, CC0); 情绪余温 从 expected 移除(v2 不出该题), 其余 gold 不改",
+  "rep": "10 条 = 输入集下标 i%4==0 且 i<40 的复跑, 只供确定性前置"
+ },
+ "gold_source": "42+10 条指针条目无 gold(REVIEW_REQUIRED, 不进语义验收); 2 条 smoke 的 gold 为 2026-09-24 推理前人工预设(未改)",
+ "text_policy": "suite 只存指针与 sha, 不存原文; 报告/日志/step summary 上传前按 24 字符窗扫全部输入文本, 命中即 OUTPUT_INVALID",
+ "provenance": {
+  "corpus_files": [
+   "corpus/reddit_hearingaids_audience_v2.txt",
+   "corpus/reddit_hearingaids_utterances.txt"
+  ],
+  "origin": "r/HearingAids 公开帖(去标识, 身份字段为化名), 由本仓 2026-08-09 提交 1463226/f95773e 纳入 corpus/",
+  "public_status": "这两份文件自 2026-08-09 起就在公开仓 luogangan7-lgtm/cce-engine-oss 的 master 树里; 公开 CI(cce.yml、s0 shadow)已在读",
+  "license_note": "论坛公开文本, 仓内无单独许可文件; 本 suite 只按指针在 --network none 容器里读, 产物不含原文",
+  "owner_approval": "owner 2026-09-27「做吧，然后做对比测试」(对比即与复测的 42 条同题)"
+ },
+ "language": "en (texts) / zh (candidates)",
+ "note": "对比结论只看 42 条主条目; smoke 与 rep 条目各有各的用途(语义断言 / 确定性前置)"
+}

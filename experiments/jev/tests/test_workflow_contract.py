@@ -76,7 +76,7 @@ def test_prepare_and_eval_are_manual_single_permit_and_split_permissions():
     ev = _wf("cce-jev-eval.yml")
     assert "name: CCE Decider Candidate Evaluation" in ev and "group: cce-decider-candidate-eval" in ev
     opts = re.search(r"options:\s*\[([^\]]*)\]", ev).group(1)
-    assert sorted(o.strip() for o in opts.split(",")) == SUITES == ["s0-smoke-v1"]
+    assert sorted(o.strip() for o in opts.split(",")) == SUITES == ["s0-compare-v1", "s0-smoke-v1"]
     for flag in ("--network none", "--read-only", "--cap-drop ALL", "no-new-privileges", "--memory-swap 12g", "--cpus 3", "--user 1001:1001", "--pids-limit"):
         assert flag in (ROOT / "experiments" / "jev" / "runtime" / "run_remote_only.sh").read_text(encoding="utf-8"), flag
     sh = (ROOT / "experiments" / "jev" / "runtime" / "run_remote_only.sh").read_text(encoding="utf-8")
@@ -84,6 +84,15 @@ def test_prepare_and_eval_are_manual_single_permit_and_split_permissions():
     assert "-e HOME=/tmp" in sh and "HF_HOME=/tmp/hf" in sh                 # 只读根文件系统下的可写缓存位置
     assert "restore-keys" not in ev and "fail-on-cache-miss" in ev
     assert "check-upload" in ev and "if: always()" in ev and "retention-days: 7" in ev
+    # 上传与公开 step summary 都必须在原文扫描通过之后; 时限来自已准入的策略, 不硬编码
+    assert "check-upload --root \"$RUNNER_TEMP/out/reports/run\" --suite \"$SUITE_ID\"" in ev
+    up = ev.rsplit("actions/upload-artifact@", 1)[1].split("with:")[0]          # 报告上传 = evaluate 里最后一个上传步骤
+    assert "steps.upload_gate.outcome == 'success'" in up
+    summ = ev.split("GITHUB_STEP_SUMMARY")[0].rsplit("- name:", 1)[1]
+    assert "steps.upload_gate.outcome == 'success'" in summ and ev.index("id: upload_gate") < ev.index("GITHUB_STEP_SUMMARY")
+    assert "policy-field --receipt admission_receipt.json --field model_load_plus_infer_deadline_s" in ev and '"$SUITE_ID" 1200' not in ev
+    assert "suite-files --suite" in sh and ":ro" in sh.split("CORPUS_MOUNTS+=")[1].split("\n")[0] and "corpus:/work/corpus" not in sh   # 只挂被引用的文件
+    assert "TRANSFORMERS_VERBOSITY=error" in sh
 
 
 def test_locks_are_consistent_and_ready_after_github_prepare():

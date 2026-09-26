@@ -8,7 +8,7 @@ on:
       suite_id:
         description: "Registered suite (experiments/jev/suites/<id>.jsonl)"
         type: choice
-        options: [s0-smoke-v1]
+        options: [s0-smoke-v1, s0-compare-v1]
         default: s0-smoke-v1
         required: true
       permit_id:
@@ -51,7 +51,7 @@ jobs:
   evaluate:
     needs: admit
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 90   # outer bound; the admitted policy's load+infer deadline is enforced inside (smoke 1200 s, compare 3000 s)
     permissions:
       contents: read
     env:
@@ -103,7 +103,9 @@ jobs:
         run: |
           set +e
           mkdir -p "$RUNNER_TEMP/out"
-          bash experiments/jev/runtime/run_remote_only.sh cce-jev-cpu:eval "$RUNNER_TEMP/bundle" "$PWD/admission_receipt.json" "$RUNNER_TEMP/out" "$SUITE_ID" 1200
+          DEADLINE="$(python3 experiments/jev/cli.py policy-field --receipt admission_receipt.json --field model_load_plus_infer_deadline_s)"
+          echo "deadline_s=$DEADLINE"
+          bash experiments/jev/runtime/run_remote_only.sh cce-jev-cpu:eval "$RUNNER_TEMP/bundle" "$PWD/admission_receipt.json" "$RUNNER_TEMP/out" "$SUITE_ID" "$DEADLINE"
           RC=$?
           echo "rc=$RC" >> "$GITHUB_OUTPUT"
           OOM="$(docker inspect --format '{{.State.OOMKilled}}' cce-jev-eval 2>/dev/null || echo unknown)"
@@ -116,12 +118,15 @@ jobs:
           OOM: ${{ steps.run.outputs.oom }}
         run: |
           python3 experiments/jev/cli.py finalize --out "$RUNNER_TEMP/out/reports/run" --docker-exit "${RC:-1}" --oom "${OOM:-unknown}"
-          cat "$RUNNER_TEMP/out/reports/run/summary.md" >> "$GITHUB_STEP_SUMMARY"
-      - name: Report whitelist (no model assets, no secrets, size cap)
+      - name: Report whitelist + verbatim-input scan (no model assets, no secrets, size cap, no 24-char window of any input text)
+        id: upload_gate
         if: always()
-        run: python3 experiments/jev/cli.py check-upload --root "$RUNNER_TEMP/out/reports/run"
+        run: python3 experiments/jev/cli.py check-upload --root "$RUNNER_TEMP/out/reports/run" --suite "$SUITE_ID"
+      - name: Publish summary (only after the scan passed)
+        if: always() && steps.upload_gate.outcome == 'success'
+        run: cat "$RUNNER_TEMP/out/reports/run/summary.md" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: always()
+        if: always() && steps.upload_gate.outcome == 'success'
         with:
           name: cce-jev-report-${{ github.run_id }}
           path: ${{ runner.temp }}/out/reports/run

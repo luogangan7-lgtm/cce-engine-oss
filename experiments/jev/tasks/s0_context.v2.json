@@ -1,0 +1,53 @@
+{
+ "task_id": "s0_context.v2",
+ "taxonomy": "config/context_taxonomy.json",
+ "taxonomy_schema_version": "0.1.0",
+ "taxonomy_sha256": "c024e5557551f4bbda8428cfbbbd39f5d39b27ebf155b3870cabd2ce9ecfd558",
+ "question_type": "choice",
+ "question_template": "未结构化的 5 个可读面: 与 scripts/cce_s0_jev.jev_questions 单面输出逐字相同(闸核); v2 题目**集合**比复测少 情绪余温, 故可比性按题不按集合",
+ "candidate_order": "taxonomy values 原序, 无 unknown 别名的面追加 未知",
+ "unknown_token": "未知",
+ "unknown_aliases": [
+  "未提及"
+ ],
+ "unknown_rule": "每题 unknown 有且只有一个候选表示; 未提及/未知 保留原始返回, 映射只在报告层",
+ "state_shape": "str: 完整文本(无 [:2000] 切片)",
+ "preparation_id": "full_text.v1",
+ "legacy_preparation": {
+  "id": "text_2000.v0",
+  "note": "生产 s0 用 text[:2000]; 若要与旧读数比较重放, 另设 preparation_id 并同时保存原文/有效文本哈希, 不把制备差异归因于模型"
+ },
+ "provenance": {
+  "DECLARED": "调用方合法声明, 模型不覆盖, 不生成模型行",
+  "MODEL_CANDIDATE": "未声明且 readable_from_text ∈ {true, partial}: 生成 Choice 问题",
+  "UNOBSERVABLE": "未声明且 readable_from_text=false: 记 unknown, 不调模型",
+  "INVALID_INPUT": "声明 key/value 不合法: 输入失败, 不猜测修复",
+  "STRUCTURAL_COLD_READ": "合同写定的结构判定(不读文本、不调模型); 目前只有 情绪余温"
+ },
+ "layout": "state_first, independent rows (one question per row), micro-batch 1",
+ "single_choice_caveat": "现有取值可能同时成立(如 预算受限 与 有决定权); 本合同遵循已冻结的单选读出, 不宣布互斥; 多标签需另改合同",
+ "no_threshold": "不按 confidence>=X 发放生产资格; 保存完整分布; 候选判断 ≠ 获准采用",
+ "writes": "reports/<run-id>/s0_candidates.jsonl 等; 绝不写 s0_context.json / manifest qualified·usable / cce_population 输入 / complete=true",
+ "supersedes_for_new_suites": "s0_context.v1 (v1 file, v1 suite s0-smoke-v1 and run 36265705004 stay valid and unchanged)",
+ "owner_decision": "owner 2026-09-27「做吧」on: 情绪余温 structural by code; accepted-set gold policy",
+ "structural_facets": {
+  "情绪余温": {
+   "value": "首轮无余温",
+   "provenance": "STRUCTURAL_COLD_READ",
+   "rule": "情绪余温 是闭环接口(上一轮互动留下的感觉)。调用方声明了上一轮 ⇒ DECLARED; 没给 ⇒ 在本闭环里就是首轮 ⇒ 首轮无余温, 不出模型题。",
+   "evidence": "results/s0_retest.json 冷读结构约束: MiniMax 违反 42/42(两轮), TypeSafe Jev 12/42(两轮); Decider smoke run 36265705004 违反 2/2",
+   "caller_duty": "有上一轮互动时, 调用方必须在 declared 里给出 情绪余温; 不给就按首轮处理"
+  }
+ },
+ "preparation_ids": {
+  "full_text.v1": "inline 文本, 完整, 超长 INPUT_TOO_LONG",
+  "text_2000.v0": "按指针取 corpus 整行, 核整行 sha, 取 [:2000], 核切片 sha —— 与 2026-09-23 Jev/MiniMax 复测同一切片, 专供对比"
+ },
+ "gold_policy": {
+  "form": "expected[facet] 是接受集合(list), 不是单值",
+  "authoring_rule": "文本对多个候选各有明示证据时, 全部列入接受集合; 无证据的面给该题的 unknown 表示; 集合在任何模型运行之前写定并冻结",
+  "no_post_hoc": "看过模型输出后不许放宽或收窄既有集合; 有争议的既有 gold 原样保留并登记待 owner 裁, 不改分",
+  "no_gold_items": "expected={} 的条目一律 REVIEW_REQUIRED, 不进 semantic_acceptance, 不当准确率",
+  "multi_label_contract": "不采用(见 rejected 记忆): 多标签需改成逐值 noul 题, 模型行 ×值数, 且与 Jev 线格式不再同题"
+ }
+}

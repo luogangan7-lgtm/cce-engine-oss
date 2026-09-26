@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import socket
 import sys
 from pathlib import Path
@@ -68,17 +69,37 @@ def cmd_check_locks(a):
         raise JevError("DEPENDENCY_LOCK_INVALID", "; ".join(problems))
 
 
+POLICY_RE = re.compile(r"^[a-z0-9_]{3,40}\.json$")
+
+
+def _policy(name: str) -> dict:
+    if not POLICY_RE.match(name or ""):
+        raise JevError("PERMIT_NOT_APPROVED", f"resource policy name {name!r}")
+    p = HERE / "policies" / name
+    if not p.is_file():
+        raise JevError("PERMIT_NOT_APPROVED", f"resource policy {name} not registered")
+    return _load(p)
+
+
+def _manifest_policy(manifest: dict) -> str:
+    return manifest.get("policy", "cpu_smoke.json")
+
+
 def cmd_plan(a):
     """编译 suite → 预期集合与问题数, 零 tokenizer、零模型。"""
-    from experiments.jev.run_suite import expected_set, load_suite
+    from experiments.jev.run_suite import expected_set, load_suite, suite_task, _check_policy
     from experiments.jev.compile_context import build_request, load_taxonomy
     items, manifest = load_suite(a.suite)
     tax = load_taxonomy()
-    compiled = [build_request(it, tax) for it in items]
+    task_id, task = suite_task(manifest, tax)
+    compiled = [build_request(it, tax, task) for it in items]
     exp = expected_set(compiled)
-    policy = _load(HERE / "policies" / "cpu_smoke.json")
+    policy = _policy(_manifest_policy(manifest))
+    _check_policy(items, compiled, policy, a.suite, task_id)
     nq = sum(1 for e in exp if e["status"] == "NOT_RUN")
-    print(json.dumps({"suite_id": a.suite, "suite_sha256": manifest["suite_sha256"], "items": len(items), "expected_rows": len(exp),
+    print(json.dumps({"suite_id": a.suite, "suite_sha256": manifest["suite_sha256"], "task": task_id, "policy": policy["policy_id"],
+                      "items": len(items), "expected_rows": len(exp), "structural_rows": sum(1 for e in exp if e["status"] == "STRUCTURAL_COLD_READ"),
+                      "preparation_ids": sorted({req.preparation_id for req, _ in compiled}),
                       "model_questions": nq, "policy_max_questions": policy["max_questions"], "policy_max_rows": policy["max_rows"],
                       "within_policy": nq <= policy["max_questions"] and len(items) <= policy["max_items"],
                       "questions_sha256": sorted({req.questions_sha256() for req, _ in compiled})}, ensure_ascii=False, indent=1))
@@ -158,9 +179,13 @@ def cmd_eval(a):
     lock = SA.assets_lock()
     verified = SA.verify_bundle(a.bundle, lock, src)                       # 缓存命中也核验
     cfg = SA.read_decider_config(a.bundle, src)
-    policy = _load(HERE / "policies" / "cpu_smoke.json")
     if receipt.get("suite_id") != a.suite:
         raise JevError("PERMIT_NOT_APPROVED", f"receipt suite {receipt.get('suite_id')!r} != {a.suite!r}")
+    from experiments.jev.run_suite import load_suite
+    _items, manifest = load_suite(a.suite)
+    if receipt.get("resource_policy") != _manifest_policy(manifest):
+        raise JevError("PERMIT_NOT_APPROVED", f"permit policy {receipt.get('resource_policy')!r} != suite policy {_manifest_policy(manifest)!r}")
+    policy = _policy(receipt["resource_policy"])                              # admit 已在同一提交核过此文件 sha
     rt = _load(HERE / "locks" / "cpu-runtime.lock.json")
     identities = {"cce_execution_commit": env.get("GITHUB_SHA"), "adapter_sha256": adapter_hash(),
                   "source_lock_sha256": file_sha256(SA.SOURCE_LOCK), "assets_lock_sha256": file_sha256(SA.ASSETS_LOCK),
@@ -168,7 +193,8 @@ def cmd_eval(a):
                   "runtime_recipe": rt, "observed_image_id": env.get("CCE_JEV_IMAGE_ID", "unavailable"),
                   "upstream_source_commit": src["source_revision"], "model_revision": src["revision"], "model_version": src["model_version"],
                   "bundle": verified, "tokenizer_sha256": lock["files"].get("tokenizer.json", {}).get("sha256"),
-                  "task_contract": _load(HERE / "tasks" / "s0_context.v1.json")["task_id"], "preparation_id": "full_text.v1",
+                  "task_contract": _load(HERE / "tasks" / f"{manifest.get('task', 's0_context.v1')}.json")["task_id"],
+                  "preparation_ids": sorted({it.get("preparation_id", "full_text.v1") for it in _items}),
                   "permit_id": receipt.get("permit_id"), "suite_id": a.suite,
                   "run": {k: env.get(k) for k in ("GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_JOB", "GITHUB_WORKFLOW_REF", "RUNNER_NAME", "RUNNER_ARCH", "RUNNER_OS")},
                   "network_check": net, "cgroup_limits": _cgroup_limits(), "threads": int(env.get("OMP_NUM_THREADS", "3")), "policy_id": policy["policy_id"]}
@@ -187,10 +213,37 @@ def cmd_eval(a):
 
 
 def cmd_check_upload(a):
+    """宿主侧上传前闸; --suite 给出时同时扫该 suite 全部输入文本(24 字符窗)不得出现在任何上传文件里。"""
     from experiments.jev.report import check_upload
-    policy = _load(HERE / "policies" / "cpu_smoke.json")
-    rel = check_upload(a.root, [p for p in Path(a.root).rglob("*") if p.is_file()], int(policy["report_max_bytes"]))
-    print(json.dumps({"root": a.root, "files": rel}, indent=1))
+    texts, policy_name = [], "cpu_smoke.json"
+    if a.suite:
+        from experiments.jev.run_suite import load_suite, suite_texts
+        items, manifest = load_suite(a.suite)
+        texts, policy_name = suite_texts(items), _manifest_policy(manifest)
+    policy = _policy(policy_name)
+    rel = check_upload(a.root, [p for p in Path(a.root).rglob("*") if p.is_file()], int(policy["report_max_bytes"]), forbidden_texts=texts)
+    print(json.dumps({"root": a.root, "files": rel, "leak_scanned_items": len(texts)}, indent=1))
+
+
+def cmd_policy_field(a):
+    """工作流取策略字段(如载入+推理时限), 不让用户输入进 run: 块。策略名来自 admit 回执。"""
+    receipt = _receipt(a.receipt)
+    v = _policy(receipt.get("resource_policy"))[a.field]
+    if not isinstance(v, (int, float)) or isinstance(v, bool):
+        raise JevError("PERMIT_NOT_APPROVED", f"policy field {a.field} is not numeric")
+    print(int(v))
+
+
+def cmd_suite_files(a):
+    """该 suite 按指针引用的语料文件(每行一个, 已过正则), 供宿主只挂载这些文件(只读)。"""
+    from experiments.jev.run_suite import load_suite
+    from experiments.jev.compile_context import CORPUS_FILE_RE
+    items, _ = load_suite(a.suite)
+    files = sorted({it["text_ref"]["file"] for it in items if "text_ref" in it})
+    for f in files:
+        if not CORPUS_FILE_RE.match(f) or not (ROOT / f).is_file():
+            raise JevError("INPUT_INVALID", f"suite file ref {f!r}")
+        print(f)
 
 
 def cmd_finalize(a):
@@ -224,7 +277,10 @@ def main(argv=None) -> int:
     s = sub.add_parser("verify-bundle"); s.add_argument("--bundle", required=True); s.set_defaults(fn=cmd_verify_bundle)
     s = sub.add_parser("eval"); s.add_argument("--suite", required=True); s.add_argument("--receipt", required=True)
     s.add_argument("--bundle", required=True); s.add_argument("--out", required=True); s.set_defaults(fn=cmd_eval)
-    s = sub.add_parser("check-upload"); s.add_argument("--root", required=True); s.set_defaults(fn=cmd_check_upload)
+    s = sub.add_parser("check-upload"); s.add_argument("--root", required=True); s.add_argument("--suite", default=None); s.set_defaults(fn=cmd_check_upload)
+    s = sub.add_parser("policy-field"); s.add_argument("--receipt", required=True)
+    s.add_argument("--field", required=True, choices=["model_load_plus_infer_deadline_s", "job_timeout_min", "max_forwards"]); s.set_defaults(fn=cmd_policy_field)
+    s = sub.add_parser("suite-files"); s.add_argument("--suite", required=True); s.set_defaults(fn=cmd_suite_files)
     s = sub.add_parser("finalize"); s.add_argument("--out", required=True); s.add_argument("--docker-exit", type=int, required=True)
     s.add_argument("--oom", default="false"); s.set_defaults(fn=cmd_finalize)
     a = ap.parse_args(argv)
@@ -232,6 +288,9 @@ def main(argv=None) -> int:
         a.fn(a)
     except JevError as e:
         print(f"{e.code}: {e.detail}", file=sys.stderr)
+        return EXIT_TYPED
+    except Exception as e:  # noqa: BLE001 — 公仓日志: 不打 traceback、不打异常消息(可能含输入原文), 只报类型名
+        print(f"UNHANDLED_EXCEPTION: {type(e).__name__} (message withheld)", file=sys.stderr)
         return EXIT_TYPED
     return 0
 

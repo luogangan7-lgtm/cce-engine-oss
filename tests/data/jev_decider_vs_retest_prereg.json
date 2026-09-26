@@ -1,0 +1,133 @@
+{
+ "block": "JEV_DECIDER_VS_RETEST_PREREG",
+ "date": "2026-09-27",
+ "owner_instruction": "「做吧，然后做对比测试」(2026-09-27) —— 对比 = 与 TypeSafe Jev 接口同题对比",
+ "★性质": "无金标对比(owner 2026-09-23 裁定: s0 内在状态面无人类金标)。回答的唯一问题: 若生产 s0 把 TypeSafe Jev API 换成 Decider-2B, 5 个可读面的读数会改变多少。不回答谁更准。",
+ "★状态": "测量前冻结。Decider 运行之前提交; 执行提交里的本文件 sha 由 eval 报告 suite_manifest.prereg_sha256 记录, 分析时核对。",
+ "★臂": {
+  "D": {
+   "what": "Decider-2B v10 (Mapika/decider-2b @ fa996cea…), CPU float32, eager, 微批 1, 每题独立一行(state_first)",
+   "T": 1.3,
+   "contract": "experiments/jev/tasks/s0_context.v2.json",
+   "suite": "experiments/jev/suites/s0-compare-v1.jsonl",
+   "run": "cce-jev-eval.yml 一次, permit 见 experiments/jev/permits/"
+  },
+  "J1": "results/s0_jev_shadow.json rows[].jev (jev-latest, 2026-09-23 轮1)",
+  "J2": "results/s0_retest.json rows[].jev (轮2)",
+  "M1": "results/s0_jev_shadow.json rows[].mm (MiniMax-M3, 生产 s0 提示词)",
+  "M2": "results/s0_retest.json rows[].mm",
+  "★不新调付费接口": "J/M 复用 2026-09-23 已存读数(同切片同题), 本次 0 次 TypeSafe/MiniMax 调用"
+ },
+ "★面": {
+  "模型读": [
+   "进程位置",
+   "触发事件",
+   "关系位置",
+   "身体状态",
+   "资源状态"
+  ],
+  "结构判定": "情绪余温",
+  "说明": "情绪余温 在合同 v2 不出模型题; J/M 的已存读数只用来数结构违反次数"
+ },
+ "★输入与题目(冻结)": {
+  "输入集": "tests/data/real_corpus_pilot_prereg.json ★★★ 冻结输入集 的 42 条, 原序",
+  "输入集 sha": "f852acbf2bf457f73f2f1b5f238b1303370996482a1e5a5f698c799c4a07be48",
+  "切片": "text_2000.v0 = read_text(utf-8).split('\\n')[line_index][:2000], 整行 sha 与切片 sha 双核(与 probes/s0_jev_shadow.load_passages 同一取法)",
+  "超长条数": 1,
+  "题目逐面 sha(含候选顺序)": {
+   "进程位置": "2d89f23a0da81d838f97c9bbc68c3fe17a60fbf1bf5546a7dc1fa518fbb28a5c",
+   "触发事件": "adda1d595b46c04ed5aaa4301e9c0f46f534a964f780b6e636972975d9c78614",
+   "关系位置": "367f1c6732ff25318f0232030f58a026fb0ed0cd7136dc5f86d6565eddda51a8",
+   "身体状态": "47594fc4d217fecb03f30675fe799056d90be1e60484f38c3210c4a4488498b2",
+   "资源状态": "c8c3171efa3772fca52c814f7e49bbd5f1f3cbd5b6413b207b1f8a5c8e33ffc5"
+  },
+  "题目来源": "D 的每题 wire == scripts/cce_s0_jev.jev_questions 单面(experiments/jev/tests/test_compile_context.py 闸); 同一 dict 就是复测发给 Jev 的题"
+ },
+ "★归一化": "probes/s0_retest.norm: 未知/未提及/''/None/非该面取值 → 未知。冻结; 分析直接 import 复测实现。",
+ "★主判据": {
+  "换读者改变率": "c_r = d(D,J_r)/42, d = 归一化后 top-1 不同的条目数; r∈{1,2} 各算; Clopper-Pearson 95%",
+  "零基线(可得增益)": "d0_r = 42 − J_r 多数标签条数(常数填充与 J_r 的不一致); net_r = d0_r − d(D,J_r)",
+  "为什么不用 κ 当主判据": "身体状态/资源状态 多数份额高, pe≥0.6 时 κ 悖论; κ 只作伴随量"
+ },
+ "★伴随量(描述, 不出判决)": [
+  "κ 矩阵 D/J1/J2/M1/M2(po, pe, PABAK, κmax, 多数份额, pe≥0.6 悖论标记)",
+  "D~J 与 J1~J2 的 κ 配对自助 CI",
+  "未知选择率(CP95) + D 对 J 的精确 McNemar",
+  "触发事件 敏感性: 无明显触发 并入 未知 后的 d",
+  "D 分布描述: J/M 所选标签上的平均 p_D、落在 D top-2 的条数、D 平均熵",
+  "情绪余温 结构违反次数(J1,J2,M1,M2; D 为 n/a)"
+ ],
+ "★不确定性": {
+  "比例": "精确 Clopper-Pearson 95%",
+  "kappa": "条目级配对自助, 同一组下标重抽",
+  "bootstrap_B": 10000,
+  "seed": 0,
+  "退化重抽": "pe=1 丢弃并计数"
+ },
+ "★确定性(前置)": {
+  "同 run 复跑": "rep- 前缀 10 条 = 输入集原序下标 i%4==0 且 i<40(0,4,…,36), 每条 5 面; 与原条目同一 row_sha256 ⇒ top-1 必同且 max|Δp| ≤ tol。不成立 = 执行错误, 不出判决",
+  "跨 run 对照": {
+   "run_dir": "archive/36265705004",
+   "what": "smoke 2 条(9 行)与 smoke run 同一 row_sha256 的行比较; 描述量(不同 runner CPU 可能有浮点差), 不作前置"
+  },
+  "tol_abs_dp": 1e-05,
+  "为什么不是稳定性比较": "D 一次前向一题, 复测 κ 按构造 = 1; 不参与稳定性比较, 不给 1−d/(2n) 上界(恒 1, 空话)"
+ },
+ "★★★判决规则(测量前冻结)": {
+  "前置": "题目逐面 sha 相符 · 切片 text_2000.v0 · 输入集 sha 相符 · 42×5 行齐 · coverage COMPLETE · 预注册 sha 在执行提交里 · 同 run 复跑通过 · T=1.3。任一不成立 = 执行错误: 修后用新许可重跑正确臂, 判据一字不改",
+  "测不出": "任一轮 d0 ≤ 4 或 多数条数 ≥ 38 ⇒ 该面不出比较结论(现数据下没有面触发: 最小 d0 = 身体状态 11)",
+  "可替代": "d(D,J1) ≤ 4 且 d(D,J2) ≤ 4 (CP95 上界 ≤ 0.226) 且 两轮 net > 0; 若 κ < 0.6 仍判可替代但打 κ 悖论标记。依据: Jev 自身最差复测不一致 3/42, 再加 1",
+  "不同读者": "d(D,J1) ≥ 10 且 d(D,J2) ≥ 10 (CP95 下界 0.121 > Jev 自身最差 3/42=0.071) 且 两轮 κ 自助上界 < 0.60",
+  "不可判": "其余(含 5 ≤ d ≤ 9, 或两轮落在不同档)。n=42 分辨不了, 需要更多条目, 不是换阈值",
+  "D vs MiniMax": "只描述, 不出判决(MiniMax 自身 κ .38–.58 封顶)",
+  "整体": "可测面 < 3 ⇒ 不可判; 任一面 不同读者 ⇒ 整体不可替代并列出; 全部可替代 ⇒ 「每面改变率 ≤ ~23%(CP95)」; 其余 ⇒ 按面列出。任何结论都不等于获准接生产",
+  "数值": {
+   "unmeasurable_max_d0": 4,
+   "unmeasurable_min_majority": 38,
+   "replaceable_max_d": 4,
+   "replaceable_kappa_flag_below": 0.6,
+   "different_min_d": 10,
+   "different_kappa_hi": 0.6
+  }
+ },
+ "★预测(先写, 看数据前)": {
+  "依据": "smoke run 36265705004: 在「谢谢，收到了。」上 进程位置 以 0.705 选 已决定在执行(过度读出); Jev 在 触发事件/关系位置 各有 15/42 选 未知",
+  "预测": [
+   "D 选 未知 的比例在 进程位置、触发事件、关系位置 三面上都低于 J(过度读出方向)",
+   "触发事件、关系位置 两面 d(D,J) ≥ 10(不同读者)",
+   "身体状态、资源状态 两面 d(D,J) 更小(多数是 未提及), 最可能落在 不可判",
+   "整体: 不可替代; 可替代面 ≤ 1"
+  ],
+  "若预测错": "照实记录, 不改判据"
+ },
+ "★混杂(不可在本轮分离)": [
+  "模型卡写 English only(README 'Limitations'), 题目说明英文、候选与描述是中文: 低一致可能是语言而非读文本能力",
+  "Jev 一次请求 6 题(含 情绪余温); D 每题独立一行 5 题: 提示上下文不同",
+  "J 读数是 2026-09-23 的 jev-latest; 接口背后模型此后可能变过",
+  "D 的概率依赖锁定温度 T=1.3; 选项顺序与 Jev 相同但 D 对位置可能敏感(未测)"
+ ],
+ "★预算": {
+  "D": "experiments/jev/policies/cpu_compare.json: 1 次 GitHub 托管 CPU run, ≤272 行/前向, ≤2048 token/行, ≤278,528 padded token, 载入+推理 ≤3000 s, job ≤90 min, 模型载入 1 次, 0 付费 GPU/API",
+  "J/M": "0 次新调用"
+ },
+ "★分析脚本(冻结)": {
+  "path": "probes/jev_decider_vs_retest.py",
+  "sha256": "889f6e28f3ca064ad9bf00498ee2c14f2c58faf12a95518e1425bec88dc19ac8",
+  "规则": "看数据后若必须改脚本(bug), 结果里 analysis_script_sha256 ≠ 冻结值, 必须登记改了什么、为什么, 且判据数值不许动"
+ },
+ "★★★不得据此说": [
+  "D 或任何一臂更准/更好 —— 无金标; 上界是上界不是估计",
+  "D 更稳定 —— 其确定性是构造出来的",
+  "D 在 情绪余温 上 0 违反 = 能力 —— 该面在 v2 被结构移除, smoke 里问它时它违反了 2/2",
+  "与 MiniMax 或多数臂一致 = 正确 —— 拿第三个模型当真值是循环论证",
+  "D 与 MiniMax κ 低 = D 错 —— MiniMax 自身 κ .38–.58",
+  "CI 重叠的 κ 之间排序, 或「D 与 Jev 读得一样」—— 只允许说改变率落在 CP 界内",
+  "与 Jev 的概率级一致/校准 —— Jev 完整分布从未保存",
+  "可替代 = 获准接生产 —— 接生产是核心文件改动, 要 owner 点头",
+  "结论外推到这 42 条 r/HearingAids 品牌帖以外、中文题面以外、s0 以外",
+  "换成 D 会让 CCE 全链变快 —— s0 只是一次调用",
+  "未知率低 = 读得更好 / 高 = 更守纪律 —— 方向中性",
+  "对 测不出 的面做任何比较或引用其准确率",
+  "Decider 总体上「读不了」s0 —— 语言与制备是未分离的混杂"
+ ]
+}

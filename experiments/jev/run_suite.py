@@ -12,7 +12,7 @@ import time
 from pathlib import Path
 
 from .budget import Ledger
-from .compile_context import build_request, load_taxonomy, unknown_candidate
+from .compile_context import build_request, item_text, load_task, load_taxonomy, unknown_candidate
 from .contracts import ExecutionBudget, JevError, REPORT_SCHEMA, sha256, validate_row
 from .plan_work import prepare, rows_json
 from .report import check_upload, coverage, dump_json, summary_md, write_manifest_sha256
@@ -36,9 +36,11 @@ def load_suite(suite_id: str, suites_dir=SUITES):
     items = [json.loads(l) for l in raw.decode("utf-8").splitlines() if l.strip()]
     seen = set()
     for it in items:
-        for k in ("item_id", "text", "expected"):
+        for k in ("item_id", "expected"):
             if k not in it:
                 raise JevError("INPUT_INVALID", f"suite item missing {k}")
+        if ("text" in it) == ("text_ref" in it):
+            raise JevError("INPUT_INVALID", f"suite item {it['item_id']!r}: exactly one of text / text_ref")
         if it["item_id"] in seen:
             raise JevError("INPUT_INVALID", f"duplicate item_id {it['item_id']}")
         seen.add(it["item_id"])
@@ -50,13 +52,28 @@ def expected_set(compiled: list) -> list:
     rows = []
     for req, prov in compiled:
         for facet, pv in prov.items():
-            st = {"DECLARED": "DECLARED", "UNOBSERVABLE": "UNOBSERVABLE"}.get(pv["provenance"], "NOT_RUN")
+            st = {"DECLARED": "DECLARED", "UNOBSERVABLE": "UNOBSERVABLE", "STRUCTURAL_COLD_READ": "STRUCTURAL_COLD_READ"}.get(pv["provenance"], "NOT_RUN")
             rows.append({"item_id": req.item_id, "question_id": facet, "provenance": pv["provenance"], "status": st,
                          "value": pv["value"], "readable": pv["readable"]})
     return rows
 
 
-def _check_policy(items, compiled, policy):
+def suite_task(manifest: dict, taxonomy: dict):
+    """清单里的任务合同; 缺省 = v1(task=None, 行为与 v1 逐字相同)。"""
+    tid = manifest.get("task", "s0_context.v1")
+    return tid, (None if tid == "s0_context.v1" else load_task(tid, taxonomy))
+
+
+def suite_texts(items) -> list:
+    """全部条目的有效文本(内存里, 只供泄漏扫描用; 绝不写盘)。"""
+    return [item_text(it)[0] for it in items]
+
+
+def _check_policy(items, compiled, policy, suite_id=None, task_id=None):
+    if suite_id is not None and "suite_ids" in policy and suite_id not in policy["suite_ids"]:
+        raise JevError("PERMIT_NOT_APPROVED", f"policy {policy.get('policy_id')} does not cover suite {suite_id}")
+    if task_id is not None and policy.get("task", "s0_context.v1") != task_id:
+        raise JevError("PERMIT_NOT_APPROVED", f"policy task {policy.get('task', 's0_context.v1')} != suite task {task_id}")
     nq = sum(len(req.questions) for req, _ in compiled)
     if len(items) > int(policy["max_items"]):
         raise JevError("BUDGET_EXCEEDED", f"{len(items)} items > policy max_items {policy['max_items']}")
@@ -74,15 +91,18 @@ def run(suite_id: str, out_dir, policy: dict, cfg: dict, identities: dict, backe
               "suite_id": suite_id, "execution_status": "NOT_RUN", "coverage_status": "NOT_ESTABLISHED",
               "semantic_acceptance": "NOT_ESTABLISHED", "production_eligible": False, "results": [], "failures": [],
               "identities": identities, "timing": {}, "budget": None, "plan": None}
-    ledger, rows_out, expected, semantic = None, [], [], []
+    ledger, rows_out, expected, semantic, texts = None, [], [], [], []
     t = report["timing"]
     T0 = clock()
     try:
         items, manifest = load_suite(suite_id, suites_dir)
         report["suite_sha256"] = manifest["suite_sha256"]
+        report["suite_manifest"] = {k: manifest.get(k) for k in ("task", "policy", "prereg_sha256", "items", "model_questions")}
         tax = taxonomy or load_taxonomy()
-        compiled = [build_request(it, tax) for it in items]
-        _check_policy(items, compiled, policy)
+        task_id, task = suite_task(manifest, tax)
+        texts = suite_texts(items)
+        compiled = [build_request(it, tax, task) for it in items]
+        _check_policy(items, compiled, policy, suite_id, task_id)
         expected = expected_set(compiled)
         dump_json(out / "expected_items.json", {"suite_id": suite_id, "fixed_before_inference": True, "rows": expected})
         budget = ExecutionBudget.from_policy(policy)
@@ -136,9 +156,9 @@ def run(suite_id: str, out_dir, policy: dict, cfg: dict, identities: dict, backe
     except JevError as e:
         report["execution_status"] = "FAILED"
         report["failures"].append({"code": e.code, "detail": e.detail})
-    except Exception as e:                      # 不合成成功; 记类型, 不跑任何模型"解释错误"
+    except Exception as e:                      # 不合成成功; 只记类型名 —— str(e) 可能带输入原文, 公仓报告/日志不许出现
         report["execution_status"] = "FAILED"
-        report["failures"].append({"code": "UNHANDLED_EXCEPTION", "type": type(e).__name__, "detail": str(e)[:500]})
+        report["failures"].append({"code": "UNHANDLED_EXCEPTION", "type": type(e).__name__, "detail": "message withheld (may contain input text)"})
     finally:
         t["wall_s"] = round(clock() - T0, 3)
         try:
@@ -168,5 +188,5 @@ def run(suite_id: str, out_dir, policy: dict, cfg: dict, identities: dict, backe
         dump_json(out / "report.json", report)
         (out / "summary.md").write_text(summary_md(report), encoding="utf-8")
         write_manifest_sha256(out)
-        check_upload(out, [p for p in out.iterdir() if p.is_file()], int(policy.get("report_max_bytes", 20 * 1024 * 1024)))
+        check_upload(out, [p for p in out.iterdir() if p.is_file()], int(policy.get("report_max_bytes", 20 * 1024 * 1024)), forbidden_texts=texts)
     return report

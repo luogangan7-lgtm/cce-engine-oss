@@ -34,9 +34,11 @@ def test_结果必须能从rows重算_且不落原文():
     for k in got: assert got[k] == r[k], "★★★ %s 与现算不符" % k
     assert r["★MiniMax 提示词 sha"] == hashlib.sha256(x.s0_prompt("").encode()).hexdigest()[:16] and r["★Jev 题目集 sha"] == x.question_sha()
     blob = json.dumps(r, ensure_ascii=False)
+    hits = 0   # ★ 2026-09-27: 计数式 —— 旧写法断言失败时 pytest 会把 25 字原文打进公开 CI 日志
     for rel in ("corpus/reddit_hearingaids_audience_v2.txt", "corpus/reddit_hearingaids_utterances.txt"):
         for l in (ROOT / rel).read_text(encoding="utf-8").split("\n"):
-            if len(l.strip()) >= 25: assert l.strip()[:25] not in blob, "★★★ 产物里出现语料原文"
+            if len(l.strip()) >= 25: hits += l.strip()[:25] in blob
+    assert hits == 0, "★★★ 产物里出现语料原文(%d 行)" % hits
     assert r["★账本"]["minimax"] <= 42 and r["★账本"]["req"] <= 84
     assert "不判优劣" in r["★性质"] and "owner 点头" in " ".join(r["★不得据此说"])
 if __name__ == "__main__":

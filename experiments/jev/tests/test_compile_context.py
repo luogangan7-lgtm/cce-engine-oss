@@ -78,3 +78,68 @@ def test_build_request_uses_full_text_and_fixed_expected_set():
     assert req.state == long_text and len(req.state) > 2000 and req.preparation_id == "full_text.v1"
     assert req.expected_keys() and len(req.expected_keys()) == len(req.questions) == 6
     assert req.original_input_sha256 == C.sha256(long_text)
+
+
+V2 = C.load_task("s0_context.v2", TAX)
+PR = json.loads((ROOT / "tests/data/real_corpus_pilot_prereg.json").read_text(encoding="utf-8"))
+FROZEN = [PR[k] for k in PR if "冻结输入集" in k][0]["items"]
+
+
+def _ref(it):
+    line = (ROOT / it["file"]).read_text(encoding="utf-8").split("\n")[it["line_index"]]
+    return {"file": it["file"], "line_index": it["line_index"], "line_sha256": it["sha256"], "body_sha256": C.sha256(line[:2000])}
+
+
+def test_v2_emotion_residue_is_structural_and_other_questions_verbatim():
+    qs, prov = C.compile_s0(TEXT, None, TAX, V2)
+    assert "情绪余温" not in {q.question_id for q in qs} and len(qs) == 5
+    assert prov["情绪余温"] == {"provenance": "STRUCTURAL_COLD_READ", "value": "首轮无余温", "readable": "partial"}
+    prod = _prod_jev_questions()(TAX["facets"])
+    for q in qs:
+        assert q.wire() == prod[q.question_id] and list(q.wire()["criteria"]) == list(prod[q.question_id]["criteria"]), q.question_id
+    qs, prov = C.compile_s0(TEXT, {"情绪余温": "负向余温"}, TAX, V2)                   # 调用方给了上一轮 ⇒ 声明优先
+    assert prov["情绪余温"]["provenance"] == "DECLARED" and prov["情绪余温"]["value"] == "负向余温"
+    v1q, v1p = C.compile_s0(TEXT, None, TAX)                                            # task=None ⇔ v1 行为不变
+    assert len(v1q) == 6 and v1p["情绪余温"]["provenance"] == "MODEL_CANDIDATE"
+
+
+def test_task_contract_validation():
+    import copy
+    for bad_id in ("s0_context.v9", "../x", "", "s0_context"):
+        try:
+            C.load_task(bad_id, TAX); raise AssertionError(bad_id)
+        except JevError as e:
+            assert e.code == "INPUT_INVALID"
+    assert V2["structural_facets"]["情绪余温"]["value"] in [f for f in TAX["facets"] if f["key"] == "情绪余温"][0]["values"]
+
+
+def test_text_ref_resolves_like_the_retest_and_rejects_bad_refs():
+    it = next(i for i in FROZEN if i["n_chars"] > 2000)                                 # 唯一超长条: 必须截到 2000
+    body = C.resolve_text_ref(_ref(it))
+    assert len(body) == 2000 and C.sha256(body) == _ref(it)["body_sha256"]
+    good = _ref(FROZEN[0])
+    bads = [dict(good, body_sha256="0" * 64), dict(good, line_sha256="0" * 64), dict(good, line_index=10 ** 6), dict(good, line_index=-1),
+            dict(good, line_index=True), dict(good, file="../config/context_taxonomy.json"), dict(good, file="config/context_taxonomy.json"),
+            dict(good, file="/etc/passwd"), dict(good, file="corpus/missing.txt"), {k: v for k, v in good.items() if k != "body_sha256"},
+            dict(good, extra=1)]
+    texts = [C.resolve_text_ref(_ref(i)) for i in FROZEN[:5]]
+    for b in bads:
+        try:
+            C.resolve_text_ref(b); raise AssertionError("bad ref accepted")
+        except JevError as e:
+            assert e.code == "INPUT_INVALID"
+            leaked = sum(1 for t in texts if t[:20] in e.detail)
+            assert leaked == 0, "error detail echoes input text"
+
+
+def test_item_text_exactly_one_source_and_preparation_binding():
+    ref = _ref(FROZEN[0])
+    for bad in ({"item_id": "a", "text": "x", "text_ref": ref, "preparation_id": "text_2000.v0"}, {"item_id": "a"},
+                {"item_id": "a", "text_ref": ref}, {"item_id": "a", "text_ref": ref, "preparation_id": "full_text.v1"},
+                {"item_id": "a", "text": "hello", "preparation_id": "text_2000.v0"}):
+        try:
+            C.item_text(bad); raise AssertionError(bad.keys())
+        except JevError as e:
+            assert e.code == "INPUT_INVALID"
+    req, prov = C.build_request({"item_id": "reddit_x.txt:0", "text_ref": ref, "preparation_id": "text_2000.v0", "expected": {}}, TAX, V2)
+    assert req.preparation_id == "text_2000.v0" and req.original_input_sha256 == ref["line_sha256"] and req.source_refs == ["%s:%d" % (ref["file"], ref["line_index"])]

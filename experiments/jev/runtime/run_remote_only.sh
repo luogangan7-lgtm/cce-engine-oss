@@ -14,6 +14,14 @@ fi
 [[ -d "$BUNDLE" && -f "$RECEIPT" ]] || { echo "MODEL_BUNDLE_INVALID: bundle dir or receipt missing" >&2; exit 3; }
 mkdir -p "$OUT"; chown 1001:1001 "$OUT" 2>/dev/null || sudo chown 1001:1001 "$OUT"
 
+# Mount ONLY the corpus files this suite references by pointer (read-only); list comes from the reviewed suite, regex-checked.
+CORPUS_MOUNTS=()
+while IFS= read -r f; do
+  [[ "$f" =~ ^corpus/[A-Za-z0-9._-]+\.txt$ ]] || { echo "INPUT_INVALID: corpus ref" >&2; exit 3; }
+  CORPUS_MOUNTS+=(-v "$ROOT/$f:/work/$f:ro")
+done < <(python3 "$ROOT/experiments/jev/cli.py" suite-files --suite "$SUITE")
+echo "corpus_files_mounted=$(( ${#CORPUS_MOUNTS[@]} / 2 ))"
+
 IMAGE_ID="$(docker image inspect --format '{{.Id}}' "$IMAGE")"
 echo "image_id=$IMAGE_ID"
 # Effective limits are recorded from the container's cgroup by the evaluate job (not just echoed here).
@@ -25,6 +33,7 @@ timeout --signal=KILL $((DEADLINE + 60)) docker run --name cce-jev-eval \
   -v "$BUNDLE:/model:ro" \
   -v "$ROOT/experiments/jev:/work/experiments/jev:ro" \
   -v "$ROOT/config/context_taxonomy.json:/work/config/context_taxonomy.json:ro" \
+  "${CORPUS_MOUNTS[@]}" \
   -v "$RECEIPT:/receipt.json:ro" \
   -v "$OUT:/out:rw" \
   -e GITHUB_ACTIONS -e RUNNER_ENVIRONMENT -e GITHUB_REPOSITORY -e GITHUB_WORKFLOW_REF -e GITHUB_RUN_ID -e GITHUB_RUN_ATTEMPT \
@@ -32,6 +41,7 @@ timeout --signal=KILL $((DEADLINE + 60)) docker run --name cce-jev-eval \
   -e HF_HUB_OFFLINE=1 -e TRANSFORMERS_OFFLINE=1 -e HF_HUB_DISABLE_TELEMETRY=1 -e TOKENIZERS_PARALLELISM=false \
   -e OMP_NUM_THREADS=3 -e MKL_NUM_THREADS=3 -e "CCE_JEV_IMAGE_ID=$IMAGE_ID" \
   -e HOME=/tmp -e HF_HOME=/tmp/hf -e XDG_CACHE_HOME=/tmp/cache \
+  -e TRANSFORMERS_VERBOSITY=error -e PYTHONWARNINGS=ignore \
   "$IMAGE" /work/experiments/jev/cli.py eval --suite "$SUITE" --receipt /receipt.json --bundle /model --out /out/reports/run
 RC=$?
 set -e

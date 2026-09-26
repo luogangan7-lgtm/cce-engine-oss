@@ -15,9 +15,10 @@ from dataclasses import asdict, dataclass, field
 CONTRACT_VERSION = "cce.jev.contract.v1"
 REPORT_SCHEMA = "cce.jev.evaluation.v1"
 QUESTION_TYPES = ("choice", "noul", "score")
-PROVENANCE = ("DECLARED", "MODEL_CANDIDATE", "UNOBSERVABLE")
+PROVENANCE = ("DECLARED", "MODEL_CANDIDATE", "UNOBSERVABLE", "STRUCTURAL_COLD_READ")
+PREPARATION_IDS = ("full_text.v1", "text_2000.v0")   # text_2000.v0 = 与 2026-09-23 Jev/MiniMax 复测同一切片 line[:2000]
 # 每个 item×question 的终态, 只能属其一; 失败项仍留在分母。
-FINAL_STATUSES = ("OK", "DECLARED", "UNOBSERVABLE", "SEMANTIC_UNKNOWN", "REVIEW_REQUIRED", "FAILED", "NOT_RUN")
+FINAL_STATUSES = ("OK", "DECLARED", "UNOBSERVABLE", "STRUCTURAL_COLD_READ", "SEMANTIC_UNKNOWN", "REVIEW_REQUIRED", "FAILED", "NOT_RUN")
 ERROR_CODES = (
     "EXECUTION_LOCATION_FORBIDDEN",
     "PERMIT_NOT_APPROVED", "PERMIT_ALREADY_USED", "PERMIT_EXPIRED",
@@ -132,6 +133,8 @@ class DecisionRequest:
             seen.add(q.question_id)
         if self.contract_version != CONTRACT_VERSION:
             raise JevError("INPUT_INVALID", f"contract_version {self.contract_version!r}")
+        if self.preparation_id not in PREPARATION_IDS:
+            raise JevError("INPUT_INVALID", f"preparation_id {self.preparation_id!r}")
         return self
 
     def questions_sha256(self) -> str:

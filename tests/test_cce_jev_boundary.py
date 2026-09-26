@@ -15,7 +15,7 @@ JEV = ROOT / "experiments" / "jev"
 def test_jev_pure_suite_is_discovered_and_green(tmp_path):
     junit = tmp_path / "junit.xml"
     env = {k: v for k, v in os.environ.items() if not k.startswith("GITHUB_")}; env["PYTHONDONTWRITEBYTECODE"] = "1"
-    p = subprocess.run([sys.executable, "-m", "pytest", str(JEV / "tests"), "-q", "-p", "no:cacheprovider", f"--junitxml={junit}"],
+    p = subprocess.run([sys.executable, "-m", "pytest", str(JEV / "tests"), "-q", "-p", "no:cacheprovider", "--assert=plain", f"--junitxml={junit}"],
                        cwd=str(ROOT), env=env, capture_output=True, text=True, timeout=900)
     assert junit.is_file(), p.stdout[-2000:] + p.stderr[-2000:]
     root = ET.parse(junit).getroot(); suites = [root] if root.tag == "testsuite" else list(root)

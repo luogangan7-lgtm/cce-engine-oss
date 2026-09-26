@@ -30,7 +30,7 @@ def test_importing_every_module_loads_no_heavy_dependency_and_opens_no_socket():
 
 
 def test_cli_help_and_check_locks_and_plan_are_pure():
-    for argv in (["--help"], ["check-locks"], ["plan", "--suite", "s0-smoke-v1"]):
+    for argv in (["--help"], ["check-locks"], ["plan", "--suite", "s0-smoke-v1"], ["plan", "--suite", "s0-compare-v1"], ["suite-files", "--suite", "s0-compare-v1"]):
         code = ("import runpy, sys, socket\n"
                 "def _boom(*a, **k): raise AssertionError('network call')\n"
                 "socket.socket.connect = _boom; socket.create_connection = _boom\n"
