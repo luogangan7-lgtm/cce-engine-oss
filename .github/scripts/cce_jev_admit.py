@@ -12,7 +12,9 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
+import urllib.parse
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -27,6 +29,11 @@ REQUIRED = ("permit_id", "owner_approval_reference", "expiry", "repository", "wo
 
 def sha(p: Path) -> str:
     return hashlib.sha256(p.read_bytes()).hexdigest()
+
+
+def bundle_cache_key(root: Path = ROOT) -> str:
+    """与工作流 hashFiles('experiments/jev/locks/model.source.lock.json') 相同: 单文件 = sha256(sha256(bytes))。"""
+    return "cce-jev-bundle-%s-x64" % hashlib.sha256(hashlib.sha256((root / "experiments/jev/locks/model.source.lock.json").read_bytes()).digest()).hexdigest()
 
 
 def fail(code: str, detail: str) -> "NoReturn":
@@ -92,6 +99,33 @@ def main() -> int:
             fail("PERMIT_NOT_APPROVED", "asset lock not READY or sha mismatch")
         if not rt.is_file() or permit["runtime_lock_sha256"] != sha(rt):
             fail("PERMIT_NOT_APPROVED", "runtime lock missing or sha mismatch")
+        # ---- 许可策略 ↔ suite 清单 ↔ 任务合同 必须一致(否则消耗后才在容器里失败)
+        mf = JEV / "suites" / f"{suite}.manifest.json"
+        manifest = json.loads(mf.read_text(encoding="utf-8")) if mf.is_file() else {}
+        policy = json.loads(pol.read_text(encoding="utf-8"))
+        if permit["resource_policy"] != manifest.get("policy", "cpu_smoke.json"):
+            fail("PERMIT_NOT_APPROVED", f"permit resource_policy {permit['resource_policy']} != suite manifest policy {manifest.get('policy', 'cpu_smoke.json')}")
+        if policy.get("mode") != "eval" or ("suite_ids" in policy and suite not in policy["suite_ids"]) or policy.get("task", "s0_context.v1") != manifest.get("task", "s0_context.v1"):
+            fail("PERMIT_NOT_APPROVED", "resource policy mode / suite_ids / task do not cover this suite")
+        # ---- 纯标准库编排预检(suite sha、语料指针整行+切片 sha、预算上限), 不加载模型、不联网
+        pr = subprocess.run([sys.executable, str(JEV / "cli.py"), "plan", "--suite", suite], cwd=str(ROOT), capture_output=True, text=True, timeout=300)
+        if pr.returncode != 0:
+            fail("PERMIT_NOT_APPROVED", "suite plan failed before consumption: " + (pr.stderr.strip().splitlines() or ["?"])[-1][:200])
+        if not json.loads(pr.stdout).get("within_policy"):
+            fail("PERMIT_NOT_APPROVED", "suite plan exceeds the permit's resource policy")
+        # ---- 模型缓存必须已在(eval 不下载; 缺了就先不消耗, 走 prepare 重热)
+        key = bundle_cache_key()
+        if env.get("BUNDLE_CACHE_KEY") and env["BUNDLE_CACHE_KEY"] != key:
+            fail("PERMIT_NOT_APPROVED", "workflow bundle cache key != key recomputed from the source lock")
+        creq = urllib.request.Request(f"{env.get('GITHUB_API_URL', 'https://api.github.com')}/repos/{env.get('GITHUB_REPOSITORY')}/actions/caches?key={urllib.parse.quote(key)}&ref=refs%2Fheads%2Fmaster",
+                                      headers={"Authorization": f"Bearer {env.get('GITHUB_TOKEN', '')}", "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"})
+        try:
+            with urllib.request.urlopen(creq, timeout=30) as r:
+                caches = json.load(r).get("actions_caches", [])
+        except Exception as e:  # noqa: BLE001
+            fail("PERMIT_NOT_APPROVED", f"cannot verify the model bundle cache ({type(e).__name__}); permit NOT consumed")
+        if not any(c.get("key") == key for c in caches):
+            fail("PERMIT_NOT_APPROVED", "model bundle cache missing (evicted?); re-warm it with a prepare permit first; permit NOT consumed")
     # ---- atomic consumption: create a unique ref; existing ⇒ already used; unknown ⇒ treat as consumed
     repo, commit, token = env.get("GITHUB_REPOSITORY"), env.get("GITHUB_SHA"), env.get("GITHUB_TOKEN")
     if not (repo and commit and token):

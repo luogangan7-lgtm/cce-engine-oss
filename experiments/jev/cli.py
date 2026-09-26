@@ -85,6 +85,15 @@ def _manifest_policy(manifest: dict) -> str:
     return manifest.get("policy", "cpu_smoke.json")
 
 
+def eval_policy(receipt: dict, suite: str, manifest: dict) -> dict:
+    """容器内再核一次(admit 已在消耗前核过): 回执 suite == 请求 suite, 回执策略 == suite 清单策略; 返回该策略。"""
+    if receipt.get("suite_id") != suite:
+        raise JevError("PERMIT_NOT_APPROVED", f"receipt suite {receipt.get('suite_id')!r} != {suite!r}")
+    if receipt.get("resource_policy") != _manifest_policy(manifest):
+        raise JevError("PERMIT_NOT_APPROVED", f"permit policy {receipt.get('resource_policy')!r} != suite policy {_manifest_policy(manifest)!r}")
+    return _policy(receipt["resource_policy"])
+
+
 def cmd_plan(a):
     """编译 suite → 预期集合与问题数, 零 tokenizer、零模型。"""
     from experiments.jev.run_suite import expected_set, load_suite, suite_task, _check_policy
@@ -179,13 +188,9 @@ def cmd_eval(a):
     lock = SA.assets_lock()
     verified = SA.verify_bundle(a.bundle, lock, src)                       # 缓存命中也核验
     cfg = SA.read_decider_config(a.bundle, src)
-    if receipt.get("suite_id") != a.suite:
-        raise JevError("PERMIT_NOT_APPROVED", f"receipt suite {receipt.get('suite_id')!r} != {a.suite!r}")
     from experiments.jev.run_suite import load_suite
     _items, manifest = load_suite(a.suite)
-    if receipt.get("resource_policy") != _manifest_policy(manifest):
-        raise JevError("PERMIT_NOT_APPROVED", f"permit policy {receipt.get('resource_policy')!r} != suite policy {_manifest_policy(manifest)!r}")
-    policy = _policy(receipt["resource_policy"])                              # admit 已在同一提交核过此文件 sha
+    policy = eval_policy(receipt, a.suite, manifest)                          # admit 已在同一提交核过此文件 sha
     rt = _load(HERE / "locks" / "cpu-runtime.lock.json")
     identities = {"cce_execution_commit": env.get("GITHUB_SHA"), "adapter_sha256": adapter_hash(),
                   "source_lock_sha256": file_sha256(SA.SOURCE_LOCK), "assets_lock_sha256": file_sha256(SA.ASSETS_LOCK),

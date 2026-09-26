@@ -70,6 +70,68 @@ def test_determinism_check_observes_failure():
     w, _ = X.determinism(none, [], {}, [], 1e-5); assert not w["pass"]                     # 没有复跑对 ≠ 通过
 
 
+def _fake_compare_run(tmp_path):
+    """真跑一次 run_suite(假后端, 假 tokenizer)得到与归档同形的目录 —— 供 preflight 正反测试。"""
+    from experiments.jev import run_suite as RS
+    from experiments.jev.tests.fakes import FakeBackend, FakeTokenizer, fake_upstream
+
+    class T13(FakeBackend):
+        def identities(self):
+            return {**super().identities(), "temperature": 1.3}
+    pol = json.loads((ROOT / "experiments/jev/policies/cpu_compare.json").read_text(encoding="utf-8"))
+    pol = {**pol, "max_row_tokens": 4096, "max_padded_tokens": 4096 * 272}
+    cfg = {"temperature": 1.3, "version": "v10", "isolated_levels": True, "max_options": 255, "schema_first": False, "neutralize_none": False}
+    out = tmp_path / "reports" / "cmp"
+    RS.run("s0-compare-v1", out, pol, cfg, {"model_version": "v10"}, lambda L: T13(L), FakeTokenizer, fake_upstream)
+    return out
+
+
+def test_preflight_passes_on_a_real_shaped_run_and_observes_each_failure(tmp_path):
+    out = _fake_compare_run(tmp_path)
+    D, P, preds, report, suite, ptr_of = X.load_decider(out)
+    assert X.preflight(PRE, report, suite, preds) == [] and len(D) == 42
+    import copy
+    cases = {
+        "T": lambda r, p: r["identities"]["backend_effective"].__setitem__("temperature", 1.0),
+        "prereg": lambda r, p: r["suite_manifest"].__setitem__("prereg_sha256", "0" * 64),
+        "coverage": lambda r, p: r.__setitem__("coverage_status", "NOT_ESTABLISHED"),
+        "status": lambda r, p: r.__setitem__("execution_status", "FAILED"),
+        "suite": lambda r, p: r.__setitem__("suite_sha256", "0" * 64),
+        "missing": lambda r, p: p.pop(next(i for i, x in enumerate(p) if not x["item_id"].startswith(("rep-", "smoke")))),
+        "order": lambda r, p: next(x for x in p if not x["item_id"].startswith(("rep-", "smoke")))["candidate_ids"].reverse(),
+        "qsha": lambda r, p: next(x for x in p if not x["item_id"].startswith(("rep-", "smoke"))).__setitem__("questions_sha256", "0" * 64),
+    }
+    for name, mut in cases.items():
+        r, pp = copy.deepcopy(report), copy.deepcopy(preds); mut(r, pp)
+        assert X.preflight(PRE, r, suite, pp), name                         # 每一种都必须被看见
+    w, _ = X.determinism(preds, suite, ptr_of, [], 1e-5, expected_pairs=50); assert w["pass"] and w["pairs"] == 50
+    w, _ = X.determinism([p for p in preds if not (p["item_id"].startswith("rep-") and p["question_id"] == "进程位置")], suite, ptr_of, [], 1e-5, expected_pairs=50)
+    assert not w["pass"]                                                     # 少复跑行 ⇒ 不通过
+
+
+def test_verdict_boundaries_use_registered_numbers():
+    r = PRE["★★★判决规则(测量前冻结)"]["数值"]
+    m = {"unmeasurable": False}
+    assert X.facet_verdict(m, {"J1": r["replaceable_max_d"], "J2": r["replaceable_max_d"]}, {"J1": 1, "J2": 1}, {"J1": 0.9, "J2": 0.9}, r) == "可替代"
+    assert X.facet_verdict(m, {"J1": r["replaceable_max_d"] + 1, "J2": 0}, {"J1": 1, "J2": 1}, {"J1": 0.9, "J2": 0.9}, r) == "不可判"
+    assert X.facet_verdict(m, {"J1": 0, "J2": 0}, {"J1": 0, "J2": 1}, {"J1": 0.9, "J2": 0.9}, r) != "可替代"                    # net 必须 > 0
+    dm = r["different_min_d"]; hi = r["different_kappa_hi"]
+    assert X.facet_verdict(m, {"J1": dm, "J2": dm}, {"J1": 1, "J2": 1}, {"J1": hi - 0.01, "J2": hi - 0.01}, r) == "不同读者"
+    assert X.facet_verdict(m, {"J1": dm, "J2": dm}, {"J1": 1, "J2": 1}, {"J1": hi, "J2": hi - 0.01}, r) == "不可判"
+    assert X.facet_verdict(m, {"J1": dm - 1, "J2": dm}, {"J1": 1, "J2": 1}, {"J1": 0.1, "J2": 0.1}, r) == "不可判"
+    assert X.facet_verdict({"unmeasurable": True}, {"J1": 0, "J2": 0}, {"J1": 9, "J2": 9}, {"J1": 0.9, "J2": 0.9}, r) == "测不出"
+    bad = X.analyse(*_synthetic("J2"), ARMS, PRE, {"pass": False})
+    assert all(v is None for v in bad["verdicts"].values()) and all(f.get("verdict") is None for f in bad["per_facet"].values())
+
+
+def test_determinism_branches_missing_original_and_row_sha():
+    def row(iid, p, rs):
+        return {"item_id": iid, "question_id": "q", "candidate_ids": ["a", "b"], "probabilities": p, "selected_candidate": "a", "identities": {"row_sha256": rs}}
+    w, _ = X.determinism([row("rep-x:1", [0.7, 0.3], "r")], [], {}, [], 1e-5); assert not w["pass"] and w.get("missing") == 1
+    w, _ = X.determinism([row("x:1", [0.7, 0.3], "r1"), row("rep-x:1", [0.7, 0.3], "r2")], [], {}, [], 1e-5); assert not w["pass"] and w["row_sha_mismatch"] == 1
+    w, _ = X.determinism([row("x:1", [0.7, 0.3], "r"), row("rep-x:1", [0.7, 0.3], "r")], [], {}, [], 1e-5, expected_pairs=2); assert not w["pass"]
+
+
 def test_result_recomputes_from_archive_and_has_no_text():
     if not X.OUT.exists():
         return
@@ -87,6 +149,9 @@ def test_result_recomputes_from_archive_and_has_no_text():
     from experiments.jev.run_suite import suite_texts  # noqa: E402
     hits = text_leaks(blob, suite_texts(suite))
     assert hits == 0, f"{hits} 条输入原文出现在结果里"
+    from experiments.jev.report import check_upload  # noqa: E402
+    files = [p for p in run_dir.iterdir() if p.is_file()]
+    check_upload(run_dir, files, 50 * 1024 * 1024, forbidden_texts=suite_texts(suite))   # 归档目录(含手写 manifest)也不许有原文
 
 
 sys.path.insert(0, str(ROOT))

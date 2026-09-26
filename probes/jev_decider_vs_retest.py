@@ -9,6 +9,7 @@
 import collections, hashlib, importlib.util, json, math, pathlib, random, sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path: sys.path.insert(0, str(ROOT))
 PRE = ROOT / "tests/data/jev_decider_vs_retest_prereg.json"
 OUT = ROOT / "results/jev_decider_vs_retest.json"
 SUITE = ROOT / "experiments/jev/suites/s0-compare-v1.jsonl"
@@ -96,7 +97,7 @@ def load_decider(run_dir):
     return D, P, preds, report, suite, ptr_of
 
 
-def determinism(preds, suite, ptr_of, prior_preds, tol):
+def determinism(preds, suite, ptr_of, prior_preds, tol, expected_pairs=None):
     """① 同 run 复跑: rep-X 与 X 同一行 sha ⇒ top-1 同且 max|Δp| ≤ tol。② 跨 run: smoke 行与前一 run 同一 row_sha256 ⇒ 同上(描述量)。"""
     by = {(p["item_id"], p["question_id"]): p for p in preds}
     within = {"pairs": 0, "top1_diff": 0, "max_abs_dp": 0.0, "row_sha_mismatch": 0}
@@ -108,7 +109,9 @@ def determinism(preds, suite, ptr_of, prior_preds, tol):
         if p["identities"].get("row_sha256") != o["identities"].get("row_sha256"): within["row_sha_mismatch"] += 1
         within["top1_diff"] += p["selected_candidate"] != o["selected_candidate"]
         within["max_abs_dp"] = max(within["max_abs_dp"], max(abs(a - b) for a, b in zip(p["probabilities"], o["probabilities"])))
-    within["pass"] = within["pairs"] > 0 and within["top1_diff"] == 0 and within["max_abs_dp"] <= tol and within["row_sha_mismatch"] == 0 and not within.get("missing")
+    within["expected_pairs"] = expected_pairs
+    within["pass"] = (within["pairs"] > 0 and within["top1_diff"] == 0 and within["max_abs_dp"] <= tol and within["row_sha_mismatch"] == 0
+                      and not within.get("missing") and (expected_pairs is None or within["pairs"] == expected_pairs))
     cross = {"pairs": 0, "top1_diff": 0, "max_abs_dp": 0.0}
     prior = {p["identities"].get("row_sha256"): p for p in (prior_preds or [])}
     for p in preds:
@@ -136,7 +139,7 @@ def analyse(D, P, arms, pre, determinism_block=None):
     ptrs = sorted(set(D) & set(arms["J1"]) & set(arms["J2"]) & set(arms["M1"]) & set(arms["M2"]))
     out = {"n_items": len(ptrs), "per_facet": {}}
     for k in pre["★面"]["模型读"]:
-        f = FACETS[k]; K = len(f["values"]) + (0 if "未知" in f["values"] else 1)
+        f = FACETS[k]; K = len({RT.norm(v, f) for v in f["values"]} | {"未知"})          # 归一化后的类别数(未提及 并入 未知)
         rd = {a: [RT.norm(arms[a][p].get(k), f) for p in ptrs] for a in ("J1", "J2", "M1", "M2")}
         rd["D"] = [RT.norm(D[p].get(k), f) for p in ptrs]
         n = len(ptrs); row = {"labels_counts": {a: dict(sorted(collections.Counter(v).items())) for a, v in rd.items()}}
@@ -171,6 +174,10 @@ def analyse(D, P, arms, pre, determinism_block=None):
             desc[j] = {"mean_p_D_on_arm_label": round(sum(mass) / n, 4), "arm_label_in_D_top2": sum(top2)}
         desc["mean_entropy_D_nats"] = round(sum(-sum(v * math.log(v) for v in P[p][k].values() if v > 0) for p in ptrs) / n, 4)
         row["decider_descriptives"] = desc
+        if determinism_block is not None and not determinism_block.get("pass", False):
+            row["verdict"] = None                                       # 前置不成立: 不出任何面判决
+            out["per_facet"][k] = row
+            continue
         dD = {j: pairs[f"D~{j}"]["d"] for j in ("J1", "J2")}
         net = {j: zero[j]["net_gain"] for j in ("J1", "J2")}
         hi = {j: (pairs[f"D~{j}"]["kappa_boot"]["ci95"] or [None, None])[1] for j in ("J1", "J2")}
@@ -185,6 +192,9 @@ def analyse(D, P, arms, pre, determinism_block=None):
     struct["D"] = "n/a —— 合同 v2 不让模型读 情绪余温(结构判定 首轮无余温)"
     out["情绪余温_structural"] = struct
     verdicts = {k: r["verdict"] for k, r in out["per_facet"].items()}
+    if determinism_block is not None and not determinism_block.get("pass", False):
+        out["verdicts"] = {k: None for k in verdicts}; out["overall"] = "前置不成立(执行错误, 不出判决)"
+        return out
     meas = [k for k, v in verdicts.items() if v != "测不出"]
     ok_pre = determinism_block is None or determinism_block.get("pass", False)
     if not ok_pre:
@@ -202,9 +212,11 @@ def analyse(D, P, arms, pre, determinism_block=None):
 
 
 def preflight(pre, report, suite, preds):
-    """前置条件(任何一条不成立 = 执行错误, 不出判决): 题目逐面 sha · 切片 · 输入集 · 42/42 · 预注册 sha 在执行提交里。"""
+    """前置条件(任何一条不成立 = 执行错误, 不出判决): 题目逐面 sha · 实际发出的候选顺序与题目 sha · 切片 · 输入集 · 42×5 行 · 执行成功 · 预注册 sha 在执行提交里。"""
     import importlib
     errs = []
+    if report.get("execution_status") != "SUCCEEDED": errs.append(f"execution_status {report.get('execution_status')}")
+    if report.get("suite_sha256") != sha(SUITE.read_bytes()): errs.append("报告的 suite sha 与当前 suite 文件不符")
     sys.path.insert(0, str(ROOT / "scripts")); sys.path.insert(0, str(ROOT))
     cq = importlib.import_module("cce_s0_jev").jev_questions(list(FACETS.values()))
     want = pre["★输入与题目(冻结)"]["题目逐面 sha(含候选顺序)"]
@@ -214,6 +226,17 @@ def preflight(pre, report, suite, preds):
     iset = sha(json.dumps([[it["text_ref"]["file"], it["text_ref"]["line_index"], it["text_ref"]["line_sha256"]] for it in items], ensure_ascii=False))
     if iset != pre["★输入与题目(冻结)"]["输入集 sha"]: errs.append("输入集 sha 与预注册不符")
     if any(it["preparation_id"] != "text_2000.v0" for it in items): errs.append("对比条目切片不是 text_2000.v0")
+    from experiments.jev.compile_context import build_request, load_task, load_taxonomy
+    tax = load_taxonomy(); task = load_task("s0_context.v2", tax)
+    qsha = {it["item_id"]: build_request(it, tax, task)[0].questions_sha256() for it in items}
+    main_ids = set(qsha)
+    bad_order = bad_qsha = 0
+    for p in preds:
+        if p["item_id"] not in main_ids: continue
+        bad_order += list(p["candidate_ids"]) != list(cq[p["question_id"]]["criteria"])
+        bad_qsha += p.get("questions_sha256") != qsha[p["item_id"]]
+    if bad_order: errs.append(f"{bad_order} 行实际发出的候选顺序与生产 jev_questions 不同")
+    if bad_qsha: errs.append(f"{bad_qsha} 行的 questions_sha256 与现算不符")
     if (report.get("suite_manifest") or {}).get("prereg_sha256") != sha(PRE.read_bytes()): errs.append("执行提交里的预注册 sha 与当前文件不符(预注册被改过)")
     ok_rows = {(p["item_id"], p["question_id"]) for p in preds if not p["item_id"].startswith("rep-")}
     need = {(it["item_id"], k) for it in items for k in pre["★面"]["模型读"]}
@@ -230,10 +253,14 @@ def main(argv=None):
     D, P, preds, report, suite, ptr_of = load_decider(run_dir)
     prior = pre["★确定性(前置)"]["跨 run 对照"]["run_dir"]
     prior_preds = [json.loads(l) for l in next(p for p in (ROOT / prior).iterdir() if p.name.endswith("predictions.jsonl")).read_text(encoding="utf-8").splitlines() if l.strip()]
-    within, cross = determinism(preds, suite, ptr_of, prior_preds, pre["★确定性(前置)"]["tol_abs_dp"])
+    n_rep = sum(1 for it in suite if it["item_id"].startswith("rep-"))
+    within, cross = determinism(preds, suite, ptr_of, prior_preds, pre["★确定性(前置)"]["tol_abs_dp"], expected_pairs=n_rep * len(pre["★面"]["模型读"]))
     errs = preflight(pre, report, suite, preds)
     within["pass"] = within["pass"] and not errs
-    res = analyse(D, P, load_arms(), pre, within)
+    if within["pass"]:
+        res = analyse(D, P, load_arms(), pre, within)
+    else:                                                   # 前置不成立: 不算任何面(缺行时也不会崩)
+        res = {"n_items": None, "per_facet": {}, "情绪余温_structural": None, "verdicts": {k: None for k in pre["★面"]["模型读"]}, "overall": "前置不成立(执行错误, 不出判决)"}
     doc = {"block": "JEV_DECIDER_VS_RETEST", "prereg_sha256": sha(PRE.read_bytes()), "analysis_script_sha256": sha(pathlib.Path(__file__).read_bytes()),
            "analysis_script_sha256_at_freeze": pre["★分析脚本(冻结)"]["sha256"],
            "run": {"run_id": report.get("identities", {}).get("run", {}).get("GITHUB_RUN_ID"), "execution_commit": report.get("identities", {}).get("cce_execution_commit"),

@@ -49,3 +49,30 @@ def test_verbatim_input_leak_gate_positive_and_negative_controls(tmp_path):
         except JevError as e:
             assert e.code == "OUTPUT_INVALID" and "verbatim input text" in e.detail and body[10:30] not in e.detail
     assert text_leaks("unrelated words only", [body]) == 0 and text_leaks(body[:23], [body]) == 0          # 窗口 24: 23 字符不算
+
+
+
+def test_leak_gate_decodes_escaped_json_and_survives_a_bad_line(tmp_path):
+    import json as _j
+    zh = "上周刚买的助听器今天突然没声了，充了一晚上电还是开不了机。我已经打过客服电话"
+    f = tmp_path / "predictions.jsonl"
+    f.write_text("{not json\n" + _j.dumps({"d": zh[3:30]}, ensure_ascii=True) + "\n", encoding="utf-8")   # \uXXXX 转义 + 前一行坏
+    try:
+        check_upload(tmp_path, [f], 10 ** 6, forbidden_texts=[zh]); raise AssertionError("escaped leak passed")
+    except JevError as e:
+        assert e.code == "OUTPUT_INVALID" and "verbatim" in e.detail
+    g = tmp_path / "x.md"; g.write_text("MIXED " + "I HAVE WORN MY AIDS FOR SIX YEARS AND THE NEW", encoding="utf-8")
+    try:
+        check_upload(tmp_path, [g], 10 ** 6, forbidden_texts=["I have worn my aids for six years and the new ones fit"]); raise AssertionError("case-changed leak passed")
+    except JevError as e:
+        assert e.code == "OUTPUT_INVALID"
+    h = tmp_path / "y.md"; h.write_text("prefix 助听器没声了怎么办 suffix", encoding="utf-8")
+    try:
+        check_upload(tmp_path, [h], 10 ** 6, forbidden_texts=["助听器没声了怎么办"]); raise AssertionError("short text leak passed")
+    except JevError as e:
+        assert e.code == "OUTPUT_INVALID"
+    s = tmp_path / "z.log"; s.write_text("token hf_" + "Q" * 30, encoding="utf-8")
+    try:
+        check_upload(tmp_path, [s], 10 ** 6); raise AssertionError("secret passed")
+    except JevError as e:
+        assert "hf_" not in e.detail and "withheld" in e.detail

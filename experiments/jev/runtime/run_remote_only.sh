@@ -3,7 +3,7 @@
 # Usage (from cce-jev-eval.yml): run_remote_only.sh <image> <bundle_dir> <receipt.json> <out_dir> <suite_id> <deadline_s>
 set -euo pipefail
 
-IMAGE="$1"; BUNDLE="$2"; RECEIPT="$3"; OUT="$4"; SUITE="$5"; DEADLINE="${6:-1200}"
+IMAGE="$1"; BUNDLE="$2"; RECEIPT="$3"; OUT="$4"; SUITE="$5"; DEADLINE="$6"
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 
 if [[ "${GITHUB_ACTIONS:-}" != "true" || "${RUNNER_ENVIRONMENT:-}" != "github-hosted" || "${GITHUB_REPOSITORY:-}" != "luogangan7-lgtm/cce-engine-oss" ]]; then
@@ -11,15 +11,18 @@ if [[ "${GITHUB_ACTIONS:-}" != "true" || "${RUNNER_ENVIRONMENT:-}" != "github-ho
   exit 3
 fi
 [[ "$SUITE" =~ ^[a-z0-9][a-z0-9-]{2,40}$ ]] || { echo "INPUT_INVALID: suite id" >&2; exit 3; }
+[[ "$DEADLINE" =~ ^[0-9]+$ ]] || { echo "INPUT_INVALID: deadline must come from the admitted policy" >&2; exit 3; }
 [[ -d "$BUNDLE" && -f "$RECEIPT" ]] || { echo "MODEL_BUNDLE_INVALID: bundle dir or receipt missing" >&2; exit 3; }
 mkdir -p "$OUT"; chown 1001:1001 "$OUT" 2>/dev/null || sudo chown 1001:1001 "$OUT"
 
 # Mount ONLY the corpus files this suite references by pointer (read-only); list comes from the reviewed suite, regex-checked.
+FILES="$(python3 "$ROOT/experiments/jev/cli.py" suite-files --suite "$SUITE")" || { echo "INPUT_INVALID: suite-files failed" >&2; exit 3; }
 CORPUS_MOUNTS=()
 while IFS= read -r f; do
+  [[ -z "$f" ]] && continue
   [[ "$f" =~ ^corpus/[A-Za-z0-9._-]+\.txt$ ]] || { echo "INPUT_INVALID: corpus ref" >&2; exit 3; }
   CORPUS_MOUNTS+=(-v "$ROOT/$f:/work/$f:ro")
-done < <(python3 "$ROOT/experiments/jev/cli.py" suite-files --suite "$SUITE")
+done <<< "$FILES"
 echo "corpus_files_mounted=$(( ${#CORPUS_MOUNTS[@]} / 2 ))"
 
 IMAGE_ID="$(docker image inspect --format '{{.Id}}' "$IMAGE")"

@@ -73,3 +73,42 @@ def test_faking_env_without_receipt_still_refused():
     env = github_env()
     with pytest.raises(JevError):
         G.require(env, None)
+
+
+
+def test_eval_policy_binding_inside_container():
+    import importlib.util
+    sp = importlib.util.spec_from_file_location("_cli_ep", CLI); cli = importlib.util.module_from_spec(sp); sp.loader.exec_module(cli)
+    man = {"policy": "cpu_compare.json"}
+    assert cli.eval_policy({"suite_id": "s0-compare-v1", "resource_policy": "cpu_compare.json"}, "s0-compare-v1", man)["policy_id"] == "cpu_compare.v1"
+    for rc in ({"suite_id": "s0-smoke-v1", "resource_policy": "cpu_compare.json"}, {"suite_id": "s0-compare-v1", "resource_policy": "cpu_smoke.json"},
+               {"suite_id": "s0-compare-v1", "resource_policy": "../x.json"}):
+        try:
+            cli.eval_policy(rc, "s0-compare-v1", man); raise AssertionError(rc)
+        except JevError as e:
+            assert e.code == "PERMIT_NOT_APPROVED"
+
+
+def test_suite_files_lists_exactly_the_manifest_corpus_files():
+    import json as _j
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GITHUB_")}; env["PYTHONDONTWRITEBYTECODE"] = "1"
+    p = subprocess.run([sys.executable, str(CLI), "suite-files", "--suite", "s0-compare-v1"], capture_output=True, text=True, env=env, cwd=str(ROOT), timeout=120)
+    man = _j.loads((ROOT / "experiments/jev/suites/s0-compare-v1.manifest.json").read_text(encoding="utf-8"))
+    assert p.returncode == 0 and p.stdout.split() == man["provenance"]["corpus_files"], (p.returncode, p.stdout)
+    p = subprocess.run([sys.executable, str(CLI), "suite-files", "--suite", "s0-smoke-v1"], capture_output=True, text=True, env=env, cwd=str(ROOT), timeout=120)
+    assert p.returncode == 0 and p.stdout.strip() == ""
+
+
+def test_host_check_upload_scans_suite_texts(tmp_path):
+    import json as _j
+    sys.path.insert(0, str(ROOT))
+    from experiments.jev.run_suite import load_suite, suite_texts
+    items, _ = load_suite("s0-compare-v1")
+    t = suite_texts(items)[3]
+    root = tmp_path / "reports" / "run"; root.mkdir(parents=True)
+    (root / "report.json").write_text(_j.dumps({"ok": True}), encoding="utf-8")
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GITHUB_")}; env["PYTHONDONTWRITEBYTECODE"] = "1"
+    run = lambda: subprocess.run([sys.executable, str(CLI), "check-upload", "--root", str(root), "--suite", "s0-compare-v1"], capture_output=True, text=True, env=env, cwd=str(ROOT), timeout=300)
+    p = run(); assert p.returncode == 0 and '"leak_scanned_items": 54' in p.stdout, p.stderr[-300:]
+    (root / "notes").write_text("x " + t[40:72] + " y", encoding="utf-8")                              # 无扩展名也要扫
+    p = run(); assert p.returncode == 3 and "OUTPUT_INVALID" in p.stderr and t[40:60] not in p.stderr + p.stdout

@@ -133,3 +133,27 @@ def test_unhandled_exception_message_is_withheld(tmp_path):
     blob = json.dumps(rep, ensure_ascii=False) + "".join(p.read_text(encoding="utf-8") for p in (tmp_path / "reports" / "r1").iterdir() if p.is_file())
     assert rep["failures"][0]["code"] == "UNHANDLED_EXCEPTION" and rep["failures"][0]["type"] == "RuntimeError"
     assert blob.count("SECRET-INPUT-TEXT") == 0
+
+
+
+def test_run_blocks_a_backend_that_echoes_input_text(tmp_path):
+    items, _ = RS.load_suite("s0-smoke-v1")
+    frag = items[0]["text"][2:30]
+
+    class Echo(FakeBackend):
+        def identities(self):
+            return {"backend": "echo", "note": frag}
+    try:
+        _run(tmp_path, lambda L: Echo(L, answers=_correct_answers())); raise AssertionError("leaking report accepted")
+    except JevError as e:
+        assert e.code == "OUTPUT_INVALID" and frag not in e.detail
+
+
+def test_policy_suite_ids_check_fires_for_same_task_suite(tmp_path):
+    import shutil
+    src = Path(RS.HERE) / "suites"
+    shutil.copy(src / "s0-compare-v1.jsonl", tmp_path / "s0-compare-vx.jsonl")
+    m = json.loads((src / "s0-compare-v1.manifest.json").read_text(encoding="utf-8")); m["suite_id"] = "s0-compare-vx"
+    (tmp_path / "s0-compare-vx.manifest.json").write_text(json.dumps(m, ensure_ascii=False), encoding="utf-8")
+    rep = RS.run("s0-compare-vx", tmp_path / "reports" / "v", COMPARE_FAKE_TOK, CFG, IDS, lambda L: FakeBackend(L), FakeTokenizer, fake_upstream, suites_dir=tmp_path)
+    assert rep["execution_status"] == "FAILED" and rep["failures"][0]["code"] == "PERMIT_NOT_APPROVED" and "does not cover suite" in rep["failures"][0]["detail"]

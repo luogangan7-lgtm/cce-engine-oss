@@ -23,5 +23,7 @@ creating `refs/tags/cce-jev-consumed/<permit_id>`; a second trigger or a "Re-run
 ```
 
 An eval permit additionally carries `suite_id`, `suite_sha256`, the real `asset_lock_sha256` (lock status READY) and
-`runtime_lock_sha256` (of `locks/runtime-cpu.lock.txt`), with `resource_policy: cpu_smoke.json`.
+`runtime_lock_sha256` (of `locks/runtime-cpu.lock.txt`). Its `resource_policy` must equal the `policy` in
+`suites/<suite_id>.manifest.json` (`cpu_smoke.json` for s0-smoke-v1, `cpu_compare.json` for s0-compare-v1); admit refuses
+a mismatch, runs the stdlib `cli.py plan --suite`, and confirms the model bundle cache exists — all **before** consuming.
 The execution commit is fixed by the admit receipt at run time, never written into the permit itself.

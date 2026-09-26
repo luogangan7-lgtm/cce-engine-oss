@@ -94,10 +94,61 @@ def test_eval_permit_refused_when_any_lock_or_suite_binding_differs(tmp_path, pe
     assert p.returncode == 3 and "PERMIT_NOT_APPROVED" in p.stderr and needle in p.stderr, p.stderr
 
 
-def test_eval_permit_bound_to_committed_locks_reaches_ref_creation(tmp_path, permit_file):
+def test_eval_permit_refused_unconsumed_when_cache_cannot_be_verified(tmp_path, permit_file):
     permit_file.write_text(json.dumps(_eval_permit()))
-    p = _run(_env(tmp_path, **EVAL_ENV))          # 全部绑定通过 → 唯一 ref 创建(不可达 API ⇒ 按已消耗)
-    assert p.returncode == 3 and "treating permit as consumed" in p.stderr, p.stderr
+    p = _run(_env(tmp_path, **EVAL_ENV))          # 绑定全过, 但缓存 API 不可达 ⇒ 不消耗、拒绝
+    assert p.returncode == 3 and "PERMIT_NOT_APPROVED" in p.stderr and "NOT consumed" in p.stderr, p.stderr
+
+
+def _serve(state):
+    import http.server, threading
+
+    class H(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            state.setdefault("gets", []).append(self.path)
+            body = json.dumps({"actions_caches": [{"key": k} for k in state.get("cache_keys", [])]}).encode()
+            self.send_response(200); self.end_headers(); self.wfile.write(body)
+
+        def do_POST(self):
+            state.setdefault("posts", []).append(self.path)
+            self.rfile.read(int(self.headers.get("Content-Length", 0)))
+            self.send_response(state.get("post_code", 201)); self.end_headers(); self.wfile.write(b"{}")
+
+        def log_message(self, *a):
+            pass
+    srv = http.server.HTTPServer(("127.0.0.1", 0), H); threading.Thread(target=srv.serve_forever, daemon=True).start()
+    return srv, f"http://127.0.0.1:{srv.server_address[1]}"
+
+
+def _key():
+    import importlib.util
+    sp = importlib.util.spec_from_file_location("_adm", SCRIPT); m = importlib.util.module_from_spec(sp); sp.loader.exec_module(m)
+    return m.bundle_cache_key()
+
+
+def test_eval_admission_requires_cache_and_only_then_consumes(tmp_path, permit_file):
+    permit_file.write_text(json.dumps(_eval_permit()))
+    st = {"cache_keys": ["cce-jev-bundle-other-x64"]}; srv, url = _serve(st)
+    try:
+        p = _run(_env(tmp_path, GITHUB_API_URL=url, **EVAL_ENV))
+        assert p.returncode == 3 and "cache missing" in p.stderr and not st.get("posts"), p.stderr     # 缓存不在 ⇒ 不 POST
+        st["cache_keys"] = [_key()]
+        p = _run(_env(tmp_path, GITHUB_API_URL=url, BUNDLE_CACHE_KEY="cce-jev-bundle-wrong-x64", **EVAL_ENV))
+        assert p.returncode == 3 and "cache key" in p.stderr and not st.get("posts"), p.stderr
+        p = _run(_env(tmp_path, GITHUB_API_URL=url, BUNDLE_CACHE_KEY=_key(), **EVAL_ENV))
+        assert p.returncode == 0 and len(st["posts"]) == 1, p.stderr
+        r = json.loads((tmp_path / "receipt.json").read_text()); assert r["suite_id"] == "s0-smoke-v1" and r["resource_policy"] == "cpu_smoke.json"
+    finally:
+        srv.shutdown()
+
+
+def test_eval_permit_policy_must_match_suite_manifest_before_consumption(tmp_path, permit_file):
+    cmp_ = dict(suite_id="s0-compare-v1", suite_sha256=_sha(JEV / "suites" / "s0-compare-v1.jsonl"))
+    env = _env(tmp_path, **{**EVAL_ENV, "SUITE_ID": "s0-compare-v1"})
+    permit_file.write_text(json.dumps(_eval_permit(**cmp_)))                                           # README 旧模板: cpu_smoke.json
+    p = _run(env); assert p.returncode == 3 and "suite manifest policy" in p.stderr, p.stderr
+    permit_file.write_text(json.dumps(_eval_permit(**cmp_, resource_policy="cpu_compare.json", resource_policy_sha256=_sha(JEV / "policies" / "cpu_compare.json"))))
+    p = _run(env); assert p.returncode == 3 and "NOT consumed" in p.stderr, p.stderr                  # 绑定全过, 停在缓存核验(未消耗)
 
 
 def test_valid_prepare_permit_reaches_ref_creation_and_unknown_network_is_treated_as_consumed(tmp_path, permit_file):

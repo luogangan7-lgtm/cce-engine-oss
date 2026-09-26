@@ -53,23 +53,34 @@ def _surface(p: Path) -> str:
     """文件的可读表面: 原始文本 + (JSON/JSONL 时)解码后的全部字符串 —— 转义过的原文也要抓到。"""
     raw = p.read_text(encoding="utf-8", errors="replace")
     parts = [raw]
-    try:
-        docs = [json.loads(raw)] if p.suffix == ".json" else [json.loads(l) for l in raw.splitlines() if l.strip()] if p.suffix == ".jsonl" else []
-        for d in docs:
-            _json_strings(d, parts)
-    except ValueError:
-        pass
+    chunks = [raw] + (raw.splitlines() if "\n" in raw else [])          # 整体 + 逐行(JSONL/日志), 坏一行不丢其它行
+    for c in chunks:
+        c = c.strip()
+        if not c or c[0] not in "{[\"":
+            continue
+        try:
+            _json_strings(json.loads(c), parts)
+        except ValueError:
+            continue
     return "\n".join(parts)
 
 
+MIN_SHORT_TEXT = 8     # 短于窗口但 ≥8 字符的整段文本也查; <8 字符是检测下限(太短会误报)
+
+
 def text_leaks(surface: str, forbidden_texts, window: int = LEAK_WINDOW) -> int:
-    """任一输入文本的任一长度 window 的连续片段出现在 surface 里的次数(不返回片段本身 —— 报告泄漏不许复述泄漏)。"""
+    """命中条数: 任一输入文本的任一长度 window 的连续片段(忽略大小写与空白差异)出现在 surface 里。不返回片段本身 —— 报告泄漏不许复述泄漏。
+    已知下限: 片段 < window 或被拆进不同字段时抓不到; 输出侧另有 schema 约束(无 text/state 字段, 无 token ids)。"""
     if not forbidden_texts:
         return 0
+    surface = " ".join(surface.split()).casefold()
     shingles = {surface[i:i + window] for i in range(max(0, len(surface) - window + 1))}
     hits = 0
     for t in forbidden_texts:
-        t = " ".join(str(t).split())
+        t = " ".join(str(t).split()).casefold()
+        if MIN_SHORT_TEXT <= len(t) < window:
+            hits += t in surface
+            continue
         for i in range(0, max(0, len(t) - window + 1)):
             w = t[i:i + window]
             if w.strip() and not w.replace(" ", "").isdigit() and w in shingles:
@@ -93,13 +104,13 @@ def check_upload(root, paths, max_total_bytes: int, forbidden_texts=()) -> list:
         total += p.stat().st_size
         if total > max_total_bytes:
             raise JevError("OUTPUT_INVALID", f"report exceeds {max_total_bytes} bytes")
-        if p.suffix.lower() in TEXT_EXT:
-            m = SECRET_RE.search(p.read_text(encoding="utf-8", errors="replace"))
-            if m:
-                raise JevError("OUTPUT_INVALID", f"{p.name}: secret-shaped token ({m.group(0)[:6]}…)")
-            n = text_leaks(" ".join(_surface(p).split()), forbidden_texts)
-            if n:
-                raise JevError("OUTPUT_INVALID", f"{p.name}: contains verbatim input text from {n} item(s)")
+        # 每个普通文件都扫(不再只扫 TEXT_EXT —— 未知扩展名不许免检)
+        m = SECRET_RE.search(p.read_text(encoding="utf-8", errors="replace"))
+        if m:
+            raise JevError("OUTPUT_INVALID", f"{p.name}: secret-shaped token (value withheld)")
+        n = text_leaks(_surface(p), forbidden_texts)
+        if n:
+            raise JevError("OUTPUT_INVALID", f"{p.name}: contains verbatim input text from {n} item(s)")
         rel.append(str(p.relative_to(root)))
     return rel
 

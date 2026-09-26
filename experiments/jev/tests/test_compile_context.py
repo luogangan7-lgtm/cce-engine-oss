@@ -143,3 +143,17 @@ def test_item_text_exactly_one_source_and_preparation_binding():
             assert e.code == "INPUT_INVALID"
     req, prov = C.build_request({"item_id": "reddit_x.txt:0", "text_ref": ref, "preparation_id": "text_2000.v0", "expected": {}}, TAX, V2)
     assert req.preparation_id == "text_2000.v0" and req.original_input_sha256 == ref["line_sha256"] and req.source_refs == ["%s:%d" % (ref["file"], ref["line_index"])]
+
+
+
+def test_task_with_bad_structural_facet_is_refused(tmp_path, monkeypatch):
+    bad = dict(V2); bad["structural_facets"] = {"情绪余温": {"value": "首轮无余温", "provenance": "MODEL_CANDIDATE"}}
+    (tmp_path / "s0_context.v2.json").write_text(json.dumps(bad, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr(C, "TASKS", tmp_path)
+    for spec in ({"value": "首轮无余温", "provenance": "MODEL_CANDIDATE"}, {"value": "不存在", "provenance": "STRUCTURAL_COLD_READ"}):
+        bad["structural_facets"]["情绪余温"] = spec
+        (tmp_path / "s0_context.v2.json").write_text(json.dumps(bad, ensure_ascii=False), encoding="utf-8")
+        try:
+            C.load_task("s0_context.v2", TAX); raise AssertionError(spec)
+        except JevError as e:
+            assert e.code == "INPUT_INVALID"
