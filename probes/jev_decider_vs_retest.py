@@ -227,8 +227,15 @@ def preflight(pre, report, suite, preds):
     if iset != pre["★输入与题目(冻结)"]["输入集 sha"]: errs.append("输入集 sha 与预注册不符")
     if any(it["preparation_id"] != "text_2000.v0" for it in items): errs.append("对比条目切片不是 text_2000.v0")
     from experiments.jev.compile_context import build_request, load_task, load_taxonomy
+    from experiments.jev.contracts import JevError
     tax = load_taxonomy(); task = load_task("s0_context.v2", tax)
-    qsha = {it["item_id"]: build_request(it, tax, task)[0].questions_sha256() for it in items}
+    qsha = {}
+    for it in items:
+        try:
+            qsha[it["item_id"]] = build_request(it, tax, task)[0].questions_sha256()
+        except JevError as e:                                   # 条目本身编不出来 = 前置不成立, 记错误码不崩
+            errs.append(f"条目 {it['item_id']} 无法编译: {e.code}")
+            qsha[it["item_id"]] = None
     main_ids = set(qsha)
     bad_order = bad_qsha = 0
     for p in preds:
@@ -264,7 +271,7 @@ def main(argv=None):
     doc = {"block": "JEV_DECIDER_VS_RETEST", "prereg_sha256": sha(PRE.read_bytes()), "analysis_script_sha256": sha(pathlib.Path(__file__).read_bytes()),
            "analysis_script_sha256_at_freeze": pre["★分析脚本(冻结)"]["sha256"],
            "run": {"run_id": report.get("identities", {}).get("run", {}).get("GITHUB_RUN_ID"), "execution_commit": report.get("identities", {}).get("cce_execution_commit"),
-                   "archive": str(run_dir.relative_to(ROOT)) if run_dir.is_absolute() else str(run_dir), "execution_status": report.get("execution_status"),
+                   "archive": str(run_dir.resolve().relative_to(ROOT)) if run_dir.resolve().is_relative_to(ROOT) else str(run_dir), "execution_status": report.get("execution_status"),
                    "timing": report.get("timing"), "budget": {k: v for k, v in (report.get("budget") or {}).items() if k != "limits"}},
            "★前置": {"errors": errs, "同 run 复跑": within, "跨 run(smoke 行 vs 前一 run)": cross},
            **res, "★不得据此说": pre["★★★不得据此说"]}

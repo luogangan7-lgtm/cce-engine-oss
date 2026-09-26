@@ -132,6 +132,27 @@ def test_determinism_branches_missing_original_and_row_sha():
     w, _ = X.determinism([row("x:1", [0.7, 0.3], "r"), row("rep-x:1", [0.7, 0.3], "r")], [], {}, [], 1e-5, expected_pairs=2); assert not w["pass"]
 
 
+def test_behaviour_behind_the_sha_freeze(tmp_path, monkeypatch):
+    """冻结 sha 之外再用行为钉住: 缺原条目的复跑行、切片不是 text_2000.v0、main() 在前置失败时不出判决。"""
+    def row(iid, rs="r"):
+        return {"item_id": iid, "question_id": "q", "candidate_ids": ["a", "b"], "probabilities": [0.7, 0.3], "selected_candidate": "a", "identities": {"row_sha256": rs}}
+    w, _ = X.determinism([row("x:1"), row("rep-x:1"), row("rep-y:2")], [], {}, [], 1e-5); assert w["pairs"] == 1 and not w["pass"]   # 有效对 + 缺原条目 ⇒ 不过
+    out = _fake_compare_run(tmp_path)
+    D, P, preds, report, suite, ptr_of = X.load_decider(out)
+    import copy
+    s2 = copy.deepcopy(suite); next(it for it in s2 if "text_ref" in it)["preparation_id"] = "full_text.v1"
+    assert any("text_2000" in e for e in X.preflight(PRE, report, s2, preds))
+    monkeypatch.setattr(X, "OUT", tmp_path / "result.json")
+    X.main([str(out)])
+    ok = json.loads((tmp_path / "result.json").read_text(encoding="utf-8"))
+    assert ok["★前置"]["errors"] == [] and ok["★前置"]["同 run 复跑"]["pass"] and all(v is not None for v in ok["verdicts"].values())
+    rep = json.loads((out / "report.json").read_text(encoding="utf-8")); rep["identities"]["backend_effective"]["temperature"] = 1.0
+    (out / "report.json").write_text(json.dumps(rep, ensure_ascii=False), encoding="utf-8")
+    X.main([str(out)])
+    bad = json.loads((tmp_path / "result.json").read_text(encoding="utf-8"))
+    assert bad["★前置"]["errors"] and bad["overall"].startswith("前置不成立") and all(v is None for v in bad["verdicts"].values()) and bad["per_facet"] == {}
+
+
 def test_result_recomputes_from_archive_and_has_no_text():
     if not X.OUT.exists():
         return

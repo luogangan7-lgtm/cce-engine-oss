@@ -181,3 +181,21 @@ def test_422_means_already_used_and_201_writes_receipt(tmp_path, permit_file):
         assert r["schema"] == "cce.jev.admission-receipt.v1" and r["execution_commit"] == "a" * 40 and r["consumed_ref"].endswith("P-TEST-1") and r["mode"] == "prepare"
     finally:
         srv.shutdown()
+
+
+
+def test_eval_admission_runs_the_suite_plan_before_consumption(tmp_path, permit_file):
+    """suite 清单与 sha 都对, 但语料指针坏了 ⇒ admit 的 plan 预检必须在消耗前拒绝。"""
+    sd = JEV / "suites"; name = "s0-planfail-t1"
+    good = [json.loads(l) for l in (sd / "s0-compare-v1.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()][0]
+    bad = dict(good, text_ref=dict(good["text_ref"], body_sha256="0" * 64))
+    raw = (json.dumps(bad, ensure_ascii=False) + "\n").encode()
+    (sd / f"{name}.jsonl").write_bytes(raw)
+    (sd / f"{name}.manifest.json").write_text(json.dumps({"suite_id": name, "suite_sha256": _sha(sd / f"{name}.jsonl"), "policy": "cpu_smoke.json", "task": "s0_context.v1"}), encoding="utf-8")
+    try:
+        permit_file.write_text(json.dumps(_eval_permit(suite_id=name, suite_sha256=_sha(sd / f"{name}.jsonl"))))
+        p = _run(_env(tmp_path, **{**EVAL_ENV, "SUITE_ID": name}))
+        assert p.returncode == 3 and "suite plan failed before consumption" in p.stderr and "0000000000" not in p.stderr.replace("0" * 12, ""), p.stderr
+    finally:
+        for f in (f"{name}.jsonl", f"{name}.manifest.json"):
+            (sd / f).unlink(missing_ok=True)

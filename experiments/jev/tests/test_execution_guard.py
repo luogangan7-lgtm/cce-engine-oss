@@ -112,3 +112,13 @@ def test_host_check_upload_scans_suite_texts(tmp_path):
     p = run(); assert p.returncode == 0 and '"leak_scanned_items": 54' in p.stdout, p.stderr[-300:]
     (root / "notes").write_text("x " + t[40:72] + " y", encoding="utf-8")                              # 无扩展名也要扫
     p = run(); assert p.returncode == 3 and "OUTPUT_INVALID" in p.stderr and t[40:60] not in p.stderr + p.stdout
+
+
+
+def test_cmd_eval_routes_policy_through_eval_policy():
+    """容器入口必须用回执策略(经 eval_policy), 不许再硬编码某个策略文件。"""
+    import ast
+    src = CLI.read_text(encoding="utf-8")
+    fn = next(n for n in ast.walk(ast.parse(src)) if isinstance(n, ast.FunctionDef) and n.name == "cmd_eval")
+    body = ast.get_source_segment(src, fn)
+    assert "eval_policy(receipt, a.suite, manifest)" in body and "cpu_smoke" not in body and "cpu_compare" not in body and '_policy("' not in body
