@@ -9,7 +9,8 @@ Status ladder (each level is reported separately, never inferred from the next):
 | GITHUB_RUNTIME_SMOKE_PASSED ✅ 2026-09-27 | one real load + ≥1 real forward on `ubuntu-24.04`, network isolation verified, report artifact | eval run https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/36265705004 (archived `archive/36265705004`): 1 load, 11 real forwards (counted at `slot_logits` == ledger), 1,881,825,088 params float32 CPU, cgroup memory.max 12 GiB / swap 0 / cpu 3 / pids 256, network blocked (DNS + IP) |
 | S0_CANDIDATE_AVAILABLE ✅ 2026-09-27 | `reports/<run>/s0_candidates.jsonl` with full distributions for a registered suite | 11 rows, raw logits for valid candidates only, coverage 18/18 (DECLARED 1 · UNOBSERVABLE 6 · OK 8 · SEMANTIC_UNKNOWN 3) |
 | SEMANTIC_ACCEPTANCE ❌ FAILED 2026-09-27 | smoke semantic assertions evaluated; 2 items never prove accuracy | 7/11 inside the pre-registered accepted sets. Fails: 情绪余温 ×2 (picked 负向余温 / 中性; the cold-read structural rule allows only 首轮无余温 / 未知), 进程位置 on the no-information item (已决定在执行 0.705), 触发事件 on item 1 (刚花过钱 0.722 vs 受挫/出故障 0.256; text literally contains both a purchase and a failure — gold was single-valued, left unchanged after seeing results) |
-| PRODUCTION_ENABLED | **not part of this delivery**; requires a separate measurement-procedure decision | — |
+| COMPARED_WITH_JEV ✅ 2026-09-27 | same 42 retest items, same `line[:2000]` slice, same question wire and candidate order as the stored TypeSafe Jev readings; frozen pre-registration | eval run https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/36272175531 (archived `archive/36272175531`), analysis `results/jev_decider_vs_retest.json` |
+| PRODUCTION_ENABLED | **not part of this delivery**; the comparison says Decider-2B is a different reader from Jev on all 5 facets | — |
 
 ## Smoke time and resource account (eval run 36265705004)
 
@@ -30,6 +31,34 @@ Status ladder (each level is reported separately, never inferred from the next):
 | evaluate job total | 155 |
 
 Peak RSS of the model process: 11,778,904 KiB (≈ 11.2 GiB) against a 12 GiB cgroup limit — **94 % of the limit with float32 weights**. Any larger input, batch > 1, or second model object will OOM; bf16 on CPU or a larger runner is the upgrade path, each needing a new identity and a new permit.
+
+## Comparison with TypeSafe Jev (task contract s0_context.v2, suite s0-compare-v1)
+
+Pre-registration: `tests/data/jev_decider_vs_retest_prereg.json` (frozen before the run; three pre-data revisions, rule numbers never changed).
+Contract v2: 情绪余温 is no longer a model question (not declared ⇒ 首轮无余温, provenance STRUCTURAL_COLD_READ); gold is an accepted set frozen before any run.
+Arms: Decider-2B (this run, 269 real forwards in 1,444 s, 1 load, 0 downloads) vs the stored TypeSafe Jev and MiniMax readings of 2026-09-23 (0 new paid calls).
+Preconditions: all passed (50 within-run repeat pairs bit-identical; 9 cross-run smoke rows within 2.3e-6; per-row candidate order and question hashes equal to production `jev_questions`).
+Two independent recomputations from raw files matched every number.
+
+| facet | d(D,J1) / 42 | d(D,J2) | Jev self d(J1,J2) | change rate CP95 | κ(D,J1) [boot 95%] | 未知 picks D / J1 | verdict |
+|---|---:|---:|---:|---|---|---:|---|
+| 进程位置 | 24 | 24 | 0 | 0.41–0.72 | 0.30 [0.15, 0.46] | 19 / 5 | 不同读者 |
+| 触发事件 | 38 | 38 | 0 | 0.77–0.97 | 0.05 [0.00, 0.11] | 0 / 15 | 不同读者 |
+| 关系位置 | 21 | 21 | 0 | 0.34–0.66 | 0.30 [0.15, 0.46] | 28 / 15 | 不同读者 |
+| 身体状态 | 17 | 17 | 0 | 0.26–0.57 | −0.12 [−0.18, −0.04] | 36 / 31 | 不同读者 |
+| 资源状态 | 17 | 16 | 3 | 0.26–0.57 | 0.18 [−0.02, 0.39] | 36 / 23 | 不同读者 |
+
+Overall (pre-registered rule): **not replaceable** — swapping Jev for Decider-2B would change the s0 top-1 reading on roughly 38–90 % of these items depending on the facet. There is no gold, so this says nothing about which reader is more accurate.
+
+What the data supports beyond the verdict (exact McNemar on discordant items):
+- On 进程位置, 关系位置, 资源状态 Decider abstains (选 未知/未提及) where Jev commits: discordant 14–0, 13–0, 14–1 (p ≤ 0.0034). On 身体状态 the difference is not significant (6 vs 11, p = 0.33).
+- On 触发事件 Decider never picks 未知; it picks the null-content label 无明显触发 on 38/42 (Jev: 未知 15, 受挫/出故障 19). Merging 无明显触发 into 未知 still leaves d = 23.
+- On 资源状态 most of the disagreement is an abstention-threshold difference: when Decider abstains and Jev commits, Jev's label is Decider's second choice on 13/14.
+- The 情绪余温 structural problem is confirmed on the stored readings (MiniMax 42/42, Jev 12/42 violations); in contract v2 Decider is not asked.
+
+Not separable with this run (each would need a new permit): option position vs "being the unknown option" (the unknown representation is the last candidate on every facet), English-only model vs Chinese candidate labels, one-question-per-row vs Jev's six-in-one request, and drift of the Jev backend since 2026-09-23. Temperature does not matter for these counts (top-1 is invariant to T).
+
+Pre-registered predictions scored honestly: 2 of 4. The prediction that Decider would *over-read* was wrong; it abstains more.
 
 ## What runs where
 
