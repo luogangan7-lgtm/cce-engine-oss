@@ -6,10 +6,30 @@ Status ladder (each level is reported separately, never inferred from the next):
 |---|---|---|
 | CODE_READY | contracts, compiler, guard, budget, coverage, adapter, 3 workflows, pure tests | `cce-jev-contract.yml` green; `tests/test_cce_jev_boundary.py` green in the existing suite |
 | ASSET_LOCK_READY ✅ 2026-09-25 | `locks/model.assets.lock.json` READY + `runtime-cpu.lock.txt` + `cpu-runtime.lock.json` READY, generated on a GitHub runner and reviewed | prepare run https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/36032048288 (4 min 05 s job; 3.78 GB downloaded in 25 s; 0 forwards; torch 2.14.0+cpu / transformers 5.17.0; container network blocked) |
-| GITHUB_RUNTIME_SMOKE_PASSED | one real load + ≥1 real forward on `ubuntu-24.04`, network isolation verified, report artifact | eval run URL, `execution_receipt.json` |
-| S0_CANDIDATE_AVAILABLE | `reports/<run>/s0_candidates.jsonl` with full distributions for a registered suite | eval artifact |
-| SEMANTIC_ACCEPTANCE_PENDING | smoke semantic assertions evaluated; 2 items never prove accuracy | `report.json.semantic_acceptance` |
+| GITHUB_RUNTIME_SMOKE_PASSED ✅ 2026-09-27 | one real load + ≥1 real forward on `ubuntu-24.04`, network isolation verified, report artifact | eval run https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/36265705004 (archived `archive/36265705004`): 1 load, 11 real forwards (counted at `slot_logits` == ledger), 1,881,825,088 params float32 CPU, cgroup memory.max 12 GiB / swap 0 / cpu 3 / pids 256, network blocked (DNS + IP) |
+| S0_CANDIDATE_AVAILABLE ✅ 2026-09-27 | `reports/<run>/s0_candidates.jsonl` with full distributions for a registered suite | 11 rows, raw logits for valid candidates only, coverage 18/18 (DECLARED 1 · UNOBSERVABLE 6 · OK 8 · SEMANTIC_UNKNOWN 3) |
+| SEMANTIC_ACCEPTANCE ❌ FAILED 2026-09-27 | smoke semantic assertions evaluated; 2 items never prove accuracy | 7/11 inside the pre-registered accepted sets. Fails: 情绪余温 ×2 (picked 负向余温 / 中性; the cold-read structural rule allows only 首轮无余温 / 未知), 进程位置 on the no-information item (已决定在执行 0.705), 触发事件 on item 1 (刚花过钱 0.722 vs 受挫/出故障 0.256; text literally contains both a purchase and a failure — gold was single-valued, left unchanged after seeing results) |
 | PRODUCTION_ENABLED | **not part of this delivery**; requires a separate measurement-procedure decision | — |
+
+## Smoke time and resource account (eval run 36265705004)
+
+| segment | seconds |
+|---|---:|
+| queue (created → admit start) | 5 |
+| admit (permit + atomic ref) | 5 |
+| checkout / artifact / python | 4 |
+| cache restore (2.94 GB compressed bundle) | 31 |
+| bundle verify (7 files sha256) | 3 |
+| runtime image build from recipe | 70 |
+| container: tokenizer load | 3.2 |
+| container: model load | 2.0 |
+| container: first real forward | 3.3 |
+| container: remaining 10 forwards | 30.4 |
+| container wall | 38.9 |
+| report + upload | 1 |
+| evaluate job total | 155 |
+
+Peak RSS of the model process: 11,778,904 KiB (≈ 11.2 GiB) against a 12 GiB cgroup limit — **94 % of the limit with float32 weights**. Any larger input, batch > 1, or second model object will OOM; bf16 on CPU or a larger runner is the upgrade path, each needing a new identity and a new permit.
 
 ## What runs where
 

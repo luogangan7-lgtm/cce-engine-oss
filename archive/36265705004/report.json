@@ -1,0 +1,1121 @@
+{
+ "backend": "decider",
+ "budget": {
+  "download_bytes": 0,
+  "elapsed_s": 38.926,
+  "forwards": 11,
+  "limits": {
+   "deadline_s": 1200.0,
+   "max_download_bytes": 8589934592,
+   "max_forwards": 16,
+   "max_padded_tokens": 32768,
+   "max_row_tokens": 2048,
+   "max_rows": 16
+  },
+  "padded_tokens": 2560,
+  "rows": 11
+ },
+ "coverage": {
+  "by_status": {
+   "DECLARED": 1,
+   "OK": 8,
+   "SEMANTIC_UNKNOWN": 3,
+   "UNOBSERVABLE": 6
+  },
+  "coverage_status": "COMPLETE",
+  "expected": 18,
+  "final": 18
+ },
+ "coverage_status": "COMPLETE",
+ "execution_status": "SUCCEEDED",
+ "failures": [
+  {
+   "code": "SEMANTIC_CHECK_FAILED",
+   "detail": "4/11 asserted questions outside accepted set"
+  }
+ ],
+ "identities": {
+  "adapter_sha256": "c4861b5af3e703d53286a70c8044f6cc18b68e8d110a2f576fce79ea8c2e6fd9",
+  "assets_lock_sha256": "2cadf9543416244d023c39f87966932155dbac96c9924156faccb15920c73b1a",
+  "backend_effective": {
+   "backend": "decider",
+   "batch_rows": 1,
+   "device": "cpu",
+   "dtype": "torch.float32",
+   "isolated_levels": true,
+   "layout": "state_first",
+   "load_s": 2.042,
+   "model_name": "decider-v10",
+   "param_count": 1881825088,
+   "temperature": 1.3,
+   "threads": 3,
+   "torch": "2.14.0+cpu"
+  },
+  "bundle": {
+   "bundle_sha256": "618c07774c39dfc7ceddc544f2229b377f66f788f1348c31ae9aea6de95292af",
+   "revision": "fa996cea58e1c1d8d1ab4d7124154f303b017f95",
+   "verified_files": [
+    "chat_template.jinja",
+    "config.json",
+    "decider_config.json",
+    "generation_config.json",
+    "model.safetensors",
+    "tokenizer.json",
+    "tokenizer_config.json"
+   ]
+  },
+  "cce_execution_commit": "fd58b593244c137a87906b9c531b715ad24560eb",
+  "cgroup_limits": {
+   "cpu.max": "300000 100000",
+   "memory.max": "12884901888",
+   "memory.swap.max": "0",
+   "os.cpu_count": 4,
+   "pids.max": "256"
+  },
+  "model_revision": "fa996cea58e1c1d8d1ab4d7124154f303b017f95",
+  "model_version": "v10",
+  "network_check": {
+   "1.1.1.1": "blocked:OSError",
+   "huggingface.co": "blocked:gaierror"
+  },
+  "observed_image_id": "sha256:7e744e965ce870709f7f813d6437c821af1e721827ba27a07ba1037d6f006e8a",
+  "permit_id": "eval-2026-09-27-1",
+  "policy_id": "cpu_smoke.v1",
+  "preparation_id": "full_text.v1",
+  "run": {
+   "GITHUB_JOB": "evaluate",
+   "GITHUB_RUN_ATTEMPT": "1",
+   "GITHUB_RUN_ID": "36265705004",
+   "GITHUB_WORKFLOW_REF": "luogangan7-lgtm/cce-engine-oss/.github/workflows/cce-jev-eval.yml@refs/heads/master",
+   "RUNNER_ARCH": "X64",
+   "RUNNER_NAME": "GitHub Actions 1000001618",
+   "RUNNER_OS": "Linux"
+  },
+  "runtime_lock_sha256": "68cf22eec1e30439e48e74303f82d579de49902740c43eb2baf2f2a870a0ef72",
+  "runtime_recipe": {
+   "base_image": "python:3.11-slim-bookworm",
+   "base_image_digest": "sha256:a36c24f9cbdf4fd0f52d67f0823eeac19c2028c637cecc392d97f980d4fec56b",
+   "base_image_digest_note": "manifest-list digest read from Docker Hub API 2026-09-24 (amd64 image sha256:4b4c524dc3dce996864e030c7bd9c6b0e517597189fee48f48e05b499442444b)",
+   "container": {
+    "cap_drop": "ALL",
+    "cpus": 3,
+    "memory": "12g",
+    "memory_swap": "12g",
+    "network": "none",
+    "no_new_privileges": true,
+    "pids_limit": 256,
+    "read_only": true,
+    "rm": false,
+    "tmpfs_tmp": "256m",
+    "user": "1001:1001",
+    "writable_home": "HOME=/tmp, HF_HOME=/tmp/hf, XDG_CACHE_HOME=/tmp/cache on the uid-1001 tmpfs (rootfs is read-only)"
+   },
+   "decider_install": {
+    "install": "--no-deps at image build (deps listed explicitly in runtime-cpu.in)",
+    "installed_record_sha256": "dc3c26499abd6b268006b692730dff518a01375620537a7f06d2ebd4e11706a2",
+    "note": "wheel bytes are not reproducible across builds (mtimes); identity = pinned commit + installed RECORD hash observed by prepare",
+    "source": "git+https://github.com/Mapika/decider@7840bb93597e9ba60bf796b4cefbcc5192e5adfb"
+   },
+   "dependency_lock": "experiments/jev/locks/runtime-cpu.lock.txt",
+   "dependency_lock_sha256": "68cf22eec1e30439e48e74303f82d579de49902740c43eb2baf2f2a870a0ef72",
+   "dependency_metadata_patch": {
+    "flash-linear-attention": "excluded from the CPU runtime (GPU/triton kernels); transformers' torch fallback is used. Recorded here as the only dependency deviation from upstream pyproject; verified by prepare import smoke + first GitHub forward."
+   },
+   "dependency_spec": "experiments/jev/runtime/runtime-cpu.in",
+   "device": "cpu",
+   "dockerfile": "experiments/jev/runtime/Dockerfile.cpu",
+   "dtype": "float32",
+   "env_whitelist": [
+    "GITHUB_ACTIONS",
+    "RUNNER_ENVIRONMENT",
+    "GITHUB_REPOSITORY",
+    "GITHUB_WORKFLOW_REF",
+    "GITHUB_RUN_ID",
+    "GITHUB_RUN_ATTEMPT",
+    "GITHUB_SHA",
+    "GITHUB_JOB",
+    "RUNNER_NAME",
+    "RUNNER_ARCH",
+    "RUNNER_OS",
+    "HF_HUB_OFFLINE",
+    "TRANSFORMERS_OFFLINE",
+    "HF_HUB_DISABLE_TELEMETRY",
+    "TOKENIZERS_PARALLELISM",
+    "OMP_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "CCE_JEV_IMAGE_ID",
+    "HOME",
+    "HF_HOME",
+    "XDG_CACHE_HOME"
+   ],
+   "network_isolation_smoke": "container --network none: socket connect 1.1.1.1:443 → blocked:OSError (prepare run 36032048288)",
+   "note": "prepare 在 GitHub 生成 runtime-cpu.lock.txt(精确版本 + wheel hash)与 decider wheel sha256; 评审后提交并把 status 改 READY, 同时回填 dependency_lock_sha256。observed_image_id 每次 eval 现记, 不当既定值。",
+   "observed_image_id": {
+    "note": "observed build id, not a fixed identity; each eval records its own",
+    "prepare_run_36032048288": "sha256:254f63306fc4f661a5a301073d2a72c73358ea67b37ce1bae22461c1929dfbc0"
+   },
+   "observed_versions": {
+    "cuda_available": false,
+    "decider-ai": "1.1.3",
+    "python": "3.11 (python:3.11-slim-bookworm)",
+    "torch": "2.14.0+cpu",
+    "transformers": "5.17.0"
+   },
+   "prepare_run": "https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/36032048288",
+   "runner": "ubuntu-24.04",
+   "schema": "cce.jev.cpu-runtime.v1",
+   "status": "READY",
+   "threads": 3
+  },
+  "source_lock_sha256": "14bc6f14e27c201d6ff6ab9d8a0a8ae3747096bbf52b3296927ed9b36f3946d3",
+  "suite_id": "s0-smoke-v1",
+  "task_contract": "s0_context.v1",
+  "threads": 3,
+  "tokenizer_sha256": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+  "upstream_source_commit": "7840bb93597e9ba60bf796b4cefbcc5192e5adfb"
+ },
+ "mode": "shadow_eval",
+ "model_version": "v10",
+ "plan": [
+  {
+   "input_sha256": "7410f67ac57bcbfa0ec532b388aa7bcabdede8515b934734a1f5784197ea8494",
+   "item_id": "smoke-01-clear-signal",
+   "padded_tokens": 1472,
+   "preparation_id": "full_text.v1",
+   "questions_sha256": "16cadeca868de10ab7ba461c162ae60183f9abc602d3aaf4211bd88f3ad4217c",
+   "request_id": "smoke-01-clear-signal:s0",
+   "row_sha256": [
+    "143acc009b29d6deaf089d85d54fea260135cf6347e71d563206764eadb380b5",
+    "7799414843c50b0e760c3dd406646281a718818fb40b9bbf011ac757ee61c13d",
+    "5fc55ed902e6d9e72d794e07420e10fe6bd816999fd5c8daa5983d9cb2826b54",
+    "f15448fa65668cd9eec94ed1df589b260d99a4f3b8400b411268c0df1f77849a",
+    "58a9b19013d47a37a83ea06cb268359fd28f6bd205d75c9a74fea89d2485b4cd",
+    "371068d3c3c7394432e1c781743a371313c9936ec5f341df6845af1dd7def740"
+   ],
+   "rows": 6,
+   "rows_detail": [
+    {
+     "candidate_ids": [
+      "刚意识到问题",
+      "在找方案",
+      "在比较权衡",
+      "已决定在执行",
+      "回看复盘",
+      "无关进程",
+      "未知"
+     ],
+     "item_id": "smoke-01-clear-signal",
+     "kind": "list",
+     "level": null,
+     "nopts": 7,
+     "padded_len": 256,
+     "question_id": "进程位置",
+     "question_type": "choice",
+     "row_id": "smoke-01-clear-signal:进程位置:0",
+     "row_sha256": "143acc009b29d6deaf089d85d54fea260135cf6347e71d563206764eadb380b5",
+     "slot": 243,
+     "token_len": 244
+    },
+    {
+     "candidate_ids": [
+      "受挫/出故障",
+      "被否定或质疑",
+      "正在比价",
+      "刚花过钱",
+      "刚得到好结果",
+      "无明显触发",
+      "未知"
+     ],
+     "item_id": "smoke-01-clear-signal",
+     "kind": "list",
+     "level": null,
+     "nopts": 7,
+     "padded_len": 256,
+     "question_id": "触发事件",
+     "question_type": "choice",
+     "row_id": "smoke-01-clear-signal:触发事件:0",
+     "row_sha256": "7799414843c50b0e760c3dd406646281a718818fb40b9bbf011ac757ee61c13d",
+     "slot": 237,
+     "token_len": 238
+    },
+    {
+     "candidate_ids": [
+      "首次接触",
+      "接触过几次",
+      "长期关注",
+      "已购买",
+      "有过负面经历",
+      "未知"
+     ],
+     "item_id": "smoke-01-clear-signal",
+     "kind": "list",
+     "level": null,
+     "nopts": 6,
+     "padded_len": 256,
+     "question_id": "关系位置",
+     "question_type": "choice",
+     "row_id": "smoke-01-clear-signal:关系位置:0",
+     "row_sha256": "5fc55ed902e6d9e72d794e07420e10fe6bd816999fd5c8daa5983d9cb2826b54",
+     "slot": 198,
+     "token_len": 199
+    },
+    {
+     "candidate_ids": [
+      "症状正发作",
+      "长期困扰",
+      "已缓解",
+      "无关",
+      "未提及"
+     ],
+     "item_id": "smoke-01-clear-signal",
+     "kind": "list",
+     "level": null,
+     "nopts": 5,
+     "padded_len": 192,
+     "question_id": "身体状态",
+     "question_type": "choice",
+     "row_id": "smoke-01-clear-signal:身体状态:0",
+     "row_sha256": "f15448fa65668cd9eec94ed1df589b260d99a4f3b8400b411268c0df1f77849a",
+     "slot": 185,
+     "token_len": 186
+    },
+    {
+     "candidate_ids": [
+      "预算受限",
+      "时间受限",
+      "有决定权",
+      "无决定权",
+      "未提及"
+     ],
+     "item_id": "smoke-01-clear-signal",
+     "kind": "list",
+     "level": null,
+     "nopts": 5,
+     "padded_len": 256,
+     "question_id": "资源状态",
+     "question_type": "choice",
+     "row_id": "smoke-01-clear-signal:资源状态:0",
+     "row_sha256": "58a9b19013d47a37a83ea06cb268359fd28f6bd205d75c9a74fea89d2485b4cd",
+     "slot": 207,
+     "token_len": 208
+    },
+    {
+     "candidate_ids": [
+      "正向余温",
+      "负向余温",
+      "中性",
+      "首轮无余温",
+      "未知"
+     ],
+     "item_id": "smoke-01-clear-signal",
+     "kind": "list",
+     "level": null,
+     "nopts": 5,
+     "padded_len": 256,
+     "question_id": "情绪余温",
+     "question_type": "choice",
+     "row_id": "smoke-01-clear-signal:情绪余温:0",
+     "row_sha256": "371068d3c3c7394432e1c781743a371313c9936ec5f341df6845af1dd7def740",
+     "slot": 209,
+     "token_len": 210
+    }
+   ],
+   "state_tokens": 51
+  },
+  {
+   "input_sha256": "82556085f050a74143955083c8378b8f5ac40a32434f13e778271f98d5090f92",
+   "item_id": "smoke-02-no-readable-info",
+   "padded_tokens": 1088,
+   "preparation_id": "full_text.v1",
+   "questions_sha256": "2a474c60494872a36547d15d5375cd2757860337026d3ea486f66ce5d202c7aa",
+   "request_id": "smoke-02-no-readable-info:s0",
+   "row_sha256": [
+    "93d0bc09ad1cd5de5046b44f16f9c718ada45abf0c4cb4e3a0f122222e431c03",
+    "3727e29e9d0d7915258d1bba2d09e1cd8b23f7d7218e0be40b126e5830a41e26",
+    "5d0f14c70d2aa10fa26084dd8dab968e4dc02231968d7d9bb243a7b1f78b76ed",
+    "5b8c1b675e29ec9a5d6cded6a855cc9890c906d9e56eb394c0ac33d7b0793d74",
+    "e5e4724fd552825729d4470fe3479abb9c6efd00e5d1077c53a1a81e8665c16d"
+   ],
+   "rows": 5,
+   "rows_detail": [
+    {
+     "candidate_ids": [
+      "刚意识到问题",
+      "在找方案",
+      "在比较权衡",
+      "已决定在执行",
+      "回看复盘",
+      "无关进程",
+      "未知"
+     ],
+     "item_id": "smoke-02-no-readable-info",
+     "kind": "list",
+     "level": null,
+     "nopts": 7,
+     "padded_len": 256,
+     "question_id": "进程位置",
+     "question_type": "choice",
+     "row_id": "smoke-02-no-readable-info:进程位置:0",
+     "row_sha256": "93d0bc09ad1cd5de5046b44f16f9c718ada45abf0c4cb4e3a0f122222e431c03",
+     "slot": 199,
+     "token_len": 200
+    },
+    {
+     "candidate_ids": [
+      "受挫/出故障",
+      "被否定或质疑",
+      "正在比价",
+      "刚花过钱",
+      "刚得到好结果",
+      "无明显触发",
+      "未知"
+     ],
+     "item_id": "smoke-02-no-readable-info",
+     "kind": "list",
+     "level": null,
+     "nopts": 7,
+     "padded_len": 256,
+     "question_id": "触发事件",
+     "question_type": "choice",
+     "row_id": "smoke-02-no-readable-info:触发事件:0",
+     "row_sha256": "3727e29e9d0d7915258d1bba2d09e1cd8b23f7d7218e0be40b126e5830a41e26",
+     "slot": 193,
+     "token_len": 194
+    },
+    {
+     "candidate_ids": [
+      "症状正发作",
+      "长期困扰",
+      "已缓解",
+      "无关",
+      "未提及"
+     ],
+     "item_id": "smoke-02-no-readable-info",
+     "kind": "list",
+     "level": null,
+     "nopts": 5,
+     "padded_len": 192,
+     "question_id": "身体状态",
+     "question_type": "choice",
+     "row_id": "smoke-02-no-readable-info:身体状态:0",
+     "row_sha256": "5d0f14c70d2aa10fa26084dd8dab968e4dc02231968d7d9bb243a7b1f78b76ed",
+     "slot": 141,
+     "token_len": 142
+    },
+    {
+     "candidate_ids": [
+      "预算受限",
+      "时间受限",
+      "有决定权",
+      "无决定权",
+      "未提及"
+     ],
+     "item_id": "smoke-02-no-readable-info",
+     "kind": "list",
+     "level": null,
+     "nopts": 5,
+     "padded_len": 192,
+     "question_id": "资源状态",
+     "question_type": "choice",
+     "row_id": "smoke-02-no-readable-info:资源状态:0",
+     "row_sha256": "5b8c1b675e29ec9a5d6cded6a855cc9890c906d9e56eb394c0ac33d7b0793d74",
+     "slot": 163,
+     "token_len": 164
+    },
+    {
+     "candidate_ids": [
+      "正向余温",
+      "负向余温",
+      "中性",
+      "首轮无余温",
+      "未知"
+     ],
+     "item_id": "smoke-02-no-readable-info",
+     "kind": "list",
+     "level": null,
+     "nopts": 5,
+     "padded_len": 192,
+     "question_id": "情绪余温",
+     "question_type": "choice",
+     "row_id": "smoke-02-no-readable-info:情绪余温:0",
+     "row_sha256": "e5e4724fd552825729d4470fe3479abb9c6efd00e5d1077c53a1a81e8665c16d",
+     "slot": 165,
+     "token_len": 166
+    }
+   ],
+   "state_tokens": 7
+  }
+ ],
+ "production_eligible": false,
+ "results": [
+  {
+   "item_id": "smoke-01-clear-signal",
+   "provenance": "UNOBSERVABLE",
+   "question_id": "社会在场",
+   "status": "UNOBSERVABLE",
+   "value": "未知"
+  },
+  {
+   "item_id": "smoke-01-clear-signal",
+   "provenance": "UNOBSERVABLE",
+   "question_id": "场景类型",
+   "status": "UNOBSERVABLE",
+   "value": "未知"
+  },
+  {
+   "item_id": "smoke-01-clear-signal",
+   "provenance": "UNOBSERVABLE",
+   "question_id": "信息环境",
+   "status": "UNOBSERVABLE",
+   "value": "未知"
+  },
+  {
+   "item_id": "smoke-02-no-readable-info",
+   "provenance": "DECLARED",
+   "question_id": "关系位置",
+   "status": "DECLARED",
+   "value": "首次接触"
+  },
+  {
+   "item_id": "smoke-02-no-readable-info",
+   "provenance": "UNOBSERVABLE",
+   "question_id": "社会在场",
+   "status": "UNOBSERVABLE",
+   "value": "未知"
+  },
+  {
+   "item_id": "smoke-02-no-readable-info",
+   "provenance": "UNOBSERVABLE",
+   "question_id": "场景类型",
+   "status": "UNOBSERVABLE",
+   "value": "未知"
+  },
+  {
+   "item_id": "smoke-02-no-readable-info",
+   "provenance": "UNOBSERVABLE",
+   "question_id": "信息环境",
+   "status": "UNOBSERVABLE",
+   "value": "未知"
+  },
+  {
+   "candidate_ids": [
+    "刚意识到问题",
+    "在找方案",
+    "在比较权衡",
+    "已决定在执行",
+    "回看复盘",
+    "无关进程",
+    "未知"
+   ],
+   "identities": {
+    "kind": "list",
+    "level": null,
+    "row_sha256": "143acc009b29d6deaf089d85d54fea260135cf6347e71d563206764eadb380b5"
+   },
+   "input_sha256": "7410f67ac57bcbfa0ec532b388aa7bcabdede8515b934734a1f5784197ea8494",
+   "item_id": "smoke-01-clear-signal",
+   "probabilities": [
+    0.7248305678367615,
+    0.03703627735376358,
+    0.029476504772901535,
+    0.0711803138256073,
+    0.005053313449025154,
+    0.016919951885938644,
+    0.11550311744213104
+   ],
+   "question_id": "进程位置",
+   "question_type": "choice",
+   "questions_sha256": "16cadeca868de10ab7ba461c162ae60183f9abc602d3aaf4211bd88f3ad4217c",
+   "raw_candidate_logits": [
+    14.289189338684082,
+    10.422937393188477,
+    10.126142501831055,
+    11.272252082824707,
+    7.833528518676758,
+    9.404512405395508,
+    11.901557922363281
+   ],
+   "request_id": "smoke-01-clear-signal:s0",
+   "selected_candidate": "刚意识到问题",
+   "semantic_status": "OK",
+   "status": "OK",
+   "timing": {
+    "forward_s": 3.2591,
+    "padded_len": 256,
+    "token_len": 244
+   }
+  },
+  {
+   "candidate_ids": [
+    "受挫/出故障",
+    "被否定或质疑",
+    "正在比价",
+    "刚花过钱",
+    "刚得到好结果",
+    "无明显触发",
+    "未知"
+   ],
+   "identities": {
+    "kind": "list",
+    "level": null,
+    "row_sha256": "7799414843c50b0e760c3dd406646281a718818fb40b9bbf011ac757ee61c13d"
+   },
+   "input_sha256": "7410f67ac57bcbfa0ec532b388aa7bcabdede8515b934734a1f5784197ea8494",
+   "item_id": "smoke-01-clear-signal",
+   "probabilities": [
+    0.25595560669898987,
+    0.002532642800360918,
+    0.0016384946648031473,
+    0.7222283482551575,
+    0.0008174152462743223,
+    0.011193864978849888,
+    0.005633499473333359
+   ],
+   "question_id": "触发事件",
+   "question_type": "choice",
+   "questions_sha256": "16cadeca868de10ab7ba461c162ae60183f9abc602d3aaf4211bd88f3ad4217c",
+   "raw_candidate_logits": [
+    14.353404998779297,
+    8.35294246673584,
+    7.786811351776123,
+    15.701944351196289,
+    6.882810115814209,
+    10.284875869750977,
+    9.392250061035156
+   ],
+   "request_id": "smoke-01-clear-signal:s0",
+   "selected_candidate": "刚花过钱",
+   "semantic_status": "OK",
+   "status": "OK",
+   "timing": {
+    "forward_s": 3.5109,
+    "padded_len": 256,
+    "token_len": 238
+   }
+  },
+  {
+   "candidate_ids": [
+    "首次接触",
+    "接触过几次",
+    "长期关注",
+    "已购买",
+    "有过负面经历",
+    "未知"
+   ],
+   "identities": {
+    "kind": "list",
+    "level": null,
+    "row_sha256": "5fc55ed902e6d9e72d794e07420e10fe6bd816999fd5c8daa5983d9cb2826b54"
+   },
+   "input_sha256": "7410f67ac57bcbfa0ec532b388aa7bcabdede8515b934734a1f5784197ea8494",
+   "item_id": "smoke-01-clear-signal",
+   "probabilities": [
+    0.1258602887392044,
+    0.18550986051559448,
+    0.01149730570614338,
+    0.5303577184677124,
+    0.1192091777920723,
+    0.02756565250456333
+   ],
+   "question_id": "关系位置",
+   "question_type": "choice",
+   "questions_sha256": "16cadeca868de10ab7ba461c162ae60183f9abc602d3aaf4211bd88f3ad4217c",
+   "raw_candidate_logits": [
+    12.12539005279541,
+    12.629707336425781,
+    9.014412879943848,
+    13.995283126831055,
+    12.054810523986816,
+    10.15120792388916
+   ],
+   "request_id": "smoke-01-clear-signal:s0",
+   "selected_candidate": "已购买",
+   "semantic_status": "OK",
+   "status": "OK",
+   "timing": {
+    "forward_s": 3.3195,
+    "padded_len": 256,
+    "token_len": 199
+   }
+  },
+  {
+   "candidate_ids": [
+    "症状正发作",
+    "长期困扰",
+    "已缓解",
+    "无关",
+    "未提及"
+   ],
+   "identities": {
+    "kind": "list",
+    "level": null,
+    "row_sha256": "f15448fa65668cd9eec94ed1df589b260d99a4f3b8400b411268c0df1f77849a"
+   },
+   "input_sha256": "7410f67ac57bcbfa0ec532b388aa7bcabdede8515b934734a1f5784197ea8494",
+   "item_id": "smoke-01-clear-signal",
+   "probabilities": [
+    0.2589648962020874,
+    0.02914361283183098,
+    0.017963524907827377,
+    0.314837783575058,
+    0.37909018993377686
+   ],
+   "question_id": "身体状态",
+   "question_type": "choice",
+   "questions_sha256": "16cadeca868de10ab7ba461c162ae60183f9abc602d3aaf4211bd88f3ad4217c",
+   "raw_candidate_logits": [
+    13.098844528198242,
+    10.259050369262695,
+    9.629990577697754,
+    13.352819442749023,
+    13.594250679016113
+   ],
+   "request_id": "smoke-01-clear-signal:s0",
+   "selected_candidate": "未提及",
+   "semantic_status": "SEMANTIC_UNKNOWN",
+   "status": "SEMANTIC_UNKNOWN",
+   "timing": {
+    "forward_s": 2.7457,
+    "padded_len": 192,
+    "token_len": 186
+   }
+  },
+  {
+   "candidate_ids": [
+    "预算受限",
+    "时间受限",
+    "有决定权",
+    "无决定权",
+    "未提及"
+   ],
+   "identities": {
+    "kind": "list",
+    "level": null,
+    "row_sha256": "58a9b19013d47a37a83ea06cb268359fd28f6bd205d75c9a74fea89d2485b4cd"
+   },
+   "input_sha256": "7410f67ac57bcbfa0ec532b388aa7bcabdede8515b934734a1f5784197ea8494",
+   "item_id": "smoke-01-clear-signal",
+   "probabilities": [
+    0.971796452999115,
+    0.008015294559299946,
+    0.008275719359517097,
+    0.008983084000647068,
+    0.0029292807448655367
+   ],
+   "question_id": "资源状态",
+   "question_type": "choice",
+   "questions_sha256": "16cadeca868de10ab7ba461c162ae60183f9abc602d3aaf4211bd88f3ad4217c",
+   "raw_candidate_logits": [
+    16.31376838684082,
+    10.076635360717773,
+    10.118202209472656,
+    10.224824905395508,
+    8.768062591552734
+   ],
+   "request_id": "smoke-01-clear-signal:s0",
+   "selected_candidate": "预算受限",
+   "semantic_status": "OK",
+   "status": "OK",
+   "timing": {
+    "forward_s": 3.2873,
+    "padded_len": 256,
+    "token_len": 208
+   }
+  },
+  {
+   "candidate_ids": [
+    "正向余温",
+    "负向余温",
+    "中性",
+    "首轮无余温",
+    "未知"
+   ],
+   "identities": {
+    "kind": "list",
+    "level": null,
+    "row_sha256": "371068d3c3c7394432e1c781743a371313c9936ec5f341df6845af1dd7def740"
+   },
+   "input_sha256": "7410f67ac57bcbfa0ec532b388aa7bcabdede8515b934734a1f5784197ea8494",
+   "item_id": "smoke-01-clear-signal",
+   "probabilities": [
+    0.008633279241621494,
+    0.34388747811317444,
+    0.2593982517719269,
+    0.07126978784799576,
+    0.3168112337589264
+   ],
+   "question_id": "情绪余温",
+   "question_type": "choice",
+   "questions_sha256": "16cadeca868de10ab7ba461c162ae60183f9abc602d3aaf4211bd88f3ad4217c",
+   "raw_candidate_logits": [
+    8.566879272460938,
+    13.356975555419922,
+    12.990440368652344,
+    11.310980796813965,
+    13.250365257263184
+   ],
+   "request_id": "smoke-01-clear-signal:s0",
+   "selected_candidate": "负向余温",
+   "semantic_status": "OK",
+   "status": "OK",
+   "timing": {
+    "forward_s": 3.2774,
+    "padded_len": 256,
+    "token_len": 210
+   }
+  },
+  {
+   "candidate_ids": [
+    "刚意识到问题",
+    "在找方案",
+    "在比较权衡",
+    "已决定在执行",
+    "回看复盘",
+    "无关进程",
+    "未知"
+   ],
+   "identities": {
+    "kind": "list",
+    "level": null,
+    "row_sha256": "93d0bc09ad1cd5de5046b44f16f9c718ada45abf0c4cb4e3a0f122222e431c03"
+   },
+   "input_sha256": "82556085f050a74143955083c8378b8f5ac40a32434f13e778271f98d5090f92",
+   "item_id": "smoke-02-no-readable-info",
+   "probabilities": [
+    0.06062169745564461,
+    0.015736732631921768,
+    0.006238661706447601,
+    0.7054315209388733,
+    0.005046455655246973,
+    0.08198728412389755,
+    0.12493762373924255
+   ],
+   "question_id": "进程位置",
+   "question_type": "choice",
+   "questions_sha256": "2a474c60494872a36547d15d5375cd2757860337026d3ea486f66ce5d202c7aa",
+   "raw_candidate_logits": [
+    11.367561340332031,
+    9.614309310913086,
+    8.411507606506348,
+    14.557965278625488,
+    8.135804176330566,
+    11.760045051574707,
+    12.307671546936035
+   ],
+   "request_id": "smoke-02-no-readable-info:s0",
+   "selected_candidate": "已决定在执行",
+   "semantic_status": "OK",
+   "status": "OK",
+   "timing": {
+    "forward_s": 3.2868,
+    "padded_len": 256,
+    "token_len": 200
+   }
+  },
+  {
+   "candidate_ids": [
+    "受挫/出故障",
+    "被否定或质疑",
+    "正在比价",
+    "刚花过钱",
+    "刚得到好结果",
+    "无明显触发",
+    "未知"
+   ],
+   "identities": {
+    "kind": "list",
+    "level": null,
+    "row_sha256": "3727e29e9d0d7915258d1bba2d09e1cd8b23f7d7218e0be40b126e5830a41e26"
+   },
+   "input_sha256": "82556085f050a74143955083c8378b8f5ac40a32434f13e778271f98d5090f92",
+   "item_id": "smoke-02-no-readable-info",
+   "probabilities": [
+    0.01623113453388214,
+    0.007782382424920797,
+    0.0035703135654330254,
+    0.010778040625154972,
+    0.056150734424591064,
+    0.8303136229515076,
+    0.0751737579703331
+   ],
+   "question_id": "触发事件",
+   "question_type": "choice",
+   "questions_sha256": "2a474c60494872a36547d15d5375cd2757860337026d3ea486f66ce5d202c7aa",
+   "raw_candidate_logits": [
+    10.327164649963379,
+    9.371575355529785,
+    8.358603477478027,
+    9.794918060302734,
+    11.940605163574219,
+    15.442498207092285,
+    12.319896697998047
+   ],
+   "request_id": "smoke-02-no-readable-info:s0",
+   "selected_candidate": "无明显触发",
+   "semantic_status": "OK",
+   "status": "OK",
+   "timing": {
+    "forward_s": 3.3024,
+    "padded_len": 256,
+    "token_len": 194
+   }
+  },
+  {
+   "candidate_ids": [
+    "症状正发作",
+    "长期困扰",
+    "已缓解",
+    "无关",
+    "未提及"
+   ],
+   "identities": {
+    "kind": "list",
+    "level": null,
+    "row_sha256": "5d0f14c70d2aa10fa26084dd8dab968e4dc02231968d7d9bb243a7b1f78b76ed"
+   },
+   "input_sha256": "82556085f050a74143955083c8378b8f5ac40a32434f13e778271f98d5090f92",
+   "item_id": "smoke-02-no-readable-info",
+   "probabilities": [
+    0.002745080040767789,
+    0.004035242833197117,
+    0.032947465777397156,
+    0.19325760006904602,
+    0.7670146226882935
+   ],
+   "question_id": "身体状态",
+   "question_type": "choice",
+   "questions_sha256": "2a474c60494872a36547d15d5375cd2757860337026d3ea486f66ce5d202c7aa",
+   "raw_candidate_logits": [
+    8.536365509033203,
+    9.037199020385742,
+    11.767000198364258,
+    14.06684398651123,
+    15.858869552612305
+   ],
+   "request_id": "smoke-02-no-readable-info:s0",
+   "selected_candidate": "未提及",
+   "semantic_status": "SEMANTIC_UNKNOWN",
+   "status": "SEMANTIC_UNKNOWN",
+   "timing": {
+    "forward_s": 2.5215,
+    "padded_len": 192,
+    "token_len": 142
+   }
+  },
+  {
+   "candidate_ids": [
+    "预算受限",
+    "时间受限",
+    "有决定权",
+    "无决定权",
+    "未提及"
+   ],
+   "identities": {
+    "kind": "list",
+    "level": null,
+    "row_sha256": "5b8c1b675e29ec9a5d6cded6a855cc9890c906d9e56eb394c0ac33d7b0793d74"
+   },
+   "input_sha256": "82556085f050a74143955083c8378b8f5ac40a32434f13e778271f98d5090f92",
+   "item_id": "smoke-02-no-readable-info",
+   "probabilities": [
+    0.02142198383808136,
+    0.03384072333574295,
+    0.20836371183395386,
+    0.12632572650909424,
+    0.6100478172302246
+   ],
+   "question_id": "资源状态",
+   "question_type": "choice",
+   "questions_sha256": "2a474c60494872a36547d15d5375cd2757860337026d3ea486f66ce5d202c7aa",
+   "raw_candidate_logits": [
+    10.186965942382812,
+    10.781387329101562,
+    13.144292831420898,
+    12.493744850158691,
+    14.540821075439453
+   ],
+   "request_id": "smoke-02-no-readable-info:s0",
+   "selected_candidate": "未提及",
+   "semantic_status": "SEMANTIC_UNKNOWN",
+   "status": "SEMANTIC_UNKNOWN",
+   "timing": {
+    "forward_s": 2.6335,
+    "padded_len": 192,
+    "token_len": 164
+   }
+  },
+  {
+   "candidate_ids": [
+    "正向余温",
+    "负向余温",
+    "中性",
+    "首轮无余温",
+    "未知"
+   ],
+   "identities": {
+    "kind": "list",
+    "level": null,
+    "row_sha256": "e5e4724fd552825729d4470fe3479abb9c6efd00e5d1077c53a1a81e8665c16d"
+   },
+   "input_sha256": "82556085f050a74143955083c8378b8f5ac40a32434f13e778271f98d5090f92",
+   "item_id": "smoke-02-no-readable-info",
+   "probabilities": [
+    0.3390648066997528,
+    0.010792234912514687,
+    0.4787173867225647,
+    0.0744452252984047,
+    0.09698040038347244
+   ],
+   "question_id": "情绪余温",
+   "question_type": "choice",
+   "questions_sha256": "2a474c60494872a36547d15d5375cd2757860337026d3ea486f66ce5d202c7aa",
+   "raw_candidate_logits": [
+    13.545295715332031,
+    9.063721656799316,
+    13.993690490722656,
+    11.574329376220703,
+    11.918107986450195
+   ],
+   "request_id": "smoke-02-no-readable-info:s0",
+   "selected_candidate": "中性",
+   "semantic_status": "OK",
+   "status": "OK",
+   "timing": {
+    "forward_s": 2.5453,
+    "padded_len": 192,
+    "token_len": 166
+   }
+  }
+ ],
+ "schema": "cce.jev.evaluation.v1",
+ "semantic": [
+  {
+   "accepted": [
+    "已决定在执行",
+    "刚意识到问题",
+    "在找方案"
+   ],
+   "asserted": true,
+   "item_id": "smoke-01-clear-signal",
+   "pass": true,
+   "question_id": "进程位置",
+   "selected": "刚意识到问题"
+  },
+  {
+   "accepted": [
+    "受挫/出故障"
+   ],
+   "asserted": true,
+   "item_id": "smoke-01-clear-signal",
+   "pass": false,
+   "question_id": "触发事件",
+   "selected": "刚花过钱"
+  },
+  {
+   "accepted": [
+    "已购买"
+   ],
+   "asserted": true,
+   "item_id": "smoke-01-clear-signal",
+   "pass": true,
+   "question_id": "关系位置",
+   "selected": "已购买"
+  },
+  {
+   "accepted": [
+    "未提及",
+    "无关"
+   ],
+   "asserted": true,
+   "item_id": "smoke-01-clear-signal",
+   "pass": true,
+   "question_id": "身体状态",
+   "selected": "未提及"
+  },
+  {
+   "accepted": [
+    "预算受限"
+   ],
+   "asserted": true,
+   "item_id": "smoke-01-clear-signal",
+   "pass": true,
+   "question_id": "资源状态",
+   "selected": "预算受限"
+  },
+  {
+   "accepted": [
+    "首轮无余温"
+   ],
+   "asserted": true,
+   "item_id": "smoke-01-clear-signal",
+   "pass": false,
+   "question_id": "情绪余温",
+   "selected": "负向余温"
+  },
+  {
+   "accepted": [
+    "未知"
+   ],
+   "asserted": true,
+   "item_id": "smoke-02-no-readable-info",
+   "pass": false,
+   "question_id": "进程位置",
+   "selected": "已决定在执行"
+  },
+  {
+   "accepted": [
+    "未知",
+    "无明显触发"
+   ],
+   "asserted": true,
+   "item_id": "smoke-02-no-readable-info",
+   "pass": true,
+   "question_id": "触发事件",
+   "selected": "无明显触发"
+  },
+  {
+   "accepted": [
+    "未提及"
+   ],
+   "asserted": true,
+   "item_id": "smoke-02-no-readable-info",
+   "pass": true,
+   "question_id": "身体状态",
+   "selected": "未提及"
+  },
+  {
+   "accepted": [
+    "未提及"
+   ],
+   "asserted": true,
+   "item_id": "smoke-02-no-readable-info",
+   "pass": true,
+   "question_id": "资源状态",
+   "selected": "未提及"
+  },
+  {
+   "accepted": [
+    "首轮无余温",
+    "未知"
+   ],
+   "asserted": true,
+   "item_id": "smoke-02-no-readable-info",
+   "pass": false,
+   "question_id": "情绪余温",
+   "selected": "中性"
+  }
+ ],
+ "semantic_acceptance": "FAILED",
+ "suite_id": "s0-smoke-v1",
+ "suite_sha256": "0beb544cf6b0db28e36f5f75a24c866638abba717f5dc667fe7ddbabfc33c2cd",
+ "timing": {
+  "all_forwards_s": 33.694,
+  "first_forward_s": 3.2591,
+  "model_load_s": 2.042,
+  "peak_rss_kib": 11778904,
+  "remaining_forwards_s": 30.435,
+  "render_tokenize_s": 0.003,
+  "tokenizer_load_s": 3.183,
+  "wall_s": 38.926
+ }
+}

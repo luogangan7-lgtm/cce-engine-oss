@@ -1,0 +1,170 @@
+{
+ "budget": {
+  "download_bytes": 0,
+  "elapsed_s": 38.926,
+  "forwards": 11,
+  "limits": {
+   "deadline_s": 1200.0,
+   "max_download_bytes": 8589934592,
+   "max_forwards": 16,
+   "max_padded_tokens": 32768,
+   "max_row_tokens": 2048,
+   "max_rows": 16
+  },
+  "padded_tokens": 2560,
+  "rows": 11
+ },
+ "execution_status": "SUCCEEDED",
+ "forwards_observed": 11,
+ "identities": {
+  "adapter_sha256": "c4861b5af3e703d53286a70c8044f6cc18b68e8d110a2f576fce79ea8c2e6fd9",
+  "assets_lock_sha256": "2cadf9543416244d023c39f87966932155dbac96c9924156faccb15920c73b1a",
+  "backend_effective": {
+   "backend": "decider",
+   "batch_rows": 1,
+   "device": "cpu",
+   "dtype": "torch.float32",
+   "isolated_levels": true,
+   "layout": "state_first",
+   "load_s": 2.042,
+   "model_name": "decider-v10",
+   "param_count": 1881825088,
+   "temperature": 1.3,
+   "threads": 3,
+   "torch": "2.14.0+cpu"
+  },
+  "bundle": {
+   "bundle_sha256": "618c07774c39dfc7ceddc544f2229b377f66f788f1348c31ae9aea6de95292af",
+   "revision": "fa996cea58e1c1d8d1ab4d7124154f303b017f95",
+   "verified_files": [
+    "chat_template.jinja",
+    "config.json",
+    "decider_config.json",
+    "generation_config.json",
+    "model.safetensors",
+    "tokenizer.json",
+    "tokenizer_config.json"
+   ]
+  },
+  "cce_execution_commit": "fd58b593244c137a87906b9c531b715ad24560eb",
+  "cgroup_limits": {
+   "cpu.max": "300000 100000",
+   "memory.max": "12884901888",
+   "memory.swap.max": "0",
+   "os.cpu_count": 4,
+   "pids.max": "256"
+  },
+  "model_revision": "fa996cea58e1c1d8d1ab4d7124154f303b017f95",
+  "model_version": "v10",
+  "network_check": {
+   "1.1.1.1": "blocked:OSError",
+   "huggingface.co": "blocked:gaierror"
+  },
+  "observed_image_id": "sha256:7e744e965ce870709f7f813d6437c821af1e721827ba27a07ba1037d6f006e8a",
+  "permit_id": "eval-2026-09-27-1",
+  "policy_id": "cpu_smoke.v1",
+  "preparation_id": "full_text.v1",
+  "run": {
+   "GITHUB_JOB": "evaluate",
+   "GITHUB_RUN_ATTEMPT": "1",
+   "GITHUB_RUN_ID": "36265705004",
+   "GITHUB_WORKFLOW_REF": "luogangan7-lgtm/cce-engine-oss/.github/workflows/cce-jev-eval.yml@refs/heads/master",
+   "RUNNER_ARCH": "X64",
+   "RUNNER_NAME": "GitHub Actions 1000001618",
+   "RUNNER_OS": "Linux"
+  },
+  "runtime_lock_sha256": "68cf22eec1e30439e48e74303f82d579de49902740c43eb2baf2f2a870a0ef72",
+  "runtime_recipe": {
+   "base_image": "python:3.11-slim-bookworm",
+   "base_image_digest": "sha256:a36c24f9cbdf4fd0f52d67f0823eeac19c2028c637cecc392d97f980d4fec56b",
+   "base_image_digest_note": "manifest-list digest read from Docker Hub API 2026-09-24 (amd64 image sha256:4b4c524dc3dce996864e030c7bd9c6b0e517597189fee48f48e05b499442444b)",
+   "container": {
+    "cap_drop": "ALL",
+    "cpus": 3,
+    "memory": "12g",
+    "memory_swap": "12g",
+    "network": "none",
+    "no_new_privileges": true,
+    "pids_limit": 256,
+    "read_only": true,
+    "rm": false,
+    "tmpfs_tmp": "256m",
+    "user": "1001:1001",
+    "writable_home": "HOME=/tmp, HF_HOME=/tmp/hf, XDG_CACHE_HOME=/tmp/cache on the uid-1001 tmpfs (rootfs is read-only)"
+   },
+   "decider_install": {
+    "install": "--no-deps at image build (deps listed explicitly in runtime-cpu.in)",
+    "installed_record_sha256": "dc3c26499abd6b268006b692730dff518a01375620537a7f06d2ebd4e11706a2",
+    "note": "wheel bytes are not reproducible across builds (mtimes); identity = pinned commit + installed RECORD hash observed by prepare",
+    "source": "git+https://github.com/Mapika/decider@7840bb93597e9ba60bf796b4cefbcc5192e5adfb"
+   },
+   "dependency_lock": "experiments/jev/locks/runtime-cpu.lock.txt",
+   "dependency_lock_sha256": "68cf22eec1e30439e48e74303f82d579de49902740c43eb2baf2f2a870a0ef72",
+   "dependency_metadata_patch": {
+    "flash-linear-attention": "excluded from the CPU runtime (GPU/triton kernels); transformers' torch fallback is used. Recorded here as the only dependency deviation from upstream pyproject; verified by prepare import smoke + first GitHub forward."
+   },
+   "dependency_spec": "experiments/jev/runtime/runtime-cpu.in",
+   "device": "cpu",
+   "dockerfile": "experiments/jev/runtime/Dockerfile.cpu",
+   "dtype": "float32",
+   "env_whitelist": [
+    "GITHUB_ACTIONS",
+    "RUNNER_ENVIRONMENT",
+    "GITHUB_REPOSITORY",
+    "GITHUB_WORKFLOW_REF",
+    "GITHUB_RUN_ID",
+    "GITHUB_RUN_ATTEMPT",
+    "GITHUB_SHA",
+    "GITHUB_JOB",
+    "RUNNER_NAME",
+    "RUNNER_ARCH",
+    "RUNNER_OS",
+    "HF_HUB_OFFLINE",
+    "TRANSFORMERS_OFFLINE",
+    "HF_HUB_DISABLE_TELEMETRY",
+    "TOKENIZERS_PARALLELISM",
+    "OMP_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "CCE_JEV_IMAGE_ID",
+    "HOME",
+    "HF_HOME",
+    "XDG_CACHE_HOME"
+   ],
+   "network_isolation_smoke": "container --network none: socket connect 1.1.1.1:443 → blocked:OSError (prepare run 36032048288)",
+   "note": "prepare 在 GitHub 生成 runtime-cpu.lock.txt(精确版本 + wheel hash)与 decider wheel sha256; 评审后提交并把 status 改 READY, 同时回填 dependency_lock_sha256。observed_image_id 每次 eval 现记, 不当既定值。",
+   "observed_image_id": {
+    "note": "observed build id, not a fixed identity; each eval records its own",
+    "prepare_run_36032048288": "sha256:254f63306fc4f661a5a301073d2a72c73358ea67b37ce1bae22461c1929dfbc0"
+   },
+   "observed_versions": {
+    "cuda_available": false,
+    "decider-ai": "1.1.3",
+    "python": "3.11 (python:3.11-slim-bookworm)",
+    "torch": "2.14.0+cpu",
+    "transformers": "5.17.0"
+   },
+   "prepare_run": "https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/36032048288",
+   "runner": "ubuntu-24.04",
+   "schema": "cce.jev.cpu-runtime.v1",
+   "status": "READY",
+   "threads": 3
+  },
+  "source_lock_sha256": "14bc6f14e27c201d6ff6ab9d8a0a8ae3747096bbf52b3296927ed9b36f3946d3",
+  "suite_id": "s0-smoke-v1",
+  "task_contract": "s0_context.v1",
+  "threads": 3,
+  "tokenizer_sha256": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+  "upstream_source_commit": "7840bb93597e9ba60bf796b4cefbcc5192e5adfb"
+ },
+ "suite_id": "s0-smoke-v1",
+ "timing": {
+  "all_forwards_s": 33.694,
+  "first_forward_s": 3.2591,
+  "model_load_s": 2.042,
+  "peak_rss_kib": 11778904,
+  "remaining_forwards_s": 30.435,
+  "render_tokenize_s": 0.003,
+  "tokenizer_load_s": 3.183,
+  "wall_s": 38.926
+ }
+}
