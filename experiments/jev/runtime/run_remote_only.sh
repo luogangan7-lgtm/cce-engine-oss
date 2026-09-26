@@ -18,7 +18,7 @@ IMAGE_ID="$(docker image inspect --format '{{.Id}}' "$IMAGE")"
 echo "image_id=$IMAGE_ID"
 # Effective limits are recorded from the container's cgroup by the evaluate job (not just echoed here).
 set +e
-timeout --signal=KILL $((DEADLINE + 60)) docker run --rm --name cce-jev-eval \
+timeout --signal=KILL $((DEADLINE + 60)) docker run --name cce-jev-eval \
   --network none --read-only --cap-drop ALL --security-opt no-new-privileges \
   --user 1001:1001 --cpus 3 --memory 12g --memory-swap 12g --pids-limit 256 \
   --tmpfs /tmp:rw,size=256m,uid=1001,gid=1001 \
@@ -31,8 +31,10 @@ timeout --signal=KILL $((DEADLINE + 60)) docker run --rm --name cce-jev-eval \
   -e GITHUB_SHA -e GITHUB_JOB -e RUNNER_NAME -e RUNNER_ARCH -e RUNNER_OS \
   -e HF_HUB_OFFLINE=1 -e TRANSFORMERS_OFFLINE=1 -e HF_HUB_DISABLE_TELEMETRY=1 -e TOKENIZERS_PARALLELISM=false \
   -e OMP_NUM_THREADS=3 -e MKL_NUM_THREADS=3 -e "CCE_JEV_IMAGE_ID=$IMAGE_ID" \
+  -e HOME=/tmp -e HF_HOME=/tmp/hf -e XDG_CACHE_HOME=/tmp/cache \
   "$IMAGE" /work/experiments/jev/cli.py eval --suite "$SUITE" --receipt /receipt.json --bundle /model --out /out/reports/run
 RC=$?
 set -e
 echo "docker_exit=$RC"
+# no --rm: the workflow inspects State.OOMKilled after exit (a KILL by OOM and by timeout both give 137)
 exit "$RC"

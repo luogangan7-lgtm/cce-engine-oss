@@ -96,6 +96,18 @@ def _network_isolated() -> dict:
     return out
 
 
+def _cgroup_limits() -> dict:
+    """容器内实际生效的 cgroup v2 限制(记录, 不只展示命令参数)。读不到就写 unavailable, 不编。"""
+    out = {}
+    for name in ("memory.max", "memory.swap.max", "cpu.max", "pids.max"):
+        try:
+            out[name] = Path("/sys/fs/cgroup", name).read_text(encoding="utf-8").strip()
+        except OSError:
+            out[name] = "unavailable"
+    out["os.cpu_count"] = os.cpu_count()
+    return out
+
+
 def cmd_prepare(a):
     env = dict(os.environ)
     receipt = _receipt(a.receipt)
@@ -159,7 +171,7 @@ def cmd_eval(a):
                   "task_contract": _load(HERE / "tasks" / "s0_context.v1.json")["task_id"], "preparation_id": "full_text.v1",
                   "permit_id": receipt.get("permit_id"), "suite_id": a.suite,
                   "run": {k: env.get(k) for k in ("GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_JOB", "GITHUB_WORKFLOW_REF", "RUNNER_NAME", "RUNNER_ARCH", "RUNNER_OS")},
-                  "network_check": net, "threads": int(env.get("OMP_NUM_THREADS", "3")), "policy_id": policy["policy_id"]}
+                  "network_check": net, "cgroup_limits": _cgroup_limits(), "threads": int(env.get("OMP_NUM_THREADS", "3")), "policy_id": policy["policy_id"]}
 
     def tok_factory():
         from transformers import AutoTokenizer

@@ -79,6 +79,9 @@ def test_prepare_and_eval_are_manual_single_permit_and_split_permissions():
     assert sorted(o.strip() for o in opts.split(",")) == SUITES == ["s0-smoke-v1"]
     for flag in ("--network none", "--read-only", "--cap-drop ALL", "no-new-privileges", "--memory-swap 12g", "--cpus 3", "--user 1001:1001", "--pids-limit"):
         assert flag in (ROOT / "experiments" / "jev" / "runtime" / "run_remote_only.sh").read_text(encoding="utf-8"), flag
+    sh = (ROOT / "experiments" / "jev" / "runtime" / "run_remote_only.sh").read_text(encoding="utf-8")
+    assert "docker run --rm" not in sh and "State.OOMKilled" in ev          # OOM 与超时都是 137, 必须能事后 inspect 区分
+    assert "-e HOME=/tmp" in sh and "HF_HOME=/tmp/hf" in sh                 # 只读根文件系统下的可写缓存位置
     assert "restore-keys" not in ev and "fail-on-cache-miss" in ev
     assert "check-upload" in ev and "if: always()" in ev and "retention-days: 7" in ev
 

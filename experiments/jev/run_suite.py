@@ -141,6 +141,11 @@ def run(suite_id: str, out_dir, policy: dict, cfg: dict, identities: dict, backe
         report["failures"].append({"code": "UNHANDLED_EXCEPTION", "type": type(e).__name__, "detail": str(e)[:500]})
     finally:
         t["wall_s"] = round(clock() - T0, 3)
+        try:
+            import resource
+            t["peak_rss_kib"] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss   # Linux: KiB
+        except (ImportError, OSError):
+            t["peak_rss_kib"] = "unavailable"
         done = {(r["item_id"], r["question_id"]) for r in rows_out}
         report["results"] = ([{"item_id": e["item_id"], "question_id": e["question_id"], "status": e["status"], "provenance": e["provenance"], "value": e["value"]}
                               for e in expected if e["status"] != "NOT_RUN"]
