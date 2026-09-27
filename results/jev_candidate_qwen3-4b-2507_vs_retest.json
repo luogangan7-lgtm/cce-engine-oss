@@ -1,0 +1,1526 @@
+{
+ "block": "JEV_CANDIDATE_VS_RETEST",
+ "prereg_sha256": "58cb2e91d52fff26c1d3f691deb33cf71700e774a1b8748e6523b2baa8788867",
+ "analysis_script_sha256": "06ae3a96c7ff20cde55ee8704430c279f5c5b9e5e2d6cf7bc1ce902d2752810b",
+ "analysis_script_sha256_at_freeze": "06ae3a96c7ff20cde55ee8704430c279f5c5b9e5e2d6cf7bc1ce902d2752810b",
+ "run": {
+  "run_id": "36316049972",
+  "execution_commit": "a998aa4708bcb7c9dbd25b87d83f3de4f0dbdf06",
+  "archive": "archive/36316049972/qwen3-4b-2507",
+  "execution_status": "SUCCEEDED",
+  "timing": {
+   "all_forwards_s": 4383.941,
+   "cgroup_memory_peak": 1015554048,
+   "first_forward_s": 12.3272,
+   "model_load_s": 0.625,
+   "peak_rss_kib": 8923984,
+   "remaining_forwards_s": 4371.614,
+   "render_tokenize_s": 0.677,
+   "tokenizer_load_s": 3.184,
+   "wall_s": 4388.496
+  },
+  "budget": {
+   "download_bytes": 0,
+   "elapsed_s": 4388.485,
+   "forwards": 269,
+   "padded_tokens": 88350,
+   "rows": 269
+  }
+ },
+ "★前置": {
+  "errors": [],
+  "同 run 复跑": {
+   "pairs": 50,
+   "top1_diff": 0,
+   "max_abs_dp": 0.0,
+   "row_sha_mismatch": 0,
+   "expected_pairs": 50,
+   "pass": true
+  },
+  "跨 run(smoke 行 vs 前一 run)": {
+   "pairs": 0,
+   "top1_diff": 0,
+   "max_abs_dp": 0.0,
+   "bitwise_within_tol": false,
+   "★说明": "占位, 非检查: 候选行哈希与前一 run 不同, 配对数按构造为 0(见预注册 ★确定性(前置).跨 run 对照)"
+  }
+ },
+ "n_items": 42,
+ "per_facet": {
+  "进程位置": {
+   "labels_counts": {
+    "J1": {
+     "回看复盘": 2,
+     "在找方案": 12,
+     "在比较权衡": 10,
+     "已决定在执行": 13,
+     "未知": 5
+    },
+    "J2": {
+     "回看复盘": 2,
+     "在找方案": 12,
+     "在比较权衡": 10,
+     "已决定在执行": 13,
+     "未知": 5
+    },
+    "M1": {
+     "刚意识到问题": 1,
+     "回看复盘": 14,
+     "在找方案": 9,
+     "在比较权衡": 10,
+     "已决定在执行": 8
+    },
+    "M2": {
+     "回看复盘": 14,
+     "在找方案": 9,
+     "在比较权衡": 14,
+     "已决定在执行": 5
+    },
+    "D": {
+     "在找方案": 4,
+     "在比较权衡": 3,
+     "已决定在执行": 4,
+     "未知": 31
+    }
+   },
+   "pairs": {
+    "D~J1": {
+     "d": 26,
+     "po": 0.381,
+     "pe": 0.1616,
+     "kappa": 0.2617,
+     "pabak": 0.2778,
+     "kappa_max": 0.2616,
+     "majority_share_a": 0.7381,
+     "majority_share_b": 0.3095,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.4564,
+      0.7643
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.129,
+       0.4059
+      ],
+      "dropped": 0
+     }
+    },
+    "D~J2": {
+     "d": 26,
+     "po": 0.381,
+     "pe": 0.1616,
+     "kappa": 0.2617,
+     "pabak": 0.2778,
+     "kappa_max": 0.2616,
+     "majority_share_a": 0.7381,
+     "majority_share_b": 0.3095,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.4564,
+      0.7643
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.129,
+       0.4059
+      ],
+      "dropped": 0
+     }
+    },
+    "J1~J2": {
+     "d": 0,
+     "po": 1.0,
+     "pe": 0.2506,
+     "kappa": 1.0,
+     "pabak": 1.0,
+     "kappa_max": 1.0,
+     "majority_share_a": 0.3095,
+     "majority_share_b": 0.3095,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.0,
+      0.0841
+     ],
+     "kappa_boot": {
+      "ci95": [
+       1.0,
+       1.0
+      ],
+      "dropped": 0
+     }
+    },
+    "D~M1": {
+     "d": 35,
+     "po": 0.1667,
+     "pe": 0.0556,
+     "kappa": 0.1176,
+     "pabak": 0.0278,
+     "kappa_max": 0.2185,
+     "majority_share_a": 0.7381,
+     "majority_share_b": 0.3333,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.6864,
+      0.9303
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.025,
+       0.2171
+      ],
+      "dropped": 0
+     }
+    },
+    "D~M2": {
+     "d": 36,
+     "po": 0.1429,
+     "pe": 0.0556,
+     "kappa": 0.0924,
+     "pabak": 0.0,
+     "kappa_max": 0.2185,
+     "majority_share_a": 0.7381,
+     "majority_share_b": 0.3333,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.7146,
+      0.9457
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.0052,
+       0.186
+      ],
+      "dropped": 0
+     }
+    },
+    "M1~M2": {
+     "d": 13,
+     "po": 0.6905,
+     "pe": 0.2591,
+     "kappa": 0.5822,
+     "pabak": 0.6389,
+     "kappa_max": 0.8715,
+     "majority_share_a": 0.3333,
+     "majority_share_b": 0.3333,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.1762,
+      0.4709
+     ],
+     "kappa_boot": null
+    },
+    "J1~M1": {
+     "d": 25,
+     "po": 0.4048,
+     "pe": 0.1927,
+     "kappa": 0.2626,
+     "pabak": 0.3056,
+     "kappa_max": 0.6166,
+     "majority_share_a": 0.3095,
+     "majority_share_b": 0.3333,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.4328,
+      0.7437
+     ],
+     "kappa_boot": null
+    },
+    "J2~M2": {
+     "d": 25,
+     "po": 0.4048,
+     "pe": 0.1933,
+     "kappa": 0.2621,
+     "pabak": 0.3056,
+     "kappa_max": 0.5278,
+     "majority_share_a": 0.3095,
+     "majority_share_b": 0.3333,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.4328,
+      0.7437
+     ],
+     "kappa_boot": null
+    }
+   },
+   "zero_baseline": {
+    "J1": {
+     "d0_constant_majority": 29,
+     "majority_label": "已决定在执行",
+     "majority_count": 13,
+     "net_gain": 3
+    },
+    "J2": {
+     "d0_constant_majority": 29,
+     "majority_label": "已决定在执行",
+     "majority_count": 13,
+     "net_gain": 3
+    }
+   },
+   "unmeasurable": false,
+   "unknown_selection": {
+    "D": {
+     "n_unknown": 31,
+     "rate_cp95": [
+      0.5796,
+      0.8614
+     ]
+    },
+    "J1": {
+     "n_unknown": 5,
+     "rate_cp95": [
+      0.0398,
+      0.2563
+     ]
+    },
+    "J2": {
+     "n_unknown": 5,
+     "rate_cp95": [
+      0.0398,
+      0.2563
+     ]
+    },
+    "M1": {
+     "n_unknown": 0,
+     "rate_cp95": [
+      0.0,
+      0.0841
+     ]
+    },
+    "M2": {
+     "n_unknown": 0,
+     "rate_cp95": [
+      0.0,
+      0.0841
+     ]
+    },
+    "D_vs_J1_mcnemar": {
+     "D_known_J_unknown": 0,
+     "D_unknown_J_known": 26,
+     "p_exact": 0.0
+    },
+    "D_vs_J2_mcnemar": {
+     "D_known_J_unknown": 0,
+     "D_unknown_J_known": 26,
+     "p_exact": 0.0
+    }
+   },
+   "decider_descriptives": {
+    "J1": {
+     "mean_p_D_on_arm_label": 0.3614,
+     "arm_label_in_D_top2": 24
+    },
+    "J2": {
+     "mean_p_D_on_arm_label": 0.3614,
+     "arm_label_in_D_top2": 24
+    },
+    "M1": {
+     "mean_p_D_on_arm_label": 0.153,
+     "arm_label_in_D_top2": 14
+    },
+    "M2": {
+     "mean_p_D_on_arm_label": 0.1255,
+     "arm_label_in_D_top2": 12
+    },
+    "mean_entropy_D_nats": 0.1029
+   },
+   "verdict": "不同读者"
+  },
+  "触发事件": {
+   "labels_counts": {
+    "J1": {
+     "刚得到好结果": 5,
+     "刚花过钱": 2,
+     "受挫/出故障": 19,
+     "无明显触发": 1,
+     "未知": 15
+    },
+    "J2": {
+     "刚得到好结果": 5,
+     "刚花过钱": 2,
+     "受挫/出故障": 19,
+     "无明显触发": 1,
+     "未知": 15
+    },
+    "M1": {
+     "刚得到好结果": 7,
+     "刚花过钱": 1,
+     "受挫/出故障": 18,
+     "无明显触发": 16
+    },
+    "M2": {
+     "刚得到好结果": 6,
+     "受挫/出故障": 19,
+     "无明显触发": 17
+    },
+    "D": {
+     "刚得到好结果": 7,
+     "刚花过钱": 1,
+     "受挫/出故障": 5,
+     "无明显触发": 3,
+     "未知": 25,
+     "被否定或质疑": 1
+    }
+   },
+   "pairs": {
+    "D~J1": {
+     "d": 20,
+     "po": 0.5238,
+     "pe": 0.2891,
+     "kappa": 0.3301,
+     "pabak": 0.4444,
+     "kappa_max": 0.4976,
+     "majority_share_a": 0.5952,
+     "majority_share_b": 0.4524,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.32,
+      0.6358
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.1498,
+       0.5099
+      ],
+      "dropped": 0
+     }
+    },
+    "D~J2": {
+     "d": 20,
+     "po": 0.5238,
+     "pe": 0.2891,
+     "kappa": 0.3301,
+     "pabak": 0.4444,
+     "kappa_max": 0.4976,
+     "majority_share_a": 0.5952,
+     "majority_share_b": 0.4524,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.32,
+      0.6358
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.1498,
+       0.5099
+      ],
+      "dropped": 0
+     }
+    },
+    "J1~J2": {
+     "d": 0,
+     "po": 1.0,
+     "pe": 0.3492,
+     "kappa": 1.0,
+     "pabak": 1.0,
+     "kappa_max": 1.0,
+     "majority_share_a": 0.4524,
+     "majority_share_b": 0.4524,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.0,
+      0.0841
+     ],
+     "kappa_boot": {
+      "ci95": [
+       1.0,
+       1.0
+      ],
+      "dropped": 0
+     }
+    },
+    "D~M1": {
+     "d": 31,
+     "po": 0.2619,
+     "pe": 0.1066,
+     "kappa": 0.1739,
+     "pabak": 0.1389,
+     "kappa_max": 0.3071,
+     "majority_share_a": 0.5952,
+     "majority_share_b": 0.4286,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.5796,
+      0.8614
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.0622,
+       0.2915
+      ],
+      "dropped": 0
+     }
+    },
+    "D~M2": {
+     "d": 32,
+     "po": 0.2381,
+     "pe": 0.1066,
+     "kappa": 0.1472,
+     "pabak": 0.1111,
+     "kappa_max": 0.2538,
+     "majority_share_a": 0.5952,
+     "majority_share_b": 0.4524,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.6055,
+      0.8795
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.0376,
+       0.2612
+      ],
+      "dropped": 0
+     }
+    },
+    "M1~M2": {
+     "d": 11,
+     "po": 0.7381,
+     "pe": 0.3719,
+     "kappa": 0.583,
+     "pabak": 0.6944,
+     "kappa_max": 0.9242,
+     "majority_share_a": 0.4286,
+     "majority_share_b": 0.4524,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.1386,
+      0.4204
+     ],
+     "kappa_boot": null
+    },
+    "J1~M1": {
+     "d": 23,
+     "po": 0.4524,
+     "pe": 0.2239,
+     "kappa": 0.2944,
+     "pabak": 0.3611,
+     "kappa_max": 0.4785,
+     "majority_share_a": 0.4524,
+     "majority_share_b": 0.4286,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.3867,
+      0.7015
+     ],
+     "kappa_boot": null
+    },
+    "J2~M2": {
+     "d": 20,
+     "po": 0.5238,
+     "pe": 0.2313,
+     "kappa": 0.3805,
+     "pabak": 0.4444,
+     "kappa_max": 0.4734,
+     "majority_share_a": 0.4524,
+     "majority_share_b": 0.4524,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.32,
+      0.6358
+     ],
+     "kappa_boot": null
+    }
+   },
+   "zero_baseline": {
+    "J1": {
+     "d0_constant_majority": 23,
+     "majority_label": "受挫/出故障",
+     "majority_count": 19,
+     "net_gain": 3
+    },
+    "J2": {
+     "d0_constant_majority": 23,
+     "majority_label": "受挫/出故障",
+     "majority_count": 19,
+     "net_gain": 3
+    }
+   },
+   "unmeasurable": false,
+   "unknown_selection": {
+    "D": {
+     "n_unknown": 25,
+     "rate_cp95": [
+      0.4328,
+      0.7437
+     ]
+    },
+    "J1": {
+     "n_unknown": 15,
+     "rate_cp95": [
+      0.2155,
+      0.5197
+     ]
+    },
+    "J2": {
+     "n_unknown": 15,
+     "rate_cp95": [
+      0.2155,
+      0.5197
+     ]
+    },
+    "M1": {
+     "n_unknown": 0,
+     "rate_cp95": [
+      0.0,
+      0.0841
+     ]
+    },
+    "M2": {
+     "n_unknown": 0,
+     "rate_cp95": [
+      0.0,
+      0.0841
+     ]
+    },
+    "D_vs_J1_mcnemar": {
+     "D_known_J_unknown": 2,
+     "D_unknown_J_known": 12,
+     "p_exact": 0.0129
+    },
+    "D_vs_J2_mcnemar": {
+     "D_known_J_unknown": 2,
+     "D_unknown_J_known": 12,
+     "p_exact": 0.0129
+    }
+   },
+   "sensitivity_无明显触发并入未知": {
+    "D~J1": 19,
+    "D~J2": 19
+   },
+   "decider_descriptives": {
+    "J1": {
+     "mean_p_D_on_arm_label": 0.4988,
+     "arm_label_in_D_top2": 26
+    },
+    "J2": {
+     "mean_p_D_on_arm_label": 0.4988,
+     "arm_label_in_D_top2": 26
+    },
+    "M1": {
+     "mean_p_D_on_arm_label": 0.2625,
+     "arm_label_in_D_top2": 20
+    },
+    "M2": {
+     "mean_p_D_on_arm_label": 0.2372,
+     "arm_label_in_D_top2": 24
+    },
+    "mean_entropy_D_nats": 0.1351
+   },
+   "verdict": "不同读者"
+  },
+  "关系位置": {
+   "labels_counts": {
+    "J1": {
+     "已购买": 20,
+     "接触过几次": 3,
+     "有过负面经历": 4,
+     "未知": 15
+    },
+    "J2": {
+     "已购买": 20,
+     "接触过几次": 3,
+     "有过负面经历": 4,
+     "未知": 15
+    },
+    "M1": {
+     "已购买": 34,
+     "接触过几次": 5,
+     "长期关注": 2,
+     "首次接触": 1
+    },
+    "M2": {
+     "已购买": 35,
+     "接触过几次": 6,
+     "长期关注": 1
+    },
+    "D": {
+     "已购买": 13,
+     "有过负面经历": 3,
+     "未知": 26
+    }
+   },
+   "pairs": {
+    "D~J1": {
+     "d": 16,
+     "po": 0.619,
+     "pe": 0.3753,
+     "kappa": 0.3902,
+     "pabak": 0.5428,
+     "kappa_max": 0.5808,
+     "majority_share_a": 0.619,
+     "majority_share_b": 0.4762,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.2357,
+      0.5436
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.172,
+       0.5996
+      ],
+      "dropped": 0
+     }
+    },
+    "D~J2": {
+     "d": 16,
+     "po": 0.619,
+     "pe": 0.3753,
+     "kappa": 0.3902,
+     "pabak": 0.5428,
+     "kappa_max": 0.5808,
+     "majority_share_a": 0.619,
+     "majority_share_b": 0.4762,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.2357,
+      0.5436
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.172,
+       0.5996
+      ],
+      "dropped": 0
+     }
+    },
+    "J1~J2": {
+     "d": 0,
+     "po": 1.0,
+     "pe": 0.3685,
+     "kappa": 1.0,
+     "pabak": 1.0,
+     "kappa_max": 1.0,
+     "majority_share_a": 0.4762,
+     "majority_share_b": 0.4762,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.0,
+      0.0841
+     ],
+     "kappa_boot": {
+      "ci95": [
+       1.0,
+       1.0
+      ],
+      "dropped": 0
+     }
+    },
+    "D~M1": {
+     "d": 30,
+     "po": 0.2857,
+     "pe": 0.2506,
+     "kappa": 0.0469,
+     "pabak": 0.1428,
+     "kappa_max": 0.0786,
+     "majority_share_a": 0.619,
+     "majority_share_b": 0.8095,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.5542,
+      0.8428
+     ],
+     "kappa_boot": {
+      "ci95": [
+       -0.0171,
+       0.1111
+      ],
+      "dropped": 0
+     }
+    },
+    "D~M2": {
+     "d": 29,
+     "po": 0.3095,
+     "pe": 0.2579,
+     "kappa": 0.0695,
+     "pabak": 0.1714,
+     "kappa_max": 0.0696,
+     "majority_share_a": 0.619,
+     "majority_share_b": 0.8333,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.5291,
+      0.8238
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.0253,
+       0.1272
+      ],
+      "dropped": 0
+     }
+    },
+    "M1~M2": {
+     "d": 8,
+     "po": 0.8095,
+     "pe": 0.6927,
+     "kappa": 0.3801,
+     "pabak": 0.7714,
+     "kappa_max": 0.845,
+     "majority_share_a": 0.8095,
+     "majority_share_b": 0.8333,
+     "paradox_flag": true,
+     "change_rate_cp95": [
+      0.086,
+      0.3412
+     ],
+     "kappa_boot": null
+    },
+    "J1~M1": {
+     "d": 22,
+     "po": 0.4762,
+     "pe": 0.394,
+     "kappa": 0.1356,
+     "pabak": 0.3714,
+     "kappa_max": 0.2535,
+     "majority_share_a": 0.4762,
+     "majority_share_b": 0.8095,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.3642,
+      0.68
+     ],
+     "kappa_boot": null
+    },
+    "J2~M2": {
+     "d": 22,
+     "po": 0.4762,
+     "pe": 0.407,
+     "kappa": 0.1166,
+     "pabak": 0.3714,
+     "kappa_max": 0.2371,
+     "majority_share_a": 0.4762,
+     "majority_share_b": 0.8333,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.3642,
+      0.68
+     ],
+     "kappa_boot": null
+    }
+   },
+   "zero_baseline": {
+    "J1": {
+     "d0_constant_majority": 22,
+     "majority_label": "已购买",
+     "majority_count": 20,
+     "net_gain": 6
+    },
+    "J2": {
+     "d0_constant_majority": 22,
+     "majority_label": "已购买",
+     "majority_count": 20,
+     "net_gain": 6
+    }
+   },
+   "unmeasurable": false,
+   "unknown_selection": {
+    "D": {
+     "n_unknown": 26,
+     "rate_cp95": [
+      0.4564,
+      0.7643
+     ]
+    },
+    "J1": {
+     "n_unknown": 15,
+     "rate_cp95": [
+      0.2155,
+      0.5197
+     ]
+    },
+    "J2": {
+     "n_unknown": 15,
+     "rate_cp95": [
+      0.2155,
+      0.5197
+     ]
+    },
+    "M1": {
+     "n_unknown": 0,
+     "rate_cp95": [
+      0.0,
+      0.0841
+     ]
+    },
+    "M2": {
+     "n_unknown": 0,
+     "rate_cp95": [
+      0.0,
+      0.0841
+     ]
+    },
+    "D_vs_J1_mcnemar": {
+     "D_known_J_unknown": 2,
+     "D_unknown_J_known": 13,
+     "p_exact": 0.0074
+    },
+    "D_vs_J2_mcnemar": {
+     "D_known_J_unknown": 2,
+     "D_unknown_J_known": 13,
+     "p_exact": 0.0074
+    }
+   },
+   "decider_descriptives": {
+    "J1": {
+     "mean_p_D_on_arm_label": 0.6152,
+     "arm_label_in_D_top2": 38
+    },
+    "J2": {
+     "mean_p_D_on_arm_label": 0.6152,
+     "arm_label_in_D_top2": 38
+    },
+    "M1": {
+     "mean_p_D_on_arm_label": 0.2861,
+     "arm_label_in_D_top2": 25
+    },
+    "M2": {
+     "mean_p_D_on_arm_label": 0.3094,
+     "arm_label_in_D_top2": 26
+    },
+    "mean_entropy_D_nats": 0.0963
+   },
+   "verdict": "不同读者"
+  },
+  "身体状态": {
+   "labels_counts": {
+    "J1": {
+     "已缓解": 2,
+     "未知": 31,
+     "长期困扰": 9
+    },
+    "J2": {
+     "已缓解": 2,
+     "未知": 31,
+     "长期困扰": 9
+    },
+    "M1": {
+     "无关": 1,
+     "未知": 12,
+     "长期困扰": 29
+    },
+    "M2": {
+     "已缓解": 1,
+     "未知": 13,
+     "长期困扰": 28
+    },
+    "D": {
+     "未知": 42
+    }
+   },
+   "pairs": {
+    "D~J1": {
+     "d": 11,
+     "po": 0.7381,
+     "pe": 0.7381,
+     "kappa": 0.0,
+     "pabak": 0.6726,
+     "kappa_max": -0.0,
+     "majority_share_a": 1.0,
+     "majority_share_b": 0.7381,
+     "paradox_flag": true,
+     "change_rate_cp95": [
+      0.1386,
+      0.4204
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "dropped": 0
+     }
+    },
+    "D~J2": {
+     "d": 11,
+     "po": 0.7381,
+     "pe": 0.7381,
+     "kappa": 0.0,
+     "pabak": 0.6726,
+     "kappa_max": -0.0,
+     "majority_share_a": 1.0,
+     "majority_share_b": 0.7381,
+     "paradox_flag": true,
+     "change_rate_cp95": [
+      0.1386,
+      0.4204
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "dropped": 0
+     }
+    },
+    "J1~J2": {
+     "d": 0,
+     "po": 1.0,
+     "pe": 0.593,
+     "kappa": 1.0,
+     "pabak": 1.0,
+     "kappa_max": 1.0,
+     "majority_share_a": 0.7381,
+     "majority_share_b": 0.7381,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.0,
+      0.0841
+     ],
+     "kappa_boot": {
+      "ci95": [
+       1.0,
+       1.0
+      ],
+      "dropped": 0
+     }
+    },
+    "D~M1": {
+     "d": 30,
+     "po": 0.2857,
+     "pe": 0.2857,
+     "kappa": 0.0,
+     "pabak": 0.1071,
+     "kappa_max": 0.0,
+     "majority_share_a": 1.0,
+     "majority_share_b": 0.6905,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.5542,
+      0.8428
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "dropped": 0
+     }
+    },
+    "D~M2": {
+     "d": 29,
+     "po": 0.3095,
+     "pe": 0.3095,
+     "kappa": 0.0,
+     "pabak": 0.1369,
+     "kappa_max": 0.0,
+     "majority_share_a": 1.0,
+     "majority_share_b": 0.6667,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.5291,
+      0.8238
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "dropped": 0
+     }
+    },
+    "M1~M2": {
+     "d": 11,
+     "po": 0.7381,
+     "pe": 0.5488,
+     "kappa": 0.4196,
+     "pabak": 0.6726,
+     "kappa_max": 0.8945,
+     "majority_share_a": 0.6905,
+     "majority_share_b": 0.6667,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.1386,
+      0.4204
+     ],
+     "kappa_boot": null
+    },
+    "J1~M1": {
+     "d": 22,
+     "po": 0.4762,
+     "pe": 0.3588,
+     "kappa": 0.183,
+     "pabak": 0.3453,
+     "kappa_max": 0.2202,
+     "majority_share_a": 0.7381,
+     "majority_share_b": 0.6905,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.3642,
+      0.68
+     ],
+     "kappa_boot": null
+    },
+    "J2~M2": {
+     "d": 19,
+     "po": 0.5476,
+     "pe": 0.3724,
+     "kappa": 0.2791,
+     "pabak": 0.4345,
+     "kappa_max": 0.2792,
+     "majority_share_a": 0.7381,
+     "majority_share_b": 0.6667,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.2985,
+      0.6133
+     ],
+     "kappa_boot": null
+    }
+   },
+   "zero_baseline": {
+    "J1": {
+     "d0_constant_majority": 11,
+     "majority_label": "未知",
+     "majority_count": 31,
+     "net_gain": 0
+    },
+    "J2": {
+     "d0_constant_majority": 11,
+     "majority_label": "未知",
+     "majority_count": 31,
+     "net_gain": 0
+    }
+   },
+   "unmeasurable": false,
+   "unknown_selection": {
+    "D": {
+     "n_unknown": 42,
+     "rate_cp95": [
+      0.9159,
+      1.0
+     ]
+    },
+    "J1": {
+     "n_unknown": 31,
+     "rate_cp95": [
+      0.5796,
+      0.8614
+     ]
+    },
+    "J2": {
+     "n_unknown": 31,
+     "rate_cp95": [
+      0.5796,
+      0.8614
+     ]
+    },
+    "M1": {
+     "n_unknown": 12,
+     "rate_cp95": [
+      0.1572,
+      0.4458
+     ]
+    },
+    "M2": {
+     "n_unknown": 13,
+     "rate_cp95": [
+      0.1762,
+      0.4709
+     ]
+    },
+    "D_vs_J1_mcnemar": {
+     "D_known_J_unknown": 0,
+     "D_unknown_J_known": 11,
+     "p_exact": 0.001
+    },
+    "D_vs_J2_mcnemar": {
+     "D_known_J_unknown": 0,
+     "D_unknown_J_known": 11,
+     "p_exact": 0.001
+    }
+   },
+   "decider_descriptives": {
+    "J1": {
+     "mean_p_D_on_arm_label": 0.7381,
+     "arm_label_in_D_top2": 33
+    },
+    "J2": {
+     "mean_p_D_on_arm_label": 0.7381,
+     "arm_label_in_D_top2": 33
+    },
+    "M1": {
+     "mean_p_D_on_arm_label": 0.2857,
+     "arm_label_in_D_top2": 16
+    },
+    "M2": {
+     "mean_p_D_on_arm_label": 0.3095,
+     "arm_label_in_D_top2": 15
+    },
+    "mean_entropy_D_nats": 0.0002
+   },
+   "verdict": "不同读者"
+  },
+  "资源状态": {
+   "labels_counts": {
+    "J1": {
+     "无决定权": 2,
+     "时间受限": 1,
+     "有决定权": 15,
+     "未知": 23,
+     "预算受限": 1
+    },
+    "J2": {
+     "无决定权": 2,
+     "有决定权": 14,
+     "未知": 25,
+     "预算受限": 1
+    },
+    "M1": {
+     "有决定权": 10,
+     "未知": 31,
+     "预算受限": 1
+    },
+    "M2": {
+     "有决定权": 10,
+     "未知": 30,
+     "预算受限": 2
+    },
+    "D": {
+     "有决定权": 2,
+     "未知": 40
+    }
+   },
+   "pairs": {
+    "D~J1": {
+     "d": 17,
+     "po": 0.5952,
+     "pe": 0.5385,
+     "kappa": 0.1229,
+     "pabak": 0.494,
+     "kappa_max": 0.1229,
+     "majority_share_a": 0.9524,
+     "majority_share_b": 0.5476,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.2563,
+      0.5672
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.0,
+       0.3035
+      ],
+      "dropped": 0
+     }
+    },
+    "D~J2": {
+     "d": 15,
+     "po": 0.6429,
+     "pe": 0.5828,
+     "kappa": 0.144,
+     "pabak": 0.5536,
+     "kappa_max": 0.144,
+     "majority_share_a": 0.9524,
+     "majority_share_b": 0.5952,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.2155,
+      0.5197
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.0,
+       0.3519
+      ],
+      "dropped": 0
+     }
+    },
+    "J1~J2": {
+     "d": 3,
+     "po": 0.9286,
+     "pe": 0.4478,
+     "kappa": 0.8706,
+     "pabak": 0.9107,
+     "kappa_max": 0.9138,
+     "majority_share_a": 0.5476,
+     "majority_share_b": 0.5952,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.015,
+      0.1948
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.7095,
+       1.0
+      ],
+      "dropped": 0
+     }
+    },
+    "D~M1": {
+     "d": 9,
+     "po": 0.7857,
+     "pe": 0.7143,
+     "kappa": 0.25,
+     "pabak": 0.7321,
+     "kappa_max": 0.25,
+     "majority_share_a": 0.9524,
+     "majority_share_b": 0.7381,
+     "paradox_flag": true,
+     "change_rate_cp95": [
+      0.103,
+      0.3681
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.0,
+       0.5556
+      ],
+      "dropped": 0
+     }
+    },
+    "D~M2": {
+     "d": 11,
+     "po": 0.7381,
+     "pe": 0.6916,
+     "kappa": 0.1507,
+     "pabak": 0.6726,
+     "kappa_max": 0.228,
+     "majority_share_a": 0.9524,
+     "majority_share_b": 0.7143,
+     "paradox_flag": true,
+     "change_rate_cp95": [
+      0.1386,
+      0.4204
+     ],
+     "kappa_boot": {
+      "ci95": [
+       0.0,
+       0.3913
+      ],
+      "dropped": 0
+     }
+    },
+    "M1~M2": {
+     "d": 10,
+     "po": 0.7619,
+     "pe": 0.585,
+     "kappa": 0.4262,
+     "pabak": 0.7024,
+     "kappa_max": 0.9426,
+     "majority_share_a": 0.7381,
+     "majority_share_b": 0.7143,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.1205,
+      0.3945
+     ],
+     "kappa_boot": null
+    },
+    "J1~M1": {
+     "d": 11,
+     "po": 0.7381,
+     "pe": 0.4898,
+     "kappa": 0.4867,
+     "pabak": 0.6726,
+     "kappa_max": 0.6267,
+     "majority_share_a": 0.5476,
+     "majority_share_b": 0.7381,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.1386,
+      0.4204
+     ],
+     "kappa_boot": null
+    },
+    "J2~M2": {
+     "d": 12,
+     "po": 0.7143,
+     "pe": 0.5057,
+     "kappa": 0.422,
+     "pabak": 0.6429,
+     "kappa_max": 0.711,
+     "majority_share_a": 0.5952,
+     "majority_share_b": 0.7143,
+     "paradox_flag": false,
+     "change_rate_cp95": [
+      0.1572,
+      0.4458
+     ],
+     "kappa_boot": null
+    }
+   },
+   "zero_baseline": {
+    "J1": {
+     "d0_constant_majority": 19,
+     "majority_label": "未知",
+     "majority_count": 23,
+     "net_gain": 2
+    },
+    "J2": {
+     "d0_constant_majority": 17,
+     "majority_label": "未知",
+     "majority_count": 25,
+     "net_gain": 2
+    }
+   },
+   "unmeasurable": false,
+   "unknown_selection": {
+    "D": {
+     "n_unknown": 40,
+     "rate_cp95": [
+      0.8384,
+      0.9942
+     ]
+    },
+    "J1": {
+     "n_unknown": 23,
+     "rate_cp95": [
+      0.3867,
+      0.7015
+     ]
+    },
+    "J2": {
+     "n_unknown": 25,
+     "rate_cp95": [
+      0.4328,
+      0.7437
+     ]
+    },
+    "M1": {
+     "n_unknown": 31,
+     "rate_cp95": [
+      0.5796,
+      0.8614
+     ]
+    },
+    "M2": {
+     "n_unknown": 30,
+     "rate_cp95": [
+      0.5542,
+      0.8428
+     ]
+    },
+    "D_vs_J1_mcnemar": {
+     "D_known_J_unknown": 0,
+     "D_unknown_J_known": 17,
+     "p_exact": 0.0
+    },
+    "D_vs_J2_mcnemar": {
+     "D_known_J_unknown": 0,
+     "D_unknown_J_known": 15,
+     "p_exact": 0.0001
+    }
+   },
+   "decider_descriptives": {
+    "J1": {
+     "mean_p_D_on_arm_label": 0.596,
+     "arm_label_in_D_top2": 35
+    },
+    "J2": {
+     "mean_p_D_on_arm_label": 0.6437,
+     "arm_label_in_D_top2": 38
+    },
+    "M1": {
+     "mean_p_D_on_arm_label": 0.7865,
+     "arm_label_in_D_top2": 40
+    },
+    "M2": {
+     "mean_p_D_on_arm_label": 0.7387,
+     "arm_label_in_D_top2": 38
+    },
+    "mean_entropy_D_nats": 0.0051
+   },
+   "verdict": "不同读者"
+  }
+ },
+ "情绪余温_structural": {
+  "J1": {
+   "violations": 12,
+   "cp95": [
+    0.1572,
+    0.4458
+   ]
+  },
+  "J2": {
+   "violations": 12,
+   "cp95": [
+    0.1572,
+    0.4458
+   ]
+  },
+  "M1": {
+   "violations": 42,
+   "cp95": [
+    0.9159,
+    1.0
+   ]
+  },
+  "M2": {
+   "violations": 42,
+   "cp95": [
+    0.9159,
+    1.0
+   ]
+  },
+  "D": "n/a —— 合同 v2 不让模型读 情绪余温(结构判定 首轮无余温)"
+ },
+ "verdicts": {
+  "进程位置": "不同读者",
+  "触发事件": "不同读者",
+  "关系位置": "不同读者",
+  "身体状态": "不同读者",
+  "资源状态": "不同读者"
+ },
+ "overall": "整体不可替代: 不同读者面 = 进程位置、触发事件、关系位置、身体状态、资源状态",
+ "★不得据此说": [
+  "D 或任何一臂更准/更好 —— 无金标; 上界是上界不是估计",
+  "D 更稳定 —— 其确定性是构造出来的",
+  "与 MiniMax 或多数臂一致 = 正确 —— 拿第三个模型当真值是循环论证",
+  "D 与 MiniMax κ 低 = D 错 —— MiniMax 自身 κ .38–.58",
+  "CI 重叠的 κ 之间排序, 或「D 与 Jev 读得一样」—— 只允许说改变率落在 CP 界内",
+  "与 Jev 的概率级一致/校准 —— Jev 完整分布从未保存",
+  "可替代 = 获准接生产 —— 接生产是核心文件改动, 要 owner 点头",
+  "结论外推到这 42 条 r/HearingAids 品牌帖以外、中文题面以外、s0 以外",
+  "换成 D 会让 CCE 全链变快 —— s0 只是一次调用",
+  "未知率低 = 读得更好 / 高 = 更守纪律 —— 方向中性",
+  "对 测不出 的面做任何比较或引用其准确率",
+  "候选在 情绪余温 上 0 违反 = 能力 —— 该面在 v2 被结构移除, 模型从未被问到",
+  "某候选总体上「读不了」s0 —— 读出方式、题面与语言是未分离的混杂",
+  "不得把两个候选的读数合并成一个臂",
+  "不得按 d 的点估计给两个候选排高下 —— 没有配对检验, 只能各自对照冻结规则",
+  "不得据 prepare 冒烟(一句合成句子)的输出评价任何候选的读数能力",
+  "不得把字母质量诊断当作判决依据; 它只说明「模型是否在用字母作答」"
+ ],
+ "★臂D即": {
+  "model_key": "qwen3-4b-2507",
+  "repo_id": "Qwen/Qwen3-4B-Instruct-2507",
+  "revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+  "class": "Qwen3ForCausalLM",
+  "param_count": 4022468096,
+  "storage_dtype": "torch.bfloat16",
+  "compute_dtype": "torch.float32",
+  "threads": 3,
+  "prompt_spec": "cce.jev.hf_choice.prompt.v1",
+  "cpu_model": "AMD EPYC 9V74 80-Core Processor"
+ },
+ "★头条检查": {
+  "facet": "触发事件",
+  "d": {
+   "J1": 20,
+   "J2": 20
+  },
+  "max_d": 20,
+  "threshold": 5,
+  "rule": "max(d(C,J1), d(C,J2)) ≥ 5 ⇒ 该面不可能判「可替代」⇒ 该候选不是完整替代。这是 replaceable_max_d = 4 的否定, 不是新阈值; 其余各面照冻结规则出判决",
+  "result": "不能判可替代 ⇒ 不是完整替代"
+ },
+ "★包装前置错误": [],
+ "★字母质量诊断(不进判决)": {
+  "rows": 210,
+  "median_letter_mass": 1.0,
+  "top1_is_letter": 210,
+  "per_facet_median": {
+   "进程位置": 1.0,
+   "触发事件": 1.0,
+   "关系位置": 1.0,
+   "身体状态": 1.0,
+   "资源状态": 1.0
+  },
+  "caveat": false
+ },
+ "wrapper_sha256": "82cd4c113b89cd214170253ac133e815d2dbc788f9d14d5be5cddd7ecc334cca",
+ "wrapper_sha256_at_freeze": "82cd4c113b89cd214170253ac133e815d2dbc788f9d14d5be5cddd7ecc334cca"
+}

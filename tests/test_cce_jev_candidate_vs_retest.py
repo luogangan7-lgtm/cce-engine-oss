@@ -206,3 +206,15 @@ def test_headline_threshold_is_replaceable_max_d_plus_one(tmp_path, wrapper, mon
         doc = json.loads((tmp_path / "out_qwen3-4b-2507.json").read_text(encoding="utf-8"))
         assert doc["★头条检查"]["threshold"] == c["★★★判决规则(测量前冻结)"]["数值"]["replaceable_max_d"] + 1 == 5
         assert doc["★头条检查"]["result"].startswith(want), (d, doc["★头条检查"])
+
+
+@pytest.mark.parametrize("key", ["qwen3-4b-2507", "qwen3.5-4b"])
+def test_committed_candidate_results_recompute_from_the_archive(tmp_path, wrapper, key):
+    """结果文件 = 用冻结判据对归档 run 现算的产物, 不是手填的(run 36316049972, 每条腿一个子目录)。"""
+    committed = json.loads((ROOT / f"results/jev_candidate_{key}_vs_retest.json").read_text(encoding="utf-8"))
+    wrapper.main([key, str(ROOT / "archive/36316049972" / key)])
+    fresh = json.loads((tmp_path / f"out_{key}.json").read_text(encoding="utf-8"))
+    assert fresh == committed
+    assert committed["★前置"]["errors"] == [] and committed["★包装前置错误"] == [] and committed["★前置"]["同 run 复跑"]["pass"]
+    assert committed["analysis_script_sha256"] == committed["analysis_script_sha256_at_freeze"] and committed["wrapper_sha256"] == committed["wrapper_sha256_at_freeze"]
+    assert committed["overall"].startswith("整体不可替代") and committed["★头条检查"]["max_d"] >= 5

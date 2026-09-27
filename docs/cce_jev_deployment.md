@@ -10,7 +10,8 @@ Status ladder (each level is reported separately, never inferred from the next):
 | S0_CANDIDATE_AVAILABLE ✅ 2026-09-27 | `reports/<run>/s0_candidates.jsonl` with full distributions for a registered suite | 11 rows, raw logits for valid candidates only, coverage 18/18 (DECLARED 1 · UNOBSERVABLE 6 · OK 8 · SEMANTIC_UNKNOWN 3) |
 | SEMANTIC_ACCEPTANCE ❌ FAILED 2026-09-27 | smoke semantic assertions evaluated; 2 items never prove accuracy | 7/11 inside the pre-registered accepted sets. Fails: 情绪余温 ×2 (picked 负向余温 / 中性; the cold-read structural rule allows only 首轮无余温 / 未知), 进程位置 on the no-information item (已决定在执行 0.705), 触发事件 on item 1 (刚花过钱 0.722 vs 受挫/出故障 0.256; text literally contains both a purchase and a failure — gold was single-valued, left unchanged after seeing results) |
 | COMPARED_WITH_JEV ✅ 2026-09-27 | same 42 retest items, same `line[:2000]` slice, same question wire and candidate order as the stored TypeSafe Jev readings; frozen pre-registration | eval run https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/36272175531 (archived `archive/36272175531`), analysis `results/jev_decider_vs_retest.json` |
-| PRODUCTION_ENABLED | **not part of this delivery**; the comparison says Decider-2B is a different reader from Jev on all 5 facets | — |
+| COMPARED_QWEN_CANDIDATES ✅ 2026-09-27 | Qwen3-4B-Instruct-2507 and Qwen3.5-4B under the same frozen rule | run https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/36316049972: neither is a full replacement (see the Qwen section) |
+| PRODUCTION_ENABLED | **not part of this delivery**; Decider-2B and both Qwen candidates are different readers from Jev | — |
 
 ## Smoke time and resource account (eval run 36265705004)
 
@@ -113,6 +114,28 @@ permit `prepare-llm-2026-09-27-1`, both legs green in 4–5 min:
 The READY assets locks were written by `cli.py assemble-assets-lock`. The smoke speed is about half the pre-run estimate because
 MKL / oneDNN / ATen are pinned to AVX2 for cross-CPU reproducibility; the eval policy deadline was set from this measurement
 (~91–96 min expected per leg, deadline 4.5 h).
+
+**Full comparison done 2026-09-27** — run https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/36316049972
+(archived `archive/36316049972/<model_key>/`), permit `eval-compare-llm-2026-09-27-1`, frozen rule via
+`probes/jev_candidate_vs_retest.py`, results `results/jev_candidate_<key>_vs_retest.json`. Both legs: preconditions all pass,
+50/50 rerun pairs bitwise identical, 269/269 rows, letter mass median 1.0 / 0.995 (the models answer with a letter).
+
+d(C, J1) / d(C, J2) out of 42 (Decider for reference; ≤ 4 in both rounds is needed for 可替代):
+
+| facet | Qwen3-4B-2507 | verdict | Qwen3.5-4B | verdict | Decider-2B |
+|---|---|---|---|---|---|
+| 进程位置 | 26 / 26 | 不同读者 | 24 / 24 | 不同读者 | 24 / 24 |
+| 触发事件 (headline) | 20 / 20 | 不同读者 | 19 / 19 | 不同读者 | 38 / 38 |
+| 关系位置 | 16 / 16 | 不同读者 | 12 / 12 | 不可判 | 21 / 21 |
+| 身体状态 | 11 / 11 | 不同读者 | 28 / 28 | 不同读者 | 17 / 17 |
+| 资源状态 | 17 / 15 | 不同读者 | 15 / 12 | 不可判 | 17 / 16 |
+| **overall** | 整体不可替代 (5/5 不同读者) | | 整体不可替代 (3 不同读者, 2 不可判) | | 整体不可替代 |
+
+Neither candidate is a full replacement; the headline check fails for both (max d 20 and 19 ≥ 5). Both are closer to Jev than
+Decider on 触发事件 and 关系位置, but the remaining gap is 11–28 disagreements per facet against a threshold of 4. The disagreements
+are systematic label conventions rather than noise: Qwen3-4B-2507 abstains far more than Jev (未知 31/42 on 进程位置 vs Jev 5,
+42/42 on 身体状态), and Qwen3.5-4B answers 无关 on 24/42 身体状态 rows where Jev says 未提及 (the frozen instruction says
+"choose 未知" while these two facets use 未提及 — a pre-registered confound). Wall time per leg 73 / 82 min (AMD EPYC 9V74 / Xeon 8370C).
 
 The originally planned single-facet screen was dropped before any data: with fp32 compute the run time is predictable from
 the Decider anchor, runners are free and the two legs run in parallel, so the full comparison of both candidates gives strictly
