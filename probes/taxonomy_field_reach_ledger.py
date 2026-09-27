@@ -180,7 +180,8 @@ def _read_by_source():
     return src
 
 
-def main():
+def main(out_path=None):
+    """out_path=None 写仓内台账(人工重建用); 测试必须传临时路径 —— 测试改写受版本控制的文件会让并行的读者读到半截 JSON。"""
     taxo, gate, prod = _prompts()
     rows = {}
     knot_fields = sorted({k for kn in taxo["knots"] for k in kn})
@@ -212,7 +213,7 @@ def main():
         g, p_ = f in by_src["gate"], f in by_src["prod"]
         src_rows[f] = ("BOTH" if g and p_ else "GATE_ONLY" if g else
                        "PROD_ONLY" if p_ else "NEITHER")
-    for k in set(src_rows) | set(rows):
+    for k in sorted(set(src_rows) | set(rows)):   # ★ 2026-09-27: 以前按 set 顺序 ⇒ 随 hash 种子变, 每跑一次台账字节都变
         if src_rows.get(k, "NEITHER") != rows.get(k, "NEITHER"):
             disagree[k] = {"源码读取(主判据)": src_rows.get(k, "NEITHER"),
                            "字面子串(交叉核对)": rows.get(k, "NEITHER")}
@@ -273,9 +274,9 @@ def main():
             "一个都不进 prompt。"
             "★★ 拿容器的格子去推子字段, 就是本表要防的那类假因果的**变体**。要判子字段, 单独查。"),
     }
-    p = ROOT / "tests/data/taxonomy_field_reach_ledger.json"
+    p = pathlib.Path(out_path) if out_path else ROOT / "tests/data/taxonomy_field_reach_ledger.json"
     p.write_text(json.dumps(out, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    print("✏️", p.relative_to(ROOT), "\n")
+    print("✏️", p, "\n")
     for b in ("BOTH", "GATE_ONLY", "PROD_ONLY", "NEITHER"):
         if b in buckets:
             print(f"  {b:10s} ({len(buckets[b])}): {', '.join(sorted(buckets[b]))}")

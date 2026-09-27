@@ -15,10 +15,14 @@ with cf.ThreadPoolExecutor(max_workers=8) as ex:
     for t,rc,out in ex.map(run,tests):
         if rc: red.append((t,out))
 print("[并行] 绿 %d / 红 %d"%(len(tests)-len(red),len(red)))
-real=[]
-for t,_ in red:
+real=[]; par_only=[]
+for t,out0 in red:
     p=subprocess.run(cmd(t),capture_output=True,text=True,cwd=ROOT,timeout=900)
     if p.returncode: real.append((t,p.stdout+p.stderr))
+    else: par_only.append((t,out0))
 print("[串行复验后] 真红 %d"%len(real))
+# ★ 2026-09-27: 并行红/串行绿的测试以前被静默吞掉(两次「并行红 1 / 真红 0」查不出是谁) ⇒ 点名 + 并行那次的输出尾巴。不改退出码: 它是并发互扰的线索, 不是真红。
+if par_only: print("[仅并行红] %d(并发互扰嫌疑: 共享文件/临时目录/全局状态 —— 查根因, 别重试了事)"%len(par_only))
+for t,out in par_only: print("\n### [仅并行红] %s\n%s"%(t.name,"\n".join(out.strip().splitlines()[-12:])))
 for t,out in real: print("\n### %s\n%s"%(t.name,"\n".join(out.strip().splitlines()[-6:])))
 sys.exit(1 if real else 0)   # ★ CI 用: 有真红就非零退出

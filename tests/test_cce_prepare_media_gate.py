@@ -10,6 +10,7 @@
 import os
 import subprocess
 import sys
+import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PREP = os.path.join(ROOT, ".github", "prepare.py")
@@ -18,8 +19,10 @@ BASE = {"CONTEXT": "ctx", "GUARD_PROFILE": "g", "PATH": os.environ["PATH"]}
 
 def run(**env):
     e = {**BASE, **env}
-    r = subprocess.run([sys.executable, PREP], cwd=ROOT, capture_output=True, text=True,
-                       env={**os.environ, **e})
+    # ★ 2026-09-27: 入口把 run/ 写进 cwd —— 以前 cwd=ROOT 会改写/删掉仓内受版本控制的 run/*, 并行时互相踩(读到别的测试写的 run/mode)。一律在临时 cwd 里跑。
+    with tempfile.TemporaryDirectory() as cwd:
+        r = subprocess.run([sys.executable, PREP], cwd=cwd, capture_output=True, text=True,
+                           env={**os.environ, **e})
     return r.returncode, r.stdout + r.stderr
 
 

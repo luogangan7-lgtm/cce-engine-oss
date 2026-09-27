@@ -64,9 +64,11 @@ def entry(item):
     fd, p = tempfile.mkstemp(suffix=".json"); os.close(fd)
     json.dump([item], open(p, "w", encoding="utf-8"), ensure_ascii=False)
     try:
-        r = subprocess.run([sys.executable, os.path.join(ROOT, ".github/prepare.py")],
-                           cwd=ROOT, capture_output=True, text=True,
-                           env={**os.environ, "ITEMS_FILE": p, "ITEM_INDEX": "0"})
+        # ★ 2026-09-27: 入口把 run/ 写进 cwd —— 以前 cwd=ROOT 会改写/删掉仓内受版本控制的 run/*, 并行时互相踩(读到别的测试写的 run/mode)。一律在临时 cwd 里跑。
+        with tempfile.TemporaryDirectory() as cwd:
+            r = subprocess.run([sys.executable, os.path.join(ROOT, ".github/prepare.py")],
+                               cwd=cwd, capture_output=True, text=True,
+                               env={**os.environ, "ITEMS_FILE": p, "ITEM_INDEX": "0"})
         return r.returncode, r.stdout + r.stderr
     finally:
         os.unlink(p)

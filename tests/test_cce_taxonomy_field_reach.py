@@ -21,6 +21,7 @@ import json
 import os
 import pathlib
 import sys
+import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 os.environ.setdefault("MINIMAX_API_KEY", "ZERO_API_TEST_SENTINEL_NOT_A_KEY")
@@ -44,12 +45,15 @@ def test_the_ledger_is_recomputed_not_copied():
     import contextlib
     import taxonomy_field_reach_ledger as L
     importlib.reload(L)
-    before = _doc()["per_field"]
-    with contextlib.redirect_stdout(io.StringIO()):
-        L.main()                       # 它自带自校验; 算错会在落盘前 assert
-    after = _doc()["per_field"]
+    # ★ 2026-09-27: 以前现算直接覆盖仓内台账再读回 —— ① 并行时别的测试读到半截文件 ② 第一次红时台账已被改写, 第二次跑就「自愈」变绿。
+    #   现算写临时文件, 与仓内留档**整份**比对(生成顺序已定序, 字节级可比)。
+    before = _doc()
+    with tempfile.TemporaryDirectory() as td, contextlib.redirect_stdout(io.StringIO()):
+        out = pathlib.Path(td) / "ledger.json"
+        L.main(out_path=out)           # 它自带自校验; 算错会在落盘前 assert
+        after = json.loads(out.read_text(encoding="utf-8"))
     assert before == after, (
-        f"★ 台账与现算不符。有人改了 prompt 构造器却没重跑台账。\n"
+        f"★ 台账与现算不符。有人改了 prompt 构造器却没重跑台账(python3 probes/taxonomy_field_reach_ledger.py)。\n"
         f"差异: { {k: (before.get(k), after.get(k)) for k in set(before) | set(after) if before.get(k) != after.get(k)} }")
 
 
@@ -180,14 +184,16 @@ def _reverse_checks():
     import taxonomy_field_reach_ledger as L
     real = L._read_by_source
     L._read_by_source = lambda: {"gate": set(), "prod": set()}
-    try:
-        L.main()
-        raise SystemExit("★★ 灵敏度自证失败: 源码判据被清空后台账仍然落盘")
-    except AssertionError:
-        n += 1
-    finally:
-        L._read_by_source = real
-        L.main()          # 复原正确的产物
+    with tempfile.TemporaryDirectory() as td:
+        out = pathlib.Path(td) / "ledger.json"
+        try:
+            L.main(out_path=out)
+            raise SystemExit("★★ 灵敏度自证失败: 源码判据被清空后台账仍然落盘")
+        except AssertionError:
+            assert not out.exists(), "★★ 自校验拦下了, 但台账已经落盘"
+            n += 1
+        finally:
+            L._read_by_source = real
     return n
 
 

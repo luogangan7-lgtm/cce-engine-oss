@@ -51,7 +51,7 @@ if cdecl:
         if not isinstance(_d, dict) or not _d:
             errs.append("context_decl 必须是非空 JSON 对象")
         else:
-            _t = _j.load(open("config/context_taxonomy.json", encoding="utf-8"))
+            _t = _j.load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config", "context_taxonomy.json"), encoding="utf-8"))  # ★ 按本文件定位, 不按 cwd: run/ 才能写进调用方给的 cwd
             CTX_KEYS = {f["key"]: f["values"] for f in _t["facets"]}
             for k, v in _d.items():
                 if k not in CTX_KEYS:

@@ -78,16 +78,17 @@ assert rc2 != 0, "★ 空 items 竟然打包成功 —— 静默空矩阵"
 # ── ④ 打包出来的 item 真能过入口 ──────────────────────────────────────
 fd, ip = tempfile.mkstemp(suffix=".json"); os.close(fd)
 json.dump(items, open(ip, "w", encoding="utf-8"), ensure_ascii=False)
+# ★ 2026-09-27: 入口把 run/ 写进 cwd —— 以前 cwd=ROOT 会改写/删掉仓内受版本控制的 run/*, 并行时互相踩(读到别的测试写的 run/mode)。一律在临时 cwd 里跑。
+#   (本测试以前还会 rmtree 仓内 run/, 把受版本控制的文件整目录删掉。)
 try:
-    r = subprocess.run([sys.executable, ".github/prepare.py"], cwd=ROOT,
-                       capture_output=True, text=True,
-                       env={**os.environ, "ITEMS_FILE": ip, "ITEM_INDEX": "0"})
-    assert r.returncode == 0, f"★ 打包产物过不了入口: {(r.stdout + r.stderr)[-300:]}"
-    assert open(os.path.join(ROOT, "run", "mode"), encoding="utf-8").read().strip() == "media_ingest"
+    with tempfile.TemporaryDirectory() as cwd:
+        r = subprocess.run([sys.executable, os.path.join(ROOT, ".github", "prepare.py")], cwd=cwd,
+                           capture_output=True, text=True,
+                           env={**os.environ, "ITEMS_FILE": ip, "ITEM_INDEX": "0"})
+        assert r.returncode == 0, f"★ 打包产物过不了入口: {(r.stdout + r.stderr)[-300:]}"
+        assert open(os.path.join(cwd, "run", "mode"), encoding="utf-8").read().strip() == "media_ingest"
 finally:
     os.unlink(ip)
-    import shutil
-    shutil.rmtree(os.path.join(ROOT, "run"), ignore_errors=True)
 
 print("test_cce_media_ingest_envelope_loop: OK "
       "(从 envelope 起: 打包→items→入口 全通 · profile/必填 均现读契约 | "

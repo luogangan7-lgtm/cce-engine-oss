@@ -71,47 +71,49 @@ for mech_id, ref in A.evidence_refs_in_registries():
     assert os.path.exists(os.path.join(ROOT, ref)), f"机制 {mech_id} 的证据 {ref} 本地不存在"
 assert stats["evidence_refs"] >= 14
 
+# ★ 2026-09-27 根因修复: 反向 4-6 以前**原地改写** config/mechanism_registry.json、往 docs/ 写探针文件再还原。
+#   runsuite 8 路并行时, test_cce_mechanism_registry 恰好在改写窗口里读到 reverse_probe ⇒「并行红/串行绿」
+#   (两次「并行红 1 / 真红 0」查不出是谁, 2026-09-27 runsuite 点名后定位到这里)。改写窗口里读 docs/ 的闸同样会被探针污染。
+#   ⇒ 反向探针只注入 check() 的两个读取层, 共享树一个字节不碰; 读取层本身「真读登记表 / 真 walk 到 docs/*.md」另由只读断言守(下两行)。
+_orig_refs, _orig_scan = A.evidence_refs_in_registries, A.scan_referenced_run_ids
+_live = _orig_scan()
+assert any(s.startswith("docs/") and s.endswith(".md") for v in _live.values() for s in v), "★ 扫描没走进 docs/*.md —— 反向 5/6 的注入就失去了对照"
+assert "tests/test_cce_archive_plane.py" in _live.get("39999999999", []), "★ 扫描没读到本文件里的反向探针 id"
+
+
+def _check_with(refs=(), sources=()):
+    """在读取层追加 (mech_id, ref) 与 (run_id, 出处) 后跑真 check(); 不写任何文件。"""
+    def scan():
+        live = _orig_scan()
+        for rid, src in sources:
+            live[rid] = sorted(set(live.get(rid, [])) | {src})
+        return live
+    A.evidence_refs_in_registries = lambda: _orig_refs() + list(refs)
+    A.scan_referenced_run_ids = scan
+    try:
+        return A.check()
+    finally:
+        A.evidence_refs_in_registries, A.scan_referenced_run_ids = _orig_refs, _orig_scan
+
+
 # 反向: 造一条引 run_id 的机制, 闸必须红
-reg_path = os.path.join(ROOT, "config", "mechanism_registry.json")
-saved = open(reg_path, encoding="utf-8").read()
-try:
-    reg = json.loads(saved)
-    reg["mechanisms"].append({"id": "reverse_probe", "claim": "x", "status": "CANDIDATE",
-                              "evidence_refs": ["31306754953"]})
-    json.dump(reg, open(reg_path, "w"), ensure_ascii=False, indent=1)
-    ok2, errors2, _ = A.check()
-    assert not ok2 and any("run_id" in e for e in errors2), \
-        "★ 反向失败: 机制直接引用 run_id 作证据, 闸却是绿的"
-finally:
-    open(reg_path, "w", encoding="utf-8").write(saved)
-assert A.check()[0], "还原后闸应恢复绿"
+ok2, errors2, _ = _check_with(refs=[("reverse_probe", "31306754953")])
+assert not ok2 and any("run_id" in e for e in errors2), \
+    "★ 反向失败: 机制直接引用 run_id 作证据, 闸却是绿的"
 
 # ── 反向 5: 新出现的 run_id 不许静默不入册 ────────────────────────────
 #    用一个**未登记**的 id, 否则测到的是「探针位置规则」而不是「未入册规则」。
 FRESH = "3" + "1234567890"
 assert FRESH not in INDEX["runs"] and FRESH not in INDEX["negative_test_run_ids"]
-probe = os.path.join(ROOT, "docs", "_archive_reverse_probe.md")
-with open(probe, "w", encoding="utf-8") as fh:
-    fh.write(f"reverse probe run {FRESH}\n")
-try:
-    ok3, errors3, _ = A.check()
-    assert not ok3 and any(FRESH in e and "未入归档索引" in e for e in errors3), \
-        f"★ 反向失败: 新 run_id 被引用却没入册, 闸是绿的: {errors3}"
-finally:
-    os.remove(probe)
-assert A.check()[0]
+ok3, errors3, _ = _check_with(sources=[(FRESH, "docs/_archive_reverse_probe.md")])
+assert not ok3 and any(FRESH in e and "未入归档索引" in e for e in errors3), \
+    f"★ 反向失败: 新 run_id 被引用却没入册, 闸是绿的: {errors3}"
 
 # ── 反向 6: 反向探针 id 只许出现在本文件里 ────────────────────────────
-probe2 = os.path.join(ROOT, "docs", "_archive_reverse_probe2.md")
-with open(probe2, "w", encoding="utf-8") as fh:
-    fh.write("leaked " + "39999999999" + "\n")
-try:
-    ok4, errors4, _ = A.check()
-    assert not ok4 and any("只许出现在" in e for e in errors4), \
-        "★ 反向失败: 把反向探针 id 抄到别处也照样绿 —— 那「登记一下」就成了绕闸的办法"
-finally:
-    os.remove(probe2)
-assert A.check()[0]
+ok4, errors4, _ = _check_with(sources=[("39999999999", "docs/_archive_reverse_probe2.md")])
+assert not ok4 and any("只许出现在" in e for e in errors4), \
+    "★ 反向失败: 把反向探针 id 抄到别处也照样绿 —— 那「登记一下」就成了绕闸的办法"
+assert A.check()[0] and A.scan_referenced_run_ids is _orig_scan, "注入必须还原"
 
 # ── 已发生的损失必须如实登记, 不许留一份「看起来完整」的索引 ───────────
 # 2026-09-03 大幅更正: 原「32 个 run 全部不可重建」是**查错仓**得出的 ——
