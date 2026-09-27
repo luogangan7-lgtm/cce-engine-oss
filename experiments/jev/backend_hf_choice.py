@@ -8,7 +8,10 @@
   ⇒ 与 Decider(fp32)同一 dtype 路径; 不依赖 runner 是否有 AVX512_BF16/AMX(GitHub 池子 ~60% 是 AVX2), 跨 CPU 数值差在 fp32 量级。
 ★ 打分: 基座模型最后一层(已过 final norm)在最后位置的隐状态 h(fp32) · 输出嵌入的字母行(fp32)ᵀ —— 不对全词表调 lm_head。
   p = softmax(raw / T), T 来自源锁(1.0); 并列取靠前字母。诊断量(不进判决): 全词表 softmax 下字母的总质量、全词表 top-1 是否为某个字母。
-★ 加载闸: missing / mismatched / unexpected 必须与资产锁里 prepare 实测并审过的清单逐项相同, 参数量相同, 类名与 model_type 相同。"""
+★ 加载闸: missing / mismatched / unexpected 必须与资产锁里 prepare 实测并审过的清单逐项相同, 参数量相同, 类名与 model_type 相同。
+★ 隐状态采集(可选, 由资源策略 export_hidden 打开; 不改打分路径): 第 k 个解码块之后的残差流在最后位置的向量(k = round(深度比例 × 层数))
+  与最后一层已过 final norm 的 h(即打分用的那个), fp32 留在内存里; 不写原始向量 —— 腿末由 hidden_export.write_span_coords 只写
+  「108 条主帖张成的标准化子空间里的坐标」(见该模块)。"""
 from __future__ import annotations
 
 import json
@@ -91,7 +94,7 @@ def _restore_checkpoint_f32(model, bundle: Path, torch) -> dict:
 
 class HfChoiceBackend:
     def __init__(self, bundle_dir, src: dict, assets: dict, ledger, env: dict, receipt: dict, expect_workflow: str = "cce-jev-llm-eval.yml",
-                 require_pinned_load: bool = True):
+                 require_pinned_load: bool = True, export_hidden: dict | None = None):
         require(env, receipt, expect_workflow)
         cfg = src["backend_config"]
         if cfg.get("storage_dtype") != "bfloat16" or cfg.get("compute_dtype") != "float32" or cfg.get("load_class") != "AutoModelForCausalLM":
@@ -139,6 +142,19 @@ class HfChoiceBackend:
                           "torch": torch.__version__, "cpu_capability": _cpu_capability(torch), "output_tied": tied,
                           "vocab_rows": int(self.out_w.shape[0]), "emittable_tokens": self.n_tok, "blas": _blas_info(torch),
                           "numeric_env": {k: os.environ.get(k) for k in ("MKL_CBWR", "ONEDNN_MAX_CPU_ISA", "ATEN_CPU_CAPABILITY", "OMP_NUM_THREADS", "MKL_NUM_THREADS")}}
+        self.hidden_rows, self._hx, self._cap = [], None, None
+        if export_hidden:
+            self._hx = hidden_plan(export_hidden, len(self.base.layers))
+            for k in self._hx["blocks"]:
+                self.base.layers[k - 1].register_forward_hook(self._hook(k))
+            self.effective["hidden_export"] = dict(self._hx, position="last prompt token", final="post-final-norm h (the scored state)")
+
+    def _hook(self, k):
+        """第 k 块之后的残差流: 只留最后位置向量, 不留整段序列。"""
+        def hook(_mod, _inp, out):
+            if self._cap is not None:
+                self._cap[f"b{k}"] = (out[0] if isinstance(out, (tuple, list)) else out)[0, -1].float().clone()
+        return hook
 
     def identities(self) -> dict:
         return dict(self.effective, device="cpu", batch_rows=1, layout="chat_letter")
@@ -174,6 +190,8 @@ class HfChoiceBackend:
             self.ledger.reserve(1, n, n)                     # 预约在前向之前; 撞上限即失败
             before = self.forwards_observed
             t0 = time.monotonic()
+            if self._hx:
+                self._cap = {}
             with torch.inference_mode():
                 h = self._forward_last(list(r.ids))
                 raw_t = self.out_w[list(r.letter_ids)].float() @ h
@@ -181,6 +199,12 @@ class HfChoiceBackend:
             dt = time.monotonic() - t0
             if self.forwards_observed != before + 1:
                 raise JevError("RESOURCE_EXCEEDED", f"{r.row_id}: forward count drift")
+            if self._hx:
+                cap, self._cap = dict(self._cap, final=h.clone()), None
+                if set(cap) != {f"b{k}" for k in self._hx["blocks"]} | {"final"} or not all(bool(torch.isfinite(v).all()) for v in cap.values()):
+                    raise JevError("RUNTIME_UNSUPPORTED", f"{r.row_id}: hidden capture {sorted(cap)} incomplete or non-finite")
+                self.hidden_rows.append({"item_id": r.item_id, "question_id": r.question_id, "row_sha256": r.row_sha256,
+                                         "vectors": {k: v.tolist() for k, v in sorted(cap.items())}})
             raw = [float(x) for x in raw_t.tolist()]
             probs = [float(x) for x in torch.softmax(raw_t / self.T, -1).tolist()]
             j = max(range(len(probs)), key=probs.__getitem__)          # 并列取靠前(max 返回首个最大)
@@ -191,6 +215,16 @@ class HfChoiceBackend:
                                                "letter_mass": mass, "vocab_top1_is_letter": top_is_letter},
                                    timing={"forward_s": round(dt, 4), "token_len": n, "padded_len": n}))
         return out
+
+
+def hidden_plan(spec: dict, n_layers: int) -> dict:
+    """策略 export_hidden = {"depth_fractions": [..]} → 块号 k = round(f × n_layers) ∈ 1..n_layers-1(最后一层另以 final 给出)。"""
+    if set(spec) != {"depth_fractions"} or not spec["depth_fractions"]:
+        raise JevError("RUNTIME_UNSUPPORTED", f"export_hidden spec not understood: {sorted(spec)}")
+    blocks = sorted({int(round(float(f) * n_layers)) for f in spec["depth_fractions"]})
+    if any(not 1 <= k < n_layers for k in blocks):
+        raise JevError("RUNTIME_UNSUPPORTED", f"export_hidden block outside 1..{n_layers - 1}: {blocks}")
+    return {"n_layers": n_layers, "blocks": blocks}
 
 
 def _blas_info(torch) -> str:

@@ -469,7 +469,8 @@ def _eval_llm(a, env, receipt):
         return AutoTokenizer.from_pretrained(str(a.bundle), local_files_only=True)
 
     report = run(a.suite, a.out, policy, cfg, identities,
-                 backend_factory=lambda ledger: HfChoiceBackend(a.bundle, src, assets, ledger, env, receipt, expect_workflow=LLM_EVAL_WF),
+                 backend_factory=lambda ledger: HfChoiceBackend(a.bundle, src, assets, ledger, env, receipt, expect_workflow=LLM_EVAL_WF,
+                                                                export_hidden=policy.get("export_hidden")),
                  tok_factory=tok_factory, upstream_factory=lambda: None,
                  plan_fn=lambda req, tok, up, c, budget: prepare_chat(req, tok, c, budget))
     print(json.dumps({k: report[k] for k in ("execution_status", "coverage_status", "semantic_acceptance", "production_eligible", "failures")}, ensure_ascii=False, indent=1))

@@ -1,0 +1,43 @@
+{
+ "policy_id": "cpu_distill2_llm.v1",
+ "mode": "eval",
+ "backend": "hf_choice",
+ "runner": "ubuntu-24.04",
+ "github_hosted_cpu_runs": 2,
+ "per_leg": true,
+ "run_attempts": 1,
+ "paid_gpu": 0,
+ "paid_model_api": 0,
+ "auto_retry_or_model_switch": 0,
+ "max_items": 120,
+ "max_questions": 600,
+ "max_rows": 600,
+ "max_forwards": 600,
+ "max_row_tokens": 2048,
+ "max_padded_tokens": 1228800,
+ "model_loads": 1,
+ "container": {
+  "cpus": 3,
+  "memory": "12g",
+  "memory_swap": "12g",
+  "pids_limit": 256,
+  "tmpfs_tmp": "256m",
+  "network": "none"
+ },
+ "model_load_plus_infer_deadline_s": 16200,
+ "job_timeout_min": 330,
+ "max_download_bytes": 25769803776,
+ "report_max_bytes": 20971520,
+ "retention_days": 7,
+ "task": "s0_context.v2",
+ "suite_ids": [
+  "s0-distill2-v1"
+ ],
+ "note": "owner 2026-09-28「再试一轮更强的学生」: 蒸馏第二轮特征(每个候选一条腿)。599 行 = s0-compare-llm-v1 的 269 行(42 验收 + 10 复跑 + 2 冒烟) + 66 条训练文本 × 5 面; prompt v1 不变。另采最后位置在 round(0.5L)/round(0.75L) 块后与 final norm 的隐状态, 腿末只写主帖张成子空间的坐标(experiments/jev/hidden_export.py, 约 2–3 MB)。按归档实测每行耗时估约 160–176 min/腿; 载入+推理上限 4.5 h(16,200 s), 外层 job 330 min < 6 h。公开仓免费; 0 付费 GPU/API; 取件含重试 ≤24 GiB/腿。",
+ "export_hidden": {
+  "depth_fractions": [
+   0.5,
+   0.75
+  ]
+ }
+}

@@ -184,6 +184,16 @@ def run(suite_id: str, out_dir, policy: dict, cfg: dict, identities: dict, backe
             for r in rows_out:
                 fh.write(json.dumps(r, ensure_ascii=False) + "\n")
         (out / "s0_candidates.jsonl").write_bytes((out / "predictions.jsonl").read_bytes())
+        hid = getattr(locals().get("backend"), "hidden_rows", None)
+        if hid and report["execution_status"] == "SUCCEEDED":      # 可选隐状态(策略 export_hidden): 只写主帖张成子空间里的坐标, 不写原始向量
+            try:
+                from .hidden_export import write_span_coords
+                main_ids = [it["item_id"] for it in items if "text_ref" in it and not it["item_id"].startswith("rep-")]
+                report["hidden_export"] = write_span_coords(hid, main_ids, out) | {"plan": (report.get("identities") or {}).get("backend_effective", {}).get("hidden_export")}
+            except Exception as e:                                   # 导出是本次计划的一部分: 失败 = 执行失败(只记类型名)
+                report["execution_status"] = "FAILED"
+                report["failures"].append({"code": "OUTPUT_INVALID", "type": type(e).__name__, "detail": "hidden span-coordinate export failed"})
+            hid.clear(); backend.hidden_rows = []                    # 原始向量不再留在内存里(上传检查之前释放)
         if ledger:
             ledger.write_jsonl(out / "resource_ledger.jsonl")
         else:

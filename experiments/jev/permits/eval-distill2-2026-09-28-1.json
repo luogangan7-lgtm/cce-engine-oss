@@ -1,0 +1,27 @@
+{
+ "permit_id": "eval-distill2-2026-09-28-1",
+ "owner_approval_reference": "owner chat 2026-09-28「再试一轮更强的学生」(对第一轮蒸馏无一可替代之后, 选『再试一轮更强的学生: 隐藏状态特征 + 更多 Jev 标注』)。本张 = 第二轮特征: 两个候选在 120 条(验收 42 + 复跑 10 + 冒烟 2 + 训练 66)上的选项字母 logits 与隐状态跨度坐标, 不出任何判决(判决只在验收 42 条上, 预注册 tests/data/jev_distill2_prereg.json)。Caps per experiments/jev/policies/cpu_distill2_llm.json: 2 legs × ubuntu-24.04, evaluate ≤330 min each, container 3 CPU / 12 GiB / no swap / no network, load+infer ≤16,200 s, ≤600 rows = forwards per leg, ≤2048 tok/row, fetch ≤24 GiB incl. retries per leg, 1 model load per leg, 0 paid GPU / 0 model API. Inputs: de-identified corpus lines read by pointer + 2 CC0 smoke texts; reports carry no text and no raw hidden vectors.",
+ "expiry": "2026-10-05T00:00:00+00:00",
+ "repository": "luogangan7-lgtm/cce-engine-oss",
+ "workflow_id": "cce-jev-llm-eval.yml",
+ "mode": "eval",
+ "max_runs": 1,
+ "max_attempts": 1,
+ "suite_id": "s0-distill2-v1",
+ "suite_sha256": "b6ff868d2c52b0049829159957cacb97ef3f9e1dee35c56b8015b8d06e047d15",
+ "models": [
+  {
+   "model_key": "qwen3-4b-2507",
+   "model_source_lock_sha256": "2662875d6b4af492b16238a7f98482d5c1028e4ac97475d3696a24cedeb9ac9d",
+   "asset_lock_sha256": "56801a3b13643e737e3e7face01e54718af7ab9cf1f9f67a4fd145a11f9006a4"
+  },
+  {
+   "model_key": "qwen3.5-4b",
+   "model_source_lock_sha256": "8252d30ad8640abe688d2a6d0f7ef02b8eb5f8a9046007c502540a875517436b",
+   "asset_lock_sha256": "0f8ae91efe40731645e60fb7b8bb60b7397790d8db391255bc283e1aa7cd8148"
+  }
+ ],
+ "runtime_lock_sha256": "68cf22eec1e30439e48e74303f82d579de49902740c43eb2baf2f2a870a0ef72",
+ "resource_policy": "cpu_distill2_llm.json",
+ "resource_policy_sha256": "c04824bdce673793aae964882a694a05dc2eb3d9e992fb3ba3af640fbaa91743"
+}
