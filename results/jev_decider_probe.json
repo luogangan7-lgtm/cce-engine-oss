@@ -1,0 +1,895 @@
+{
+ "block": "JEV_DECIDER_PROBE_2X2",
+ "prereg_sha256": "49e28ec8530571867cee93af60f150602370f0e2931dcc19d905a9227d95e37b",
+ "analysis_script_sha256": "cfee52c760050654dae620ab21c22b18a72adbbeb24583347573c42d5b0de167",
+ "analysis_script_sha256_at_freeze": "cfee52c760050654dae620ab21c22b18a72adbbeb24583347573c42d5b0de167",
+ "run": {
+  "run_id": "36302960105",
+  "execution_commit": "6fbc5b3f70ea8eec1c2956d1630561774861a4ae",
+  "archive": "archive/36302960105",
+  "timing": {
+   "all_forwards_s": 2782.651,
+   "first_forward_s": 3.981,
+   "model_load_s": 2.088,
+   "peak_rss_kib": 11783884,
+   "remaining_forwards_s": 2778.67,
+   "render_tokenize_s": 0.256,
+   "tokenizer_load_s": 3.154,
+   "wall_s": 2788.281
+  },
+  "budget": {
+   "download_bytes": 0,
+   "elapsed_s": 2788.26,
+   "forwards": 640,
+   "padded_tokens": 222592,
+   "rows": 640
+  }
+ },
+ "★前置": {
+  "errors": [],
+  "锚点(跨 run)": {
+   "rows": 10,
+   "matched": 10,
+   "top1_diff": 0,
+   "max_abs_dp": 3.34e-06,
+   "pass": true
+  },
+  "pass": true
+ },
+ "n_items": 42,
+ "per_facet": {
+  "进程位置": {
+   "labels_counts": {
+    "0": {
+     "刚意识到问题": 1,
+     "在找方案": 7,
+     "在比较权衡": 11,
+     "已决定在执行": 2,
+     "无关进程": 2,
+     "未知": 19
+    },
+    "a": {
+     "刚意识到问题": 1,
+     "在比较权衡": 7,
+     "无关进程": 19,
+     "未知": 15
+    },
+    "b": {
+     "回看复盘": 11,
+     "在找方案": 13,
+     "在比较权衡": 6,
+     "已决定在执行": 11,
+     "未知": 1
+    },
+    "c": {
+     "刚意识到问题": 1,
+     "回看复盘": 10,
+     "在找方案": 8,
+     "在比较权衡": 4,
+     "已决定在执行": 14,
+     "未知": 5
+    }
+   },
+   "unknown_count": {
+    "0": 19,
+    "a": 15,
+    "b": 1,
+    "c": 5,
+    "J_J1": 5,
+    "J_J2": 5
+   },
+   "sensitivity_quasi_abstain_merged": {
+    "merged_value": "无关进程",
+    "0": 21,
+    "a": 34,
+    "b": 1,
+    "c": 5,
+    "J_J1": 5
+   },
+   "effects": {
+    "position": {
+     "left_unknown": 9,
+     "entered_unknown": 5,
+     "p_exact": 0.424,
+     "excess_cell0": 14,
+     "excess_cell": 10,
+     "direction": "减少",
+     "exploratory": false,
+     "holm_reject": false,
+     "attribution": "有影响但大小未定或不足一半"
+    },
+    "language": {
+     "left_unknown": 18,
+     "entered_unknown": 0,
+     "p_exact": 0.0,
+     "excess_cell0": 14,
+     "excess_cell": -4,
+     "direction": "减少",
+     "exploratory": false,
+     "holm_reject": true,
+     "attribution": "该因素可以解释多数过量弃权"
+    }
+   },
+   "order_sensitivity": {
+    "zh d(0,a)": 24,
+    "en d(b,c)": 9,
+    "language d(0,b)": 30,
+    "cp95": {
+     "zh d(0,a)": [
+      0.4096,
+      0.7228
+     ],
+     "en d(b,c)": [
+      0.103,
+      0.3681
+     ],
+     "language d(0,b)": [
+      0.5542,
+      0.8428
+     ]
+    },
+    "class": {
+     "zh": "顺序敏感",
+     "en": "有顺序影响但大小未定"
+    }
+   },
+   "interaction": {
+    "sign_test_p": 0.0029,
+    "pos": 31,
+    "neg": 11,
+    "dU_en": 4,
+    "dU_zh": -4,
+    "claimed": true
+   },
+   "mean_unknown_logodds": {
+    "0": -1.196,
+    "a": -0.701,
+    "b": -4.05,
+    "c": -3.165
+   },
+   "agreement_with_jev": {
+    "0~J1": 18,
+    "0~J2": 18,
+    "a~J1": 7,
+    "a~J2": 7,
+    "b~J1": 24,
+    "b~J2": 24,
+    "c~J1": 24,
+    "c~J2": 24
+   },
+   "replaceability_per_cell": {
+    "0": {
+     "d": {
+      "J1": 24,
+      "J2": 24
+     },
+     "net": {
+      "J1": 5,
+      "J2": 5
+     },
+     "verdict": "不同读者",
+     "exploratory": false
+    },
+    "a": {
+     "d": {
+      "J1": 35,
+      "J2": 35
+     },
+     "net": {
+      "J1": -6,
+      "J2": -6
+     },
+     "verdict": "不同读者",
+     "exploratory": true
+    },
+    "b": {
+     "d": {
+      "J1": 18,
+      "J2": 18
+     },
+     "net": {
+      "J1": 11,
+      "J2": 11
+     },
+     "verdict": "不可判",
+     "exploratory": true
+    },
+    "c": {
+     "d": {
+      "J1": 18,
+      "J2": 18
+     },
+     "net": {
+      "J1": 11,
+      "J2": 11
+     },
+     "verdict": "不可判",
+     "exploratory": true
+    }
+   }
+  },
+  "触发事件": {
+   "labels_counts": {
+    "0": {
+     "刚得到好结果": 2,
+     "受挫/出故障": 2,
+     "无明显触发": 38
+    },
+    "a": {
+     "刚得到好结果": 2,
+     "刚花过钱": 1,
+     "受挫/出故障": 2,
+     "无明显触发": 37
+    },
+    "b": {
+     "刚得到好结果": 3,
+     "受挫/出故障": 1,
+     "无明显触发": 38
+    },
+    "c": {
+     "刚得到好结果": 3,
+     "受挫/出故障": 1,
+     "无明显触发": 38
+    }
+   },
+   "unknown_count": {
+    "0": 0,
+    "a": 0,
+    "b": 0,
+    "c": 0,
+    "J_J1": 15,
+    "J_J2": 15
+   },
+   "merged_empty_count": {
+    "0": 38,
+    "a": 37,
+    "b": 38,
+    "c": 38,
+    "J_J1": 16,
+    "J_J2": 16
+   },
+   "effects": {
+    "position": {
+     "left_unknown": 1,
+     "entered_unknown": 0,
+     "p_exact": 1.0,
+     "excess_cell0": 22,
+     "excess_cell": 21,
+     "direction": "减少",
+     "exploratory": false,
+     "holm_reject": false,
+     "attribution": "该因素在可测尺度上不是原因"
+    },
+    "language": {
+     "left_unknown": 1,
+     "entered_unknown": 1,
+     "p_exact": 1.0,
+     "excess_cell0": 22,
+     "excess_cell": 22,
+     "direction": "无变化",
+     "exploratory": false,
+     "holm_reject": false,
+     "attribution": "该因素在可测尺度上不是原因"
+    }
+   },
+   "order_sensitivity": {
+    "zh d(0,a)": 2,
+    "en d(b,c)": 0,
+    "language d(0,b)": 2,
+    "cp95": {
+     "zh d(0,a)": [
+      0.0058,
+      0.1616
+     ],
+     "en d(b,c)": [
+      0.0,
+      0.0841
+     ],
+     "language d(0,b)": [
+      0.0058,
+      0.1616
+     ]
+    },
+    "class": {
+     "zh": "顺序不敏感",
+     "en": "顺序不敏感"
+    }
+   },
+   "interaction": {
+    "sign_test_p": 0.0436,
+    "pos": 28,
+    "neg": 14,
+    "dU_en": 0,
+    "dU_zh": -1,
+    "claimed": false
+   },
+   "mean_unknown_logodds": {
+    "0": 2.416,
+    "a": 2.296,
+    "b": 2.329,
+    "c": 2.648
+   },
+   "agreement_with_jev": {
+    "0~J1": 4,
+    "0~J2": 4,
+    "a~J1": 5,
+    "a~J2": 5,
+    "b~J1": 4,
+    "b~J2": 4,
+    "c~J1": 4,
+    "c~J2": 4
+   },
+   "replaceability_per_cell": {
+    "0": {
+     "d": {
+      "J1": 38,
+      "J2": 38
+     },
+     "net": {
+      "J1": -15,
+      "J2": -15
+     },
+     "verdict": "不同读者",
+     "exploratory": false
+    },
+    "a": {
+     "d": {
+      "J1": 37,
+      "J2": 37
+     },
+     "net": {
+      "J1": -14,
+      "J2": -14
+     },
+     "verdict": "不同读者",
+     "exploratory": true
+    },
+    "b": {
+     "d": {
+      "J1": 38,
+      "J2": 38
+     },
+     "net": {
+      "J1": -15,
+      "J2": -15
+     },
+     "verdict": "不同读者",
+     "exploratory": true
+    },
+    "c": {
+     "d": {
+      "J1": 38,
+      "J2": 38
+     },
+     "net": {
+      "J1": -15,
+      "J2": -15
+     },
+     "verdict": "不同读者",
+     "exploratory": true
+    }
+   }
+  },
+  "关系位置": {
+   "labels_counts": {
+    "0": {
+     "已购买": 3,
+     "接触过几次": 2,
+     "有过负面经历": 6,
+     "未知": 28,
+     "长期关注": 3
+    },
+    "a": {
+     "已购买": 6,
+     "接触过几次": 4,
+     "有过负面经历": 5,
+     "未知": 25,
+     "长期关注": 1,
+     "首次接触": 1
+    },
+    "b": {
+     "已购买": 1,
+     "接触过几次": 3,
+     "未知": 33,
+     "长期关注": 5
+    },
+    "c": {
+     "已购买": 1,
+     "接触过几次": 4,
+     "未知": 35,
+     "长期关注": 1,
+     "首次接触": 1
+    }
+   },
+   "unknown_count": {
+    "0": 28,
+    "a": 25,
+    "b": 33,
+    "c": 35,
+    "J_J1": 15,
+    "J_J2": 15
+   },
+   "effects": {
+    "position": {
+     "left_unknown": 4,
+     "entered_unknown": 1,
+     "p_exact": 0.375,
+     "excess_cell0": 13,
+     "excess_cell": 10,
+     "direction": "减少",
+     "exploratory": false,
+     "holm_reject": false,
+     "attribution": "该因素在可测尺度上不是原因"
+    },
+    "language": {
+     "left_unknown": 3,
+     "entered_unknown": 8,
+     "p_exact": 0.2266,
+     "excess_cell0": 13,
+     "excess_cell": 18,
+     "direction": "增加",
+     "exploratory": false,
+     "holm_reject": false,
+     "attribution": "有影响但大小未定或不足一半"
+    }
+   },
+   "order_sensitivity": {
+    "zh d(0,a)": 8,
+    "en d(b,c)": 6,
+    "language d(0,b)": 15,
+    "cp95": {
+     "zh d(0,a)": [
+      0.086,
+      0.3412
+     ],
+     "en d(b,c)": [
+      0.0543,
+      0.2854
+     ],
+     "language d(0,b)": [
+      0.2155,
+      0.5197
+     ]
+    },
+    "class": {
+     "zh": "有顺序影响但大小未定",
+     "en": "有顺序影响但大小未定"
+    }
+   },
+   "interaction": {
+    "sign_test_p": 0.0079,
+    "pos": 30,
+    "neg": 12,
+    "dU_en": 2,
+    "dU_zh": -3,
+    "claimed": false
+   },
+   "mean_unknown_logodds": {
+    "0": -0.157,
+    "a": -0.146,
+    "b": 0.02,
+    "c": 0.372
+   },
+   "agreement_with_jev": {
+    "0~J1": 21,
+    "0~J2": 21,
+    "a~J1": 20,
+    "a~J2": 20,
+    "b~J1": 14,
+    "b~J2": 14,
+    "c~J1": 15,
+    "c~J2": 15
+   },
+   "replaceability_per_cell": {
+    "0": {
+     "d": {
+      "J1": 21,
+      "J2": 21
+     },
+     "net": {
+      "J1": 1,
+      "J2": 1
+     },
+     "verdict": "不同读者",
+     "exploratory": false
+    },
+    "a": {
+     "d": {
+      "J1": 22,
+      "J2": 22
+     },
+     "net": {
+      "J1": 0,
+      "J2": 0
+     },
+     "verdict": "不同读者",
+     "exploratory": true
+    },
+    "b": {
+     "d": {
+      "J1": 28,
+      "J2": 28
+     },
+     "net": {
+      "J1": -6,
+      "J2": -6
+     },
+     "verdict": "不同读者",
+     "exploratory": true
+    },
+    "c": {
+     "d": {
+      "J1": 27,
+      "J2": 27
+     },
+     "net": {
+      "J1": -5,
+      "J2": -5
+     },
+     "verdict": "不同读者",
+     "exploratory": true
+    }
+   }
+  },
+  "身体状态": {
+   "labels_counts": {
+    "0": {
+     "无关": 5,
+     "未知": 36,
+     "长期困扰": 1
+    },
+    "a": {
+     "无关": 8,
+     "未知": 32,
+     "长期困扰": 2
+    },
+    "b": {
+     "已缓解": 1,
+     "无关": 17,
+     "未知": 19,
+     "症状正发作": 3,
+     "长期困扰": 2
+    },
+    "c": {
+     "已缓解": 1,
+     "无关": 9,
+     "未知": 29,
+     "症状正发作": 2,
+     "长期困扰": 1
+    }
+   },
+   "unknown_count": {
+    "0": 36,
+    "a": 32,
+    "b": 19,
+    "c": 29,
+    "J_J1": 31,
+    "J_J2": 31
+   },
+   "sensitivity_quasi_abstain_merged": {
+    "merged_value": "无关",
+    "0": 41,
+    "a": 40,
+    "b": 36,
+    "c": 38,
+    "J_J1": 31
+   },
+   "effects": {
+    "position": {
+     "left_unknown": 4,
+     "entered_unknown": 0,
+     "p_exact": 0.125,
+     "excess_cell0": 5,
+     "excess_cell": 1,
+     "direction": "减少",
+     "exploratory": true
+    },
+    "language": {
+     "left_unknown": 18,
+     "entered_unknown": 1,
+     "p_exact": 0.0001,
+     "excess_cell0": 5,
+     "excess_cell": -12,
+     "direction": "减少",
+     "exploratory": true
+    }
+   },
+   "order_sensitivity": {
+    "zh d(0,a)": 4,
+    "en d(b,c)": 10,
+    "language d(0,b)": 19,
+    "cp95": {
+     "zh d(0,a)": [
+      0.0266,
+      0.2262
+     ],
+     "en d(b,c)": [
+      0.1205,
+      0.3945
+     ],
+     "language d(0,b)": [
+      0.2985,
+      0.6133
+     ]
+    },
+    "class": {
+     "zh": "顺序不敏感",
+     "en": "顺序敏感"
+    }
+   },
+   "interaction": {
+    "sign_test_p": 0.0,
+    "pos": 38,
+    "neg": 4,
+    "dU_en": 10,
+    "dU_zh": -4,
+    "claimed": true
+   },
+   "mean_unknown_logodds": {
+    "0": 0.889,
+    "a": 0.498,
+    "b": -0.323,
+    "c": -0.212
+   },
+   "agreement_with_jev": {
+    "0~J1": 25,
+    "0~J2": 25,
+    "a~J1": 23,
+    "a~J2": 23,
+    "b~J1": 14,
+    "b~J2": 14,
+    "c~J1": 22,
+    "c~J2": 22
+   },
+   "replaceability_per_cell": {
+    "0": {
+     "d": {
+      "J1": 17,
+      "J2": 17
+     },
+     "net": {
+      "J1": -6,
+      "J2": -6
+     },
+     "verdict": "不同读者",
+     "exploratory": false
+    },
+    "a": {
+     "d": {
+      "J1": 19,
+      "J2": 19
+     },
+     "net": {
+      "J1": -8,
+      "J2": -8
+     },
+     "verdict": "不同读者",
+     "exploratory": true
+    },
+    "b": {
+     "d": {
+      "J1": 28,
+      "J2": 28
+     },
+     "net": {
+      "J1": -17,
+      "J2": -17
+     },
+     "verdict": "不同读者",
+     "exploratory": true
+    },
+    "c": {
+     "d": {
+      "J1": 20,
+      "J2": 20
+     },
+     "net": {
+      "J1": -9,
+      "J2": -9
+     },
+     "verdict": "不同读者",
+     "exploratory": true
+    }
+   }
+  },
+  "资源状态": {
+   "labels_counts": {
+    "0": {
+     "时间受限": 2,
+     "有决定权": 4,
+     "未知": 36
+    },
+    "a": {
+     "时间受限": 2,
+     "有决定权": 1,
+     "未知": 39
+    },
+    "b": {
+     "时间受限": 1,
+     "有决定权": 4,
+     "未知": 37
+    },
+    "c": {
+     "时间受限": 1,
+     "有决定权": 4,
+     "未知": 37
+    }
+   },
+   "unknown_count": {
+    "0": 36,
+    "a": 39,
+    "b": 37,
+    "c": 37,
+    "J_J1": 23,
+    "J_J2": 25
+   },
+   "effects": {
+    "position": {
+     "left_unknown": 0,
+     "entered_unknown": 3,
+     "p_exact": 0.25,
+     "excess_cell0": 13,
+     "excess_cell": 16,
+     "direction": "增加",
+     "exploratory": false,
+     "holm_reject": false,
+     "attribution": "该因素在可测尺度上不是原因"
+    },
+    "language": {
+     "left_unknown": 0,
+     "entered_unknown": 1,
+     "p_exact": 1.0,
+     "excess_cell0": 13,
+     "excess_cell": 14,
+     "direction": "增加",
+     "exploratory": false,
+     "holm_reject": false,
+     "attribution": "该因素在可测尺度上不是原因"
+    }
+   },
+   "order_sensitivity": {
+    "zh d(0,a)": 3,
+    "en d(b,c)": 2,
+    "language d(0,b)": 1,
+    "cp95": {
+     "zh d(0,a)": [
+      0.015,
+      0.1948
+     ],
+     "en d(b,c)": [
+      0.0058,
+      0.1616
+     ],
+     "language d(0,b)": [
+      0.0006,
+      0.1257
+     ]
+    },
+    "class": {
+     "zh": "顺序不敏感",
+     "en": "顺序不敏感"
+    }
+   },
+   "interaction": {
+    "sign_test_p": 0.0,
+    "pos": 6,
+    "neg": 36,
+    "dU_en": 0,
+    "dU_zh": 3,
+    "claimed": false
+   },
+   "mean_unknown_logodds": {
+    "0": 1.135,
+    "a": 2.123,
+    "b": 1.183,
+    "c": 1.716
+   },
+   "agreement_with_jev": {
+    "0~J1": 25,
+    "0~J2": 26,
+    "a~J1": 25,
+    "a~J2": 26,
+    "b~J1": 24,
+    "b~J2": 26,
+    "c~J1": 26,
+    "c~J2": 28
+   },
+   "replaceability_per_cell": {
+    "0": {
+     "d": {
+      "J1": 17,
+      "J2": 16
+     },
+     "net": {
+      "J1": 2,
+      "J2": 1
+     },
+     "verdict": "不同读者",
+     "exploratory": false
+    },
+    "a": {
+     "d": {
+      "J1": 17,
+      "J2": 16
+     },
+     "net": {
+      "J1": 2,
+      "J2": 1
+     },
+     "verdict": "不同读者",
+     "exploratory": true
+    },
+    "b": {
+     "d": {
+      "J1": 18,
+      "J2": 16
+     },
+     "net": {
+      "J1": 1,
+      "J2": 1
+     },
+     "verdict": "不同读者",
+     "exploratory": true
+    },
+    "c": {
+     "d": {
+      "J1": 16,
+      "J2": 14
+     },
+     "net": {
+      "J1": 3,
+      "J2": 3
+     },
+     "verdict": "不同读者",
+     "exploratory": true
+    }
+   }
+  }
+ },
+ "holm_family": {
+  "进程位置|position": {
+   "p": 0.424,
+   "reject": false
+  },
+  "进程位置|language": {
+   "p": 0.0,
+   "reject": true
+  },
+  "触发事件|position": {
+   "p": 1.0,
+   "reject": false
+  },
+  "触发事件|language": {
+   "p": 1.0,
+   "reject": false
+  },
+  "关系位置|position": {
+   "p": 0.375,
+   "reject": false
+  },
+  "关系位置|language": {
+   "p": 0.2266,
+   "reject": false
+  },
+  "资源状态|position": {
+   "p": 0.25,
+   "reject": false
+  },
+  "资源状态|language": {
+   "p": 1.0,
+   "reject": false
+  }
+ },
+ "★不得据此说": [
+  "任何格子更准或更好 —— 无金标",
+  "某格达到 可替代 就说明 Decider 可以接生产 —— 4 个变体里挑出来的, 且同 42 条用了 4 次, 需要新条目复核并 owner 点头",
+  "位置效应 = 模型偏爱最后一个选项 —— 反序移动了全部选项",
+  "语言效应 = 模型看不懂中文 —— 是整包翻译的效应, 且译文只有一个版本",
+  "交互测不出 = 两个因素可加",
+  "推翻 2026-09-27 对比判决 —— 对比判决只看格子 0, 本探针不改它",
+  "外推到这 42 条 r/HearingAids 帖以外",
+  "过量弃权下降 = 读对了 / 弃权问题被消除 —— 无金标, 下降也可能只是挪到 无关进程/无明显触发/无关 这类准弃权值",
+  "据此把生产 jev_questions 改成英文或改顺序 —— 需要新的预注册、新条目复核与 owner 点头",
+  "不同面的语言效应差异归因于面本身 —— 中文格里 3 个面的弃权选项是英文描述, 2 个面不是"
+ ]
+}

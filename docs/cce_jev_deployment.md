@@ -61,6 +61,27 @@ Not separable with this run (each would need a new permit): option position vs "
 
 Pre-registered predictions scored honestly: 2 of 4. The prediction that Decider would *over-read* was wrong; it abstains more.
 
+## 2×2 abstention probe (task contract s0_context.v3, suite s0-probe-v1)
+
+Why Decider abstains more than Jev: candidate order (original / reversed) × candidate language (Chinese / one fixed English translation). Cell 0 = the comparison run above; three new cells in eval run https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/36302960105 (archived `archive/36302960105`, 640 forwards in 2,783 s, CPU recorded). Pre-registration `tests/data/jev_decider_probe_prereg.json` (frozen before the run; rule numbers unchanged by its pre-data revisions). Anchors: 10/10 rows reproduce the comparison run (max |Δp| 3.3e-6). An independent recomputation matched every number. Analysis `results/jev_decider_probe.json`.
+
+| facet | 未知 picks, cells 0 / reversed-zh / English / reversed-en (Jev) | what moved it (frozen rule) | agreement with Jev, cell 0 → English |
+|---|---|---|---:|
+| 进程位置 | 19 / 15 / 1 / 5 (Jev 5) | the English translation (Holm-significant, excess 14 → −4); order also matters in Chinese (d = 24) | 18 → 24 of 42 |
+| 触发事件 | 无明显触发∪未知: 38 / 37 / 38 / 38 (Jev 16) | neither factor | 4 → 4 |
+| 关系位置 | 28 / 25 / 33 / 35 (Jev 15) | neither explains it; English moved it the wrong way (not significant) | 21 → 14 |
+| 身体状态 (exploratory) | 36 / 32 / 19 / 29 (Jev 31) | English moved picks into 无关, not toward Jev | 25 → 14 |
+| 资源状态 | 36 / 39 / 37 / 37 (Jev 23) | neither factor | 25 → 24 |
+
+What the data supports:
+- 进程位置's excess abstention is mostly an effect of this one whole-package English translation (it also removes the Chinese cells' code-mixing, where 未知 is the only English-described option). English overshoots: 1 abstention against Jev's 5, and a new 回看复盘 mode appears (0 → 11; Jev uses it twice). Agreement with Jev rises only to 24/42, so still not replaceable.
+- In Chinese, reversing the order raised quasi-abstention on 进程位置 (未知 + 无关进程: 21 → 34), so Decider's reading of that facet depends on candidate order.
+- 触发事件 is not really abstention: Decider never picks 未知; the split with Jev is 无明显触发 vs 受挫/出故障, stable under both manipulations.
+- 资源状态 is stable under both manipulations; since Jev's label is usually Decider's second choice and every cell keeps the contract's "choose unknown" with only 未提及 on offer, this may be a threshold or task-contract property rather than a model property.
+- No cell of any facet reaches 可替代. The 2026-09-27 comparison verdict (not replaceable) stands.
+
+Not separable here: translation vs code-mixing, model vs facet definitions/option sets, T = 1.3 and this single translation only. All 5 pre-registered predictions came true, but most carried little risk; the one risky prediction held on 进程位置 only.
+
 ## What runs where
 
 * **Local machine**: only pure Python (stdlib) tests with a fake backend / fake tokenizer. `cli.py eval|prepare` refuse
