@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
+import time
 from pathlib import Path
 
 from .contracts import JevError, canonical, file_sha256, sha256
@@ -20,6 +22,25 @@ SOURCE_LOCK = LOCKS / "model.source.lock.json"
 ASSETS_LOCK = LOCKS / "model.assets.lock.json"
 ASSETS_SCHEMA = "cce.jev.model-assets.v1"
 REQUIRED_CONFIG_KEYS = ("temperature", "version", "isolated_levels", "max_options", "schema_first", "neutralize_none")
+# ★ 2026-09-27 多模型: Decider 的锁留在 locks/(键 decider-2b, 逐字节不动); 新候选各占 models/<key>/。
+MODELS = HERE / "models"
+LEGACY_KEY = "decider-2b"
+MODEL_KEY_RE = re.compile(r"^[a-z0-9][a-z0-9.-]{2,40}$")
+REPO_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,95}/[A-Za-z0-9][A-Za-z0-9._-]{0,95}$")   # 段首必须字母数字: 拒 ../x、.git 之类
+REV_RE = re.compile(r"^[0-9a-f]{40}$")
+FILE_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+
+
+def model_paths(key=None) -> tuple:
+    """模型键 → (源锁, 资产锁) 路径。None / decider-2b = 旧位置; 其它键必须已在 models/ 下登记源锁。"""
+    if key in (None, LEGACY_KEY):
+        return SOURCE_LOCK, ASSETS_LOCK
+    if not isinstance(key, str) or not MODEL_KEY_RE.match(key) or ".." in key:
+        raise JevError("INPUT_INVALID", f"model key {key!r}")
+    d = MODELS / key
+    if not (d / "model.source.lock.json").is_file():
+        raise JevError("DEPENDENCY_LOCK_INVALID", f"model {key} has no source lock under models/")
+    return d / "model.source.lock.json", d / "model.assets.lock.json"
 
 
 def load_json(path) -> dict:
@@ -33,11 +54,21 @@ def source_lock(path=SOURCE_LOCK) -> dict:
             raise JevError("DEPENDENCY_LOCK_INVALID", f"source lock missing {k}")
     if s["execution_location"] != "github_hosted_actions_only" or s["remote_inference_allowed"] is not False:
         raise JevError("DEPENDENCY_LOCK_INVALID", "source lock execution boundary altered")
+    if s.get("backend", "decider") not in ("decider", "hf_choice"):
+        raise JevError("DEPENDENCY_LOCK_INVALID", f"unknown backend {s.get('backend')!r}")
+    if s.get("backend") == "hf_choice":
+        if not REPO_RE.match(s["repo_id"]) or not REV_RE.match(s["revision"]) or not all(FILE_RE.match(n) for n in s["files"]):
+            raise JevError("DEPENDENCY_LOCK_INVALID", "hf_choice source lock: repo / revision / file names must be plain pinned identifiers")
+        for k in ("load_class", "expected_class", "storage_dtype", "compute_dtype", "threads", "temperature", "letters", "answer_suffix", "prompt_spec"):
+            if k not in (s.get("backend_config") or {}):
+                raise JevError("DEPENDENCY_LOCK_INVALID", f"hf_choice source lock missing backend_config.{k}")
     return s
 
 
 def assets_lock(path=ASSETS_LOCK) -> dict:
-    return load_json(path)
+    """资产锁; 尚未 prepare 的新模型没有该文件 ⇒ 空表(调用方按「不是 READY」拒绝)。"""
+    p = Path(path)
+    return load_json(p) if p.is_file() else {}
 
 
 def plan_download(src: dict, max_bytes: int) -> dict:
@@ -133,3 +164,61 @@ def download_bundle(src: dict, dest, ledger, env: dict, receipt: dict, expect_wo
     return {"schema": ASSETS_SCHEMA, "status": "READY", "repo_id": src["repo_id"], "revision": src["revision"],
             "model_version": src["model_version"], "files": files, "anchor_check": anchors,
             "total_bytes": sum(f["size"] for f in files.values()), "generated_by": "cce-jev-prepare.yml on github-hosted runner"}
+
+
+def _http_get_verified(url: str, dest: Path, spec: dict, name: str, sleep=time.sleep, opener=None, attempts: int = 3) -> str:
+    """流式下载一个固定修订的文件, 边下边算 sha256 与 git blob sha1; 大小与 HF 元数据锚点都对上才落盘, 否则整文件重试(≤3 次)。
+    内容寻址: 完整性来自锚点比对, 与下载客户端无关 ⇒ 只用标准库, 不引入未钉版本的下载依赖。"""
+    import urllib.request
+    size = int(spec["size"])
+    part = dest / (name + ".part")
+    last = None
+    for i in range(attempts):
+        h256, h1, n = hashlib.sha256(), hashlib.sha1(b"blob %d\0" % size), 0
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "cce-jev-fetch/1"})
+            with (opener or urllib.request.urlopen)(req, timeout=60) as r, open(part, "wb") as fh:
+                for chunk in iter(lambda: r.read(1 << 20), b""):
+                    n += len(chunk)
+                    if n > size:
+                        raise JevError("MODEL_BUNDLE_INVALID", f"{name}: more bytes than the pinned size {size}")
+                    h256.update(chunk); h1.update(chunk); fh.write(chunk)
+            if n != size:
+                raise OSError(f"short read {n}/{size}")
+            kind, value = spec["anchor"]["kind"], spec["anchor"]["value"]
+            got = h256.hexdigest() if kind == "lfs_sha256" else h1.hexdigest() if kind == "git_blob_sha1" else None
+            if got != value:
+                raise JevError("MODEL_BUNDLE_INVALID", f"{name}: content does not match HF metadata anchor")
+            part.replace(dest / name)
+            return h256.hexdigest()
+        except JevError:
+            part.unlink(missing_ok=True)
+            raise
+        except OSError as e:                      # 网络/截断: 整文件重来; 不续传拼接
+            last = e
+            part.unlink(missing_ok=True)
+            if i + 1 < attempts:
+                sleep(5 * (i + 1))
+    raise JevError("MODEL_BUNDLE_INVALID", f"{name}: download failed after {attempts} attempts ({type(last).__name__})")
+
+
+def fetch_bundle_http(src: dict, dest, ledger, env: dict, receipt: dict, expect_workflow: str, sleep=time.sleep, opener=None) -> dict:
+    """hf_choice 模型: 仅 GitHub 托管 runner, 按源锁逐文件取同一固定修订(https://huggingface.co/<repo>/resolve/<rev>/<file>),
+    预约字节 → 流式核锚点 → 落盘; 返回资产锁提案。prepare 与 eval 都走它(eval 之后再对已提交的 READY 资产锁逐字节核)。"""
+    require(env, receipt, expect_workflow)
+    if src.get("backend") != "hf_choice":
+        raise JevError("DEPENDENCY_LOCK_INVALID", "fetch_bundle_http is only for hf_choice models")
+    plan = plan_download(src, ledger.b.max_download_bytes)
+    from urllib.parse import quote
+    d = Path(dest); d.mkdir(parents=True, exist_ok=True)
+    files, anchors = {}, {}
+    for name in plan["files"]:
+        spec = src["files"][name]
+        ledger.reserve_download(int(spec["size"]), name)
+        url = "https://huggingface.co/%s/resolve/%s/%s" % (src["repo_id"], src["revision"], quote(name))
+        sha = _http_get_verified(url, d, spec, name, sleep=sleep, opener=opener)
+        files[name] = {"size": int(spec["size"]), "sha256": sha}
+        anchors[name] = True
+    return {"schema": ASSETS_SCHEMA, "status": "READY", "repo_id": src["repo_id"], "revision": src["revision"],
+            "model_version": src["model_version"], "files": files, "anchor_check": anchors,
+            "total_bytes": sum(f["size"] for f in files.values()), "generated_by": f"{expect_workflow} on github-hosted runner"}

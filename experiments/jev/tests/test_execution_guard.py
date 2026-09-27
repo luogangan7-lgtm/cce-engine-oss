@@ -62,7 +62,12 @@ def test_real_cli_eval_and_prepare_refuse_locally_before_any_import_or_download(
              "loaded = [m for m in ('torch', 'transformers', 'decider', 'huggingface_hub') if m in sys.modules]\n"
              "print('EXIT', code, 'LOADED', loaded)")
     for argv in (["cli.py", "eval", "--suite", "s0-smoke-v1", "--receipt", str(receipt), "--bundle", str(tmp_path), "--out", str(tmp_path / "reports" / "x")],
-                 ["cli.py", "prepare", "--receipt", str(receipt), "--dest", str(tmp_path / "b"), "--out", str(tmp_path / "o")]):
+                 ["cli.py", "prepare", "--receipt", str(receipt), "--dest", str(tmp_path / "b"), "--out", str(tmp_path / "o")],
+                 # ★ 2026-09-27 hf_choice 入口同样: 守卫先于任何读锁/import/下载
+                 ["cli.py", "eval", "--model", "qwen3-4b-2507", "--suite", "s0-smoke-v1", "--receipt", str(receipt), "--bundle", str(tmp_path), "--out", str(tmp_path / "reports" / "x")],
+                 ["cli.py", "prepare", "--model", "qwen3.5-4b", "--receipt", str(receipt), "--dest", str(tmp_path / "b"), "--out", str(tmp_path / "o")],
+                 ["cli.py", "prepare-smoke", "--model", "qwen3.5-4b", "--receipt", str(receipt), "--bundle", str(tmp_path), "--proposal", str(receipt), "--out", str(tmp_path / "o")],
+                 ["cli.py", "fetch-bundle", "--model", "qwen3-4b-2507", "--receipt", str(receipt), "--dest", str(tmp_path / "b")]):
         p = subprocess.run([sys.executable, "-c", probe % (argv, str(CLI))], capture_output=True, text=True, env=env, cwd=str(ROOT), timeout=120)
         assert "EXIT 3 LOADED []" in p.stdout, (p.stdout, p.stderr)
         assert "EXECUTION_LOCATION_FORBIDDEN" in p.stderr, p.stderr
@@ -122,3 +127,11 @@ def test_cmd_eval_routes_policy_through_eval_policy():
     fn = next(n for n in ast.walk(ast.parse(src)) if isinstance(n, ast.FunctionDef) and n.name == "cmd_eval")
     body = ast.get_source_segment(src, fn)
     assert "eval_policy(receipt, a.suite, manifest)" in body and "cpu_smoke" not in body and "cpu_compare" not in body and '_policy("' not in body
+    llm = ast.get_source_segment(src, next(n for n in ast.walk(ast.parse(src)) if isinstance(n, ast.FunctionDef) and n.name == "_eval_llm"))
+    assert "eval_policy(receipt, a.suite, manifest)" in llm and not any(f"cpu_{x}" in llm for x in ("smoke", "compare", "probe")) and '_policy("' not in llm and "_receipt_model(receipt, a.model)" in llm
+    for name in ("_prepare_llm", "cmd_prepare_smoke", "cmd_fetch_bundle", "_eval_llm"):            # 守卫是每个 hf 入口的第一句
+        f = next(n for n in ast.walk(ast.parse(src)) if isinstance(n, ast.FunctionDef) and n.name == name)
+        first = next(st for st in f.body if not (isinstance(st, ast.Expr) and isinstance(getattr(st, "value", None), ast.Constant)))
+        seg = ast.get_source_segment(src, first)
+        assert "execution_guard.require(" in seg or name == "cmd_prepare_smoke" or name == "cmd_fetch_bundle", (name, seg)
+        assert "execution_guard.require(env, receipt, LLM_" in ast.get_source_segment(src, f), name

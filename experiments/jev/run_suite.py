@@ -82,12 +82,14 @@ def _check_policy(items, compiled, policy, suite_id=None, task_id=None):
 
 
 def run(suite_id: str, out_dir, policy: dict, cfg: dict, identities: dict, backend_factory, tok_factory, upstream_factory,
-        taxonomy: dict | None = None, suites_dir=SUITES, clock=time.monotonic) -> dict:
+        taxonomy: dict | None = None, suites_dir=SUITES, clock=time.monotonic, plan_fn=None) -> dict:
+    """plan_fn(req, tok, up, cfg, budget) → PreparedRows; 缺省 = Decider 的 plan_work.prepare(hf_choice 传 plan_chat 的包装)。"""
     out = Path(out_dir)
     if "reports" not in out.parts:
         raise JevError("OUTPUT_INVALID", f"out_dir {out} must live under a reports/ directory (never production paths)")
     out.mkdir(parents=True, exist_ok=True)
-    report = {"schema": REPORT_SCHEMA, "mode": "shadow_eval", "backend": "decider", "model_version": identities.get("model_version", "unknown"),
+    plan_fn = plan_fn or prepare
+    report = {"schema": REPORT_SCHEMA, "mode": "shadow_eval", "backend": identities.get("backend", "decider"), "model_version": identities.get("model_version", "unknown"),
               "suite_id": suite_id, "execution_status": "NOT_RUN", "coverage_status": "NOT_ESTABLISHED",
               "semantic_acceptance": "NOT_ESTABLISHED", "production_eligible": False, "results": [], "failures": [],
               "identities": identities, "timing": {}, "budget": None, "plan": None}
@@ -109,7 +111,7 @@ def run(suite_id: str, out_dir, policy: dict, cfg: dict, identities: dict, backe
         ledger = Ledger(budget, clock)
         t0 = clock(); tok = tok_factory(); t["tokenizer_load_s"] = round(clock() - t0, 3)
         up = upstream_factory()
-        t0 = clock(); plans = [prepare(req, tok, up, cfg, budget) for req, _ in compiled]; t["render_tokenize_s"] = round(clock() - t0, 3)
+        t0 = clock(); plans = [plan_fn(req, tok, up, cfg, budget) for req, _ in compiled]; t["render_tokenize_s"] = round(clock() - t0, 3)
         report["plan"] = [p.summary() | {"rows_detail": rows_json(p)} for p in plans]
         total_rows = sum(len(p.rows) for p in plans)
         if total_rows > budget.max_rows or sum(r.padded_len for p in plans for r in p.rows) > budget.max_padded_tokens:

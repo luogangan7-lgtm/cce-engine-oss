@@ -213,3 +213,114 @@ def test_eval_admission_runs_the_suite_plan_before_consumption(tmp_path, permit_
     finally:
         for f in (f"{name}.jsonl", f"{name}.manifest.json"):
             (sd / f).unlink(missing_ok=True)
+
+
+# ───────────────────────── schema v2(hf_choice 候选, models 清单) ─────────────────────────
+LLM_PREP_ENV = dict(GITHUB_WORKFLOW_REF="luogangan7-lgtm/cce-engine-oss/.github/workflows/cce-jev-llm-prepare.yml@refs/heads/master")
+KEYS = ("qwen3-4b-2507", "qwen3.5-4b")
+
+
+def _v2_permit(**over):
+    p = {"permit_id": "P-TEST-1", "owner_approval_reference": "test", "expiry": (dt.datetime.now(dt.timezone.utc) + dt.timedelta(days=1)).isoformat(),
+         "repository": "luogangan7-lgtm/cce-engine-oss", "workflow_id": "cce-jev-llm-prepare.yml", "mode": "prepare", "max_runs": 1, "max_attempts": 1,
+         "models": [{"model_key": k, "model_source_lock_sha256": _sha(JEV / "models" / k / "model.source.lock.json"), "asset_lock_sha256": "NOT_APPLICABLE_PREPARE"} for k in KEYS],
+         "runtime_lock_sha256": _sha(JEV / "locks" / "runtime-cpu.lock.txt"), "resource_policy": "asset_prepare_llm.json",
+         "resource_policy_sha256": _sha(JEV / "policies" / "asset_prepare_llm.json")}
+    p.update(over)
+    return p
+
+
+def _hf_and_gh(state):
+    """同一个本地假服务: HF 元数据(revision / paths-info) + GitHub ref 创建。state 可注入坏元数据 / 故障。"""
+    import http.server, threading
+    srcs = {json.loads((JEV / "models" / k / "model.source.lock.json").read_text(encoding="utf-8"))["repo_id"]:
+            json.loads((JEV / "models" / k / "model.source.lock.json").read_text(encoding="utf-8")) for k in KEYS}
+
+    class H(http.server.BaseHTTPRequestHandler):
+        def _send(self, code, obj):
+            b = json.dumps(obj).encode(); self.send_response(code); self.end_headers(); self.wfile.write(b)
+
+        def do_GET(self):
+            state.setdefault("gets", []).append(self.path)
+            if state.get("hf_down"):
+                return self._send(503, {})
+            repo = next((r for r in srcs if self.path.startswith(f"/api/models/{r}/revision/")), None)
+            if repo:
+                return self._send(200, {"sha": srcs[repo]["revision"], "gated": state.get("gated", False), "private": False})
+            self._send(404, {})
+
+        def do_POST(self):
+            n = int(self.headers.get("Content-Length", 0)); body = json.loads(self.rfile.read(n) or b"{}")
+            state.setdefault("posts", []).append(self.path)
+            repo = next((r for r in srcs if self.path.startswith(f"/api/models/{r}/paths-info/")), None)
+            if repo:
+                rows = []
+                for name in body["paths"]:
+                    spec = srcs[repo]["files"][name]; size = spec["size"] + (1 if state.get("drift") == name else 0)
+                    rows.append({"path": name, "lfs": {"size": size, "oid": spec["anchor"]["value"]}} if spec["anchor"]["kind"] == "lfs_sha256"
+                                else {"path": name, "size": size, "oid": spec["anchor"]["value"]})
+                return self._send(200, rows)
+            if self.path.endswith("/git/refs"):
+                state["consumed"] = state.get("consumed", 0) + 1
+                return self._send(state.get("post_code", 201), {})
+            self._send(404, {})
+
+        def log_message(self, *a):
+            pass
+    srv = http.server.HTTPServer(("127.0.0.1", 0), H); threading.Thread(target=srv.serve_forever, daemon=True).start()
+    return srv, f"http://127.0.0.1:{srv.server_address[1]}"
+
+
+def test_v2_prepare_admits_after_hf_metadata_and_emits_the_model_matrix(tmp_path, permit_file):
+    permit_file.write_text(json.dumps(_v2_permit()))
+    st = {}; srv, url = _hf_and_gh(st); out = tmp_path / "gh_output"
+    try:
+        p = _run(_env(tmp_path, GITHUB_API_URL=url, HF_ENDPOINT=url, GITHUB_OUTPUT=str(out), **LLM_PREP_ENV))
+        assert p.returncode == 0 and st["consumed"] == 1, p.stderr
+        r = json.loads((tmp_path / "receipt.json").read_text())
+        assert r["models"] == list(KEYS) and set(r["locks"]["models"]) == set(KEYS) and r["workflow_id"] == "cce-jev-llm-prepare.yml"
+        assert out.read_text().strip() == "models=" + json.dumps(list(KEYS))
+        assert sum(1 for g in st["gets"] if "/revision/" in g) == 2
+    finally:
+        srv.shutdown()
+
+
+@pytest.mark.parametrize("fault,needle", [({"hf_down": True}, "NOT consumed"), ({"drift": "tokenizer.json"}, "differs from the source lock"),
+                                          ({"gated": "manual"}, "no longer anonymously available")])
+def test_v2_hf_problems_refuse_before_consumption(tmp_path, permit_file, fault, needle):
+    permit_file.write_text(json.dumps(_v2_permit()))
+    st = dict(fault); srv, url = _hf_and_gh(st)
+    try:
+        p = _run(_env(tmp_path, GITHUB_API_URL=url, HF_ENDPOINT=url, **LLM_PREP_ENV))
+        assert p.returncode == 3 and "PERMIT_NOT_APPROVED" in p.stderr and needle in p.stderr and not st.get("consumed"), p.stderr
+    finally:
+        srv.shutdown()
+
+
+@pytest.mark.parametrize("mut,env_over,needle", [
+    (lambda p: p["models"][0].update(model_source_lock_sha256="0" * 64), {}, "source lock"),
+    (lambda p: p["models"][0].update(model_key="../locks"), {}, "model keys"),
+    (lambda p: p["models"].append(dict(p["models"][0])), {}, "model keys"),
+    (lambda p: p["models"][1].update(model_key="unknown-model"), {}, "source lock"),
+    (lambda p: p["models"][0].update(asset_lock_sha256="abc"), {}, "NOT_APPLICABLE_PREPARE"),
+    (lambda p: p.update(runtime_lock_sha256="0" * 64), {}, "runtime lock"),
+    (lambda p: p.update(resource_policy="asset_prepare.json", resource_policy_sha256=_sha(JEV / "policies" / "asset_prepare.json")), {}, "backend"),
+    (lambda p: p.update(workflow_id="cce-jev-prepare.yml"), {"GITHUB_WORKFLOW_REF": "luogangan7-lgtm/cce-engine-oss/.github/workflows/cce-jev-prepare.yml@refs/heads/master"}, "llm candidate workflows"),
+])
+def test_v2_binding_refusals_happen_before_any_network(tmp_path, permit_file, mut, env_over, needle):
+    pm = _v2_permit(); mut(pm)
+    permit_file.write_text(json.dumps(pm))
+    p = _run(_env(tmp_path, **{**LLM_PREP_ENV, **env_over}))        # HF/GitHub 指向不可达端口: 走到网络就会是另一种报错
+    assert p.returncode == 3 and "PERMIT_NOT_APPROVED" in p.stderr and needle in p.stderr, p.stderr
+
+
+def test_legacy_permit_cannot_run_the_llm_workflow_and_v2_eval_needs_ready_assets(tmp_path, permit_file):
+    permit_file.write_text(json.dumps(_permit(workflow_id="cce-jev-llm-prepare.yml")))
+    p = _run(_env(tmp_path, **LLM_PREP_ENV))
+    assert p.returncode == 3 and "models-list (v2) permit" in p.stderr, p.stderr
+    ev = _v2_permit(workflow_id="cce-jev-llm-eval.yml", mode="eval", suite_id="s0-smoke-v1", suite_sha256=_sha(JEV / "suites" / "s0-smoke-v1.jsonl"),
+                    models=[{"model_key": k, "model_source_lock_sha256": _sha(JEV / "models" / k / "model.source.lock.json"), "asset_lock_sha256": "0" * 64} for k in KEYS])
+    permit_file.write_text(json.dumps(ev))
+    p = _run(_env(tmp_path, MODE="eval", SUITE_ID="s0-smoke-v1",
+                  GITHUB_WORKFLOW_REF="luogangan7-lgtm/cce-engine-oss/.github/workflows/cce-jev-llm-eval.yml@refs/heads/master"))
+    assert p.returncode == 3 and "asset lock not READY" in p.stderr, p.stderr

@@ -25,6 +25,11 @@ PERMIT_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{3,63}$")
 SUITE_RE = re.compile(r"^[a-z0-9][a-z0-9-]{2,40}$")
 REQUIRED = ("permit_id", "owner_approval_reference", "expiry", "repository", "workflow_id", "mode", "max_runs", "max_attempts",
             "model_source_lock_sha256", "asset_lock_sha256", "runtime_lock_sha256", "resource_policy", "resource_policy_sha256")
+# ★ 2026-09-27 许可 schema v2(hf_choice 候选): 顶层不再绑单个模型锁, 改为 models 清单逐个绑; 运行时锁照绑。
+REQUIRED_V2 = ("permit_id", "owner_approval_reference", "expiry", "repository", "workflow_id", "mode", "max_runs", "max_attempts",
+               "models", "runtime_lock_sha256", "resource_policy", "resource_policy_sha256")
+MODEL_KEY_RE = re.compile(r"^[a-z0-9][a-z0-9.-]{2,40}$")
+LLM_WORKFLOWS = ("cce-jev-llm-prepare.yml", "cce-jev-llm-eval.yml")
 
 
 def sha(p: Path) -> str:
@@ -39,6 +44,97 @@ def bundle_cache_key(root: Path = ROOT) -> str:
 def fail(code: str, detail: str) -> "NoReturn":
     print(f"{code}: {detail}", file=sys.stderr)
     sys.exit(3)
+
+
+def _hf_available(src: dict, hf: str) -> None:
+    """消耗之前: 固定修订仍可匿名取到, 且每个文件的大小/锚点与源锁一致(只读元数据)。不通 ⇒ 不消耗、拒绝。"""
+    try:
+        rq = urllib.request.Request(f"{hf}/api/models/{src['repo_id']}/revision/{src['revision']}", headers={"User-Agent": "cce-jev-admit/1"})
+        with urllib.request.urlopen(rq, timeout=30) as r:
+            info = json.load(r)
+        if info.get("sha") != src["revision"] or info.get("gated") not in (False, None) or info.get("private"):
+            fail("PERMIT_NOT_APPROVED", f"{src['repo_id']}@{src['revision'][:8]} no longer anonymously available at the pinned revision; permit NOT consumed")
+        rq = urllib.request.Request(f"{hf}/api/models/{src['repo_id']}/paths-info/{src['revision']}", method="POST",
+                                    data=json.dumps({"paths": sorted(src["files"])}).encode(), headers={"Content-Type": "application/json", "User-Agent": "cce-jev-admit/1"})
+        with urllib.request.urlopen(rq, timeout=30) as r:
+            rows = {x["path"]: x for x in json.load(r)}
+    except urllib.error.HTTPError as e:
+        fail("PERMIT_NOT_APPROVED", f"HF metadata check failed HTTP {e.code} for {src['repo_id']}; permit NOT consumed")
+    except Exception as e:  # noqa: BLE001
+        fail("PERMIT_NOT_APPROVED", f"cannot reach HF metadata ({type(e).__name__}); permit NOT consumed")
+    for name, spec in src["files"].items():
+        x = rows.get(name) or {}
+        lfs = x.get("lfs") or {}
+        size, oid = (lfs.get("size"), lfs.get("oid")) if lfs else (x.get("size"), x.get("oid"))
+        if size != spec["size"] or oid != spec["anchor"]["value"]:
+            fail("PERMIT_NOT_APPROVED", f"{src['repo_id']}:{name} metadata differs from the source lock; permit NOT consumed")
+
+
+def _admit_v2(env, permit, pid, mode, suite, wf_file):
+    """schema v2(hf_choice 候选): models 清单逐个核锁 → (eval) suite/策略/计划 → HF 元数据可达 —— 全在消耗之前。返回 (models, 回执锁块, suite_sha)。"""
+    if wf_file not in LLM_WORKFLOWS:
+        fail("PERMIT_NOT_APPROVED", "a models-list permit only runs the llm candidate workflows")
+    models = permit["models"]
+    if not isinstance(models, list) or not 1 <= len(models) <= 4:
+        fail("PERMIT_NOT_APPROVED", "models must be a list of 1..4 entries")
+    keys = [m.get("model_key") if isinstance(m, dict) else None for m in models]
+    if len(set(keys)) != len(keys) or not all(isinstance(k, str) and MODEL_KEY_RE.match(k) and ".." not in k for k in keys):
+        fail("PERMIT_NOT_APPROVED", "model keys missing, malformed or duplicated")
+    locks = JEV / "locks"
+    rt = locks / "runtime-cpu.lock.txt"
+    if not rt.is_file() or permit["runtime_lock_sha256"] != sha(rt):
+        fail("PERMIT_NOT_APPROVED", "runtime lock missing or sha mismatch")
+    srcs, block = {}, {}
+    for m in models:
+        k = m["model_key"]; d = JEV / "models" / k
+        sp, ap = d / "model.source.lock.json", d / "model.assets.lock.json"
+        if not sp.is_file() or m.get("model_source_lock_sha256") != sha(sp):
+            fail("PERMIT_NOT_APPROVED", f"model {k}: source lock missing or sha mismatch")
+        src = json.loads(sp.read_text(encoding="utf-8"))
+        if src.get("backend") != "hf_choice" or src.get("execution_location") != "github_hosted_actions_only" or src.get("remote_inference_allowed") is not False:
+            fail("PERMIT_NOT_APPROVED", f"model {k}: not an hf_choice lock with the GitHub-only boundary")
+        if (not re.match(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,95}/[A-Za-z0-9][A-Za-z0-9._-]{0,95}$", str(src.get("repo_id")))
+                or not re.match(r"^[0-9a-f]{40}$", str(src.get("revision"))) or not src.get("files")
+                or not all(re.match(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$", n) for n in src["files"])):
+            fail("PERMIT_NOT_APPROVED", f"model {k}: repo / revision / file names are not plain pinned identifiers")
+        if mode == "prepare":
+            if m.get("asset_lock_sha256") != "NOT_APPLICABLE_PREPARE":
+                fail("PERMIT_NOT_APPROVED", f"model {k}: prepare permit must mark asset_lock_sha256 NOT_APPLICABLE_PREPARE")
+        else:
+            assets = json.loads(ap.read_text(encoding="utf-8")) if ap.is_file() else {}
+            if assets.get("status") != "READY" or m.get("asset_lock_sha256") != sha(ap) or not (assets.get("observed_load") or {}).get("param_count"):
+                fail("PERMIT_NOT_APPROVED", f"model {k}: asset lock not READY (with reviewed observed_load) or sha mismatch")
+        srcs[k] = src
+        block[k] = {"model_source_lock_sha256": m["model_source_lock_sha256"], "asset_lock_sha256": m["asset_lock_sha256"]}
+    suite_sha = None
+    pol = JEV / "policies" / str(permit["resource_policy"])
+    policy = json.loads(pol.read_text(encoding="utf-8"))
+    if policy.get("mode") != mode or policy.get("backend") != "hf_choice":
+        fail("PERMIT_NOT_APPROVED", "resource policy mode/backend do not match this run")
+    if mode == "eval":
+        if not SUITE_RE.match(suite) or permit.get("suite_id") != suite:
+            fail("PERMIT_NOT_APPROVED", "suite_id missing or does not match permit")
+        sf = JEV / "suites" / f"{suite}.jsonl"
+        if not sf.is_file():
+            fail("PERMIT_NOT_APPROVED", f"suite {suite} not registered")
+        suite_sha = sha(sf)
+        if permit.get("suite_sha256") != suite_sha:
+            fail("PERMIT_NOT_APPROVED", "suite_sha256 != committed suite")
+        mf = JEV / "suites" / f"{suite}.manifest.json"
+        manifest = json.loads(mf.read_text(encoding="utf-8")) if mf.is_file() else {}
+        if permit["resource_policy"] != manifest.get("policy", "cpu_smoke.json"):
+            fail("PERMIT_NOT_APPROVED", f"permit resource_policy {permit['resource_policy']} != suite manifest policy {manifest.get('policy', 'cpu_smoke.json')}")
+        if ("suite_ids" in policy and suite not in policy["suite_ids"]) or policy.get("task", "s0_context.v1") != manifest.get("task", "s0_context.v1"):
+            fail("PERMIT_NOT_APPROVED", "resource policy suite_ids / task do not cover this suite")
+        pr = subprocess.run([sys.executable, str(JEV / "cli.py"), "plan", "--suite", suite], cwd=str(ROOT), capture_output=True, text=True, timeout=300)
+        if pr.returncode != 0:
+            fail("PERMIT_NOT_APPROVED", "suite plan failed before consumption: " + (pr.stderr.strip().splitlines() or ["?"])[-1][:200])
+        if not json.loads(pr.stdout).get("within_policy"):
+            fail("PERMIT_NOT_APPROVED", "suite plan exceeds the permit's resource policy")
+    hf = env.get("HF_ENDPOINT", "https://huggingface.co").rstrip("/")
+    for k in keys:
+        _hf_available(srcs[k], hf)
+    return keys, block, suite_sha
 
 
 def main() -> int:
@@ -57,7 +153,8 @@ def main() -> int:
     if not pf.is_file():
         fail("PERMIT_NOT_APPROVED", f"no approved permit file experiments/jev/permits/{pid}.json at this commit")
     permit = json.loads(pf.read_text(encoding="utf-8"))
-    missing = [k for k in REQUIRED if k not in permit]
+    v2 = "models" in permit
+    missing = [k for k in (REQUIRED_V2 if v2 else REQUIRED) if k not in permit]
     if missing:
         fail("PERMIT_NOT_APPROVED", f"permit missing {missing}")
     if permit["permit_id"] != pid or permit["mode"] != mode or permit["repository"] != env.get("GITHUB_REPOSITORY") or permit["workflow_id"] != wf_file:
@@ -75,12 +172,19 @@ def main() -> int:
     if dt.datetime.now(dt.timezone.utc) > expiry:
         fail("PERMIT_EXPIRED", f"permit expired at {expiry.isoformat()}")
     locks = JEV / "locks"
-    if permit["model_source_lock_sha256"] != sha(locks / "model.source.lock.json"):
-        fail("PERMIT_NOT_APPROVED", "model_source_lock_sha256 != committed source lock")
     pol = JEV / "policies" / str(permit["resource_policy"])
-    if not pol.is_file() or permit["resource_policy_sha256"] != sha(pol):
+    if not re.match(r"^[a-z0-9_]{3,40}\.json$", str(permit["resource_policy"])) or not pol.is_file() or permit["resource_policy_sha256"] != sha(pol):
         fail("PERMIT_NOT_APPROVED", "resource policy missing or sha mismatch")
-    if mode == "prepare":
+    models, model_locks = ["decider-2b"], None
+    if v2:
+        models, model_locks, suite_sha = _admit_v2(env, permit, pid, mode, suite, wf_file)
+    elif wf_file in LLM_WORKFLOWS:
+        fail("PERMIT_NOT_APPROVED", "the llm candidate workflows need a models-list (v2) permit")
+    elif permit["model_source_lock_sha256"] != sha(locks / "model.source.lock.json"):
+        fail("PERMIT_NOT_APPROVED", "model_source_lock_sha256 != committed source lock")
+    if v2:
+        pass
+    elif mode == "prepare":
         if permit["asset_lock_sha256"] != "NOT_APPLICABLE_PREPARE" or permit["runtime_lock_sha256"] != "NOT_APPLICABLE_PREPARE":
             fail("PERMIT_NOT_APPROVED", "prepare permit must mark asset/runtime locks NOT_APPLICABLE_PREPARE")
         suite_sha = None
@@ -148,11 +252,18 @@ def main() -> int:
     receipt = {"schema": "cce.jev.admission-receipt.v1", "permit_id": pid, "mode": mode, "repository": repo, "execution_commit": commit,
                "run_id": env.get("GITHUB_RUN_ID"), "run_attempt": env.get("GITHUB_RUN_ATTEMPT"), "workflow_id": wf_file,
                "workflow_ref": env.get("GITHUB_WORKFLOW_REF"), "actor": env.get("GITHUB_ACTOR"), "suite_id": suite or None,
-               "suite_sha256": suite_sha, "locks": {"model_source_lock_sha256": permit["model_source_lock_sha256"],
-                                                    "asset_lock_sha256": permit["asset_lock_sha256"], "runtime_lock_sha256": permit["runtime_lock_sha256"]},
+               "suite_sha256": suite_sha,
+               "locks": ({"runtime_lock_sha256": permit["runtime_lock_sha256"], "models": model_locks} if v2 else
+                         {"model_source_lock_sha256": permit["model_source_lock_sha256"],
+                          "asset_lock_sha256": permit["asset_lock_sha256"], "runtime_lock_sha256": permit["runtime_lock_sha256"]}),
                "resource_policy": permit["resource_policy"], "consumed_ref": ref, "owner_approval_reference": permit["owner_approval_reference"],
                "admitted_at": dt.datetime.now(dt.timezone.utc).isoformat()}
+    if v2:
+        receipt["models"] = models
     Path(env.get("RECEIPT_OUT", "admission_receipt.json")).write_text(json.dumps(receipt, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    if env.get("GITHUB_OUTPUT"):                    # 矩阵腿 = 许可批准的模型键(经正则), 不来自用户输入
+        with open(env["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+            fh.write("models=" + json.dumps(models) + "\n")
     print(json.dumps({"admitted": True, "permit_id": pid, "mode": mode, "consumed_ref": ref, "execution_commit": commit}))
     return 0
 

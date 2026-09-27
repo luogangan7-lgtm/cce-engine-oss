@@ -1,0 +1,31 @@
+{
+ "policy_id": "asset_prepare_llm.v1",
+ "mode": "prepare",
+ "backend": "hf_choice",
+ "runner": "ubuntu-24.04",
+ "github_hosted_cpu_runs": 2,
+ "run_attempts": 1,
+ "paid_gpu": 0,
+ "paid_model_api": 0,
+ "auto_retry_or_model_switch": 0,
+ "per_leg": true,
+ "max_model_bytes": 10737418240,
+ "max_download_bytes": 12884901888,
+ "model_forwards": 10,
+ "model_loads": 1,
+ "smoke_items": 1,
+ "smoke_text": "synthetic CC0 sentence in cli.SMOKE_TEXT (no corpus)",
+ "container": {
+  "cpus": 3,
+  "memory": "12g",
+  "memory_swap": "12g",
+  "pids_limit": 256,
+  "tmpfs_tmp": "256m",
+  "network": "none"
+ },
+ "smoke_deadline_s": 2400,
+ "job_timeout_min": 60,
+ "report_max_bytes": 20971520,
+ "retention_days": 7,
+ "note": "owner 2026-09-27「批准实测」的第 1 张许可: hf_choice 候选 prepare。每条腿(一个模型、一台 GitHub 托管 runner): 固定修订逐文件取 + 锚点核(Qwen3-4B-2507 计划 8,056,447,815 B, Qwen3.5-4B 9,332,739,901 B; 上限 10 GiB/模型、下载含重试 12 GiB/腿)、用已提交的运行时锁建镜像、容器内(--network none, 3 CPU / 12 GiB)合成 CC0 句子 × 5 道生产题 × 2 次前向。公开仓免费; 0 付费 GPU/API; 0 TypeSafe/MiniMax; 不用 Actions 缓存。"
+}

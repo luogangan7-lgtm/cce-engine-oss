@@ -1,0 +1,30 @@
+{
+ "suite_id": "s0-compare-llm-v1",
+ "suite_sha256": "07f4809e63da385148c521d69731439d4682d5a55d1607844f3a26d423aaee4d",
+ "items": 54,
+ "task": "s0_context.v2",
+ "policy": "cpu_compare_llm.json",
+ "prereg_sha256": "2f847cd53275fc4aaa53eff77ac5d7aff6a76d54cde9a07044406cf5dcdcc16c",
+ "prereg": "tests/data/jev_candidate_vs_retest_prereg.json",
+ "model_questions": 269,
+ "expected_rows": 486,
+ "composition": {
+  "compare": "42 条 = tests/data/real_corpus_pilot_prereg.json 冻结输入集, 原序, 按指针(text_ref), text_2000.v0",
+  "smoke": "s0-smoke-v1 的 2 条原样(inline, CC0); 情绪余温 从 expected 移除; smoke-01 触发事件 按 suites/gold_adjudications.json 的 owner 裁定用接受集合 {受挫/出故障, 刚花过钱}",
+  "rep": "10 条 = 输入集下标 i%4==0 且 i<40 的复跑, 只供确定性前置"
+ },
+ "gold_source": "42+10 条指针条目无 gold(REVIEW_REQUIRED); smoke 的 gold = 2026-09-24 预设 + 2026-09-27 owner 裁定(登记在 gold_adjudications.json)",
+ "text_policy": "suite 只存指针与 sha, 不存原文; 报告/日志/step summary 上传前按 24 字符窗扫全部输入文本, 命中即 OUTPUT_INVALID",
+ "provenance": {
+  "corpus_files": [
+   "corpus/reddit_hearingaids_audience_v2.txt",
+   "corpus/reddit_hearingaids_utterances.txt"
+  ],
+  "origin": "r/HearingAids 公开帖(去标识, 身份字段为化名), 由本仓 2026-08-09 提交 1463226/f95773e 纳入 corpus/",
+  "public_status": "这两份文件自 2026-08-09 起就在公开仓 luogangan7-lgtm/cce-engine-oss 的 master 树里; 公开 CI(cce.yml、s0 shadow)已在读",
+  "license_note": "论坛公开文本, 仓内无单独许可文件; 本 suite 只按指针在 --network none 容器里读, 产物不含原文",
+  "owner_approval": "owner 2026-09-27「批准实测」(hf_choice 候选完整对比; 与 s0-compare-v1 同构同输入集)"
+ },
+ "language": "en (texts) / zh (candidates)",
+ "note": "hf_choice 候选专用(policy cpu_compare_llm.json); 对比结论只看 42 条主条目; 42 条输入集 sha 与 s0-compare-v1 相同"
+}

@@ -1,0 +1,142 @@
+name: CCE LLM Candidate Evaluation
+
+# Manual, single-permit (schema v2), fixed suite. admit (no model code; contents: write only for the consumed-permit ref; suite plan
+# and HF metadata checked before consumption) → one evaluate leg per admitted model on its own runner: fetch the pinned files
+# host-side and verify every byte against the committed READY assets lock, build the runtime image from the committed recipe,
+# run the offline model container once over the fixed suite, write status even if the container died, scan the report for any
+# 24-char window of any input text, then upload the small report. Never writes back to production.
+on:
+  workflow_dispatch:
+    inputs:
+      suite_id:
+        description: "Registered hf_choice suite (experiments/jev/suites/<id>.jsonl)"
+        type: choice
+        options: [s0-compare-llm-v1]
+        default: s0-compare-llm-v1
+        required: true
+      permit_id:
+        description: "Single-use eval permit id (experiments/jev/permits/<id>.json, approved by the owner)"
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cce-llm-candidate-eval
+  cancel-in-progress: false
+
+jobs:
+  admit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write   # only for the atomic consumed-permit ref
+    outputs:
+      models: ${{ steps.admit.outputs.models }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+      - name: Admit permit (atomic single-use ref, no model code)
+        id: admit
+        env:
+          PERMIT_ID: ${{ inputs.permit_id }}
+          SUITE_ID: ${{ inputs.suite_id }}
+          MODE: eval
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RECEIPT_OUT: admission_receipt.json
+        run: python3 .github/scripts/cce_jev_admit.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: cce-jev-admission-${{ github.run_id }}
+          path: admission_receipt.json
+          retention-days: 7
+          if-no-files-found: error
+
+  evaluate:
+    needs: admit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 330  # outer bound (< 6 h job cap); the admitted policy's load+infer deadline is enforced inside
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        model: ${{ fromJSON(needs.admit.outputs.models) }}
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      TOKENIZERS_PARALLELISM: "false"
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+      SUITE_ID: ${{ inputs.suite_id }}
+      MODEL_KEY: ${{ matrix.model }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: cce-jev-admission-${{ github.run_id }}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+      - name: Locks must be READY and pinned (reviewed + committed after prepare)
+        run: |
+          echo "runner=$RUNNER_NAME arch=$RUNNER_ARCH env=$RUNNER_ENVIRONMENT run=$GITHUB_RUN_ID attempt=$GITHUB_RUN_ATTEMPT sha=$GITHUB_SHA model=$MODEL_KEY"
+          nproc; free -g; df -h "$RUNNER_TEMP" .
+          grep -m1 "model name" /proc/cpuinfo || true
+          python3 experiments/jev/cli.py check-locks --require-ready --model "$MODEL_KEY"
+          python3 experiments/jev/cli.py plan --suite "$SUITE_ID"
+      - name: Fetch the pinned bundle and verify every byte against the committed READY assets lock
+        run: python3 experiments/jev/cli.py fetch-bundle --model "$MODEL_KEY" --receipt admission_receipt.json --dest "$RUNNER_TEMP/bundle"
+      - name: Build runtime image from the committed recipe (no weights inside)
+        run: |
+          DECIDER_REF="$(python3 -c "import json;print(json.load(open('experiments/jev/locks/model.source.lock.json'))['source_revision'])")"
+          cp experiments/jev/locks/runtime-cpu.lock.txt experiments/jev/runtime/runtime-cpu.lock.txt
+          docker build --pull -f experiments/jev/runtime/Dockerfile.cpu --build-arg "DECIDER_REF=$DECIDER_REF" -t cce-jev-cpu:eval experiments/jev/runtime
+          rm -f experiments/jev/runtime/runtime-cpu.lock.txt
+          docker image inspect --format '{{.Id}}' cce-jev-cpu:eval
+      - name: Run the isolated model container (one load, fixed suite, offline)
+        id: run
+        run: |
+          set +e
+          mkdir -p "$RUNNER_TEMP/out"
+          DEADLINE="$(python3 experiments/jev/cli.py policy-field --receipt admission_receipt.json --field model_load_plus_infer_deadline_s)" || DEADLINE=""
+          if ! [[ "$DEADLINE" =~ ^[0-9]+$ ]]; then echo "policy deadline unavailable; not starting the container"; echo "rc=3" >> "$GITHUB_OUTPUT"; exit 0; fi
+          echo "deadline_s=$DEADLINE"
+          bash experiments/jev/runtime/run_llm.sh eval cce-jev-cpu:eval "$RUNNER_TEMP/bundle" "$PWD/admission_receipt.json" "$RUNNER_TEMP/out" "$MODEL_KEY" "$DEADLINE" "$SUITE_ID"
+          RC=$?
+          echo "rc=$RC" >> "$GITHUB_OUTPUT"
+          OOM="$(docker inspect --format '{{.State.OOMKilled}}' cce-jev-llm 2>/dev/null || echo unknown)"
+          echo "oom=$OOM" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Host-side finalize (writes status even if the container died; no model call)
+        if: always()
+        env:
+          RC: ${{ steps.run.outputs.rc }}
+          OOM: ${{ steps.run.outputs.oom }}
+        run: |
+          python3 experiments/jev/cli.py finalize --out "$RUNNER_TEMP/out/reports/run" --docker-exit "${RC:-1}" --oom "${OOM:-unknown}" --backend hf_choice
+      - name: Report whitelist + verbatim-input scan (no model assets, no secrets, size cap, no 24-char window of any input text)
+        id: upload_gate
+        if: always()
+        run: python3 experiments/jev/cli.py check-upload --root "$RUNNER_TEMP/out/reports/run" --suite "$SUITE_ID"
+      - name: Publish summary (only after the scan passed)
+        if: always() && steps.upload_gate.outcome == 'success'
+        run: cat "$RUNNER_TEMP/out/reports/run/summary.md" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always() && steps.upload_gate.outcome == 'success'
+        with:
+          name: cce-jev-report-${{ github.run_id }}-${{ matrix.model }}
+          path: ${{ runner.temp }}/out/reports/run
+          retention-days: 7
+          if-no-files-found: error
+      - name: Propagate container exit code (failures are not re-run automatically)
+        if: always()
+        env:
+          RC: ${{ steps.run.outputs.rc }}
+        run: test "${RC:-1}" = "0"

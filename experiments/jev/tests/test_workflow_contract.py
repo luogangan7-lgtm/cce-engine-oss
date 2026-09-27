@@ -8,6 +8,8 @@ ROOT = Path(__file__).resolve().parents[3]
 WF = ROOT / ".github" / "workflows"
 ACTS = json.loads((ROOT / "experiments" / "jev" / "locks" / "actions.lock.json").read_text(encoding="utf-8"))
 SUITES = sorted(p.stem for p in (ROOT / "experiments" / "jev" / "suites").glob("*.jsonl"))
+ALL_WF = ("cce-jev-contract.yml", "cce-jev-prepare.yml", "cce-jev-eval.yml", "cce-jev-llm-prepare.yml", "cce-jev-llm-eval.yml")
+DECIDER_SUITES = ["s0-compare-v1", "s0-probe-v1", "s0-smoke-v1"]
 
 
 def _wf(name):
@@ -34,7 +36,7 @@ def _run_blocks(text):
 
 
 def test_every_action_pinned_to_full_sha_in_lock_and_checkout_without_credentials():
-    for wf in ("cce-jev-contract.yml", "cce-jev-prepare.yml", "cce-jev-eval.yml"):
+    for wf in ALL_WF:
         text = _wf(wf)
         for ref in _uses(text):
             action, _, sha = ref.partition("@")
@@ -59,7 +61,7 @@ def test_contract_workflow_is_pure():
 
 
 def test_prepare_and_eval_are_manual_single_permit_and_split_permissions():
-    for wf in ("cce-jev-prepare.yml", "cce-jev-eval.yml"):
+    for wf in ("cce-jev-prepare.yml", "cce-jev-eval.yml", "cce-jev-llm-prepare.yml", "cce-jev-llm-eval.yml"):
         t = _wf(wf)
         head = t.split("jobs:")[0]
         assert "workflow_dispatch:" in head and "push:" not in head and "pull_request" not in head, wf
@@ -76,7 +78,9 @@ def test_prepare_and_eval_are_manual_single_permit_and_split_permissions():
     ev = _wf("cce-jev-eval.yml")
     assert "name: CCE Decider Candidate Evaluation" in ev and "group: cce-decider-candidate-eval" in ev
     opts = re.search(r"options:\s*\[([^\]]*)\]", ev).group(1)
-    assert sorted(o.strip() for o in opts.split(",")) == SUITES == ["s0-compare-v1", "s0-probe-v1", "s0-smoke-v1"]
+    assert sorted(o.strip() for o in opts.split(",")) == DECIDER_SUITES
+    llm_opts = sorted(o.strip() for o in re.search(r"options:\s*\[([^\]]*)\]", _wf("cce-jev-llm-eval.yml")).group(1).split(","))
+    assert sorted(DECIDER_SUITES + llm_opts) == SUITES, "每个 suite 恰好属于一个评估工作流"
     for flag in ("--network none", "--read-only", "--cap-drop ALL", "no-new-privileges", "--memory-swap 12g", "--cpus 3", "--user 1001:1001", "--pids-limit"):
         assert flag in (ROOT / "experiments" / "jev" / "runtime" / "run_remote_only.sh").read_text(encoding="utf-8"), flag
     sh = (ROOT / "experiments" / "jev" / "runtime" / "run_remote_only.sh").read_text(encoding="utf-8")
@@ -119,9 +123,61 @@ def test_locks_are_consistent_and_ready_after_github_prepare():
 
 def test_evaluate_outer_timeout_covers_every_policy_deadline():
     import glob
-    ev = _wf("cce-jev-eval.yml")
-    tmin = int(re.search(r"evaluate:[\s\S]*?timeout-minutes: (\d+)", ev).group(1))
-    for p in glob.glob(str(ROOT / "experiments/jev/policies/cpu_*.json")):
+    for p in glob.glob(str(ROOT / "experiments/jev/policies/*.json")):
         pol = json.loads(open(p, encoding="utf-8").read())
-        slack = int(re.search(r"timeout --signal=KILL \$\(\(DEADLINE \+ (\d+)\)\)", (ROOT / "experiments/jev/runtime/run_remote_only.sh").read_text(encoding="utf-8")).group(1))
+        if pol.get("mode") != "eval":
+            continue
+        llm = pol.get("backend") == "hf_choice"                 # 候选策略由 llm 工作流执行, 对照它的外层时限与包装脚本
+        ev = _wf("cce-jev-llm-eval.yml" if llm else "cce-jev-eval.yml")
+        tmin = int(re.search(r"evaluate:[\s\S]*?timeout-minutes: (\d+)", ev).group(1))
+        slack = int(re.search(r"timeout --signal=KILL \$\(\(DEADLINE \+ (\d+)\)\)", (ROOT / "experiments/jev/runtime" / ("run_llm.sh" if llm else "run_remote_only.sh")).read_text(encoding="utf-8")).group(1))
         assert tmin * 60 >= pol["model_load_plus_infer_deadline_s"] + slack + 15 * 60, (p, tmin, slack)     # 强杀余量 + 恢复缓存/建镜像/收尾
+
+
+def test_llm_workflows_matrix_from_admitted_models_no_cache_and_same_isolation():
+    """hf_choice 候选工作流: 腿 = admit 从许可里核过的模型键(不是用户输入); 不用 Actions 缓存; 容器隔离与 Decider 同级;
+    取件只在 evaluate/prepare 腿里(admit 不碰模型字节); 上传与摘要都在原文扫描之后。"""
+    sh = (ROOT / "experiments" / "jev" / "runtime" / "run_llm.sh").read_text(encoding="utf-8")
+    for flag in ("--network none", "--read-only", "--cap-drop ALL", "no-new-privileges", "--memory-swap 12g", "--cpus 3", "--user 1001:1001", "--pids-limit",
+                 "-e HOME=/tmp", "HF_HOME=/tmp/hf", "TRANSFORMERS_VERBOSITY=error", "suite-files --suite", "EXECUTION_LOCATION_FORBIDDEN"):
+        assert flag in sh, flag
+    assert "docker run --rm" not in sh and ":ro" in sh.split("MOUNTS+=(-v \"$ROOT/$f")[1].split("\n")[0] and "corpus:/work/corpus" not in sh
+    for wf, leg in (("cce-jev-llm-prepare.yml", "prepare"), ("cce-jev-llm-eval.yml", "evaluate")):
+        t = _wf(wf)
+        admit = t.split("  admit:")[1].split("\n  " + leg + ":")[0]
+        rest = t.split("\n  " + leg + ":")[1]
+        assert "models: ${{ steps.admit.outputs.models }}" in admit and "id: admit" in admit and "HF_ENDPOINT" not in t
+        assert "model: ${{ fromJSON(needs.admit.outputs.models) }}" in rest and "fail-fast: false" in rest
+        assert "actions/cache" not in t and "restore-keys" not in t and "huggingface_hub" not in t and "pip install" not in t
+        assert "run_llm.sh" in rest and "State.OOMKilled" in rest and "cce-jev-llm" in rest
+        assert "${{ matrix.model }}" in rest.split("upload-artifact@")[-1]                  # 每条腿的产物名带模型键, 不互相覆盖
+        up = rest.rsplit("actions/upload-artifact@", 1)[1].split("with:")[0]
+        assert "steps.upload_gate.outcome == 'success'" in up
+    ev = _wf("cce-jev-llm-eval.yml")
+    assert "fetch-bundle --model" in ev.split("\n  evaluate:")[1] and "fetch-bundle" not in ev.split("\n  evaluate:")[0]
+    assert "check-locks --require-ready --model" in ev and "--backend hf_choice" in ev
+    assert 'check-upload --root "$RUNNER_TEMP/out/reports/run" --suite "$SUITE_ID"' in ev and ev.index("id: upload_gate") < ev.index("GITHUB_STEP_SUMMARY")
+    assert "policy-field --receipt admission_receipt.json --field model_load_plus_infer_deadline_s" in ev
+    pr = _wf("cce-jev-llm-prepare.yml")
+    assert "run_llm.sh smoke" in pr and "check-upload --root prepare-out" in pr and "locks/runtime-cpu.lock.txt experiments/jev/runtime/runtime-cpu.lock.txt" in pr
+    assert "pip-compile" not in pr, "候选 prepare 用已审过的运行时锁建镜像, 不重新解析依赖"
+
+
+def test_candidate_model_locks_consistent_when_prepared():
+    M = ROOT / "experiments" / "jev" / "models"
+    keys = sorted(d.name for d in M.iterdir() if d.is_dir())
+    assert keys == ["qwen3-4b-2507", "qwen3.5-4b"], keys
+    for k in keys:
+        src = json.loads((M / k / "model.source.lock.json").read_text(encoding="utf-8"))
+        assert src["backend"] == "hf_choice" and src["execution_location"] == "github_hosted_actions_only" and src["remote_inference_allowed"] is False
+        ap = M / k / "model.assets.lock.json"
+        if not ap.is_file():
+            continue
+        a = json.loads(ap.read_text(encoding="utf-8"))
+        assert a["status"] == "READY" and a["revision"] == src["revision"] and set(a["files"]) == set(src["files"]), k
+        assert a["generated_by"].startswith("cce-jev-llm-prepare.yml") and a["reviewed"]["run"].startswith("https://github.com/"), k
+        assert a["observed_load"]["param_count"] > 0 and not a["observed_load"]["loading_info"]["mismatched_keys"], k
+        for name, spec in src["files"].items():
+            assert a["files"][name]["size"] == spec["size"], (k, name)
+            if spec["anchor"]["kind"] == "lfs_sha256":
+                assert a["files"][name]["sha256"] == spec["anchor"]["value"], (k, name)
