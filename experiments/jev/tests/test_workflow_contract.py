@@ -123,4 +123,5 @@ def test_evaluate_outer_timeout_covers_every_policy_deadline():
     tmin = int(re.search(r"evaluate:[\s\S]*?timeout-minutes: (\d+)", ev).group(1))
     for p in glob.glob(str(ROOT / "experiments/jev/policies/cpu_*.json")):
         pol = json.loads(open(p, encoding="utf-8").read())
-        assert tmin * 60 >= pol["model_load_plus_infer_deadline_s"] + 15 * 60, (p, tmin)     # 载入+推理之外还有恢复缓存/建镜像/收尾
+        slack = int(re.search(r"timeout --signal=KILL \$\(\(DEADLINE \+ (\d+)\)\)", (ROOT / "experiments/jev/runtime/run_remote_only.sh").read_text(encoding="utf-8")).group(1))
+        assert tmin * 60 >= pol["model_load_plus_infer_deadline_s"] + slack + 15 * 60, (p, tmin, slack)     # 强杀余量 + 恢复缓存/建镜像/收尾

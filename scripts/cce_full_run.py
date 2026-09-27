@@ -705,11 +705,11 @@ def run_single_stage(name, ctx):
 def build_ctx(outdir, body):
     """从 run_dir 与请求体重建 ctx;cce/aud 从上游落盘文件恢复"""
     ctx = load_ctx(outdir)
-    ctx.update({"outdir": outdir, "mode": body.get("mode"),
+    ctx.update({"outdir": outdir, "mode": body.get("mode", ctx.get("mode")),   # 请求体没给模式时保留已存的, 不静默改成 None
                 "text_file": os.path.join(outdir, "input.txt"),
                 "context": body.get("context", ""),
                 "guard_profile": body.get("guard_profile", "hearing_aid"),
-                "k": 5 if body.get("mode") in {"post", "outbound_post"} else 3})
+                "k": 5 if body.get("mode", ctx.get("mode")) in {"post", "outbound_post"} else 3})
     if body.get("audience"):
         ctx["audience_file"] = os.path.join(outdir, "audience.txt")
     if body.get("ref"):

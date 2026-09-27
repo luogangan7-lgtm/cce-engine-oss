@@ -23366,6 +23366,6 @@
    "tests/test_cce_r3_acceptance_gaps.py"
   ],
   "owner": "2026-09-27「做吧」",
-  "stale_harness_arms": "probes/ablation_r3_chain_stages.py 的 S0_A6 / S0_A9 臂按改动前的源码文本打补丁, 现在锚点文本已不存在, 重跑会失败; 重判这些位点要按新源码写新臂。"
+  "stale_harness_arms": "probes/ablation_r3_chain_stages.py 的 S0_A6 / S0_A9 臂按改动前的源码文本打补丁, 现在锚点文本已不存在, 重跑会失败; 重判这些位点要按新源码写新臂。 另: probes/ablation_r3_chain_stages.py 的 observe_s0 / observe_len_face 构造的 ctx 不带 mode, 改动后会静默走非冷读路径(与 response 相同); 写新臂时必须显式给 mode(outbound_post / reply 与 response 各测一次)。"
  }
 }
