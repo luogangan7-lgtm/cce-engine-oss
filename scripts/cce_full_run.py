@@ -152,7 +152,8 @@ def s0(ctx):
         属"影响大但拿不到", 必须以未知记录并交下游做分布, 不许猜一个填上。
     生产纪律: 我们自己产内容时情境是【已知入参】, 不该让模型猜; 逆向他人内容时才读出。
     故声明优先于读出, 读出优先于未知; 每面记录来源, 并给出填充度。
-    ★ 2026-09-27 owner「做吧」: 情绪余温(闭环接口)改为结构冷读 —— 未声明 ⇒ 首轮无余温, 不问 Jev/MiniMax。
+    ★ 2026-09-27 owner「做吧」: 冷读模式(outbound_post / reply)下 情绪余温(闭环接口)改为结构冷读 —— 未声明 ⇒ 首轮无余温, 不问 Jev/MiniMax;
+      response 模式(对我方内容的进站回复, 有上一轮)与未知模式不变。
       顺序 = 已声明 > 结构冷读 > 读出 > 未知。填充度公式不变(非未知面/9, 结构冷读算已知);
       拒答改为「既无声明也无读出」—— 否则结构冷读让 fill 恒 ≥1/9, 拒答闸永远不响。
     """
@@ -160,7 +161,9 @@ def s0(ctx):
     if ctx.get("context_decl"):
         decl = json.loads(open(ctx["context_decl"], encoding="utf-8").read()) \
             if os.path.exists(ctx["context_decl"]) else json.loads(ctx["context_decl"])
-    from cce_s0_jev import s0_jev_read, STRUCTURAL   # 调用期导入(闸用 monkeypatch 替换 s0_jev_read)
+    from cce_s0_jev import s0_jev_read, STRUCTURAL, COLD_READ_MODES   # 调用期导入(闸用 monkeypatch 替换 s0_jev_read)
+    # 结构冷读只在冷读模式; response/未知模式 ⇒ 空集 = 改动前行为
+    STRUCTURAL = STRUCTURAL if ctx.get("mode") in COLD_READ_MODES else {}
     need_read = [f for f in CTX_FACETS
                  if f["key"] not in decl and f["key"] not in STRUCTURAL and f.get("readable_from_text") in (True, "partial")]
     read, backend = {}, "none"
@@ -610,7 +613,7 @@ def main():
     ap.add_argument("--submission-meta", help="normalized cce.submission.v1 schema 1.1.0 item metadata JSON")
     a = ap.parse_args()
     os.makedirs(a.outdir, exist_ok=True)
-    ctx = {"text_file": a.text_file, "context": a.context, "outdir": a.outdir,
+    ctx = {"mode": a.mode, "text_file": a.text_file, "context": a.context, "outdir": a.outdir,
            "reader_file": a.reader_file,
            "audience_file": a.audience_file, "ref_post": a.ref_post,
            "context_decl": a.context_decl, "guard_profile": a.guard_profile,
@@ -702,7 +705,7 @@ def run_single_stage(name, ctx):
 def build_ctx(outdir, body):
     """从 run_dir 与请求体重建 ctx;cce/aud 从上游落盘文件恢复"""
     ctx = load_ctx(outdir)
-    ctx.update({"outdir": outdir,
+    ctx.update({"outdir": outdir, "mode": body.get("mode"),
                 "text_file": os.path.join(outdir, "input.txt"),
                 "context": body.get("context", ""),
                 "guard_profile": body.get("guard_profile", "hearing_aid"),

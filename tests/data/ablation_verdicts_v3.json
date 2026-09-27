@@ -78,7 +78,7 @@
    "note": "生产面 = 这三个目录下全部 *.py 递归 + config/ 顶层 *.json。tests/ 与 archive/ 不计入分母(它们是语料与守卫, 不是被消融的生产代码)。"
   },
   "scope_files": 251,
-  "scope_lines": 49636,
+  "scope_lines": 49653,
   "touched_files_union": [
    "accuracy/run_gates.py",
    "config/cce_core_manifest.json",
@@ -120,7 +120,7 @@
   ],
   "n_touched_files": 29,
   "file_level_pct": 11.55,
-  "lines_in_touched_files": 12161,
+  "lines_in_touched_files": 12167,
   "line_level_pct_GENEROUS_UPPER_BOUND": 24.5,
   "by_round": {
    "v2_only_files": [
@@ -174,7 +174,7 @@
    "config/cce_archive_index.json": 864,
    "config/cce_capability_registry_v1.json": 196,
    "config/cce_chain_conformance.json": 287,
-   "config/cce_core_manifest.json": 1710,
+   "config/cce_core_manifest.json": 1711,
    "config/cce_doc_reconciliation.json": 382,
    "config/cce_eval_benchmarks_v1.json": 201,
    "config/cce_foundation_contract_v1.json": 41,
@@ -255,7 +255,7 @@
    "probes/image_chain_real_material.py": 83,
    "probes/intensity_across_panel.py": 98,
    "probes/interpretation_upgrade_impact.py": 212,
-   "probes/jev_decider_probe.py": 233,
+   "probes/jev_decider_probe.py": 244,
    "probes/jev_decider_vs_retest.py": 283,
    "probes/jev_fit_inventory.py": 51,
    "probes/judge_noise_floor.py": 211,
@@ -358,7 +358,7 @@
    "scripts/cce_event_assemble.py": 125,
    "scripts/cce_foundation_adapter.py": 163,
    "scripts/cce_foundation_prepare.py": 67,
-   "scripts/cce_full_run.py": 726,
+   "scripts/cce_full_run.py": 729,
    "scripts/cce_github_client.py": 240,
    "scripts/cce_image_ingest.py": 213,
    "scripts/cce_k1_status.py": 313,
@@ -382,7 +382,7 @@
    "scripts/cce_resample_power.py": 104,
    "scripts/cce_response_chain.py": 391,
    "scripts/cce_rule_delivery_completeness.py": 137,
-   "scripts/cce_s0_jev.py": 50,
+   "scripts/cce_s0_jev.py": 52,
    "scripts/cce_stage2_candidate.py": 134,
    "scripts/cce_strategy_gate.py": 145,
    "scripts/cce_structural_gate.py": 244,
@@ -853,7 +853,7 @@
   ],
   "③_合计": {
    "n_files_never_touched": 222,
-   "lines_never_touched": 37475,
+   "lines_never_touched": 37486,
    "★为什么变了": [
     "2026-09-11 收口后 26596→26622: scripts/cce_open_items.py(从未触及)由 612 涨到 638 行 —— 把写死的「只覆盖 17.3%」改成现算所致。**本闸自己抓到的第二处连带**。",
     "2026-09-12 parser_plane 收口: 169→166 文件 / 26622→26301 行。减少的三件是 parser_plane 的 cce_case_assemble(144) · cce_event_assemble(125) · cce_platform_adapter(64) = 333 行; 同时 config/ontology_legacy_exceptions_v1.json 因补登 P1 豁免多了 12 行(它从未被触及, 故净变化 = -333+12 = -321)。",
@@ -1728,7 +1728,7 @@
  "★frozen_files_sha256": {
   "scripts/cce_knot_classify.py": "0a740ba16e80dc54af920ce9536be50ae26590e0946064db062981b5ca75a9a5",
   "config/knot_taxonomy.json": "56a1c1977bf8d18c8a41efa3b7bfe15ba8e53af6850bf2de13ccbbc334dec8a3",
-  "config/cce_core_manifest.json": "4ade3b1a78471f2aac25bd8ed7c57d0f6bd3301acbc9b47e152c0a40cee33332",
+  "config/cce_core_manifest.json": "0b6927f9d19e0d29b8da5085ec13a8bdc9458e8133186897fd8c75bc3a3f2961",
   "accuracy/run_gates.py": "b758e6676a94acf37782b70e1f5096a1e27b4e35adda741f2bf6d3298c485065"
  },
  "★frozen_files_verdict": "第一轮开工前与收工后各算一次, 逐一相同。**第二轮(2026-09-11)出过一起事故并已还原**: 19:40:25 scripts/cce_knot_classify.py 被 L4 农场经 symlink 写穿真仓, 追加两行(空行 + `# refactor log reverse test`), sha f2cef2f99c949a75… → ad6503a8db0e871d…, 仓自己的 CORE_BOUNDARY 闸当场转红。造成它的 agent 已逐字节剥掉后缀 b'\\n# refactor log reverse test\\n' 并与并行 agent 的 pristine 副本逐行 diff 确认, `python3 scripts/cce_core_boundary.py` 重跑 = CORE_BOUNDARY_PASS。★ 收口时我自己第三次重算四个冻结件 sha256, 与 ★frozen_files_sha256 逐一相同(见 ★frozen_files_recheck_this_round)。★ 因此: 若某个产物的 file_integrity 报 sha_after=ad6503a8…, 那是事故窗口内的读数, **已失效**; 一律按 f2cef2f99c949a75… 比对。根因与修法见 ★claims_exceeding_evidence 的 CE-17(L4 农场必须实拷贝, 禁止 symlink)。",
@@ -23325,8 +23325,8 @@
    "date": "2026-09-27",
    "file": "config/cce_core_manifest.json",
    "from": "99ad0706783658e6",
-   "to": "4ade3b1a78471f2a",
-   "★为什么允许更新": "追加一条 S0_EMOTION_RESIDUE_STRUCTURAL_COLD_READ_OWNER_NOD(生产 s0 情绪余温 结构冷读)。core_files 六个 pin 与 parser_plane 四件逐字未动, instrument_generation 不变。",
+   "to": "0b6927f9d19e0d29",
+   "★为什么允许更新": "追加一条 S0_EMOTION_RESIDUE_STRUCTURAL_COLD_READ_OWNER_NOD(生产 s0 冷读模式下 情绪余温 结构冷读; response 不变)。core_files 六个 pin 与 parser_plane 四件逐字未动, instrument_generation 不变。",
    "★★★这句话不是我说了算, 是现算的": "摘掉那一条重算 sha = 99ad0706783658e6, 与旧钉逐字节相同。",
    "★这条哈希本来防什么": "防未经记录的改动。"
   }
@@ -23351,7 +23351,7 @@
   "★变异结果": "见 tests/data/ablation_v3/r3_acceptance_gaps_mutation.json"
  },
  "★2026-09-27 s0 结构冷读 语义变更登记": {
-  "what": "生产 s0 改为 已声明 > 结构冷读 > 读出 > 未知; need_read 排除 STRUCTURAL; 拒答条件由 fill==0 改为「既无声明也无读出」。",
+  "what": "冷读模式(outbound_post / reply)下生产 s0 改为 已声明 > 结构冷读 > 读出 > 未知; need_read 排除 STRUCTURAL; 拒答条件由 fill==0 改为「既无声明也无读出」。response 模式与未知模式不变。",
   "affected_verdict_rows": [
    "v3-310",
    "v3-312",
@@ -23365,6 +23365,7 @@
    "tests/test_cce_s0_wiring.py",
    "tests/test_cce_r3_acceptance_gaps.py"
   ],
-  "owner": "2026-09-27「做吧」"
+  "owner": "2026-09-27「做吧」",
+  "stale_harness_arms": "probes/ablation_r3_chain_stages.py 的 S0_A6 / S0_A9 臂按改动前的源码文本打补丁, 现在锚点文本已不存在, 重跑会失败; 重判这些位点要按新源码写新臂。"
  }
 }

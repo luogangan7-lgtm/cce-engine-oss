@@ -29,7 +29,8 @@ IMAGE_ID="$(docker image inspect --format '{{.Id}}' "$IMAGE")"
 echo "image_id=$IMAGE_ID"
 # Effective limits are recorded from the container's cgroup by the evaluate job (not just echoed here).
 set +e
-timeout --signal=KILL $((DEADLINE + 60)) docker run --name cce-jev-eval \
+# +300 s: model import and bundle verification happen before the in-container ledger clock starts; the report must be written before any outer kill
+timeout --signal=KILL $((DEADLINE + 300)) docker run --name cce-jev-eval \
   --network none --read-only --cap-drop ALL --security-opt no-new-privileges \
   --user 1001:1001 --cpus 3 --memory 12g --memory-swap 12g --pids-limit 256 \
   --tmpfs /tmp:rw,size=256m,uid=1001,gid=1001 \

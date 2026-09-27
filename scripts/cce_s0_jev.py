@@ -8,11 +8,13 @@
 ★ 2026-09-27 owner「做吧」: 情绪余温 是闭环接口(上一轮互动留下的感觉), 冷读时不让模型读 —— 未声明 ⇒ 首轮无余温(结构冷读)。
   依据: results/s0_retest.json 冷读结构约束 MiniMax 违反 42/42、Jev 12/42; 候选合同 experiments/jev/tasks/s0_context.v2.json 同一规则(闸钉两处相等)。
   调用方义务: 有上一轮互动时必须在 context.declaration 里声明 情绪余温, 否则按首轮处理。
+  只在 COLD_READ_MODES 生效: response 模式的文本本身就是读者对我方上一轮内容的反应, 不是冷读, 保持改动前行为(模型读)。
 """
 import json, os, time, urllib.request, urllib.error
 
 API = "https://api.typesafe.ai/v1/systemone"; MODEL = "jev-latest"; UNKNOWN = {"未知", "未提及", "", None}
 STRUCTURAL = {"情绪余温": "首轮无余温"}   # 结构冷读: 不出模型题; 生产唯一定义(候选合同 v2 由闸钉等)
+COLD_READ_MODES = {"outbound_post", "reply"}   # 只有冷读模式才有「没有上一轮」; response(对我方内容的进站回复)有上一轮, 照旧让模型读
 
 
 def jev_questions(facets):

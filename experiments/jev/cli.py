@@ -135,6 +135,10 @@ def _cgroup_limits() -> dict:
         except OSError:
             out[name] = "unavailable"
     out["os.cpu_count"] = os.cpu_count()
+    try:                                                    # 记录 CPU 型号: 跨 runner 的浮点差异要能事后诊断
+        out["cpu_model"] = next((l.split(":", 1)[1].strip() for l in Path("/proc/cpuinfo").read_text(encoding="utf-8").splitlines() if l.startswith("model name")), "unavailable")
+    except OSError:
+        out["cpu_model"] = "unavailable"
     return out
 
 

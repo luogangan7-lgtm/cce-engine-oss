@@ -150,12 +150,17 @@ def analyse(cells, arms, pre, task):
             me = lambda v: v in ("未知", "无明显触发")
             row["merged_empty_count"] = {c: sum(1 for v in lab[c] if me(v)) for c in lab} | {f"J_{j}": sum(1 for v in J[j] if me(v)) for j in J}
         ind = (lambda v: v in ("未知", "无明显触发")) if k == "触发事件" else (lambda v: v == "未知")
+        quasi = {"进程位置": "无关进程", "身体状态": "无关"}.get(k)
+        if quasi:                                                       # 敏感性(描述): 准弃权值并入后的未知数
+            row["sensitivity_quasi_abstain_merged"] = {"merged_value": quasi, **{c: sum(1 for v in lab[c] if v in ("未知", quasi)) for c in lab},
+                                                        "J_J1": sum(1 for v in J["J1"] if v in ("未知", quasi))}
         E0 = sum(ind(v) for v in lab["0"]) - sum(ind(v) for v in J["J1"])
         effects = {}
         for fac, c in (("position", "a"), ("language", "b")):
             b_ = sum(1 for x, y in zip(lab["0"], lab[c]) if ind(x) and not ind(y)); c_ = sum(1 for x, y in zip(lab["0"], lab[c]) if not ind(x) and ind(y))
             Ec = sum(ind(v) for v in lab[c]) - sum(ind(v) for v in J["J1"])
-            effects[fac] = {"left_unknown": b_, "entered_unknown": c_, "p_exact": CMP.mcnemar_exact(b_, c_), "excess_cell0": E0, "excess_cell": Ec}
+            effects[fac] = {"left_unknown": b_, "entered_unknown": c_, "p_exact": CMP.mcnemar_exact(b_, c_), "excess_cell0": E0, "excess_cell": Ec,
+                            "direction": "减少" if b_ > c_ else "增加" if c_ > b_ else "无变化", "exploratory": k not in pre["★主要检验族"]["面"]}
             if k in pre["★主要检验族"]["面"]: primary_p[(k, fac)] = effects[fac]["p_exact"]
         row["effects"] = effects
         row["order_sensitivity"] = {"zh d(0,a)": sum(x != y for x, y in zip(lab["0"], lab["a"])), "en d(b,c)": sum(x != y for x, y in zip(lab["b"], lab["c"])),
@@ -168,8 +173,12 @@ def analyse(cells, arms, pre, task):
             zs = []
             for p in ptrs:
                 r = cells[c][p][k]; ids = r["candidate_ids"]
-                uid = next(i for i in ids if to_zh(task, k, i) in ("未知", "未提及"))
-                zs.append(unk_logodds(r, uid))
+                if k == "触发事件":                                         # 与指示量同口径: 空选项 = 未知 ∪ 无明显触发
+                    lg = r["raw_candidate_logits"]; empt = [j for j, i in enumerate(ids) if to_zh(task, k, i) in ("未知", "无明显触发")]
+                    zs.append(_lse([lg[j] for j in empt]) - _lse([lg[j] for j in range(len(ids)) if j not in empt]))
+                else:
+                    uid = next(i for i in ids if to_zh(task, k, i) in ("未知", "未提及"))
+                    zs.append(unk_logodds(r, uid))
             z[c] = zs
         I = [(z["c"][i] - z["b"][i]) - (z["a"][i] - z["0"][i]) for i in range(n)]
         p_i, pos, neg = sign_test(I)
@@ -197,7 +206,9 @@ def analyse(cells, arms, pre, task):
     for (k, fac) in primary_p:
         e = out["per_facet"][k]["effects"][fac]
         e["holm_reject"] = rej[f"{k}|{fac}"]
-        if e["holm_reject"] and e["excess_cell"] <= e["excess_cell0"] / 2:
+        if e["holm_reject"] and e["excess_cell"] > e["excess_cell0"]:
+            e["attribution"] = "该因素使过量弃权增加"
+        elif e["holm_reject"] and e["excess_cell"] <= e["excess_cell0"] / 2:
             e["attribution"] = "该因素可以解释多数过量弃权"
         elif e["p_exact"] > 0.05 and abs((e["excess_cell"] - e["excess_cell0"])) <= R["no_effect_max_dU"]:
             e["attribution"] = "该因素在可测尺度上不是原因"

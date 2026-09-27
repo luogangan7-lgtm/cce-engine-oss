@@ -17,9 +17,9 @@ SHADOW = json.loads((ROOT / "results/s0_jev_shadow.json").read_text(encoding="ut
 def _sha(o): return hashlib.sha256(json.dumps(o, ensure_ascii=False, sort_keys=True).encode()).hexdigest()[:16]
 
 
-def _ctx(tmp, decl=None):
+def _ctx(tmp, decl=None, mode="outbound_post"):
     tf = pathlib.Path(tmp) / "t.txt"; tf.write_text("I have worn these aids for two years and the battery died again yesterday.", encoding="utf-8")
-    return {"text_file": str(tf), "outdir": tmp, "context": "ctx", "context_decl": (json.dumps(decl, ensure_ascii=False) if decl else None)}
+    return {"mode": mode, "text_file": str(tf), "outdir": tmp, "context": "ctx", "context_decl": (json.dumps(decl, ensure_ascii=False) if decl else None)}
 
 
 def _run_s0(ctx):
@@ -128,6 +128,33 @@ def test_structural_alone_does_not_satisfy_the_refusal(monkeypatch):
             assert "拒答" in str(e)
         layer = json.loads((pathlib.Path(tmp) / "s0_context.json").read_text(encoding="utf-8"))
     assert layer["fill_rate"] > 0 and layer["source"]["情绪余温"] == "结构冷读"          # fill>0 仍拒答: 结构冷读不是输入
+
+
+def test_response_mode_keeps_model_reading_emotion_residue(monkeypatch):
+    """response = 对我方内容的进站回复, 有上一轮 ⇒ 不是冷读: 照旧问 6 题(与重测集合逐字相同), 读出的 情绪余温 照用。"""
+    calls = []
+    def fake_post(body, key): calls.append(body); return {"answers": {k: {"choice": "负向余温" if k == "情绪余温" else "未知", "probabilities": {}} for k in body["questions"]}}, None
+    monkeypatch.setenv("TYPESAFE_API_KEY", "k"); monkeypatch.setattr(cce_s0_jev, "s0_jev_read", lambda body, facets: _orig(body, facets, post=fake_post))
+    with tempfile.TemporaryDirectory() as tmp:
+        out = _run_s0(_ctx(tmp, mode="response")); layer = json.loads((pathlib.Path(tmp) / "s0_context.json").read_text(encoding="utf-8"))
+    assert list(calls[0]["questions"]) == list(shadow.jev_questions()) and _sha(calls[0]["questions"]) == SHADOW["★Jev 题目集 sha"]
+    assert layer["source"]["情绪余温"] == "读出" and layer["facets"]["情绪余温"] == "负向余温" and out["结构冷读"] == []   # 只读出 情绪余温 也不拒答
+
+
+def test_structural_only_in_cold_read_modes():
+    assert cce_s0_jev.COLD_READ_MODES == {"outbound_post", "reply"} and cce_s0_jev.COLD_READ_MODES <= set(fr.CHAINS)
+    assert "response" not in cce_s0_jev.COLD_READ_MODES
+    src = (ROOT / "scripts/cce_full_run.py").read_text(encoding="utf-8")
+    assert 'ctx = {"mode": a.mode,' in src                                     # main 把模式交给 s0
+
+
+def test_unknown_mode_keeps_pre_change_behaviour(monkeypatch):
+    calls = []
+    monkeypatch.setenv("TYPESAFE_API_KEY", "k")
+    monkeypatch.setattr(cce_s0_jev, "s0_jev_read", lambda body, facets: (calls.append([f["key"] for f in facets]), _orig(body, facets, post=lambda b, k: ({"answers": {q: {"choice": "在找方案" if q == "进程位置" else "未知", "probabilities": {}} for q in b["questions"]}}, None)))[1])
+    with tempfile.TemporaryDirectory() as tmp:
+        out = _run_s0(_ctx(tmp, mode=None))
+    assert "情绪余温" in calls[0] and out["结构冷读"] == []
 
 
 def test_no_offrepo_path_no_key_literal_in_production_module():

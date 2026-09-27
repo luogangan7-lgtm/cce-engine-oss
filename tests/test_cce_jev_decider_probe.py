@@ -84,6 +84,64 @@ def test_order_sensitivity_classes_use_registered_numbers():
     assert out["per_facet"]["进程位置"]["order_sensitivity"]["class"]["zh"] == "顺序敏感"
 
 
+def test_holm_and_attribution_boundaries_behave():
+    assert P.holm({"a": 0.001, "b": 0.02, "c": 0.04}) == {"a": True, "b": True, "c": True}
+    assert P.holm({"a": 0.001, "b": 0.03, "c": 0.04}) == {"a": True, "b": False, "c": False}          # 第二步 0.025
+    assert P.holm({"a": 0.2, "b": 0.3}) == {"a": False, "b": False}
+    c0 = _cell0()
+    def with_fixed(n_fix, facet="进程位置"):
+        fx = copy.deepcopy(c0); done = 0
+        for ptr in sorted(fx):
+            r = fx[ptr][facet]; j = P.RT.norm(ARMS["J1"][ptr].get(facet), P.FACETS[facet])
+            if done < n_fix and P.RT.norm(r["label_zh"], P.FACETS[facet]) == "未知" and j != "未知":
+                r["label_zh"] = j; done += 1
+        return fx
+    e = P.analyse({"0": c0, "a": _rev(c0), "b": _en(with_fixed(14)), "c": _rev(_en(c0))}, ARMS, PRE, TASK)["per_facet"]["进程位置"]["effects"]["language"]
+    assert e["excess_cell0"] == 14 and e["excess_cell"] == 0 and e["attribution"] == "该因素可以解释多数过量弃权" and e["direction"] == "减少"
+    e = P.analyse({"0": c0, "a": _rev(c0), "b": _en(with_fixed(6)), "c": _rev(_en(c0))}, ARMS, PRE, TASK)["per_facet"]["进程位置"]["effects"]["language"]
+    assert e["excess_cell"] == 8 and e["excess_cell"] > e["excess_cell0"] / 2 and e["attribution"] != "该因素可以解释多数过量弃权"   # E0/2 = 7: 8 不算多数
+    more = copy.deepcopy(c0); n = 0
+    for ptr in sorted(more):
+        r = more[ptr]["关系位置"]
+        if n < 12 and P.RT.norm(r["label_zh"], P.FACETS["关系位置"]) != "未知":
+            r["label_zh"] = "未知"; n += 1
+    e = P.analyse({"0": c0, "a": _rev(more), "b": _en(c0), "c": _rev(_en(c0))}, ARMS, PRE, TASK)["per_facet"]["关系位置"]["effects"]["position"]
+    assert e["attribution"] == "该因素使过量弃权增加" and e["direction"] == "增加"
+    body = P.analyse({"0": c0, "a": _rev(c0), "b": _en(c0), "c": _rev(_en(c0))}, ARMS, PRE, TASK)["per_facet"]["身体状态"]["effects"]
+    assert body["position"]["exploratory"] and "holm_reject" not in body["position"]
+
+
+def test_trigger_event_indicator_counts_no_obvious_trigger_as_empty():
+    c0 = _cell0(); moved = copy.deepcopy(c0)
+    for ptr in sorted(moved)[:12]:
+        r = moved[ptr]["触发事件"]
+        if r["label_zh"] == "无明显触发": r["label_zh"] = "受挫/出故障"
+    e = P.analyse({"0": c0, "a": _rev(moved), "b": _en(c0), "c": _rev(_en(c0))}, ARMS, PRE, TASK)["per_facet"]["触发事件"]["effects"]["position"]
+    assert e["left_unknown"] >= 10 and e["direction"] == "减少"                    # 无明显触发 → 实义标签 必须算「离开空选项」
+
+
+def test_anchor_check_requires_every_anchor_to_match():
+    p0, _ = P._preds(CELL0)
+    rows = [dict(r) for r in p0 if r["item_id"].endswith(":0") or r["item_id"].endswith(":4")][:10]
+    assert P.anchor_check(rows, p0, 1e-3)["pass"]
+    assert not P.anchor_check(rows[:5] + [dict(rows[5], identities={"row_sha256": "x"})] + rows[6:], p0, 1e-3)["pass"]      # 少一条匹配
+    flip = copy.deepcopy(rows); flip[0]["selected_candidate"] = next(c for c in flip[0]["candidate_ids"] if c != flip[0]["selected_candidate"])
+    assert not P.anchor_check(flip, p0, 1e-3)["pass"]
+    assert not P.anchor_check([], p0, 1e-3)["pass"]
+
+
+def test_task_v3_rejects_malformed_variant_names(tmp_path, monkeypatch):
+    import experiments.jev.compile_context as C
+    for name, spec in (("orig-fr", {"order": "original", "lang": "fr"}), ("rev-zh", {"order": "original", "lang": "zh"}), ("x", {"order": "reversed", "lang": "en"})):
+        t = copy.deepcopy(TASK); t["question_variants"][name] = spec
+        (tmp_path / "s0_context.v3.json").write_text(json.dumps(t, ensure_ascii=False), encoding="utf-8")
+        monkeypatch.setattr(C, "TASKS", tmp_path)
+        try:
+            C.load_task("s0_context.v3", load_taxonomy()); raise AssertionError(name)
+        except Exception as e:  # noqa: BLE001
+            assert getattr(e, "code", None) == "INPUT_INVALID", name
+
+
 def _fake_probe_run(tmp_path):
     from experiments.jev import run_suite as RS
     from experiments.jev.tests.fakes import FakeBackend, FakeTokenizer, fake_upstream
