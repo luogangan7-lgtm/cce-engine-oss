@@ -77,8 +77,8 @@
    ],
    "note": "生产面 = 这三个目录下全部 *.py 递归 + config/ 顶层 *.json。tests/ 与 archive/ 不计入分母(它们是语料与守卫, 不是被消融的生产代码)。"
   },
-  "scope_files": 252,
-  "scope_lines": 49817,
+  "scope_files": 254,
+  "scope_lines": 50492,
   "touched_files_union": [
    "accuracy/run_gates.py",
    "config/cce_core_manifest.json",
@@ -119,9 +119,9 @@
    "tests/test_cce_structural_gate.py"
   ],
   "n_touched_files": 29,
-  "file_level_pct": 11.51,
+  "file_level_pct": 11.42,
   "lines_in_touched_files": 12167,
-  "line_level_pct_GENEROUS_UPPER_BOUND": 24.42,
+  "line_level_pct_GENEROUS_UPPER_BOUND": 24.1,
   "by_round": {
    "v2_only_files": [
     "config/need_taxonomy.json",
@@ -258,6 +258,8 @@
    "probes/jev_candidate_vs_retest.py": 110,
    "probes/jev_decider_probe.py": 244,
    "probes/jev_decider_vs_retest.py": 283,
+   "probes/jev_distill_teacher.py": 250,
+   "probes/jev_distill_vs_retest.py": 425,
    "probes/jev_fit_inventory.py": 51,
    "probes/judge_noise_floor.py": 211,
    "probes/k1_cost_curve.py": 127,
@@ -599,6 +601,29 @@
       "scope_lines": 42890
      }
     }
+   },
+   {
+    "date": "2026-09-27",
+    "原因": "新增 probes/jev_distill_teacher.py(老师读数, 计量调用 ≤80 次) 与 probes/jev_distill_vs_retest.py(蒸馏分析, 零调用)",
+    "新增进 scope": [
+     "probes/jev_distill_teacher.py",
+     "probes/jev_distill_vs_retest.py"
+    ],
+    "变动": {
+     "before": {
+      "scope_files": 252,
+      "scope_lines": 49817,
+      "file_level_pct": 11.51,
+      "line_level_pct_GENEROUS_UPPER_BOUND": 24.42
+     },
+     "after": {
+      "scope_files": 254,
+      "scope_lines": 50492,
+      "file_level_pct": 11.42,
+      "line_level_pct_GENEROUS_UPPER_BOUND": 24.1
+     }
+    },
+    "★为什么如实记": "新文件确实没被消融过; 分子未动 ⇒ 下降是分母稀释, 不是覆盖倒退"
    }
   ],
   "★刷新记录": [
@@ -853,8 +878,8 @@
    }
   ],
   "③_合计": {
-   "n_files_never_touched": 223,
-   "lines_never_touched": 37650,
+   "n_files_never_touched": 225,
+   "lines_never_touched": 38325,
    "★为什么变了": [
     "2026-09-11 收口后 26596→26622: scripts/cce_open_items.py(从未触及)由 612 涨到 638 行 —— 把写死的「只覆盖 17.3%」改成现算所致。**本闸自己抓到的第二处连带**。",
     "2026-09-12 parser_plane 收口: 169→166 文件 / 26622→26301 行。减少的三件是 parser_plane 的 cce_case_assemble(144) · cce_event_assemble(125) · cce_platform_adapter(64) = 333 行; 同时 config/ontology_legacy_exceptions_v1.json 因补登 P1 豁免多了 12 行(它从未被触及, 故净变化 = -333+12 = -321)。",
@@ -871,7 +896,8 @@
     "2026-09-15(第十次): 187→187 文件 / 31297→31299 行。新增接入决策探针与闸。",
     "2026-09-16: 187→187 文件 / 31299→31348 行(补欠账, 探针与闸扩写)。",
     "2026-09-17: 187→187 文件 / 31348→31448 行(体检器加第二个参照)。",
-    "2026-09-17(第二次): 187→189 文件 / 31448→31782 行(三项决策的两个对比探针)。"
+    "2026-09-17(第二次): 187→189 文件 / 31448→31782 行(三项决策的两个对比探针)。",
+    "2026-09-27 蒸馏测试: 223→225 文件 / 37650→38325 行 —— 新增 probes/jev_distill_teacher.py 与 probes/jev_distill_vs_retest.py(均从未触及)。"
    ]
   },
   "②_本轮已填(逐条记出处, 原条目见 ②_已填_原文)": [
