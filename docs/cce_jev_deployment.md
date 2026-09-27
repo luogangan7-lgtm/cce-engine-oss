@@ -82,6 +82,34 @@ What the data supports:
 
 Not separable here: translation vs code-mixing, model vs facet definitions/option sets, T = 1.3 and this single translation only. All 5 pre-registered predictions came true, but most carried little risk; the one risky prediction held on 进程位置 only.
 
+## Qwen candidates (backend `hf_choice`, owner 「批准实测」 2026-09-27)
+
+Decider-2B was a different reader from Jev on all 5 facets, so two instruct models were chosen after web research plus
+independent licence checks (`results` of that research are in the Humaux store, not in this repo):
+`Qwen/Qwen3-4B-Instruct-2507@cdbee75f` (key `qwen3-4b-2507`) and `Qwen/Qwen3.5-4B@851bf6e8` (key `qwen3.5-4b`, text-only load).
+Both are Apache-2.0 and ungated. The Decider path (locks, workflows, permits, results) is untouched.
+
+| piece | where | why this way |
+|---|---|---|
+| model locks | `models/<key>/model.source.lock.json` (+ `model.assets.lock.json` after prepare) | one directory per model; legacy key `decider-2b` still resolves to `locks/` |
+| numerics | `backend_hf_choice.py`: bf16 weights exactly as released, **fp32 compute** (each `nn.Linear` runs `F.linear(x, W.float())`, embeddings return fp32, other params fp32, checkpoint-F32 tensors restored from the safetensors) | fp32 weights do not fit 12 GiB; ~60% of GitHub runners are AVX2-only where bf16 GEMM is slow and ISA-dependent; fp32 compute is the same dtype path Decider ran, with predictable speed |
+| scoring | `plan_chat.py` + backend: the model's own chat template, options lettered A–H, last-position hidden state · output-embedding rows of the letters, `T = 1` | instruct models answer in chat format; Qwen3.5 thinks by default, so `enable_thinking=False` and the rendered prompt must end with the empty think block (checked per row) |
+| planning checks | suffix == locked `answer_suffix`; text verbatim exactly once; no tokenizer control literals in the text; each letter one token at the boundary; row ≤ 2048 tokens | a template or thinking-switch drift is refused before any forward |
+| bundle transport | prepare and eval legs fetch the pinned revision with a stdlib streaming downloader, checking size + LFS sha256 / git blob sha1 per file (≤5 whole-file attempts, every attempt charged to the ledger, cap 24 GiB/leg incl. retries); eval then verifies every byte against the committed READY assets lock | two 8–9 GB bundles do not fit the public repo's 10 GB Actions cache; the files are content-addressed, so integrity does not depend on the client |
+| load gate | prepare and eval both refuse any missing / mismatched key or load error and check the tied output head; eval also requires `loading_info` and the parameter count to equal the prepare observation, which `cli.py assemble-assets-lock` writes into the READY lock mechanically | no randomly initialised weight can reach scoring, and a key-remap change between prepare and eval is caught |
+| workflows | `cce-jev-llm-prepare.yml`, `cce-jev-llm-eval.yml`: one matrix leg per model in the admitted permit, each on its own runner; `run_llm.sh` gives the same container isolation as the Decider wrapper, pins MKL / oneDNN / ATen to their AVX2 code paths, and kills a timed-out container before the host scans; the image is built with `WITH_DECIDER=0` (no git fetch at build time) | Decider workflows stay byte-identical |
+| permits | schema v2: `models: [{model_key, model_source_lock_sha256, asset_lock_sha256}]`; before consuming, admit runs the legs' own `check-locks` per model, the suite plan, the planned-size cap and an HF metadata check (same host as the fetcher; the test override is refused inside Actions); it emits the matrix | one permit covers both candidates |
+| prepare smoke | in the offline container: a self-written CC0 sentence × the 5 production questions × 2 forwards; load report, parameter count, tok/s, letter mass, bitwise repeatability | validates the whole scoring path on GitHub before the eval permit exists |
+| comparison | suite `s0-compare-llm-v1` = `s0-compare-v1` items (same 42-item input set) with the owner-adjudicated smoke-01 gold; prereg `tests/data/jev_candidate_vs_retest_prereg.json`; analysis `probes/jev_candidate_vs_retest.py` runs the **frozen** `probes/jev_decider_vs_retest.py` unchanged (sha-checked) with only `PRE/SUITE/OUT` rebound | the gate test replays Decider's archived predictions through the wrapper and must reproduce the frozen verdicts |
+
+The originally planned single-facet screen was dropped before any data: with fp32 compute the run time is predictable from
+the Decider anchor, runners are free and the two legs run in parallel, so the full comparison of both candidates gives strictly
+more information with one permit fewer. The pre-registered headline check is still reported first:
+`max(d(C,J1), d(C,J2)) ≥ 5` on 触发事件 means that facet cannot be 可替代, so the candidate is not a full replacement.
+
+Local development used only tiny random-init models in the real checkpoint layouts and the real tokenizers on synthetic
+text (fp32-compute path equals a full-fp32 reference exactly); no candidate weights were downloaded or run locally.
+
 ## What runs where
 
 * **Local machine**: only pure Python (stdlib) tests with a fake backend / fake tokenizer. `cli.py eval|prepare` refuse
@@ -97,6 +125,8 @@ Not separable here: translation vs code-mixing, model vs facet definitions/optio
 | `cce-jev-contract.yml` | push / PR on candidate paths | no | `contents: read` |
 | `cce-jev-prepare.yml` | manual, `permit_id` | download + hash only, `model_forwards=0` | admit `contents: write` (ref only) / prepare `contents: read` |
 | `cce-jev-eval.yml` | manual, `suite_id` (choice) + `permit_id` | one load, ≤16 forwards in `--network none` container | admit `contents: write` (ref only) / evaluate `contents: read` |
+| `cce-jev-llm-prepare.yml` | manual, `permit_id` (schema v2) | per model leg: fetch + anchor, synthetic smoke (10 forwards) | admit `contents: write` (ref only) / prepare `contents: read` |
+| `cce-jev-llm-eval.yml` | manual, `suite_id` + `permit_id` (schema v2) | per model leg: fetch + verify, one load, the suite's rows in `--network none` container | admit `contents: write` (ref only) / evaluate `contents: read` |
 
 All official actions are pinned to full commit SHAs recorded in `locks/actions.lock.json`; `persist-credentials: false`;
 inputs reach scripts only through `env:`; the model container inherits no `GITHUB_TOKEN` and no model API secret.

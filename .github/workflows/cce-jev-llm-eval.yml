@@ -97,7 +97,7 @@ jobs:
         run: |
           DECIDER_REF="$(python3 -c "import json;print(json.load(open('experiments/jev/locks/model.source.lock.json'))['source_revision'])")"
           cp experiments/jev/locks/runtime-cpu.lock.txt experiments/jev/runtime/runtime-cpu.lock.txt
-          docker build --pull -f experiments/jev/runtime/Dockerfile.cpu --build-arg "DECIDER_REF=$DECIDER_REF" -t cce-jev-cpu:eval experiments/jev/runtime
+          docker build --pull -f experiments/jev/runtime/Dockerfile.cpu --build-arg "DECIDER_REF=$DECIDER_REF" --build-arg WITH_DECIDER=0 -t cce-jev-cpu:eval experiments/jev/runtime
           rm -f experiments/jev/runtime/runtime-cpu.lock.txt
           docker image inspect --format '{{.Id}}' cce-jev-cpu:eval
       - name: Run the isolated model container (one load, fixed suite, offline)

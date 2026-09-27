@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import json
+import os
 import time
 from pathlib import Path
 
@@ -107,14 +108,19 @@ class HfChoiceBackend:
         if type(model).__name__ != cfg["expected_class"] or getattr(model.config, "model_type", None) != cfg.get("expected_model_type"):
             raise JevError("MODEL_VERSION_MISMATCH", f"loaded {type(model).__name__}/{getattr(model.config, 'model_type', None)} != lock {cfg['expected_class']}/{cfg.get('expected_model_type')}")
         param_count = int(sum(p.numel() for p in model.parameters()))
+        if info.get("missing_keys") or info.get("mismatched_keys") or info.get("error_msgs"):      # 任何随机初始化的权重都不许进打分(prepare 与 eval 同一闸)
+            raise JevError("MODEL_BUNDLE_INVALID", f"load report not clean: {canonical(info)[:300]}")
+        tied = bool(getattr(model.config, "tie_word_embeddings", False))
+        if tied and model.get_output_embeddings().weight is not model.get_input_embeddings().weight:
+            raise JevError("MODEL_BUNDLE_INVALID", "tie_word_embeddings is set but the output head is not the input embedding")
         pinned = (assets.get("observed_load") or {})
         if require_pinned_load:
             want = {"loading_info": pinned.get("loading_info"), "param_count": pinned.get("param_count")}
             got = {"loading_info": info, "param_count": param_count}
             if want != got:
                 raise JevError("MODEL_BUNDLE_INVALID", f"load differs from the reviewed prepare observation: {canonical(got)[:300]} vs {canonical(want)[:300]}")
-        elif info.get("mismatched_keys") or info.get("error_msgs"):
-            raise JevError("MODEL_BUNDLE_INVALID", "mismatched keys / load errors during prepare smoke")
+        from transformers import AutoTokenizer
+        n_tok = len(AutoTokenizer.from_pretrained(str(bundle), local_files_only=True))                 # 可发出的 token 数(词表尾部是填充行)
         self.patch = _fp32_compute(model, torch)
         self.f32 = _restore_checkpoint_f32(model, bundle, torch)
         self.load_s = round(time.monotonic() - t0, 3)
@@ -122,6 +128,7 @@ class HfChoiceBackend:
         self.base = model.get_decoder() if hasattr(model, "get_decoder") else model.model
         self.out_w = model.get_output_embeddings().weight          # 绑定时即 embed_tokens.weight(bf16, 不复制)
         self.T = float(cfg["temperature"])
+        self.n_tok = min(int(n_tok), int(self.out_w.shape[0]))
         self.param_count, self.loading_info = param_count, info
         self.forwards_observed = 0
         self.effective = {"backend": "hf_choice", "model_name": src["model_version"], "repo_id": src["repo_id"], "revision": src["revision"],
@@ -129,7 +136,9 @@ class HfChoiceBackend:
                           "storage_dtype": str(self.out_w.dtype), "compute_dtype": "torch.float32", "temperature": self.T,
                           "threads": threads, "letters": cfg["letters"], "prompt_spec": cfg["prompt_spec"], "patch": self.patch,
                           "checkpoint_f32_restored": self.f32["restored"], "loading_info": info, "load_s": self.load_s,
-                          "torch": torch.__version__, "cpu_capability": _cpu_capability(torch)}
+                          "torch": torch.__version__, "cpu_capability": _cpu_capability(torch), "output_tied": tied,
+                          "vocab_rows": int(self.out_w.shape[0]), "emittable_tokens": self.n_tok, "blas": _blas_info(torch),
+                          "numeric_env": {k: os.environ.get(k) for k in ("MKL_CBWR", "ONEDNN_MAX_CPU_ISA", "ATEN_CPU_CAPABILITY", "OMP_NUM_THREADS", "MKL_NUM_THREADS")}}
 
     def identities(self) -> dict:
         return dict(self.effective, device="cpu", batch_rows=1, layout="chat_letter")
@@ -143,7 +152,7 @@ class HfChoiceBackend:
     def _vocab_diag(self, h, letter_ids):
         """全词表 softmax(分块, fp32)下字母的总质量与 top-1 是否为字母 —— 诊断「模型是不是真在用字母作答」, 不进判决。"""
         torch = self.torch
-        W, step, mx, arg, chunks = self.out_w, 32768, None, None, []
+        W, step, mx, arg, chunks = self.out_w[:self.n_tok], 32768, None, None, []      # 只算可发出的 token
         for s in range(0, W.shape[0], step):
             lg = W[s:s + step].float() @ h
             chunks.append(lg)
@@ -182,6 +191,13 @@ class HfChoiceBackend:
                                                "letter_mass": mass, "vocab_top1_is_letter": top_is_letter},
                                    timing={"forward_s": round(dt, 4), "token_len": n, "padded_len": n}))
         return out
+
+
+def _blas_info(torch) -> str:
+    try:
+        return next((l.strip() for l in torch.__config__.show().splitlines() if "BLAS_INFO" in l or "LAPACK_INFO" in l), "unavailable")[:120]
+    except Exception:  # noqa: BLE001
+        return "unavailable"
 
 
 def _cpu_capability(torch) -> str:

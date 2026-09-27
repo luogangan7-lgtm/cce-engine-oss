@@ -103,14 +103,16 @@ jobs:
         run: |
           DECIDER_REF="$(python3 -c "import json;print(json.load(open('experiments/jev/locks/model.source.lock.json'))['source_revision'])")"
           cp experiments/jev/locks/runtime-cpu.lock.txt experiments/jev/runtime/runtime-cpu.lock.txt
-          docker build --pull -f experiments/jev/runtime/Dockerfile.cpu --build-arg "DECIDER_REF=$DECIDER_REF" -t cce-jev-cpu:prepare experiments/jev/runtime
+          docker build --pull -f experiments/jev/runtime/Dockerfile.cpu --build-arg "DECIDER_REF=$DECIDER_REF" --build-arg WITH_DECIDER=0 -t cce-jev-cpu:prepare experiments/jev/runtime
           rm -f experiments/jev/runtime/runtime-cpu.lock.txt
           docker image inspect --format '{{.Id}}' cce-jev-cpu:prepare | tee prepare-out/image_id.txt
       - name: Offline synthetic smoke in the model container (CC0 sentence; no corpus)
         id: smoke
         run: |
           set +e
-          bash experiments/jev/runtime/run_llm.sh smoke cce-jev-cpu:prepare "$RUNNER_TEMP/bundle" "$PWD/admission_receipt.json" "$RUNNER_TEMP/smoke" "$MODEL_KEY" 2400 "$PWD/prepare-out/model.assets.lock.proposal.json"
+          DEADLINE="$(python3 experiments/jev/cli.py policy-field --receipt admission_receipt.json --field smoke_deadline_s)" || DEADLINE=""
+          if ! [[ "$DEADLINE" =~ ^[0-9]+$ ]]; then echo "policy smoke deadline unavailable; not starting the container"; echo "rc=3" >> "$GITHUB_OUTPUT"; exit 0; fi
+          bash experiments/jev/runtime/run_llm.sh smoke cce-jev-cpu:prepare "$RUNNER_TEMP/bundle" "$PWD/admission_receipt.json" "$RUNNER_TEMP/smoke" "$MODEL_KEY" "$DEADLINE" "$PWD/prepare-out/model.assets.lock.proposal.json"
           RC=$?
           echo "rc=$RC" >> "$GITHUB_OUTPUT"
           OOM="$(docker inspect --format '{{.State.OOMKilled}}' cce-jev-llm 2>/dev/null || echo unknown)"

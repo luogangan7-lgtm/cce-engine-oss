@@ -27,9 +27,11 @@
   "chat_template_kwargs": {
    "enable_thinking": false
   },
+  "user_head": "<|im_start|>user\n",
+  "user_tail": "<|im_end|>\n",
   "answer_suffix": "<|im_start|>assistant\n<think>\n\n</think>\n\n",
   "prompt_spec": "cce.jev.hf_choice.prompt.v1",
-  "note": "multimodal checkpoint loaded text-only (vision/MTP keys ignored by the class); thinks by default, so enable_thinking=False is mandatory and the rendered prompt must end with the empty think block"
+  "note": "multimodal checkpoint loaded text-only (vision/MTP keys ignored by the class); thinks by default, so enable_thinking=False is mandatory and the rendered prompt must end with the empty think block; rendered prompt must equal user_head + user message + user_tail + answer_suffix exactly (no system prompt)"
  },
  "files": {
   "chat_template.jinja": {

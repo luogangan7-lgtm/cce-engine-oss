@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """守卫: 普通本机 ⇒ 网络/模型 import 之前拒绝; 逐条环境缺失各自拒绝; attempt 2 拒绝; receipt 不符拒绝。"""
+import json
 import os
 import subprocess
 import sys
@@ -135,3 +136,24 @@ def test_cmd_eval_routes_policy_through_eval_policy():
         seg = ast.get_source_segment(src, first)
         assert "execution_guard.require(" in seg or name == "cmd_prepare_smoke" or name == "cmd_fetch_bundle", (name, seg)
         assert "execution_guard.require(env, receipt, LLM_" in ast.get_source_segment(src, f), name
+
+
+
+@pytest.mark.parametrize("entry", ["_eval_llm", "cmd_fetch_bundle", "_prepare_llm", "cmd_prepare_smoke"])
+def test_hf_entries_refuse_a_model_the_permit_did_not_admit(entry, monkeypatch, tmp_path):
+    """许可只批了 qwen3.5-4b ⇒ 拿它跑 qwen3-4b-2507 在读锁/联网检查/加载之前就拒绝(行为, 不是源码 grep)。"""
+    import argparse
+    import experiments.jev.cli as C
+    wf = C.LLM_EVAL_WF if entry in ("_eval_llm", "cmd_fetch_bundle") else C.LLM_PREPARE_WF
+    env = github_env(wf); rec = receipt_for(env, wf); rec["models"] = ["qwen3.5-4b"]
+    for k, val in env.items():
+        monkeypatch.setenv(k, val)
+    rf = tmp_path / "r.json"; rf.write_text(json.dumps(rec), encoding="utf-8")
+    monkeypatch.setattr(C, "_model_locks", lambda *a, **k: pytest.fail("read locks before the permit binding"))
+    monkeypatch.setattr(C, "_network_isolated", lambda *a, **k: pytest.fail("network check before the permit binding"))
+    a = argparse.Namespace(model="qwen3-4b-2507", receipt=str(rf), suite="s0-compare-llm-v1", bundle=str(tmp_path), out=str(tmp_path / "reports" / "x"),
+                           dest=str(tmp_path / "b"), plan_only=False, proposal=str(rf))
+    with pytest.raises(JevError) as e:
+        fn = getattr(C, entry)
+        fn(a, env, rec) if entry in ("_eval_llm", "_prepare_llm") else fn(a)
+    assert e.value.code == "PERMIT_NOT_APPROVED" and "not in the admitted permit" in e.value.detail

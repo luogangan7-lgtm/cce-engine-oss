@@ -10,7 +10,7 @@ from .contracts import JevError
 
 APPROVED_REPOSITORY = "luogangan7-lgtm/cce-engine-oss"
 APPROVED_REF = "refs/heads/master"
-APPROVED_WORKFLOWS = ("cce-jev-prepare.yml", "cce-jev-eval.yml", "cce-jev-llm-prepare.yml", "cce-jev-llm-eval.yml")
+APPROVED_WORKFLOWS = ("cce-jev-prepare.yml", "cce-jev-eval.yml")   # 缺省集合; hf_choice 入口一律显式传自己的工作流名
 RECEIPT_SCHEMA = "cce.jev.admission-receipt.v1"
 
 

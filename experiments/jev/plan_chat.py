@@ -4,9 +4,9 @@
 与 plan_work.prepare 同一职责、同一产物形状(PreparedRows), 只是渲染器换成模型自己的 chat 模板:
   用户消息 = Context / Question / Options(A. 候选id: 描述) / 作答要求 → apply_chat_template(add_generation_prompt, 模型锁里的 kwargs)
 渲染后逐项核(任何一项不成立 = INPUT_INVALID / INPUT_TOO_LONG, 不裁文本、不减候选、不分块):
-  ① 渲染串以锁里的 answer_suffix 结尾(思考开关没关、模板被换 ⇒ 拒)  ② 原文在渲染串里逐字恰好出现一次
-  ③ 原文里不含 tokenizer 的特殊/附加 token 字面量(否则会被解析成控制符)  ④ 每个用到的字母 L: encode(渲染+L) == encode(渲染)+[id_L]
-  ⑤ 字母 id 互不相同  ⑥ 行长 ≤ max_row_tokens
+  ① 渲染串 == 锁里的 user_head + 用户消息 + user_tail + answer_suffix, 逐字相等(加了系统提示、内容被裁剪/改写、思考开关没关、模板被换 ⇒ 拒)
+  ② 原文里不含 tokenizer 的特殊/附加 token 字面量(否则会被解析成控制符)  ③ 每个用到的字母 L: encode(渲染+L) == encode(渲染)+[id_L]
+  ④ 字母 id 互不相同  ⑤ 行长 ≤ max_row_tokens
 行哈希 = sha256(canonical([ids, letter_ids])) —— 被打分的类别(字母 id)也在哈希里。"""
 from __future__ import annotations
 
@@ -74,10 +74,9 @@ def prepare_chat(request: DecisionRequest, tok, cfg: dict, budget: ExecutionBudg
             raise JevError("INPUT_INVALID", f"{q.question_id}: {len(cand)} options > {len(letters)} letters")
         user = render_user(state, q, letters)
         rendered = tok.apply_chat_template([{"role": "user", "content": user}], tokenize=False, add_generation_prompt=True, **kwargs)
-        if not isinstance(rendered, str) or not rendered.endswith(suffix):
-            raise JevError("INPUT_INVALID", f"{q.question_id}: rendered prompt does not end with the locked answer suffix (thinking switch / template changed)")
-        if rendered.count(state) != 1:
-            raise JevError("INPUT_INVALID", f"{q.question_id}: text not verbatim exactly once in the rendered prompt")
+        if not isinstance(rendered, str) or rendered != cfg["user_head"] + user + cfg["user_tail"] + suffix:
+            raise JevError("INPUT_INVALID", f"{q.question_id}: rendered prompt != locked head + user message + tail + answer suffix "
+                                            "(system prompt added, content trimmed/altered, thinking switch or template changed)")
         ids = list(tok.encode(rendered, add_special_tokens=False))
         letter_ids = []
         for L in letters[:len(cand)]:

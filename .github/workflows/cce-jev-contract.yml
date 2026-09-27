@@ -11,6 +11,10 @@ on:
       - "tests/test_cce_jev_boundary.py"
       - "corpus/**"
       - "tests/data/real_corpus_pilot_prereg.json"
+      - "tests/test_cce_jev_candidate_vs_retest.py"
+      - "tests/data/jev_candidate_vs_retest_prereg.json"
+      - "probes/jev_candidate_vs_retest.py"
+      - "probes/jev_decider_vs_retest.py"
   pull_request:
     paths:
       - "experiments/jev/**"
@@ -19,6 +23,10 @@ on:
       - "tests/test_cce_jev_boundary.py"
       - "corpus/**"
       - "tests/data/real_corpus_pilot_prereg.json"
+      - "tests/test_cce_jev_candidate_vs_retest.py"
+      - "tests/data/jev_candidate_vs_retest_prereg.json"
+      - "probes/jev_candidate_vs_retest.py"
+      - "probes/jev_decider_vs_retest.py"
 
 permissions:
   contents: read
@@ -42,7 +50,7 @@ jobs:
         run: python -m pip install "pytest>=8,<9"
       - name: Pure contract tests (fake backend, fake tokenizer, no network)
         run: |
-          python -m pytest experiments/jev/tests tests/test_cce_jev_boundary.py -q -p no:cacheprovider -rs --assert=plain --junitxml=jev-junit.xml
+          python -m pytest experiments/jev/tests tests/test_cce_jev_boundary.py tests/test_cce_jev_candidate_vs_retest.py -q -p no:cacheprovider -rs --assert=plain --junitxml=jev-junit.xml
       - name: Tests were discovered and none skipped
         run: python experiments/jev/junit_gate.py jev-junit.xml 40
       - name: Lock and workflow pins are consistent

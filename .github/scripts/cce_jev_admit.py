@@ -78,7 +78,7 @@ def _admit_v2(env, permit, pid, mode, suite, wf_file):
     if not isinstance(models, list) or not 1 <= len(models) <= 4:
         fail("PERMIT_NOT_APPROVED", "models must be a list of 1..4 entries")
     keys = [m.get("model_key") if isinstance(m, dict) else None for m in models]
-    if len(set(keys)) != len(keys) or not all(isinstance(k, str) and MODEL_KEY_RE.match(k) and ".." not in k for k in keys):
+    if len(set(keys)) != len(keys) or not all(isinstance(k, str) and MODEL_KEY_RE.fullmatch(k) and ".." not in k for k in keys):
         fail("PERMIT_NOT_APPROVED", "model keys missing, malformed or duplicated")
     locks = JEV / "locks"
     rt = locks / "runtime-cpu.lock.txt"
@@ -93,9 +93,9 @@ def _admit_v2(env, permit, pid, mode, suite, wf_file):
         src = json.loads(sp.read_text(encoding="utf-8"))
         if src.get("backend") != "hf_choice" or src.get("execution_location") != "github_hosted_actions_only" or src.get("remote_inference_allowed") is not False:
             fail("PERMIT_NOT_APPROVED", f"model {k}: not an hf_choice lock with the GitHub-only boundary")
-        if (not re.match(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,95}/[A-Za-z0-9][A-Za-z0-9._-]{0,95}$", str(src.get("repo_id")))
-                or not re.match(r"^[0-9a-f]{40}$", str(src.get("revision"))) or not src.get("files")
-                or not all(re.match(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$", n) for n in src["files"])):
+        if (not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,95}/[A-Za-z0-9][A-Za-z0-9._-]{0,95}", str(src.get("repo_id")))
+                or not re.fullmatch(r"[0-9a-f]{40}", str(src.get("revision"))) or not src.get("files")
+                or not all(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}", n) for n in src["files"])):
             fail("PERMIT_NOT_APPROVED", f"model {k}: repo / revision / file names are not plain pinned identifiers")
         if mode == "prepare":
             if m.get("asset_lock_sha256") != "NOT_APPLICABLE_PREPARE":
@@ -104,6 +104,10 @@ def _admit_v2(env, permit, pid, mode, suite, wf_file):
             assets = json.loads(ap.read_text(encoding="utf-8")) if ap.is_file() else {}
             if assets.get("status") != "READY" or m.get("asset_lock_sha256") != sha(ap) or not (assets.get("observed_load") or {}).get("param_count"):
                 fail("PERMIT_NOT_APPROVED", f"model {k}: asset lock not READY (with reviewed observed_load) or sha mismatch")
+        cl = subprocess.run([sys.executable, str(JEV / "cli.py"), "check-locks", "--model", k] + (["--require-ready"] if mode == "eval" else []),
+                            cwd=str(ROOT), capture_output=True, text=True, timeout=120)
+        if cl.returncode != 0:                          # 与腿里同一道锁闸, 在消耗之前跑(手工合成资产锁的笔误不许烧许可)
+            fail("PERMIT_NOT_APPROVED", f"model {k}: lock gate failed before consumption: " + (cl.stderr.strip().splitlines() or ["?"])[-1][:200])
         srcs[k] = src
         block[k] = {"model_source_lock_sha256": m["model_source_lock_sha256"], "asset_lock_sha256": m["asset_lock_sha256"]}
     suite_sha = None
@@ -111,8 +115,12 @@ def _admit_v2(env, permit, pid, mode, suite, wf_file):
     policy = json.loads(pol.read_text(encoding="utf-8"))
     if policy.get("mode") != mode or policy.get("backend") != "hf_choice":
         fail("PERMIT_NOT_APPROVED", "resource policy mode/backend do not match this run")
+    need = ("smoke_deadline_s", "job_timeout_min", "max_download_bytes", "max_model_bytes") if mode == "prepare" else \
+           ("model_load_plus_infer_deadline_s", "job_timeout_min", "max_download_bytes")
+    if not all(isinstance(policy.get(f), int) and not isinstance(policy.get(f), bool) and policy.get(f) > 0 for f in need):
+        fail("PERMIT_NOT_APPROVED", f"resource policy lacks positive integer {need}")
     if mode == "eval":
-        if not SUITE_RE.match(suite) or permit.get("suite_id") != suite:
+        if not SUITE_RE.fullmatch(suite) or permit.get("suite_id") != suite:
             fail("PERMIT_NOT_APPROVED", "suite_id missing or does not match permit")
         sf = JEV / "suites" / f"{suite}.jsonl"
         if not sf.is_file():
@@ -131,7 +139,14 @@ def _admit_v2(env, permit, pid, mode, suite, wf_file):
             fail("PERMIT_NOT_APPROVED", "suite plan failed before consumption: " + (pr.stderr.strip().splitlines() or ["?"])[-1][:200])
         if not json.loads(pr.stdout).get("within_policy"):
             fail("PERMIT_NOT_APPROVED", "suite plan exceeds the permit's resource policy")
-    hf = env.get("HF_ENDPOINT", "https://huggingface.co").rstrip("/")
+    # 与取件器同一个主机(strict_assets.HF_BASE); 覆盖只作测试缝, 在 Actions 里设了就拒绝(防被前序步骤写进 $GITHUB_ENV)
+    if env.get("CCE_JEV_TEST_HF_ENDPOINT") and env.get("GITHUB_ACTIONS") == "true":
+        fail("PERMIT_NOT_APPROVED", "CCE_JEV_TEST_HF_ENDPOINT is a test seam and must not be set in Actions")
+    if mode == "prepare":
+        for k in keys:                                  # 与腿里 plan_download 同一上限, 在消耗之前核
+            if sum(int(f["size"]) for f in srcs[k]["files"].values()) > int(policy["max_model_bytes"]):
+                fail("PERMIT_NOT_APPROVED", f"model {k}: planned download exceeds the policy max_model_bytes")
+    hf = (env.get("CCE_JEV_TEST_HF_ENDPOINT") or "https://huggingface.co").rstrip("/")
     for k in keys:
         _hf_available(srcs[k], hf)
     return keys, block, suite_sha
@@ -140,7 +155,7 @@ def _admit_v2(env, permit, pid, mode, suite, wf_file):
 def main() -> int:
     env = os.environ
     pid, mode, suite = env.get("PERMIT_ID", ""), env.get("MODE", ""), env.get("SUITE_ID", "")
-    if not PERMIT_RE.match(pid):
+    if not PERMIT_RE.fullmatch(pid):
         fail("PERMIT_NOT_APPROVED", "permit_id has an invalid shape")
     if mode not in ("prepare", "eval"):
         fail("PERMIT_NOT_APPROVED", f"mode {mode!r}")
@@ -173,7 +188,7 @@ def main() -> int:
         fail("PERMIT_EXPIRED", f"permit expired at {expiry.isoformat()}")
     locks = JEV / "locks"
     pol = JEV / "policies" / str(permit["resource_policy"])
-    if not re.match(r"^[a-z0-9_]{3,40}\.json$", str(permit["resource_policy"])) or not pol.is_file() or permit["resource_policy_sha256"] != sha(pol):
+    if not re.fullmatch(r"[a-z0-9_]{3,40}\.json", str(permit["resource_policy"])) or not pol.is_file() or permit["resource_policy_sha256"] != sha(pol):
         fail("PERMIT_NOT_APPROVED", "resource policy missing or sha mismatch")
     models, model_locks = ["decider-2b"], None
     if v2:
@@ -189,7 +204,7 @@ def main() -> int:
             fail("PERMIT_NOT_APPROVED", "prepare permit must mark asset/runtime locks NOT_APPLICABLE_PREPARE")
         suite_sha = None
     else:
-        if not SUITE_RE.match(suite) or permit.get("suite_id") != suite:
+        if not SUITE_RE.fullmatch(suite) or permit.get("suite_id") != suite:
             fail("PERMIT_NOT_APPROVED", "suite_id missing or does not match permit")
         sf = JEV / "suites" / f"{suite}.jsonl"
         if not sf.is_file():

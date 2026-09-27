@@ -9,7 +9,8 @@ from experiments.jev.plan_chat import PROMPT_SPEC, prepare_chat, render_user
 
 TEXT = "My left hearing aid crackles since I dropped it; repair or replace?"
 SUFFIX = "<|im_start|>assistant\n<think>\n\n</think>\n\n"
-CFG = {"letters": "ABCDEFGH", "answer_suffix": SUFFIX, "chat_template_kwargs": {"enable_thinking": False}, "prompt_spec": PROMPT_SPEC}
+CFG = {"letters": "ABCDEFGH", "user_head": "<|im_start|>user\n", "user_tail": "<|im_end|>\n", "answer_suffix": SUFFIX,
+       "chat_template_kwargs": {"enable_thinking": False}, "prompt_spec": PROMPT_SPEC}
 BUDGET = ExecutionBudget(max_forwards=50, max_rows=50, max_padded_tokens=10 ** 6, max_row_tokens=4096, deadline_s=60)
 
 
@@ -64,10 +65,22 @@ def test_thinking_not_disabled_or_template_drift_is_refused():
     assert e.value.code == "INPUT_INVALID" and "answer suffix" in e.value.detail
 
 
+def test_system_prompt_or_trimmed_content_is_refused():
+    class Sys(ChatTok):
+        def apply_chat_template(self, msgs, **kw):
+            return "<|im_start|>system\nYou are helpful.<|im_end|>\n" + super().apply_chat_template(msgs, **kw)
+    with pytest.raises(JevError) as e:
+        prepare_chat(_req(), Sys(), CFG, BUDGET)
+    assert e.value.code == "INPUT_INVALID"
+    short = "never guess"                              # 短文本本身是题面子串: 逐字相等检查不误拒
+    p = prepare_chat(_req(short), ChatTok(), CFG, BUDGET)
+    assert len(p.rows) == 5
+
+
 def test_letter_that_merges_across_the_boundary_is_refused():
     with pytest.raises(JevError) as e:
-        prepare_chat(_req(), ChatTok(suffix="\n", merge_letters=True), dict(CFG, answer_suffix="\n"), BUDGET)
-    assert e.value.code == "INPUT_INVALID"
+        prepare_chat(_req(), ChatTok(merge_letters=True), CFG, BUDGET)
+    assert e.value.code == "INPUT_INVALID" and "single token at the answer boundary" in e.value.detail
 
 
 def test_control_literals_in_text_are_refused_not_sanitised():
@@ -89,3 +102,21 @@ def test_more_options_than_letters_refused():
     with pytest.raises(JevError) as e:
         prepare_chat(_req(), ChatTok(), dict(CFG, letters="ABC"), BUDGET)
     assert e.value.code == "INPUT_INVALID" and "letters" in e.value.detail
+
+
+def test_non_choice_questions_and_colliding_letter_ids_are_refused():
+    from experiments.jev.contracts import Question
+    req = _req()
+    noul = Question(question_id="x", type="noul", instructions="yes or no?", criteria=(("false", None), ("true", None))).validate()
+    bad = DecisionRequest(request_id="t:s0", item_id="t", state=TEXT, questions=[noul]).validate()
+    with pytest.raises(JevError) as e:
+        prepare_chat(bad, ChatTok(), CFG, BUDGET)
+    assert e.value.code == "RUNTIME_UNSUPPORTED"
+
+    class Collide(ChatTok):
+        def encode(self, text, add_special_tokens=False):
+            ids = super().encode(text, add_special_tokens)
+            return [ord("A") + 1 if i == ord("B") + 1 else i for i in ids]      # A 与 B 同一个 id
+    with pytest.raises(JevError) as e:
+        prepare_chat(req, Collide(), CFG, BUDGET)
+    assert e.value.code == "INPUT_INVALID" and "collide" in e.value.detail

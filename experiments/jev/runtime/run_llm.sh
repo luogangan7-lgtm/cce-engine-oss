@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Host-side wrapper for the hf_choice candidate container (cce-jev-llm-prepare.yml smoke / cce-jev-llm-eval.yml eval).
-# Same isolation as run_remote_only.sh (the Decider wrapper, left untouched): GitHub-hosted runner only, --network none,
+# Same isolation as run_remote_only.sh (the Decider wrapper, left untouched): GitHub-hosted runner only, no network,
 # read-only rootfs, no capabilities, uid 1001, 3 CPU / 12 GiB / no extra swap, only the referenced corpus files mounted read-only.
+# MKL_CBWR / ONEDNN_MAX_CPU_ISA / ATEN_CPU_CAPABILITY = AVX2: the same fp32 kernels and vector widths on every runner CPU (AVX2 EPYC or
+# AVX-512 Xeon), so reruns on another runner are as close as fp32 allows (MKL CNR on non-Intel CPUs is best effort; recorded, not assumed).
 # Usage: run_llm.sh smoke <image> <bundle_dir> <receipt.json> <out_dir> <model_key> <deadline_s> <proposal.json>
 #        run_llm.sh eval  <image> <bundle_dir> <receipt.json> <out_dir> <model_key> <deadline_s> <suite_id>
 set -euo pipefail
@@ -54,10 +56,16 @@ timeout --signal=KILL $((DEADLINE + 300)) docker run --name cce-jev-llm \
   -e GITHUB_SHA -e GITHUB_JOB -e RUNNER_NAME -e RUNNER_ARCH -e RUNNER_OS \
   -e HF_HUB_OFFLINE=1 -e TRANSFORMERS_OFFLINE=1 -e HF_HUB_DISABLE_TELEMETRY=1 -e TOKENIZERS_PARALLELISM=false \
   -e OMP_NUM_THREADS=3 -e MKL_NUM_THREADS=3 -e "CCE_JEV_IMAGE_ID=$IMAGE_ID" \
+  -e MKL_CBWR=AVX2 -e ONEDNN_MAX_CPU_ISA=AVX2 -e ATEN_CPU_CAPABILITY=avx2 \
   -e HOME=/tmp -e HF_HOME=/tmp/hf -e XDG_CACHE_HOME=/tmp/cache \
   -e TRANSFORMERS_VERBOSITY=error -e PYTHONWARNINGS=ignore \
   "$IMAGE" "${CMD[@]}"
 RC=$?
+# timeout 只杀得到 docker 客户端, 容器本身还在跑 ⇒ 先真杀掉并等它退出, 再让宿主收尾/扫描/上传(否则扫完还有写入)
+if [[ "$RC" == 124 || "$RC" == 137 ]] && [[ "$(docker inspect -f '{{.State.Running}}' cce-jev-llm 2>/dev/null)" == "true" ]]; then
+  docker kill cce-jev-llm >/dev/null 2>&1 || true
+  docker wait cce-jev-llm >/dev/null 2>&1 || true
+fi
 set -e
 echo "docker_exit=$RC"
 # no --rm: the workflow inspects State.OOMKilled after exit (a KILL by OOM and by timeout both give 137)

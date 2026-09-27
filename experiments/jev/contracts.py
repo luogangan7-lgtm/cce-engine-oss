@@ -208,6 +208,8 @@ def validate_row(row: DecisionRow, q: Question, tol: float = 1e-4) -> DecisionRo
             raise JevError("OUTPUT_INVALID", f"{row.question_id}: raw logits must be finite floats for valid candidates only")
     if row.selected_candidate not in ids:
         raise JevError("OUTPUT_INVALID", f"{row.question_id}: selected {row.selected_candidate!r} not a candidate")
+    if row.selected_candidate != ids[p.index(max(p))]:          # 读出 = 分布的首个最大(并列取靠前); 后端不许另算一套
+        raise JevError("OUTPUT_INVALID", f"{row.question_id}: selected is not the first argmax of its probabilities")
     if row.semantic_status not in FINAL_STATUSES:
         raise JevError("OUTPUT_INVALID", f"{row.question_id}: status {row.semantic_status!r}")
     return row

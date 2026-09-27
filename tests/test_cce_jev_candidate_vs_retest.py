@@ -28,12 +28,16 @@ def _load(p, name):
 
 def test_prereg_copies_every_frozen_rule_verbatim():
     c, d = json.loads(PRE.read_text(encoding="utf-8")), json.loads(DPRE.read_text(encoding="utf-8"))
-    for k in ("★面", "★输入与题目(冻结)", "★归一化", "★主判据", "★不确定性", "★★★判决规则(测量前冻结)", "★混杂(不可在本轮分离)"):
+    for k in ("★面", "★输入与题目(冻结)", "★归一化", "★主判据", "★不确定性"):                    # 机器读的 / 定义规则的键: 逐字相同
         assert c[k] == d[k], k
+    rc, rd = c["★★★判决规则(测量前冻结)"], d["★★★判决规则(测量前冻结)"]
+    assert rc["数值"] == rd["数值"] and all(rc[k] == rd[k] for k in ("测不出", "可替代", "不同读者", "不可判", "D vs MiniMax"))
+    assert rc["整体"].startswith(rd["整体"]) and "T=1.0" in rc["前置"] and "T=1.3" not in rc["前置"]      # 前置/混杂是臂相关的, 不许照抄 Decider
+    assert not any("English only" in x for x in c["★混杂(不可在本轮分离)"]) and c["★修订记录(测量前)"]
     assert c["★确定性(前置)"]["tol_abs_dp"] == d["★确定性(前置)"]["tol_abs_dp"] and c["★确定性(前置)"]["同 run 复跑"] == d["★确定性(前置)"]["同 run 复跑"]
     assert c["★臂"]["D"]["T"] == 1.0 and c["★臂"]["D"]["prompt_spec"] == "cce.jev.hf_choice.prompt.v1"
     assert c["★★★判决规则(测量前冻结)"]["数值"]["replaceable_max_d"] == 4 and "0 次 TypeSafe/MiniMax" in c["★臂"]["★不新调付费接口"]
-    assert set(d["★★★不得据此说"]) <= set(c["★★★不得据此说"])
+    assert set(x for x in d["★★★不得据此说"] if not x.startswith(("D 在 情绪余温", "Decider 总体上"))) <= set(c["★★★不得据此说"])
     assert c["★预测(先写, 看数据前)"] and c["★头条检查(预注册)"]["面"] == "触发事件"
 
 
@@ -56,14 +60,17 @@ def test_suite_binds_the_prereg_and_differs_from_compare_v1_only_by_the_adjudica
 
 
 def _run_dir(tmp, preds):
-    d = tmp / "run"; d.mkdir()
+    d = tmp / "run"; d.mkdir(parents=True)
     (d / "predictions.jsonl").write_text("".join(json.dumps(p, ensure_ascii=False) + "\n" for p in preds), encoding="utf-8")
     src = json.loads((ROOT / "experiments/jev/models/qwen3-4b-2507/model.source.lock.json").read_text(encoding="utf-8"))
+    bc = src["backend_config"]
     rep = {"execution_status": "SUCCEEDED", "coverage_status": "COMPLETE", "suite_sha256": _sha(S / "s0-compare-llm-v1.jsonl"),
            "suite_manifest": {"prereg_sha256": _sha(PRE)},
            "identities": {"backend_effective": {"temperature": 1.0, "repo_id": src["repo_id"], "revision": src["revision"], "backend": "hf_choice",
-                                                "prompt_spec": "cce.jev.hf_choice.prompt.v1", "compute_dtype": "torch.float32", "storage_dtype": "torch.bfloat16", "threads": 3},
-                          "run": {"GITHUB_RUN_ID": "replay"}, "cgroup_limits": {"cpu_model": "replay"}}}
+                                                "prompt_spec": "cce.jev.hf_choice.prompt.v1", "compute_dtype": "torch.float32", "storage_dtype": "torch.bfloat16",
+                                                "threads": 3, "letters": bc["letters"]},
+                          "model_key": "qwen3-4b-2507", "source_lock_sha256": _sha(ROOT / "experiments/jev/models/qwen3-4b-2507/model.source.lock.json"),
+                          "assets_lock_sha256": "missing", "run": {"GITHUB_RUN_ID": "replay"}, "cgroup_limits": {"cpu_model": "replay"}}}
     (d / "report.json").write_text(json.dumps(rep, ensure_ascii=False), encoding="utf-8")
     return d
 
@@ -120,3 +127,77 @@ def test_wrapper_refuses_a_report_from_another_model(tmp_path, wrapper):
     wrapper.main(["qwen3-4b-2507", str(d)])
     doc = json.loads((tmp_path / "out_qwen3-4b-2507.json").read_text(encoding="utf-8"))
     assert doc["overall"].startswith("前置不成立") and all(v is None for v in doc["verdicts"].values()) and doc["★头条检查"] is None
+    assert doc["per_facet"] == {} and doc["★前置"]["同 run 复跑"]["pass"] is False and any("revision" in e for e in doc["★前置"]["errors"])
+    for field, val in (("model_key", "qwen3.5-4b"), ("assets_lock_sha256", "0" * 64)):          # 同仓不同键 / 锁被换过 ⇒ 也拒
+        rep2 = json.loads((d / "report.json").read_text(encoding="utf-8")); rep2["identities"]["backend_effective"]["revision"] = json.loads(
+            (ROOT / "experiments/jev/models/qwen3-4b-2507/model.source.lock.json").read_text(encoding="utf-8"))["revision"]
+        rep2["identities"][field] = val
+        (d / "report.json").write_text(json.dumps(rep2), encoding="utf-8")
+        wrapper.main(["qwen3-4b-2507", str(d)])
+        doc = json.loads((tmp_path / "out_qwen3-4b-2507.json").read_text(encoding="utf-8"))
+        assert doc["overall"].startswith("前置不成立") and any(field in e for e in doc["★包装前置错误"]), field
+
+
+# ───────── 端到端(零 torch): hf_choice 计划器 + 假后端 → run_suite.run → 包装脚本 → 冻结前置必须通过 ─────────
+def test_hf_choice_rows_from_the_real_planner_pass_the_frozen_preflight(tmp_path, wrapper):
+    import sys as _s
+    _s.path.insert(0, str(ROOT))
+    from experiments.jev import run_suite as RS
+    from experiments.jev.contracts import DecisionRow
+    from experiments.jev.plan_chat import prepare_chat
+    from experiments.jev.tests.test_plan_chat import ChatTok
+    key = "qwen3.5-4b"
+    src = json.loads((ROOT / f"experiments/jev/models/{key}/model.source.lock.json").read_text(encoding="utf-8"))
+    cfg = src["backend_config"]
+    pol = json.loads((ROOT / "experiments/jev/policies/cpu_compare_llm.json").read_text(encoding="utf-8"))
+    pol = dict(pol, max_row_tokens=8192, max_padded_tokens=8192 * 272)          # 假 tokenizer 按字符切, 行更长
+
+    class FakeBackend:
+        def __init__(self, ledger):
+            self.ledger, self.forwards_observed = ledger, 0
+
+        def identities(self):
+            return {"backend": "hf_choice", "repo_id": src["repo_id"], "revision": src["revision"], "letters": cfg["letters"], "threads": cfg["threads"],
+                    "storage_dtype": "torch.bfloat16", "compute_dtype": "torch.float32", "prompt_spec": cfg["prompt_spec"], "temperature": cfg["temperature"]}
+
+        def evaluate(self, plan, up=None):
+            out = []
+            for r in plan.rows:
+                self.ledger.reserve(1, r.padded_len, r.token_len); self.forwards_observed += 1
+                w = [1 + int(r.row_sha256[2 * i:2 * i + 2], 16) for i in range(r.nopts)]           # 行哈希定值 ⇒ 复跑逐位一致
+                p = [x / sum(w) for x in w]
+                out.append(DecisionRow(request_id=plan.request_id, item_id=r.item_id, question_id=r.question_id, question_type=r.question_type,
+                                       candidate_ids=list(r.candidate_ids), raw_candidate_logits=[float(x) for x in w], probabilities=p,
+                                       selected_candidate=r.candidate_ids[p.index(max(p))],
+                                       identities={"row_sha256": r.row_sha256, "kind": r.kind, "level": r.level, "letter_mass": 0.97, "vocab_top1_is_letter": True},
+                                       timing={"forward_s": 0.0, "token_len": r.token_len, "padded_len": r.padded_len}))
+            return out
+
+    ids = {"backend": "hf_choice", "model_key": key, "model_version": src["model_version"], "run": {"GITHUB_RUN_ID": "e2e"},
+           "source_lock_sha256": _sha(ROOT / f"experiments/jev/models/{key}/model.source.lock.json"), "assets_lock_sha256": "missing",
+           "cgroup_limits": {"cpu_model": "fake"}}
+    out = tmp_path / "reports" / "e2e"
+    rep = RS.run("s0-compare-llm-v1", out, pol, cfg, ids, backend_factory=lambda L: FakeBackend(L), tok_factory=ChatTok,
+                 upstream_factory=lambda: None, plan_fn=lambda req, tok, up, c, b: prepare_chat(req, tok, c, b))
+    assert rep["execution_status"] == "SUCCEEDED" and rep["coverage_status"] == "COMPLETE", rep["failures"]
+    assert rep["backend"] == "hf_choice" and rep["budget"]["forwards"] == 269
+    wrapper.main([key, str(out)])
+    doc = json.loads((tmp_path / f"out_{key}.json").read_text(encoding="utf-8"))
+    assert doc["★前置"]["errors"] == [] and doc["★包装前置错误"] == [] and doc["★前置"]["同 run 复跑"]["pass"], (doc["★前置"], doc["★包装前置错误"])
+    assert all(v is not None for v in doc["verdicts"].values()) and doc["★字母质量诊断(不进判决)"]["rows"] == 210
+
+
+def test_headline_threshold_is_replaceable_max_d_plus_one(tmp_path, wrapper, monkeypatch):
+    import types
+    c = json.loads(PRE.read_text(encoding="utf-8"))
+    for d, want in ((5, "不能判可替代"), (4, "头条检查通过")):
+        def fake_main(argv, d=d):
+            X.OUT.write_text(json.dumps({"★前置": {"errors": [], "同 run 复跑": {"pass": True}}, "overall": "x", "verdicts": {},
+                                         "per_facet": {"触发事件": {"pairs": {"D~J1": {"d": d}, "D~J2": {"d": 0}}}}}), encoding="utf-8")
+        X = types.SimpleNamespace(main=fake_main, PRE=None, SUITE=None, OUT=None)
+        monkeypatch.setattr(wrapper, "load_frozen", lambda pre: X)
+        monkeypatch.setattr(wrapper, "identity_errors", lambda key, rep: [])
+        wrapper.main(["qwen3-4b-2507", str(_run_dir(tmp_path / str(d), _decider_preds()) if (tmp_path / str(d)).mkdir() is None else "")])
+        doc = json.loads((tmp_path / "out_qwen3-4b-2507.json").read_text(encoding="utf-8"))
+        assert doc["★头条检查"]["threshold"] == c["★★★判决规则(测量前冻结)"]["数值"]["replaceable_max_d"] + 1 == 5
+        assert doc["★头条检查"]["result"].startswith(want), (d, doc["★头条检查"])

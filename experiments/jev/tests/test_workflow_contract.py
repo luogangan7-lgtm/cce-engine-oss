@@ -138,9 +138,13 @@ def test_llm_workflows_matrix_from_admitted_models_no_cache_and_same_isolation()
     """hf_choice 候选工作流: 腿 = admit 从许可里核过的模型键(不是用户输入); 不用 Actions 缓存; 容器隔离与 Decider 同级;
     取件只在 evaluate/prepare 腿里(admit 不碰模型字节); 上传与摘要都在原文扫描之后。"""
     sh = (ROOT / "experiments" / "jev" / "runtime" / "run_llm.sh").read_text(encoding="utf-8")
+    code = "\n".join(l for l in sh.splitlines() if not l.lstrip().startswith("#"))
+    run = code.split("docker run", 1)[1].split('"$IMAGE" "${CMD[@]}"', 1)[0]             # 只认 docker run 命令本身里的旗标
     for flag in ("--network none", "--read-only", "--cap-drop ALL", "no-new-privileges", "--memory-swap 12g", "--cpus 3", "--user 1001:1001", "--pids-limit",
-                 "-e HOME=/tmp", "HF_HOME=/tmp/hf", "TRANSFORMERS_VERBOSITY=error", "suite-files --suite", "EXECUTION_LOCATION_FORBIDDEN"):
-        assert flag in sh, flag
+                 "-e HOME=/tmp", "HF_HOME=/tmp/hf", "TRANSFORMERS_VERBOSITY=error", "MKL_CBWR=AVX2", "ONEDNN_MAX_CPU_ISA=AVX2", "ATEN_CPU_CAPABILITY=avx2", "HF_HUB_OFFLINE=1"):
+        assert flag in run, flag
+    for flag in ("suite-files --suite", "EXECUTION_LOCATION_FORBIDDEN", "docker kill cce-jev-llm", "docker wait cce-jev-llm"):
+        assert flag in code, flag
     assert "docker run --rm" not in sh and ":ro" in sh.split("MOUNTS+=(-v \"$ROOT/$f")[1].split("\n")[0] and "corpus:/work/corpus" not in sh
     for wf, leg in (("cce-jev-llm-prepare.yml", "prepare"), ("cce-jev-llm-eval.yml", "evaluate")):
         t = _wf(wf)
@@ -161,6 +165,9 @@ def test_llm_workflows_matrix_from_admitted_models_no_cache_and_same_isolation()
     pr = _wf("cce-jev-llm-prepare.yml")
     assert "run_llm.sh smoke" in pr and "check-upload --root prepare-out" in pr and "locks/runtime-cpu.lock.txt experiments/jev/runtime/runtime-cpu.lock.txt" in pr
     assert "pip-compile" not in pr, "候选 prepare 用已审过的运行时锁建镜像, 不重新解析依赖"
+    for t_ in (pr, ev):
+        assert "--build-arg WITH_DECIDER=0" in t_, "候选镜像不装 decider(构建期不再依赖外部 git)"
+    assert "--field smoke_deadline_s" in pr and "run_llm.sh smoke cce-jev-cpu:prepare" in pr and " 2400 " not in pr
 
 
 def test_candidate_model_locks_consistent_when_prepared():

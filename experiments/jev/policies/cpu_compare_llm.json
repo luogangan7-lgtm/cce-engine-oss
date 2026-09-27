@@ -26,12 +26,12 @@
  },
  "model_load_plus_infer_deadline_s": 10800,
  "job_timeout_min": 330,
- "max_download_bytes": 12884901888,
+ "max_download_bytes": 25769803776,
  "report_max_bytes": 20971520,
  "retention_days": 7,
  "task": "s0_context.v2",
  "suite_ids": [
   "s0-compare-llm-v1"
  ],
- "note": "owner 2026-09-27「批准实测」的完整对比许可所用策略(每个候选一条腿, 各自一台 GitHub 托管 runner)。269 行 = s0-compare-v1 同构(42×5 + smoke 9 + 复跑 10×5)。本机用两份真 tokenizer 现算(无模型): Qwen3-4B-2507 共 88,350 token/均 328/最长 672, Qwen3.5-4B 87,057/324/659。fp32 计算按 Decider 实测 62–80 tok/s(1.88B)外推 4B ≈ 29–38 tok/s, 加每行权重上转与全词表诊断 ≈ 12–16 s/行 ⇒ 54–72 min; 载入+推理上限取 3 h(约 2.5 倍余量), 外层 job 330 min < 6 h 上限。prepare 冒烟实测后若需要, 在写评估许可之前修订本文件。公开仓免费; 0 付费 GPU/API; 0 TypeSafe/MiniMax; 取件 ≤12 GiB/腿。"
+ "note": "owner 2026-09-27「批准实测」的完整对比许可所用策略(每个候选一条腿, 各自一台 GitHub 托管 runner)。269 行 = s0-compare-v1 同构(42×5 + smoke 9 + 复跑 10×5)。本机用两份真 tokenizer 现算(无模型): Qwen3-4B-2507 共 88,350 token/均 328/最长 672, Qwen3.5-4B 87,057/324/659。fp32 计算按 Decider 实测 62–80 tok/s(1.88B)外推 4B ≈ 29–38 tok/s, 加每行权重上转与全词表诊断 ≈ 12–16 s/行 ⇒ 54–72 min; 载入+推理上限取 3 h(约 2.5 倍余量), 外层 job 330 min < 6 h 上限。prepare 冒烟实测后若需要, 在写评估许可之前修订本文件。公开仓免费; 0 付费 GPU/API; 0 TypeSafe/MiniMax; 取件含重试 ≤24 GiB/腿。"
 }

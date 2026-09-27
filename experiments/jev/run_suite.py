@@ -168,6 +168,10 @@ def run(suite_id: str, out_dir, policy: dict, cfg: dict, identities: dict, backe
             t["peak_rss_kib"] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss   # Linux: KiB
         except (ImportError, OSError):
             t["peak_rss_kib"] = "unavailable"
+        try:                                        # cgroup v2 的内存峰值(只算本容器; RSS 会把映射的权重文件页也算进去)
+            t["cgroup_memory_peak"] = int(Path("/sys/fs/cgroup/memory.peak").read_text(encoding="utf-8").strip())
+        except (OSError, ValueError):
+            t["cgroup_memory_peak"] = "unavailable"
         done = {(r["item_id"], r["question_id"]) for r in rows_out}
         report["results"] = ([{"item_id": e["item_id"], "question_id": e["question_id"], "status": e["status"], "provenance": e["provenance"], "value": e["value"]}
                               for e in expected if e["status"] != "NOT_RUN"]

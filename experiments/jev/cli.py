@@ -62,10 +62,22 @@ def cmd_check_locks(a):
                     if spec["anchor"]["kind"] not in ("lfs_sha256", "git_blob_sha1") or int(spec["size"]) <= 0]
         rt = _load(HERE / "locks" / "cpu-runtime.lock.json"); dep = HERE / "locks" / "runtime-cpu.lock.txt"
         if a.require_ready:
-            if assets.get("status") != "READY" or assets.get("revision") != src["revision"] or set(assets.get("files") or {}) != set(src["files"]):
+            if (assets.get("schema") != SA.ASSETS_SCHEMA or assets.get("status") != "READY" or assets.get("repo_id") != src["repo_id"]
+                    or assets.get("revision") != src["revision"] or set(assets.get("files") or {}) != set(src["files"])):
                 problems.append(f"models/{a.model}/model.assets.lock.json not READY / not matching the source lock (run the llm prepare, review, commit)")
-            elif not (assets.get("observed_load") or {}).get("param_count"):
-                problems.append(f"models/{a.model}/model.assets.lock.json lacks the reviewed observed_load (loading_info + param_count)")
+            else:
+                for n, spec in src["files"].items():
+                    f = assets["files"][n]
+                    if f.get("size") != spec["size"] or not isinstance(f.get("sha256"), str) or len(f["sha256"]) != 64 or (
+                            spec["anchor"]["kind"] == "lfs_sha256" and f["sha256"] != spec["anchor"]["value"]):
+                        problems.append(f"models/{a.model} assets lock file {n}: size/sha256 inconsistent with the source lock")
+            ol = assets.get("observed_load") or {}
+            li = ol.get("loading_info")
+            if (not isinstance(ol.get("param_count"), int) or ol["param_count"] <= 0 or not isinstance(li, dict)
+                    or set(li) != {"missing_keys", "unexpected_keys", "mismatched_keys", "error_msgs"} or li["missing_keys"] or li["mismatched_keys"] or li["error_msgs"]):
+                problems.append(f"models/{a.model}/model.assets.lock.json lacks a clean reviewed observed_load (loading_info + param_count)")
+            if not str((assets.get("reviewed") or {}).get("run", "")).startswith("https://github.com/"):
+                problems.append(f"models/{a.model}/model.assets.lock.json has no reviewed.run")
             if rt.get("status") != "READY" or not dep.is_file() or rt.get("dependency_lock_sha256") != file_sha256(dep):
                 problems.append("cpu runtime lock not READY / sha mismatch")
         print(json.dumps({"model": a.model, "backend": src.get("backend"), "revision": src["revision"], "assets_lock_status": assets.get("status"),
@@ -264,7 +276,9 @@ def cmd_prepare_smoke(a):
     tax = load_taxonomy()
     qs, _prov = compile_s0(SMOKE_TEXT, None, tax, load_task("s0_context.v2", tax))
     req = DecisionRequest(request_id="smoke:s0", item_id="prepare-smoke", state=SMOKE_TEXT, questions=qs).validate()
-    budget = ExecutionBudget(max_forwards=2 * len(qs), max_rows=2 * len(qs), max_padded_tokens=2 * len(qs) * 2048, max_row_tokens=2048, deadline_s=1800)
+    policy = _policy(receipt.get("resource_policy"))
+    budget = ExecutionBudget(max_forwards=2 * len(qs), max_rows=2 * len(qs), max_padded_tokens=2 * len(qs) * 2048, max_row_tokens=2048,
+                             deadline_s=float(policy["smoke_deadline_s"]))
     ledger = Ledger(budget)
     from transformers import AutoTokenizer
     tok = AutoTokenizer.from_pretrained(str(a.bundle), local_files_only=True)
@@ -324,6 +338,42 @@ def cmd_fetch_bundle(a):
     SA.fetch_bundle_http(src, a.dest, ledger, env, receipt, LLM_EVAL_WF)
     v = SA.verify_bundle(a.dest, assets, src)
     print(json.dumps({"model": a.model, "downloaded_bytes": ledger.download_bytes, "verified": v}, indent=1))
+
+
+def cmd_assemble_assets_lock(a):
+    """本机纯函数: prepare 产物(资产锁提案 + 冒烟回执) → models/<key>/model.assets.lock.json(READY)。机械合成, 不手拼;
+    任何一项与源锁不符、加载报告不干净、冒烟不可重复 ⇒ 拒绝写。写完再跑一遍 check-locks --require-ready 的同一组检查。"""
+    from experiments.jev import strict_assets as SA
+    import datetime as _dt
+    src, _old, _sp, ap = _model_locks(a.model)
+    prop, smoke = _load(a.proposal), _load(a.smoke)
+    probs = []
+    if prop.get("schema") != SA.ASSETS_SCHEMA or prop.get("status") != "READY" or prop.get("repo_id") != src["repo_id"] or prop.get("revision") != src["revision"]:
+        probs.append("proposal schema/status/repo/revision")
+    if set(prop.get("files") or {}) != set(src["files"]) or not all((prop.get("anchor_check") or {}).get(n) for n in src["files"]):
+        probs.append("proposal file set / anchor_check")
+    for n, spec in src["files"].items():
+        f = (prop.get("files") or {}).get(n, {})
+        if f.get("size") != spec["size"] or (spec["anchor"]["kind"] == "lfs_sha256" and f.get("sha256") != spec["anchor"]["value"]):
+            probs.append(f"proposal file {n} size/sha")
+    if smoke.get("model") != a.model or smoke.get("revision") != src["revision"] or not smoke.get("repeat_bitwise_identical"):
+        probs.append("smoke model/revision/repeatability")
+    eff = smoke.get("effective") or {}
+    if (eff.get("class"), eff.get("storage_dtype"), eff.get("compute_dtype")) != (src["backend_config"]["expected_class"], "torch.bfloat16", "torch.float32"):
+        probs.append("smoke effective class/dtypes")
+    if not str(a.run_url).startswith("https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/"):
+        probs.append("run url")
+    if probs:
+        raise JevError("DEPENDENCY_LOCK_INVALID", "; ".join(probs))
+    lock = dict(prop, generated_by=LLM_PREPARE_WF + " on github-hosted runner", observed_load=smoke["observed_load"],
+                smoke_observed={k: smoke.get(k) for k in ("load_s", "tok_per_s", "repeat_bitwise_identical", "cgroup_memory_peak", "cpu_flags", "rows")}
+                | {"cpu_model": (smoke.get("cgroup_limits") or {}).get("cpu_model"), "patch": eff.get("patch"), "checkpoint_f32_restored": eff.get("checkpoint_f32_restored"),
+                   "blas": eff.get("blas"), "numeric_env": eff.get("numeric_env"), "cpu_capability": eff.get("cpu_capability")},
+                reviewed={"run": a.run_url, "reviewed_at": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
+                          "review": "machine-assembled by cli.py assemble-assets-lock: sizes/LFS sha == source anchors, anchor_check all true, smoke repeatable, class/dtypes as locked"})
+    Path(ap).write_text(json.dumps(lock, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    cmd_check_locks(argparse.Namespace(model=a.model, require_ready=True))
+    print(json.dumps({"model": a.model, "written": str(ap), "observed_load": lock["observed_load"]}, ensure_ascii=False, indent=1))
 
 
 def cmd_verify_bundle(a):
@@ -422,7 +472,6 @@ def _eval_llm(a, env, receipt):
                  backend_factory=lambda ledger: HfChoiceBackend(a.bundle, src, assets, ledger, env, receipt, expect_workflow=LLM_EVAL_WF),
                  tok_factory=tok_factory, upstream_factory=lambda: None,
                  plan_fn=lambda req, tok, up, c, budget: prepare_chat(req, tok, c, budget))
-    report.setdefault("timing", {})["cgroup_memory_peak"] = _cgroup_peak()
     print(json.dumps({k: report[k] for k in ("execution_status", "coverage_status", "semantic_acceptance", "production_eligible", "failures")}, ensure_ascii=False, indent=1))
     if report["execution_status"] != "SUCCEEDED":
         raise JevError(report["failures"][0].get("code") if report["failures"] and report["failures"][0].get("code") in
@@ -495,12 +544,14 @@ def main(argv=None) -> int:
     s.add_argument("--proposal", required=True); s.add_argument("--out", required=True); s.add_argument("--model", required=True); s.set_defaults(fn=cmd_prepare_smoke)
     s = sub.add_parser("fetch-bundle"); s.add_argument("--receipt", required=True); s.add_argument("--dest", required=True)
     s.add_argument("--model", required=True); s.set_defaults(fn=cmd_fetch_bundle)
+    s = sub.add_parser("assemble-assets-lock"); s.add_argument("--model", required=True); s.add_argument("--proposal", required=True)
+    s.add_argument("--smoke", required=True); s.add_argument("--run-url", required=True); s.set_defaults(fn=cmd_assemble_assets_lock)
     s = sub.add_parser("verify-bundle"); s.add_argument("--bundle", required=True); s.add_argument("--model", default=None); s.set_defaults(fn=cmd_verify_bundle)
     s = sub.add_parser("eval"); s.add_argument("--suite", required=True); s.add_argument("--receipt", required=True)
     s.add_argument("--bundle", required=True); s.add_argument("--out", required=True); s.add_argument("--model", default=None); s.set_defaults(fn=cmd_eval)
     s = sub.add_parser("check-upload"); s.add_argument("--root", required=True); s.add_argument("--suite", default=None); s.set_defaults(fn=cmd_check_upload)
     s = sub.add_parser("policy-field"); s.add_argument("--receipt", required=True)
-    s.add_argument("--field", required=True, choices=["model_load_plus_infer_deadline_s", "job_timeout_min", "max_forwards"]); s.set_defaults(fn=cmd_policy_field)
+    s.add_argument("--field", required=True, choices=["model_load_plus_infer_deadline_s", "job_timeout_min", "max_forwards", "smoke_deadline_s"]); s.set_defaults(fn=cmd_policy_field)
     s = sub.add_parser("suite-files"); s.add_argument("--suite", required=True); s.set_defaults(fn=cmd_suite_files)
     s = sub.add_parser("finalize"); s.add_argument("--out", required=True); s.add_argument("--docker-exit", type=int, required=True)
     s.add_argument("--oom", default="false"); s.add_argument("--backend", default="decider", choices=["decider", "hf_choice"]); s.set_defaults(fn=cmd_finalize)

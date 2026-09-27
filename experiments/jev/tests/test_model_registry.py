@@ -102,23 +102,32 @@ def test_fetch_verifies_anchors_and_writes_proposal(tmp_path):
     assert not list((tmp_path / "b").glob("*.part"))
 
 
-def test_fetch_retries_short_reads_but_never_accepts_wrong_bytes(tmp_path):
+def test_fetch_retries_transport_errors_but_never_accepts_wrong_bytes(tmp_path):
+    import http.client
     w = b"\x02" * 100
     src = _src({"w.safetensors": _spec(w)})
-    op, calls = _opener([w[:50], OSError("reset"), w])               # 截断 → 断线 → 成功: 三次整文件重取
-    SA.fetch_bundle_http(src, tmp_path / "b", _ledger(), ENV, REC, "cce-jev-llm-prepare.yml", sleep=lambda s: None, opener=op)
-    assert len(calls) == 3
-    op, calls = _opener([b"\x03" * 100])                             # 同样大小但内容不符: 立刻失败, 不重试
+    led = _ledger()
+    op, calls = _opener([w[:50], OSError("reset"), http.client.IncompleteRead(b"x"), w])   # 截断 → 断线 → 分块读残 → 成功
+    slept = []
+    SA.fetch_bundle_http(src, tmp_path / "b", led, ENV, REC, "cce-jev-llm-prepare.yml", sleep=slept.append, opener=op)
+    assert len(calls) == 4 and slept == [10, 30, 60] and led.download_bytes == 400        # 每次尝试都计入账本(上限含重试)
+    assert sorted(p.name for p in (tmp_path / "b").iterdir()) == ["w.safetensors"]        # 不留 .part
+    op, calls = _opener([b"\x03" * 100] * 5)                        # 同样大小但内容不符: 立刻失败, 不重试
     with pytest.raises(JevError) as e:
         SA.fetch_bundle_http(src, tmp_path / "c", _ledger(), ENV, REC, "cce-jev-llm-prepare.yml", sleep=lambda s: None, opener=op)
     assert e.value.code == "MODEL_BUNDLE_INVALID" and len(calls) == 1 and not list((tmp_path / "c").iterdir())
-    op, calls = _opener([w + b"x"])                                  # 多出字节: 立刻失败
-    with pytest.raises(JevError):
+    op, calls = _opener([w + b"x"] * 5)                              # 多出字节: 立刻失败, 不重试, 不落盘
+    with pytest.raises(JevError) as e:
         SA.fetch_bundle_http(src, tmp_path / "d", _ledger(), ENV, REC, "cce-jev-llm-prepare.yml", sleep=lambda s: None, opener=op)
-    op, calls = _opener([OSError("x")] * 3)
+    assert len(calls) == 1 and "more bytes than the pinned size" in e.value.detail and not list((tmp_path / "d").iterdir())
+    op, calls = _opener([OSError("x")] * 5)
     with pytest.raises(JevError) as e:
         SA.fetch_bundle_http(src, tmp_path / "e", _ledger(), ENV, REC, "cce-jev-llm-prepare.yml", sleep=lambda s: None, opener=op)
-    assert "after 3 attempts" in e.value.detail
+    assert "after 5 attempts" in e.value.detail and len(calls) == 5
+    op, calls = _opener([OSError("x")] * 5)                          # 重试把账本推过上限 ⇒ 预算失败, 不再多取
+    with pytest.raises(JevError) as e:
+        SA.fetch_bundle_http(src, tmp_path / "f", _ledger(cap=250), ENV, REC, "cce-jev-llm-prepare.yml", sleep=lambda s: None, opener=op)
+    assert e.value.code == "BUDGET_EXCEEDED" and len(calls) == 2
 
 
 def test_fetch_is_guarded_and_budgeted_before_any_request(tmp_path):
@@ -132,3 +141,56 @@ def test_fetch_is_guarded_and_budgeted_before_any_request(tmp_path):
     assert e.value.code == "BUDGET_EXCEEDED" and not calls
     with pytest.raises(JevError):
         SA.fetch_bundle_http(dict(src, backend="decider"), tmp_path / "b", _ledger(), ENV, REC, "cce-jev-llm-prepare.yml", opener=op)
+
+
+def _prepare_artifacts(tmp_path, key, **smoke_over):
+    src = SA.source_lock(SA.model_paths(key)[0])
+    prop = {"schema": SA.ASSETS_SCHEMA, "status": "READY", "repo_id": src["repo_id"], "revision": src["revision"], "model_version": src["model_version"],
+            "files": {n: {"size": s["size"], "sha256": s["anchor"]["value"] if s["anchor"]["kind"] == "lfs_sha256" else "1" * 64} for n, s in src["files"].items()},
+            "anchor_check": {n: True for n in src["files"]}, "total_bytes": src["planned_download_bytes"], "generated_by": "x"}
+    smoke = {"model": key, "revision": src["revision"], "repeat_bitwise_identical": True, "load_s": 30.0, "tok_per_s": 40.0, "rows": [],
+             "observed_load": {"param_count": 4022468096, "loading_info": {"missing_keys": [], "unexpected_keys": [], "mismatched_keys": [], "error_msgs": []}},
+             "effective": {"class": src["backend_config"]["expected_class"], "storage_dtype": "torch.bfloat16", "compute_dtype": "torch.float32"},
+             "cgroup_limits": {"cpu_model": "fake"}}
+    smoke.update(smoke_over)
+    pp, sp = tmp_path / "prop.json", tmp_path / "smoke.json"
+    pp.write_text(json.dumps(prop), encoding="utf-8"); sp.write_text(json.dumps(smoke), encoding="utf-8")
+    return pp, sp
+
+
+@pytest.fixture
+def redirected_locks(tmp_path, monkeypatch):
+    """assemble-assets-lock 写到临时路径(不写活仓 models/)。"""
+    import experiments.jev.cli as C
+    out = tmp_path / "assets.lock.json"
+
+    def fake(key):
+        sp, _ap = SA.model_paths(key)
+        return SA.source_lock(sp), SA.assets_lock(out), sp, out
+    monkeypatch.setattr(C, "_model_locks", fake)
+    return C, out
+
+
+def test_assemble_assets_lock_writes_a_ready_lock_that_passes_the_eval_gate(tmp_path, redirected_locks):
+    import argparse
+    C, out = redirected_locks
+    pp, sp = _prepare_artifacts(tmp_path, "qwen3-4b-2507")
+    C.cmd_assemble_assets_lock(argparse.Namespace(model="qwen3-4b-2507", proposal=str(pp), smoke=str(sp),
+                                                  run_url="https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/123"))
+    lock = json.loads(out.read_text(encoding="utf-8"))
+    assert lock["status"] == "READY" and lock["observed_load"]["param_count"] == 4022468096 and lock["reviewed"]["run"].endswith("/123")
+    assert lock["generated_by"].startswith("cce-jev-llm-prepare.yml")
+
+
+@pytest.mark.parametrize("smoke_over,url,needle", [
+    ({"repeat_bitwise_identical": False}, "https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/1", "repeatability"),
+    ({"effective": {"class": "Other", "storage_dtype": "torch.bfloat16", "compute_dtype": "torch.float32"}}, "https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/1", "class"),
+    ({}, "https://example.com/run/1", "run url"),
+])
+def test_assemble_assets_lock_refuses_inconsistent_artifacts(tmp_path, redirected_locks, smoke_over, url, needle):
+    import argparse
+    C, out = redirected_locks
+    pp, sp = _prepare_artifacts(tmp_path, "qwen3.5-4b", **smoke_over)
+    with pytest.raises(JevError) as e:
+        C.cmd_assemble_assets_lock(argparse.Namespace(model="qwen3.5-4b", proposal=str(pp), smoke=str(sp), run_url=url))
+    assert needle in e.value.detail and not out.exists()

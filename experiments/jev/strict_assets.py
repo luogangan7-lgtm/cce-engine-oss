@@ -29,13 +29,14 @@ MODEL_KEY_RE = re.compile(r"^[a-z0-9][a-z0-9.-]{2,40}$")
 REPO_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,95}/[A-Za-z0-9][A-Za-z0-9._-]{0,95}$")   # 段首必须字母数字: 拒 ../x、.git 之类
 REV_RE = re.compile(r"^[0-9a-f]{40}$")
 FILE_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+HF_BASE = "https://huggingface.co"          # 取件与 admit 的可达性检查用同一个主机; 不读环境变量
 
 
 def model_paths(key=None) -> tuple:
     """模型键 → (源锁, 资产锁) 路径。None / decider-2b = 旧位置; 其它键必须已在 models/ 下登记源锁。"""
     if key in (None, LEGACY_KEY):
         return SOURCE_LOCK, ASSETS_LOCK
-    if not isinstance(key, str) or not MODEL_KEY_RE.match(key) or ".." in key:
+    if not isinstance(key, str) or not MODEL_KEY_RE.fullmatch(key) or ".." in key:
         raise JevError("INPUT_INVALID", f"model key {key!r}")
     d = MODELS / key
     if not (d / "model.source.lock.json").is_file():
@@ -57,9 +58,9 @@ def source_lock(path=SOURCE_LOCK) -> dict:
     if s.get("backend", "decider") not in ("decider", "hf_choice"):
         raise JevError("DEPENDENCY_LOCK_INVALID", f"unknown backend {s.get('backend')!r}")
     if s.get("backend") == "hf_choice":
-        if not REPO_RE.match(s["repo_id"]) or not REV_RE.match(s["revision"]) or not all(FILE_RE.match(n) for n in s["files"]):
+        if not REPO_RE.fullmatch(s["repo_id"]) or not REV_RE.fullmatch(s["revision"]) or not all(FILE_RE.fullmatch(n) for n in s["files"]):
             raise JevError("DEPENDENCY_LOCK_INVALID", "hf_choice source lock: repo / revision / file names must be plain pinned identifiers")
-        for k in ("load_class", "expected_class", "storage_dtype", "compute_dtype", "threads", "temperature", "letters", "answer_suffix", "prompt_spec"):
+        for k in ("load_class", "expected_class", "storage_dtype", "compute_dtype", "threads", "temperature", "letters", "user_head", "user_tail", "answer_suffix", "prompt_spec"):
             if k not in (s.get("backend_config") or {}):
                 raise JevError("DEPENDENCY_LOCK_INVALID", f"hf_choice source lock missing backend_config.{k}")
     return s
@@ -166,15 +167,20 @@ def download_bundle(src: dict, dest, ledger, env: dict, receipt: dict, expect_wo
             "total_bytes": sum(f["size"] for f in files.values()), "generated_by": "cce-jev-prepare.yml on github-hosted runner"}
 
 
-def _http_get_verified(url: str, dest: Path, spec: dict, name: str, sleep=time.sleep, opener=None, attempts: int = 3) -> str:
-    """流式下载一个固定修订的文件, 边下边算 sha256 与 git blob sha1; 大小与 HF 元数据锚点都对上才落盘, 否则整文件重试(≤3 次)。
-    内容寻址: 完整性来自锚点比对, 与下载客户端无关 ⇒ 只用标准库, 不引入未钉版本的下载依赖。"""
+def _http_get_verified(url: str, dest: Path, spec: dict, name: str, ledger=None, sleep=time.sleep, opener=None, attempts: int = 5) -> str:
+    """流式下载一个固定修订的文件, 边下边算 sha256 与 git blob sha1; 大小与 HF 元数据锚点都对上才落盘, 否则整文件重试(≤5 次, 10/30/60/120 s)。
+    内容寻址: 完整性来自锚点比对, 与下载客户端无关 ⇒ 只用标准库。每次尝试都先向账本预约整文件字节(重试也计入上限);
+    任何未成功的尝试都删掉 .part。锚点不符 / 超出固定大小 = 内容错, 立刻失败不重试。"""
+    import http.client
     import urllib.request
     size = int(spec["size"])
     part = dest / (name + ".part")
     last = None
     for i in range(attempts):
+        if ledger is not None:
+            ledger.reserve_download(size, name if i == 0 else f"{name} (retry {i})")
         h256, h1, n = hashlib.sha256(), hashlib.sha1(b"blob %d\0" % size), 0
+        done = False
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "cce-jev-fetch/1"})
             with (opener or urllib.request.urlopen)(req, timeout=60) as r, open(part, "wb") as fh:
@@ -190,15 +196,15 @@ def _http_get_verified(url: str, dest: Path, spec: dict, name: str, sleep=time.s
             if got != value:
                 raise JevError("MODEL_BUNDLE_INVALID", f"{name}: content does not match HF metadata anchor")
             part.replace(dest / name)
+            done = True
             return h256.hexdigest()
-        except JevError:
-            part.unlink(missing_ok=True)
-            raise
-        except OSError as e:                      # 网络/截断: 整文件重来; 不续传拼接
+        except (OSError, http.client.HTTPException) as e:     # 网络/截断/分块读残: 整文件重来; 不续传拼接
             last = e
-            part.unlink(missing_ok=True)
             if i + 1 < attempts:
-                sleep(5 * (i + 1))
+                sleep((10, 30, 60, 120)[min(i, 3)])
+        finally:
+            if not done:
+                part.unlink(missing_ok=True)
     raise JevError("MODEL_BUNDLE_INVALID", f"{name}: download failed after {attempts} attempts ({type(last).__name__})")
 
 
@@ -214,9 +220,8 @@ def fetch_bundle_http(src: dict, dest, ledger, env: dict, receipt: dict, expect_
     files, anchors = {}, {}
     for name in plan["files"]:
         spec = src["files"][name]
-        ledger.reserve_download(int(spec["size"]), name)
-        url = "https://huggingface.co/%s/resolve/%s/%s" % (src["repo_id"], src["revision"], quote(name))
-        sha = _http_get_verified(url, d, spec, name, sleep=sleep, opener=opener)
+        url = "%s/%s/resolve/%s/%s" % (HF_BASE, src["repo_id"], src["revision"], quote(name))
+        sha = _http_get_verified(url, d, spec, name, ledger=ledger, sleep=sleep, opener=opener)
         files[name] = {"size": int(spec["size"]), "sha256": sha}
         anchors[name] = True
     return {"schema": ASSETS_SCHEMA, "status": "READY", "repo_id": src["repo_id"], "revision": src["revision"],
