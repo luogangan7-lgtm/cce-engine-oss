@@ -76,7 +76,7 @@ def test_prepare_and_eval_are_manual_single_permit_and_split_permissions():
     ev = _wf("cce-jev-eval.yml")
     assert "name: CCE Decider Candidate Evaluation" in ev and "group: cce-decider-candidate-eval" in ev
     opts = re.search(r"options:\s*\[([^\]]*)\]", ev).group(1)
-    assert sorted(o.strip() for o in opts.split(",")) == SUITES == ["s0-compare-v1", "s0-smoke-v1"]
+    assert sorted(o.strip() for o in opts.split(",")) == SUITES == ["s0-compare-v1", "s0-probe-v1", "s0-smoke-v1"]
     for flag in ("--network none", "--read-only", "--cap-drop ALL", "no-new-privileges", "--memory-swap 12g", "--cpus 3", "--user 1001:1001", "--pids-limit"):
         assert flag in (ROOT / "experiments" / "jev" / "runtime" / "run_remote_only.sh").read_text(encoding="utf-8"), flag
     sh = (ROOT / "experiments" / "jev" / "runtime" / "run_remote_only.sh").read_text(encoding="utf-8")
@@ -114,3 +114,13 @@ def test_locks_are_consistent_and_ready_after_github_prepare():
         pm = json.loads(pf.read_text(encoding="utf-8"))
         assert pm["permit_id"] == pf.stem and pm["owner_approval_reference"].strip() and pm["expiry"] and pm["max_runs"] == 1 == pm["max_attempts"], pf.name
         assert pm["mode"] in ("prepare", "eval") and pm["repository"] == "luogangan7-lgtm/cce-engine-oss", pf.name
+
+
+
+def test_evaluate_outer_timeout_covers_every_policy_deadline():
+    import glob
+    ev = _wf("cce-jev-eval.yml")
+    tmin = int(re.search(r"evaluate:[\s\S]*?timeout-minutes: (\d+)", ev).group(1))
+    for p in glob.glob(str(ROOT / "experiments/jev/policies/cpu_*.json")):
+        pol = json.loads(open(p, encoding="utf-8").read())
+        assert tmin * 60 >= pol["model_load_plus_infer_deadline_s"] + 15 * 60, (p, tmin)     # 载入+推理之外还有恢复缓存/建镜像/收尾

@@ -157,3 +157,17 @@ def test_policy_suite_ids_check_fires_for_same_task_suite(tmp_path):
     (tmp_path / "s0-compare-vx.manifest.json").write_text(json.dumps(m, ensure_ascii=False), encoding="utf-8")
     rep = RS.run("s0-compare-vx", tmp_path / "reports" / "v", COMPARE_FAKE_TOK, CFG, IDS, lambda L: FakeBackend(L), FakeTokenizer, fake_upstream, suites_dir=tmp_path)
     assert rep["execution_status"] == "FAILED" and rep["failures"][0]["code"] == "PERMIT_NOT_APPROVED" and "does not cover suite" in rep["failures"][0]["detail"]
+
+
+
+def test_probe_suite_end_to_end_with_fake_backend(tmp_path):
+    pol = json.loads((Path(RS.HERE) / "policies" / "cpu_probe.json").read_text(encoding="utf-8"))
+    pol = {**pol, "max_row_tokens": 8192, "max_padded_tokens": 8192 * 640}                 # 假 tokenizer 按字符切
+    rep = RS.run("s0-probe-v1", tmp_path / "reports" / "p1", pol, CFG, IDS, lambda L: FakeBackend(L), FakeTokenizer, fake_upstream)
+    assert rep["execution_status"] == "SUCCEEDED" and rep["coverage_status"] == "COMPLETE", rep["failures"]
+    assert rep["budget"]["forwards"] == 640 and rep["coverage"]["by_status"]["STRUCTURAL_COLD_READ"] == 128
+    en = [r for r in rep["results"] if r.get("item_id", "").startswith("orig-en:") and "candidate_ids" in r]
+    assert en and all(all(ord(ch) < 128 for ch in "".join(r["candidate_ids"])) for r in en)
+    rev = {(r["item_id"].split(":", 1)[1], r["question_id"]): r["candidate_ids"] for r in rep["results"] if r.get("item_id", "").startswith("rev-zh:") and "candidate_ids" in r}
+    anc = [r for r in rep["results"] if r.get("item_id", "").startswith("anchor:") and "candidate_ids" in r]
+    assert len(anc) == 10 and all(rev[(a["item_id"].split(":", 1)[1], a["question_id"])] == a["candidate_ids"][::-1] for a in anc)

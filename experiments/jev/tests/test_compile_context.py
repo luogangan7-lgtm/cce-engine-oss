@@ -157,3 +157,43 @@ def test_task_with_bad_structural_facet_is_refused(tmp_path, monkeypatch):
             C.load_task("s0_context.v2", TAX); raise AssertionError(spec)
         except JevError as e:
             assert e.code == "INPUT_INVALID"
+
+
+
+V3 = C.load_task("s0_context.v3", TAX)
+
+
+def test_v3_variants_orig_zh_is_v2_and_others_transform_as_declared():
+    base, _ = C.compile_s0(TEXT, None, TAX, V2)
+    same, _ = C.compile_s0(TEXT, None, TAX, V3, "orig-zh")
+    assert [q.wire() for q in same] == [q.wire() for q in base]
+    rev, _ = C.compile_s0(TEXT, None, TAX, V3, "rev-zh")
+    assert all(r.candidate_ids() == b.candidate_ids()[::-1] and r.instructions == b.instructions for r, b in zip(rev, base))
+    en, prov = C.compile_s0(TEXT, None, TAX, V3, "orig-en")
+    assert prov["情绪余温"]["provenance"] == "STRUCTURAL_COLD_READ" and [q.question_id for q in en] == [q.question_id for q in base]
+    for q, b in zip(en, base):
+        assert "Facet: " in q.instructions and not any("\u4e00" <= ch <= "\u9fff" for ch in q.instructions + "".join(c + (d or "") for c, d in q.criteria)), q.question_id
+        assert [C.to_zh(V3, q.question_id, cid) for cid in q.candidate_ids()] == b.candidate_ids()          # 一一映射回中文、同序
+        assert C.to_zh(V3, q.question_id, C.unknown_candidate(q)) == C.unknown_candidate(b)
+    re_, _ = C.compile_s0(TEXT, None, TAX, V3, "rev-en")
+    assert all(r.candidate_ids() == e.candidate_ids()[::-1] for r, e in zip(re_, en))
+
+
+def test_undeclared_variant_and_broken_translation_are_refused(tmp_path, monkeypatch):
+    for bad in (("rev-zh", V2), ("side-zh", V3), ("orig-fr", V3)):
+        try:
+            C.compile_s0(TEXT, None, TAX, bad[1], bad[0]); raise AssertionError(bad[0])
+        except JevError as e:
+            assert e.code == "INPUT_INVALID"
+    import copy
+    for mut in ("dup", "missing", "collide"):
+        t = copy.deepcopy(V3); vals = t["translation_en"]["facets"]["资源状态"]["values"]
+        if mut == "dup": vals["时间受限"] = vals["预算受限"]
+        elif mut == "missing": vals.pop("无决定权")
+        else: vals["时间受限"] = t["translation_en"]["unknown_option"]["id"]
+        (tmp_path / "s0_context.v3.json").write_text(json.dumps(t, ensure_ascii=False), encoding="utf-8")
+        monkeypatch.setattr(C, "TASKS", tmp_path)
+        try:
+            C.load_task("s0_context.v3", TAX); raise AssertionError(mut)
+        except JevError as e:
+            assert e.code == "INPUT_INVALID"

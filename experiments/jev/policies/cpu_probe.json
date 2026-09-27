@@ -1,0 +1,35 @@
+{
+ "policy_id": "cpu_probe.v1",
+ "mode": "eval",
+ "runner": "ubuntu-24.04",
+ "github_hosted_cpu_runs": 1,
+ "run_attempts": 1,
+ "paid_gpu": 0,
+ "paid_model_api": 0,
+ "auto_retry_or_model_switch": 0,
+ "max_items": 128,
+ "max_questions": 640,
+ "max_rows": 640,
+ "max_forwards": 640,
+ "max_row_tokens": 2048,
+ "max_padded_tokens": 655360,
+ "model_loads": 1,
+ "container": {
+  "cpus": 3,
+  "memory": "12g",
+  "memory_swap": "12g",
+  "pids_limit": 256,
+  "tmpfs_tmp": "256m"
+ },
+ "model_load_plus_infer_deadline_s": 5400,
+ "job_timeout_min": 130,
+ "max_download_bytes": 8589934592,
+ "dependency_or_image_bytes_plan": 3221225472,
+ "report_max_bytes": 20971520,
+ "retention_days": 7,
+ "note": "2×2 探针(owner 2026-09-27「做吧」)。640 行 = 3 个新格子 × 42 条 × 5 面 + 2 条锚点 × 5 面; 原序中文格子复用 run 36272175531。按上次实测 0.585 s + 0.01565 s/token 外推 3350–4210 s, 取载入+推理 ≤5400 s、job ≤130 min。GitHub 托管 CPU, 公开仓免费; 0 付费 GPU/API; 模型载入 1 次; 缓存命中 0 下载。",
+ "task": "s0_context.v3",
+ "suite_ids": [
+  "s0-probe-v1"
+ ]
+}

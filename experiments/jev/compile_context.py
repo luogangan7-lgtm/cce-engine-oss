@@ -22,6 +22,8 @@ from .contracts import DecisionRequest, JevError, Question, sha256
 ROOT = Path(__file__).resolve().parents[2]
 TAXONOMY_PATH = ROOT / "config" / "context_taxonomy.json"
 UNKNOWN_SET = {"未知", "未提及", "", None}   # 与 cce_s0_jev.UNKNOWN 相同
+UNKNOWN_EN = {"unknown", "not mentioned"}   # v3 英文变体里的 unknown 表示(只用于判定 SEMANTIC_UNKNOWN)
+VARIANT_RE = re.compile(r"^(orig|rev)-(zh|en)$")
 PREPARATION_ID = "full_text.v1"
 LEGACY_SLICE = 2000                          # text_2000.v0 = line[:2000], 与 2026-09-23 复测 BODY_CHARS 相同
 TASKS = Path(__file__).resolve().parent / "tasks"
@@ -48,11 +50,55 @@ def question_for(facet: dict) -> Question:
 
 
 def unknown_candidate(q: Question) -> str:
-    """unknown 在候选中必须有**唯一**表示(未知 或 未提及, 二选一存在)。"""
-    u = [c for c in q.candidate_ids() if c in UNKNOWN_SET]
+    """unknown 在候选中必须有**唯一**表示(未知 或 未提及; 英文变体为 unknown 或 not mentioned)。"""
+    u = [c for c in q.candidate_ids() if c in UNKNOWN_SET or c in UNKNOWN_EN]
     if len(u) != 1:
         raise JevError("INPUT_INVALID", f"{q.question_id}: unknown candidates {u}")
     return u[0]
+
+
+def _check_translation(task: dict, taxonomy: dict) -> None:
+    """英文译表: 覆盖每个面的每个取值, 面内一一对应, 不与 unknown id 冲突。"""
+    t = task.get("translation_en")
+    if not t:
+        return
+    unk = t["unknown_option"]["id"]
+    facets = {f["key"]: f for f in taxonomy["facets"]}
+    for k, spec in t["facets"].items():
+        vals = facets[k]["values"]
+        ens = [spec["values"].get(v) for v in vals]
+        if any(e is None or not isinstance(e, str) or not e.strip() for e in ens) or len(set(ens)) != len(ens) or unk in ens or set(spec["values"]) != set(vals):
+            raise JevError("INPUT_INVALID", f"task {task.get('task_id')}: translation for {k} is not a complete one-to-one map")
+
+
+def variant_question(q: Question, facet: dict, variant: dict, task: dict) -> Question:
+    """把生产题(中文候选, 原序)变成指定变体: 英文(译表)与/或候选顺序反转。question_id 保持中文面名。"""
+    crit = list(q.criteria)
+    instructions = q.instructions
+    if variant["lang"] == "en":
+        t = task["translation_en"]; spec = t["facets"][facet["key"]]; unk = t["unknown_option"]
+        new = []
+        for cid, _desc in crit:
+            if cid == "未知":
+                new.append((unk["id"], unk["description"]))
+            else:
+                e = spec["values"][cid]; new.append((e, "%s: %s" % (spec["desc"], e)))
+        crit = new
+        instructions = t["instruction_template"] % (spec["key"], spec["desc"])
+    if variant["order"] == "reversed":
+        crit = crit[::-1]
+    return Question(question_id=q.question_id, type=q.type, instructions=instructions, criteria=tuple(crit)).validate()
+
+
+def to_zh(task: dict, facet_key: str, candidate_id: str) -> str:
+    """英文候选 id → 中文标签(一一映射); 中文 id 原样返回。"""
+    t = (task or {}).get("translation_en")
+    if not t:
+        return candidate_id
+    if candidate_id == t["unknown_option"]["id"]:
+        return "未知"
+    back = {e: z for z, e in t["facets"][facet_key]["values"].items()}
+    return back.get(candidate_id, candidate_id)
 
 
 def load_task(task_id: str, taxonomy: dict) -> dict:
@@ -69,6 +115,10 @@ def load_task(task_id: str, taxonomy: dict) -> dict:
     for k, spec in (task.get("structural_facets") or {}).items():
         if k not in facets or spec.get("value") not in facets[k]["values"] or spec.get("provenance") != "STRUCTURAL_COLD_READ":
             raise JevError("INPUT_INVALID", f"task {task_id}: bad structural facet {k!r}")
+    for name, v in (task.get("question_variants") or {}).items():
+        if not VARIANT_RE.match(name) or v.get("order") not in ("original", "reversed") or v.get("lang") not in ("zh", "en") or name != f"{'orig' if v['order'] == 'original' else 'rev'}-{v['lang']}":
+            raise JevError("INPUT_INVALID", f"task {task_id}: bad question variant {name!r}")
+    _check_translation(task, taxonomy)
     return task
 
 
@@ -117,8 +167,13 @@ def item_text(item: dict) -> tuple:
     return body, prep, ref["line_sha256"], "%s:%d" % (ref["file"], ref["line_index"])
 
 
-def compile_s0(text: str, declared: dict | None, taxonomy: dict, task: dict | None = None):
-    """→ (questions: list[Question], provenance: {facet: {provenance, value|None, readable}})。task=None ⇔ v1。"""
+def compile_s0(text: str, declared: dict | None, taxonomy: dict, task: dict | None = None, variant: str | None = None):
+    """→ (questions: list[Question], provenance: {facet: {provenance, value|None, readable}})。task=None ⇔ v1; variant=None ⇔ 生产题面。"""
+    var = None
+    if variant is not None:
+        var = ((task or {}).get("question_variants") or {}).get(variant)
+        if var is None:
+            raise JevError("INPUT_INVALID", f"question_variant {variant!r} not declared by the task contract")
     if not isinstance(text, str) or not text.strip():
         raise JevError("INPUT_INVALID", "empty text")
     facets = {f["key"]: f for f in taxonomy["facets"]}
@@ -140,6 +195,8 @@ def compile_s0(text: str, declared: dict | None, taxonomy: dict, task: dict | No
             prov[key] = {"provenance": "STRUCTURAL_COLD_READ", "value": structural[key]["value"], "readable": readable}
         elif readable in (True, "partial"):
             q = question_for(f)
+            if var is not None and (var["lang"] != "zh" or var["order"] != "original"):
+                q = variant_question(q, f, var, task)
             unknown_candidate(q)
             qs.append(q)
             prov[key] = {"provenance": "MODEL_CANDIDATE", "value": None, "readable": readable}
@@ -151,7 +208,7 @@ def compile_s0(text: str, declared: dict | None, taxonomy: dict, task: dict | No
 def build_request(item: dict, taxonomy: dict, task: dict | None = None):
     """suite item {item_id, text|text_ref, preparation_id?, declared?} → (DecisionRequest, provenance)。"""
     text, prep, original_sha, source = item_text(item)
-    qs, prov = compile_s0(text, item.get("declared"), taxonomy, task)
+    qs, prov = compile_s0(text, item.get("declared"), taxonomy, task, item.get("question_variant"))
     req = DecisionRequest(request_id=f"{item['item_id']}:s0", item_id=item["item_id"], state=text, questions=qs,
                           source_refs=[source], original_input_sha256=original_sha, preparation_id=prep)
     return req.validate(), prov

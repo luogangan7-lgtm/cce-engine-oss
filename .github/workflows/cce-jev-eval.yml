@@ -8,7 +8,7 @@ on:
       suite_id:
         description: "Registered suite (experiments/jev/suites/<id>.jsonl)"
         type: choice
-        options: [s0-smoke-v1, s0-compare-v1]
+        options: [s0-smoke-v1, s0-compare-v1, s0-probe-v1]
         default: s0-smoke-v1
         required: true
       permit_id:
@@ -56,7 +56,7 @@ jobs:
   evaluate:
     needs: admit
     runs-on: ubuntu-24.04
-    timeout-minutes: 90   # outer bound; the admitted policy's load+infer deadline is enforced inside (smoke 1200 s, compare 3000 s)
+    timeout-minutes: 130  # outer bound; the admitted policy's load+infer deadline is enforced inside (smoke 1200 s, compare 3000 s, probe 5400 s)
     permissions:
       contents: read
     env:
