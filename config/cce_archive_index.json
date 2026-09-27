@@ -888,7 +888,14 @@
     "config/cce_archive_index.json",
     "results/jev_candidate_qwen3-4b-2507_vs_retest.json",
     "results/jev_candidate_qwen3.5-4b_vs_retest.json",
-    "docs/cce_jev_deployment.md"
+    "docs/cce_jev_deployment.md",
+    "results/jev_distill_TA_vs_retest.json",
+    "results/jev_distill_TB_vs_retest.json",
+    "results/jev_distill_TC_vs_retest.json",
+    "results/jev_distill_XA_vs_retest.json",
+    "results/jev_distill_XB_vs_retest.json",
+    "results/jev_distill_XC_vs_retest.json",
+    "results/jev_distill_summary.json"
    ],
    "reason": "hf_choice 候选完整对比(Qwen3-4B-Instruct-2507 / Qwen3.5-4B 各一条腿, s0-compare-llm-v1 269 行/腿); 预注册 tests/data/jev_candidate_vs_retest_prereg.json; 冻结判据 probes/jev_decider_vs_retest.py 经包装 probes/jev_candidate_vs_retest.py",
    "checked_against": [
@@ -898,6 +905,24 @@
    "local_path": "archive/36316049972",
    "files": 20,
    "★rebuildable_locally": "是。三个 artifact 全部文件逐件落档(每条腿一个子目录); python3 probes/jev_candidate_vs_retest.py <key> archive/36316049972/<key> 可重算"
+  },
+  "36325037233": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json",
+    "results/jev_distill_TA_vs_retest.json",
+    "results/jev_distill_TB_vs_retest.json",
+    "results/jev_distill_TC_vs_retest.json",
+    "docs/cce_jev_deployment.md"
+   ],
+   "reason": "蒸馏训练特征(Qwen3-4B-Instruct-2507 / Qwen3.5-4B 各一条腿, s0-distill-train-v1 = 验收集之外 66 条 × 5 面 = 330 行/腿); 预注册 tests/data/jev_distill_prereg.json; 分析 probes/jev_distill_vs_retest.py(判据 = 冻结的 probes/jev_decider_vs_retest.py)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-27",
+   "local_path": "archive/36325037233",
+   "files": 20,
+   "★rebuildable_locally": "是。三个 artifact 全部文件逐件落档(每条腿一个子目录); python3 probes/jev_distill_vs_retest.py archive/36325037233 archive/36316049972 可重算(另需 results/jev_distill_teacher.json)"
   }
  },
  "negative_test_run_ids": {

@@ -1,0 +1,424 @@
+{
+ "block": "JEV_DISTILL_SUMMARY",
+ "prereg_sha256": "7a48bf43b7c780d9ab69e9cb8b2b0391c7860fcab78f6fd660b55885ad53a8bd",
+ "★老师漂移(描述, 不进判决)": {
+  "n": 10,
+  "missing_in_J": 0,
+  "d_vs_J1": {
+   "进程位置": 0,
+   "触发事件": 0,
+   "关系位置": 0,
+   "身体状态": 1,
+   "资源状态": 0
+  },
+  "d_vs_J2": {
+   "进程位置": 0,
+   "触发事件": 0,
+   "关系位置": 0,
+   "身体状态": 1,
+   "资源状态": 0
+  },
+  "J1_vs_J2_same_items": {
+   "进程位置": 0,
+   "触发事件": 0,
+   "关系位置": 0,
+   "身体状态": 0,
+   "资源状态": 0
+  },
+  "flag": false
+ },
+ "★分布偏移(描述)": {
+  "进程位置": {
+   "teacher_train": {
+    "在比较权衡": 13,
+    "在找方案": 17,
+    "未知": 32,
+    "刚意识到问题": 2,
+    "已决定在执行": 2
+   },
+   "J1_acceptance": {
+    "已决定在执行": 13,
+    "在找方案": 12,
+    "在比较权衡": 10,
+    "未知": 5,
+    "回看复盘": 2
+   }
+  },
+  "触发事件": {
+   "teacher_train": {
+    "未知": 53,
+    "被否定或质疑": 2,
+    "受挫/出故障": 8,
+    "刚得到好结果": 2,
+    "刚花过钱": 1
+   },
+   "J1_acceptance": {
+    "未知": 15,
+    "刚得到好结果": 5,
+    "受挫/出故障": 19,
+    "刚花过钱": 2,
+    "无明显触发": 1
+   }
+  },
+  "关系位置": {
+   "teacher_train": {
+    "已购买": 9,
+    "未知": 52,
+    "首次接触": 1,
+    "有过负面经历": 3,
+    "接触过几次": 1
+   },
+   "J1_acceptance": {
+    "未知": 15,
+    "已购买": 20,
+    "接触过几次": 3,
+    "有过负面经历": 4
+   }
+  },
+  "身体状态": {
+   "teacher_train": {
+    "未知": 62,
+    "长期困扰": 4
+   },
+   "J1_acceptance": {
+    "未知": 31,
+    "长期困扰": 9,
+    "已缓解": 2
+   }
+  },
+  "资源状态": {
+   "teacher_train": {
+    "未知": 56,
+    "有决定权": 7,
+    "无决定权": 2,
+    "时间受限": 1
+   },
+   "J1_acceptance": {
+    "未知": 23,
+    "有决定权": 15,
+    "无决定权": 2,
+    "预算受限": 1,
+    "时间受限": 1
+   }
+  }
+ },
+ "★预测核对": {
+  "TA": {
+   "headline_ge_5": true,
+   "overall_replaceable": false,
+   "facets_better_than_best_zero_shot_both_rounds": [
+    "进程位置",
+    "触发事件",
+    "身体状态"
+   ]
+  },
+  "TB": {
+   "headline_ge_5": true,
+   "overall_replaceable": false,
+   "facets_better_than_best_zero_shot_both_rounds": [
+    "进程位置",
+    "触发事件",
+    "身体状态",
+    "资源状态"
+   ]
+  },
+  "TC": {
+   "headline_ge_5": true,
+   "overall_replaceable": false,
+   "facets_better_than_best_zero_shot_both_rounds": [
+    "进程位置",
+    "触发事件",
+    "关系位置",
+    "资源状态"
+   ]
+  },
+  "XA": {
+   "headline_ge_5": true,
+   "overall_replaceable": false,
+   "facets_better_than_best_zero_shot_both_rounds": [
+    "进程位置",
+    "触发事件",
+    "身体状态"
+   ]
+  },
+  "XB": {
+   "headline_ge_5": true,
+   "overall_replaceable": false,
+   "facets_better_than_best_zero_shot_both_rounds": [
+    "进程位置",
+    "触发事件",
+    "身体状态"
+   ]
+  },
+  "XC": {
+   "headline_ge_5": true,
+   "overall_replaceable": false,
+   "facets_better_than_best_zero_shot_both_rounds": [
+    "进程位置",
+    "触发事件",
+    "身体状态",
+    "资源状态"
+   ]
+  }
+ },
+ "readers": {
+  "TA": {
+   "overall": "整体不可替代: 不同读者面 = 资源状态",
+   "verdicts": {
+    "进程位置": "不可判",
+    "触发事件": "不可判",
+    "关系位置": "不可判",
+    "身体状态": "不可判",
+    "资源状态": "不同读者"
+   },
+   "headline": {
+    "facet": "触发事件",
+    "d": {
+     "J1": 14,
+     "J2": 14
+    },
+    "max_d": 14,
+    "threshold": 5,
+    "result": "不能判可替代 ⇒ 不是完整替代"
+   },
+   "errors": [],
+   "power": {
+    "进程位置": {
+     "d_self_teacher": 7,
+     "ok": false
+    },
+    "触发事件": {
+     "d_self_teacher": 3,
+     "ok": true
+    },
+    "关系位置": {
+     "d_self_teacher": 4,
+     "ok": true
+    },
+    "身体状态": {
+     "d_self_teacher": 0,
+     "ok": true
+    },
+    "资源状态": {
+     "d_self_teacher": 1,
+     "ok": true
+    }
+   }
+  },
+  "TB": {
+   "overall": "部分: 进程位置=不可判; 触发事件=不可判; 关系位置=不可判; 身体状态=不可判; 资源状态=不可判",
+   "verdicts": {
+    "进程位置": "不可判",
+    "触发事件": "不可判",
+    "关系位置": "不可判",
+    "身体状态": "不可判",
+    "资源状态": "不可判"
+   },
+   "headline": {
+    "facet": "触发事件",
+    "d": {
+     "J1": 12,
+     "J2": 12
+    },
+    "max_d": 12,
+    "threshold": 5,
+    "result": "不能判可替代 ⇒ 不是完整替代"
+   },
+   "errors": [],
+   "power": {
+    "进程位置": {
+     "d_self_teacher": 0,
+     "ok": true
+    },
+    "触发事件": {
+     "d_self_teacher": 0,
+     "ok": true
+    },
+    "关系位置": {
+     "d_self_teacher": 1,
+     "ok": true
+    },
+    "身体状态": {
+     "d_self_teacher": 2,
+     "ok": true
+    },
+    "资源状态": {
+     "d_self_teacher": 0,
+     "ok": true
+    }
+   }
+  },
+  "TC": {
+   "overall": "整体不可替代: 不同读者面 = 进程位置、身体状态",
+   "verdicts": {
+    "进程位置": "不同读者",
+    "触发事件": "不可判",
+    "关系位置": "不可判",
+    "身体状态": "不同读者",
+    "资源状态": "不可判"
+   },
+   "headline": {
+    "facet": "触发事件",
+    "d": {
+     "J1": 12,
+     "J2": 12
+    },
+    "max_d": 12,
+    "threshold": 5,
+    "result": "不能判可替代 ⇒ 不是完整替代"
+   },
+   "errors": [],
+   "power": {
+    "进程位置": {
+     "d_self_teacher": 6,
+     "ok": false
+    },
+    "触发事件": {
+     "d_self_teacher": 10,
+     "ok": false
+    },
+    "关系位置": {
+     "d_self_teacher": 9,
+     "ok": false
+    },
+    "身体状态": {
+     "d_self_teacher": 0,
+     "ok": true
+    },
+    "资源状态": {
+     "d_self_teacher": 1,
+     "ok": true
+    }
+   }
+  },
+  "XA": {
+   "overall": "整体不可替代: 不同读者面 = 资源状态",
+   "verdicts": {
+    "进程位置": "不可判",
+    "触发事件": "不可判",
+    "关系位置": "不可判",
+    "身体状态": "不可判",
+    "资源状态": "不同读者"
+   },
+   "headline": {
+    "facet": "触发事件",
+    "d": {
+     "J1": 16,
+     "J2": 16
+    },
+    "max_d": 16,
+    "threshold": 5,
+    "result": "不能判可替代 ⇒ 不是完整替代"
+   },
+   "errors": [],
+   "power": {
+    "进程位置": {
+     "d_self_teacher": 2,
+     "ok": true
+    },
+    "触发事件": {
+     "d_self_teacher": 6,
+     "ok": false
+    },
+    "关系位置": {
+     "d_self_teacher": 2,
+     "ok": true
+    },
+    "身体状态": {
+     "d_self_teacher": 1,
+     "ok": true
+    },
+    "资源状态": {
+     "d_self_teacher": 1,
+     "ok": true
+    }
+   }
+  },
+  "XB": {
+   "overall": "整体不可替代: 不同读者面 = 进程位置、身体状态",
+   "verdicts": {
+    "进程位置": "不同读者",
+    "触发事件": "不可判",
+    "关系位置": "不可判",
+    "身体状态": "不同读者",
+    "资源状态": "不可判"
+   },
+   "headline": {
+    "facet": "触发事件",
+    "d": {
+     "J1": 15,
+     "J2": 15
+    },
+    "max_d": 15,
+    "threshold": 5,
+    "result": "不能判可替代 ⇒ 不是完整替代"
+   },
+   "errors": [],
+   "power": {
+    "进程位置": {
+     "d_self_teacher": 0,
+     "ok": true
+    },
+    "触发事件": {
+     "d_self_teacher": 0,
+     "ok": true
+    },
+    "关系位置": {
+     "d_self_teacher": 0,
+     "ok": true
+    },
+    "身体状态": {
+     "d_self_teacher": 1,
+     "ok": true
+    },
+    "资源状态": {
+     "d_self_teacher": 0,
+     "ok": true
+    }
+   }
+  },
+  "XC": {
+   "overall": "整体不可替代: 不同读者面 = 进程位置",
+   "verdicts": {
+    "进程位置": "不同读者",
+    "触发事件": "不可判",
+    "关系位置": "不可判",
+    "身体状态": "不可判",
+    "资源状态": "不可判"
+   },
+   "headline": {
+    "facet": "触发事件",
+    "d": {
+     "J1": 14,
+     "J2": 14
+    },
+    "max_d": 14,
+    "threshold": 5,
+    "result": "不能判可替代 ⇒ 不是完整替代"
+   },
+   "errors": [],
+   "power": {
+    "进程位置": {
+     "d_self_teacher": 6,
+     "ok": false
+    },
+    "触发事件": {
+     "d_self_teacher": 7,
+     "ok": false
+    },
+    "关系位置": {
+     "d_self_teacher": 11,
+     "ok": false
+    },
+    "身体状态": {
+     "d_self_teacher": 0,
+     "ok": true
+    },
+    "资源状态": {
+     "d_self_teacher": 4,
+     "ok": true
+    }
+   }
+  }
+ }
+}

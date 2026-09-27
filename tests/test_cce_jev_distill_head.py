@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """蒸馏测试的头与分析闸(零 API、零模型; 需 numpy + scipy, 本机跑): 头确定性且学得会 · 近重复同组留出 ·
-端到端(合成老师 + 合成训练特征 + 真考场归档)两族都走到冻结判决 · 老师漂移行碰不到头 · 可比性/溯源前置真会拦。
+端到端(合成老师 + 合成训练特征 + 真考场归档)两族都走到冻结判决 · 老师漂移行碰不到头 · 可比性/溯源前置真会拦 ·
+已提交的六个读者与汇总 == 对归档现算(重算闸)。
 产物不写 results/。"""
 import copy
 import hashlib
@@ -18,6 +19,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 PRE = ROOT / "tests/data/jev_distill_prereg.json"
 S = ROOT / "experiments/jev/suites"
 EVAL = ROOT / "archive/36316049972"
+TRAIN_RUN = "36325037233"                                           # 训练特征 run(permit eval-distill-train-2026-09-27-1)
 
 
 def _sha(p):
@@ -138,3 +140,27 @@ def test_main_writes_all_six_readers_and_the_summary(tmp_path, monkeypatch):
     assert set(s["★预测核对"]) == set(s["readers"]) and all(v is not None for v in s["★预测核对"].values())
     d = s["★老师漂移(描述, 不进判决)"]
     assert d["n"] == 10 and d["flag"] is not None and set(d) >= {"d_vs_J1", "d_vs_J2", "J1_vs_J2_same_items", "missing_in_J"}
+
+
+@pytest.fixture(scope="module")
+def fresh_run(tmp_path_factory):
+    """一次完整现算(真老师 + 真训练归档 + 真考场归档, 冻结 λ 网格), 六个读者 + 汇总写临时目录。"""
+    H = _load("probes/jev_distill_vs_retest.py", "_h_recompute")
+    out = tmp_path_factory.mktemp("recompute")
+    H.out_path = lambda tag: out / f"r_{tag}.json"
+    H.SUMMARY = out / "summary.json"
+    H.main([str(ROOT / "archive" / TRAIN_RUN), str(EVAL)])
+    return out
+
+
+@pytest.mark.parametrize("tag", [f + v for f in "TX" for v in "ABC"] + ["summary"])
+def test_committed_distill_results_recompute_from_the_archive(fresh_run, tag):
+    """结果文件 = 冻结分析脚本对归档训练 run + 考场 run + 已提交老师读数现算的产物, 不是手填的。"""
+    rel = "results/jev_distill_summary.json" if tag == "summary" else f"results/jev_distill_{tag}_vs_retest.json"
+    committed = json.loads((ROOT / rel).read_text(encoding="utf-8"))
+    fresh = json.loads((fresh_run / ("summary.json" if tag == "summary" else f"r_{tag}.json")).read_text(encoding="utf-8"))
+    assert fresh == committed
+    if tag != "summary":
+        assert committed["★前置错误"] == [] and committed["★同 run 复跑"]["pass"] and committed["★同 run 复跑"]["pairs"] == 50
+        assert committed["analysis_script_sha256"] == committed["analysis_script_sha256_at_freeze"]
+        assert committed["prereg_sha256"] == _sha(PRE) and committed["frozen_rule_sha256"] == json.loads(PRE.read_text(encoding="utf-8"))["★分析脚本(冻结)"]["sha256"]

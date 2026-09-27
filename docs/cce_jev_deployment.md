@@ -145,10 +145,105 @@ more information with one permit fewer. The pre-registered headline check is sti
 Local development used only tiny random-init models in the real checkpoint layouts and the real tokenizers on synthetic
 text (fp32-compute path equals a full-fp32 reference exactly); no candidate weights were downloaded or run locally.
 
+## Distillation test (owner 「蒸馏进行测试」 2026-09-27)
+
+Question: can a small per-facet head on the candidates' option-letter logits reproduce Jev's s0 reading well enough to pass
+the same frozen rule? Pre-registration `tests/data/jev_distill_prereg.json` was frozen and pushed in `7d67192` before any
+teacher reading or training feature existed. It was revised once before measurement, after an adversarial review; the revision log is
+in the file. Six students are all reported:
+
+* family **T**: the teacher is today's Jev on the 66 corpus lines outside the 42 (full distributions, soft targets);
+* family **X**: 7-fold cross-fit on the 42 using the J1 labels, so no item is predicted by a head that saw its label;
+* each family is run for variant **A** Qwen3-4B-2507, **B** Qwen3.5-4B and **C** both.
+
+The student's features and head:
+
+* **Features:** per-model log-softmax of the letter logits over the facet's candidates.
+* **Head:** multinomial logistic regression with λ chosen by leave-one-out, fitted with L-BFGS.
+* **Verdicts:** the frozen `probes/jev_decider_vs_retest.py`, unchanged (sha-checked).
+* **Power check:** a head is also trained on the model's own distribution ("self-teacher"). If it cannot reproduce that within 4/42, the facet is marked † (no power). The verdict itself is not changed.
+
+The 66 training lines are the brand-free complement of the brand-selected 42: 0/66 mention a brand (vs 42/42), and the median
+length is 170 vs 516 characters. Family X exists to separate "cannot transfer" from "cannot be learned from these features".
+
+| step | where | facts |
+|---|---|---|
+| teacher reading | local API calls, `probes/jev_distill_teacher.py` | 76 attempts under a cross-process cap of 80 (fsync'd ledger + lock), 0 retries, train 66/66 + drift 10/10 ok, ~$0.004; committed in `01c55ec` before the training features existed |
+| training features | https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/36325037233 @ `7d67192`, permit `eval-distill-train-2026-09-27-1`, archived `archive/36325037233/<model_key>/` | 2 legs × 330 rows, both green, 82 / 90 min; model inference only on GitHub runners |
+| exam features | `archive/36316049972` (reused, 0 new runs) | train/exam identities, backend config, candidate order and question sha checked equal |
+| analysis | `probes/jev_distill_vs_retest.py` locally: numpy/scipy heads on the archived numbers only, no model loaded | all six readers: 0 precondition errors, 50/50 rerun pairs pass |
+
+d(S, J1) / d(S, J2) out of 42. † means the head has no power on that facet (self-teacher d > 4). Reference rows:
+
+* constant-majority baseline d0 (J1/J2): 29/29, 23/23, 22/22, 11/11, 19/17;
+* best zero-shot candidate (J1/J2): 24/24, 19/19, 12/12, 11/11, 15/12.
+
+| facet | TA | TB | TC | XA | XB | XC |
+|---|---|---|---|---|---|---|
+| 进程位置 | 18/18 不可判 † | 17/17 不可判 | 20/20 不同读者 † | 17/17 不可判 | 20/20 不同读者 | 19/19 不同读者 † |
+| 触发事件 (headline) | 14/14 不可判 | 12/12 不可判 | 12/12 不可判 † | 16/16 不可判 † | 15/15 不可判 | 14/14 不可判 † |
+| 关系位置 | 15/15 不可判 | 13/13 不可判 | 10/10 不可判 † | 13/13 不可判 | 13/13 不可判 | 13/13 不可判 † |
+| 身体状态 | 9/9 不可判 | 9/9 不可判 | 11/11 不同读者 | 7/7 不可判 | 10/10 不同读者 | 5/5 不可判 |
+| 资源状态 | 15/12 不同读者 | 12/9 不可判 | 13/10 不可判 | 18/15 不同读者 | 15/12 不可判 | 14/11 不可判 |
+| **overall** | 不可替代 | 部分(全 不可判) | 不可替代 | 不可替代 | 不可替代 | 不可替代 |
+
+**Under the frozen implementation no student is 可替代 on any facet, and none is a full replacement.** The headline check fails
+for all six: 触发事件 max d is 12–16, and 5 or more rules out 可替代. The closest cell is XC 身体状态 at 5/5, one disagreement
+above the threshold.
+
+That closest cell is not robust. An independent verification recomputed everything with its own code:
+
+* **What reproduced exactly:** all 30 cells from the committed coefficients, all 60 κ intervals, and the whole of family T on a full refit.
+* **Where the X family breaks down:** in its 7-fold cross-fit, leave-one-out often leaves a class with no training example. Such folds occur for 资源状态 in 7/7 folds and for 触发事件 in 6/7. The held-out cross-entropy there has no finite optimum, so the λ choice depends on implementation details.
+
+A post-hoc sensitivity run (`probes/jev_distill_ce_sensitivity.py` → `results/jev_distill_ce_sensitivity.json`, **not
+pre-registered**) changes only the `+1e-12` guard in the cross-entropy. Four X cells move:
+
+* XC 身体状态: 5/5 → 4/4, which is **可替代**;
+* XC 资源状态: 14/11 → 18/15;
+* XA 触发事件: 16 → 17;
+* XB 资源状态: 15/12 → 14/11.
+
+Family T and every reader's overall "not a full replacement" do not move. So the robust statements are:
+
+* the T students and the headline failure hold as stated;
+* X-family cells on 资源状态 / 触发事件 / 身体状态 are implementation-sensitive and should be read as ±1–4;
+* the frozen verdicts stay as registered.
+
+The heads do move toward Jev. On most facets they cut the zero-shot gap (e.g. 触发事件 19 → 12). On 进程位置, 触发事件 and 关系位置 they
+beat the constant-majority baseline by 7–12. But 5–20 disagreements per facet remain against a tolerance of 4.
+
+Family X, trained in-distribution on Jev's own labels, is no closer than family T. So on this evidence the gap is not mainly the
+brand-free transfer.
+
+Variant B has power on every facet, so B's result cannot be blamed on head capacity. Variant C, which concatenates both
+models, lacks power on 2–3 facets at these sample sizes.
+
+The power check is vacuous where the self-teacher is constant. That is the case for 身体状态 in variants A and C, where a
+constant already scores d_self = 0 (and for 资源状态 a constant scores 2). The TC 身体状态 "不同读者" comes from a head that
+answers 未知 on 42/42: it is the constant-majority reader (d = d0 = 11, net 0).
+
+Training and exam features ran on different CPU models, although the build, the numeric environment (pinned to AVX2) and the backend configuration are identical; the effect was not measured.
+
+Two descriptive checks, neither of which enters the verdict:
+
+* **Teacher drift:** on the 10 rerun items, today's Jev differs from the 09-23 readings once (身体状态), and J1 vs J2 differ 0 times.
+* **Distribution shift:** on the training lines the teacher answers 未知 far more often (触发事件 53/66 vs 15/42 in J1; 身体状态 62/66 vs 31/42). The standardised mean difference of exam features vs training features reaches 2.06 SD.
+
+Pre-registered predictions: 5 of 6 held. The power prediction (at least 4/5 facets with power per variant) failed for both C
+readers (2/5).
+
+What this does **not** show: that Jev cannot be distilled in general. The features here are only 5–7 letter logits per model
+(no hidden states); training is 66 short brand-free lines (T) or 36 labelled items (X); and the same 42 items have now been used
+twice. Recompute gate: `tests/test_cce_jev_distill_head.py` requires every committed reader file and the summary to equal a fresh
+run of the frozen analysis on the archives.
+
 ## What runs where
 
 * **Local machine**: only pure Python (stdlib) tests with a fake backend / fake tokenizer. `cli.py eval|prepare` refuse
   with `EXECUTION_LOCATION_FORBIDDEN` before any import or download. No `from_pretrained`, no `hf_hub_download`, no torch.
+  The distillation analysis fits numpy/scipy logistic heads on archived letter logits only (no model file, no inference);
+  the distillation teacher is HTTP calls to TypeSafe Jev under a hard cap.
 * **GitHub-hosted `ubuntu-24.04`** (free for this public repo; no paid runners, no GPU): model file verification, CPU
   dependency lock, Docker image build, model download, one load, the smoke forwards. One load per job. No fallback to
   TypeSafe / MiniMax anywhere in `experiments/jev`.

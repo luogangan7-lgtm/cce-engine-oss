@@ -1,0 +1,993 @@
+{
+ "block": "JEV_DISTILL_CE_SENSITIVITY",
+ "★性质": "非预注册, 测量后; 不改任何冻结判决; 只报告判决对 ce() 保护项这一实现细节的敏感度",
+ "起因": "独立复核 wf_8a24ff4e-b04 (recompute) P1: X 族 λ 选择在「留一留空一类」的折上没有良定义的答案",
+ "唯一改动": "ce(P, Y) = mean(−Σ Y·log P)(冻结版为 log(P + 1e-12)); 其余逐字调用 probes/jev_distill_vs_retest.analyse_reader",
+ "distill_sha256": "0a444363e0b086cf623010bf0e6b6cf9df74f2853fc7a2e7bb03af2e84f89246",
+ "prereg_sha256": "7a48bf43b7c780d9ab69e9cb8b2b0391c7860fcab78f6fd660b55885ad53a8bd",
+ "★X 族留一留空一类的折(按面, 7 折)": {
+  "进程位置": {
+   "per_fold_singletons": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "folds_with_singleton": 2
+  },
+  "触发事件": {
+   "per_fold_singletons": [
+    1,
+    2,
+    1,
+    2,
+    0,
+    1,
+    1
+   ],
+   "folds_with_singleton": 6
+  },
+  "关系位置": {
+   "per_fold_singletons": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "folds_with_singleton": 0
+  },
+  "身体状态": {
+   "per_fold_singletons": [
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0
+   ],
+   "folds_with_singleton": 2
+  },
+  "资源状态": {
+   "per_fold_singletons": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "folds_with_singleton": 7
+  }
+ },
+ "readers": {
+  "TA": {
+   "frozen_overall": "整体不可替代: 不同读者面 = 资源状态",
+   "unguarded_overall": "整体不可替代: 不同读者面 = 资源状态",
+   "unguarded_errors": [],
+   "facets": {
+    "进程位置": {
+     "frozen": {
+      "d": [
+       18,
+       18
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.01
+      ]
+     },
+     "unguarded": {
+      "d": [
+       18,
+       18
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.01
+      ]
+     },
+     "changed": false
+    },
+    "触发事件": {
+     "frozen": {
+      "d": [
+       14,
+       14
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.01
+      ]
+     },
+     "unguarded": {
+      "d": [
+       14,
+       14
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.01
+      ]
+     },
+     "changed": false
+    },
+    "关系位置": {
+     "frozen": {
+      "d": [
+       15,
+       15
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1
+      ]
+     },
+     "unguarded": {
+      "d": [
+       15,
+       15
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1
+      ]
+     },
+     "changed": false
+    },
+    "身体状态": {
+     "frozen": {
+      "d": [
+       9,
+       9
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.01
+      ]
+     },
+     "unguarded": {
+      "d": [
+       9,
+       9
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.01
+      ]
+     },
+     "changed": false
+    },
+    "资源状态": {
+     "frozen": {
+      "d": [
+       15,
+       12
+      ],
+      "verdict": "不同读者",
+      "lambdas": [
+       1.0
+      ]
+     },
+     "unguarded": {
+      "d": [
+       15,
+       12
+      ],
+      "verdict": "不同读者",
+      "lambdas": [
+       1.0
+      ]
+     },
+     "changed": false
+    }
+   }
+  },
+  "TB": {
+   "frozen_overall": "部分: 进程位置=不可判; 触发事件=不可判; 关系位置=不可判; 身体状态=不可判; 资源状态=不可判",
+   "unguarded_overall": "部分: 进程位置=不可判; 触发事件=不可判; 关系位置=不可判; 身体状态=不可判; 资源状态=不可判",
+   "unguarded_errors": [],
+   "facets": {
+    "进程位置": {
+     "frozen": {
+      "d": [
+       17,
+       17
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.01
+      ]
+     },
+     "unguarded": {
+      "d": [
+       17,
+       17
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.01
+      ]
+     },
+     "changed": false
+    },
+    "触发事件": {
+     "frozen": {
+      "d": [
+       12,
+       12
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.01
+      ]
+     },
+     "unguarded": {
+      "d": [
+       12,
+       12
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.01
+      ]
+     },
+     "changed": false
+    },
+    "关系位置": {
+     "frozen": {
+      "d": [
+       13,
+       13
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.01
+      ]
+     },
+     "unguarded": {
+      "d": [
+       13,
+       13
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.01
+      ]
+     },
+     "changed": false
+    },
+    "身体状态": {
+     "frozen": {
+      "d": [
+       9,
+       9
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.0001
+      ]
+     },
+     "unguarded": {
+      "d": [
+       9,
+       9
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.0001
+      ]
+     },
+     "changed": false
+    },
+    "资源状态": {
+     "frozen": {
+      "d": [
+       12,
+       9
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.001
+      ]
+     },
+     "unguarded": {
+      "d": [
+       12,
+       9
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.001
+      ]
+     },
+     "changed": false
+    }
+   }
+  },
+  "TC": {
+   "frozen_overall": "整体不可替代: 不同读者面 = 进程位置、身体状态",
+   "unguarded_overall": "整体不可替代: 不同读者面 = 进程位置、身体状态",
+   "unguarded_errors": [],
+   "facets": {
+    "进程位置": {
+     "frozen": {
+      "d": [
+       20,
+       20
+      ],
+      "verdict": "不同读者",
+      "lambdas": [
+       0.01
+      ]
+     },
+     "unguarded": {
+      "d": [
+       20,
+       20
+      ],
+      "verdict": "不同读者",
+      "lambdas": [
+       0.01
+      ]
+     },
+     "changed": false
+    },
+    "触发事件": {
+     "frozen": {
+      "d": [
+       12,
+       12
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.01
+      ]
+     },
+     "unguarded": {
+      "d": [
+       12,
+       12
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.01
+      ]
+     },
+     "changed": false
+    },
+    "关系位置": {
+     "frozen": {
+      "d": [
+       10,
+       10
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1
+      ]
+     },
+     "unguarded": {
+      "d": [
+       10,
+       10
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1
+      ]
+     },
+     "changed": false
+    },
+    "身体状态": {
+     "frozen": {
+      "d": [
+       11,
+       11
+      ],
+      "verdict": "不同读者",
+      "lambdas": [
+       1.0
+      ]
+     },
+     "unguarded": {
+      "d": [
+       11,
+       11
+      ],
+      "verdict": "不同读者",
+      "lambdas": [
+       1.0
+      ]
+     },
+     "changed": false
+    },
+    "资源状态": {
+     "frozen": {
+      "d": [
+       13,
+       10
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1
+      ]
+     },
+     "unguarded": {
+      "d": [
+       13,
+       10
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1
+      ]
+     },
+     "changed": false
+    }
+   }
+  },
+  "XA": {
+   "frozen_overall": "整体不可替代: 不同读者面 = 资源状态",
+   "unguarded_overall": "整体不可替代: 不同读者面 = 触发事件、资源状态",
+   "unguarded_errors": [],
+   "facets": {
+    "进程位置": {
+     "frozen": {
+      "d": [
+       17,
+       17
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.01,
+       0.01,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1
+      ]
+     },
+     "unguarded": {
+      "d": [
+       17,
+       17
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.01,
+       0.01,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1
+      ]
+     },
+     "changed": false
+    },
+    "触发事件": {
+     "frozen": {
+      "d": [
+       16,
+       16
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1
+      ]
+     },
+     "unguarded": {
+      "d": [
+       17,
+       17
+      ],
+      "verdict": "不同读者",
+      "lambdas": [
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       1.0
+      ]
+     },
+     "changed": true
+    },
+    "关系位置": {
+     "frozen": {
+      "d": [
+       13,
+       13
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.01,
+       0.01
+      ]
+     },
+     "unguarded": {
+      "d": [
+       13,
+       13
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.01,
+       0.01
+      ]
+     },
+     "changed": false
+    },
+    "身体状态": {
+     "frozen": {
+      "d": [
+       7,
+       7
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1,
+       0.0001,
+       0.01,
+       0.1,
+       0.1,
+       0.1,
+       0.1
+      ]
+     },
+     "unguarded": {
+      "d": [
+       7,
+       7
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1,
+       0.0001,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1
+      ]
+     },
+     "changed": false
+    },
+    "资源状态": {
+     "frozen": {
+      "d": [
+       18,
+       15
+      ],
+      "verdict": "不同读者",
+      "lambdas": [
+       0.1,
+       1.0,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1
+      ]
+     },
+     "unguarded": {
+      "d": [
+       18,
+       15
+      ],
+      "verdict": "不同读者",
+      "lambdas": [
+       10.0,
+       10.0,
+       1.0,
+       1.0,
+       10.0,
+       10.0,
+       0.1
+      ]
+     },
+     "changed": false
+    }
+   }
+  },
+  "XB": {
+   "frozen_overall": "整体不可替代: 不同读者面 = 进程位置、身体状态",
+   "unguarded_overall": "整体不可替代: 不同读者面 = 进程位置、身体状态",
+   "unguarded_errors": [],
+   "facets": {
+    "进程位置": {
+     "frozen": {
+      "d": [
+       20,
+       20
+      ],
+      "verdict": "不同读者",
+      "lambdas": [
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1
+      ]
+     },
+     "unguarded": {
+      "d": [
+       20,
+       20
+      ],
+      "verdict": "不同读者",
+      "lambdas": [
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1
+      ]
+     },
+     "changed": false
+    },
+    "触发事件": {
+     "frozen": {
+      "d": [
+       15,
+       15
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1,
+       0.01,
+       0.1,
+       0.01,
+       0.01,
+       0.1,
+       0.01
+      ]
+     },
+     "unguarded": {
+      "d": [
+       15,
+       15
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.01,
+       0.01,
+       0.1,
+       0.01,
+       0.01,
+       0.1,
+       0.01
+      ]
+     },
+     "changed": false
+    },
+    "关系位置": {
+     "frozen": {
+      "d": [
+       13,
+       13
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1
+      ]
+     },
+     "unguarded": {
+      "d": [
+       13,
+       13
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1
+      ]
+     },
+     "changed": false
+    },
+    "身体状态": {
+     "frozen": {
+      "d": [
+       10,
+       10
+      ],
+      "verdict": "不同读者",
+      "lambdas": [
+       0.01,
+       0.01,
+       0.1,
+       0.1,
+       0.01,
+       0.1,
+       0.01
+      ]
+     },
+     "unguarded": {
+      "d": [
+       10,
+       10
+      ],
+      "verdict": "不同读者",
+      "lambdas": [
+       0.01,
+       0.001,
+       0.1,
+       0.1,
+       0.01,
+       0.1,
+       0.01
+      ]
+     },
+     "changed": false
+    },
+    "资源状态": {
+     "frozen": {
+      "d": [
+       15,
+       12
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1,
+       0.1,
+       0.01,
+       0.1,
+       0.1,
+       0.0001,
+       0.1
+      ]
+     },
+     "unguarded": {
+      "d": [
+       14,
+       11
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.01,
+       10.0,
+       0.01,
+       0.01,
+       0.01,
+       0.0001,
+       0.0001
+      ]
+     },
+     "changed": true
+    }
+   }
+  },
+  "XC": {
+   "frozen_overall": "整体不可替代: 不同读者面 = 进程位置",
+   "unguarded_overall": "整体不可替代: 不同读者面 = 进程位置、资源状态",
+   "unguarded_errors": [],
+   "facets": {
+    "进程位置": {
+     "frozen": {
+      "d": [
+       19,
+       19
+      ],
+      "verdict": "不同读者",
+      "lambdas": [
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1
+      ]
+     },
+     "unguarded": {
+      "d": [
+       19,
+       19
+      ],
+      "verdict": "不同读者",
+      "lambdas": [
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1
+      ]
+     },
+     "changed": false
+    },
+    "触发事件": {
+     "frozen": {
+      "d": [
+       14,
+       14
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1
+      ]
+     },
+     "unguarded": {
+      "d": [
+       14,
+       14
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1
+      ]
+     },
+     "changed": false
+    },
+    "关系位置": {
+     "frozen": {
+      "d": [
+       13,
+       13
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1
+      ]
+     },
+     "unguarded": {
+      "d": [
+       13,
+       13
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1
+      ]
+     },
+     "changed": false
+    },
+    "身体状态": {
+     "frozen": {
+      "d": [
+       5,
+       5
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1,
+       0.01,
+       0.01,
+       0.1,
+       0.1,
+       0.1,
+       0.1
+      ]
+     },
+     "unguarded": {
+      "d": [
+       4,
+       4
+      ],
+      "verdict": "可替代",
+      "lambdas": [
+       0.1,
+       0.01,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       0.1
+      ]
+     },
+     "changed": true
+    },
+    "资源状态": {
+     "frozen": {
+      "d": [
+       14,
+       11
+      ],
+      "verdict": "不可判",
+      "lambdas": [
+       0.1,
+       1.0,
+       0.1,
+       0.1,
+       0.1,
+       0.1,
+       1.0
+      ]
+     },
+     "unguarded": {
+      "d": [
+       18,
+       15
+      ],
+      "verdict": "不同读者",
+      "lambdas": [
+       1.0,
+       1.0,
+       0.1,
+       0.1,
+       1.0,
+       10.0,
+       1.0
+      ]
+     },
+     "changed": true
+    }
+   }
+  }
+ },
+ "changed_cells": [
+  "XA:触发事件",
+  "XB:资源状态",
+  "XC:资源状态",
+  "XC:身体状态"
+ ],
+ "any_replaceable_unguarded": [
+  "XC:身体状态"
+ ]
+}

@@ -186,3 +186,18 @@ def test_redirects_are_refused_and_malformed_answers_are_rejected():
     g = json.loads(json.dumps(good)); del g[k]
     with pytest.raises(ValueError):
         T.validate(g)
+
+
+def test_post_hoc_sensitivity_is_labelled_and_consistent_with_the_frozen_results():
+    """测量后的 ce() 保护项敏感性(非预注册): 标明性质; 其「冻结」列 == 已提交结果; 改动格清单现算一致; T 族不受影响。"""
+    s = json.loads((ROOT / "results/jev_distill_ce_sensitivity.json").read_text(encoding="utf-8"))
+    assert "非预注册" in s["★性质"] and s["distill_sha256"] == json.loads(PRE.read_text(encoding="utf-8"))["★分析脚本(冻结)"]["distill_sha256"]
+    changed = []
+    for t, r in s["readers"].items():
+        c = json.loads((ROOT / f"results/jev_distill_{t}_vs_retest.json").read_text(encoding="utf-8"))
+        assert r["frozen_overall"] == c["overall"] and r["unguarded_errors"] == []
+        for f, x in r["facets"].items():
+            assert x["frozen"]["d"] == [c["per_facet"][f]["pairs"]["D~J1"]["d"], c["per_facet"][f]["pairs"]["D~J2"]["d"]] and x["frozen"]["verdict"] == c["verdicts"][f]
+            if x["frozen"]["d"] != x["unguarded"]["d"] or x["frozen"]["verdict"] != x["unguarded"]["verdict"]:
+                changed.append(f"{t}:{f}")
+    assert sorted(changed) == s["changed_cells"] and not any(x.startswith("T") for x in changed)

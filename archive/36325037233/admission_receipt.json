@@ -1,0 +1,35 @@
+{
+ "schema": "cce.jev.admission-receipt.v1",
+ "permit_id": "eval-distill-train-2026-09-27-1",
+ "mode": "eval",
+ "repository": "luogangan7-lgtm/cce-engine-oss",
+ "execution_commit": "7d67192de7279e0a358cd9e1541ff18c3b454c2f",
+ "run_id": "36325037233",
+ "run_attempt": "1",
+ "workflow_id": "cce-jev-llm-eval.yml",
+ "workflow_ref": "luogangan7-lgtm/cce-engine-oss/.github/workflows/cce-jev-llm-eval.yml@refs/heads/master",
+ "actor": "luogangan7-lgtm",
+ "suite_id": "s0-distill-train-v1",
+ "suite_sha256": "de88f637106b9b8e10827f6a58a875f050a8084c724e6fce6a210b5fed4c85ec",
+ "locks": {
+  "runtime_lock_sha256": "68cf22eec1e30439e48e74303f82d579de49902740c43eb2baf2f2a870a0ef72",
+  "models": {
+   "qwen3-4b-2507": {
+    "model_source_lock_sha256": "2662875d6b4af492b16238a7f98482d5c1028e4ac97475d3696a24cedeb9ac9d",
+    "asset_lock_sha256": "56801a3b13643e737e3e7face01e54718af7ab9cf1f9f67a4fd145a11f9006a4"
+   },
+   "qwen3.5-4b": {
+    "model_source_lock_sha256": "8252d30ad8640abe688d2a6d0f7ef02b8eb5f8a9046007c502540a875517436b",
+    "asset_lock_sha256": "0f8ae91efe40731645e60fb7b8bb60b7397790d8db391255bc283e1aa7cd8148"
+   }
+  }
+ },
+ "resource_policy": "cpu_distill_llm.json",
+ "consumed_ref": "refs/tags/cce-jev-consumed/eval-distill-train-2026-09-27-1",
+ "owner_approval_reference": "owner chat 2026-09-27「蒸馏进行测试」(对『在独立于这 42 条的文本上取 Jev 读数做蒸馏/小分类头』)。本张 = 蒸馏的训练特征: 两个候选在验收集之外 66 条语料行(验收集的无品牌补集)上的选项字母 logits, 不出任何判决(判决只在验收 42 条上, 预注册 tests/data/jev_distill_prereg.json)。Caps per experiments/jev/policies/cpu_distill_llm.json: 2 legs × ubuntu-24.04, evaluate ≤330 min each, container 3 CPU / 12 GiB / no swap / no network, load+infer ≤16,200 s, ≤340 rows = forwards per leg, ≤2048 tok/row, fetch ≤24 GiB incl. retries per leg, 1 model load per leg, 0 paid GPU / 0 model API. Inputs: 66 de-identified corpus lines read by pointer; reports carry no text.",
+ "admitted_at": "2026-09-27T14:12:01.782264+00:00",
+ "models": [
+  "qwen3-4b-2507",
+  "qwen3.5-4b"
+ ]
+}
