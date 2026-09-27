@@ -1,0 +1,27 @@
+{
+ "permit_id": "eval-compare-llm-2026-09-27-1",
+ "owner_approval_reference": "owner chat 2026-09-27「批准实测」(对『实测需要三张单次许可, 公开仓 runner 零费用, 不调 API: 1. prepare ... 2. 筛选 ... 3. 完整对比: 存活者按原冻结规则跑 5 维两轮』)。本张 = 完整对比; 筛选运行在任何候选数据之前取消, 两个候选直接各跑完整对比(理由与代价见 tests/data/jev_candidate_vs_retest_prereg.json ★修订记录), 批准的三张里只用两张。Caps per experiments/jev/policies/cpu_compare_llm.json: 2 legs × ubuntu-24.04, evaluate ≤330 min each, container 3 CPU / 12 GiB / no swap / no network, load+infer ≤16,200 s, ≤272 rows = forwards per leg, ≤2048 tok/row, fetch ≤24 GiB incl. retries per leg, 1 model load per leg, 0 paid GPU / 0 model API / 0 TypeSafe-MiniMax. Inputs: the same 42 de-identified corpus lines as s0-compare-v1, read by pointer; reports carry no text.",
+ "expiry": "2026-10-04T00:00:00+00:00",
+ "repository": "luogangan7-lgtm/cce-engine-oss",
+ "workflow_id": "cce-jev-llm-eval.yml",
+ "mode": "eval",
+ "max_runs": 1,
+ "max_attempts": 1,
+ "suite_id": "s0-compare-llm-v1",
+ "suite_sha256": "07f4809e63da385148c521d69731439d4682d5a55d1607844f3a26d423aaee4d",
+ "models": [
+  {
+   "model_key": "qwen3-4b-2507",
+   "model_source_lock_sha256": "2662875d6b4af492b16238a7f98482d5c1028e4ac97475d3696a24cedeb9ac9d",
+   "asset_lock_sha256": "56801a3b13643e737e3e7face01e54718af7ab9cf1f9f67a4fd145a11f9006a4"
+  },
+  {
+   "model_key": "qwen3.5-4b",
+   "model_source_lock_sha256": "8252d30ad8640abe688d2a6d0f7ef02b8eb5f8a9046007c502540a875517436b",
+   "asset_lock_sha256": "0f8ae91efe40731645e60fb7b8bb60b7397790d8db391255bc283e1aa7cd8148"
+  }
+ ],
+ "runtime_lock_sha256": "68cf22eec1e30439e48e74303f82d579de49902740c43eb2baf2f2a870a0ef72",
+ "resource_policy": "cpu_compare_llm.json",
+ "resource_policy_sha256": "97a29aaa368b6b4987bb0c21402d6b006f7582dff7bfa50ccac8e4c6b6eb0996"
+}

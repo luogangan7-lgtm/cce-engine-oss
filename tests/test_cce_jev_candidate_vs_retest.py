@@ -59,6 +59,11 @@ def test_suite_binds_the_prereg_and_differs_from_compare_v1_only_by_the_adjudica
     assert b[[x["item_id"] for x in b].index("smoke-01-clear-signal")]["expected"]["触发事件"] == ["受挫/出故障", "刚花过钱"]
 
 
+def _assets_sha(key):
+    p = ROOT / f"experiments/jev/models/{key}/model.assets.lock.json"
+    return _sha(p) if p.is_file() else "missing"
+
+
 def _run_dir(tmp, preds):
     d = tmp / "run"; d.mkdir(parents=True)
     (d / "predictions.jsonl").write_text("".join(json.dumps(p, ensure_ascii=False) + "\n" for p in preds), encoding="utf-8")
@@ -70,7 +75,7 @@ def _run_dir(tmp, preds):
                                                 "prompt_spec": "cce.jev.hf_choice.prompt.v1", "compute_dtype": "torch.float32", "storage_dtype": "torch.bfloat16",
                                                 "threads": 3, "letters": bc["letters"]},
                           "model_key": "qwen3-4b-2507", "source_lock_sha256": _sha(ROOT / "experiments/jev/models/qwen3-4b-2507/model.source.lock.json"),
-                          "assets_lock_sha256": "missing", "run": {"GITHUB_RUN_ID": "replay"}, "cgroup_limits": {"cpu_model": "replay"}}}
+                          "assets_lock_sha256": _assets_sha("qwen3-4b-2507"), "run": {"GITHUB_RUN_ID": "replay"}, "cgroup_limits": {"cpu_model": "replay"}}}
     (d / "report.json").write_text(json.dumps(rep, ensure_ascii=False), encoding="utf-8")
     return d
 
@@ -174,7 +179,7 @@ def test_hf_choice_rows_from_the_real_planner_pass_the_frozen_preflight(tmp_path
             return out
 
     ids = {"backend": "hf_choice", "model_key": key, "model_version": src["model_version"], "run": {"GITHUB_RUN_ID": "e2e"},
-           "source_lock_sha256": _sha(ROOT / f"experiments/jev/models/{key}/model.source.lock.json"), "assets_lock_sha256": "missing",
+           "source_lock_sha256": _sha(ROOT / f"experiments/jev/models/{key}/model.source.lock.json"), "assets_lock_sha256": _assets_sha(key),
            "cgroup_limits": {"cpu_model": "fake"}}
     out = tmp_path / "reports" / "e2e"
     rep = RS.run("s0-compare-llm-v1", out, pol, cfg, ids, backend_factory=lambda L: FakeBackend(L), tok_factory=ChatTok,

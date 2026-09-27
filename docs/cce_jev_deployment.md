@@ -102,6 +102,18 @@ Both are Apache-2.0 and ungated. The Decider path (locks, workflows, permits, re
 | prepare smoke | in the offline container: a self-written CC0 sentence × the 5 production questions × 2 forwards; load report, parameter count, tok/s, letter mass, bitwise repeatability | validates the whole scoring path on GitHub before the eval permit exists |
 | comparison | suite `s0-compare-llm-v1` = `s0-compare-v1` items (same 42-item input set) with the owner-adjudicated smoke-01 gold; prereg `tests/data/jev_candidate_vs_retest_prereg.json`; analysis `probes/jev_candidate_vs_retest.py` runs the **frozen** `probes/jev_decider_vs_retest.py` unchanged (sha-checked) with only `PRE/SUITE/OUT` rebound | the gate test replays Decider's archived predictions through the wrapper and must reproduce the frozen verdicts |
 
+**Prepare done 2026-09-27** — run https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/36315123922 (archived `archive/36315123922`),
+permit `prepare-llm-2026-09-27-1`, both legs green in 4–5 min:
+
+| model | params loaded | load report | checkpoint-F32 restored | smoke tok/s (runner CPU) | letter mass on the smoke rows | bitwise repeat |
+|---|---:|---|---:|---|---|---|
+| Qwen3-4B-Instruct-2507 | 4,022,468,096 | clean | 0 | 15.35 (Xeon Platinum 8573C) | 0.99999–1.0 | yes |
+| Qwen3.5-4B (text) | 4,205,751,296 | clean | 48 | 15.93 (Xeon Platinum 8370C) | 0.994–0.996 | yes |
+
+The READY assets locks were written by `cli.py assemble-assets-lock`. The smoke speed is about half the pre-run estimate because
+MKL / oneDNN / ATen are pinned to AVX2 for cross-CPU reproducibility; the eval policy deadline was set from this measurement
+(~91–96 min expected per leg, deadline 4.5 h).
+
 The originally planned single-facet screen was dropped before any data: with fp32 compute the run time is predictable from
 the Decider anchor, runners are free and the two legs run in parallel, so the full comparison of both candidates gives strictly
 more information with one permit fewer. The pre-registered headline check is still reported first:
