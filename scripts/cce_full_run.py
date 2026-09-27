@@ -143,7 +143,7 @@ def _join_deferred(ctx, name):
 
 @stage("s0_context")
 def s0(ctx):
-    """情境层(第五层) —— 部分可观测, 三态: 已声明 / 读出 / 未知(走先验)。
+    """情境层(第五层) —— 部分可观测, 四态: 已声明 / 结构冷读 / 读出 / 未知(走先验)。
 
     2026-08-09/10 实测依据:
       · 情境敏感度(148次受控调用): 逐面翻取值, 情绪位移 .36-.78、行动 .43-.78,
@@ -152,19 +152,22 @@ def s0(ctx):
         属"影响大但拿不到", 必须以未知记录并交下游做分布, 不许猜一个填上。
     生产纪律: 我们自己产内容时情境是【已知入参】, 不该让模型猜; 逆向他人内容时才读出。
     故声明优先于读出, 读出优先于未知; 每面记录来源, 并给出填充度。
+    ★ 2026-09-27 owner「做吧」: 情绪余温(闭环接口)改为结构冷读 —— 未声明 ⇒ 首轮无余温, 不问 Jev/MiniMax。
+      顺序 = 已声明 > 结构冷读 > 读出 > 未知。填充度公式不变(非未知面/9, 结构冷读算已知);
+      拒答改为「既无声明也无读出」—— 否则结构冷读让 fill 恒 ≥1/9, 拒答闸永远不响。
     """
     decl = {}
     if ctx.get("context_decl"):
         decl = json.loads(open(ctx["context_decl"], encoding="utf-8").read()) \
             if os.path.exists(ctx["context_decl"]) else json.loads(ctx["context_decl"])
+    from cce_s0_jev import s0_jev_read, STRUCTURAL   # 调用期导入(闸用 monkeypatch 替换 s0_jev_read)
     need_read = [f for f in CTX_FACETS
-                 if f["key"] not in decl and f.get("readable_from_text") in (True, "partial")]
+                 if f["key"] not in decl and f["key"] not in STRUCTURAL and f.get("readable_from_text") in (True, "partial")]
     read, backend = {}, "none"
     if need_read:
         body = open(ctx["text_file"], encoding="utf-8").read()[:2000]
         # 2026-09-23 owner 点头: 读出后端优先 Jev(逐面 Choice, 重测 κ 1.0/.88 vs MiniMax .38–.58, 见 results/s0_retest.json)。
         # 无 TYPESAFE_API_KEY 或调用失败 ⇒ 回退 MiniMax, **回退必须写进产物**(区分「执行了」与「有产出」)。
-        from cce_s0_jev import s0_jev_read
         jr, _probs, jerr = s0_jev_read(body, need_read)
         if jr is not None:
             read, backend = jr, "jev"
@@ -182,6 +185,8 @@ def s0(ctx):
         k = f["key"]
         if k in decl:
             merged[k], src[k] = decl[k], "已声明"
+        elif k in STRUCTURAL:                                  # 模型就算多答了也不采用
+            merged[k], src[k] = STRUCTURAL[k], "结构冷读"
         elif read.get(k) not in CTX_UNKNOWN and read.get(k) in f["values"]:
             merged[k], src[k] = read[k], "读出"
         else:
@@ -198,12 +203,16 @@ def s0(ctx):
         {k: v for k, v in merged.items() if v != "未知"}, ensure_ascii=False)
     json.dump(ctx["ctx_layer"], open(f"{ctx['outdir']}/s0_context.json", "w"),
               ensure_ascii=False, indent=1)
-    if fill == 0:
-        raise RuntimeError("情境九面全未知且无声明 —— 引擎拒答: 缺必要输入时不硬给结论")
+    if not any(v in ("已声明", "读出") for v in src.values()):
+        raise RuntimeError("情境除结构冷读外全未知且无声明 —— 引擎拒答: 缺必要输入时不硬给结论")
+    structural = [k for k, v in src.items() if v == "结构冷读"]
     return {"file": "s0_context.json", "fill_rate": fill, "read_backend": backend,
             "已声明": [k for k, v in src.items() if v == "已声明"],
+            "结构冷读": structural,
             "读出": [k for k, v in src.items() if v == "读出"],
             "未知": [k for k, v in src.items() if v == "未知(走先验)"],
+            "结构冷读提示": ("未声明 " + "、".join(structural) + " ⇒ 按首轮处理; 与读者有过上一轮互动时, 调用方必须在 context.declaration 里声明"
+                         if structural else None),
             "置信提示": ("填充度低, 下游只出人群级结论, 不出个体级判断"
                        if fill < 0.5 else "填充度足够")}
 

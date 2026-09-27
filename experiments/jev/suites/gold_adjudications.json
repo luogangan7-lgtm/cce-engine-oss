@@ -1,0 +1,46 @@
+{
+ "schema": "cce.jev.gold-adjudications.v1",
+ "rule": "owner 裁定的 gold 变更只登记在这里, 不改已运行的 suite 文件(它们的 sha 被运行与分析引用)。以 (条目文本 sha256, 面) 为键; 此后新建的 suite 若含同一文本同一面, 必须采用裁定后的接受集合(闸: experiments/jev/tests/test_gold_adjudications.py)。历史运行只做描述性重算, 不改其报告。",
+ "adjudications": [
+  {
+   "key": {
+    "text_sha256": "8eb0c4c5775e542b3bba9d38931528a11ca900e95dd03eb7947da48100367d7b",
+    "facet": "触发事件"
+   },
+   "item_ids_seen": [
+    "s0-smoke-v1/smoke-01-clear-signal",
+    "s0-compare-v1/smoke-01-clear-signal"
+   ],
+   "was": [
+    "受挫/出故障"
+   ],
+   "now": [
+    "受挫/出故障",
+    "刚花过钱"
+   ],
+   "why": "原文同时明示「上周刚买」(刚花过钱)与「突然没声了」(受挫/出故障), 两个候选各有明示证据; 按合同 v2 的接受集合规则应两者皆收",
+   "decided_by": "owner 2026-09-27「做吧」(对『smoke 第 1 条触发事件的标准答案, 要不要改成接受两个答案』)",
+   "post_hoc_note": "这是 owner 看过模型输出后的裁定, 登记为裁定而非预注册 gold; 不据此宣称 smoke 通过率提升",
+   "historical_rescore": {
+    "36265705004 (s0-smoke-v1, 合同 v1)": {
+     "asserted": 11,
+     "pass_as_recorded": 7,
+     "pass_under_adjudicated_gold": 8,
+     "still_failing": [
+      "smoke-01-clear-signal/情绪余温",
+      "smoke-02-no-readable-info/进程位置",
+      "smoke-02-no-readable-info/情绪余温"
+     ]
+    },
+    "36272175531 (s0-compare-v1 的 smoke 行, 合同 v2)": {
+     "asserted": 9,
+     "pass_as_recorded": 7,
+     "pass_under_adjudicated_gold": 8,
+     "still_failing": [
+      "smoke-02-no-readable-info/进程位置"
+     ]
+    }
+   }
+  }
+ ]
+}

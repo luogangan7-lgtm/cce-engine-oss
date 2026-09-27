@@ -4,11 +4,15 @@
 ★ owner 2026-09-23 点头接线。依据 results/s0_retest.json: 同批 42 条两轮, Jev 四面 κ=1.0/两面≈.88 vs MiniMax .38–.58;
   情绪余温冷读结构违反 MiniMax 42/42 vs Jev 12/42。**只比稳定性与纪律, 不比准确率(无真值)。**
 ★ 密钥只走环境变量 TYPESAFE_API_KEY, 缺就返回 err 让调用方走 MiniMax; 绝不读仓外文件、绝不打日志。
-★ 题目集与 probes/s0_jev_shadow.py 逐字相同(闸核 sha), 否则重测证据不再适用于生产。
+★ 每道题与 probes/s0_jev_shadow.py 逐字相同(闸核逐题 sha); 题目**集合** = 重测集合减去 STRUCTURAL(2026-09-27 起), 可比性按题不按集合。
+★ 2026-09-27 owner「做吧」: 情绪余温 是闭环接口(上一轮互动留下的感觉), 冷读时不让模型读 —— 未声明 ⇒ 首轮无余温(结构冷读)。
+  依据: results/s0_retest.json 冷读结构约束 MiniMax 违反 42/42、Jev 12/42; 候选合同 experiments/jev/tasks/s0_context.v2.json 同一规则(闸钉两处相等)。
+  调用方义务: 有上一轮互动时必须在 context.declaration 里声明 情绪余温, 否则按首轮处理。
 """
 import json, os, time, urllib.request, urllib.error
 
 API = "https://api.typesafe.ai/v1/systemone"; MODEL = "jev-latest"; UNKNOWN = {"未知", "未提及", "", None}
+STRUCTURAL = {"情绪余温": "首轮无余温"}   # 结构冷读: 不出模型题; 生产唯一定义(候选合同 v2 由闸钉等)
 
 
 def jev_questions(facets):

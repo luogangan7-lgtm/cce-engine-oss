@@ -136,7 +136,8 @@ FROZEN_SHA8 = {
         # ★ 2026-09-24 第六次: 追加 CITATION_CERTIFICATE_SHADOW_STAGE_WIRED_OWNER_NOD。摘掉那条重算 = 32f7127d71a6f954, 与上一钉逐字节相同。
         # ★ 2026-09-24 第七次: 追加 CITATION_CERTIFICATE_SHADOW_SWITCHED_ON_ONLINE_OUTBOUND。摘掉那条重算 = 35822b781d695238, 与上一钉逐字节相同。
         # ★ 2026-09-24 第八次: 追加 CITATION_CERTIFICATE_SHADOW_SWITCHED_ON_SUBJECT_CHAIN_TOO。摘掉那条重算 = ce9420bf492cb8cb, 与上一钉逐字节相同。
-    "config/cce_core_manifest.json": "99ad0706783658e6",
+        # ★ 2026-09-27: 追加 S0_EMOTION_RESIDUE_STRUCTURAL_COLD_READ_OWNER_NOD。摘掉那条重算 = 99ad0706783658e6, 与上一钉逐字节相同。
+    "config/cce_core_manifest.json": "4ade3b1a78471f2a",
     "accuracy/run_gates.py": "b758e6676a94acf3",
 }
 

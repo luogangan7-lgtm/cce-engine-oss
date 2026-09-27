@@ -36,6 +36,7 @@ Peak RSS of the model process: 11,778,904 KiB (≈ 11.2 GiB) against a 12 GiB cg
 
 Pre-registration: `tests/data/jev_decider_vs_retest_prereg.json` (frozen before the run; three pre-data revisions, rule numbers never changed).
 Contract v2: 情绪余温 is no longer a model question (not declared ⇒ 首轮无余温, provenance STRUCTURAL_COLD_READ); gold is an accepted set frozen before any run.
+Since 2026-09-27 production s0 (`scripts/cce_full_run.py`) applies the same structural rule; the single definition is `scripts/cce_s0_jev.STRUCTURAL`, pinned equal to the v2 contract by `tests/test_cce_s0_wiring.py`.
 Arms: Decider-2B (this run, 269 real forwards in 1,444 s, 1 load, 0 downloads) vs the stored TypeSafe Jev and MiniMax readings of 2026-09-23 (0 new paid calls).
 Preconditions: all passed (50 within-run repeat pairs bit-identical; 9 cross-run smoke rows within 2.3e-6; per-row candidate order and question hashes equal to production `jev_questions`).
 Two independent recomputations from raw files matched every number.
