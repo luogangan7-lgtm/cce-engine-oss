@@ -22,25 +22,22 @@ for r in rs:
 
 # ── ★ 它必须**真的在算** —— 改一个真相源, 清单要跟着变 ──────────────
 import json
-import tempfile
-import shutil
 import cce_open_items as M
 
-_bak = tempfile.mkdtemp()
-_p = os.path.join(ROOT, "config", "cce_chain_conformance.json")
-shutil.copy2(_p, _bak)
+# ★ 2026-09-27 根因修复: 以前**原地改写**受版本控制的 config/cce_chain_conformance.json 再 copy2 还原(mtime 也被还原, 审计看不见)
+#   —— 窗口期内并行的 test_cce_chain_conformance 读到 P0=NOT_STARTED。M 读清单只经由 M._j ⇒ 在那里喂变异版, 活仓不动。
+_real_j = M._j
+d = _real_j("config/cce_chain_conformance.json")
+for ph in d["phases"]:
+    if ph["phase"].startswith("P0"):
+        ph["status"] = "NOT_STARTED"
+M._j = lambda rel: d if rel == "config/cce_chain_conformance.json" else _real_j(rel)
 try:
-    d = json.load(open(_p, encoding="utf-8"))
-    for ph in d["phases"]:
-        if ph["phase"].startswith("P0"):
-            ph["status"] = "NOT_STARTED"
-    json.dump(d, open(_p, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     mutated = M.items()
     assert any("P0" in r["项"] for r in mutated), \
         "★ 改了 chain_conformance 清单却没变 —— 它没在算, 是硬编码的"
 finally:
-    shutil.copy2(os.path.join(_bak, os.path.basename(_p)), _p)
-    shutil.rmtree(_bak, ignore_errors=True)
+    M._j = _real_j
 
 # ── 三类的语义边界不许糊 ──────────────────────────────────────────────
 blocked = [r for r in rs if r["类"] == BLOCKED]
@@ -140,15 +137,19 @@ assert _n == _live, "★★★ 清单报 %d 条撤销, 断言文件现算 %d 条
 
 # ★ 反向: 把预算闸文件藏起来, 该条必须从 DECIDED 翻回 OPEN。不翻 = 硬编码。
 if _fixed:
-    _src = os.path.join(ROOT, "scripts/cce_request_budget.py")
-    _tmp2 = tempfile.mkdtemp(); _moved = os.path.join(_tmp2, "b.py")
-    shutil.move(_src, _moved)
+    # ★ 2026-09-27 根因修复: 以前**真把活仓 scripts/cce_request_budget.py 挪走**再挪回 —— 窗口期内并行 import / 扫描 scripts/
+    #   的测试会红, 被 SIGKILL 还会让仓里少一个文件。M 判「已补」只看 os.path.exists(该路径) ⇒ 仅对这一条路径答「不存在」。
+    #   (不改 M 本身: 动 scripts/ 会触发付费的 accuracy.yml。)
+    _src = os.path.abspath(os.path.join(ROOT, "scripts/cce_request_budget.py"))
+    _real_exists = os.path.exists
+    os.path.exists = lambda q: False if os.path.abspath(q) == _src else _real_exists(q)
     try:
         _r = [x for x in M.items() if "跨轮请求预算闸" in x["项"]][0]
         assert _r["类"] == OPEN and "未补" in _r["项"], "★ 文件没了它还说已补 —— 硬编码"
         assert "下次仍会静默超支" in _r["证据"]
     finally:
-        shutil.move(_moved, _src); shutil.rmtree(_tmp2, ignore_errors=True)
+        os.path.exists = _real_exists
+    assert _real_exists(_src), "★ 反向探针不该动到真文件"
 
 # ★ DEV-002 的重建标记必须在, 否则读的人会以为这判据是原文
 _self = open(__file__, encoding="utf-8").read()

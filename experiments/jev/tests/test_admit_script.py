@@ -1,16 +1,30 @@
 # -*- coding: utf-8 -*-
 """admit 脚本(纯标准库): 无许可文件 / attempt 2 / 过期 / 锁哈希不符 / suite 不符 各自在任何 ref 创建之前拒绝; 422 ⇒ PERMIT_ALREADY_USED; 网络不明 ⇒ 按已消耗。"""
+import atexit
 import datetime as dt
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[3]
+REAL = Path(__file__).resolve().parents[3]
+# ★ 2026-09-27 根因修复: admit 按自身位置定 ROOT, 许可与 suite 从 ROOT/experiments/jev 读。以前这些测试把 P-TEST-1.json
+#   与临时 suite 写进**活仓**的 permits/ suites/ —— 并行运行时, 扫这些目录的闸会读到坏许可 / 临时 suite(按目录 mtime 审计抓到)。
+#   ⇒ 最小树复制进临时目录: admit 脚本与 experiments/ 真复制(Path.resolve() 会穿透符号链接, 故不能链), config/ corpus/ 只读符号链接。
+_TREE = Path(tempfile.mkdtemp(prefix="cce-admit-tree-"))
+atexit.register(shutil.rmtree, _TREE, True)
+(_TREE / ".github" / "scripts").mkdir(parents=True)
+shutil.copy2(REAL / ".github" / "scripts" / "cce_jev_admit.py", _TREE / ".github" / "scripts" / "cce_jev_admit.py")
+shutil.copytree(REAL / "experiments", _TREE / "experiments", ignore=shutil.ignore_patterns("__pycache__", "tests"))
+for _d in ("config", "corpus"):
+    (_TREE / _d).symlink_to(REAL / _d, target_is_directory=True)
+ROOT = _TREE
 SCRIPT = ROOT / ".github" / "scripts" / "cce_jev_admit.py"
 JEV = ROOT / "experiments" / "jev"
 

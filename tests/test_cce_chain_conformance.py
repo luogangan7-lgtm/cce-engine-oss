@@ -6,7 +6,6 @@
 """
 import json
 import os
-import shutil
 import sys
 import tempfile
 
@@ -122,15 +121,16 @@ assert not ok7 and any("二选一" in e for e in errs7), \
     "★ 反向失败: 既标未开始又挂着一条会绿的 gate"
 
 # ── 反向 7: 真删一个实现文件 -> 红 (不是只改 spec) ─────────────────────
-victim = os.path.join(ROOT, "scripts", "cce_mechanism.py")
-bak = victim + ".conformance_bak"
-shutil.move(victim, bak)
+# ★ 2026-09-27 根因修复: 以前**真把活仓 scripts/cce_mechanism.py 挪走**再挪回 —— 窗口期内并行 import / 扫描它的测试全红,
+#   被 SIGKILL 还会让仓里少一个实现文件。检查器判「缺文件」只经由 cc._exists ⇒ 在那里让这一个文件「不存在」, 活仓不动。
+_real_exists = cc._exists
+cc._exists = lambda rel: False if rel == "scripts/cce_mechanism.py" else _real_exists(rel)
 try:
     ok8, errs8, _ = cc.check(run_gates=False)
     assert not ok8 and any("cce_mechanism.py" in e for e in errs8), \
-        "★ 反向失败: 真的删掉一个实现文件, 对照表却还是绿的"
+        "★ 反向失败: 实现文件不存在, 对照表却还是绿的"
 finally:
-    shutil.move(bak, victim)
+    cc._exists = _real_exists
 assert cc.check(run_gates=False)[0], "还原后必须恢复绿"
 
 print(f"test_cce_chain_conformance: OK "

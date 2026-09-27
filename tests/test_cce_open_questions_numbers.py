@@ -118,45 +118,31 @@ def _reverse_checks():
 
     text = DOC.read_text(encoding="utf-8")
 
-    # ① 数字对不上时必须红
-    tampered = text.replace("11.61%", "1.61%")
-    assert tampered != text
-    saved = DOC.read_text(encoding="utf-8")
-    try:
-        DOC.write_text(tampered, encoding="utf-8")
-        try:
-            test_every_number_in_doc_is_backed_by_data()
-            raise SystemExit("★ 反向验证失败: 把 11.61% 改成 1.61% 后闸仍绿")
-        except AssertionError:
-            pass
-    finally:
-        DOC.write_text(saved, encoding="utf-8")
+    # ★ 2026-09-27 根因修复: 以前把篡改版**写进活仓的 OPEN_QUESTIONS.md** 再写回 —— 并行读它的闸会读到篡改版。
+    #   三个闸都在调用时读模块全局 DOC ⇒ 篡改版写临时文件, DOC 临时指向它; 活仓一个字节不碰。
+    import tempfile
+    g = globals(); real_doc = g["DOC"]; saved = text
 
-    # ② 拿掉独立性限定时必须红
-    tampered2 = text.replace("distinctness not verified", "all independently verified")
-    assert tampered2 != text
-    try:
-        DOC.write_text(tampered2, encoding="utf-8")
-        try:
-            test_doc_does_not_overclaim_rater_independence()
-            raise SystemExit("★ 反向验证失败: 拿掉独立性限定后闸仍绿")
-        except AssertionError:
-            pass
-    finally:
-        DOC.write_text(saved, encoding="utf-8")
+    def _red_on(tampered, check, what):
+        assert tampered != text
+        with tempfile.TemporaryDirectory() as td:
+            tmp = pathlib.Path(td) / DOC.name
+            tmp.write_text(tampered, encoding="utf-8")
+            g["DOC"] = tmp
+            try:
+                check()
+                raise SystemExit(what)
+            except AssertionError:
+                pass
+            finally:
+                g["DOC"] = real_doc
 
-    # ③ 拿掉预注册说明时必须红
-    tampered3 = text.replace("line was pre-registered at 7", "line was 7")
-    assert tampered3 != text
-    try:
-        DOC.write_text(tampered3, encoding="utf-8")
-        try:
-            test_playbook_counts_match_verdict()
-            raise SystemExit("★ 反向验证失败: 拿掉「预注册」后闸仍绿")
-        except AssertionError:
-            pass
-    finally:
-        DOC.write_text(saved, encoding="utf-8")
+    _red_on(text.replace("11.61%", "1.61%"), test_every_number_in_doc_is_backed_by_data,
+            "★ 反向验证失败: 把 11.61% 改成 1.61% 后闸仍绿")
+    _red_on(text.replace("distinctness not verified", "all independently verified"), test_doc_does_not_overclaim_rater_independence,
+            "★ 反向验证失败: 拿掉独立性限定后闸仍绿")
+    _red_on(text.replace("line was pre-registered at 7", "line was 7"), test_playbook_counts_match_verdict,
+            "★ 反向验证失败: 拿掉「预注册」后闸仍绿")
 
     assert DOC.read_text(encoding="utf-8") == saved, "★ 反向验证把文档改坏了没还原"
     return 3

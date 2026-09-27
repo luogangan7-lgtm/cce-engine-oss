@@ -5,7 +5,6 @@
 """
 import json
 import os
-import shutil
 import sys
 import tempfile
 
@@ -77,15 +76,32 @@ for e in log:
             "★★★ 必须写明**不是纯重构、行为确实变了** —— 不得冒充行为不变的 refactor"
         assert "可比不可合" in e["★★★可比性边界"], "★ 可比性边界必须写明「可比不可合」"
 
+# ★ 2026-09-27 根因修复: 以前这里(和下面反向 1)把一行注释**追加进活仓的 Core 文件** scripts/cce_knot_classify.py,
+#   再用 shutil.move 备份还原(copy2 保留 mtime, 按 mtime 审计也看不见)。窗口期内并行的测试 import / 哈希 / 数行数这个
+#   Core 文件都会读到变异体 ⇒「并行红、串行绿」; 进程被 SIGKILL 还会把变异留在仓里。
+#   ⇒ 漂移改为注入: sha256_of 对该文件返回「追加那一行之后」的真实哈希(同一算法现算), 活仓一个字节不碰。
+import hashlib  # noqa: E402
+_real_sha256_of = cb.sha256_of
+
+
+class _drifted:
+    """在 with 块里, cb.check 看到的 core_file 哈希 = 原字节 + suffix 的哈希。"""
+    def __init__(self, rel, suffix):
+        self.rel, self.suffix = rel, suffix
+
+    def __enter__(self):
+        with open(os.path.join(ROOT, self.rel), "rb") as fh:
+            h = hashlib.sha256(fh.read() + self.suffix.encode("utf-8")).hexdigest()[:16]
+        cb.sha256_of = lambda rel: h if rel == self.rel else _real_sha256_of(rel)
+        return h
+
+    def __exit__(self, *exc):
+        cb.sha256_of = _real_sha256_of
+
+
 # 反向: refactor_log 条目缺行为证据 -> 红(用一个真实漂移来触发)
 core_file = "scripts/cce_knot_classify.py"
-abs_core = os.path.join(ROOT, core_file)
-backup = abs_core + ".coreguard_bak2"
-shutil.copy2(abs_core, backup)
-try:
-    with open(abs_core, "a", encoding="utf-8") as fh:
-        fh.write("\n# refactor log reverse test\n")
-    live_sha = cb.sha256_of(core_file)
+with _drifted(core_file, "\n# refactor log reverse test\n") as live_sha:
     for bad_entry, want in (
         ({"file": core_file, "to_sha": live_sha, "reason": "x", "behavior_evidence": []},
          "没写 behavior_evidence"),
@@ -124,27 +140,18 @@ try:
                               "behavior_evidence": ["tests/test_cce_knot_stability.py"]}]
         json.dump(m, open(alt, "w"), ensure_ascii=False)
         assert cb.check(alt)[0], "★ 条目补齐(有理由+存在的行为证据)应当放行"
-finally:
-    shutil.move(backup, abs_core)
 assert cb.check()[0], "还原后闸应恢复绿"
 
 # ── 反向 1: 故意在 Core 里改一行 -> 必须红 ─────────────────────────────
 core_file = "scripts/cce_knot_classify.py"
-abs_core = os.path.join(ROOT, core_file)
-backup = abs_core + ".coreguard_bak"
-shutil.copy2(abs_core, backup)
-try:
-    with open(abs_core, "a", encoding="utf-8") as fh:
-        fh.write("\n# core boundary reverse test\n")
+with _drifted(core_file, "\n# core boundary reverse test\n"):
     ok2, errors2, _ = cb.check()
     assert not ok2, "★ 反向失败: 在 CCE Core 里改了一行, 闸却是绿的 —— 静默换仪器"
     assert any("静默换仪器" in e for e in errors2)
     assert any("无 refactor_log 记录" in e for e in errors2), \
         "★ 报错必须指出「没有 refactor_log」这条路也没走"
     assert any(core_file in e for e in errors2), "报错必须指出是哪个文件漂了"
-finally:
-    shutil.move(backup, abs_core)
-assert cb.check()[0], "还原后闸应恢复绿"
+assert cb.check()[0] and cb.sha256_of is _real_sha256_of, "注入必须还原"
 
 # ── 反向 2: 改了 Core 但同时正当换代 -> 允许 ───────────────────────────
 with tempfile.TemporaryDirectory() as td:
@@ -181,15 +188,20 @@ with tempfile.TemporaryDirectory() as td:
         "★ 反向失败: 把 Core 文件也塞进 Parser 清单却放行"
 
 # ── 反向 5: 「新增 Parser」这个动作本身不得让闸变红 ────────────────────
-new_parser = os.path.join(ROOT, "scripts", "cce_parser_probe_tmp.py")
-with open(new_parser, "w", encoding="utf-8") as fh:
-    fh.write('"""临时 parser, 用于验证新增 Parser 不影响 Core 闸。"""\n'
-             "def parse(raw):\n    return {'text': raw}\n")
-try:
-    assert cb.check()[0], \
+# ★ 2026-09-27 根因修复: 以前真往活仓 scripts/ 写 cce_parser_probe_tmp.py 再删 —— 并行时扫 scripts/ 的闸(覆盖率行数、
+#   归档扫描、本体迁移闸)会读到它。这个闸只读清单点名的文件、从不列目录 ⇒ 多一个文件只能经由清单影响它:
+#   ① 结构: 闸源码不列目录(一旦开始列, 这条会红, 提醒改回真文件测试) ② 把新 parser 登进 parser_plane 的临时清单必须仍绿。
+import inspect  # noqa: E402
+_cb_src = inspect.getsource(cb)
+assert not any(t in _cb_src for t in ("os.listdir", "os.walk", "glob", "scandir", "iterdir")), \
+    "★ Core 闸开始列目录了 —— 新增文件现在可能影响它, 本反向测试要换回真文件(放临时树里)"
+with tempfile.TemporaryDirectory() as td:
+    alt = os.path.join(td, "man.json")
+    m = json.loads(json.dumps(MAN))
+    m["parser_plane"] = sorted(set(m["parser_plane"]) | {"scripts/cce_parser_probe_tmp.py"})
+    json.dump(m, open(alt, "w"), ensure_ascii=False)
+    assert cb.check(alt)[0], \
         "★ 反向失败: 只是新增了一个 Parser, Core 闸却红了 —— 闸把 Parser 层也管进去了"
-finally:
-    os.remove(new_parser)
 
 print("test_cce_core_boundary: OK "
       f"(Core {info['core_n']} 文件已钉 hash | 改 Core 一行见红且指名道姓 | "
