@@ -62,7 +62,9 @@ TAXO_PATH = os.path.join(ROOT, "config/knot_taxonomy.json")
 # 而 instrument_hash 只反映改过的那处, 看起来还很正常。
 MEASUREMENT_MODEL = os.environ.get("CCE_MEASUREMENT_MODEL", "M3")
 
-RAW_DIR = os.path.join(ROOT, "results/knot_classify_raw")
+# ★ 2026-09-28: CI 只上传 run/out/, 仓内 results/ 在 runner 上随机器消失 ⇒ 「raw 已存」在 CI 上是假话。
+#   cce-submit 把 CCE_RAW_DIR 指到 run/out/raw, 失败原文随 artifact 上传。
+RAW_DIR = os.environ.get("CCE_RAW_DIR") or os.path.join(ROOT, "results/knot_classify_raw")
 LAYERS = ("desire_vec", "need_vec", "emotion_vec", "action_vec")
 
 
@@ -204,7 +206,7 @@ def stage1(text, context, k):
                 pv["_abstained"] = False
                 return pv
             os.makedirs(RAW_DIR, exist_ok=True)
-            with open(os.path.join(RAW_DIR, f"s1_fail_{int(time.time())}_{T}_{att}.txt"), "w", encoding="utf-8") as f:
+            with open(os.path.join(RAW_DIR, f"s1_fail_{time.time_ns()}_{T}_{att}.txt"), "w", encoding="utf-8") as f:
                 f.write(c or "")
         return None
 
@@ -901,15 +903,33 @@ def _s2_draw_violation(d, ok_keys):
     return None
 
 
+# 当前这次 _stage2_aggregate 的 attempt 账本(聚合期间设置, 结束即清)。
+# 不走参数: 多处探针与测试按 (prompt, taxo, tag) 三参数替换 _stage2_draw, 改签名会让它们全体崩。
+_S2_LEDGER = None
+
+
 def _stage2_draw(prompt, taxo, tag):
-    """一次抽样。失败重试 3 次, 全失败返回 None(由聚合层决定是否致命)。"""
+    """一次抽样。失败重试 3 次, 全失败返回 None(由聚合层决定是否致命)。
+    ★ 2026-09-28: 与 s1 同形的 attempt 账本(只记录, 不改收件与重试) —— 此前 s2 把 call_model 的 meta 直接丢掉,
+      生产 run 5 个 draw 全失败时连是 HTTP 错、风控拦截还是解析失败都无从知道。"""
     ok_keys = {k["key"] for k in taxo["knots"]}
+    ledger = _S2_LEDGER
+    draw = int(tag[1:]) if isinstance(tag, str) and tag[:1] == "d" and tag[1:].isdigit() else tag
     for att in range(3):
-        content, _ = call_model(MEASUREMENT_MODEL, prompt, temperature=0.0)
+        content, meta = call_model(MEASUREMENT_MODEL, prompt, temperature=0.0)
         d = extract_json_robust(content, log_note=f"knot_s2_{tag}")
+        why = _s2_draw_violation(d, ok_keys)
+        if ledger is not None:
+            meta = meta or {}
+            ledger.append({"draw": draw, "attempt": att + 1,
+                           "status": ("SUCCESS" if why is None else "INFRA_FAILED" if not content else "PARSE_FAILED"),
+                           "error_class": (None if why is None else
+                                           ("SENSITIVE_BLOCKED" if meta.get("sensitive") else (meta.get("error") or "empty_body"))[:200]
+                                           if not content else why),
+                           "finish_reason": meta.get("finish_reason")})
         # ★ 去掉 `and d["knots"]`: 空列表此前被当成解析失败去重试 ——
         #   模型就算想说「这里读不出人」也说不出口。现在它是合法弃权。
-        if _s2_draw_violation(d, ok_keys) is None:
+        if why is None:
             # 兼容: 模型偶尔仍吐 weight。统一落到 intensity。
             # ★ 记录垫片是否触发 —— 若模型吐的是和为 1 的 weight(旧 schema),
             #   那些 draw 与自由 intensity 的 draw **量纲不同**(max~0.4 vs ~0.9),
@@ -920,7 +940,7 @@ def _stage2_draw(prompt, taxo, tag):
                     x["intensity"] = x.get("weight", 0.0)
             return d
         os.makedirs(RAW_DIR, exist_ok=True)
-        with open(os.path.join(RAW_DIR, f"s2_fail_{int(time.time())}_{tag}_{att}.txt"),
+        with open(os.path.join(RAW_DIR, f"s2_fail_{time.time_ns()}_{tag}_{att}.txt"),
                   "w", encoding="utf-8") as f:
             f.write(content or "")
     return None
@@ -982,11 +1002,19 @@ def _stage2_aggregate(prompt, taxo, n=None):
     """
     n = n or KNOT_N
     prompts = prompt if isinstance(prompt, (list, tuple)) else [prompt]
-    with ThreadPoolExecutor(max_workers=min(5, n)) as ex:
-        draws = [d for d in ex.map(
-            lambda i: _stage2_draw(prompts[i % len(prompts)], taxo, f"d{i}"), range(n)) if d]
+    global _S2_LEDGER
+    ledger = _S2_LEDGER = []
+    try:
+        with ThreadPoolExecutor(max_workers=min(5, n)) as ex:
+            draws = [d for d in ex.map(
+                lambda i: _stage2_draw(prompts[i % len(prompts)], taxo, f"d{i}"), range(n)) if d]
+    finally:
+        _S2_LEDGER = None
     if not draws:
-        raise RuntimeError(f"stage2 {n} 次抽样全部失败(raw 已存)")
+        from collections import Counter as _Cn
+        raise RuntimeError(f"stage2 {n} 次抽样全部失败: {dict(_Cn(a['status'] for a in ledger))}; "
+                           f"首个错误 {next((a['error_class'] for a in ledger if a['error_class']), None)!r}; "
+                           f"finish_reason {dict(_Cn(a['finish_reason'] for a in ledger))} (raw: {RAW_DIR})")
 
     # 每结: 出现次数 / 强度中位数 / 极差。缺席记 0 —— 分母恒为实际成功抽样数, 不是出现次数。
     keys = {x["key"] for d in draws for x in d["knots"]}
@@ -1025,7 +1053,7 @@ def _stage2_aggregate(prompt, taxo, n=None):
     tops = [max(d["knots"], key=lambda x: x["intensity"])["key"] for d in draws if d["knots"]]
     n_abstain = sum(1 for d in draws if not d["knots"])
     if not tops:
-        return {"knots": [], "measurement_status": "abstain",
+        return {"knots": [], "measurement_status": "abstain", "operational": _op_summary(ledger),
                 "abstain_reason": f"{n_abstain}/{len(draws)} 次抽样均未读出任何结",
                 "draw_ledger": [{"draw_id": i, "abstained": True,
                                  "knot_vector": {k: 0.0 for k in KNOTS_ALL}}
@@ -1102,7 +1130,7 @@ def _stage2_aggregate(prompt, taxo, n=None):
     # ★ draw ledger: 完整 9 维向量, **缺席显式记 0** —— 只存 top1 或只存最终 intensity
     #   都会永久失去 co-occurrence / latent structure / 替代阈值 / 替代聚合 的重研究能力。
     draw_ledger = [draw_ledger_row(i, d) for i, d in enumerate(draws)]
-    return {"knots": out_knots,
+    return {"knots": out_knots, "operational": _op_summary(ledger),
             "measurement_status": "qualified" if out_knots else "abstain",
             "n_abstain": n_abstain,
             "draw_ledger": draw_ledger,

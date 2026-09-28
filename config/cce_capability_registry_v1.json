@@ -23,7 +23,8 @@
     "archive/ 下按 run_id 可重建的 manifest",
     "aggregate workflow-manifest.json complete=true"
    ],
-   "fallback_policy": "WITHHOLD"
+   "fallback_policy": "WITHHOLD",
+   "s0_fallback_note": "s0 情境读出的子依赖回退: Jev 不可用时改用 MiniMax 读并留痕(owner 2026-09-23 点头的设计), 读数照发 —— 这**不是** WITHHOLD。2026-09-28 起它的代价显式化: 回退运行在聚合 manifest 里 production_verified=false 并列入 degraded, qualified_readout 带 s0_read_backend。本能力的 WITHHOLD 指 s1/s2 读数不可用时扣发, 不覆盖这条子依赖。"
   },
   {
    "id": "outbound_reply_measurement",
@@ -35,7 +36,8 @@
    "evidence_required": [
     "同上, 且 reply 链须含 reader_baseline 段(契约声明过, 曾缺失)"
    ],
-   "fallback_policy": "WITHHOLD"
+   "fallback_policy": "WITHHOLD",
+   "s0_fallback_note": "s0 情境读出的子依赖回退: Jev 不可用时改用 MiniMax 读并留痕(owner 2026-09-23 点头的设计), 读数照发 —— 这**不是** WITHHOLD。2026-09-28 起它的代价显式化: 回退运行在聚合 manifest 里 production_verified=false 并列入 degraded, qualified_readout 带 s0_read_backend。本能力的 WITHHOLD 指 s1/s2 读数不可用时扣发, 不覆盖这条子依赖。"
   },
   {
    "id": "subject_population_chain",
@@ -53,7 +55,8 @@
     "subject-window 与 end-to-end 审计产物",
     "s1_readout.status == OK"
    ],
-   "fallback_policy": "WITHHOLD"
+   "fallback_policy": "WITHHOLD",
+   "s0_fallback_note": "s0 情境读出的子依赖回退: Jev 不可用时改用 MiniMax 读并留痕(owner 2026-09-23 点头的设计), 读数照发 —— 这**不是** WITHHOLD。2026-09-28 起它的代价显式化: 回退运行在聚合 manifest 里 production_verified=false 并列入 degraded, qualified_readout 带 s0_read_backend。本能力的 WITHHOLD 指 s1/s2 读数不可用时扣发, 不覆盖这条子依赖。"
   },
   {
    "id": "video_multimodal_parse_v5",

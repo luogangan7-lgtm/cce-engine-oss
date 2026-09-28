@@ -191,6 +191,16 @@ ok7c, e7c, _ = _alt(lambda i: i["runs"][_dead].pop("checked_at"))
 assert not ok7c and any("没写 checked_at" in x for x in e7c), \
     "★ 可用性会随时间变, 无日期的判定不可复核"
 
+# ★ 2026-09-28 (诊断 #29): 取自公开远端的 RESTRICTED_OFFTREE 必须登记公开副本已清 —— 移出树不等于没了
+_pub = next(r for r, v in INDEX["runs"].items()
+            if v["status"] == "RESTRICTED_OFFTREE" and v.get("recovered_from") in INDEX["public_remotes"])
+ok8a, e8a, _ = _alt(lambda i: i["runs"][_pub].pop("public_copies_cleared"))
+assert not ok8a and any("公开副本已清" in x for x in e8a), "★ 公开 artifact/日志可能还在 —— 必须红"
+ok8b, e8b, _ = _alt(lambda i: i["runs"][_pub]["public_copies_cleared"].update({"artifacts_remaining": 2}))
+assert not ok8b, "★ 公开远端还剩 artifact —— 必须红"
+# 统计口径: 此前第二个 `live` 遮蔽了第一个, referenced 数的是远端个数
+assert stats["referenced"] == len(set(A.scan_referenced_run_ids()) - set(INDEX["negative_test_run_ids"])) > 2, stats
+
 # ★ 2026-09-03 CI 实跑更正: 原断言是 `set(A.push_remotes()) >= {两个仓}` ——
 #   那是把**我这台机器的 git 配置**当成了全局不变量。CI 的 checkout 只有一个 remote,
 #   于是 ①测试在 CI 上必红 ②闸本身在 CI 上自动变松(「全部 push 远端」缩水成「那一个」)。

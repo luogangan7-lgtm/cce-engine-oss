@@ -15,7 +15,7 @@
  },
  "core_files": {
   "config/knot_taxonomy.json": "56a1c1977bf8d18c",
-  "scripts/cce_knot_classify.py": "672c70e34f338413",
+  "scripts/cce_knot_classify.py": "d008a333cd233720",
   "scripts/cce_ksep.py": "ffd5d26a7e0cb29b",
   "scripts/exp_crossmodel_desire.py": "0e0e9d64b48fbade",
   "scripts/exp_v4_full_validation.py": "f934b56b01b6b6b2",
@@ -1736,6 +1736,21 @@
    "★evidence_is_required_because": "「instrument_hash 没变」不足以证明行为没变 —— 校验逻辑不在提示词里, 哈希看不见它; 只能靠存量 draw 回放与构造的坏 draw 逐类测。",
    "★代价": "越界/类型错的 draw 以前被静默收下(越界值进逐坐标中位数)或崩链, 现在会多花最多 2 次重试调用, 三次都坏则该 draw 缺席 ⇒ n_ok 变小(n_ok < n_requested 的扣发见诊断 #17, 另案)。存量 0/110 受影响。",
    "instrument_hash": "不变(提示词未动)。"
+  },
+  {
+   "date": "2026-09-28",
+   "event": "S2_ATTEMPT_LEDGER_AND_CI_RAW_DIR",
+   "file": "scripts/cce_knot_classify.py",
+   "from_sha": "672c70e34f338413",
+   "to_sha": "d008a333cd233720",
+   "route": "**纯重构路(第四条路)**: 只加记录, 收件条件、重试次数、提示词、聚合逐字未动; instrument_generation 不变。",
+   "reason": "失败取证在 CI 上丢失(诊断 #6/#18): s2 把 call_model 的 meta 丢掉, 没有 attempt 账本; RAW_DIR 在仓内 results/ 下而 CI 只上传 run/out/; 失败原文文件名只到秒, 同秒同档互相覆盖。改: _stage2_draw 每次尝试记(经模块级 _S2_LEDGER, 聚合期间设置; 不改三参数签名 —— 多处探针/测试按三参数替换它) {draw, attempt, status, error_class, finish_reason} 进账本, stage2 产出带 operational(与 s1 同一个 _op_summary); 全部失败时报错带状态计数、首个错误与 finish_reason 分布; RAW_DIR 可由 CCE_RAW_DIR 覆盖(cce-submit 指到 run/out/raw); 文件名改用 time.time_ns()。",
+   "behavior_evidence": [
+    "tests/test_cce_s2_draw_validation.py"
+   ],
+   "★evidence_is_required_because": "「instrument_hash 没变」不足以证明行为没变 —— 账本代码与收件判断交织在同一个循环里; 须由测试证明同一组模型输出下收件结果、重试次数与改前相同(7 类坏 draw 重放 + 账本计数)。",
+   "★代价": "stage2 产物多一个 operational 键(体积增加约每次尝试一行); finish_reason=length 目前**只记录不拒收** —— 截断修复出来的 draw 仍会被收下, 要不要拒收需先看账本里的实际频率再定(改收件属仪器行为变更)。",
+   "instrument_hash": "不变。"
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",

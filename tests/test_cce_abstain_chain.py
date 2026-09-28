@@ -98,4 +98,17 @@ m = drive(pipeline_loss())                                            # 真丢 d
 assert m["s1_readout"]["status"] == "FAIL" and "管线丢失" in m["s1_readout"]["error"], m["s1_readout"]
 assert m["reader_baseline"]["status"] == "FAIL"
 
+# 子进程失败: 完整 stderr 落在产物旁(manifest 里的 error 会被截到 300 字; 2026-09-28 诊断 #6)
+_tmp = Path(tempfile.mkdtemp()); _long = "Traceback ...\n" + "x" * 5000 + "\nRuntimeError: stage2 5 次抽样全部失败: {'INFRA_FAILED': 15}"
+_keep = F.subprocess.run
+F.subprocess.run = lambda cmd, **kw: types.SimpleNamespace(returncode=1, stdout="", stderr=_long)
+try:
+    F.run_knot_classify("t.txt", "c", 3, str(_tmp / "s1_readout.json"))
+    raise AssertionError("rc!=0 必须抛")
+except RuntimeError as e:
+    assert "s1_readout.json.stderr.txt" in str(e)
+finally:
+    F.subprocess.run = _keep
+assert (_tmp / "s1_readout.json.stderr.txt").read_text(encoding="utf-8") == _long
+
 print("test_cce_abstain_chain: OK (弃权/结构弃权/仅 1 有效 ⇒ reader·s1·s3 皆 OK 且如实标注 | 3 取 2 ⇒ qualified | 丢 draw ⇒ FAIL)")

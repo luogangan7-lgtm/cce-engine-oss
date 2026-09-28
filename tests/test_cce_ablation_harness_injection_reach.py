@@ -92,7 +92,7 @@ _REAL_OPEN = builtins.open
 #   **core_files 六个 pin 与 parser_plane 四件逐字未动**(instrument_generation 仍 6) ——
 #   现算已在 tests/data/ablation_verdicts_v3.json 的 ★frozen_files_更新记录 里逐条留档。
 FROZEN_SHA8 = {
-    "scripts/cce_knot_classify.py": "672c70e34f338413",
+    "scripts/cce_knot_classify.py": "d008a333cd233720",
     "config/knot_taxonomy.json": "56a1c1977bf8d18c",
     # ★ 2026-09-15 更新(第三次): 向 refactor_log 追加 ANNEX_A_MADE_OBSERVABLE。
     #   core_files 六个 pin 与 parser_plane 四件**逐一现算未变**, instrument_generation 仍 6。
@@ -140,7 +140,8 @@ FROZEN_SHA8 = {
         # ★ 2026-09-28: 解析器只返回标准 JSON 值(calibration_framework.py pin 更新 + refactor_log 追加 JSON_PARSER_REJECTS_NON_JSON_NATIVE_VALUES),
         #   同批 accuracy/run_gates.py 加每次运行请求硬上限(闸 prompt 与判决逻辑未动)。见 ablation_verdicts_v3.json ★冻结件变更登记。
         # ★ 2026-09-28 第二次: s2 单次 draw 类型/取值校验(cce_knot_classify.py pin 更新 + refactor_log 追加 S2_DRAW_TYPE_AND_RANGE_VALIDATION)。
-    "config/cce_core_manifest.json": "32745274665741b3",
+        # ★ 2026-09-28 第三次: s2 attempt 账本 + CCE_RAW_DIR(cce_knot_classify.py pin 更新 + refactor_log 追加 S2_ATTEMPT_LEDGER_AND_CI_RAW_DIR)。
+    "config/cce_core_manifest.json": "90f8a939735963b1",
     "accuracy/run_gates.py": "da0fb5a566cc9502",
 }
 

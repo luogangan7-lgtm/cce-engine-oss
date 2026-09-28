@@ -61,6 +61,9 @@ def build(normalized: dict[str, Any], artifacts: Path, require_alignment: bool =
             "engine_complete": manifest.get("complete") is True, "failed_at": manifest.get("failed_at"),
             "measurement_complete": measurement_complete,
             "reply_alignment_pass": alignment.get("PASS") if alignment is not None else None,
+            # ★ 2026-09-28 (诊断 #19/#34): s0 回退与 s2 缺 draw 此前只躺在单条产物里, 聚合层照报 production_verified=true。
+            "s0_read_backend": ((manifest.get("stages") or {}).get("s0_context") or {}).get("read_backend"),
+            "s2_short": ((manifest.get("stages") or {}).get("qualified_readout") or {}).get("s2_short"),
             "preparation_id": manifest.get("preparation_id")
                               or (manifest.get("stages") or {}).get("structural_gate", {}).get("preparation_id"),
             "artifact_dir": str(path.parent)}
@@ -76,11 +79,17 @@ def build(normalized: dict[str, Any], artifacts: Path, require_alignment: bool =
         [row.get("preparation_id") for row in found.values()],
         bridge_mode=bool(normalized.get("bridge_mode")))
     errors += prep_verdict["errors"]
+    # 降级 ≠ 失败: 链照样完整, 但不是生产规格的那次测量 ⇒ 不许报 production_verified。
+    degraded = sorted(
+        [f"{j}: s0 读出走回退({row['s0_read_backend']})" for j, row in found.items()
+         if str(row.get("s0_read_backend") or "").startswith("minimax_fallback")]
+        + [f"{j}: {row['s2_short']}" for j, row in found.items() if row.get("s2_short")])
     return {"kind": "cce.workflow_manifest.v1", "schema_version": normalized.get("schema_version"),
         "submission_id": normalized.get("submission_id"), "profile": normalized.get("profile"),
         "complete": not errors and len(found) == len(expected)
                     and prep_verdict["complete"], "items_expected": len(expected),
-        "production_verified": not errors and prep_verdict["production_verified"],
+        "production_verified": not errors and prep_verdict["production_verified"] and not degraded,
+        "degraded": degraded,
         "preparation": prep_verdict,
         "items_completed": len(found), "jobs": [found[key] for key in sorted(found)], "errors": errors}
 
@@ -98,7 +107,10 @@ def main() -> None:
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"submission_id": manifest["submission_id"], "complete": manifest["complete"],
+                      "production_verified": manifest["production_verified"], "degraded": manifest["degraded"],
                       "items": manifest["items_completed"], "errors": manifest["errors"]}, ensure_ascii=False))
+    for d in manifest["degraded"]:
+        print(f"::warning::降级运行 —— {d}")
     raise SystemExit(0 if manifest["complete"] else 1)
 
 

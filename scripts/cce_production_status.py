@@ -127,9 +127,40 @@ def rows() -> list[dict]:
                 "文件": ".github/workflows/cce-submit.yml(profile media_ingest)"})
 
     # ── s1 分布层 ─────────────────────────────────────────────────────
+    # ★ 2026-09-28: 此前是一句写死的「同侧 K=3 JS 0.02–0.09」, 生产存档与之矛盾(诊断 #3)。改为从存档现算逐层扣发率。
+    import glob as _gl
+    from cce_full_run import WITHIN_JS_MAX
+    _n, _over = 0, {k: 0 for k in WITHIN_JS_MAX}
+    for _f in _gl.glob(os.path.join(ROOT, "archive", "**", "*s1_readout.json"), recursive=True):
+        try:
+            _js = json.load(open(_f, encoding="utf-8"))["stage1"].get("within_js")
+        except Exception:
+            continue
+        if _js:
+            _n += 1
+            for _k, _v in _js.items():
+                _over[_k] = _over.get(_k, 0) + (_v > WITHIN_JS_MAX.get(_k, 1.0))
     out.append({"组件": "s1 四层分布", "状态": USABLE,
-                "证据": "同侧 K=3 JS 0.02–0.09(信度已测); 不受 K1 判定影响",
-                "文件": "scripts/cce_knot_classify.py(stage1)"})
+                "证据": (f"逐次运行由组内散布闸判: 超噪声底的层扣发 top。存档 {_n} 份读数的逐层扣发率 "
+                         + " · ".join(f"{k.replace('_vec', '')} {_over[k]}/{_n}" for k in WITHIN_JS_MAX)
+                         + "。★ 标定时 s1 的语境串**不含** s0 的【情境】后缀; 生产现在带(2026-09-28 起由 Jev 读出), "
+                           "带后缀的全流程重测尚无"),
+                "文件": "scripts/cce_knot_classify.py(stage1) · scripts/cce_full_run.py(WITHIN_JS_MAX)"})
+
+    # ── 链上其余段(2026-09-28 补: 表里此前没有它们, 诊断 #33) ─────────
+    out.append({"组件": "s0 情境读出", "状态": UNMEASURED,
+                "证据": ("六个可读面**没有人类金标**(owner 2026-09-23 撤回金标前置), 准确度无从测; 只有重测一致性"
+                         "(results/s0_retest.json)。后端 2026-09-28 起生产走 Jev(probes/jev_secret_check.py 两仓各一次 backend=jev); "
+                         "Jev 失败时回退 MiniMax 并在聚合 manifest 里列入 degraded、production_verified=false"),
+                "文件": "scripts/cce_full_run.py(s0) · scripts/cce_s0_jev.py · scripts/cce_workflow_manifest.py"})
+    out.append({"组件": "s2b 引用证书(影子段)", "状态": UNMEASURED,
+                "证据": ("线上开着(仓库变量 CCE_CITATION_CERT, 未设=开), 只把 top-1=display 且稳定的读数升到 ③′ CITED_UNVERIFIED, "
+                         "citable_as_confirmed 恒 False、不改任何判决; 证书语义校验器的准确度未测"),
+                "文件": "scripts/cce_citation_certificate.py"})
+    out.append({"组件": "s4 出站守卫", "状态": USABLE,
+                "证据": ("按 guard_profile 查合规词表 + 破折号纪律 + P7 生成物闸(2026-09-28 接入: 引用未达标机制或 K1 未达标强度读数即拦, "
+                         "只认 [[mech:]] / [[knot_intensity|delta:]] 标记)。★ 已知缺口: 合规表读不到或 profile 不存在时静默放行(诊断 P2, 未修)"),
+                "文件": "scripts/cce_outbound_guard.py · scripts/cce_strategy_gate.py"})
     return out
 
 
@@ -156,7 +187,8 @@ def main() -> int:
     import glob as _g
     _n = len(_g.glob(os.path.join(ROOT, "tests", "test_*.py")))
     _g8 = len(_g.glob(os.path.join(ROOT, "tests", "test_cce_*gate*.py")))
-    print(f"★ 引擎跑得动({_n} 个测试·{_g8} 道闸 PASS) != 这些读数能用。两件事不许合并成「可以投产」。")
+    # ★ 2026-09-28: 此前写「{_n} 个测试·{_g8} 道闸 PASS」—— 本表不运行它们, 那是没跑过的 PASS。
+    print(f"★ 仓里有 {_n} 个测试文件、{_g8} 个闸测试(本表**不运行**它们, 结果看 CI 合同 job)。引擎跑得动 != 这些读数能用。")
     print("★ 这张表由仓库现算, 不是我说的 —— 见 2026-08-07 立的汇报纪律。")
     return 0
 

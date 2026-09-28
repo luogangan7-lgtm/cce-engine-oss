@@ -44,6 +44,7 @@ RUN_ID = re.compile(r"\b3\d{10}\b")
 
 LOCALLY_ARCHIVED = "LOCALLY_ARCHIVED"
 IRRECOVERABLE = "IRRECOVERABLE"
+RESTRICTED_OFFTREE = "RESTRICTED_OFFTREE"
 
 
 class ArchiveRebuildError(RuntimeError):
@@ -194,8 +195,9 @@ def check() -> tuple[bool, list[str], dict]:
     remotes = set(index.get("required_remotes") or [])
     if not remotes:
         errors.append("索引缺 required_remotes —— 「查过全部远端」这句话没有对照物")
-    live = set(push_remotes())
-    extra = live - remotes
+    # ★ 2026-09-28: 这里曾复用变量名 live(上面是被引用的 run_id 表) ⇒ 下面 stats["referenced"] 数的是远端个数(报「被引用 2」)
+    remotes_live = set(push_remotes())
+    extra = remotes_live - remotes
     if extra:
         # 本机多出来的 remote 必须补进声明, 否则会有一个从没查过的仓
         errors.append(f"本机存在未声明的 push 远端 {sorted(extra)} —— "
@@ -213,6 +215,17 @@ def check() -> tuple[bool, list[str], dict]:
         if not row.get("checked_at"):
             errors.append(f"{rid} 标 IRRECOVERABLE 却没写 checked_at —— "
                           "可用性会随时间变, 无日期的判定不可复核")
+
+    # ⑤ ★ 2026-09-28: 移出仓库树不等于没了 —— 公开远端上 artifact 与运行日志是另一份副本(诊断 #29)。
+    #    RESTRICTED_OFFTREE 且取自公开远端的, 必须登记公开副本已清的证据(谁核的、何时、各剩几份)。
+    public = set(index.get("public_remotes") or [])
+    for rid, row in sorted(indexed.items()):
+        if row["status"] != RESTRICTED_OFFTREE or row.get("recovered_from") not in public:
+            continue
+        pc = row.get("public_copies_cleared") or {}
+        if not (pc.get("artifacts_remaining") == 0 and pc.get("logs") == "deleted" and pc.get("checked_at")):
+            errors.append(f"{rid} 含真实身份且取自公开远端 {row.get('recovered_from')}, 却没有「公开副本已清」的证据 —— "
+                          "仓库树里移走了, 公开 artifact 与日志可能还在")
 
     stats = {"referenced": len(set(live) - set(index.get("negative_test_run_ids", {}))),
              "indexed": len(indexed),

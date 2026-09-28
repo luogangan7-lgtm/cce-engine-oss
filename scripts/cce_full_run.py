@@ -78,7 +78,9 @@ def run_knot_classify(text_file, context, k, out):
            "--text-file", text_file, "--context", context, "--k", str(k), "--out", out]
     r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=ROOT, timeout=900)
     if r.returncode != 0:
-        raise RuntimeError(f"knot_classify rc={r.returncode}: {(r.stderr or '')[-200:]}")
+        # ★ 2026-09-28: 完整 stderr 落在产物旁(随 run/out 上传); manifest 里的 error 会被截到 300 字, 此前根因因此丢失
+        open(out + ".stderr.txt", "w", encoding="utf-8").write(r.stderr or "")
+        raise RuntimeError(f"knot_classify rc={r.returncode}: {(r.stderr or '')[-200:]} (全文 {os.path.basename(out)}.stderr.txt)")
     d = json.load(open(out, encoding="utf-8"))
     st = d["stage1"]
     # ★ 2026-09-28: 只把**管线丢失**(某个 draw 三次尝试全失败, 什么都没返回)当故障。
@@ -125,9 +127,15 @@ def reader_baseline(ctx):
 
 def _reader_out(d, body):
     st = d["stage1"]
+    # ★ 2026-09-28 (诊断 #23): 读者 tops 与 s1 走同一道组内散布闸 —— 此前超噪声底的层照发 top, 且不进出口闸台账。
+    js, tops, withheld = st.get("within_js") or {}, dict(st.get("tops") or {}), {}
+    for name, layer in _LAYER_OF_TOP.items():
+        if name in tops and js.get(layer) is not None and js[layer] > WITHIN_JS_MAX.get(layer, 1.0):
+            withheld[name] = f"{layer} within_js={round(js[layer], 4)} > {WITHIN_JS_MAX[layer]}"
+            tops[name] = None
     return {"file": "reader_baseline.json", "reader_chars": len(body),
             "measurement_status": st.get("measurement_status"),   # 读者弃权是读者的状态, 不是本段 FAIL
-            "tops": st.get("tops") or {}, "within_js": st.get("within_js"),
+            "tops": tops, "tops_withheld": withheld or None, "within_js": st.get("within_js"),
             "knots": [[k["key"], k["weight"]] for k in d["stage2"]["knots"]]}
 
 
@@ -306,6 +314,10 @@ def s2(ctx):
     # 让不确定性在做决策的地方生效, 而不是只躺在 manifest 里没人看。
     # 判据是二元的(首结 key 是否全同), 不含任何未校准阈值。
     top1_stable = samp.get("top1_stable")
+    # ★ 2026-09-28 (诊断 #0): 一条链只有一个 top-1。稳定闸判的是逐 draw argmax 的众数 top1_mode,
+    #   此前 playbook 却取 knots[0](按出现时强度中位数排序)—— 存档 11 个稳定读数里 2 个两者不是同一个结,
+    #   发出去的打法属于另一个结, 而闸报的是「top-1 全票一致」。
+    lead = next((k for k in knots if k["key"] == samp.get("top1_mode")), None)
     return {"taxonomy": taxo.get("version"),
             "knots": [[k["key"], k["weight"]] for k in knots],
             # 四层结构(§22): intensity 不受和为 1 约束; families 给族内组成与 mass;
@@ -318,15 +330,15 @@ def s2(ctx):
             "instrument": st2.get("instrument", {}).get("instrument_hash"),
             "top1_draws": samp.get("top1_draws"), "max_range": samp.get("max_range"),
             "per_knot": samp.get("per_knot"),
-            "playbook_primary": (knots[0].get("playbook", "")[:120]
-                                 if knots and top1_stable is True else None),
+            "playbook_primary": (lead.get("playbook", "")[:120]
+                                 if lead and top1_stable is True else None),
             # ★ 2026-09-05 A1/A2: 两类建议被**移出单文本打分**, 但**不能因此从交付里消失**。
             #   移出的理由是判官**结构上看不见**它们(跨轮规则拿不出本文子串; 顺序约束不是
             #   单一子串), 不是这两条建议错了。若只把它们搬进 taxonomy 就不管了,
             #   它们会变成没人读的死规则 —— 一致性闸当场判了红, 判得对。
             #   ⇒ 随 playbook_primary 一同下发, 但**显式标注不参与打分**。
-            "playbook_unscored_guidance": (_unscored_guidance(taxo, knots[0]["key"])
-                                           if knots and top1_stable is True else None),
+            "playbook_unscored_guidance": (_unscored_guidance(taxo, lead["key"])
+                                           if lead and top1_stable is True else None),
             # ★ 2026-09-06: 判据从 `is not False` 收紧为 `is True`。
             #   上游现在会在**可投票 draw < 2** 时返回 None(不可判) ——
             #   而 `is not False` 会把 None 当成通过, 那正是「查不了当查过了」。
@@ -340,7 +352,8 @@ def s2(ctx):
             #   证据片段的产出方 = s2 模型给的 evidence_quote(本来就在产出里, 此前无人核它是否逐字在原文)。
             #   但 s2 协议不产出「片段支撑哪一支 + 关于哪个对象」⇒ 资格层**只能**给 ③ 候选, 永不升格 ——
             #   这是 fail-closed 的诊断字段, **不改任何判决**; 想升格得走 r2 式引用证书协议(另立)。
-            "label_qualification": _s2_label_qualification(ctx, knots, top1_stable)}
+            "label_qualification": _s2_label_qualification(
+                ctx, ([lead] + [k for k in knots if k is not lead]) if lead else knots, top1_stable)}
 
 
 def _s2_label_qualification(ctx, knots, top1_stable=None):
@@ -413,10 +426,18 @@ def s4(ctx):
     d = json.loads(r.stdout)
     if not (d.get("clean") and d.get("clean_strict")):
         raise RuntimeError(f"guard未过: clean={d.get('clean')} strict={d.get('clean_strict')}")
-    dash = open(ctx["text_file"], encoding="utf-8").read().count("—") + open(ctx["text_file"], encoding="utf-8").read().count("–")
+    draft = open(ctx["text_file"], encoding="utf-8").read()
+    dash = draft.count("—") + draft.count("–")
     if dash:
         raise RuntimeError(f"破折号{dash}处(纪律: 0)")
-    return {"clean": True, "strict": True, "em_dash": 0}
+    # ★ 2026-09-28 (诊断 #1): P7 生成物闸此前没接进任何工作流 ⇒ 引用未达标机制/K1 未达标强度读数的稿子照样过。
+    #   只接它的两条判据; 其 gate() 还要跑 check_boundary(保险库只在本机, CI 上恒 UNAVAILABLE), 不接。
+    #   ★ 只认 [[mech:…]] / [[knot_intensity|delta:…]] 标记, 不带标记的数字化结论它看不见 —— 已知缺口。
+    from cce_strategy_gate import check_citations, check_knot_readout_claims
+    cite = check_citations(draft) + check_knot_readout_claims(draft)
+    if cite:
+        raise RuntimeError("生成物引用了未达标读数: " + " | ".join(cite)[:250])
+    return {"clean": True, "strict": True, "em_dash": 0, "strategy_citations": "OK"}
 
 
 # ── s5_audience / s6_alignment / s7_ruler / s8_pairwise_bet 已删(2026-09-01) ──
@@ -543,10 +564,33 @@ def qualified(ctx):
             f"n={s1m.get('n')!r})")
         for name in _LAYER_OF_TOP:
             withheld[f"s1.tops.{name}"] = _why
-    if s2m.get("playbook_primary"):
+    # ★ 2026-09-28 (诊断 #17): s2 有 draw 失败时, K1 判定是在 n=n_requested 上标定的 —— n_ok 更小就不是那台仪器的读法。
+    #   此前 5 取 2 也照发 playbook_primary 与 top1。缺席的 draw 不是弃权(弃权时 n_requested=0)。
+    _samp = ((ctx.get("cce") or {}).get("stage2") or {}).get("sampling") or {}
+    s2_short = (f"s2 n_ok={_samp.get('n_ok')} < n_requested={_samp.get('n_requested')}"
+                "(K1 在满额 n 上标定, 缺 draw 的读数不是那台仪器的读法)"
+                if (_samp.get("n_ok") or 0) < (_samp.get("n_requested") or 0) else None)
+    # ── 读者基线(reply 链): 与 s1 同一套扣发规则进台账(诊断 #23) ──
+    rb = MANIFEST.get("reader_baseline") or {}
+    if rb.get("status") == "OK" and "tops" in rb:
+        for name in _LAYER_OF_TOP:
+            v = (rb.get("tops") or {}).get(name)
+            if v is not None:
+                usable[f"reader.tops.{name}"] = v
+            else:
+                withheld[f"reader.tops.{name}"] = ((rb.get("tops_withheld") or {}).get(name)
+                                                   or f"读者读数未产出(measurement_status={rb.get('measurement_status')!r})")
+        from cce_k1_status import knot_readout_usable
+        _rinst = ((ctx.get("reader_cce") or {}).get("stage2") or {}).get("instrument") or {}
+        _ok, _why = knot_readout_usable("weight", instrument_hash=_rinst.get("instrument_hash"))
+        if _ok:
+            usable["reader.knots"] = rb.get("knots")
+        else:
+            withheld["reader.knots"] = f"{_why}(读者九结的 weight = intensity/Σ)"
+    if s2m.get("playbook_primary") and not s2_short:
         usable["s2.playbook_primary"] = s2m["playbook_primary"]
     else:
-        withheld["s2.playbook_primary"] = s2m.get("playbook_withheld_reason") or "未产出"
+        withheld["s2.playbook_primary"] = s2_short or s2m.get("playbook_withheld_reason") or "未产出"
     # ★ 2026-09-02: 原来这里写「分布类读数**始终可用**, 但必须带 n 与不确定性一起引用」,
     #   把 intensity 无条件放进 usable。那是一句**散文 caveat** —— 而本项目已确立
     #   散文式 caveat 在这个项目已被证伪(13 条 Notion 读数都标了「不可单独使用」,
@@ -561,10 +605,10 @@ def qualified(ctx):
         st = layer_status(instrument_hash=_inst.get("instrument_hash"))
         base = {"n": s2m.get("n"), "top1_mode_share": s2m.get("top1_mode_share"),
                 "top1_mode": s2m.get("top1_mode"), "max_range": s2m.get("max_range")}
-        if st["top1"]["usable"]:
+        if st["top1"]["usable"] and not s2_short:
             usable["s2.distribution.top1"] = base
         else:
-            withheld["s2.distribution.top1"] = st["top1"]["reason"]
+            withheld["s2.distribution.top1"] = s2_short or st["top1"]["reason"]
         if st["intensity"]["usable"]:
             usable["s2.distribution.intensity"] = {
                 "knots": s2m["knots"], "intensity": s2m.get("intensity"), **base}
@@ -588,12 +632,18 @@ def qualified(ctx):
             withheld["s2.drive_brake"] = (
                 "由两个 mass 的象限决定, 未单独判定 ⇒ 扣发")
     inst = (ctx.get("cce") or {}).get("stage2", {}).get("instrument") or {}
+    # ★ 2026-09-28 (诊断 #20): s0 的读出并进 s1 的【情境】串, 而 instrument_hash 只覆盖 s1/s2 提示词 ——
+    #   Jev 读出与 MiniMax 回退读出喂给 s1 的上下文不同, 哈希却相同。后端随读数一起落, 跨读数比较时一并比。
+    s0_backend = (ctx.get("ctx_layer") or {}).get("read_backend")
     return {"instrument_hash": inst.get("instrument_hash"),
+            "s0_read_backend": s0_backend,
+            "s2_short": s2_short,
             "instrument_spec": inst.get("spec"),
             "usable_keys": sorted(usable), "withheld": withheld,
             "usable_count": len(usable), "withheld_count": len(withheld),
             "rule": "只有 usable 里的读数允许进入下游/Population Field; "
-                    "withheld 不是弱证据, 是没有读数。跨读数比较前必须先比 instrument_hash。"}
+                    "withheld 不是弱证据, 是没有读数。跨读数比较前必须先比 instrument_hash 与 s0_read_backend"
+                    "(2026-09-28 起生产 s0 走 Jev; 此前与回退运行的 s1 上下文来自 MiniMax)。"}
 
 
 CHAINS = {

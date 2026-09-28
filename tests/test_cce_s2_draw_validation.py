@@ -53,3 +53,24 @@ for name, bad in BAD.items():                # 坏一次 ⇒ 重试拿到好的
 assert any(Path(KC.RAW_DIR).iterdir()), "坏 draw 要落 raw"   # 文件名只到秒, 同秒同档会互相覆盖 —— 属诊断 #18 取证项
 
 print(f"test_cce_s2_draw_validation: OK ({len(BAD)} 类坏 draw 各自: 被拒 · 重试取到好的 · 三次都坏返回 None 不崩 | 弃权与 weight 垫片不误伤)")
+
+# ── 取证账本(2026-09-28 诊断 #6/#18): 只记录, 不改收件 ──
+calls.clear(); KC.call_model = fake([BAD["intensity 越界"], GOOD])
+agg = KC._stage2_aggregate("p", TAXO, n=2)
+op = agg["operational"]
+assert op["n_draws"] == 2 and op["n_attempts"] >= 3 and op["n_parse_failed"] >= 1, op
+assert all(a["finish_reason"] == "stop" for a in op["attempts"])
+
+
+def http_429(model, prompt, temperature=0.0):
+    return "", {"error": "HTTPError 429 Too Many Requests"}
+
+
+KC.call_model = http_429
+try:
+    KC._stage2_aggregate("p", TAXO, n=2)
+    raise AssertionError("全部失败必须抛")
+except RuntimeError as e:
+    msg = str(e)
+assert "INFRA_FAILED" in msg and "429" in msg and KC.RAW_DIR in msg, msg   # 此前只有「全部失败(raw 已存)」
+print("test_cce_s2_draw_validation: 账本 OK (每次尝试记 status/error_class/finish_reason | 全失败时报错带类别计数与首个错误)")

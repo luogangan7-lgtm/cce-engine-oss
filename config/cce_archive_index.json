@@ -5,11 +5,12 @@
  "finding": "★ 2026-09-03 更正: 原 finding「32 个 run 全部不可重建」**是错的, 错在查错了仓** —— 那次 gh api 只查了私仓 luogangan7-lgtm/cce-engine, 而 2026-08-17 起生产入口已迁公开仓 luogangan7-lgtm/cce-engine-oss。换仓复查后 23 个 run 仍有 artifact 且 expired=false, 已全部取回落入 archive/(391 文件, 逐件 sha256, 源与落档件数相等)。根因不是「查错了」而是「这个查询根本没有代码」: 人工跑一次把结论写死, 没有可重跑的检查 ⇒ 错了 15 条也没有任何东西会发现。当前: 本地已归档 26 个, 两仓皆无 19 个。",
  "what_survived": "本地归档 26 见 archive/<run_id>/_listing.json",
  "policy": {
-  "future_runs": "每个 run 完成时必须 archive_run() 落本地, 并入册。",
+  "future_runs": "目标: 每个 run 完成时 archive_run() 落本地并入册。★ 2026-09-28 核实: archive_run() 没有任何调用方, 这条从未被执行 —— 它是目标不是现状(见 scripts/cce_open_items.py 的 OPEN_WORK「生产 run 自动归档」, 最早一批 artifact 2026-11-15 起过期)。",
   "new_claims": "任何新机制/新结论不得直接引用 run_id 作证据。",
   "rebuild": "缺任何一块都大声失败, 绝不静默补空 —— 空壳重建比重建失败坏得多。",
   "irrecoverable_claim": "标 IRRECOVERABLE 必须带 checked_against(覆盖全部 push 远端)与 checked_at。★ 只查一个仓得出的「不可恢复」不是结论 —— 2026-09-03 实际发生过, 错了 15 条。",
-  "restricted_offtree": "含真实身份的归档一律 RESTRICTED_OFFTREE: 移出仓库树、登记 location、**不得**就地改写以求过闸(改写破坏字节保真)。★ 这条是 2026-09-03 实际发生后加的 —— 我取回 391 个历史文件后**没有重跑边界闸**, 而闸就是为这个存在的。"
+  "restricted_offtree": "含真实身份的归档一律 RESTRICTED_OFFTREE: 移出仓库树、登记 location、**不得**就地改写以求过闸(改写破坏字节保真)。★ 这条是 2026-09-03 实际发生后加的 —— 我取回 391 个历史文件后**没有重跑边界闸**, 而闸就是为这个存在的。",
+  "restricted_offtree_public_copies": "RESTRICTED_OFFTREE 且取自 public_remotes 的 run, 必须登记 public_copies_cleared(artifacts_remaining=0, logs=deleted, checked_at) —— 移出仓库树不等于没了, 公开 artifact 与运行日志是另一份副本(2026-09-28 诊断 #29)。"
  },
  "runs": {
   "31306754953": {
@@ -255,7 +256,13 @@
     "manifest.json": "7f4b763c3b14c4f9"
    },
    "offtree_file_count": 8,
-   "★why_listing_here": "只登**文件名 + sha256**, 不登内容 —— 文件名无真名(cce-item-N / probe-out 这类), 哈希不可逆。这样保险库副本损坏或丢失时, 仓里能证明它本该是什么, 而识别层数据本身不越过边界。★ 哈希是**现场重算**的, 不是照抄 _listing.json —— 照抄只能证明它自洽, 证明不了它没漂。"
+   "★why_listing_here": "只登**文件名 + sha256**, 不登内容 —— 文件名无真名(cce-item-N / probe-out 这类), 哈希不可逆。这样保险库副本损坏或丢失时, 仓里能证明它本该是什么, 而识别层数据本身不越过边界。★ 哈希是**现场重算**的, 不是照抄 _listing.json —— 照抄只能证明它自洽, 证明不了它没漂。",
+   "public_copies_cleared": {
+    "artifacts_remaining": 0,
+    "logs": "deleted",
+    "checked_at": "2026-09-28",
+    "how": "owner 2026-09-28「同意」后删除; 删前逐字节备份进保险库(restricted_archive/<run>/, 日志为 _run_logs_<run>.zip)。删后核: GET actions/runs/<run>/artifacts total_count=0, GET actions/runs/<run>/logs = 404。"
+   }
   },
   "32096357295": {
    "status": "LOCALLY_ARCHIVED",
@@ -434,7 +441,13 @@
     "probe-out__tmp__probe.log": "ecbcb3917d385087"
    },
    "offtree_file_count": 31,
-   "★why_listing_here": "只登**文件名 + sha256**, 不登内容 —— 文件名无真名(cce-item-N / probe-out 这类), 哈希不可逆。这样保险库副本损坏或丢失时, 仓里能证明它本该是什么, 而识别层数据本身不越过边界。★ 哈希是**现场重算**的, 不是照抄 _listing.json —— 照抄只能证明它自洽, 证明不了它没漂。"
+   "★why_listing_here": "只登**文件名 + sha256**, 不登内容 —— 文件名无真名(cce-item-N / probe-out 这类), 哈希不可逆。这样保险库副本损坏或丢失时, 仓里能证明它本该是什么, 而识别层数据本身不越过边界。★ 哈希是**现场重算**的, 不是照抄 _listing.json —— 照抄只能证明它自洽, 证明不了它没漂。",
+   "public_copies_cleared": {
+    "artifacts_remaining": 0,
+    "logs": "deleted",
+    "checked_at": "2026-09-28",
+    "how": "owner 2026-09-28「同意」后删除; 删前逐字节备份进保险库(restricted_archive/<run>/, 日志为 _run_logs_<run>.zip)。删后核: GET actions/runs/<run>/artifacts total_count=0, GET actions/runs/<run>/logs = 404。"
+   }
   },
   "32240552713": {
    "status": "LOCALLY_ARCHIVED",
@@ -997,6 +1010,9 @@
  "negative_test_note": "反向测试必须写出这些 id 才能证明闸会红。只允许出现在 tests/test_cce_archive_plane.py 里, 由 check() 验证出处。",
  "required_remotes": [
   "luogangan7-lgtm/cce-engine",
+  "luogangan7-lgtm/cce-engine-oss"
+ ],
+ "public_remotes": [
   "luogangan7-lgtm/cce-engine-oss"
  ],
  "★why_required_remotes_declared": "★ 2026-09-03 CI 实跑暴露: 原来这张表是**现读 git remote** 得来的。我这台机器有两个 remote, CI 的 checkout 只有一个(origin→oss) ⇒ ①测试在 CI 上必红 ②更糟的是**闸本身在 CI 上自动变松** —— 「IRRECOVERABLE 必须覆盖全部 push 远端」里的『全部』变成了『那一个』。**检查的强度不该取决于它在哪台机器上跑。** 故改为由本文件声明; 实读 git 降级为交叉核对(只在本机真有 remote 时比对, 发现多出来的要报)。"

@@ -522,10 +522,24 @@ def items() -> list[dict]:
     #   "retire Hy-MT2 MT experiment" 删掉了它们, 归档在
     #   /Volumes/data/archive/hymt2-retired-20260817/。
     #   **合并 = 复活退役代码** —— 正是本项目栽过三次的「拿退役组件当现行标准」。
+    # ★ 2026-09-28 改写(诊断 #43): 那次分叉早已消解 —— 两仓现推同一个 master。旧文「私仓非生产入口、不推」已不成立。
     out.append({"类": DECIDED,
-                "项": "与私仓 origin 的分叉**不合并** —— 合并会复活已退役的 Hy-MT2",
-                "证据": ("origin 独有文件全是 mt_*; 本地 b33befd 已退役并归档于 "
-                         "archive/hymt2-retired-20260817。私仓另带 PII 且非生产入口, 亦不推。")})
+                "项": "两仓同一 master; 生产入口默认公开仓, 付费回归台与 Jev 合同只在公开仓跑",
+                "证据": ("客户端 DEFAULT_REPO = 公开仓(环境变量 CCE_REPO / --repo 可改到私仓, 私仓 Actions 分钟有配额); "
+                         "accuracy.yml 与 cce-jev-contract.yml 的 job 带 `if: github.repository == 公开仓` ⇒ 同一次 push 只付一次。"
+                         "Hy-MT2 旧分叉已退役归档于 archive/hymt2-retired-20260817, 不复活。")})
+
+    # ★ 2026-09-28 诊断 #32: 「每个 run 完成时 archive_run 落本地」只是散文, archive_run 没有调用方。
+    out.append({"类": OPEN,
+                "项": "生产 run 自动归档从未接线 —— archive_run() 没有任何调用方",
+                "证据": ("config/cce_archive_index.json policy.future_runs 已改写为「目标不是现状」。归档闸只查仓里被引用的 run_id, "
+                         "不查实际发生过的 run ⇒ 绝大多数生产 run 既未归档也未入册; 最早一批 artifact 2026-11-15 起过期。"
+                         "★ 接线时含身份的 run 必须走 RESTRICTED_OFFTREE(保险库), 不得进仓库树。")})
+    # ★ 2026-09-28 诊断 #29 的延伸: 两个已知 run 的公开副本已删; 全量无名扫描又查出一批。清单只在本地保险库, 这里不写 run id(写了就是给公开仓指路)。
+    out.append({"类": BLOCKED,
+                "项": "公开仓另有一批历史 run 的 artifact/日志含真实 handle —— 已逐字节备份进保险库, 删除公开副本待 owner 点头",
+                "证据": ("2026-09-28 全量无名扫描(212 个未过期 artifact + 188 个 run 日志, 只输出 run id/路径/计数)。"
+                         "入口闸(scripts/cce_submission.py)自 2026-09-28 起拦住新的; 存量需删。删除是破坏性操作 ⇒ 卡在 owner 裁定(是否删除这批公开副本)。")})
 
     # ⑨ 2026-09-10 候选代那两轮留下的三件 —— **从留档现读, 不硬编码状态**
     #    ★ 这三件本来一件都没进清单, 是我口述报给 owner 的。「还差什么不由我口述」这条铁律
@@ -534,15 +548,22 @@ def items() -> list[dict]:
         dev = _j("tests/data/DEV-001-budget-overrun.json")
         bg = _j("results/.request_budget.json") if os.path.exists(
             os.path.join(ROOT, "results/.request_budget.json")) else None
-        fixed = os.path.exists(os.path.join(ROOT, "scripts/cce_request_budget.py"))
+        # ★ 2026-09-28 (诊断 #7/#31/#40): 判据从「文件在」改成「有调用方」—— 文件在而没人调用, 是装饰。
+        _src = lambda rel: open(os.path.join(ROOT, rel), encoding="utf-8").read()
+        wired_acc = "from cce_request_budget import reserve" in _src("accuracy/run_gates.py")
+        wired_prod = "cce_request_budget" in _src("scripts/exp_crossmodel_desire.py")
+        fixed = wired_acc and wired_prod
         out.append({"类": DECIDED if fixed else OPEN,
-                    "项": "跨轮请求预算闸 —— DEV-001 的机制缺口" + ("**已补**" if fixed else "**未补**"),
+                    "项": "跨轮请求预算闸 —— DEV-001 的机制缺口" + (
+                        "**已补**" if fixed else "**只接了付费回归台, 生产链 call_model 未接**" if wired_acc else "**机制在、无调用方**"),
                     "证据": (dev["★每份引用本结果的报告要带的一句"] +
                             (" ★ 已落 scripts/cce_request_budget.py, 六条离线自检全过(假请求, 零真实调用): "
                              "上限后拦住且不产生调用 · 重启不清零 · 四进程并发抢 10 个只放行 10 个 · "
                              "失败请求仍计数 · 改大旧上限被拒; 反向验过**包错层**会少算。"
                              "★★★ 但**补闸不产生任何放行资格** —— 恢复真实请求需 **owner 新开一张授权单**。"
-                             if fixed else " ★ 尚未代码化, 下次仍会静默超支。"))})
+                             if fixed else
+                            " ★ 2026-09-28: accuracy/run_gates.py 每次 HTTP 尝试前 reserve(每次运行上限 1600, 结构上限 1536, 撞上限即停); "
+                            "生产链的 exp_crossmodel_desire.call_model 是 core 文件, 未接 —— 生产单次运行的调用数由 k/n 与固定重试次数在结构上封顶, 但没有显式上限。"))})
     except Exception:
         pass
     try:
@@ -710,7 +731,7 @@ def items() -> list[dict]:
             _S = _j("results/s0_jev_shadow.json")
             out.append({"类": DECIDED, "项": "s0 情境面 Jev 影子臂已跑(MiniMax 42 + Jev 42): 一致率 5–31/42, MiniMax 情绪余温**零未知**。★ 2026-09-23 owner 两次裁定: ①s0 六面**无人类金标可言**, 「人填 10 条金标」前置**撤回** ②「那就接线吧」⇒ **已接线**(scripts/cce_s0_jev.py, 有 TYPESAFE_API_KEY 走 Jev, 否则回退 MiniMax 并写 read_backend; tests/test_cce_s0_wiring.py 变异 5/5)",
                 "证据": "逐面 一致/MiniMax未知/Jev未知: " + " · ".join("%s %s/%d/%d" % (k, v["一致"], v["MiniMax 未知/非法"], v["Jev 未知"]) for k, v in _S["★★★逐面"].items())
-                        + "。★ 无金标 ⇒ 不判优劣; MiniMax 在「读不出就填未知, 严禁猜」下 42 条零未知这件事不需要金标。★ 剩一件 owner 侧动作: GitHub 仓库 secrets 加 **TYPESAFE_API_KEY**, 没加之前线上链走 minimax_fallback 并写进产物。★ 全链提速点不在 s0: 在 reader_baseline + s1 + s2 两次 knot_classify(生成式, Jev 接不了)。"})
+                        + "。★ 无金标 ⇒ 不判优劣; MiniMax 在「读不出就填未知, 严禁猜」下 42 条零未知这件事不需要金标。★ 2026-09-28 两仓 secrets 已加 TYPESAFE_API_KEY, probes/jev_secret_check.py 两仓各跑一次 backend=jev; 回退 MiniMax 的运行现在进聚合 manifest 的 degraded 并置 production_verified=false(scripts/cce_workflow_manifest.py)。★ 全链提速点不在 s0: 在 reader_baseline + s1 + s2 两次 knot_classify(生成式, Jev 接不了)。"})
         _ob = os.path.join(ROOT, "results/stage_overlap_bench.json")
         if os.path.exists(_ob):
             _B = _j("results/stage_overlap_bench.json"); _sv = _B["★节省"]; _a, _b = _B["arms"]

@@ -88,8 +88,15 @@ def _find(kw):
     return m[0]
 
 _b = _find("跨轮请求预算闸")
-_fixed = os.path.exists(os.path.join(ROOT, "scripts/cce_request_budget.py"))
-assert _b["类"] == (DECIDED if _fixed else OPEN), "★ 分类没跟着实际文件走 —— 那就是硬编码"
+# ★ 2026-09-28 (诊断 #7/#31/#40): 判据由「文件在」改为「有调用方」。原来这里钉的正是「文件在 ⇒ 已补」——
+#   而那时全仓没有一个调用方, 生产链与付费回归台都没有上限。钉住了错的判据, 所以改钉内容。
+_srcf = lambda rel: open(os.path.join(ROOT, rel), encoding="utf-8").read()
+_wired_acc = "from cce_request_budget import reserve" in _srcf("accuracy/run_gates.py")
+_wired_prod = "cce_request_budget" in _srcf("scripts/exp_crossmodel_desire.py")
+_fixed = _wired_acc and _wired_prod
+assert _b["类"] == (DECIDED if _fixed else OPEN), "★ 分类没跟着实际调用方走 —— 那就是硬编码"
+if not _fixed:
+    assert ("只接了付费回归台" if _wired_acc else "无调用方") in _b["项"], _b["项"]
 assert "DEV-001" in _b["证据"]
 if _fixed:
     assert "不产生任何放行资格" in _b["证据"], "★ 补闸不等于恢复放行, 这句必须跟着条目走"
@@ -135,7 +142,7 @@ _A = json.loads(open(os.path.join(ROOT, "tests/data/local_contract_assertions_v2
 _live = sum(1 for a in _A["断言"] if a["★★★断言状态"].startswith("**已撤销"))
 assert _n == _live, "★★★ 清单报 %d 条撤销, 断言文件现算 %d 条 —— 留档与现算不一致" % (_n, _live)
 
-# ★ 反向: 把预算闸文件藏起来, 该条必须从 DECIDED 翻回 OPEN。不翻 = 硬编码。
+# ★ 反向(旧判据下): 把预算闸文件藏起来, 该条必须从 DECIDED 翻回 OPEN。新判据下只在两处都接上时才可能是 DECIDED。
 if _fixed:
     # ★ 2026-09-27 根因修复: 以前**真把活仓 scripts/cce_request_budget.py 挪走**再挪回 —— 窗口期内并行 import / 扫描 scripts/
     #   的测试会红, 被 SIGKILL 还会让仓里少一个文件。M 判「已补」只看 os.path.exists(该路径) ⇒ 仅对这一条路径答「不存在」。
@@ -162,10 +169,10 @@ assert decided, "★ 已裁定不做的要留着防重开"
 # ── ★ origin 分叉: 必须标为「不合并」而不是「待 reconcile」 ────────────
 #    2026-09-03 查明: origin 独有文件全是已退役的 Hy-MT2(mt_*),
 #    本地 b33befd 删除并归档。**合并 = 复活退役代码** —— 本项目栽过三次的老病。
-_div = [r for r in rs if "origin" in r["项"]]
-assert _div and _div[0]["类"] == DECIDED, \
-    "★ origin 分叉不是待修的意外, 它就是那次退役本身 —— 不许标成 OPEN_WORK"
-assert "复活" in _div[0]["项"] and "Hy-MT2" in _div[0]["项"]
+# ★ 2026-09-28: 那次分叉早已消解(两仓同一 master), 条目改写为现状; 要守的「不复活 Hy-MT2」随证据保留。
+_div = [r for r in rs if "两仓同一 master" in r["项"]]
+assert _div and _div[0]["类"] == DECIDED, "★ 两仓关系是已裁定的现状, 不许标成 OPEN_WORK"
+assert "Hy-MT2" in _div[0]["证据"] and "不复活" in _div[0]["证据"]
 import subprocess as _sp
 _r = _sp.run(["git", "log", "--oneline", "-1", "--diff-filter=D", "--",
               "scripts/mt_extract.py"], cwd=ROOT, capture_output=True, text=True)
