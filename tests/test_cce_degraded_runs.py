@@ -97,5 +97,42 @@ with tempfile.TemporaryDirectory() as _t:
     F.MANIFEST.clear(); F.media_validate({"text_file": str(_pf)})
     assert F.MANIFEST["media_validate"]["channels_present"] == ["ocr"], F.MANIFEST["media_validate"]
 
+# ── s0 拒答只在出站两档; response 模式情境全未知走先验(canary 36421041849 item 7) ──
+import cce_s0_jev as _S0  # noqa: E402
+_keep_read = _S0.s0_jev_read
+_S0.s0_jev_read = lambda body, facets: ({f["key"]: "未知" for f in facets}, {}, None)   # Jev 如实: 全读不出
+try:
+    for _mode, _ok in (("response", True), ("outbound_post", False)):
+        with tempfile.TemporaryDirectory() as _t:
+            (Path(_t) / "x.txt").write_text("short reply", encoding="utf-8")
+            F.MANIFEST.clear()
+            try:
+                F.s0({"text_file": str(Path(_t) / "x.txt"), "context": "c", "mode": _mode, "outdir": _t})
+            except RuntimeError:
+                pass
+            _st = F.MANIFEST["s0_context"]
+            assert (_st["status"] == "OK") == _ok, (_mode, _st)
+            if _ok:
+                assert _st["拒答豁免"] and _st["read_backend"] == "jev"
+            else:
+                assert "拒答" in _st["error"]
+finally:
+    _S0.s0_jev_read = _keep_read
+
+# ── 媒体链的 measurement_complete 看出口闸, 不看它没有的 s1(canary 36421035662) ──
+_media = json.loads((ROOT / "archive/33840200869/cce-submission-source__submission.json").read_text(encoding="utf-8"))
+with tempfile.TemporaryDirectory() as t:
+    pkg, art = Path(t) / "pkg", Path(t) / "art"
+    write_package(_media, pkg)
+    nm = json.loads((pkg / "normalized.json").read_text(encoding="utf-8"))
+    it = nm["items"][0]
+    (art / "item-0").mkdir(parents=True)
+    (art / "item-0" / "manifest.json").write_text(json.dumps({
+        "text_sha256": it["_meta"]["text_sha256"], "complete": True, "failed_at": None, "submission": it["_meta"],
+        "chain": ["media_validate", "foundation_adapt", "event_assemble", "qualified_readout"],
+        "stages": {"qualified_readout": {"status": "OK"}}}), encoding="utf-8")
+    _agg = build(nm, art)
+assert _agg["complete"] and _agg["jobs"][0]["measurement_complete"] is True, _agg
+
 print("test_cce_degraded_runs: OK (s0 回退 / s2 缺 draw ⇒ complete 但 production_verified=false 且列入 degraded | "
-      "5 取 2 ⇒ playbook_primary 与 top1 扣发 | s0 后端随读数落 | 读者 tops 过同一道散布闸并进台账 | 媒体链不报不在链上的段)")
+      "5 取 2 ⇒ playbook_primary 与 top1 扣发 | s0 后端随读数落 | 读者 tops 过同一道散布闸并进台账 | 媒体链不报不在链上的段 | s0 拒答只在出站两档 | 媒体测量完成看出口闸)")

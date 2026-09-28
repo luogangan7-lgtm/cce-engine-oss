@@ -40,6 +40,10 @@ for f in glob.glob(os.path.join(ROOT, "archive", "*", "*normalized.json")):
         d = json.load(open(f, encoding="utf-8"))
     except Exception:
         continue
+    # ★ 2026-09-28: 归档里也有**失败**的 run(canary 失败也要留证); 只有成功的才算「CI 验证过」。老归档没记 conclusion, 当时只归档成功 run。
+    _mf = os.path.join(os.path.dirname(f), "manifest.json")
+    if os.path.exists(_mf) and json.load(open(_mf, encoding="utf-8")).get("conclusion", "success") != "success":
+        continue
     by_profile.setdefault(d.get("profile"), []).append(rid)
 
 CONTRACT = json.load(open(os.path.join(ROOT, "config/cce_submission_contract_v1.json"),

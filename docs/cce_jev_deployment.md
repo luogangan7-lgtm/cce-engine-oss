@@ -236,7 +236,7 @@ readers (2/5).
 What this does **not** show: that Jev cannot be distilled in general. The features here are only 5–7 letter logits per model
 (no hidden states); training is 66 short brand-free lines (T) or 36 labelled items (X); and the same 42 items have now been used
 twice. Recompute gate: `tests/test_cce_jev_distill_head.py` requires every committed reader file and the summary to equal a fresh
-run of the frozen analysis on the archives.
+run of the frozen analysis on the archives. Since 2026-09-28 it is in the heavy tier (`CCE_JEV_HEAVY=1`, about 20 minutes).
 
 ## Distillation round 2: stronger student (owner 「再试一轮更强的学生」 2026-09-28)
 
@@ -322,7 +322,7 @@ Minor notes:
 * Three teacher rows have a stored `choice` that differs from the argmax of their distribution. This only affects the drift description; q_E uses the distributions.
 * The frozen analysis script's header docstring still says "tie < 1e-9, position mod 7". The code and the prereg use 1e-6 and group order mod 7.
 
-Recompute gate: `CCE_JEV_HEAVY=1 pytest tests/test_cce_jev_distill2_head.py -k recompute` reruns the frozen analysis in a clean worktree of HEAD and requires byte-identical reader files and summary. It is opt-in because it takes about 1–1.5 h.
+Recompute gate: `CCE_JEV_HEAVY=1 pytest tests/test_cce_jev_distill2_head.py -k recompute` reruns the frozen analysis in a clean worktree of HEAD and requires byte-identical reader files and summary. It is opt-in because it takes about 1–1.5 h. It passed once on 2026-09-28 (7,041 s locally, worktree at 9620d89); the record is `results/jev_distill2_recompute_2026-09-28.json`. On CI the heavy tier (both recompute gates and the synthetic end-to-end tests) runs only through the manual workflow `.github/workflows/cce-jev-heavy.yml`, not in the production contract job.
 
 ## What runs where
 

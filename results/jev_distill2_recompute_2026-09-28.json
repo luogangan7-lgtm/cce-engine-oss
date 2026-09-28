@@ -1,0 +1,11 @@
+{
+ "gate": "tests/test_cce_jev_distill2_head.py::test_committed_round2_results_recompute_from_the_archive",
+ "run_at": "2026-09-28",
+ "env": "CCE_JEV_HEAVY=1, 本机(macOS, 10 核; 与全量套件并发, 墙钟偏长)",
+ "worktree_head": "9620d89(测试在 HEAD 的 git worktree 里跑; 启动时 HEAD 为 9620d89, 结束时仓已前进到 ac5dc00, 二者之间蒸馏分析代码与归档未变)",
+ "result": "1 passed, 5 deselected",
+ "returncode": 0,
+ "wall_seconds": 7041,
+ "meaning": "已提交的 results/jev_distill2_{P,S1,S2,S3}_vs_retest.json 与 summary 可由冻结分析脚本从 archive/36345476433 + 已提交老师读数逐字节重算。",
+ "★why_recorded": "诊断 #45: 这道重算闸此前没有任何运行痕迹(每次都被 skip)。CI 上的对应入口: .github/workflows/cce-jev-heavy.yml(手动)。"
+}

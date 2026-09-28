@@ -232,7 +232,12 @@ def s0(ctx):
     json.dump(ctx["ctx_layer"], open(f"{ctx['outdir']}/s0_context.json", "w"),
               ensure_ascii=False, indent=1)
     if not any(v in ("已声明", "读出") for v in src.values()):
-        raise RuntimeError("情境除结构冷读外全未知且无声明 —— 引擎拒答: 缺必要输入时不硬给结论")
+        # ★ 2026-09-28: response 模式(读他人的回应, subject_chain)不拒答 —— 读者情境读不出是常态, 各面走先验即可,
+        #   且此时 s1 语境串不带【情境】后缀, 正是 s1 标定时的条件。此前这道拒答在 response 模式从未响过:
+        #   MiniMax 42 条零未知(读不出也填); 换 Jev 如实答「未知」后, 一条读不出的回应就让整条 subject_chain 挂掉
+        #   (canary 36421041849 item 7)。出站两档(我方内容, 情境是已知入参)照旧拒答。
+        if ctx.get("mode") != "response":
+            raise RuntimeError("情境除结构冷读外全未知且无声明 —— 引擎拒答: 缺必要输入时不硬给结论")
     structural = [k for k, v in src.items() if v == "结构冷读"]
     return {"file": "s0_context.json", "fill_rate": fill, "read_backend": backend,
             "已声明": [k for k, v in src.items() if v == "已声明"],
@@ -242,7 +247,9 @@ def s0(ctx):
             "结构冷读提示": ("未声明 " + "、".join(structural) + " ⇒ 按首轮处理; 与读者有过上一轮互动时, 调用方必须在 context.declaration 里声明"
                          if structural else None),
             "置信提示": ("填充度低, 下游只出人群级结论, 不出个体级判断"
-                       if fill < 0.5 else "填充度足够")}
+                       if fill < 0.5 else "填充度足够"),
+            "拒答豁免": ("response 模式: 情境全未知, 各面走先验" if ctx.get("mode") == "response"
+                       and not any(v in ("已声明", "读出") for v in src.values()) else None)}
 
 
 # 2026-08-18: within_js 是这台仪器的自测噪声底 —— K 次采样两两的 JS 散度。

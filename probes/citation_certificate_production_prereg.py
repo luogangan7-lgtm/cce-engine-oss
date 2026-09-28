@@ -19,7 +19,12 @@ def _r2():
 def stratum_a():
     """归档里 s2 top-1 == display 且原文可由 input_sha 在同 run 的 items.json 里找回的读数; 按**文本**去重(同一文本的多次 run 只记指针列表)。"""
     by_text = {}
+    # ★ 2026-09-28: 试点材料在预注册日(2026-09-24)冻结 —— 只认那天及以前入册的 run。此前现扫整个 archive/,
+    #   任何后来归档的 run(如 canary)只要读到同一文本就会改掉冻结材料, 闸因此红。
+    _idx = json.loads((ROOT / "config/cce_archive_index.json").read_text(encoding="utf-8"))["runs"]
+    _frozen = {r for r, row in _idx.items() if (row.get("checked_at") or "9999") <= "2026-09-24"}
     for f in sorted(glob.glob(str(ROOT / "archive/*/*s1_readout.json"))):
+        if os.path.basename(os.path.dirname(f)) not in _frozen: continue
         d = json.loads(pathlib.Path(f).read_text(encoding="utf-8"))
         if (d["stage2"]["knots"] or [{}])[0].get("key") != "display": continue
         run = os.path.dirname(f); p = os.path.join(run, "cce-submission-source__items.json")

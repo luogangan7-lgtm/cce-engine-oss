@@ -277,6 +277,7 @@ def pull(run_ids: list[str], repo: str, reason: str) -> int:
     ponytail: 手动指定 run_id; 「每个 run 完成时自动归档」仍未接线(见 cce_open_items)。"""
     import subprocess
     import tempfile
+    import time
     index = json.load(open(INDEX, encoding="utf-8"))
     bad = 0
     for rid in run_ids:
@@ -296,7 +297,8 @@ def pull(run_ids: list[str], repo: str, reason: str) -> int:
             continue
         archive_run(rid, {"run_id": rid, "repo": repo, "url": meta["html_url"], "workflow": meta["path"],
                           "head_sha": meta["head_sha"], "event": meta["event"], "display_title": meta["display_title"],
-                          "conclusion": meta["conclusion"], "created_at": meta["created_at"]}, arts)
+                          "conclusion": meta["conclusion"], "created_at": meta["created_at"],
+                          "recovered_at": time.strftime("%Y-%m-%d")}, arts)
         index["runs"][rid] = {"status": LOCALLY_ARCHIVED, "referenced_in": ["config/cce_archive_index.json"],
                               "reason": reason, "checked_against": [repo], "checked_at": meta["updated_at"][:10],
                               "local_path": f"archive/{rid}", "files": len(arts) + 1,

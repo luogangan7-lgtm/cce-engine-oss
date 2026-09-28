@@ -55,7 +55,9 @@ def build(normalized: dict[str, Any], artifacts: Path, require_alignment: bool =
             alignment = json.loads(alignment_path.read_text(encoding="utf-8")).get("verdict") or {}
         elif profile == "outbound_reply" and require_alignment:
             errors.append(f"reply alignment missing for {job_id}")
-        measurement_complete = (manifest.get("stages") or {}).get("s1_readout", {}).get("status") == "OK"
+        # 媒体链没有 s1: 它的测量产物是出口闸收敛的 p3 读数(2026-09-28 canary 36421035662: 链完整却被判测量未完成)
+        measurement_complete = (manifest.get("stages") or {}).get(
+            "qualified_readout" if profile == "media_ingest" else "s1_readout", {}).get("status") == "OK"
         found[job_id] = {"job_id": job_id, "content_id": meta.get("content_id"),
             "profile": meta.get("profile"), "text_sha256": manifest.get("text_sha256"),
             "engine_complete": manifest.get("complete") is True, "failed_at": manifest.get("failed_at"),
