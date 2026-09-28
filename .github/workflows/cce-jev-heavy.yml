@@ -14,7 +14,8 @@ permissions:
 # ★ 两轮的「已提交结果现算」闸都不在这里, 只在产出平台(本机 macOS)跑:
 #   第二轮本机 9 进程约 2 h, 标准 runner 估计超时限(结果落 results/jev_distill2_recompute_<日期>.json);
 #   第一轮在 Linux runner 上不可复现 —— 弱正则(λ=1e-4)近可分拟合的端点随 BLAS 变, 头权重差到 0.5、描述量差到 1e-3
-#   (2026-09-28 两次 cce-jev-heavy 运行)。判决层跨平台是否一致未核, 见 scripts/cce_open_items.py。
+#   (2026-09-28 两次 cce-jev-heavy 运行)。★ 判决层跨平台一致已核(2026-09-29): 下面 platforms 目标在 Linux 上
+#   7 个文件非浮点字段 0 处不同 —— 判决、标签、计数、距离全同, 只有拟合参数漂移。
 jobs:
   heavy:
     if: github.repository == 'luogangan7-lgtm/cce-engine-oss'
