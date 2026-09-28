@@ -1,0 +1,409 @@
+{
+ "mode": "reply",
+ "started": "2026-09-28 21:16:26",
+ "text_sha1": "b4d940780660",
+ "text_sha256": "sha256:2e6a6f1d0d289d23d0e76990c5c64db33cf24397cf279a952350d05c733e9643",
+ "chain": [
+  "reader_baseline",
+  "s0_context",
+  "s1_readout",
+  "s2_knots",
+  "s3_emotion_policy",
+  "s4_guard",
+  "qualified_readout"
+ ],
+ "submission": {
+  "submission_id": "canary4:2026-09-29:outbound_reply",
+  "job_id": "job:example:reply:001",
+  "content_id": "content:example:reply:001",
+  "profile": "outbound_reply",
+  "schema_version": "1.1.0",
+  "platform": "reddit",
+  "platform_adapter": {
+   "id": "reddit",
+   "version": "1.0.0"
+  },
+  "surface": "r/HearingAids",
+  "surface_context": {
+   "kind": "community",
+   "id": "r/HearingAids",
+   "observed_at": "2026-08-13T07:50:00Z"
+  },
+  "domain": "hearing_aid",
+  "speaker_role": "otc_hearing_aid_oem",
+  "guard_profile": "hearing_aid",
+  "language": "en",
+  "context_snapshot": {
+   "id": "context:content:example:reply:001:2026-08-13T07:50:00Z",
+   "observed_at": "2026-08-13T07:50:00Z",
+   "platform": "reddit",
+   "platform_adapter": {
+    "id": "reddit",
+    "version": "1.0.0"
+   },
+   "surface": {
+    "kind": "community",
+    "id": "r/HearingAids",
+    "observed_at": "2026-08-13T07:50:00Z"
+   },
+   "domain": "hearing_aid",
+   "summary": "Public reply to a Reddit r/HearingAids member",
+   "dimensions": {
+    "time": {
+     "value": "2026-08-13T07:50:00Z",
+     "assertion": "observed",
+     "evidence_refs": [
+      "comment:example:001"
+     ]
+    },
+    "social": {
+     "value": "public member reply",
+     "assertion": "observed",
+     "evidence_refs": [
+      "comment:example:001"
+     ]
+    },
+    "relationship": {
+     "value": "first contact",
+     "assertion": "derived",
+     "evidence_refs": [
+      "comment:example:001"
+     ]
+    },
+    "current_goal": {
+     "value": "troubleshooting",
+     "assertion": "inferred",
+     "evidence_refs": [
+      "comment:example:001"
+     ]
+    }
+   },
+   "provenance": {
+    "producer": "example",
+    "version": "1.1.0"
+   }
+  },
+  "text_sha256": "sha256:2e6a6f1d0d289d23d0e76990c5c64db33cf24397cf279a952350d05c733e9643",
+  "reader_text_sha256": "sha256:3bc2a91ca62153a0b0690408780a17ea3700f60cf72733ebe4274d87b2e3ce5c",
+  "reader_actor_ref": "reddit:u/example",
+  "reader_evidence_ref": "comment:example:001"
+ },
+ "request_budget": {
+  "limit": 200,
+  "used": 17
+ },
+ "finished": "2026-09-28 21:17:50",
+ "stages": {
+  "reader_baseline": {
+   "status": "OK",
+   "sec": 78.8,
+   "overlapped_with": "s1_readout",
+   "file": "reader_baseline.json",
+   "reader_chars": 138,
+   "measurement_status": "qualified",
+   "tops": {
+    "desire": "摆脱欲",
+    "need": "N02_掌控局面",
+    "emotion": "relief宽慰",
+    "action": "approach趋近"
+   },
+   "tops_withheld": null,
+   "within_js": {
+    "desire_vec": 0.0988,
+    "need_vec": 0.0567,
+    "emotion_vec": 0.0943,
+    "action_vec": 0.0692
+   },
+   "knots": [
+    [
+     "reward",
+     1.0
+    ],
+    [
+     "display",
+     0.0
+    ],
+    [
+     "pain_seek",
+     0.0
+    ]
+   ]
+  },
+  "s0_context": {
+   "status": "OK",
+   "sec": 0.2,
+   "file": "s0_context.json",
+   "fill_rate": 0.778,
+   "read_backend": "jev",
+   "已声明": [
+    "进程位置",
+    "关系位置",
+    "社会在场",
+    "信息环境",
+    "情绪余温"
+   ],
+   "结构冷读": [],
+   "读出": [
+    "触发事件",
+    "身体状态"
+   ],
+   "未知": [
+    "资源状态",
+    "场景类型"
+   ],
+   "结构冷读提示": null,
+   "置信提示": "填充度足够",
+   "拒答豁免": null
+  },
+  "s1_readout": {
+   "status": "OK",
+   "sec": 83.3,
+   "file": "s1_readout.json",
+   "measurement_status": "qualified",
+   "k": {
+    "k_requested": 3,
+    "k_attempted": 3,
+    "k_valid": 2,
+    "k_abstained": 1
+   },
+   "within_js": {
+    "desire_vec": 0.2623,
+    "need_vec": 0.21,
+    "emotion_vec": 0.0871,
+    "action_vec": 0.0599
+   },
+   "within_js_max": {
+    "desire_vec": 0.12,
+    "need_vec": 0.161,
+    "emotion_vec": 0.157,
+    "action_vec": 0.125
+   },
+   "over_noise_floor": {
+    "desire_vec": 0.2623,
+    "need_vec": 0.21
+   },
+   "tops": {
+    "desire": null,
+    "need": null,
+    "emotion": "curiosity好奇",
+    "action": "attend关注"
+   },
+   "tops_withheld": {
+    "desire": "desire_vec within_js=0.2623 > 0.12",
+    "need": "need_vec within_js=0.21 > 0.161"
+   },
+   "high_divergence_flag": {
+    "desire_vec": 0.2623
+   }
+  },
+  "s2_knots": {
+   "status": "OK",
+   "sec": 0.0,
+   "taxonomy": "1.3.1",
+   "knots": [
+    [
+     "display",
+     0.0
+    ],
+    [
+     "reward",
+     0.0
+    ],
+    [
+     "audit",
+     1.0
+    ]
+   ],
+   "intensity": {
+    "audit": 0.515
+   },
+   "families": {
+    "推动": {
+     "mass": 0.0,
+     "composition": {},
+     "members_active": 0
+    },
+    "阻挡": {
+     "mass": 0.515,
+     "composition": {
+      "audit": 1.0
+     },
+     "members_active": 1
+    }
+   },
+   "drive_brake": {
+    "drive_mass": 0.0,
+    "brake_mass": 0.515,
+    "quadrant": "low_drive/high_brake",
+    "note": "象限切点 0.5 是量纲中点, 不是校准阈值; 仅作分类标签, 不得作判据"
+   },
+   "n": 5,
+   "top1_stable": false,
+   "top1_mode_share": 0.4,
+   "top1_mode": "display",
+   "instrument": "d4cce4c745f3f991",
+   "top1_draws": [
+    "reward",
+    "display",
+    "audit",
+    "audit",
+    "display"
+   ],
+   "max_range": 0.66,
+   "per_knot": {
+    "audit": {
+     "occur": 4,
+     "n": 5,
+     "support": 0.8,
+     "intensity": 0.515,
+     "median": 0.515,
+     "min": 0.22,
+     "max": 0.88,
+     "range": 0.66
+    },
+    "display": {
+     "occur": 2,
+     "n": 5,
+     "support": 0.4,
+     "intensity": 0.67,
+     "median": 0.67,
+     "min": 0.62,
+     "max": 0.72,
+     "range": 0.1
+    },
+    "reward": {
+     "occur": 2,
+     "n": 5,
+     "support": 0.4,
+     "intensity": 0.55,
+     "median": 0.55,
+     "min": 0.55,
+     "max": 0.55,
+     "range": 0.0
+    }
+   },
+   "playbook_primary": null,
+   "playbook_unscored_guidance": null,
+   "playbook_withheld_reason": "top1 不稳: ['reward', 'display', 'audit', 'audit', 'display']",
+   "label_qualification": {
+    "knot": "display",
+    "state": "UNCONFIRMED_CANDIDATE",
+    "citable_as_confirmed": false,
+    "evidence_quote_verbatim": false,
+    "why": "没有任何**可指名原文片段**的正面证据 ⇒ 不得升格为「已确认存在」。★ 这不是「证据弱」, 是**没有证据**(附件 B)。",
+    "★协议缺口": "s2 只产出 evidence_quote, 没有「支撑哪一支」与「关于哪个对象」⇒ 资格层无法升格; 本字段是诊断, 不改判决。"
+   }
+  },
+  "s3_emotion_policy": {
+   "status": "OK",
+   "sec": 0.0,
+   "policy": "distribution_only(单模型运行)",
+   "emotion_distribution": [
+    [
+     "curiosity好奇",
+     0.358
+    ],
+    [
+     "approval认同",
+     0.282
+    ],
+    [
+     "desire渴望",
+     0.128
+    ],
+    [
+     "relief宽慰",
+     0.104
+    ]
+   ]
+  },
+  "s4_guard": {
+   "status": "OK",
+   "sec": 0.0,
+   "clean": true,
+   "strict": true,
+   "em_dash": 0,
+   "strategy_citations": "OK"
+  },
+  "qualified_readout": {
+   "status": "OK",
+   "sec": 0.0,
+   "instrument_hash": "d4cce4c745f3f991",
+   "s0_read_backend": "jev",
+   "s2_short": null,
+   "instrument_spec": {
+    "ontology_version": "1.3.1",
+    "s1_prompt_sha256": "61fe230f5c588c1f",
+    "s2_prompt_sha256": "b8d0f60d66d10f12",
+    "model": "MiniMax-M3",
+    "endpoint": "https://api.minimaxi.com/v1/text/chatcompletion_v2",
+    "sampling_policy": {
+     "s1_k": 3,
+     "s1_temps": [
+      0.0,
+      0.3,
+      0.6,
+      0.9,
+      0.15,
+      0.45,
+      0.75
+     ],
+     "s2_n": 5,
+     "s1_pairing": "round_robin_over_3_s1_draws"
+    },
+    "aggregation_policy": {
+     "support_rule": "occur * 2 > n",
+     "intensity_stat": "median_of_nonzero",
+     "composition": "within_family_then_global_weight",
+     "abstention": "empty_knots_is_abstain_v1"
+    },
+    "qualification_policy": {
+     "k_valid_min": 2,
+     "insufficient_replicates": "WITHHOLD",
+     "abstain_semantics": "empty_knots_is_abstain_v1",
+     "statuses": [
+      "qualified",
+      "abstain",
+      "insufficient_replicates"
+     ],
+     "margin": {
+      "F_max": 0.0,
+      "U_max": 0.05,
+      "bound": "exact_one_sided_95_upper",
+      "provenance": "ENGINEERING_BUDGET",
+      "concentration_flag": {
+       "per_base_unqualified_min": 2,
+       "per_base_reps": 4,
+       "effect": "ADOPT_WITH_RESTRICTIONS"
+      },
+      "why_concentration": "总体 4% 但全集中在一种表达形式, 会被均值洗掉 ⇒ 必须另报 U_by_base"
+     }
+    }
+   },
+   "usable_keys": [
+    "reader.tops.action",
+    "reader.tops.desire",
+    "reader.tops.emotion",
+    "reader.tops.need",
+    "s1.tops.action",
+    "s1.tops.emotion",
+    "s2.distribution.top1"
+   ],
+   "withheld": {
+    "s1.tops.desire": "desire_vec within_js=0.2623 > 0.12",
+    "s1.tops.need": "need_vec within_js=0.21 > 0.161",
+    "reader.knots": "结层读数形式 'weight' 不可用: K1-v2 预注册判定 0/5 文本(读者九结的 weight = intensity/Σ)",
+    "s2.playbook_primary": "top1 不稳: ['reward', 'display', 'audit', 'audit', 'display']",
+    "s2.distribution.intensity": "K1「逐对容差一致 A(0.1) >= 0.95」不达标: 32.1%  最差项 display  (6/9 个结可评估) (判定 FAIL, 见 tests/data/phase2/k1_reliability_verdict.json)",
+    "s2.distribution.knot_weight": "结层读数形式 'weight' 不可用: K1-v2 预注册判定 0/5 文本(weight = intensity/Σ, 建在 intensity 上)",
+    "s2.families": "mass = max(intensity), composition = intensity/Σ —— 二者都建在已判红的 intensity 上; 且 mass 自身在探索性实测里比 intensity **更差**(0.6222–0.7333), 未经预注册判定 ⇒ 扣发",
+    "s2.drive_brake": "由两个 mass 的象限决定, 未单独判定 ⇒ 扣发"
+   },
+   "usable_count": 7,
+   "withheld_count": 8,
+   "rule": "只有 usable 里的读数允许进入下游/Population Field; withheld 不是弱证据, 是没有读数。跨读数比较前必须先比 instrument_hash 与 s0_read_backend(2026-09-28 起生产 s0 走 Jev; 此前与回退运行的 s1 上下文来自 MiniMax)。"
+  }
+ },
+ "complete": true,
+ "failed_at": null
+}

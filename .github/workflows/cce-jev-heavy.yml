@@ -24,7 +24,8 @@ jobs:
       fail-fast: false
       matrix:
         target:
-          - "tests/test_cce_jev_distill_head.py -k 'not recompute'"
+          - "tests/test_cce_jev_distill_head.py -k 'not recompute and not platforms'"
+          - "tests/test_cce_jev_distill_head.py -k platforms -s"   # 第一轮判决层跨平台是否一致: 非浮点逐字, 浮点只报漂移
           - "tests/test_cce_jev_distill2_head.py -k end_to_end"
     env:
       PYTHONDONTWRITEBYTECODE: "1"

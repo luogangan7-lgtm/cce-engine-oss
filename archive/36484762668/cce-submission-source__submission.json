@@ -1,0 +1,87 @@
+{
+  "kind": "cce.submission.v1",
+  "schema_version": "1.1.0",
+  "submission_id": "canary4:2026-09-29:outbound_reply",
+  "profile": "outbound_reply",
+  "submitted_at": "2026-09-28T10:21:37Z",
+  "producer": {
+    "system": "example",
+    "trace_id": "trace:canary4:2026-09-29:outbound_reply"
+  },
+  "items": [
+    {
+      "job_id": "job:example:reply:001",
+      "content_id": "content:example:reply:001",
+      "platform": "reddit",
+      "platform_adapter": {
+        "id": "reddit",
+        "version": "1.0.0"
+      },
+      "surface": {
+        "kind": "community",
+        "id": "r/HearingAids",
+        "observed_at": "2026-08-13T07:50:00Z"
+      },
+      "domain": "hearing_aid",
+      "language": "en",
+      "speaker_role": "otc_hearing_aid_oem",
+      "guard_profile": "hearing_aid",
+      "context": {
+        "summary": "Public reply to a Reddit r/HearingAids member",
+        "declaration": {
+          "进程位置": "在找方案",
+          "关系位置": "首次接触",
+          "社会在场": "半匿名",
+          "信息环境": "推荐流",
+          "情绪余温": "首轮无余温"
+        },
+        "dimensions": {
+          "time": {
+            "value": "2026-08-13T07:50:00Z",
+            "assertion": "observed",
+            "evidence_refs": [
+              "comment:example:001"
+            ]
+          },
+          "social": {
+            "value": "public member reply",
+            "assertion": "observed",
+            "evidence_refs": [
+              "comment:example:001"
+            ]
+          },
+          "relationship": {
+            "value": "first contact",
+            "assertion": "derived",
+            "evidence_refs": [
+              "comment:example:001"
+            ]
+          },
+          "current_goal": {
+            "value": "troubleshooting",
+            "assertion": "inferred",
+            "evidence_refs": [
+              "comment:example:001"
+            ]
+          }
+        },
+        "provenance": {
+          "producer": "example",
+          "version": "1.1.0"
+        }
+      },
+      "reader": {
+        "actor_ref": "reddit:u/example",
+        "evidence_ref": "comment:example:001",
+        "observed_at": "2026-08-13T07:50:00Z",
+        "source": "https://www.reddit.com/r/HearingAids/example",
+        "text": "My left aid drops whenever the phone is in my right trouser pocket, especially outside. Moving the phone to my shirt pocket usually helps.",
+        "text_sha256": "sha256:3bc2a91ca62153a0b0690408780a17ea3700f60cf72733ebe4274d87b2e3ce5c"
+      },
+      "draft": {
+        "text": "That side-switching pattern is useful evidence. If you are willing, could you repeat the walk once with the phone high on the chest and note whether the failing side changes? The result would help separate body blocking from a more general connection issue.",
+        "text_sha256": "sha256:2e6a6f1d0d289d23d0e76990c5c64db33cf24397cf279a952350d05c733e9643"
+      }
+    }
+  ]
+}

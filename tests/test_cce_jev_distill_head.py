@@ -197,3 +197,48 @@ def test_committed_distill_results_recompute_from_the_archive(fresh_run, tag):
         assert committed["★前置错误"] == [] and committed["★同 run 复跑"]["pass"] and committed["★同 run 复跑"]["pairs"] == 50
         assert committed["analysis_script_sha256"] == committed["analysis_script_sha256_at_freeze"]
         assert committed["prereg_sha256"] == _sha(PRE) and committed["frozen_rule_sha256"] == json.loads(PRE.read_text(encoding="utf-8"))["★分析脚本(冻结)"]["sha256"]
+
+
+def _nonfloat_diffs(a, b, path="$"):
+    """只比非浮点叶子(判决串、标签、计数、距离 d、布尔、键集、长度); 浮点叶子返回其偏差供报告。"""
+    if isinstance(a, float) and not isinstance(a, bool) and isinstance(b, (int, float)) and not isinstance(b, bool):
+        return [], [abs(a - b)]
+    if isinstance(b, float) and not isinstance(b, bool) and isinstance(a, (int, float)) and not isinstance(a, bool):
+        return [], [abs(a - b)]
+    if type(a) is not type(b):
+        return [f"{path}: type {type(a).__name__} != {type(b).__name__}"], []
+    if isinstance(a, dict):
+        if set(a) != set(b):
+            return [f"{path}: keys"], []
+        pairs = [(a[k], b[k], f"{path}.{k}") for k in a]
+    elif isinstance(a, list):
+        if len(a) != len(b):
+            return [f"{path}: len {len(a)} != {len(b)}"], []
+        pairs = [(x, y, f"{path}[{i}]") for i, (x, y) in enumerate(zip(a, b))]
+    else:
+        return ([] if a == b else [f"{path}: {a!r} != {b!r}"]), []
+    bad, drift = [], []
+    for x, y, p in pairs:
+        b_, d_ = _nonfloat_diffs(x, y, p); bad += b_; drift += d_
+    return bad, drift
+
+
+@pytest.mark.skipif(not __import__("os").environ.get("CCE_JEV_HEAVY"), reason="重层(第一轮完整现算约 20–30 分钟); CI 上由 .github/workflows/cce-jev-heavy.yml 跑")
+@pytest.mark.parametrize("tag", [f + v for f in "TX" for v in "ABC"] + ["summary"])
+def test_round1_verdict_fields_hold_across_platforms(fresh_run, tag):
+    """★ 2026-09-29 开放问题「第一轮判决层是否随平台变」的判定: 非浮点字段(判决/标签/计数/d)必须与已提交文件逐字相等;
+    浮点只报漂移(Linux 上弱正则近可分拟合的端点随 BLAS 变, 那不是本测试要判的)。本机与 CI 都跑, 结论看 CI。"""
+    rel = "results/jev_distill_summary.json" if tag == "summary" else f"results/jev_distill_{tag}_vs_retest.json"
+    committed = json.loads((ROOT / rel).read_text(encoding="utf-8"))
+    fresh = json.loads((fresh_run / ("summary.json" if tag == "summary" else f"r_{tag}.json")).read_text(encoding="utf-8"))
+    bad, drift = _nonfloat_diffs(fresh, committed)
+    print(f"[{tag}] 非浮点不同 {len(bad)} · 浮点 {len(drift)} 个, 最大漂移 {max(drift, default=0):.3g}")
+    assert not bad, bad[:10]
+
+
+def test_nonfloat_comparator_keeps_its_teeth():
+    assert _nonfloat_diffs({"v": "可替代", "x": 0.5}, {"v": "可替代", "x": 0.9})[0] == []
+    assert _nonfloat_diffs({"v": "可替代"}, {"v": "不同读者"})[0]
+    assert _nonfloat_diffs({"d": 4}, {"d": 5})[0]
+    assert _nonfloat_diffs({"labels": ["a", "b"]}, {"labels": ["a", "c"]})[0]
+    assert _nonfloat_diffs({"ok": True}, {"ok": False})[0]
