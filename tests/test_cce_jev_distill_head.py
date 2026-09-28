@@ -143,6 +143,33 @@ def test_main_writes_all_six_readers_and_the_summary(tmp_path, monkeypatch):
     assert d["n"] == 10 and d["flag"] is not None and set(d) >= {"d_vs_J1", "d_vs_J2", "J1_vs_J2_same_items", "missing_in_J"}
 
 
+def _diff_beyond_solver_resolution(a, b, path="$", tol=1e-5):
+    """浮点 |Δ| ≤ tol 视为相同(布尔不是浮点); 其余类型与结构必须逐字相等。返回不同之处的路径。"""
+    if isinstance(a, float) and isinstance(b, (int, float)) and not isinstance(b, bool) \
+            or isinstance(b, float) and isinstance(a, (int, float)) and not isinstance(a, bool):
+        return [] if abs(a - b) <= tol else [f"{path}: {a} != {b}"]
+    if type(a) is not type(b):
+        return [f"{path}: type {type(a).__name__} != {type(b).__name__}"]
+    if isinstance(a, dict):
+        if set(a) != set(b):
+            return [f"{path}: keys {sorted(set(a) ^ set(b))[:5]}"]
+        return [d for k in a for d in _diff_beyond_solver_resolution(a[k], b[k], f"{path}.{k}", tol)]
+    if isinstance(a, list):
+        if len(a) != len(b):
+            return [f"{path}: len {len(a)} != {len(b)}"]
+        return [d for i, (x, y) in enumerate(zip(a, b)) for d in _diff_beyond_solver_resolution(x, y, f"{path}[{i}]", tol)]
+    return [] if a == b else [f"{path}: {a!r} != {b!r}"]
+
+
+def test_solver_resolution_comparator_keeps_its_teeth():
+    assert _diff_beyond_solver_resolution({"x": 1.43976086}, {"x": 1.43976084}) == []
+    assert _diff_beyond_solver_resolution({"x": 1.4398}, {"x": 1.4397})               # 1e-4 不是求解分辨率
+    assert _diff_beyond_solver_resolution({"v": "可替代"}, {"v": "不同读者"})           # 判决必须逐字
+    assert _diff_beyond_solver_resolution({"lam": [0.1, 0.01]}, {"lam": [0.1, 0.001]}) # 选中的 λ 相差远超分辨率
+    assert _diff_beyond_solver_resolution({"ok": True}, {"ok": 1.0})                   # 布尔不当浮点
+    assert _diff_beyond_solver_resolution({"a": 1}, {"a": 1, "b": 2})
+
+
 @pytest.fixture(scope="module")
 def fresh_run(tmp_path_factory):
     """一次完整现算(真老师 + 真训练归档 + 真考场归档, 冻结 λ 网格), 六个读者 + 汇总写临时目录。"""
@@ -161,7 +188,11 @@ def test_committed_distill_results_recompute_from_the_archive(fresh_run, tag):
     rel = "results/jev_distill_summary.json" if tag == "summary" else f"results/jev_distill_{tag}_vs_retest.json"
     committed = json.loads((ROOT / rel).read_text(encoding="utf-8"))
     fresh = json.loads((fresh_run / ("summary.json" if tag == "summary" else f"r_{tag}.json")).read_text(encoding="utf-8"))
-    assert fresh == committed
+    # ★ 2026-09-28: 此前是逐字节相等。在 CI(Linux/OpenBLAS)上 6 个读者文件在描述性浮点(LOO-CE 等)的第 7–8 位不同
+    #   (最大 |Δ|≈7e-7), 判决、选中的 λ、计数全部一致 —— 那是求解器分辨率在两种 BLAS 下的差, 不是结果变了。
+    #   ⇒ 浮点按求解分辨率比(|Δ| ≤ 1e-5), 其余(判决/标签/λ/计数/字符串)逐字相等; 在产出平台(macOS)上仍逐字节相等。
+    bad = _diff_beyond_solver_resolution(fresh, committed)
+    assert not bad, bad[:5]
     if tag != "summary":
         assert committed["★前置错误"] == [] and committed["★同 run 复跑"]["pass"] and committed["★同 run 复跑"]["pairs"] == 50
         assert committed["analysis_script_sha256"] == committed["analysis_script_sha256_at_freeze"]

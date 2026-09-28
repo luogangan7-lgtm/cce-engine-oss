@@ -236,7 +236,7 @@ readers (2/5).
 What this does **not** show: that Jev cannot be distilled in general. The features here are only 5–7 letter logits per model
 (no hidden states); training is 66 short brand-free lines (T) or 36 labelled items (X); and the same 42 items have now been used
 twice. Recompute gate: `tests/test_cce_jev_distill_head.py` requires every committed reader file and the summary to equal a fresh
-run of the frozen analysis on the archives. Since 2026-09-28 it is in the heavy tier (`CCE_JEV_HEAVY=1`, about 20 minutes).
+run of the frozen analysis on the archives. Since 2026-09-28 it is in the heavy tier (`CCE_JEV_HEAVY=1`, about 20 minutes). Floats are compared at solver resolution (|Δ| ≤ 1e-5) and everything else exactly: on a Linux runner six reader files differed only in descriptive floats at the 7th–8th decimal (max ≈ 7e-7; different BLAS), with every verdict, selected λ and count identical. On the producing platform (macOS) it is still byte-identical.
 
 ## Distillation round 2: stronger student (owner 「再试一轮更强的学生」 2026-09-28)
 
