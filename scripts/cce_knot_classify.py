@@ -884,6 +884,23 @@ def _wilson(occur, n, z=1.96):
     return [round(max(0.0, c - h), 4), round(min(1.0, c + h), 4)]
 
 
+def _s2_draw_violation(d, ok_keys):
+    """一份 s2 draw 的类型/取值检查。返回违规原因, 合格返回 None。
+    ★ 2026-09-28: 此前只查 knots 是 list 且 key 在分类学里 —— knot 是裸字符串、intensity 是字符串/null/Ellipsis/1.7
+      的 draw 都会被收下, 然后在聚合或写盘时把**整条链**崩掉, 而不是像 s1 那样被重试掉。"""
+    if not isinstance(d, dict) or not isinstance(d.get("knots"), list):
+        return "knots 不是列表"
+    for x in d["knots"]:
+        if not isinstance(x, dict):
+            return "knot 不是对象"
+        if x.get("key") not in ok_keys:
+            return "knot key 不在分类学里"
+        v = x.get("intensity", x.get("weight", 0.0))
+        if isinstance(v, bool) or not isinstance(v, (int, float)) or not 0.0 <= v <= 1.0:
+            return "intensity 不是 [0,1] 内的实数"
+    return None
+
+
 def _stage2_draw(prompt, taxo, tag):
     """一次抽样。失败重试 3 次, 全失败返回 None(由聚合层决定是否致命)。"""
     ok_keys = {k["key"] for k in taxo["knots"]}
@@ -892,17 +909,16 @@ def _stage2_draw(prompt, taxo, tag):
         d = extract_json_robust(content, log_note=f"knot_s2_{tag}")
         # ★ 去掉 `and d["knots"]`: 空列表此前被当成解析失败去重试 ——
         #   模型就算想说「这里读不出人」也说不出口。现在它是合法弃权。
-        if isinstance(d, dict) and isinstance(d.get("knots"), list):
-            if not [x for x in d["knots"] if x.get("key") not in ok_keys]:
-                # 兼容: 模型偶尔仍吐 weight。统一落到 intensity。
-                # ★ 记录垫片是否触发 —— 若模型吐的是和为 1 的 weight(旧 schema),
-                #   那些 draw 与自由 intensity 的 draw **量纲不同**(max~0.4 vs ~0.9),
-                #   却一起进逐坐标中位数。静默量纲混合, 不落盘就永远看不见。
-                d["_weight_shim_fired"] = any("intensity" not in x for x in d["knots"])
-                for x in d["knots"]:
-                    if "intensity" not in x:
-                        x["intensity"] = x.get("weight", 0.0)
-                return d
+        if _s2_draw_violation(d, ok_keys) is None:
+            # 兼容: 模型偶尔仍吐 weight。统一落到 intensity。
+            # ★ 记录垫片是否触发 —— 若模型吐的是和为 1 的 weight(旧 schema),
+            #   那些 draw 与自由 intensity 的 draw **量纲不同**(max~0.4 vs ~0.9),
+            #   却一起进逐坐标中位数。静默量纲混合, 不落盘就永远看不见。
+            d["_weight_shim_fired"] = any("intensity" not in x for x in d["knots"])
+            for x in d["knots"]:
+                if "intensity" not in x:
+                    x["intensity"] = x.get("weight", 0.0)
+            return d
         os.makedirs(RAW_DIR, exist_ok=True)
         with open(os.path.join(RAW_DIR, f"s2_fail_{int(time.time())}_{tag}_{att}.txt"),
                   "w", encoding="utf-8") as f:

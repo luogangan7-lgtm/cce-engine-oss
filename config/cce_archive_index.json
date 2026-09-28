@@ -940,6 +940,54 @@
    "local_path": "archive/36345476433",
    "files": 24,
    "★rebuildable_locally": "是。三个 artifact 全部文件逐件落档(每条腿一个子目录); python3 probes/jev_distill2_vs_retest.py archive/36345476433 可重算(另需 results/jev_distill_teacher.json 与 results/jev_distill2_teacher.json)"
+  },
+  "36315979372": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "accuracy/compare.py",
+    "config/cce_archive_index.json"
+   ],
+   "reason": "CCE Accuracy 回归台运行(非生产)。与 36321201908 同一 G-K 依赖闭包, 判决相反 ⇒ 单次 overall_pass 不稳, 不作回归闸(accuracy/compare.py)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-28",
+   "local_path": "archive/36315979372",
+   "files": 3,
+   "★rebuildable_locally": "是。artifact 两个文件逐件落档"
+  },
+  "36321201908": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "accuracy/compare.py",
+    "config/cce_archive_index.json"
+   ],
+   "reason": "CCE Accuracy 回归台运行(非生产)。与 36321201908 同一 G-K 依赖闭包, 判决相反 ⇒ 单次 overall_pass 不稳, 不作回归闸(accuracy/compare.py)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-28",
+   "local_path": "archive/36321201908",
+   "files": 3,
+   "★rebuildable_locally": "是。artifact 两个文件逐件落档"
+  },
+  "36333005971": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    ".github/workflows/accuracy.yml",
+    "config/cce_archive_index.json",
+    "config/cce_core_manifest.json",
+    "scripts/calibration_framework.py",
+    "tests/test_cce_accuracy_workflow.py"
+   ],
+   "reason": "CCE Accuracy 回归台运行(非生产)。解析器把模型照抄的 `...` 读成 Ellipsis ⇒ gates_result.json 写到一半; 根因修复见 config/cce_core_manifest.json refactor_log JSON_PARSER_REJECTS_NON_JSON_NATIVE_VALUES",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-28",
+   "local_path": "archive/36333005971",
+   "files": 3,
+   "★rebuildable_locally": "是。artifact 两个文件逐件落档; ★ gates_result.json 本身是截断的非法 JSON —— 这正是它要作证的事, 不得修补"
   }
  },
  "negative_test_run_ids": {

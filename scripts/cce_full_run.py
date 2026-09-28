@@ -80,8 +80,13 @@ def run_knot_classify(text_file, context, k, out):
     if r.returncode != 0:
         raise RuntimeError(f"knot_classify rc={r.returncode}: {(r.stderr or '')[-200:]}")
     d = json.load(open(out, encoding="utf-8"))
-    if d["stage1"]["k_ok"] < k:
-        raise RuntimeError(f"K覆盖不足: {d['stage1']['k_ok']}/{k}")
+    st = d["stage1"]
+    # ★ 2026-09-28: 只把**管线丢失**(某个 draw 三次尝试全失败, 什么都没返回)当故障。
+    #   此前是 `k_ok < k` —— 2026-08-19 起 k_ok = 有效 draw 数, 于是任何一次合法弃权都被判成管线故障,
+    #   s1 的 abstain / insufficient_replicates 分支永远走不到。结构闸零调用弃权(k_attempted=0)不是丢失。
+    lost = k - st.get("k_attempted", st["k_ok"])
+    if lost > 0 and not (st.get("abstained") and st.get("k_attempted") == 0):
+        raise RuntimeError(f"管线丢失 {lost}/{k} 个 draw(三次尝试全无返回; 弃权不计在内)")
     return d
 
 
@@ -119,8 +124,10 @@ def reader_baseline(ctx):
 
 
 def _reader_out(d, body):
+    st = d["stage1"]
     return {"file": "reader_baseline.json", "reader_chars": len(body),
-            "tops": d["stage1"]["tops"], "within_js": d["stage1"]["within_js"],
+            "measurement_status": st.get("measurement_status"),   # 读者弃权是读者的状态, 不是本段 FAIL
+            "tops": st.get("tops") or {}, "within_js": st.get("within_js"),
             "knots": [[k["key"], k["weight"]] for k in d["stage2"]["knots"]]}
 
 
@@ -243,8 +250,8 @@ _LAYER_OF_TOP = {"desire": "desire_vec", "need": "need_vec",
 def s1(ctx):
     d = run_knot_classify(ctx["text_file"], ctx["context"], ctx["k"], f"{ctx['outdir']}/s1_readout.json")
     ctx["cce"] = d
-    js = d["stage1"]["within_js"]
     st = d["stage1"]
+    js = st.get("within_js")   # 结构闸零调用弃权的产物里没有这个键
     if st.get("abstained"):
         # ★ 仪器声明这段输入不构成个人表达 —— 合法弃权, 不是失败。
         return {"file": "s1_readout.json", "measurement_status": "abstain",
@@ -387,7 +394,12 @@ def _unscored_guidance(taxo, knot_key):
 def s3(ctx):
     # 纪律: 情绪层禁单模型top(模型间JS=0.164)。单模型运行时只报分布。
     from exp_v4_causal_chain import EMOTIONS
-    vec = ctx["cce"]["stage1"]["layers"]["emotion_vec"]
+    st = ctx["cce"]["stage1"]
+    if st.get("measurement_status") in ("abstain", "insufficient_replicates"):
+        # ★ 2026-09-28: s1 合法弃权 / 有效 draw < 2 ⇒ 情绪分布同样不产出(此前直接索引 layers 而崩, 整条链 complete=false)
+        return {"policy": "withheld", "emotion_distribution": None,
+                "reason": f"s1 measurement_status={st.get('measurement_status')}"}
+    vec = st["layers"]["emotion_vec"]
     dist = sorted(zip(EMOTIONS, vec), key=lambda x: -x[1])[:4]
     return {"policy": "distribution_only(单模型运行)",
             "emotion_distribution": [[l, round(p, 3)] for l, p in dist]}
@@ -656,8 +668,15 @@ def main():
     meta["complete"] = failed is None
     meta["failed_at"] = failed
     json.dump(meta, open(f"{a.outdir}/manifest.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    print(json.dumps(meta, ensure_ascii=False, indent=1))
+    # 日志只印摘要: 公开仓的运行日志任何人可读, 完整 meta(含提交字段与各段产出)只进 manifest.json。
+    print(json.dumps(run_log_summary(meta), ensure_ascii=False, indent=1))
     sys.exit(0 if failed is None else 1)
+
+
+def run_log_summary(meta):
+    return {"submission_id": (meta.get("submission") or {}).get("submission_id"), "mode": meta.get("mode"),
+            "complete": meta.get("complete"), "failed_at": meta.get("failed_at"),
+            "stages": {k: {"status": v.get("status"), "sec": v.get("sec")} for k, v in (meta.get("stages") or {}).items()}}
 
 
 

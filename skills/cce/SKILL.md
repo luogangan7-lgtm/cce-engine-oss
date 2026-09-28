@@ -49,7 +49,7 @@ Reddit 是平台；subreddit/community 是随时间窗口变化的社区上下�
 
 ### 外发 Trust 前置 Gate
 
-运行 `cce_github_client.py run` 会让完整 submission 和派生 outputs 离开本机，进入 GitHub Actions 与 artifact。当前 `origin` 经 `gh repo view --json nameWithOwner,visibility,url` 核实为 `luogangan7-lgtm/cce-engine`、可见性 `PRIVATE`；`PRIVATE` 不等于仅本机，拥有该仓库及 Actions artifact 相应读取权限的 GitHub 用户可以访问。`.github/workflows/cce-submit.yml` 对 submission、逐项输出和聚合结果统一设置 `retention-days: 90`。每次 dispatch 前重新核实并向用户披露实际仓库、可见性、外发数据范围、访问面与 90 天留存。
+运行 `cce_github_client.py run` 会让完整 submission 和派生 outputs 离开本机，进入 GitHub Actions 与 artifact。目标仓 = `cce_github_client.py` 的 `DEFAULT_REPO`（环境变量 `CCE_REPO` 或 `--repo` 可覆盖）；**当前默认是公开仓 `luogangan7-lgtm/cce-engine-oss`，可见性 `PUBLIC`**（2026-08-17 因私仓 Actions 分钟配额迁移）——任何人都能读它的运行日志与 Actions artifact。dispatch 前用 `gh repo view <repo> --json nameWithOwner,visibility` 核实实际目标。入口闸（`scripts/cce_submission.py`，2026-09-28 起）拒收任何非化名身份字段与正文里的真实 `u/…`、`/user/…` 提及。`.github/workflows/cce-submit.yml` 对 submission、逐项输出和聚合结果统一设置 `retention-days: 90`。每次 dispatch 前重新核实并向用户披露实际仓库、可见性、外发数据范围、访问面与 90 天留存。
 
 当前供应链可复现性仍是 **CONDITIONAL**：workflow 使用 `actions/*@vN` 可变 major tag，`requirements.txt`
 使用 `>=` 版本下限而非精确版本/哈希。不得把一次合同测试通过表述为依赖已不可变或供应链已完全审计。

@@ -13,6 +13,7 @@ import urllib.request
 ROOT = os.environ.get("VSE_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 from exp_v4_full_validation import extract_json_robust
+from cce_request_budget import reserve
 
 D = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 KEY = os.environ["MINIMAX_API_KEY"]
@@ -113,10 +114,22 @@ SAMPLE = [x for x in CORPUS if x["id"] not in ANCHOR_IDS]
 MODELS = ["MiniMax-M3", "MiniMax-M2.5", "MiniMax-M2.7", "MiniMax-M2", "MiniMax-Text-01"]
 
 
+# ★ 每次运行的付费请求硬上限(按 HTTP 请求计, 重试也计)。结构上限 = 3 次尝试 ×
+#   (5 模型 × (5 锚例资格考 + 81 条标注) + 81 条事实抽取 + 1 次诊断) = 1536。
+#   上限是常量不是现算: 语料或模型变多 ⇒ main() 开跑前就拒, 由人改这里, 而不是账单自己涨。
+BUDGET_LIMIT = 1600
+BUDGET_ID = "accuracy_gates:" + os.environ.get("GITHUB_RUN_ID", "local")
+
+
+def structural_max_requests():
+    return 3 * (len(MODELS) * (len(ANCHOR_TRUTH) + len(SAMPLE)) + (0 if SKIP_GK2 else len(SAMPLE)) + 1)
+
+
 def call(model, prompt, max_tokens=4000):
     payload = {"model": model, "messages": [{"role": "user", "content": prompt}],
                "max_tokens": max_tokens, "temperature": 0.0}
     for att in range(3):
+        reserve(BUDGET_ID, BUDGET_LIMIT, note=model)   # try 之外: 撞上限必须停, 不能被下面的 except 吞掉
         try:
             req = urllib.request.Request(BASE, json.dumps(payload).encode(),
                                          headers={"Authorization": f"Bearer {KEY}", "Content-Type": "application/json"})
@@ -535,6 +548,8 @@ def admit_annotators(quals):
 
 
 def main():
+    if structural_max_requests() > BUDGET_LIMIT:
+        raise SystemExit(f"结构上限 {structural_max_requests()} 次请求 > 预算 {BUDGET_LIMIT}: 先改 BUDGET_LIMIT 并报估算, 再跑")
     # ── 资格考(协议既有规定; 2026-09-07 起**真的**强制执行) ──
     print("=== 标注者资格考(留一法·锚例 top1≥4/5) ===", flush=True)
     quals = [qualify(m) for m in MODELS]

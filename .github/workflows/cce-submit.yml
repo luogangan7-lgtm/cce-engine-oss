@@ -112,16 +112,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: package
-        env:
-          SUBMISSION_JSON: ${{ github.event_name == 'workflow_dispatch' && inputs.submission_json || toJSON(github.event.client_payload.submission) }}
-          EXPECTED_SUBMISSION_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.submission_id || github.event.client_payload.submission.submission_id }}
+        # ★ 信封从事件文件读, 不经 step env: GitHub 会把 step 的 env 值原样印进(公开仓的)日志,
+        #   2026-09-28 诊断: 整个提交(含身份字段)因此进了公开日志。入口的化名闸在 cce_submission.py。
         run: |
           python3 - <<'PY'
           import json, os
           from pathlib import Path
-          raw = os.environ["SUBMISSION_JSON"]
+          event = json.load(open(os.environ["GITHUB_EVENT_PATH"], encoding="utf-8"))
+          if os.environ["GITHUB_EVENT_NAME"] == "workflow_dispatch":
+              raw, expected = event["inputs"]["submission_json"], event["inputs"]["submission_id"]
+          else:
+              raw = json.dumps(event["client_payload"]["submission"], ensure_ascii=False)
+              expected = event["client_payload"]["submission"].get("submission_id")
           data = json.loads(raw)
-          if data.get("submission_id") != os.environ["EXPECTED_SUBMISSION_ID"]:
+          if data.get("submission_id") != expected:
               raise SystemExit("dispatch submission_id does not match submission envelope")
           Path("submission-input.json").write_text(raw, encoding="utf-8")
           PY

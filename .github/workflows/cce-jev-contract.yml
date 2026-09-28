@@ -51,6 +51,8 @@ permissions:
 
 jobs:
   contract:
+    # 同一次 push 会到两个仓; 只在公开仓跑一次(私仓 Actions 分钟有配额)。
+    if: github.repository == 'luogangan7-lgtm/cce-engine-oss'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:

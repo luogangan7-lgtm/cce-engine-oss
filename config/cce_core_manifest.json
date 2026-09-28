@@ -15,11 +15,11 @@
  },
  "core_files": {
   "config/knot_taxonomy.json": "56a1c1977bf8d18c",
-  "scripts/cce_knot_classify.py": "0a740ba16e80dc54",
+  "scripts/cce_knot_classify.py": "672c70e34f338413",
   "scripts/cce_ksep.py": "ffd5d26a7e0cb29b",
   "scripts/exp_crossmodel_desire.py": "0e0e9d64b48fbade",
   "scripts/exp_v4_full_validation.py": "f934b56b01b6b6b2",
-  "scripts/calibration_framework.py": "9a8651c6d407ef50"
+  "scripts/calibration_framework.py": "ac12522457f196fe"
  },
  "parser_plane": [
   "scripts/cce_case_assemble.py",
@@ -1703,6 +1703,39 @@
     "不得说下游读数不变 —— s1 的情境串变了。"
    ],
    "★审查": "推送前对抗审查(4 视角 + 每条 2 名怀疑者)确认的 P1: 初版不分模式, 会把 subject_chain 的进站回复一律标成首轮 —— 已改为只在冷读模式生效。"
+  },
+  {
+   "date": "2026-09-28",
+   "event": "JSON_PARSER_REJECTS_NON_JSON_NATIVE_VALUES",
+   "file": "scripts/calibration_framework.py",
+   "from_sha": "9a8651c6d407ef50",
+   "to_sha": "ac12522457f196fe",
+   "route": "**纯重构路(第四条路)**: 在全部存量真实模型输出上行为逐条相同, instrument_generation 不变。",
+   "reason": "extract_json_robust 的宽松分支(ast.literal_eval)会把模型照抄模板的 `...` 读成 Ellipsis、`1e999` 读成 inf, json.loads 也收 NaN; 这些值下游 json.dump 要么抛错留半个文件, 要么写出非标准 JSON。2026-09-27 accuracy run 36333005971: 诊断段的 `...` ⇒ gates_result.json 写到一半 ⇒ 对比步 JSONDecodeError。修法: 解析结果先经 JSON 往返(allow_nan=False), 往返不了的候选视为这一候选解析失败, 继续试下一个; 元组等同构值规范成 list。",
+   "behavior_evidence": [
+    "tests/test_cce_accuracy_workflow.py"
+   ],
+   "★行为等价的实测": "旧(HEAD fa794ee)/新两版在仓内全部存量模型输出上逐条回放: archive/**/*.json 与 results/**/*.json 里含 `{` 的字符串 + results/knot_classify_raw/*.txt + results/calibration/json_extract_failures.log, 共 300 条, **300/300 返回值逐条相等**。唯一会变的输入类 = 旧版返回了非标准 JSON 值的输入, 存量里 0 条; 线上见过 1 次(上面那次 run, 其结果本来就写不出来)。",
+   "★这一类输入的行为确实变了": "旧: 返回含 Ellipsis/inf/NaN/set 的 dict(下游只取别的字段时能用, 写盘时崩); 新: 返回 None(调用方走各自的解析失败路径, 如 call_m3_json 的强约束重试)。不得说「所有输入行为不变」—— 只能说「存量真实输出上不变」。",
+   "instrument_hash": "不变(s1/s2 提示词未动); gate_protocol_hash 不变(闸 prompt 未动)。",
+   "★evidence_is_required_because": "「instrument_hash 没变」不足以证明行为没变 —— 解析器不在 instrument_hash 的视野里(它只覆盖 s1/s2 提示词); 行为等价只能靠逐条回放存量真实输出。",
+   "★代价": "旧版会返回非标准 JSON 值的输入, 现在当作解析失败(走调用方各自的重试/失败路径)。存量真实输出里 0 条 ⇒ 既有读数不受影响; 但此后这类输出不再被静默收下, 若某模型频繁照抄 `...`, 表现为解析失败率上升而不是读数变化。"
+  },
+  {
+   "date": "2026-09-28",
+   "event": "S2_DRAW_TYPE_AND_RANGE_VALIDATION",
+   "file": "scripts/cce_knot_classify.py",
+   "from_sha": "0a740ba16e80dc54",
+   "to_sha": "672c70e34f338413",
+   "route": "**纯重构路(第四条路)**: 在全部存量 s2 draw 上行为相同, instrument_generation 不变。",
+   "reason": "_stage2_draw 此前只查 knots 是 list 且 key 在分类学里: knot 是裸字符串 ⇒ x.get 抛 AttributeError 把整条链崩掉; intensity 是字符串/null/越界值 ⇒ 被收下, 在聚合或写盘时崩, 或静默进中位数。改为 _s2_draw_violation(每个 knot 是对象、key 在分类学里、intensity(或垫片前的 weight)是 [0,1] 内的非布尔实数), 违规与解析失败同样处理: 落 raw、重试, 三次都坏返回 None 交聚合层。空 knots 仍是合法弃权。",
+   "behavior_evidence": [
+    "tests/test_cce_s2_draw_validation.py"
+   ],
+   "★行为等价的实测": "archive/ 里全部带 s2 draw_ledger 的产物 22 份、非弃权 draw 110 个: 按新规则会被拒的 **0/110**(knot_vector 全在 [0,1] 内且为数值), weight 垫片触发 0。",
+   "★evidence_is_required_because": "「instrument_hash 没变」不足以证明行为没变 —— 校验逻辑不在提示词里, 哈希看不见它; 只能靠存量 draw 回放与构造的坏 draw 逐类测。",
+   "★代价": "越界/类型错的 draw 以前被静默收下(越界值进逐坐标中位数)或崩链, 现在会多花最多 2 次重试调用, 三次都坏则该 draw 缺席 ⇒ n_ok 变小(n_ok < n_requested 的扣发见诊断 #17, 另案)。存量 0/110 受影响。",
+   "instrument_hash": "不变(提示词未动)。"
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",

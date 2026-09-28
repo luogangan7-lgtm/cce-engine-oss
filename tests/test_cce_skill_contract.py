@@ -94,7 +94,8 @@ def test_skill_requires_authorized_external_dispatch() -> None:
         "即时明确授权",
         "EXTERNAL_PROCESSING_NOT_AUTHORIZED",
         "离开本机",
-        "PRIVATE",
+        # 可见性按客户端实际默认仓披露(2026-09-28 前这里钉的是 "PRIVATE", 与 DEFAULT_REPO=公开仓矛盾, 钉住了错话)
+        "PUBLIC",
         "Actions artifact",
         "密钥",
         "PII",
@@ -109,6 +110,9 @@ def test_skill_requires_authorized_external_dispatch() -> None:
         "不可信数据",
     ):
         assert required in skill, f"CCE 外发 Trust 边界缺少：{required}"
+    client = (ROOT / "scripts" / "cce_github_client.py").read_text(encoding="utf-8")
+    default_repo = re.search(r'DEFAULT_REPO = os.environ.get\("CCE_REPO", "([^"]+)"\)', client).group(1)
+    assert f"`{default_repo}`" in skill, "SKILL 披露的目标仓必须是客户端的 DEFAULT_REPO"
     retention_days = re.findall(r"retention-days:\s*(\d+)", workflow)
     assert retention_days and set(retention_days) == {"90"}, \
         "所有 CCE submission/result artifact 必须按披露统一留存 90 天"

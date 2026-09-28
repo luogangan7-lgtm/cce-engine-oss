@@ -196,6 +196,14 @@ def _log_extract_failure(text, note=""):
         pass
 
 
+def _json_native(obj):
+    """只放行能写成标准 JSON 的值。ast.literal_eval 会把模型照抄的 `...` 读成 Ellipsis、`1e999` 读成 inf,
+    json.loads 也收 NaN —— 这些值往下游 json.dump 时要么抛错留半个文件, 要么写出非标准 JSON。
+    2026-09-27 accuracy run 36333005971: 诊断段里的 `...` ⇒ gates_result.json 写到一半 ⇒ 对比步崩。
+    往返一次: 非 JSON 值抛错(调用方当作这一候选解析失败), 元组等同构值规范成 list。"""
+    return json.loads(json.dumps(obj, ensure_ascii=False, allow_nan=False))
+
+
 def extract_json_robust(text, log_note=""):
     """多级降级 JSON 提取：
     直接 loads → ```json 块 → 平衡括号抽最外层 {} → 畸形修复
@@ -230,18 +238,13 @@ def extract_json_robust(text, log_note=""):
         if cut:
             variants.append(cut)
         for v in variants:
-            try:
-                obj = json.loads(v)
-                if isinstance(obj, dict):
-                    return obj
-            except Exception:
-                pass
-            try:
-                obj = ast.literal_eval(v)
-                if isinstance(obj, dict):
-                    return obj
-            except Exception:
-                pass
+            for parse in (json.loads, ast.literal_eval):
+                try:
+                    obj = _json_native(parse(v))
+                    if isinstance(obj, dict):
+                        return obj
+                except Exception:
+                    pass
 
     _log_extract_failure(text, log_note)
     return None

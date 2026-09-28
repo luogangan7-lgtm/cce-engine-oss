@@ -20,9 +20,9 @@ check_boundary 的做法是: 从识别层的结构化身份字段收全真名, �
 import json
 import os
 import re
+import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ID_FIELDS = {"actor_ref", "author", "username", "handle", "commenter", "op"}
 SKIP_DIRS = {".git", "__pycache__", "node_modules", ".venv"}
 CB = "/Volumes/data/cce-identified-vault/check_boundary.py"
 VENDORED = os.path.join(ROOT, "config", "cce_identity_allowlists.json")
@@ -32,16 +32,11 @@ VENDORED = os.path.join(ROOT, "config", "cce_identity_allowlists.json")
 #   ⇒ 原来的「运行时读」在 CI 必红。而修法**不能**是「CI 上跳过扫描」——
 #   那是静默降级, 保护恰好在权威处消失。
 #   ⇒ 扫描(真正的保护)到处都跑; 与保险库的**漂移检查**只在有保险库的机器上跑。
+# ★ 2026-09-28: 化名规则只有一份实现(scripts/cce_identity.py), 入口闸与本扫描共用 —— 两份会漂。
+sys.path.insert(0, os.path.join(ROOT, "scripts"))
+from cce_identity import ALLOW, ID_FIELDS, PSEUDONYM_PREFIXES, is_pseudonym  # noqa: E402,F401
+
 _V = json.load(open(VENDORED, encoding="utf-8"))
-PSEUDONYM_PREFIXES = tuple(_V["pseudonym_prefixes"])
-ALLOW = set(_V["allow"]) | set(_V["mention_allow"])
-ALLOW |= {"", "None", "null"}
-
-
-def is_pseudonym(v: str) -> bool:
-    tail = v.rsplit("/", 1)[-1].rsplit(":", 1)[-1]
-    return (tail in ALLOW or v in ALLOW
-            or any(tail.startswith(p) for p in PSEUDONYM_PREFIXES))
 
 
 def walk(o, path, out):

@@ -1,9 +1,23 @@
 name: CCE Accuracy
 
 # 准确度回归台: 分类学/prompt/链路任何改动 → 自动跑 G-K 验收并与基线对比
+# ★ 2026-09-28: push 只认 G-K 实际依赖的闭包(run_gates.py/compare.py 的 import 闭包 + 它们读的配置)。
+#   此前是 config/** + scripts/** + accuracy/** ⇒ 改任何脚本都付一次 ~512 次 MiniMax 调用, 且两个仓各付一次。
+#   闭包由 tests/test_cce_accuracy_workflow.py 现算比对, 漏一个依赖或多一个路径都会红。
 on:
   push:
-    paths: ["config/**", "scripts/**", "accuracy/**"]
+    paths:
+      - ".github/workflows/accuracy.yml"
+      - "accuracy/**"
+      - "config/knot_taxonomy.json"
+      - "config/desire_taxonomy.json"
+      - "config/need_taxonomy.json"
+      - "scripts/calibration_framework.py"
+      - "scripts/exp_crossmodel_desire.py"
+      - "scripts/exp_v4_causal_chain.py"
+      - "scripts/exp_v4_full_validation.py"
+      - "scripts/cce_request_budget.py"
+      - "requirements.txt"
   workflow_dispatch:
     inputs:
       note:
@@ -15,8 +29,15 @@ concurrency:
   group: accuracy-${{ github.ref }}
   cancel-in-progress: true
 
+# 不指定 shell 时 GitHub 用 `bash -e`, 没有 pipefail ⇒ `run_gates.py | tail` 崩了也是绿(2026-09-27 run 36333005971)。
+defaults:
+  run:
+    shell: bash
+
 jobs:
   gates:
+    # 同一次 push 会到私仓和公开仓两处; 付费调用只在公开仓跑一次(公开仓 Actions 分钟不计费)。
+    if: github.repository == 'luogangan7-lgtm/cce-engine-oss'
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:

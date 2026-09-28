@@ -91,6 +91,9 @@ def load(source_mutator=None, responses=None, env=None):
                 fn = responses if callable(responses) else (lambda m, p: responses.get(m, ""))
                 mod.urllib.request.urlopen = _make_urlopen(fn, mod)
             mod._OFFLINE_TRIPWIRE = tw
+            # ③ 预算账本换成内存版(2026-09-28 run_gates.call 起每次尝试先 reserve):
+            #   离线「调用」不是真实请求, 记进 results/.request_budget.json 会累积到让本地真跑提前撞上限。
+            mod.reserve = _memory_reserve()
     finally:
         for k, v in saved.items():
             if v is None:
@@ -102,6 +105,18 @@ def load(source_mutator=None, responses=None, env=None):
                 sys.path.remove(p)
     mod._OFFLINE_MUTATED = mutated
     return mod
+
+
+def _memory_reserve():
+    import cce_request_budget as B
+    used = {}
+
+    def reserve(auth_id, limit, n=1, note=""):
+        if used.get(auth_id, 0) + n > limit:
+            raise B.BudgetExceeded(f"(离线装置内存账本) {auth_id} 撞上限 {limit}")
+        used[auth_id] = used.get(auth_id, 0) + n
+        return used[auth_id]
+    return reserve
 
 
 def _make_urlopen(fn, mod):

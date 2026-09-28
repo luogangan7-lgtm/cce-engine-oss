@@ -12,7 +12,7 @@ taxo = json.load(open(os.path.join(os.path.dirname(A), "config", "knot_taxonomy.
 print(f"## CCE 准确度回归 · taxonomy v{taxo['version']}\n")
 if not os.path.exists(cur_p):
     print("**本次未产出结果**(gate 脚本失败, 见上一步日志)")
-    raise SystemExit
+    raise SystemExit(1)
 
 cur = json.load(open(cur_p, encoding="utf-8"))
 base = json.load(open(base_p, encoding="utf-8"))
@@ -57,5 +57,8 @@ for k in dict.fromkeys(list(b) + list(c)):
 conf = cur.get("混淆诊断", {}).get("top_confusion_pairs")
 if conf:
     print(f"\n**主要混淆对**: " + ", ".join(f"`{k}`×{v}" for k, v in list(conf.items())[:5]))
+print("\n> ★ `overall_pass` 是**单次**运行的判决, 不是回归闸: 同一闭包下相邻运行已见 true/false 交替"
+      "(2026-09-27 runs 36315979372=true · 36321201908=false), 本工作流因此不按它红绿。"
+      "要当闸用, 先用重复运行量出噪声带。")
 print("\n> 判读: κ 与 top2命中 升高 = 分类学更可复现; JS距离 降低 = 标注者分布更一致。"
       "任一指标显著下降说明本次改动伤了准确度, 应回滚。")

@@ -15,6 +15,7 @@ from cce_response_chain import build_dispatch, validate_response_source
 from cce_platform_adapter import validate_platform_context
 from cce_window_chain import validate_chain
 from cce_contract import validate_context_snapshot
+from cce_identity import ID_FIELDS, is_pseudonym, real_mentions
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -170,6 +171,25 @@ def _repo_json(value: dict[str, Any], inline_key: str, path_key: str,
     return result
 
 
+def _identity_invariant(node: Any, errors: list[str], path: str = "$") -> None:
+    """只许化名(2026-09-28 起在入口强制): 任何身份字段必须是化名, 任何文本里不得有真实的 u/xxx 或 /user/xxx。
+    报错只给路径与计数, 不回显名字 —— 报错会进公开日志。"""
+    if isinstance(node, dict):
+        for key, item in node.items():
+            sub = f"{path}.{key}"
+            if key in ID_FIELDS and isinstance(item, str) and not is_pseudonym(item):
+                errors.append(f"{sub} must be a pseudonym (user_N / self_op / redacted_N / creator_N); real handles are rejected at intake")
+            else:
+                _identity_invariant(item, errors, sub)
+    elif isinstance(node, list):
+        for i, item in enumerate(node):
+            _identity_invariant(item, errors, f"{path}[{i}]")
+    elif isinstance(node, str):
+        n = len(real_mentions(node))
+        if n:
+            errors.append(f"{path} mentions {n} non-pseudonymous user handle(s) (u/… or /user/…); replace them with user_N before submitting")
+
+
 def validate_submission(value: dict[str, Any]) -> dict[str, Any]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -304,6 +324,7 @@ def validate_submission(value: dict[str, Any]) -> dict[str, Any]:
     #   矩阵为空 → 下游跑 0 个 job → 打包却「成功」。2026-09-03 实际发生过。
     if profile in {"outbound_post", "outbound_reply", "media_ingest"} and not normalized_items:
         errors.append(f"profile={profile} 规范化出 0 个 item —— 打包不得静默产出空矩阵")
+    _identity_invariant(value, errors)
     return {"ok": not errors, "errors": errors, "warnings": warnings,
             "normalized": {"kind": "cce.normalized_submission.v1", "schema_version": SCHEMA_VERSION,
                 "submission_id": value.get("submission_id"), "profile": profile,

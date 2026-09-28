@@ -25,7 +25,7 @@
    "artifact_contract": null,
    "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用",
    "retired_at": "2026-09-02",
-   "retired_note": "owner 裁定摘除其 cce_full_run 调用(第二条通往 complete 的路)。工作流本身保留: 旧调用方会拿到一句明确的退役提示并 exit 1, 而不是「workflow not found」。两个 mode 本来就在 prepare.py 前置被拒, 影响面为零。"
+   "retired_note": "owner 裁定摘除其 cce_full_run 调用(第二条通往 complete 的路)。工作流本身保留: 旧调用方会拿到一句明确的退役提示并 exit 1, 而不是「workflow not found」。两个 mode 本来就在 prepare.py 前置被拒, 影响面为零。 2026-09-28 起连投料也不做(此前退役后仍把载荷经 step env 印进公开日志)。"
   },
   ".github/workflows/reply.yml": {
    "class": "compatibility",
@@ -34,7 +34,9 @@
    "production_complete_allowed": false,
    "★emits_complete_today": false,
    "artifact_contract": null,
-   "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用"
+   "artifact_contract_why": "非生产类, 未声明产物契约; 其产物不得当生产读数引用",
+   "retired_at": "2026-09-28",
+   "retired_note": "reader/draft 原文经 ${{ inputs.* }} 展开进 run 脚本 ⇒ 公开日志印全文且是 shell 注入口。回复测量由 cce-submit.yml 的 outbound_reply 承担, 本工作流 2026-08-09 起未被调用, 影响面为零。"
   },
   ".github/workflows/replybatch.yml": {
    "class": "compatibility",
