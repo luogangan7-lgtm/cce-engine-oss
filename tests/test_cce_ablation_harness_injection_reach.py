@@ -284,7 +284,7 @@ def test_reverse_without_sys_modules_the_consumer_binds_back_to_baseline():
     assert reached is None, "★ 注册之后消融仍没到达 —— 通道没接上"
     assert bound_back is not None, (
         "★ 反向没见红: 不注册 sys.modules 时消融竟然也到达了 —— 这条闸验不到 CE-21(c)")
-    assert os.path.basename(bound_back) == "k1_reliability_verdict.json", \
+    assert os.path.basename(bound_back) == "k1_top1_k3_verdict.json", \
         "★ 不注册时拿到的不是磁盘原件那条判定路径: %r" % bound_back
     _RED.append(("不注册 sys.modules",
                  "cce_k1_status.verdict_path_for(%s): 不注册 → %s(磁盘原件) · 注册 → None(消融真的到了)"
@@ -381,7 +381,7 @@ def test_noop_control_produces_no_false_positive():
     _, k1 = _k1_chain()
     with H.as_import({"cce_knot_classify": kc_noop}):
         noop = k1.verdict_path_for(INST_INHERITED)
-    assert noop is not None and os.path.basename(noop) == "k1_reliability_verdict.json", \
+    assert noop is not None and os.path.basename(noop) == "k1_top1_k3_verdict.json", \
         "★ 伪阳性: 注册一个未变异的模块就让判定扣发了"
 
 

@@ -146,6 +146,9 @@ outbound_reply
 subject_chain
 ```
 
+> ★ 2026-09-29 更正(文档增量对照): 现为**四个** —— 另有 `media_ingest`(2026-09-03 进生产)。
+> 真相源是 `config/cce_submission_contract_v1.json` 的 profiles 键, 不是本段。2026-09-28/29 四档各跑一次 canary 全过(见 `config/cce_archive_index.json`)。
+
 新生产集成必须走统一提交入口。
 
 兼容工作流或历史工作流不应继续承担新生产功能。
@@ -207,6 +210,8 @@ envelope.items[i]
 │                                                          【进测量】
 ├─ context.declaration ─► items.context_decl ─► run/context_decl.json
 │     └─► s0  已声明的面直接采用，不再让模型读出（声明 > 读出 > 未知）
+│              ★ 2026-09-29 更正: 现为四态「已声明 > 结构冷读 > 读出 > 未知」; 读出后端 = TypeSafe Jev,
+│                失败回退 MiniMax 并在聚合 manifest 列入 degraded(scripts/cce_full_run.py s0)
 │                                                          【进测量】
 ├─ guard_profile ───────► run/guard_profile ──► s4  合规闸档位
 │                                                          【进测量】
@@ -223,6 +228,8 @@ envelope.items[i]
 │     └─► 主链**不读**。仅 `scripts/reply_loop.py` 使用，
 │         而该步在 workflow 里挂 `if: ... && inputs.with_alignment`，**默认关**。
 │         ★ 这解释了契约里 `reader_baseline` 为什么从不执行 —— workflow 里根本没有这一步。
+│         ★ 2026-09-29 更正: 已不成立。reply 链自 2026-08-18 起有 `reader_baseline` 段(与 s1 并发),
+│           读者读数过同一道 within_js 闸并进出口闸台账(scripts/cce_full_run.py)
 │                                                          【不进链路】
 │
 └─ job_id ──────────────► items.ref_tag ──────► run/ref_tag
@@ -303,6 +310,9 @@ chain_trace   = pvs[0]              ← **单次抽样**
 `within_js` 就是这台仪器的**自测噪声底**。它每次都算、每次都写进 manifest，
 但**没有任何 gate 使用它** —— 现有的唯一动作是 `high_divergence_flag`（阈值 0.25），
 且该阈值在实测中几乎不触发。
+
+> ★ 2026-09-29 更正: 已不成立。`scripts/cce_full_run.py` 的 `WITHIN_JS_MAX` 逐层扣发超噪声底的 top(s1 与读者基线同一道闸),
+> 存档 63 份读数的逐层扣发率见 `scripts/cce_production_status.py` 现算行。
 
 **[MEASURED] n=29 个真实 item（2026-08-17/18 全部生产与测试 run）**
 
@@ -5588,6 +5598,7 @@ G-K1/2/3 真跑过之后 caveat 还在，就成了对已验收结论的错误降
 个体≠广播对象、群体优化以 Coverage 为中心），当前链路里**没有可注入的违例**，硬造一个闸只会是恒绿装饰。
 
 **发现的仓外风险**：本架构文档位于 `~/Downloads/`，**不在任何版本控制内**，5529 行的唯一副本。
+（★ 2026-09-29 更正: 已解 —— 本文档自 2026-09-03 起在 `docs/` 下受版本控制。）
 本次追加前已另存备份。建议纳入 `cce-engine/docs/` 或 vault。
 
 ---

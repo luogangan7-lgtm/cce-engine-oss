@@ -66,7 +66,8 @@ def phase_b(it, outdir):
     b = readout(draft, it["context"] + "(我方草稿/待验证侧)", 3, "B_" + it["tag"], outdir)
     ak = {x["key"]: x["weight"] for x in a["stage2"]["knots"]}
     bk = {x["key"]: x["weight"] for x in b["stage2"]["knots"]}
-    ka = knot_align(ak, bk, draft, mode="reply")
+    ka = knot_align(ak, bk, draft, mode="reply",
+                    instrument_hash=(a["stage2"].get("instrument") or {}).get("instrument_hash"))
     layers = {L: layer_reach(a["stage1"]["layers"][L], b["stage1"]["layers"][L], lab)
               for L, lab in LAYERS.items()}
     misses = [r["dim"] for L in layers.values() for r in L["逐维"] if not r["触达"]]

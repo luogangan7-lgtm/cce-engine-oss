@@ -27,7 +27,7 @@ def fake_readout(text, context, k, tag, outdir):
             "stage2": {"knots": [{"key": "display", "weight": 1.0}]}}
 
 
-def fake_align(a, b, text, mode="post"):
+def fake_align(a, b, text, mode="post", instrument_hash=None):
     return {"alignment_score": 1.0, "resonance": 1.0, "dissolution": 0.0, "detail": []}
 
 

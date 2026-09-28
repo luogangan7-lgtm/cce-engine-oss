@@ -1,0 +1,72 @@
+{
+ "block": "K1_TOP1_ON_K3_INSTRUMENT_MULTITEXT",
+ "measured_at": "2026-09-03",
+ "judged_at": "2026-09-29",
+ "instrument_hash": "565470cf26c16d01",
+ "prereg": "tests/data/phase2/k1_v2_multitext_prereg.json",
+ "raw_rows": "tests/data/phase2/k1_v2_checkpoint.jsonl",
+ "★source": "复用 K1_RELIABILITY_V2_MULTITEXT_GEN4 的 40 条 raw draw, **零新增调用**; 由 probes/k1_top1_multitext.py 现算",
+ "★criterion_pre_exists": "「top-1 一致 >= 7/8」写在 k1_v2_multitext_prereg.json 的 criterion.per_text 里(probes/k1_gate.judge 五项之一, 测量前冻结); 那次只判了 intensity/weight 两层, top-1 这一项今天补判, 判据一字未改",
+ "n": 8,
+ "texts": 5,
+ "checks": [
+  {
+   "name": "n >= 8 (展示项)",
+   "pass": true,
+   "value": "8"
+  },
+  {
+   "name": "top-1 一致 >= 7/8",
+   "pass": true,
+   "value": "5/5 文本达标; 8/8, 8/8, 8/8, 8/8, 8/8; 非退化: 3 种众数"
+  },
+  {
+   "name": "逐对容差一致 A(0.1) >= 0.95 (intensity, K1-v2 同批 5 文本)",
+   "pass": false,
+   "value": "0/5 文本 (判定 INSTRUMENT_WIDE_FAIL, 见 k1_v2_multitext_verdict.json)"
+  }
+ ],
+ "verdict": "TOP1_USABLE",
+ "per_text": {
+  "050f0f2403f7": {
+   "n": 8,
+   "mode": "pain_seek",
+   "same_as_mode": 8,
+   "pass": true
+  },
+  "093c73613279": {
+   "n": 8,
+   "mode": "reward",
+   "same_as_mode": 8,
+   "pass": true
+  },
+  "0d0411f957e7": {
+   "n": 8,
+   "mode": "belong",
+   "same_as_mode": 8,
+   "pass": true
+  },
+  "1aa601bf5633": {
+   "n": 8,
+   "mode": "reward",
+   "same_as_mode": 8,
+   "pass": true
+  },
+  "2eca26909ed2": {
+   "n": 8,
+   "mode": "reward",
+   "same_as_mode": 8,
+   "pass": true
+  }
+ },
+ "degeneracy": {
+  "distinct_modes": 3,
+  "pass": true,
+  "rule": "5 个文本的 top-1 众数至少要有 2 种取值 —— 恒返回同一个结也会满分"
+ },
+ "★replaces": "此前 k=3 的 top-1 路由到 k1_reliability_verdict.json(v1, **单文本**)。那份文件保留作历史; 路由改指本文件(5 文本 + 非退化)。",
+ "★k5_for_comparison": {
+  "instrument": "0e9ca1d4e7a2f180",
+  "file": "tests/data/phase2/k1_top1_k5_verdict.json"
+ }
+}

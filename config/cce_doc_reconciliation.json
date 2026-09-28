@@ -380,5 +380,18 @@
   "★count_is_parse_dependent": "★ 我最初写了「562 个」这个精确数, 复核时三种算法给出 562/564/569 —— 差别来自 §1 算不算、`# 19.5` 的 text 块归到哪一节、围栏语言标记怎么认。**引用一个自己复现不出来的精确数是错的**, 已改为量级。教训与本节主线同源: 数字要么能复算, 要么别当精确值引用。"
  },
  "doc_path": "docs/CCE_full_architecture_workflow_parameters_v1.md",
- "doc_lines_at_reconcile": 5202
+ "doc_lines_at_reconcile": 6333,
+ "incremental_reconciliation": {
+  "at": "2026-09-29",
+  "scope": "旧对照(2026-09-02, 5202 行快照)未覆盖的部分: §2.4.1–2.4.5 的具体断言、§19.5.x 日志(§19.5.47–68 晚于旧对照)、§44.9–44.16",
+  "result": {
+   "TRUE": 27,
+   "STALE": 14,
+   "FALSE": 0
+  },
+  "corrected_in_place": "§2 的现状断言: 生产 profile 数(3→4)、s0 状态与后端(Jev + 回退留痕)、reader_baseline「从不执行」、within_js「没有 gate 使用」、文档「不在版本控制」—— 各处原文保留, 紧跟一条 ★ 2026-09-29 更正",
+  "left_as_dated_history": "其余 STALE 在带日期的测量/核对日志里(CI 测试清单下限、prepare.py 行号、分叉计数、机制登记表条数、仪器哈希 0e9c…/5654…、归档计数): 它们描述的是当日状态, 不改写; 现状以 config/ 与 scripts/ 的真相源为准",
+  "machine_checks": "27 条 TRUE 里的主要断言已有对应测试守(如 s4 接 P7 闸 → tests/test_cce_single_top1.py; 设计门在密钥前 → tests/test_cce_preflight_wired.py; 读数白名单 → tests/test_cce_usable_routing.py); 本次未新增闸",
+  "detail": "Humaux 记忆 [research] CCE 架构文档增量对照(2026-09-29)"
+ }
 }

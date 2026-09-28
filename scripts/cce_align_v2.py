@@ -106,7 +106,7 @@ def dissolve_hit(knot, text, votes=3):
     return hits[len(hits) // 2], (evs[0] if evs else "")
 
 
-def score(aud_knots, post_knots, text, theta=None, detect=True, mode="post"):
+def score(aud_knots, post_knots, text, theta=None, detect=True, mode="post", instrument_hash=None):
     """aud_knots/post_knots: {knot: weight} 或 [[knot,weight],...]
 
     mode="post": 推动族求共鸣(稿件是否呈现同一结) + 阻挡族求拆除。
@@ -145,7 +145,8 @@ def score(aud_knots, post_knots, text, theta=None, detect=True, mode="post"):
     try:
         from cce_k1_status import knot_readout_usable
         _ok, _why = knot_readout_usable(
-            "weight", instrument_hash=os.environ.get("CCE_INSTRUMENT_HASH", "565470cf26c16d01"))
+            "weight", instrument_hash=(instrument_hash or os.environ.get("CCE_INSTRUMENT_HASH")
+                                       or "565470cf26c16d01"))   # 2026-09-29: 优先用调用方读数自己的仪器
     except Exception as _e:          # 闸不可用 = 不可用, 不是通过
         _ok, _why = False, f"读数层可用性无法确定({type(_e).__name__}) —— 不降级放行"
     out = {"alignment_score": round(total, 4),

@@ -35,7 +35,10 @@ import json
 import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-K1_VERDICT = os.path.join(ROOT, "tests", "data", "phase2", "k1_reliability_verdict.json")
+# ★ 2026-09-29 (诊断 #2): k=3 的 top-1 由 v1 **单文本**判定改为 K1-v2 同批 **5 文本 + 非退化**判定(零新增调用,
+#   probes/k1_top1_multitext.py 由 40 条已采 raw draw 按测量前冻结的「top-1 一致 >= 7/8」现算)。判决未变(仍可用), 依据从 1 个文本变成 5 个。
+#   v1 文件 k1_reliability_verdict.json 保留作历史与测试夹具。
+K1_VERDICT = os.path.join(ROOT, "tests", "data", "phase2", "k1_top1_k3_verdict.json")
 
 # ★ 2026-09-04: 由「单一判定文件」改为**按仪器路由**。
 #   这**不是**放松「标定不可跨仪器搬」—— 恰恰相反: 每台仪器必须有**它自己的**预注册判定,

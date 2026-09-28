@@ -112,7 +112,7 @@ def main():
     _inst = (a.get("stage2", {}).get("instrument") or {}).get("instrument_hash") if isinstance(a, dict) else None
     _inst = os.environ.get("CCE_INSTRUMENT_HASH") or _inst or INSTRUMENT_HASH
     _w_ok, _w_why = knot_readout_usable("weight", instrument_hash=_inst)
-    ka = knot_align(a_knots, b_knots, draft, mode="reply")
+    ka = knot_align(a_knots, b_knots, draft, mode="reply", instrument_hash=_inst)
     ka["★usable"] = _w_ok
     if not _w_ok:
         ka["★why_not_usable"] = _w_why + (
@@ -124,7 +124,7 @@ def main():
     _top1 = max(a_knots, key=a_knots.get) if a_knots else None
     top1_align = None
     if _top1:
-        _t = knot_align({_top1: 1.0}, {}, draft, mode="reply")
+        _t = knot_align({_top1: 1.0}, {}, draft, mode="reply", instrument_hash=_inst)
         _ph_ok, _ph_why = playbook_hit_usable(instrument_hash=_inst)
         top1_align = {"reader_top1": _top1, "playbook_hit": _t["alignment_score"],
                       "★usable": _ph_ok,

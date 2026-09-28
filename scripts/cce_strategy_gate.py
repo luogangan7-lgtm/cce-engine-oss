@@ -38,7 +38,8 @@ CITE = re.compile(r"\[\[mech:([a-z0-9_]+)\]\]")
 #   [[knot_delta:<key>]]           —— 跨稿强度比较(「A 稿 display 高于 B 稿」)
 KNOT_TOP = re.compile(r"\[\[knot:([a-z0-9_]+)\]\]")
 KNOT_INTENSITY = re.compile(r"\[\[knot_(intensity|delta):([a-z0-9_]+)")
-K1_VERDICT = os.path.join(ROOT, "tests", "data", "phase2", "k1_reliability_verdict.json")
+# 与 cce_k1_status 同一份判定(tests/test_cce_usable_routing.py 守「两个消费者读同一份」); 2026-09-29 起为 k=3 的 5 文本 top-1 判定
+from cce_k1_status import K1_VERDICT  # noqa: E402
 
 
 def check_citations(text):
