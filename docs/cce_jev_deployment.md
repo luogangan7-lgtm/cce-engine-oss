@@ -322,7 +322,7 @@ Minor notes:
 * Three teacher rows have a stored `choice` that differs from the argmax of their distribution. This only affects the drift description; q_E uses the distributions.
 * The frozen analysis script's header docstring still says "tie < 1e-9, position mod 7". The code and the prereg use 1e-6 and group order mod 7.
 
-Recompute gate: `CCE_JEV_HEAVY=1 pytest tests/test_cce_jev_distill2_head.py -k recompute` reruns the frozen analysis in a clean worktree of HEAD and requires byte-identical reader files and summary. It is opt-in because it takes about 1–1.5 h. It passed once on 2026-09-28 (7,041 s locally, worktree at 9620d89); the record is `results/jev_distill2_recompute_2026-09-28.json`. On CI the heavy tier (both recompute gates and the synthetic end-to-end tests) runs only through the manual workflow `.github/workflows/cce-jev-heavy.yml`, not in the production contract job.
+Recompute gate: `CCE_JEV_HEAVY=1 pytest tests/test_cce_jev_distill2_head.py -k recompute` reruns the frozen analysis in a clean worktree of HEAD and requires byte-identical reader files and summary. It is opt-in because it takes about 1–1.5 h. It passed once on 2026-09-28 (7,041 s locally, worktree at 9620d89); the record is `results/jev_distill2_recompute_2026-09-28.json`. On CI the heavy tier (the round-1 recompute and both synthetic end-to-end tests; the round-2 recompute stays local because it exceeds a standard runner) runs only through the manual workflow `.github/workflows/cce-jev-heavy.yml`, not in the production contract job.
 
 ## What runs where
 

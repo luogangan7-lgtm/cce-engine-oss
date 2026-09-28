@@ -11,11 +11,19 @@ on:
 permissions:
   contents: read
 
+# ★ 第二轮完整重算(test_committed_round2_results_recompute_from_the_archive)不在这里: 本机 9 进程约 2 h,
+#   标准 runner 4 核只能开 3 进程, 估计超过作业时限 —— 它只在本机跑, 结果落 results/jev_distill2_recompute_<日期>.json。
 jobs:
   heavy:
     if: github.repository == 'luogangan7-lgtm/cce-engine-oss'
     runs-on: ubuntu-24.04
-    timeout-minutes: 240
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - "tests/test_cce_jev_distill_head.py"
+          - "tests/test_cce_jev_distill2_head.py -k end_to_end"
     env:
       PYTHONDONTWRITEBYTECODE: "1"
       CCE_JEV_HEAVY: "1"
@@ -29,4 +37,4 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - name: Heavy tier (must run, none skipped)
-        run: python -m pytest -q -p no:cacheprovider -rs tests/test_cce_jev_distill_head.py tests/test_cce_jev_distill2_head.py
+        run: python -m pytest -q -p no:cacheprovider -rs ${{ matrix.target }}
