@@ -553,11 +553,8 @@ def items() -> list[dict]:
                 "证据": ("config/cce_archive_index.json policy.future_runs 已改写为「目标不是现状」。归档闸只查仓里被引用的 run_id, "
                          "不查实际发生过的 run ⇒ 绝大多数生产 run 既未归档也未入册; 最早一批 artifact 2026-11-15 起过期。"
                          "★ 接线时含身份的 run 必须走 RESTRICTED_OFFTREE(保险库), 不得进仓库树。")})
-    # ★ 2026-09-28 诊断 #29 的延伸: 两个已知 run 的公开副本已删; 全量无名扫描又查出一批。清单只在本地保险库, 这里不写 run id(写了就是给公开仓指路)。
-    out.append({"类": BLOCKED,
-                "项": "公开仓另有一批历史 run 的 artifact/日志含真实 handle —— 已逐字节备份进保险库, 删除公开副本待 owner 点头",
-                "证据": ("2026-09-28 全量无名扫描(212 个未过期 artifact + 188 个 run 日志, 只输出 run id/路径/计数)。"
-                         "入口闸(scripts/cce_submission.py)自 2026-09-28 起拦住新的; 存量需删。删除是破坏性操作 ⇒ 卡在 owner 裁定(是否删除这批公开副本)。")})
+    # ★ 2026-09-28: 「公开仓历史 run 含真实 handle」一项已解: owner「同意删除」后 7 个 run 的公开 artifact 与日志全删,
+    #   证据登在 config/cce_archive_index.json 各行的 public_copies_cleared, 由归档闸 ⑤ 守。清单只列未完成的事, 故移除。
 
     # ⑨ 2026-09-10 候选代那两轮留下的三件 —— **从留档现读, 不硬编码状态**
     #    ★ 这三件本来一件都没进清单, 是我口述报给 owner 的。「还差什么不由我口述」这条铁律

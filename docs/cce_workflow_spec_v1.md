@@ -246,7 +246,7 @@ GitHub artifact 只保 90 天，且公开仓的 artifact **任何人可下载**�
 
 | 存放处 | 内容 | 访问 |
 |---|---|---|
-| GitHub artifact 与运行日志（公开仓） | 90 天内的运行产物与日志。**应当**只含去标识化内容：自 2026-09-28 起由入口闸（`scripts/cce_submission.py`，身份字段必须是化名、正文不得有真实 `u/…`/`/user/…`）保证；此前的运行曾有真实 handle 进入 artifact 与日志（已删一批，余者待删，见 `config/cce_archive_index.json` 的 `public_copies_cleared`） | 公开可下 |
+| GitHub artifact 与运行日志（公开仓） | 90 天内的运行产物与日志。**应当**只含去标识化内容：自 2026-09-28 起由入口闸（`scripts/cce_submission.py`，身份字段必须是化名、正文不得有真实 `u/…`/`/user/…`）保证；此前的运行曾有真实 handle 进入 artifact 与日志（2026-09-28 全量扫描后 7 个 run 的公开副本已全部删除，备份在本地保险库，证据见 `config/cce_archive_index.json` 的 `public_copies_cleared`） | 公开可下 |
 | Supabase Postgres | 运行与产物的永久归档、识别态快照 | 仅 `service_role` |
 | 本机 vault（git 之外） | 化名↔真名映射、改写前 bundle | 不联网 |
 
