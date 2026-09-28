@@ -38,6 +38,7 @@ jobs:
       - name: 跑探针
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}      # 2026-09-28: s0 读出后端 = Jev(生产同一 secret); 探针 jev_secret_check 核上线
           PYTHONDONTWRITEBYTECODE: "1"
         run: |
           set -euo pipefail
