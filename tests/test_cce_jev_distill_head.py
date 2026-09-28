@@ -188,9 +188,9 @@ def test_committed_distill_results_recompute_from_the_archive(fresh_run, tag):
     rel = "results/jev_distill_summary.json" if tag == "summary" else f"results/jev_distill_{tag}_vs_retest.json"
     committed = json.loads((ROOT / rel).read_text(encoding="utf-8"))
     fresh = json.loads((fresh_run / ("summary.json" if tag == "summary" else f"r_{tag}.json")).read_text(encoding="utf-8"))
-    # ★ 2026-09-28: 此前是逐字节相等。在 CI(Linux/OpenBLAS)上 6 个读者文件在描述性浮点(LOO-CE 等)的第 7–8 位不同
-    #   (最大 |Δ|≈7e-7), 判决、选中的 λ、计数全部一致 —— 那是求解器分辨率在两种 BLAS 下的差, 不是结果变了。
-    #   ⇒ 浮点按求解分辨率比(|Δ| ≤ 1e-5), 其余(判决/标签/λ/计数/字符串)逐字相等; 在产出平台(macOS)上仍逐字节相等。
+    # ★ 2026-09-28: 浮点按求解分辨率比(|Δ| ≤ 1e-5), 其余逐字相等。★ 这道闸只在产出平台(macOS)成立:
+    #   Linux runner 上弱正则近可分拟合的端点随 BLAS 变(头权重差到 0.5、描述量差到 1e-3), 不是分辨率级的差。
+    #   (我先前据截断的 diff 写过「判决全同」—— 那是没核实的外推, 已更正; 判决层跨平台一致性未核。)
     bad = _diff_beyond_solver_resolution(fresh, committed)
     assert not bad, bad[:5]
     if tag != "summary":
