@@ -196,3 +196,24 @@ def test_leg_preconditions_catch_a_foreign_adapter_or_a_wrong_layer_plan(tmp_pat
         e = H.leg_errors(m, *H.load_leg(run, m)[:4], H.load_leg(run, m)[4], pre, run)
         assert any(needle in x for x in e), (needle, e)
     rp.write_text(json.dumps(good), encoding="utf-8")
+
+
+ROUND2_RUN = "36345476433"                                           # 第二轮特征 run(permit eval-distill2-2026-09-28-1)
+
+
+@pytest.mark.skipif(not __import__("os").environ.get("CCE_JEV_HEAVY"), reason="完整第二轮重算约 1–1.5 小时(9 进程); 设 CCE_JEV_HEAVY=1 才跑")
+def test_committed_round2_results_recompute_from_the_archive():
+    """已提交的四个读者与汇总 == 冻结分析脚本在 HEAD 的干净检出(临时 git worktree)里对归档 run 的完整重算; 不碰主工作区的 results/。"""
+    import shutil, subprocess, sys, tempfile
+    names = [f"results/jev_distill2_{t}_vs_retest.json" for t in ("P", "S1", "S2", "S3")] + ["results/jev_distill2_summary.json"]
+    wt = pathlib.Path(tempfile.mkdtemp()) / "wt"
+    subprocess.run(["git", "worktree", "add", "--detach", str(wt), "HEAD"], cwd=ROOT, check=True, capture_output=True)
+    try:
+        committed = {n: subprocess.run(["git", "show", f"HEAD:{n}"], cwd=ROOT, check=True, capture_output=True).stdout for n in names}
+        r = subprocess.run([sys.executable, "probes/jev_distill2_vs_retest.py", f"archive/{ROUND2_RUN}"], cwd=wt, capture_output=True, text=True)
+        assert r.returncode == 0, r.stderr[-2000:]
+        for n in names:
+            assert (wt / n).read_bytes() == committed[n], n
+    finally:
+        subprocess.run(["git", "worktree", "remove", "--force", str(wt)], cwd=ROOT, capture_output=True)
+        shutil.rmtree(wt.parent, ignore_errors=True)

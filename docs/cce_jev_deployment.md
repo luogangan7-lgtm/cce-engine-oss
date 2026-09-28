@@ -238,6 +238,92 @@ What this does **not** show: that Jev cannot be distilled in general. The featur
 twice. Recompute gate: `tests/test_cce_jev_distill_head.py` requires every committed reader file and the summary to equal a fresh
 run of the frozen analysis on the archives.
 
+## Distillation round 2: stronger student (owner 「再试一轮更强的学生」 2026-09-28)
+
+The design came from three sources:
+
+* a web research pass (GPT Pro);
+* a three-way design panel (hidden-state probe / convention prompt / evidence-first) with a synthesis judge;
+* an adversarial pre-freeze review, whose 5 P1 findings were fixed and 6 of 6 mutations caught.
+
+Pre-registration `tests/data/jev_distill2_prereg.json` was frozen and pushed in `850d2a7` before any round-2 teacher reading or feature.
+
+| step | where | facts |
+|---|---|---|
+| teacher | `probes/jev_distill2_teacher.py`, local API calls | J3 (42 exam) → R2 (66 training) → J4 (42 exam): 150/150 ok under a cumulative cap of 170, 0 retries, ~$0.008; read before the feature run was dispatched, committed in `d3b44b3` |
+| features | https://github.com/luogangan7-lgtm/cce-engine-oss/actions/runs/36345476433 @ `850d2a7`, permit `eval-distill2-2026-09-28-1`, archived `archive/36345476433/<model_key>/` | 599 rows per leg (exam suite 54 + training 66), 156 / 164 min in-container, peak RSS 8.6 / 9.3 GiB of the 12 GiB limit. The prompt is unchanged, so every row_sha256 equals the round-1 archives; the letter logits differ from them by at most 2.3e-4. New `export_hidden` keeps the last-token state after blocks 18/27 (Qwen3-4B) and 16/24 (Qwen3.5-4B) plus the scored final state. `experiments/jev/hidden_export.py` writes only span coordinates of the 108 main posts (z-scored, SVD, ~2.7 MB): no raw vectors. |
+| analysis | `probes/jev_distill2_vs_retest.py`, local numpy/scipy on the archived numbers, 78 min on 9 processes | 0 precondition errors, all fits converged, 50/50 rerun pairs pass |
+
+The summary's `teacher2_sha256` is the sha of the teacher *output* file; the teacher *script* pin is in the prereg. Both legs report `semantic_acceptance` FAILED on 1 of 9 asserted smoke questions — identical to the round-1 exam run and not a precondition of this test. The single-use permit's consumed tag points at `850d2a7`.
+
+What the analysis fits:
+
+* **Primary student P:** per-facet multinomial logistic regression on both models' letter log-softmax plus the 6 span-coordinate blocks plus a training-post offset. The intercept is penalised, so the problem is strictly convex.
+* **How P is evaluated:** leave-one-post-out on the 42, with the 66 pooled in; the near-duplicate exam pair is left out together. Settings are chosen from 126 configurations by inner 7-fold Brier score.
+* **Targets:** today's Jev soft labels.
+* **Secondary readers:** S1 uses letters only, S2 uses J1 hard targets, S3 is transfer only.
+
+d(S, J1) / d(S, J2) out of 42. Round 1 is repeated in the last column for reference.
+
+| facet | P (primary) | S1 letters | S2 J1 targets | S3 transfer | constant majority | round-1 best |
+|---|---|---|---|---|---|---|
+| 进程位置 | 14/14 不可判 | 14/14 不可判 | 16/16 不可判 | 18/18 不可判 | 29/29 | 17/17 |
+| 触发事件 (headline) | **10/10 不可判** | 11/11 不可判 | 11/11 不可判 | 11/11 不可判 | 23/23 | 12/12 |
+| 关系位置 | 10/10 不可判 | 14/14 不可判 | 12/12 不可判 | 10/10 不可判 | 22/22 | 10/10 |
+| 身体状态 | 6/6 不可判 | **4/4 可替代** | **3/3 可替代** | 5/5 不可判 | 11/11 | 5/5 |
+| 资源状态 | 12/9 不可判 | 14/11 不可判 | 16/13 不可判 | 12/9 不可判 | 19/17 | 12/9 |
+
+**The primary student is not a replacement.** All five facets are 不可判, and the headline 触发事件 is at d = 10, where 5 or more rules out 可替代.
+
+Two secondary readers reach 可替代 on 身体状态: S1 at 4/4 and S2 at 3/3. Treat this as exploratory only:
+
+* this facet is 31/42 "未知", so the constant-majority reader already scores d = 11;
+* the head fails the planted-teacher power check on this facet (d_planted = 5);
+* these 42 posts are being used for the third time;
+* confirming it needs new posts that nobody has authorised yet.
+
+P versus the letters-only S1 shows no significant difference on any facet (exact McNemar p ≥ 0.29), so the hidden states did not buy a measurable gain.
+
+Round-2 point estimates are lower than round 1's on several facets, but this is not a paired comparison. No round-2 reader isolates which change helped: pooling, fresh soft targets or the well-posed cross-validation.
+
+Controls:
+
+* **Permutation gate:** passes on every facet (median permuted d ≥ d0).
+* **Planted-teacher power:** established only on 触发事件 (d_planted = 1). The other four facets have d_planted = 5–8, so their results cannot be read as "not learnable".
+* **Learning curve on 触发事件:** flat (11.7 → 9.7 → 9.6 → 9.0 for 10/20/30/41 in-domain posts), so the data-limited flag is false.
+* **Robustness:** switching the inner criterion to soft cross-entropy changes no verdict.
+
+The teacher is stable:
+
+* today's two reads differ from each other on at most 1 post per facet;
+* against 09-23 they differ on at most 1 post, except 资源状态 = 3, which equals the J1/J2 disagreement itself;
+* the q_E argmax reader scores 0–1 (3/0 on 资源状态) against J1/J2.
+
+The pre-registered decision map gives **B**: power is established on 触发事件, the learning curve is flat, and max d = 10. So a linear read-out of these two 4B models' states does not reproduce Jev's 触发事件, and this student line is closed on s0.
+
+Read B with two caveats from the independent verification:
+
+* **No slack.** d is exactly 10, and one post (exam index 22) decides it. Its fold legitimately chose a different setting (Brier margin 7e-3), and with the modal setting d would be 9, which is outcome D. D gives the same practical answer, because the disagreements are mostly concrete choices (4 abstain / 5 concrete).
+* **Narrow power check.** The power check shows the head can recover a strongly regularised linear labelling that this model class can already express. It does not by itself prove that linear read-outs cap out at d ≈ 10.
+
+On the headline facet 6 of the 10 disagreements are concrete-choice, not abstention, so round-2's own rule gives no ground for a convention-prompt round 3.
+
+Pre-registered predictions: 4 of 8 held (Q1 intervals, Q2, Q6 drift, Q8 gate). These failed:
+
+* Q3: no 可替代 cell for P;
+* Q4: P did not beat S1 by 2 or more on 3 facets;
+* Q5: S1 was not within ±2 of round-1 XC on 4 facets;
+* Q7: power was established on only 1 facet.
+
+Independent verification (own code, a different solver) reproduced every committed number: all P folds on all facets, S1 and S3 on all facets, S2, the permutation seeds, the planted teachers and the learning curve. The provenance audit also passed: freeze before any measurement, teacher read before admission, row shas, span metadata, no raw text and no raw vectors.
+
+Minor notes:
+
+* Three teacher rows have a stored `choice` that differs from the argmax of their distribution. This only affects the drift description; q_E uses the distributions.
+* The frozen analysis script's header docstring still says "tie < 1e-9, position mod 7". The code and the prereg use 1e-6 and group order mod 7.
+
+Recompute gate: `CCE_JEV_HEAVY=1 pytest tests/test_cce_jev_distill2_head.py -k recompute` reruns the frozen analysis in a clean worktree of HEAD and requires byte-identical reader files and summary. It is opt-in because it takes about 1–1.5 h.
+
 ## What runs where
 
 * **Local machine**: only pure Python (stdlib) tests with a fake backend / fake tokenizer. `cli.py eval|prepare` refuse

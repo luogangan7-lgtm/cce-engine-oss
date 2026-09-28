@@ -1,0 +1,954 @@
+{
+ "block": "JEV_DISTILL2",
+ "★前置错误": [],
+ "★单腿预案": null,
+ "★输入溯源": {
+  "qwen3-4b-2507": {
+   "report_sha256": "bfda2d80647c00121464b70622e2dbeb1654fc7681981d70ef6ac2f89610a7cf",
+   "predictions_sha256": "a7a320879552cec2ef6af80234de512b02afeed37baa2c3daf4e75eaed60de2e",
+   "coords_sha256": "8fe0426078402f391eb0033daf54a71bd9ff84b40060bb2bb9a9740357d76939",
+   "run_id": "36345476433",
+   "execution_commit": "850d2a79ee8bf1ceeb0c6c0bfaaba4dc8c3c9fe2"
+  },
+  "qwen3.5-4b": {
+   "report_sha256": "06e706f53761c9f1abd8edccd7424f414a00f25d8200addfb0b0404e366b798d",
+   "predictions_sha256": "59f1baa5be0316f110b6e598703ad7a336f4984561108dd5efc7af560b250f69",
+   "coords_sha256": "193d4817b2d85f09e932ad7937853267a0489f5432e81e86cd81565bc5ac96e5",
+   "run_id": "36345476433",
+   "execution_commit": "850d2a79ee8bf1ceeb0c6c0bfaaba4dc8c3c9fe2"
+  }
+ },
+ "prereg_sha256": "0ae4f22873ac41ba2d51241b40849cb3808107ea9f308f90b2884ba792427e8e",
+ "analysis_script_sha256": "56a4da9e88baa3a55ba1f34f27f1dd393058c217eddb8f283c88841d78df6b71",
+ "analysis_script_sha256_at_freeze": "56a4da9e88baa3a55ba1f34f27f1dd393058c217eddb8f283c88841d78df6b71",
+ "frozen_rule_sha256": "06ae3a96c7ff20cde55ee8704430c279f5c5b9e5e2d6cf7bc1ce902d2752810b",
+ "teacher2_sha256": "9f08bcb98f43ee650237f0fef0d682d71d0ffc4cd8fa8acfc575083cafa9c57d",
+ "★不得据此说": [
+  "D 或任何一臂更准/更好 —— 无金标; 上界是上界不是估计",
+  "D 更稳定 —— 其确定性是构造出来的",
+  "与 MiniMax 或多数臂一致 = 正确 —— 拿第三个模型当真值是循环论证",
+  "D 与 MiniMax κ 低 = D 错 —— MiniMax 自身 κ .38–.58",
+  "CI 重叠的 κ 之间排序, 或「D 与 Jev 读得一样」—— 只允许说改变率落在 CP 界内",
+  "与 Jev 的概率级一致/校准 —— Jev 完整分布从未保存",
+  "可替代 = 获准接生产 —— 接生产是核心文件改动, 要 owner 点头",
+  "结论外推到这 42 条 r/HearingAids 品牌帖以外、中文题面以外、s0 以外",
+  "换成 D 会让 CCE 全链变快 —— s0 只是一次调用",
+  "未知率低 = 读得更好 / 高 = 更守纪律 —— 方向中性",
+  "对 测不出 的面做任何比较或引用其准确率",
+  "候选在 情绪余温 上 0 违反 = 能力 —— 该面在 v2 被结构移除, 模型从未被问到",
+  "某候选总体上「读不了」s0 —— 读出方式、题面与语言是未分离的混杂",
+  "不得把两个候选的读数合并成一个臂",
+  "不得按 d 的点估计给两个候选排高下 —— 没有配对检验, 只能各自对照冻结规则",
+  "不得据 prepare 冒烟(一句合成句子)的输出评价任何候选的读数能力",
+  "不得把字母质量诊断当作判决依据; 它只说明「模型是否在用字母作答」",
+  "不得挑三个变体里最好的一个当「蒸馏结果」—— 三个都报",
+  "不得把考场结论外推到训练集以外的领域或更多训练数据下的表现",
+  "不得把 T 族的失败说成「Jev 不能被蒸馏」—— 训练集是无品牌短文本的补集, 迁移与特征是否够用分不开",
+  "被标「头无分辨力」的面: 不得把其结果解释成 Jev 读法从这些特征学不到",
+  "不得把 X 族的结果说成「不用 Jev 也能读」—— X 的头就是用 Jev 在这 42 条上的标签训的, 只说明这 36→6 条的拟合能到多近",
+  "不得挑两个族、三个变体里最好的一个当结论 —— 六个读者都报",
+  "不得把 P 的探索性 可替代 当作可以接生产 —— 42 帖已三用, 需新帖复现且 owner 点头",
+  "不得挑 P/S1/S2/S3 里最好的一个当结论 —— 主读者是 P, 其余都报",
+  "不得把功效未确立的面上的「不同读者」解释成 Jev 读法学不到",
+  "不得把 J3/J4 与 J1/J2 的差异说成 Jev 变差或变好 —— 只是漂移描述"
+ ],
+ "★置换闸": {
+  "进程位置": {
+   "d_perm_vs_permuted_J1": [
+    29,
+    38,
+    40,
+    39,
+    28
+   ],
+   "median": 38.0,
+   "d0": 29,
+   "leak_suspected": false
+  },
+  "触发事件": {
+   "d_perm_vs_permuted_J1": [
+    28,
+    24,
+    27,
+    31,
+    23
+   ],
+   "median": 27.0,
+   "d0": 23,
+   "leak_suspected": false
+  },
+  "关系位置": {
+   "d_perm_vs_permuted_J1": [
+    22,
+    22,
+    22,
+    17,
+    23
+   ],
+   "median": 22.0,
+   "d0": 22,
+   "leak_suspected": false
+  },
+  "身体状态": {
+   "d_perm_vs_permuted_J1": [
+    11,
+    11,
+    11,
+    12,
+    13
+   ],
+   "median": 11.0,
+   "d0": 11,
+   "leak_suspected": false
+  },
+  "资源状态": {
+   "d_perm_vs_permuted_J1": [
+    19,
+    21,
+    19,
+    19,
+    19
+   ],
+   "median": 19.0,
+   "d0": 19,
+   "leak_suspected": false
+  }
+ },
+ "★稳健性(软CE选择, 描述)": {
+  "verdict_changes": [],
+  "verdicts": {
+   "进程位置": "不可判",
+   "触发事件": "不可判",
+   "关系位置": "不可判",
+   "身体状态": "不可判",
+   "资源状态": "不可判"
+  },
+  "d": {
+   "进程位置": [
+    15,
+    15
+   ],
+   "触发事件": [
+    10,
+    10
+   ],
+   "关系位置": [
+    10,
+    10
+   ],
+   "身体状态": [
+    5,
+    5
+   ],
+   "资源状态": [
+    11,
+    8
+   ]
+  }
+ },
+ "★植入老师功效": {
+  "进程位置": {
+   "planted_cfg": [
+    0.1,
+    10.0,
+    1.0
+   ],
+   "eps": 0.364209,
+   "d_planted": 7,
+   "planted_majority": 14,
+   "d0_planted": 28,
+   "valid": true,
+   "ok": false,
+   "in_sample_d(planted, J1)": 12,
+   "in_sample_d(planted, argmax q_E)": 12
+  },
+  "触发事件": {
+   "planted_cfg": [
+    1.0,
+    10.0,
+    1.0
+   ],
+   "eps": 0.280627,
+   "d_planted": 1,
+   "planted_majority": 22,
+   "d0_planted": 20,
+   "valid": true,
+   "ok": true,
+   "in_sample_d(planted, J1)": 13,
+   "in_sample_d(planted, argmax q_E)": 13
+  },
+  "关系位置": {
+   "planted_cfg": [
+    0.001,
+    10.0,
+    0.0
+   ],
+   "eps": 0.35838,
+   "d_planted": 8,
+   "planted_majority": 23,
+   "d0_planted": 19,
+   "valid": true,
+   "ok": false,
+   "in_sample_d(planted, J1)": 3,
+   "in_sample_d(planted, argmax q_E)": 4
+  },
+  "身体状态": {
+   "planted_cfg": [
+    0.1,
+    10.0,
+    0.0
+   ],
+   "eps": 0.283486,
+   "d_planted": 5,
+   "planted_majority": 33,
+   "d0_planted": 9,
+   "valid": true,
+   "ok": false,
+   "in_sample_d(planted, J1)": 4,
+   "in_sample_d(planted, argmax q_E)": 4
+  },
+  "资源状态": {
+   "planted_cfg": [
+    0.01,
+    10.0,
+    1.0
+   ],
+   "eps": 0.2216,
+   "d_planted": 7,
+   "planted_majority": 26,
+   "d0_planted": 16,
+   "valid": true,
+   "ok": false,
+   "in_sample_d(planted, J1)": 10,
+   "in_sample_d(planted, argmax q_E)": 7
+  }
+ },
+ "★学习曲线(描述)": {
+  "per_facet": {
+   "进程位置": {
+    "10": {
+     "mean_d_vs_J1": 13.5,
+     "d": [
+      12,
+      13,
+      9,
+      16,
+      15,
+      14,
+      11,
+      12,
+      18,
+      15
+     ]
+    },
+    "20": {
+     "mean_d_vs_J1": 13.5,
+     "d": [
+      12,
+      12,
+      15,
+      15,
+      11,
+      14,
+      13,
+      13,
+      14,
+      16
+     ]
+    },
+    "30": {
+     "mean_d_vs_J1": 12.3,
+     "d": [
+      12,
+      12,
+      14,
+      12,
+      14,
+      11,
+      13,
+      13,
+      11,
+      11
+     ]
+    },
+    "41": {
+     "mean_d_vs_J1": 14.0,
+     "d": [
+      14
+     ]
+    }
+   },
+   "触发事件": {
+    "10": {
+     "mean_d_vs_J1": 11.7,
+     "d": [
+      12,
+      13,
+      13,
+      14,
+      13,
+      11,
+      10,
+      9,
+      11,
+      11
+     ]
+    },
+    "20": {
+     "mean_d_vs_J1": 9.7,
+     "d": [
+      10,
+      10,
+      10,
+      12,
+      8,
+      9,
+      11,
+      9,
+      9,
+      9
+     ]
+    },
+    "30": {
+     "mean_d_vs_J1": 9.6,
+     "d": [
+      11,
+      9,
+      9,
+      6,
+      11,
+      8,
+      10,
+      11,
+      13,
+      8
+     ]
+    },
+    "41": {
+     "mean_d_vs_J1": 9.0,
+     "d": [
+      9
+     ]
+    }
+   },
+   "关系位置": {
+    "10": {
+     "mean_d_vs_J1": 11.4,
+     "d": [
+      11,
+      10,
+      12,
+      13,
+      11,
+      10,
+      11,
+      11,
+      13,
+      12
+     ]
+    },
+    "20": {
+     "mean_d_vs_J1": 11.1,
+     "d": [
+      12,
+      10,
+      10,
+      11,
+      11,
+      10,
+      11,
+      12,
+      12,
+      12
+     ]
+    },
+    "30": {
+     "mean_d_vs_J1": 10.0,
+     "d": [
+      9,
+      10,
+      9,
+      9,
+      11,
+      9,
+      9,
+      10,
+      10,
+      14
+     ]
+    },
+    "41": {
+     "mean_d_vs_J1": 10.0,
+     "d": [
+      10
+     ]
+    }
+   },
+   "身体状态": {
+    "10": {
+     "mean_d_vs_J1": 5.5,
+     "d": [
+      5,
+      4,
+      7,
+      5,
+      5,
+      5,
+      7,
+      5,
+      6,
+      6
+     ]
+    },
+    "20": {
+     "mean_d_vs_J1": 5.3,
+     "d": [
+      6,
+      5,
+      4,
+      5,
+      5,
+      8,
+      5,
+      5,
+      4,
+      6
+     ]
+    },
+    "30": {
+     "mean_d_vs_J1": 5.0,
+     "d": [
+      6,
+      5,
+      4,
+      5,
+      5,
+      6,
+      5,
+      4,
+      5,
+      5
+     ]
+    },
+    "41": {
+     "mean_d_vs_J1": 5.0,
+     "d": [
+      5
+     ]
+    }
+   },
+   "资源状态": {
+    "10": {
+     "mean_d_vs_J1": 12.3,
+     "d": [
+      13,
+      13,
+      12,
+      12,
+      11,
+      12,
+      12,
+      12,
+      13,
+      13
+     ]
+    },
+    "20": {
+     "mean_d_vs_J1": 12.6,
+     "d": [
+      13,
+      13,
+      12,
+      12,
+      14,
+      12,
+      13,
+      12,
+      13,
+      12
+     ]
+    },
+    "30": {
+     "mean_d_vs_J1": 11.9,
+     "d": [
+      13,
+      11,
+      11,
+      12,
+      13,
+      11,
+      12,
+      13,
+      12,
+      11
+     ]
+    },
+    "41": {
+     "mean_d_vs_J1": 11.0,
+     "d": [
+      11
+     ]
+    }
+   }
+  },
+  "data_limited_flag": false
+ },
+ "★老师复测与漂移(描述)": {
+  "进程位置": {
+   "d(J3,J4)": 0,
+   "d(R1,R2)": 1,
+   "d(J3,J1)": 0,
+   "d(J3,J2)": 0,
+   "d(J4,J1)": 0,
+   "d(J4,J2)": 0,
+   "d(J1,J2)": 0
+  },
+  "触发事件": {
+   "d(J3,J4)": 1,
+   "d(R1,R2)": 2,
+   "d(J3,J1)": 1,
+   "d(J3,J2)": 1,
+   "d(J4,J1)": 0,
+   "d(J4,J2)": 0,
+   "d(J1,J2)": 0
+  },
+  "关系位置": {
+   "d(J3,J4)": 1,
+   "d(R1,R2)": 1,
+   "d(J3,J1)": 1,
+   "d(J3,J2)": 1,
+   "d(J4,J1)": 0,
+   "d(J4,J2)": 0,
+   "d(J1,J2)": 0
+  },
+  "身体状态": {
+   "d(J3,J4)": 0,
+   "d(R1,R2)": 1,
+   "d(J3,J1)": 0,
+   "d(J3,J2)": 0,
+   "d(J4,J1)": 0,
+   "d(J4,J2)": 0,
+   "d(J1,J2)": 0
+  },
+  "资源状态": {
+   "d(J3,J4)": 0,
+   "d(R1,R2)": 1,
+   "d(J3,J1)": 3,
+   "d(J3,J2)": 0,
+   "d(J4,J1)": 3,
+   "d(J4,J2)": 0,
+   "d(J1,J2)": 3
+  }
+ },
+ "★q_E 读者(漂移底, 描述)": {
+  "verdicts": {
+   "进程位置": "可替代",
+   "触发事件": "可替代",
+   "关系位置": "可替代",
+   "身体状态": "可替代",
+   "资源状态": "可替代"
+  },
+  "d": {
+   "进程位置": [
+    0,
+    0
+   ],
+   "触发事件": [
+    0,
+    0
+   ],
+   "关系位置": [
+    1,
+    1
+   ],
+   "身体状态": [
+    0,
+    0
+   ],
+   "资源状态": [
+    3,
+    0
+   ]
+  }
+ },
+ "★留一不可学条数(J1 类在其余 107 帖软质量 < 0.5)": {
+  "进程位置": 0,
+  "触发事件": 0,
+  "关系位置": 0,
+  "身体状态": 0,
+  "资源状态": 0
+ },
+ "★分歧类型(对 J1, 描述)": {
+  "P": {
+   "进程位置": {
+    "abstain_convention": 4,
+    "concrete_choice": 10
+   },
+   "触发事件": {
+    "abstain_convention": 4,
+    "concrete_choice": 6
+   },
+   "关系位置": {
+    "abstain_convention": 6,
+    "concrete_choice": 4
+   },
+   "身体状态": {
+    "abstain_convention": 5,
+    "concrete_choice": 1
+   },
+   "资源状态": {
+    "abstain_convention": 9,
+    "concrete_choice": 3
+   }
+  },
+  "S1": {
+   "进程位置": {
+    "abstain_convention": 2,
+    "concrete_choice": 12
+   },
+   "触发事件": {
+    "abstain_convention": 6,
+    "concrete_choice": 5
+   },
+   "关系位置": {
+    "abstain_convention": 10,
+    "concrete_choice": 4
+   },
+   "身体状态": {
+    "abstain_convention": 3,
+    "concrete_choice": 1
+   },
+   "资源状态": {
+    "abstain_convention": 10,
+    "concrete_choice": 4
+   }
+  },
+  "S2": {
+   "进程位置": {
+    "abstain_convention": 4,
+    "concrete_choice": 12
+   },
+   "触发事件": {
+    "abstain_convention": 5,
+    "concrete_choice": 6
+   },
+   "关系位置": {
+    "abstain_convention": 8,
+    "concrete_choice": 4
+   },
+   "身体状态": {
+    "abstain_convention": 2,
+    "concrete_choice": 1
+   },
+   "资源状态": {
+    "abstain_convention": 11,
+    "concrete_choice": 5
+   }
+  },
+  "S3": {
+   "进程位置": {
+    "abstain_convention": 3,
+    "concrete_choice": 15
+   },
+   "触发事件": {
+    "abstain_convention": 8,
+    "concrete_choice": 3
+   },
+   "关系位置": {
+    "abstain_convention": 7,
+    "concrete_choice": 3
+   },
+   "身体状态": {
+    "abstain_convention": 4,
+    "concrete_choice": 1
+   },
+   "资源状态": {
+    "abstain_convention": 9,
+    "concrete_choice": 3
+   }
+  }
+ },
+ "★McNemar(P vs 其他, 对 J1, 描述)": {
+  "S1": {
+   "进程位置": {
+    "P_only_right": 2,
+    "other_only_right": 2,
+    "p_exact": 1.0
+   },
+   "触发事件": {
+    "P_only_right": 2,
+    "other_only_right": 1,
+    "p_exact": 1.0
+   },
+   "关系位置": {
+    "P_only_right": 6,
+    "other_only_right": 2,
+    "p_exact": 0.2891
+   },
+   "身体状态": {
+    "P_only_right": 0,
+    "other_only_right": 2,
+    "p_exact": 0.5
+   },
+   "资源状态": {
+    "P_only_right": 3,
+    "other_only_right": 1,
+    "p_exact": 0.625
+   }
+  },
+  "S2": {
+   "进程位置": {
+    "P_only_right": 5,
+    "other_only_right": 3,
+    "p_exact": 0.7266
+   },
+   "触发事件": {
+    "P_only_right": 1,
+    "other_only_right": 0,
+    "p_exact": 1.0
+   },
+   "关系位置": {
+    "P_only_right": 6,
+    "other_only_right": 4,
+    "p_exact": 0.7539
+   },
+   "身体状态": {
+    "P_only_right": 0,
+    "other_only_right": 3,
+    "p_exact": 0.25
+   },
+   "资源状态": {
+    "P_only_right": 5,
+    "other_only_right": 1,
+    "p_exact": 0.2188
+   }
+  },
+  "S3": {
+   "进程位置": {
+    "P_only_right": 7,
+    "other_only_right": 3,
+    "p_exact": 0.3438
+   },
+   "触发事件": {
+    "P_only_right": 4,
+    "other_only_right": 3,
+    "p_exact": 1.0
+   },
+   "关系位置": {
+    "P_only_right": 5,
+    "other_only_right": 5,
+    "p_exact": 1.0
+   },
+   "身体状态": {
+    "P_only_right": 0,
+    "other_only_right": 1,
+    "p_exact": 1.0
+   },
+   "资源状态": {
+    "P_only_right": 1,
+    "other_only_right": 1,
+    "p_exact": 1.0
+   }
+  }
+ },
+ "★跨 run 字母 logits(描述)": {
+  "qwen3-4b-2507": {
+   "max_abs_letter_logit_delta_vs_archives": 0.000225
+  },
+  "qwen3.5-4b": {
+   "max_abs_letter_logit_delta_vs_archives": 6.87e-05
+  }
+ },
+ "readers": {
+  "P": {
+   "overall": "部分: 进程位置=不可判; 触发事件=不可判; 关系位置=不可判; 身体状态=不可判; 资源状态=不可判",
+   "verdicts": {
+    "进程位置": "不可判",
+    "触发事件": "不可判",
+    "关系位置": "不可判",
+    "身体状态": "不可判",
+    "资源状态": "不可判"
+   },
+   "headline": {
+    "facet": "触发事件",
+    "d": {
+     "J1": 10,
+     "J2": 10
+    },
+    "max_d": 10,
+    "threshold": 5,
+    "result": "不能判可替代 ⇒ 不是完整替代"
+   },
+   "d": {
+    "进程位置": [
+     14,
+     14
+    ],
+    "触发事件": [
+     10,
+     10
+    ],
+    "关系位置": [
+     10,
+     10
+    ],
+    "身体状态": [
+     6,
+     6
+    ],
+    "资源状态": [
+     12,
+     9
+    ]
+   },
+   "nonconverged": false
+  },
+  "S1": {
+   "overall": "部分: 进程位置=不可判; 触发事件=不可判; 关系位置=不可判; 身体状态=可替代; 资源状态=不可判",
+   "verdicts": {
+    "进程位置": "不可判",
+    "触发事件": "不可判",
+    "关系位置": "不可判",
+    "身体状态": "可替代",
+    "资源状态": "不可判"
+   },
+   "headline": {
+    "facet": "触发事件",
+    "d": {
+     "J1": 11,
+     "J2": 11
+    },
+    "max_d": 11,
+    "threshold": 5,
+    "result": "不能判可替代 ⇒ 不是完整替代"
+   },
+   "d": {
+    "进程位置": [
+     14,
+     14
+    ],
+    "触发事件": [
+     11,
+     11
+    ],
+    "关系位置": [
+     14,
+     14
+    ],
+    "身体状态": [
+     4,
+     4
+    ],
+    "资源状态": [
+     14,
+     11
+    ]
+   },
+   "nonconverged": false
+  },
+  "S2": {
+   "overall": "部分: 进程位置=不可判; 触发事件=不可判; 关系位置=不可判; 身体状态=可替代; 资源状态=不可判",
+   "verdicts": {
+    "进程位置": "不可判",
+    "触发事件": "不可判",
+    "关系位置": "不可判",
+    "身体状态": "可替代",
+    "资源状态": "不可判"
+   },
+   "headline": {
+    "facet": "触发事件",
+    "d": {
+     "J1": 11,
+     "J2": 11
+    },
+    "max_d": 11,
+    "threshold": 5,
+    "result": "不能判可替代 ⇒ 不是完整替代"
+   },
+   "d": {
+    "进程位置": [
+     16,
+     16
+    ],
+    "触发事件": [
+     11,
+     11
+    ],
+    "关系位置": [
+     12,
+     12
+    ],
+    "身体状态": [
+     3,
+     3
+    ],
+    "资源状态": [
+     16,
+     13
+    ]
+   },
+   "nonconverged": false
+  },
+  "S3": {
+   "overall": "部分: 进程位置=不可判; 触发事件=不可判; 关系位置=不可判; 身体状态=不可判; 资源状态=不可判",
+   "verdicts": {
+    "进程位置": "不可判",
+    "触发事件": "不可判",
+    "关系位置": "不可判",
+    "身体状态": "不可判",
+    "资源状态": "不可判"
+   },
+   "headline": {
+    "facet": "触发事件",
+    "d": {
+     "J1": 11,
+     "J2": 11
+    },
+    "max_d": 11,
+    "threshold": 5,
+    "result": "不能判可替代 ⇒ 不是完整替代"
+   },
+   "d": {
+    "进程位置": [
+     18,
+     18
+    ],
+    "触发事件": [
+     11,
+     11
+    ],
+    "关系位置": [
+     10,
+     10
+    ],
+    "身体状态": [
+     5,
+     5
+    ],
+    "资源状态": [
+     12,
+     9
+    ]
+   },
+   "nonconverged": false
+  }
+ },
+ "★预测核对": {
+  "Q1_P_d_vs_J1_inside_80pct": {
+   "进程位置": true,
+   "触发事件": true,
+   "关系位置": true,
+   "身体状态": true,
+   "资源状态": true
+  },
+  "Q2_P_headline_max_d_ge_5": true,
+  "Q3_P_replaceable_any_facet": false,
+  "Q4_P_beats_S1_by_2_on_3_facets": false,
+  "Q5_S1_within_2_of_round1_XC_on_4_facets": false,
+  "Q6_drift_small": true,
+  "Q7_power_valid_ok_on_3": false,
+  "Q8_permutation_gate_passes": true
+ },
+ "★决策图": "B: 这两个 4B 模型状态的线性读出复现不了 Jev 的 触发事件 —— 关闭这条学生线",
+ "★置换闸通过": true
+}
