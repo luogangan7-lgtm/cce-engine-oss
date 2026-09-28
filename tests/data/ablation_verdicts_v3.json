@@ -78,7 +78,7 @@
    "note": "生产面 = 这三个目录下全部 *.py 递归 + config/ 顶层 *.json。tests/ 与 archive/ 不计入分母(它们是语料与守卫, 不是被消融的生产代码)。"
   },
   "scope_files": 259,
-  "scope_lines": 51940,
+  "scope_lines": 52064,
   "touched_files_union": [
    "accuracy/run_gates.py",
    "config/cce_core_manifest.json",
@@ -120,8 +120,8 @@
   ],
   "n_touched_files": 29,
   "file_level_pct": 11.2,
-  "lines_in_touched_files": 12346,
-  "line_level_pct_GENEROUS_UPPER_BOUND": 23.77,
+  "lines_in_touched_files": 12381,
+  "line_level_pct_GENEROUS_UPPER_BOUND": 23.78,
   "by_round": {
    "v2_only_files": [
     "config/need_taxonomy.json",
@@ -175,7 +175,7 @@
    "config/cce_capability_registry_v1.json": 199,
    "config/cce_chain_conformance.json": 287,
    "config/cce_core_manifest.json": 1759,
-   "config/cce_doc_reconciliation.json": 382,
+   "config/cce_doc_reconciliation.json": 384,
    "config/cce_eval_benchmarks_v1.json": 201,
    "config/cce_foundation_contract_v1.json": 41,
    "config/cce_foundation_contract_v2.json": 82,
@@ -230,7 +230,7 @@
    "probes/cross_family_reference_81.py": 125,
    "probes/derived_layer_reliability.py": 154,
    "probes/dev_refresh_cov.py": 23,
-   "probes/dev_runsuite.py": 28,
+   "probes/dev_runsuite.py": 39,
    "probes/diarization_der.py": 124,
    "probes/discriminability.py": 205,
    "probes/draw_latency_probe.py": 102,
@@ -346,8 +346,8 @@
    "scripts/build_subjects.py": 65,
    "scripts/calibration_framework.py": 592,
    "scripts/cce_ab_power.py": 76,
-   "scripts/cce_align_v2.py": 187,
-   "scripts/cce_archive.py": 254,
+   "scripts/cce_align_v2.py": 189,
+   "scripts/cce_archive.py": 319,
    "scripts/cce_audio_diarize.py": 88,
    "scripts/cce_audio_prosody.py": 179,
    "scripts/cce_audio_separate.py": 101,
@@ -365,7 +365,7 @@
    "scripts/cce_event_assemble.py": 125,
    "scripts/cce_foundation_adapter.py": 163,
    "scripts/cce_foundation_prepare.py": 67,
-   "scripts/cce_full_run.py": 798,
+   "scripts/cce_full_run.py": 812,
    "scripts/cce_github_client.py": 243,
    "scripts/cce_identity.py": 35,
    "scripts/cce_image_ingest.py": 213,
@@ -378,8 +378,8 @@
    "scripts/cce_mechanism.py": 121,
    "scripts/cce_media_declaration.py": 153,
    "scripts/cce_necessary_condition_reach.py": 165,
-   "scripts/cce_open_items.py": 892,
-   "scripts/cce_outbound_guard.py": 435,
+   "scripts/cce_open_items.py": 903,
+   "scripts/cce_outbound_guard.py": 449,
    "scripts/cce_platform_adapter.py": 64,
    "scripts/cce_population.py": 459,
    "scripts/cce_population_v1_reader.py": 66,
@@ -410,7 +410,7 @@
    "scripts/exp_v4_full_validation.py": 831,
    "scripts/install_cce_skill.py": 114,
    "scripts/reply_batch.py": 120,
-   "scripts/reply_loop.py": 179,
+   "scripts/reply_loop.py": 184,
    "scripts/simulate_subjects.py": 104,
    "scripts/style_check.py": 207
   },
@@ -738,6 +738,26 @@
      }
     },
     "★为什么如实记": "分母只随既有文件行数变, 分子未动"
+   },
+   {
+    "date": "2026-09-28 (第六次)",
+    "原因": "诊断 P2 批: cce_outbound_guard(规则未装上即拒)、cce_full_run(后台段自带结束时刻、媒体链不报不在链上的段、s4 要求规则已装)、reply_loop / cce_align_v2(对齐诊断不可判即 None、只收有限 hit)、probes/dev_runsuite.py(超时记红、跳过可见)、cce_open_items(文档漂移项)行数变化; 无新增文件; cce_archive(--pull: archive_run 的第一个调用方)、cce_doc_reconcile 配置",
+    "新增进 scope": [],
+    "变动": {
+     "before": {
+      "scope_files": 259,
+      "scope_lines": 51940,
+      "file_level_pct": 11.2,
+      "line_level_pct_GENEROUS_UPPER_BOUND": 23.77
+     },
+     "after": {
+      "scope_files": 259,
+      "scope_lines": 52064,
+      "file_level_pct": 11.2,
+      "line_level_pct_GENEROUS_UPPER_BOUND": 23.78
+     }
+    },
+    "★为什么如实记": "分母只随既有文件行数变, 分子未动"
    }
   ],
   "★刷新记录": [
@@ -993,7 +1013,7 @@
   ],
   "③_合计": {
    "n_files_never_touched": 230,
-   "lines_never_touched": 39594,
+   "lines_never_touched": 39683,
    "★为什么变了": [
     "2026-09-11 收口后 26596→26622: scripts/cce_open_items.py(从未触及)由 612 涨到 638 行 —— 把写死的「只覆盖 17.3%」改成现算所致。**本闸自己抓到的第二处连带**。",
     "2026-09-12 parser_plane 收口: 169→166 文件 / 26622→26301 行。减少的三件是 parser_plane 的 cce_case_assemble(144) · cce_event_assemble(125) · cce_platform_adapter(64) = 333 行; 同时 config/ontology_legacy_exceptions_v1.json 因补登 P1 豁免多了 12 行(它从未被触及, 故净变化 = -333+12 = -321)。",

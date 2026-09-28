@@ -369,6 +369,12 @@ def summarize(text, market="cn", profile=DEFAULT_PROFILE):
     eff_live = [v for v in eff if not v["negated"]]
     return {
         "profile": profile,
+        # ★ 2026-09-28 (诊断 #10): 品类档案读不到或 key 不存在时, 此前只剩跨境硬编层、照样 clean ——
+        #   看输出分不出「查过没问题」和「根本没装规则」。把装了几条品类规则写出来, 由调用方决定 0 条时拒绝。
+        #   hearing_aid 的规则就是硬编层(本就不在 JSON 里, 见 data/compliance_profiles.json note), 计入。
+        "profile_rules_loaded": len(PROFILE_EFFICACY.get(profile, [])) + len(PROFILE_HALLUC.get(profile, []))
+                                + len(PROFILE_CATEGORY.get(profile, []))
+                                + (len(EFFICACY_FORBIDDEN) if profile == DEFAULT_PROFILE else 0),
         "clean": is_clean(text, market=market, profile=profile),
         "clean_strict": is_clean(text, strict=True, market=market, profile=profile),
         "n_core": len(core),
@@ -397,8 +403,16 @@ if __name__ == "__main__":
     market = "intl" if "--intl" in sys.argv else "cn"
     profile = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--profile=")), DEFAULT_PROFILE)
     s = summarize(text, market=market, profile=profile)
+    if (profile not in PROFILE_META and profile != DEFAULT_PROFILE) or not s["profile_rules_loaded"]:
+        # fail closed: 规则没装上就不给 clean 结论
+        print(json.dumps({"profile": profile, "error": "profile rules not loaded "
+                          f"(profiles file {'unreadable' if _PROFILE_DATA is None else 'has no such profile'})",
+                          "profile_rules_loaded": s["profile_rules_loaded"], "clean": False, "clean_strict": False},
+                         ensure_ascii=False))
+        sys.exit(2)
     print(json.dumps({
         "profile": profile,
+        "profile_rules_loaded": s["profile_rules_loaded"],
         "market": market,
         "clean": s["clean"], "clean_strict": s["clean_strict"],
         "n_core": s["n_core"], "n_core_hallucination": s["n_core_hallucination"],

@@ -7,18 +7,29 @@ if not tests: print("[空跑] %s 下找不到 tests/test_*.py —— 拒绝当�
 # ★ 2026-09-24 修: 有 `def test_` 的文件(pytest 风格)用 `python3 -B tests/test_x.py` 是**空跑**(0 断言执行, 恒绿; 模块级断言式的文件脚本跑才对) ——
 #   消融第三轮的 L4 农场沿用本脚本的跑法, 把 test_cce_stage_overlap / test_cce_s0_wiring 这类真正守行为的闸整批漏掉。有 `def test_` 的一律走 pytest, 其余脚本跑。
 import re
-def cmd(t): return [sys.executable,"-B","-m","pytest","-q","-p","no:cacheprovider",str(t)] if re.search(r"^def test_",t.read_text(encoding="utf-8"),re.M) else [sys.executable,"-B",str(t)]
+def cmd(t): return [sys.executable,"-B","-m","pytest","-q","-rs","-p","no:cacheprovider",str(t)] if re.search(r"^def test_",t.read_text(encoding="utf-8"),re.M) else [sys.executable,"-B",str(t)]
+# ★ 2026-09-28 (诊断 #44): 以前一个测试超时 ⇒ TimeoutExpired 直接把整个跑批炸掉, 不出红绿汇总, 其余真红一个都报不出来。
+#   超时记为真红(124), 并点名。
+def _once(t):
+    try:
+        p=subprocess.run(cmd(t),capture_output=True,text=True,cwd=ROOT,timeout=900); return p.returncode,p.stdout+p.stderr
+    except subprocess.TimeoutExpired as e:
+        out=e.stdout.decode(errors="replace") if isinstance(e.stdout,bytes) else (e.stdout or "")
+        return 124,"TIMEOUT after 900s\n"+out[-2000:]
 def run(t):
-    p=subprocess.run(cmd(t),capture_output=True,text=True,cwd=ROOT,timeout=900); return t,p.returncode,p.stdout+p.stderr
-red=[]
+    rc,out=_once(t); return t,rc,out
+red=[]; skipped=[]
 with cf.ThreadPoolExecutor(max_workers=8) as ex:
     for t,rc,out in ex.map(run,tests):
+        skipped += ["%s: %s"%(t.name,l) for l in re.findall(r"^SKIPPED .*$",out,re.M)]
         if rc: red.append((t,out))
 print("[并行] 绿 %d / 红 %d"%(len(tests)-len(red),len(red)))
+# 跳过不算绿: 选择性开启的重闸(如 CCE_JEV_HEAVY)被跳过时必须看得见
+if skipped: print("[跳过] %d 条(不计入绿):\n  "%len(skipped)+"\n  ".join(skipped[:20]))
 real=[]; par_only=[]
 for t,out0 in red:
-    p=subprocess.run(cmd(t),capture_output=True,text=True,cwd=ROOT,timeout=900)
-    if p.returncode: real.append((t,p.stdout+p.stderr))
+    rc,out=_once(t)
+    if rc: real.append((t,out))
     else: par_only.append((t,out0))
 print("[串行复验后] 真红 %d"%len(real))
 # ★ 2026-09-27: 并行红/串行绿的测试以前被静默吞掉(两次「并行红 1 / 真红 0」查不出是谁) ⇒ 点名 + 并行那次的输出尾巴。不改退出码: 它是并发互扰的线索, 不是真红。

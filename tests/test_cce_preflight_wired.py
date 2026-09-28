@@ -40,7 +40,7 @@ assert "design:" in WF, "★ probe.yml 缺少 design 输入，门无从取到规
 i_gate = WF.index(INVOKE[0])
 # 找**真正注入密钥**的那一处, 不是文件头注释里提到它的地方
 # (首版就栽在这: WF.index("MINIMAX_API_KEY") 命中的是第 3 行注释, 于是误判顺序)
-i_key = WF.index("MINIMAX_API_KEY: ${{ secrets.")
+i_key = WF.index("MINIMAX_API_KEY: ${{ ")   # 2026-09-28 起注入式带 design 条件, 仍是这一行
 assert i_gate < i_key, \
     ("★ 设计门出现在 MINIMAX_API_KEY 之后 —— 那是烧完钱再检查。"
      "门的全部意义是它在花钱之前。")
@@ -69,3 +69,11 @@ assert "::warning::" in WF[i_none:i_none + 400], \
 
 print("test_cce_preflight_wired: OK (门在 probe.yml / 在 API key 之前 / "
       "坏设计红好设计绿 / none 旁路带告警)")
+
+# ★ 2026-09-28 (诊断 #41): 设计门绕过(design=none)时不得拿到 MiniMax 密钥; 只有连通性核对拿 TypeSafe 一把
+import yaml as _yaml  # noqa: E402
+_wf = _yaml.safe_load(WF)
+_env = next(s for s in _wf["jobs"]["run"]["steps"] if s.get("name") == "跑探针")["env"]
+assert _env["MINIMAX_API_KEY"].startswith("${{ inputs.design != 'none' &&"), _env["MINIMAX_API_KEY"]
+assert "inputs.design != 'none'" in _env["TYPESAFE_API_KEY"] and "probes/jev_secret_check.py" in _env["TYPESAFE_API_KEY"]
+print("test_cce_preflight_wired: 密钥随设计门 OK")

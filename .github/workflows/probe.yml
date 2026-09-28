@@ -36,13 +36,17 @@ jobs:
           python3 scripts/design_preflight.py "${{ inputs.design }}"
 
       - name: 跑探针
+        # ★ 2026-09-28 (诊断 #41): design=none 声明「不产生新读数」, 此前却照样拿到付费密钥 —— 设计门形同虚设
+        #   (自接线起 100% 的 probe 运行都走 none)。现在: 没过设计门就拿不到 MiniMax 密钥, 调模型会因缺 key 失败。
+        #   唯一例外是连通性核对 probes/jev_secret_check.py(1 次 Jev 调用, 不产生读数), 只给它 TypeSafe 一把。
         env:
-          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
-          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}      # 2026-09-28: s0 读出后端 = Jev(生产同一 secret); 探针 jev_secret_check 核上线
+          MINIMAX_API_KEY: ${{ inputs.design != 'none' && secrets.MINIMAX_API_KEY || '' }}
+          TYPESAFE_API_KEY: ${{ (inputs.design != 'none' || inputs.probe == 'probes/jev_secret_check.py') && secrets.TYPESAFE_API_KEY || '' }}
+          EXTRA_ENV: ${{ inputs.env }}
           PYTHONDONTWRITEBYTECODE: "1"
         run: |
           set -euo pipefail
-          for kv in ${{ inputs.env }}; do export "$kv"; done
+          for kv in $EXTRA_ENV; do export "$kv"; done   # 经 env 传入, 不把输入直接展开进脚本
           python3 -u "${{ inputs.probe }}" ${{ inputs.args }} 2>&1 | tee /tmp/probe.log
       - uses: actions/upload-artifact@v4
         if: always()

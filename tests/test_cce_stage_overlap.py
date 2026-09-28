@@ -90,5 +90,6 @@ def test_early_exit_still_joins_background_stage():
 def test_reader_binds_context_snapshot_before_s0():
     """★ 静态守: 后台段的 context 必须是 submit 时绑定的快照(位置实参), 不能是 lambda 里延迟读 ctx["context"] —— 那会与 s0 的追加竞态, 行为测试抓不住。"""
     src = (ROOT / "scripts/cce_full_run.py").read_text(encoding="utf-8")
-    assert 'context = ctx["context"]' in src and '_DEFER_EX.submit(run_knot_classify, rf, context, ctx["k"], out)' in src
+    # 2026-09-28: 外面多包了一层 _timed(后台段自带结束时刻); 快照仍是 submit 时按位置绑定的实参
+    assert 'context = ctx["context"]' in src and '_DEFER_EX.submit(_timed, run_knot_classify, rf, context, ctx["k"], out)' in src
     assert 'submit(lambda' not in src

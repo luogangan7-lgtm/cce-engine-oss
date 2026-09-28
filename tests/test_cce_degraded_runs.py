@@ -85,5 +85,17 @@ q = F.MANIFEST["qualified_readout"]
 assert "reader.tops.need" in q["withheld"] and "reader.tops.need" not in q["usable_keys"], q
 assert "reader.tops.desire" in q["usable_keys"] and "reader.knots" in q["withheld"], q
 
+# ── media_ingest 链上没有 s1/s2: 不得报 s1/s2 扣发(诊断 #26) ──
+F.MANIFEST.clear()
+F.MANIFEST["foundation_adapt"] = {"status": "OK", "observations": 3, "kinds": ["ocr"]}
+F.MANIFEST["event_assemble"] = {"status": "OK", "events": 1, "event_types": ["x"]}
+F.qualified({})
+_mq = F.MANIFEST["qualified_readout"]
+assert all(k.startswith("p3.") for k in list(_mq["withheld"]) + _mq["usable_keys"]), _mq
+with tempfile.TemporaryDirectory() as _t:
+    _pf = Path(_t) / "p.json"; _pf.write_text(json.dumps({"duration": 1.0, "audio": {"present": False}, "ocr": [1]}), encoding="utf-8")
+    F.MANIFEST.clear(); F.media_validate({"text_file": str(_pf)})
+    assert F.MANIFEST["media_validate"]["channels_present"] == ["ocr"], F.MANIFEST["media_validate"]
+
 print("test_cce_degraded_runs: OK (s0 回退 / s2 缺 draw ⇒ complete 但 production_verified=false 且列入 degraded | "
-      "5 取 2 ⇒ playbook_primary 与 top1 扣发 | s0 后端随读数落 | 读者 tops 过同一道散布闸并进台账)")
+      "5 取 2 ⇒ playbook_primary 与 top1 扣发 | s0 后端随读数落 | 读者 tops 过同一道散布闸并进台账 | 媒体链不报不在链上的段)")

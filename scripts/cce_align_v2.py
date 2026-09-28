@@ -12,7 +12,7 @@ v2: 对齐分 = Σ(推动族受众结) w_a × 稿件该结权重          [共�
 作为库使用: score(aud_knots, post_knots, text) -> dict
 命令行自测: cce_align_v2.py --selftest
 """
-import json, os, re, sys, urllib.request
+import json, math, os, re, sys, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -92,7 +92,9 @@ def dissolve_hit(knot, text, votes=3):
     hits, evs = [], []
     for o in outs:
         d = _extract_json(o)
-        if isinstance(d, dict) and isinstance(d.get("hit"), (int, float)):
+        # ★ 2026-09-28 (诊断 #9): NaN 经 max(0, min(1, nan)) 变成 1.0, True 被当 1 —— 只收有限实数
+        if (isinstance(d, dict) and isinstance(d.get("hit"), (int, float)) and not isinstance(d.get("hit"), bool)
+                and math.isfinite(d["hit"])):
             hits.append(max(0.0, min(1.0, float(d["hit"]))))
             if d.get("evidence"):
                 evs.append(str(d["evidence"])[:80])

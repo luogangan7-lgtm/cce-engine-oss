@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import json, os
 p = "run/out/manifest.json"
-ref = open("run/ref.txt", encoding="utf-8").read().strip() if os.path.exists("run/ref.txt") else "-"
+# ★ 2026-09-28 (诊断 #27): 此前读 run/ref.txt —— 那是 s8 的「上一篇正文」, 不是运行标识, 标题栏会印出整篇上一帖。
+ref = open("run/ref_tag", encoding="utf-8").read().strip() if os.path.exists("run/ref_tag") else "-"
 print(f"### CCE 执行清单 · `{ref}`")
 if not os.path.exists(p):
     print("\n**manifest 缺失 — 链路未产出**")

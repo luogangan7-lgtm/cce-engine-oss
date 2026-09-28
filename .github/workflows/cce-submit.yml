@@ -184,7 +184,10 @@ jobs:
         # 2026-08-18: 原 if 只匹配 outbound_reply, 于是 outbound_post 从不过链上文风闸,
         # 帖子的文风数字全部只来自本地手跑, 不是管道强制的。两档都开。
         if: needs.prep.outputs.profile == 'outbound_post' || needs.prep.outputs.profile == 'outbound_reply'
-        run: python3 scripts/style_check.py run/input.txt
+        # 结果随 artifact 留存(诊断 #27: 此前只在日志里); pipefail 防 tee 吞掉退出码
+        run: |
+          set -o pipefail; mkdir -p run/out
+          python3 scripts/style_check.py run/input.txt | tee run/out/style_gate.txt
       - name: Run profile-frozen CCE chain
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}

@@ -147,6 +147,7 @@ def _fake_run(tmp_path, H, pre):
     return run, tf
 
 
+@pytest.mark.skipif(not __import__("os").environ.get("CCE_JEV_HEAVY"), reason="重层(合成腿端到端, 本机约 8 分钟; 2026-09-28 在 2 核 runner 上超 900 s, 四个 canary 因此全挂在合同 job); 设 CCE_JEV_HEAVY=1 才跑 —— CI 上由 .github/workflows/cce-jev-heavy.yml 跑, 不进生产合同 job")
 def test_end_to_end_on_synthetic_legs_reaches_the_frozen_verdict_with_all_controls(tmp_path, monkeypatch):
     H = _load("probes/jev_distill2_vs_retest.py", "_d2c")
     pre = json.loads(PRE.read_text(encoding="utf-8"))

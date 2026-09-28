@@ -529,6 +529,17 @@ def items() -> list[dict]:
                          "accuracy.yml 与 cce-jev-contract.yml 的 job 带 `if: github.repository == 公开仓` ⇒ 同一次 push 只付一次。"
                          "Hy-MT2 旧分叉已退役归档于 archive/hymt2-retired-20260817, 不复活。")})
 
+    # ★ 2026-09-28 诊断 #36: 文档对照闸核的是一份已不存在的快照; 仓内文档此后增长的部分没人核过。行数差现算。
+    _rc = _j("config/cce_doc_reconciliation.json")
+    _dp = os.path.join(ROOT, _rc.get("doc_path", ""))
+    if os.path.exists(_dp):
+        _now = sum(1 for _ in open(_dp, encoding="utf-8"))
+        if _now != _rc.get("doc_lines_at_reconcile"):
+            out.append({"类": OPEN,
+                        "项": f"架构文档自 {_rc.get('reconciled_at')} 核对后 {_rc.get('doc_lines_at_reconcile')} → {_now} 行, 增量未逐条核对",
+                        "证据": ("DOC_RECONCILE 照样绿, 因为它只核当时登记的 25 条铁律与 §36/§37/§39/§42/§43/§45; "
+                                 "新增的生产链声明(s0 Jev、s2b 影子段、并发化等)不在它的覆盖面里。")})
+
     # ★ 2026-09-28 诊断 #32: 「每个 run 完成时 archive_run 落本地」只是散文, archive_run 没有调用方。
     out.append({"类": OPEN,
                 "项": "生产 run 自动归档从未接线 —— archive_run() 没有任何调用方",

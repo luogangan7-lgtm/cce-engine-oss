@@ -105,7 +105,10 @@ def main():
     # 与 2026-08-10 独立实测(同稿重跑 3/8 翻转, |Δ|均值 0.213)相符。
     # 「聚合会提升信度」在这里**不成立**: Spearman-Brown 要求分量独立, 而 9 个权重
     # 来自同一次抽样且被全占比约束到和为 1, 结构上不独立。
-    _w_ok, _w_why = knot_readout_usable("weight", instrument_hash=INSTRUMENT_HASH)
+    # ★ 2026-09-28 (诊断 #9): 仪器取本次读数自己的, 不取写死的 gen4 常量(环境变量仍可覆盖, 供离线复现)
+    _inst = (a.get("stage2", {}).get("instrument") or {}).get("instrument_hash") if isinstance(a, dict) else None
+    _inst = os.environ.get("CCE_INSTRUMENT_HASH") or _inst or INSTRUMENT_HASH
+    _w_ok, _w_why = knot_readout_usable("weight", instrument_hash=_inst)
     ka = knot_align(a_knots, b_knots, draft, mode="reply")
     ka["★usable"] = _w_ok
     if not _w_ok:
@@ -119,7 +122,7 @@ def main():
     top1_align = None
     if _top1:
         _t = knot_align({_top1: 1.0}, {}, draft, mode="reply")
-        _ph_ok, _ph_why = playbook_hit_usable(instrument_hash=INSTRUMENT_HASH)
+        _ph_ok, _ph_why = playbook_hit_usable(instrument_hash=_inst)
         top1_align = {"reader_top1": _top1, "playbook_hit": _t["alignment_score"],
                       "★usable": _ph_ok,
                       "★why_not_usable": None if _ph_ok else (
@@ -145,7 +148,8 @@ def main():
     # 2026-08-18: 补 top1_stable 守卫。此前不确定性只在 cce_full_run.py 的 s2 段生效
     # (top1 不稳时扣发 playbook_primary), 而这里照旧拿被抖动过的 weight 算出 PASS/FAIL ——
     # 同一份不可靠读数, 一条路上被扣住、另一条路上照发判决。爆炸半径不一致本身就是缺陷。
-    _unstable = [x.get("stage2", {}).get("sampling", {}).get("top1_stable") is False
+    # ★ 2026-09-28: `is False` 把 None(可投票 draw<2, 不可判)当成稳定 —— 与 s2 同口径改为 `is not True`
+    _unstable = [x.get("stage2", {}).get("sampling", {}).get("top1_stable") is not True
                  for x in (a, b) if isinstance(x, dict)]
     knot_ok = ka["alignment_score"] >= float(os.environ.get("CCE_ALIGN_THETA", "0.35"))
     # ★ 这道旧守卫守的是 top1_stable —— 但 top-1 恰恰是**稳的**那一层(实测 1.000),
@@ -165,10 +169,11 @@ def main():
         "未触达维度": misses,
         "判据": "need层触达率>=0.5 且 九结对齐分>=theta",
         "need_ok": need_ok, "knot_ok": knot_ok,
-        "PASS": bool(need_ok and knot_ok),
-        "改写指令": ([] if (need_ok and knot_ok) else
-                   [f"补上未触达维度: {', '.join(misses)}" ] if misses else
-                   ["九结对齐不足: 我方结分布未响应对方主结, 检查是否答非所问"]),
+        # ★ 2026-09-28 (诊断 #9): knot_ok 不可判时 PASS 也不可判 —— 此前 bool(None) 恒为 False, 于是恒报不通过,
+        #   还据此发一条「九结对齐不足」的改写指令, 而那个分数本身已被扣发。改写指令只来自可用的部分。
+        "PASS": None if knot_ok is None else bool(need_ok and knot_ok),
+        "改写指令": ([f"补上未触达维度: {', '.join(misses)}"] if misses else []) + (
+                   ["九结对齐不足: 我方结分布未响应对方主结, 检查是否答非所问"] if knot_ok is False else []),
     }
     json.dump({"reader_readout": a, "draft_readout": b, "verdict": verdict},
               open(A.out, "w"), ensure_ascii=False, indent=1)

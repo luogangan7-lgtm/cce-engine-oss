@@ -125,6 +125,7 @@ def test_end_to_end_both_families_reach_the_frozen_verdict_and_the_gates_bite(tm
     assert doc["overall"].startswith("前置不成立") and any("backend_effective.threads" in e for e in doc["★前置错误"])
 
 
+@pytest.mark.skipif(not __import__("os").environ.get("CCE_JEV_HEAVY"), reason="重层(本机约 2 分钟, 2 核 runner 更久); 设 CCE_JEV_HEAVY=1 才跑 —— CI 上由 .github/workflows/cce-jev-heavy.yml 跑, 不进生产合同 job")
 def test_main_writes_all_six_readers_and_the_summary(tmp_path, monkeypatch):
     H = _load("probes/jev_distill_vs_retest.py", "_h4")
     monkeypatch.setattr(H, "LAMBDAS", (0.1,))
@@ -153,6 +154,7 @@ def fresh_run(tmp_path_factory):
     return out
 
 
+@pytest.mark.skipif(not __import__("os").environ.get("CCE_JEV_HEAVY"), reason="重层(第一轮完整重算, 本机约 20 分钟); 设 CCE_JEV_HEAVY=1 才跑 —— CI 上由 .github/workflows/cce-jev-heavy.yml 跑, 不进生产合同 job")
 @pytest.mark.parametrize("tag", [f + v for f in "TX" for v in "ABC"] + ["summary"])
 def test_committed_distill_results_recompute_from_the_archive(fresh_run, tag):
     """结果文件 = 冻结分析脚本对归档训练 run + 考场 run + 已提交老师读数现算的产物, 不是手填的。"""

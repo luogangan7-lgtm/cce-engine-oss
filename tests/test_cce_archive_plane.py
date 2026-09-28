@@ -201,6 +201,13 @@ assert not ok8b, "★ 公开远端还剩 artifact —— 必须红"
 # 统计口径: 此前第二个 `live` 遮蔽了第一个, referenced 数的是远端个数
 assert stats["referenced"] == len(set(A.scan_referenced_run_ids()) - set(INDEX["negative_test_run_ids"])) > 2, stats
 
+# ★ 2026-09-28: --pull(archive_run 的第一个调用方)落树前过化名闸 —— 与入口同一份规则
+_fake = "u/" + "zq_realhandle_77"   # 构造名; 拆开写, 否则本文件自己就会被保险库的提及闸判成泄露源
+assert A._identity_hits("m.json", ('{"reader": {"actor_ref": "reddit:%s"}}' % _fake).encode()) >= 1   # 身份位 + 文本提及各算一次
+assert A._identity_hits("m.json", b'{"reader": {"actor_ref": "reddit:u/user_4"}}') == 0
+assert A._identity_hits("log.txt", ("thanks %s for this" % _fake).encode()) == 1
+assert A._identity_hits("log.txt", b"thanks u/user_12") == 0
+
 # ★ 2026-09-03 CI 实跑更正: 原断言是 `set(A.push_remotes()) >= {两个仓}` ——
 #   那是把**我这台机器的 git 配置**当成了全局不变量。CI 的 checkout 只有一个 remote,
 #   于是 ①测试在 CI 上必红 ②闸本身在 CI 上自动变松(「全部 push 远端」缩水成「那一个」)。

@@ -250,5 +250,70 @@ def main() -> int:
     return 0 if ok else 1
 
 
+def _identity_hits(name: str, blob: bytes) -> int:
+    """落进仓库树之前的化名不变式(与入口闸同一份规则)。只返回计数, 不返回名字。"""
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    from cce_identity import ID_FIELDS, is_pseudonym, real_mentions
+    text = blob.decode("utf-8", errors="ignore")
+    n = len(real_mentions(text))
+    if name.endswith(".json"):
+        try:
+            stack = [json.loads(text)]
+        except ValueError:
+            stack = []
+        while stack:
+            x = stack.pop()
+            if isinstance(x, dict):
+                n += sum(1 for k, v in x.items() if k in ID_FIELDS and isinstance(v, str) and not is_pseudonym(v))
+                stack += list(x.values())
+            elif isinstance(x, list):
+                stack += x
+    return n
+
+
+def pull(run_ids: list[str], repo: str, reason: str) -> int:
+    """★ 2026-09-28: archive_run() 的第一个调用方(此前零调用, 「每个 run 都归档」只是散文)。
+    手动按 run_id 拉取 artifact → 化名闸 → 落 archive/<run_id>/ → 入册。含非化名身份的 run 不进树, 大声报出。
+    ponytail: 手动指定 run_id; 「每个 run 完成时自动归档」仍未接线(见 cce_open_items)。"""
+    import subprocess
+    import tempfile
+    index = json.load(open(INDEX, encoding="utf-8"))
+    bad = 0
+    for rid in run_ids:
+        meta = json.loads(subprocess.run(["gh", "api", f"repos/{repo}/actions/runs/{rid}"],
+                                         capture_output=True, text=True, check=True).stdout)
+        with tempfile.TemporaryDirectory() as td:
+            subprocess.run(["gh", "run", "download", rid, "-R", repo, "-D", td], check=True, capture_output=True)
+            arts = {}
+            for dp, _, fs in os.walk(td):
+                for f in fs:
+                    rel = os.path.relpath(os.path.join(dp, f), td)
+                    arts[rel.replace(os.sep, "__")] = open(os.path.join(dp, f), "rb").read()
+        hits = sum(_identity_hits(n, b) for n, b in arts.items())
+        if hits:
+            print(f"✗ {rid}: {hits} 处非化名身份 ⇒ 不进仓库树(应走 RESTRICTED_OFFTREE 进保险库)")
+            bad += 1
+            continue
+        archive_run(rid, {"run_id": rid, "repo": repo, "url": meta["html_url"], "workflow": meta["path"],
+                          "head_sha": meta["head_sha"], "event": meta["event"], "display_title": meta["display_title"],
+                          "conclusion": meta["conclusion"], "created_at": meta["created_at"]}, arts)
+        index["runs"][rid] = {"status": LOCALLY_ARCHIVED, "referenced_in": ["config/cce_archive_index.json"],
+                              "reason": reason, "checked_against": [repo], "checked_at": meta["updated_at"][:10],
+                              "local_path": f"archive/{rid}", "files": len(arts) + 1,
+                              "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"}
+        print(f"✓ {rid}: {len(arts)} 个文件落 archive/{rid}")
+    with open(INDEX, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(index, ensure_ascii=False, indent=1) + "\n")
+    return 1 if bad else 0
+
+
 if __name__ == "__main__":
+    if len(sys.argv) > 2 and sys.argv[1] == "--pull":
+        # 用法: cce_archive.py --pull <run_id>... [--repo owner/name] [--reason 文本]
+        args, repo, reason = sys.argv[2:], "luogangan7-lgtm/cce-engine-oss", "手动拉取归档"
+        if "--repo" in args:
+            i = args.index("--repo"); repo = args[i + 1]; args = args[:i] + args[i + 2:]
+        if "--reason" in args:
+            i = args.index("--reason"); reason = args[i + 1]; args = args[:i] + args[i + 2:]
+        sys.exit(pull(args, repo, reason))
     sys.exit(main())

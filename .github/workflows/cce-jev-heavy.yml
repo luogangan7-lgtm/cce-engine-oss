@@ -1,0 +1,32 @@
+name: CCE Jev Heavy Tests
+
+# 研究候选(experiments/jev 与蒸馏分析)的重测试层: 合成腿端到端 + 已提交结果从归档重算, 每个 8–90 分钟。
+# ★ 2026-09-28: 它们此前混在 tests/ 里, 被 cce-submit 的合同 job(生产入口的闸)逐次跑 ⇒ 在 2 核 runner 上
+#   单个测试超 900 s, 四个 profile 的 canary 全在合同 job 挂掉, 一次模型调用都没发出去。
+#   生产闸只守生产; 这一层由 CCE_JEV_HEAVY=1 开启, 在这里手动跑(公开仓, 分钟不计费)。
+#   不带任何模型或 API secret, 不拉模型。
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  heavy:
+    if: github.repository == 'luogangan7-lgtm/cce-engine-oss'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      CCE_JEV_HEAVY: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # 重算闸在 HEAD 的 git worktree 里跑
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Heavy tier (must run, none skipped)
+        run: python -m pytest -q -p no:cacheprovider -rs tests/test_cce_jev_distill_head.py tests/test_cce_jev_distill2_head.py

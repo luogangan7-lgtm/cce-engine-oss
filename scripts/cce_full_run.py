@@ -117,7 +117,7 @@ def reader_baseline(ctx):
         # (reader_cce 在链上**没有下游消费者**), 于是这里只启动, 到 s1_readout 跑完再收(DEFER_UNTIL)。
         # 输入与串行逐字相同: 同 reader 文件、同 s0 之前的 context、同 k。失败仍记在 reader_baseline 名下。
         t0 = time.time()
-        fut = _DEFER_EX.submit(run_knot_classify, rf, context, ctx["k"], out)
+        fut = _DEFER_EX.submit(_timed, run_knot_classify, rf, context, ctx["k"], out)
         ctx.setdefault("_deferred", {})["reader_baseline"] = (fut, t0, body)
         return {"file": "reader_baseline.json", "reader_chars": len(body), "deferred_until": DEFER_UNTIL["reader_baseline"]}
     d = run_knot_classify(rf, context, ctx["k"], out)
@@ -144,16 +144,26 @@ DEFER_UNTIL = {"reader_baseline": "s1_readout"}
 _DEFER_EX = ThreadPoolExecutor(max_workers=1)
 
 
+def _timed(fn, *a):
+    """后台段自带结束时刻: 收回时刻是 s1 跑完的时刻, 不是它自己的(诊断 #22: sec 此前记成 s0+s1 的时长)。"""
+    try:
+        return fn(*a), time.time()
+    except Exception as e:
+        e.cce_end = time.time()
+        raise
+
+
 def _join_deferred(ctx, name):
     """收回后台段: 成功 ⇒ MANIFEST[name] 换成与串行**同形**的产出(+ 真实耗时 + overlapped_with); 失败 ⇒ FAIL 并抛出。"""
     fut, t0, body = ctx["_deferred"].pop(name)
     try:
-        d = fut.result()
+        d, t_end = fut.result()
     except Exception as e:
-        MANIFEST[name] = {"status": "FAIL", "sec": round(time.time() - t0, 1), "error": f"{type(e).__name__}: {e}"[:300]}
+        MANIFEST[name] = {"status": "FAIL", "sec": round(getattr(e, "cce_end", time.time()) - t0, 1),
+                          "error": f"{type(e).__name__}: {e}"[:300]}
         raise
     ctx["reader_cce"] = d
-    MANIFEST[name] = {"status": "OK", "sec": round(time.time() - t0, 1), "overlapped_with": DEFER_UNTIL[name], **_reader_out(d, body)}
+    MANIFEST[name] = {"status": "OK", "sec": round(t_end - t0, 1), "overlapped_with": DEFER_UNTIL[name], **_reader_out(d, body)}
 
 
 @stage("s0_context")
@@ -424,6 +434,8 @@ def s4(ctx):
            ctx["text_file"], f"--profile={ctx['guard_profile']}", "--intl"]
     r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=ROOT, timeout=300)
     d = json.loads(r.stdout)
+    if not d.get("profile_rules_loaded"):
+        raise RuntimeError(f"guard 品类规则未装上(profile={ctx['guard_profile']}): {d.get('error')} —— 不给 clean 结论")
     if not (d.get("clean") and d.get("clean_strict")):
         raise RuntimeError(f"guard未过: clean={d.get('clean')} strict={d.get('clean_strict')}")
     draft = open(ctx["text_file"], encoding="utf-8").read()
@@ -467,7 +479,9 @@ def media_validate(ctx):
     if dur <= 0:
         raise ValueError("解析产物缺正的 duration —— 不是有效产物")
     ctx["parsed"] = parsed
-    present = [k for k in ("audio", "ocr", "frames", "visual") if parsed.get(k)]
+    # ★ 2026-09-28 (诊断 #26): {"present": false} 是个非空 dict, 此前被报成「在」
+    present = [k for k in ("audio", "ocr", "frames", "visual")
+               if parsed.get(k) and not (isinstance(parsed[k], dict) and parsed[k].get("present") is False)]
     return {"duration_sec": round(dur, 1), "channels_present": present,
             "artifact_sha256": hashlib.sha256(raw.encode()).hexdigest()[:16],
             "★scope": "只校验形状与完整性; **抽取质量(ASR/OCR 准确率)未测**, 见 registry"}
@@ -557,7 +571,7 @@ def qualified(ctx):
         for name, val in _tops.items():
             (usable if val is not None else withheld)[f"s1.tops.{name}"] = (
                 val if val is not None else _reason(name, "超噪声底"))
-    else:
+    elif "s1_readout" in MANIFEST:   # 链上没有 s1 的 profile(media_ingest)不报 s1 扣发 —— 不在链上不是「没读出」(诊断 #26)
         # ★ 四层一条不少地记为扣发, 并写明**为什么没有** —— 而不是让它们消失。
         _why = (_wh if isinstance(_wh, str) and _wh else None) or (
             f"s1 未产出 tops(measurement_status={s1m.get('measurement_status')!r}, "
@@ -589,7 +603,7 @@ def qualified(ctx):
             withheld["reader.knots"] = f"{_why}(读者九结的 weight = intensity/Σ)"
     if s2m.get("playbook_primary") and not s2_short:
         usable["s2.playbook_primary"] = s2m["playbook_primary"]
-    else:
+    elif "s2_knots" in MANIFEST:
         withheld["s2.playbook_primary"] = s2_short or s2m.get("playbook_withheld_reason") or "未产出"
     # ★ 2026-09-02: 原来这里写「分布类读数**始终可用**, 但必须带 n 与不确定性一起引用」,
     #   把 intensity 无条件放进 usable。那是一句**散文 caveat** —— 而本项目已确立
