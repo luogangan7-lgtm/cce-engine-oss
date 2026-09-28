@@ -34,14 +34,15 @@ def _save(fh, d):
     json.dump(d, fh, ensure_ascii=False, indent=1); fh.flush(); os.fsync(fh.fileno())
 
 
-def reserve(auth_id, limit, n=1, note=""):
+def reserve(auth_id, limit, n=1, note="", state=None):
     """★ **先占后用** —— 在发请求**之前**原子地扣额度。
     返回扣完后的已用数。撞上限抛 BudgetExceeded, **且不扣**。
 
     ★ auth_id = **授权单**的标识, 不是轮次标识 —— 跨轮共用同一个 auth_id 才拦得住跨轮超支。
     """
-    STATE.parent.mkdir(parents=True, exist_ok=True)
-    with open(STATE, "a+", encoding="utf-8") as fh:
+    path = pathlib.Path(state) if state else STATE
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "a+", encoding="utf-8") as fh:
         fcntl.flock(fh, fcntl.LOCK_EX)                    # ③ 并发原子
         try:
             d = _load(fh)
@@ -60,6 +61,37 @@ def reserve(auth_id, limit, n=1, note=""):
             return a["used"]
         finally:
             fcntl.flock(fh, fcntl.LOCK_UN)
+
+
+# ── 生产链的每次运行作用域(2026-09-28 诊断 #7/#25: 此前本模块在生产链上零调用方) ──────────────
+#   作用域经环境变量传给子进程(knot_classify 是子进程), 状态文件放在该次运行的 outdir ⇒ 随 artifact 上传, 调用数可查。
+#   没开作用域的调用(研究探针)不计 —— 它们各有授权单与设计门。
+SCOPE_ID, SCOPE_LIMIT, SCOPE_STATE = "CCE_REQUEST_BUDGET_ID", "CCE_REQUEST_BUDGET_LIMIT", "CCE_REQUEST_BUDGET_STATE"
+
+
+def open_scope(label, limit, state_path):
+    """开一次运行的请求预算作用域。已在外层作用域里则不覆盖(外层的上限管住整棵进程树)。"""
+    if os.environ.get(SCOPE_ID):
+        return os.environ[SCOPE_ID]
+    os.environ[SCOPE_ID] = f"{label}:{os.environ.get('GITHUB_RUN_ID', 'local')}:{os.getpid()}:{time.time_ns()}"
+    os.environ[SCOPE_LIMIT] = str(int(limit))
+    os.environ[SCOPE_STATE] = str(state_path)
+    return os.environ[SCOPE_ID]
+
+
+def reserve_in_scope(note=""):
+    """每次真正发出请求之前调(重试也调)。不在作用域里 ⇒ 什么都不做。撞上限抛 BudgetExceeded。"""
+    aid = os.environ.get(SCOPE_ID)
+    if aid:
+        reserve(aid, int(os.environ[SCOPE_LIMIT]), 1, note, state=os.environ[SCOPE_STATE])
+
+
+def scope_status():
+    aid, st = os.environ.get(SCOPE_ID), os.environ.get(SCOPE_STATE)
+    if not aid or not st or not os.path.exists(st):
+        return None
+    a = (json.loads(pathlib.Path(st).read_text(encoding="utf-8") or "{}").get("authorizations") or {}).get(aid)
+    return {"limit": a["limit"], "used": a["used"]} if a else None
 
 
 def wrap(fn, auth_id, limit, note=""):

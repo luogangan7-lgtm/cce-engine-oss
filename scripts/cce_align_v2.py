@@ -42,7 +42,9 @@ def _call(prompt, model="MiniMax-Text-01", temperature=0.0):
     key = os.environ.get("MINIMAX_API_KEY", "")
     payload = {"model": model, "messages": [{"role": "user", "content": prompt}],
                "max_tokens": 700, "temperature": temperature}
+    from cce_request_budget import reserve_in_scope
     for _ in range(3):
+        reserve_in_scope(model)   # try 之外: 撞上限必须停
         try:
             req = urllib.request.Request(BASE, json.dumps(payload).encode(),
                                          headers={"Authorization": f"Bearer {key}",

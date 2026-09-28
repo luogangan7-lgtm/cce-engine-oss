@@ -28,7 +28,9 @@ def jev_questions(facets):
 
 
 def _post(body, key, retries=3):
+    from cce_request_budget import reserve_in_scope
     for att in range(retries):
+        reserve_in_scope("jev")
         req = urllib.request.Request(API, data=json.dumps(body, ensure_ascii=False).encode(), headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"}, method="POST")
         try:
             with urllib.request.urlopen(req, timeout=60) as r: return json.load(r), None

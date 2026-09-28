@@ -141,7 +141,8 @@ FROZEN_SHA8 = {
         #   同批 accuracy/run_gates.py 加每次运行请求硬上限(闸 prompt 与判决逻辑未动)。见 ablation_verdicts_v3.json ★冻结件变更登记。
         # ★ 2026-09-28 第二次: s2 单次 draw 类型/取值校验(cce_knot_classify.py pin 更新 + refactor_log 追加 S2_DRAW_TYPE_AND_RANGE_VALIDATION)。
         # ★ 2026-09-28 第三次: s2 attempt 账本 + CCE_RAW_DIR(cce_knot_classify.py pin 更新 + refactor_log 追加 S2_ATTEMPT_LEDGER_AND_CI_RAW_DIR)。
-    "config/cce_core_manifest.json": "90f8a939735963b1",
+        # ★ 2026-09-29: PRODUCTION_REQUEST_CAP_PER_RUN(见 ablation_verdicts_v3.json ★冻结件变更登记)。
+    "config/cce_core_manifest.json": "e85cfc157d783ba5",
     "accuracy/run_gates.py": "da0fb5a566cc9502",
 }
 

@@ -93,7 +93,7 @@ _b = _find("跨轮请求预算闸")
 _srcf = lambda rel: open(os.path.join(ROOT, rel), encoding="utf-8").read()
 _wired_acc = "from cce_request_budget import reserve" in _srcf("accuracy/run_gates.py")
 _wired_prod = "cce_request_budget" in _srcf("scripts/exp_crossmodel_desire.py")
-_fixed = _wired_acc and _wired_prod
+_fixed = os.path.exists(os.path.join(ROOT, "scripts/cce_request_budget.py")) and _wired_acc and _wired_prod
 assert _b["类"] == (DECIDED if _fixed else OPEN), "★ 分类没跟着实际调用方走 —— 那就是硬编码"
 if not _fixed:
     assert ("只接了付费回归台" if _wired_acc else "无调用方") in _b["项"], _b["项"]

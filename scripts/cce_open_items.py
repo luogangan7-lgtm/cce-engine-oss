@@ -567,16 +567,20 @@ def items() -> list[dict]:
         _src = lambda rel: open(os.path.join(ROOT, rel), encoding="utf-8").read()
         wired_acc = "from cce_request_budget import reserve" in _src("accuracy/run_gates.py")
         wired_prod = "cce_request_budget" in _src("scripts/exp_crossmodel_desire.py")
-        fixed = wired_acc and wired_prod
+        exists = os.path.exists(os.path.join(ROOT, "scripts/cce_request_budget.py"))
+        fixed = exists and wired_acc and wired_prod
         out.append({"类": DECIDED if fixed else OPEN,
                     "项": "跨轮请求预算闸 —— DEV-001 的机制缺口" + (
-                        "**已补**" if fixed else "**只接了付费回归台, 生产链 call_model 未接**" if wired_acc else "**机制在、无调用方**"),
+                        "**已补**" if fixed else "**未补**" if not exists else
+                        "**只接了付费回归台, 生产链 call_model 未接**" if wired_acc else "**机制在、无调用方**"),
                     "证据": (dev["★每份引用本结果的报告要带的一句"] +
-                            (" ★ 已落 scripts/cce_request_budget.py, 六条离线自检全过(假请求, 零真实调用): "
+                            (" ★ 2026-09-28 两处调用方都已接: 付费回归台 accuracy/run_gates.py(每次运行上限 1600)与生产链"
+                             "(cce_full_run / reply_loop 开作用域, call_model·Jev·对齐三个出站口每次 POST 前扣, 默认上限 200/260, 用量写进 manifest.request_budget)。"
+                             " ★ 已落 scripts/cce_request_budget.py, 六条离线自检全过(假请求, 零真实调用): "
                              "上限后拦住且不产生调用 · 重启不清零 · 四进程并发抢 10 个只放行 10 个 · "
                              "失败请求仍计数 · 改大旧上限被拒; 反向验过**包错层**会少算。"
                              "★★★ 但**补闸不产生任何放行资格** —— 恢复真实请求需 **owner 新开一张授权单**。"
-                             if fixed else
+                             if fixed else " ★ 尚未代码化, 下次仍会静默超支。" if not exists else
                             " ★ 2026-09-28: accuracy/run_gates.py 每次 HTTP 尝试前 reserve(每次运行上限 1600, 结构上限 1536, 撞上限即停); "
                             "生产链的 exp_crossmodel_desire.call_model 是 core 文件, 未接 —— 生产单次运行的调用数由 k/n 与固定重试次数在结构上封顶, 但没有显式上限。"))})
     except Exception:

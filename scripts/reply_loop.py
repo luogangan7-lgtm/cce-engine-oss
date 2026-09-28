@@ -83,6 +83,9 @@ def main():
     A = ap.parse_args()
     outdir = os.path.dirname(os.path.abspath(A.out)) or "."
     os.makedirs(outdir, exist_ok=True)
+    # 对齐诊断(按需开启)自己的请求上限: 两次 knot_classify(各 ≈72) + dissolve 表决(9 结 × 3 票 × 3 次 ≈ 81) + top-1(3×3) ≈ 234
+    from cce_request_budget import open_scope
+    open_scope("reply_loop", int(os.environ.get("CCE_MAX_REQUESTS_ALIGN", "260")), os.path.join(outdir, "request_budget_alignment.json"))
     reader = open(A.reader, encoding="utf-8").read().strip()
     draft = open(A.draft, encoding="utf-8").read().strip()
 

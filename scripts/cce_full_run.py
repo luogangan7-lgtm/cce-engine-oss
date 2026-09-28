@@ -696,6 +696,11 @@ def main():
     ap.add_argument("--submission-meta", help="normalized cce.submission.v1 schema 1.1.0 item metadata JSON")
     a = ap.parse_args()
     os.makedirs(a.outdir, exist_ok=True)
+    # ★ 2026-09-28 (诊断 #25): 每次运行的付费请求硬上限, 覆盖本进程与 knot_classify 子进程的 MiniMax/Jev 调用(重试也计)。
+    #   结构上限: reply = 读者(k=3: 3×3×3=27, s2 5×3×3=45) + s1(27+45) + s0(Jev 3 + 回退 3) + s2b 证书(2×3) ≈ 156;
+    #   outbound_post(k=5) ≈ 45+45+12 = 102。默认 200 高于结构上限, 正常运行永远碰不到 —— 它拦的是失控(循环/重试 bug)。
+    from cce_request_budget import open_scope
+    open_scope("cce_full_run", int(os.environ.get("CCE_MAX_REQUESTS", "200")), os.path.join(a.outdir, "request_budget.json"))
     ctx = {"mode": a.mode, "text_file": a.text_file, "context": a.context, "outdir": a.outdir,
            "reader_file": a.reader_file,
            "audience_file": a.audience_file, "ref_post": a.ref_post,
@@ -734,6 +739,8 @@ def main():
             _join_deferred(ctx, dn)
         except Exception:
             failed = dn
+    from cce_request_budget import scope_status
+    meta["request_budget"] = scope_status()   # {limit, used}: 本次运行实际发出的付费请求数(含重试)
     meta["finished"] = time.strftime("%Y-%m-%d %H:%M:%S")
     meta["stages"] = MANIFEST
     meta["complete"] = failed is None
@@ -747,6 +754,7 @@ def main():
 def run_log_summary(meta):
     return {"submission_id": (meta.get("submission") or {}).get("submission_id"), "mode": meta.get("mode"),
             "complete": meta.get("complete"), "failed_at": meta.get("failed_at"),
+            "request_budget": meta.get("request_budget"),
             "stages": {k: {"status": v.get("status"), "sec": v.get("sec")} for k, v in (meta.get("stages") or {}).items()}}
 
 

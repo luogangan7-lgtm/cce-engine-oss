@@ -17,7 +17,7 @@
   "config/knot_taxonomy.json": "56a1c1977bf8d18c",
   "scripts/cce_knot_classify.py": "d008a333cd233720",
   "scripts/cce_ksep.py": "ffd5d26a7e0cb29b",
-  "scripts/exp_crossmodel_desire.py": "0e0e9d64b48fbade",
+  "scripts/exp_crossmodel_desire.py": "0920933d6ed3bd41",
   "scripts/exp_v4_full_validation.py": "f934b56b01b6b6b2",
   "scripts/calibration_framework.py": "ac12522457f196fe"
  },
@@ -1750,6 +1750,22 @@
    ],
    "★evidence_is_required_because": "「instrument_hash 没变」不足以证明行为没变 —— 账本代码与收件判断交织在同一个循环里; 须由测试证明同一组模型输出下收件结果、重试次数与改前相同(7 类坏 draw 重放 + 账本计数)。",
    "★代价": "stage2 产物多一个 operational 键(体积增加约每次尝试一行); finish_reason=length 目前**只记录不拒收** —— 截断修复出来的 draw 仍会被收下, 要不要拒收需先看账本里的实际频率再定(改收件属仪器行为变更)。",
+   "instrument_hash": "不变。"
+  },
+  {
+   "date": "2026-09-29",
+   "event": "PRODUCTION_REQUEST_CAP_PER_RUN",
+   "file": "scripts/exp_crossmodel_desire.py",
+   "from_sha": "0e0e9d64b48fbade",
+   "to_sha": "0920933d6ed3bd41",
+   "route": "**纯重构路(第四条路)**: 不在作用域里(研究探针)行为逐字不变; 在作用域里(生产链)正常运行的调用数低于结构上限, 永远碰不到上限。instrument_generation 不变。",
+   "reason": "诊断 #25: 生产链没有显式付费请求上限(每个 draw 最多 3×3 次 POST, 重试嵌套), 预算闸 cce_request_budget 在生产链零调用方。call_model 每次真正 POST 前 reserve_in_scope(在 try 之外, 撞上限必须停); 作用域由 cce_full_run / reply_loop 开(环境变量, 子进程继承), 状态文件在该次运行 outdir。",
+   "behavior_evidence": [
+    "tests/test_cce_request_budget_scope.py"
+   ],
+   "★行为等价的实测": "作用域外: reserve_in_scope 直接返回, 与改前逐字同。作用域内: 上限 200 高于结构上限(reply ≈156, outbound_post ≈102), 正常运行请求序列不变; 仅失控时在第 200 次前停。变异: 把扣额挪进 try 即红。",
+   "★evidence_is_required_because": "「instrument_hash 没变」不足以证明行为没变 —— 请求上限不在提示词里, 哈希看不见; 只能靠作用域内外两种路径的离线测试证明。",
+   "★代价": "每次 POST 多一次文件锁读写(毫秒级); 超上限的运行会失败而不是继续花钱 —— 这正是目的, 但若将来 k/n 调大, 必须同步调 CCE_MAX_REQUESTS, 否则正常运行会被拦。",
    "instrument_hash": "不变。"
   }
  ],

@@ -76,6 +76,12 @@ assert len(workflows) >= 15
 for p, wf in workflows.items():
     assert not payload_echoes(wf), (p, payload_echoes(wf))
 
+# ★ 2026-09-29 (诊断 #28): runner 标签钉版本。ubuntu-latest 2026-10-19 起迁到 Ubuntu 26 —— 不钉就是环境在脚下静默换代
+#   (第一轮蒸馏重算已实证: 换 BLAS 就不能逐字复现)。换代必须显式改这里并先跑 canary。
+_unpinned = [(p, jn) for p, wf in workflows.items() for jn, job in (wf.get("jobs") or {}).items()
+             if str(job.get("runs-on", "")).endswith("-latest")]
+assert not _unpinned, _unpinned
+
 # 反向: 2026-09-28 之前的 cce-submit prep 写法
 sub = copy.deepcopy(workflows[str(ROOT / ".github/workflows/cce-submit.yml")])
 pkg = next(s for s in sub["jobs"]["prep"]["steps"] if s.get("id") == "package")

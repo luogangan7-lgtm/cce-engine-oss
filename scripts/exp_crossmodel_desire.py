@@ -20,6 +20,7 @@ import requests
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from calibration_framework import extract_json_robust  # noqa: E402
+from cce_request_budget import reserve_in_scope  # noqa: E402
 
 ROOT = os.environ.get("VSE_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RESULTS = os.path.join(ROOT, "results")
@@ -130,6 +131,7 @@ def call_model(mkey, prompt, temperature=0.0, timeout=300, max_retries=3):
     last_err = None
     t0 = time.time()
     for attempt in range(max_retries):
+        reserve_in_scope(mkey)   # 每次真正发请求前扣额度(重试也扣); 在 try 之外 —— 撞上限必须停, 不能被下面的 except 吞掉
         try:
             r = requests.post(url, json=payload, headers=headers, timeout=timeout)
             r.raise_for_status()
