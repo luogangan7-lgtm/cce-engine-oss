@@ -549,10 +549,10 @@ def items() -> list[dict]:
 
     # ★ 2026-09-28 诊断 #32: 「每个 run 完成时 archive_run 落本地」只是散文, archive_run 没有调用方。
     out.append({"类": OPEN,
-                "项": "生产 run 自动归档从未接线 —— archive_run() 没有任何调用方",
-                "证据": ("config/cce_archive_index.json policy.future_runs 已改写为「目标不是现状」。归档闸只查仓里被引用的 run_id, "
-                         "不查实际发生过的 run ⇒ 绝大多数生产 run 既未归档也未入册; 最早一批 artifact 2026-11-15 起过期。"
-                         "★ 接线时含身份的 run 必须走 RESTRICTED_OFFTREE(保险库), 不得进仓库树。")})
+                "项": "生产 run 归档: 执行件已有、存量已清, 但还没有定期触发",
+                "证据": ("2026-09-29: scripts/cce_archive.py --pull-new(幂等)拉两仓所有已完成、artifact 未过期、未入册的 cce-submit run, "
+                         "落树前过化名闸; 首跑归档 20 个(公开仓 18 · 私仓 2), 之后待归档 = 0。★ 缺的是「定期跑它」: "
+                         "本机定时任务属持久配置, 需 owner 点头; 未定期跑时, 新 run 仍会在 90 天后过期而无人察觉。")})
     # ★ 2026-09-28: 「公开仓历史 run 含真实 handle」一项已解: owner「同意删除」后 7 个 run 的公开 artifact 与日志全删,
     #   证据登在 config/cce_archive_index.json 各行的 public_copies_cleared, 由归档闸 ⑤ 守。清单只列未完成的事, 故移除。
 

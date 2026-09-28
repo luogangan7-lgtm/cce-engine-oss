@@ -1,0 +1,161 @@
+{
+ "input_sha": "7c377fef57ff1e12",
+ "run_at": "2026-08-18T01:46:25",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 3,
+  "k_ok": 3,
+  "layers": {
+   "desire_vec": [
+    0.0,
+    0.016666666666666666,
+    0.08333333333333333,
+    0.23333333333333336,
+    0.16666666666666666,
+    0.0,
+    0.3333333333333333,
+    0.16666666666666666,
+    0.0
+   ],
+   "need_vec": [
+    0.25000000000000006,
+    0.2166666666666667,
+    0.13333333333333336,
+    0.3333333333333333,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.06666666666666667,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.15,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.03333333333333333,
+    0.0,
+    0.06666666666666667,
+    0.13333333333333333,
+    0.3666666666666667,
+    0.19999999999999998,
+    0.03333333333333333,
+    0.016666666666666666
+   ],
+   "action_vec": [
+    0.3,
+    0.0,
+    0.43333333333333335,
+    0.016666666666666666,
+    0.08333333333333333,
+    0.0,
+    0.16666666666666666
+   ]
+  },
+  "tops": {
+   "desire": "控制欲",
+   "need": "N04_理解世界",
+   "emotion": "curiosity好奇",
+   "action": "attend关注"
+  },
+  "appraisal": {
+   "goal_relevance": 0.95,
+   "congruence_direction": "威胁",
+   "need_status": "未满足",
+   "goal_congruence": "负",
+   "coping_potential": "中",
+   "note": "goal_relevance 极高——对手第一次用机制而非反例切进来且对我框架横切。congruence=威胁：『doing quiet damage to my framing』『I've been filing things under the wrong heading』明示框架被威胁。need_status=未满足：作者自己写『I can't separate them with what I've got』，判别手段缺位。负+未满足→负情绪底色。coping=中：分析层面能完全跟上(精确比对两边预测、识别对方额外预测的瞬间性差异)，但缺数据无法闭环，所以是『看得见出口但没钥匙』。"
+  },
+  "chain_trace": "控制欲(想握住对断连现象的解释权与归档权) →(对方拿出『同侧最小功率无余量』机制并对同一口袋做出相反预测、同时打出『LE 与 Classic 同距离』横切一刀)→ 需求 N04_理解世界(把两套机制谁对谁错想明白)+ N02_掌控局面(框架是否还要这样归档)+ N01_确定性(需要一个可落地的判别) →(评价：goal_relevance 极高、congruence 威胁、need_status 未满足、goal_congruence 负、coping 中——看得见出口但没钥匙)→ 情绪以 curiosity 为主调，叠一层 fear 与少量 admiration/relief/approval/微 sadness → 行动倾向以 attend+approach 为主，带轻度 agonistic 与 dominate 来稳住可推广性标准",
+  "within_js": {
+   "desire_vec": 0.1914,
+   "need_vec": 0.0627,
+   "emotion_vec": 0.0847,
+   "action_vec": 0.0296
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "audit",
+    "weight": 0.55,
+    "evidence_quote": "Your other line is doing quiet damage to my framing too... If range and interference behave the same across both, then protocol isn't the variable I thought it was, and I've been filing things under the wrong heading.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "other_agent",
+     "target_layer": "epistemic_trust"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N10",
+    "freshness_days_hint": 12,
+    "name": "验真·审计结",
+    "family": "阻挡",
+    "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+    "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前"
+   },
+   {
+    "key": "pain_seek",
+    "weight": 0.35,
+    "evidence_quote": "I can't separate them with what I've got. Every report I hold says which ear went and where the phone was. Not one says what the person was doing in the second it happened.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "中",
+     "time": "现在",
+     "attribution": "system",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "控制欲",
+    "need_code": "N02",
+    "freshness_days_hint": 30,
+    "name": "痛点·求解结",
+    "family": "推动",
+    "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+    "behavior_predicted": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+   },
+   {
+    "key": "suspend",
+    "weight": 0.1,
+    "evidence_quote": "Those two stories predict different things for the same pocket. That's the useful part.",
+    "signature": {
+     "congruence": "促进与威胁并存",
+     "need_status": "未满足",
+     "coping": "不确定",
+     "time": "未来(决策悬置)",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N01",
+    "freshness_days_hint": 10,
+    "name": "悬置·焦虑结",
+    "family": "阻挡",
+    "playbook": "给判据+零成本测试塌缩不确定性+如实说trade;不推购买。反杠杆=零风险承诺/样品/证言",
+    "behavior_predicted": "质询通道·中成本:连环规格质询/征证言/比价/收藏不买/明确不动"
+   }
+  ],
+  "levers_present": [],
+  "notes": "主导结是audit:他人用机制(而非反例)横切作者框架,触发epistemic_trust前置闸门;pain_seek次之——作者在数据采集系统缺位下求助新维度(动作快照),已试步骤+症状详述俱全;两条假设未决故挂suspend。未见内容侧杠杆介入。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}

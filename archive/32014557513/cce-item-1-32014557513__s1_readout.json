@@ -1,0 +1,121 @@
+{
+ "input_sha": "472b05b9d376833e",
+ "run_at": "2026-08-17T09:20:54",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 3,
+  "k_ok": 3,
+  "layers": {
+   "desire_vec": [
+    0.0,
+    0.21666666666666667,
+    0.06666666666666667,
+    0.11666666666666665,
+    0.016666666666666666,
+    0.10000000000000002,
+    0.35000000000000003,
+    0.13333333333333333,
+    0.0
+   ],
+   "need_vec": [
+    0.23333333333333336,
+    0.31666666666666665,
+    0.10000000000000002,
+    0.10000000000000002,
+    0.16666666666666666,
+    0.016666666666666666,
+    0.0,
+    0.0,
+    0.0,
+    0.03333333333333333,
+    0.03333333333333334,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.03333333333333333,
+    0.08333333333333333,
+    0.016666666666666666,
+    0.05000000000000001,
+    0.0,
+    0.08333333333333333,
+    0.0,
+    0.13333333333333333,
+    0.25,
+    0.3333333333333333,
+    0.0,
+    0.0,
+    0.016666666666666666
+   ],
+   "action_vec": [
+    0.3333333333333333,
+    0.0,
+    0.28333333333333327,
+    0.05000000000000001,
+    0.0,
+    0.03333333333333333,
+    0.3
+   ]
+  },
+  "tops": {
+   "desire": "控制欲",
+   "need": "N02_掌控局面",
+   "emotion": "curiosity好奇",
+   "action": "approach趋近"
+  },
+  "appraisal": {
+   "goal_relevance": 0.85,
+   "congruence_direction": "促进",
+   "need_status": "已满足",
+   "goal_congruence": "正",
+   "coping_potential": "高",
+   "note": "原情境(零信息求助)对答主'主导对话+消解不确定性+展示专业'的目标是威胁/受阻的;但答主自己产出这条回复后,通过主动结构化提问把局面推向'可作答',三件套(促进+已满足+高应对潜能)派生出正向、低焦虑、带有专业笃定感的情绪基调——不是喜悦,而是'这条路走得通'的认可感与好奇驱动。"
+  },
+  "chain_trace": "控制欲+安全感欲+成为欲 →(情境Y:群里出现一句零信息熵的'I need help',诊断无法展开)→ 需求Z=N02_掌控局面 + N01_确定性 + N03_提升能力 →(评价:goal_relevance=0.85,congruence_direction=促进,need_status=已满足,goal_congruence=正,coping_potential=高)→ 情绪W=approval认同+curiosity好奇+relief宽慰 → 行动倾向V=approach趋近+attend关注+dominate支配 的完整推导:想夺回主导、消解模糊、成为真能帮上忙的专家型答主,在面对一个'答不了'的提问时,经由'促进+已满足+高应对'的积极评价,产生对自己诊断路径的认同与对具体故障的好奇,在轻度宽慰中主动迎上去、把注意力钉在症状细节上,并用一句话悄悄重写对话规则,让对方按自己的逻辑补充信息。",
+  "within_js": {
+   "desire_vec": 0.1544,
+   "need_vec": 0.1788,
+   "emotion_vec": 0.1665,
+   "action_vec": 0.0912
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "display",
+    "weight": 0.95,
+    "evidence_quote": "If it's a specific pair of aids, tell me the model and what they're connected to, and what exactly fails. Sound cutting out, one side only, TV, phone calls. That tells me a lot more than a spec sheet does.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "identity"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N10",
+    "freshness_days_hint": 5,
+    "name": "确证·展示结",
+    "family": "推动",
+    "playbook": "让位;被当同侪;接着他的贡献往前走,绝不纠正姿态压他",
+    "behavior_predicted": "展示通道·低→高成本:纠错亮牌/举反例晒型号/结构化长评/承诺回访。评论区最高质量UGC主力"
+   }
+  ],
+  "levers_present": [],
+  "notes": "答主以结构化诊断提问亮出专业判别力('spec sheet 没用,我问的才有用'),典型展示结——身份确证通道被打开,通过'我知道该问什么'完成专业身份亮牌,而非求助或施压。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}

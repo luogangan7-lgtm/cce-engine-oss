@@ -1,0 +1,161 @@
+{
+ "input_sha": "35319f76b66782a6",
+ "run_at": "2026-08-18T01:46:12",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 3,
+  "k_ok": 3,
+  "layers": {
+   "desire_vec": [
+    0.0,
+    0.016666666666666666,
+    0.17666666666666667,
+    0.09000000000000001,
+    0.03333333333333333,
+    0.016666666666666666,
+    0.35000000000000003,
+    0.31666666666666665,
+    0.0
+   ],
+   "need_vec": [
+    0.31666666666666665,
+    0.26666666666666666,
+    0.20000000000000004,
+    0.13333333333333333,
+    0.0,
+    0.03333333333333333,
+    0.0,
+    0.0,
+    0.0,
+    0.05000000000000001,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.07666666666666667,
+    0.02666666666666667,
+    0.2833333333333334,
+    0.03333333333333333,
+    0.0,
+    0.05666666666666667,
+    0.0,
+    0.2333333333333333,
+    0.15000000000000002,
+    0.12333333333333334,
+    0.016666666666666666,
+    0.0,
+    0.0
+   ],
+   "action_vec": [
+    0.4000000000000001,
+    0.016666666666666666,
+    0.31666666666666665,
+    0.03333333333333333,
+    0.016666666666666666,
+    0.0,
+    0.21666666666666667
+   ]
+  },
+  "tops": {
+   "desire": "控制欲",
+   "need": "N01_确定性",
+   "emotion": "gratitude感激",
+   "action": "approach趋近"
+  },
+  "appraisal": {
+   "goal_relevance": 0.92,
+   "congruence_direction": "促进",
+   "need_status": "已满足",
+   "goal_congruence": "正",
+   "coping_potential": "高",
+   "note": "工具直接落在 N01(用 RSSI 锚定时序替换猜测)与 N02(可写进 method section 重夺方法主导权)两条最重需求上，且写作者自身具备技术辨识力(主动追问 LE Audio vs ASHA 是否在 BLE 内被区分)，因此 coping_potential 判定为高。congruence 走'促进+已满足'的正直线，强度由 goal_relevance 0.92 决定——情绪集中于 relief/感激/认同，无负向槽位被激活。"
+  },
+  "chain_trace": "控制欲 + 安全感欲 →(读者主动递来一件能客观测量 RSSI 时序的诊断工具；过去一天半协议字段在公开场合两次失效)→ N01_确定性 + N02_掌控局面(并 N03_提升能力为辅)→(促进 + 已满足 + 正 + 高 coping_potential)→ relief 宽慰 + gratitude 感激 + approval 认同(+ curiosity 好奇)→ approach 趋近 + attend 关注 + dominate 支配 的完整推导：从'我要握住方法方向盘'与'我要把 dropout 不确定性压下来'的稳定潜变量出发，在工具被递入、过去失误被自省的触发下，需求被同时满足且评估为促进/高应对，因此情绪偏向释压-感激-认同系，并外化为'写进 method section、致谢、先核边界再部署'的趋近-关注-支配复合行为。",
+  "within_js": {
+   "desire_vec": 0.0709,
+   "need_vec": 0.0547,
+   "emotion_vec": 0.11,
+   "action_vec": 0.0545
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "audit",
+    "weight": 0.45,
+    "evidence_quote": "One thing I'd like to check before I put this in front of more people. Classic versus BLE is a clean split in that app, but LE Audio and ASHA both ride on BLE. Does it separate those two, or does it just show you a BLE link either way? If it doesn't, the trace is still worth having, but I'd be telling people it answers a question it doesn't answer. I'd rather hear that from you than find it in the data.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "other_agent",
+     "target_layer": "epistemic_trust"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N10",
+    "freshness_days_hint": 2,
+    "name": "验真·审计结",
+    "family": "阻挡",
+    "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+    "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前"
+   },
+   {
+    "key": "reward",
+    "weight": 0.4,
+    "evidence_quote": "This is the most useful thing anyone has handed me in this thread... An RSSI trace against the clock removes the guessing from at least part of that. It also gives something none of the written reports can... Either way it's going in the method section next time I ask anyone to test anything. Thank you for it.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足(即时)",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N01",
+    "freshness_days_hint": 2,
+    "name": "爽点·回报结",
+    "family": "推动",
+    "playbook": "短收;自我缩小;不再投喂信息(需求已闭,长文=把关掉的门重开)",
+    "behavior_predicted": "致谢通道·低中成本:收藏声明/致谢/自来水布道。驱动留存分享(留存维ρ≈0.26-0.5)"
+   },
+   {
+    "key": "pain_seek",
+    "weight": 0.15,
+    "evidence_quote": "The single field I keep asking people for is which protocol was live at the moment of the dropout, and in the last day that field's failed twice on me in public... I've been asking people to report something a lot of them structurally can't know.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "system",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "控制欲",
+    "need_code": "N02",
+    "freshness_days_hint": 7,
+    "name": "痛点·求解结",
+    "family": "推动",
+    "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+    "behavior_predicted": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+   }
+  ],
+  "levers_present": [],
+  "notes": "审计结占主导——发帖者在采纳前先逼问工具能否真正区分 LE Audio vs ASHA,宁可被作者纠正也不愿在数据里发现盲区;reward 紧随其后表现为对'移除猜测'的即时感激与方法论收编;pain_seek 作为背景驱动解释了为什么协议可观测性是悬而未决的需求。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}

@@ -1,0 +1,164 @@
+{
+ "input_sha": "79b796ea90dcc202",
+ "run_at": "2026-08-17T10:56:07",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 5,
+  "k_ok": 5,
+  "layers": {
+   "desire_vec": [
+    0.0,
+    0.0,
+    0.154,
+    0.134,
+    0.030000000000000006,
+    0.066,
+    0.32,
+    0.29200000000000004,
+    0.004
+   ],
+   "need_vec": [
+    0.28200000000000003,
+    0.264,
+    0.124,
+    0.21600000000000003,
+    0.02,
+    0.036000000000000004,
+    0.0,
+    0.0,
+    0.0,
+    0.05,
+    0.008,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.05652631578947369,
+    0.006,
+    0.012,
+    0.04305263157894736,
+    0.0,
+    0.11452631578947367,
+    0.0,
+    0.1885263157894737,
+    0.13557894736842105,
+    0.17863157894736842,
+    0.13810526315789473,
+    0.09705263157894736,
+    0.030000000000000006
+   ],
+   "action_vec": [
+    0.29800000000000004,
+    0.030000000000000006,
+    0.244,
+    0.05600000000000001,
+    0.016,
+    0.06599999999999999,
+    0.29
+   ]
+  },
+  "tops": {
+   "desire": "控制欲",
+   "need": "N01_确定性",
+   "emotion": "relief宽慰",
+   "action": "approach趋近"
+  },
+  "appraisal": {
+   "goal_relevance": 0.95,
+   "congruence_direction": "威胁",
+   "need_status": "未满足",
+   "goal_congruence": "负",
+   "coping_potential": "中",
+   "note": "goal_relevance 极高(这是作者两周来全部工作的核心);新报告直接证伪了他原来的因果叙述,congruence=威胁;『I can't separate these two issues right now』『I can't tell how many cases this applies to』『Not a single one of the previous reports can be retroactively updated』说明 N01/N04 仍处未满足;但他已画出清晰路径(六项必填字段、写在 post 里让大家看见),故 coping=中(趋近型而非回避)。综合 → 负向基调 + 中等应对潜能 → 情绪以 relief/pride(找到出路)与 sadness/curiosity/fear(对未解之谜的悬置)混合,而不是 anger/avoidance。"
+  },
+  "chain_trace": "控制欲+安全感欲(想把方法论握在手里、把不确定性压下去) →(情境:同一硬件不同 Android build 行为相反,自己的两周核心结论被反例击中)→ N02_掌控局面 + N01_确定性 + N04_理解世界(重新拿回主导权、知道风险到底有多大、把软件与 RF 两个机制分清楚) →(评价:goal_relevance 极高 / direction=威胁 / need_status=未满足 / goal_congruence=负 / coping_potential=中)→ 情绪混合体 relief+pride+sadness+curiosity+fear(宽慰于定位到病灶、对自己诚实撤回的小骄傲、对两周数据报废的失落、想继续拼图的好奇、对未解混杂的隐忧) → 行动倾向 dominate+approach+attend(立刻定义六项必填字段、把规则写进 post 让所有人都看见、自己同步按新协议记录),辅以 interrupt(主动打断自己两周的旧叙述)与极少量 avoidance(对无法回填历史数据的承认)",
+  "within_js": {
+   "desire_vec": 0.047,
+   "need_vec": 0.094,
+   "emotion_vec": 0.1162,
+   "action_vec": 0.0996
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "pain_seek",
+    "weight": 0.5,
+    "evidence_quote": "This table might not be measuring what I thought it was... Not a single one of the previous reports can be retroactively updated... So starting with this post, please include a few extra details when reporting back. I'll also start recording things this way myself",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "中",
+     "time": "现在",
+     "attribution": "system/none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "控制欲",
+    "need_code": "N01",
+    "freshness_days_hint": 14,
+    "name": "痛点·求解结",
+    "family": "推动",
+    "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+    "behavior_predicted": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+   },
+   {
+    "key": "audit",
+    "weight": 0.3,
+    "evidence_quote": "That last half-sentence is the killer... the core statement I've been noting down over the past two weeks is flawed... I can't separate these two issues right now... the column for system version has remained empty from start to finish",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "other_agent",
+     "target_layer": "epistemic_trust"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N10",
+    "freshness_days_hint": 14,
+    "name": "验真·审计结",
+    "family": "阻挡",
+    "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+    "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前"
+   },
+   {
+    "key": "belong",
+    "weight": 0.2,
+    "evidence_quote": "Why am I writing this in the post itself instead of just going back to edit my own spreadsheet?... If I write it out here, everyone will follow it. If I just put it in my own spreadsheet, no one will see it... Both people included their OS version or firmware status on their own. I didn't have to ask either of them separately.",
+    "signature": {
+     "congruence": "威胁(孤立)",
+     "need_status": "未满足",
+     "coping": "低",
+     "time": "过去-现在",
+     "attribution": "none",
+     "target_layer": "identity"
+    },
+    "desire_code": "归属欲",
+    "need_code": "N11",
+    "freshness_days_hint": 14,
+    "name": "归属·确认结",
+    "family": "推动",
+    "playbook": "先『你不是一个人』把人接住,再给至多一格新知;不派任务",
+    "behavior_predicted": "确认通道·中成本:自我暴露式发帖+『only me?』;线下伴随伪装替代行为"
+   }
+  ],
+  "levers_present": [
+   "好奇缺口",
+   "从众"
+  ],
+  "notes": "作者两周汇总被单条新报告击穿核心假设,处于高认知威胁下的求解状态(pain_seek 主);audit 结体现为对自身数据框架的信任崩塌与六字段取证协议;belong 结体现在'发在公共帖而非私人表格'的策略选择中,主动利用社区可见性驱动从众杠杆。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}

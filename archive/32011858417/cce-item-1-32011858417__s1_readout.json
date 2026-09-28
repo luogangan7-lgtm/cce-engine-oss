@@ -1,0 +1,163 @@
+{
+ "input_sha": "1d13cd368c3e5932",
+ "run_at": "2026-08-17T08:47:30",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 3,
+  "k_ok": 3,
+  "layers": {
+   "desire_vec": [
+    0.008695652173913044,
+    0.008695652173913044,
+    0.09565217391304348,
+    0.12681159420289856,
+    0.04492753623188406,
+    0.014492753623188408,
+    0.39710144927536234,
+    0.3036231884057971,
+    0.0
+   ],
+   "need_vec": [
+    0.39999999999999997,
+    0.26666666666666666,
+    0.05000000000000001,
+    0.2333333333333333,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.049999999999999996,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.08333333333333333,
+    0.0,
+    0.02333333333333333,
+    0.19333333333333333,
+    0.0,
+    0.09333333333333332,
+    0.0,
+    0.03333333333333333,
+    0.16666666666666666,
+    0.3233333333333333,
+    0.02666666666666666,
+    0.0,
+    0.056666666666666664
+   ],
+   "action_vec": [
+    0.26666666666666666,
+    0.0,
+    0.38333333333333336,
+    0.05666666666666668,
+    0.01,
+    0.03333333333333333,
+    0.25
+   ]
+  },
+  "tops": {
+   "desire": "控制欲",
+   "need": "N01_确定性",
+   "emotion": "curiosity好奇",
+   "action": "attend关注"
+  },
+  "appraisal": {
+   "goal_relevance": 0.9,
+   "congruence_direction": "促进",
+   "need_status": "未满足",
+   "goal_congruence": "负",
+   "coping_potential": "高",
+   "note": "情境与目标高度相关(0.9):报回来的硬件行是他表格里的真实进展,所以方向是'促进';但他明确说'I still need the result',核心需求(知道掉不掉/在哪种条件掉)还悬着未满足——这种'进展中但卡住'的悬置态产生goal_congruence负向(焦虑悬置型负),并非真正的威胁负。coping_potential为高:他已有一套清晰方法(隔离变量+记录build号+防偏倚规范),能继续推进,因此情绪不会塌成恐惧/悲伤,而是收束为好奇+渴望+轻度自豪。"
+  },
+  "chain_trace": "控制欲+安全感欲 →(硬件已报但掉线结果空缺、防失败者偏倚的情境)→ N01_确定性(weight 0.35)+N04_理解世界(0.30)+N02_掌控局面(0.25)+N03_提升能力(0.10) →(评价:goal_relevance 0.9 / direction促进 / need_status未满足 → congruence负 / coping高)→ curiosity好奇(0.35)+desire渴望(0.25)+approval认同(0.15)+pride自豪(0.10) → attend关注(0.40)+approach趋近(0.30)+dominate支配(0.20) 的完整推导——'我想要可预测的助听器,所以我系统性收集数据,虽然还差结果但我有办法,所以我既好奇又自豪地持续索取并定义什么算有效数据'。",
+  "within_js": {
+   "desire_vec": 0.0463,
+   "need_vec": 0.0852,
+   "emotion_vec": 0.0999,
+   "action_vec": 0.0816
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "pain_seek",
+    "weight": 0.6,
+    "evidence_quote": "I still need the result. I want to know whether it drops at all, and if nothing happens on a normal walk I want that too. Which pocket. Which ear went first, if one did. Two more if you have them.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "system",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N01",
+    "freshness_days_hint": 20,
+    "name": "痛点·求解结",
+    "family": "推动",
+    "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+    "behavior_predicted": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+   },
+   {
+    "key": "audit",
+    "weight": 0.25,
+    "evidence_quote": "Was audio actually streaming, because the link sits idle otherwise and a quiet walk tells me nothing. Indoors or outdoors, since one person here is stable at 18 metres inside and drops at 30 outside. No dropouts is a real answer. I'd log it the same as a failure.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "other_agent",
+     "target_layer": "epistemic_trust"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N10",
+    "freshness_days_hint": 10,
+    "name": "验真·审计结",
+    "family": "阻挡",
+    "playbook": "不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』);第二次提及=放大事件",
+    "behavior_predicted": "审计通道·中成本+社交风险:公开揭穿/对质/查资历;解决前阻断内容采纳。说服链路的前置闸门,排在所有结之前"
+   },
+   {
+    "key": "reward",
+    "weight": 0.15,
+    "evidence_quote": "Thanks. That's the hardware line filled in.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "安全感欲",
+    "need_code": "N06",
+    "freshness_days_hint": 2,
+    "name": "爽点·回报结",
+    "family": "推动",
+    "playbook": "短收;自我缩小;不再投喂信息(需求已闭,长文=把关掉的门重开)",
+    "behavior_predicted": "致谢通道·低中成本:收藏声明/致谢/自来水布道。驱动留存分享(留存维ρ≈0.26-0.5)"
+   }
+  ],
+  "levers_present": [
+   "证言(Ray6 跨硬件同 OS 代际观察为 firmware 维度背书)"
+  ],
+  "notes": "高 coping 的方法学型求解者:主结 pain_seek(详述症状+已试步骤+询盘三件套齐备),叠加 audit(把'无掉线'当掉线处理、追问是否真在流媒体、室内/室外差异——软归责到采集方),以 reward 做低成本开篇致谢,审计姿态本身被 Ray6 证言杠杆加固。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}

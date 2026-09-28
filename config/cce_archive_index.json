@@ -5,7 +5,7 @@
  "finding": "★ 2026-09-03 更正: 原 finding「32 个 run 全部不可重建」**是错的, 错在查错了仓** —— 那次 gh api 只查了私仓 luogangan7-lgtm/cce-engine, 而 2026-08-17 起生产入口已迁公开仓 luogangan7-lgtm/cce-engine-oss。换仓复查后 23 个 run 仍有 artifact 且 expired=false, 已全部取回落入 archive/(391 文件, 逐件 sha256, 源与落档件数相等)。根因不是「查错了」而是「这个查询根本没有代码」: 人工跑一次把结论写死, 没有可重跑的检查 ⇒ 错了 15 条也没有任何东西会发现。当前: 本地已归档 26 个, 两仓皆无 19 个。",
  "what_survived": "本地归档 26 见 archive/<run_id>/_listing.json",
  "policy": {
-  "future_runs": "目标: 每个 run 完成时 archive_run() 落本地并入册。★ 2026-09-28 核实: archive_run() 没有任何调用方, 这条从未被执行 —— 它是目标不是现状(见 scripts/cce_open_items.py 的 OPEN_WORK「生产 run 自动归档」, 最早一批 artifact 2026-11-15 起过期)。",
+  "future_runs": "执行件: scripts/cce_archive.py --pull-new(幂等, 过化名闸)。2026-09-29 首跑后存量待归档 = 0; 定期触发尚未接(见 scripts/cce_open_items.py)。",
   "new_claims": "任何新机制/新结论不得直接引用 run_id 作证据。",
   "rebuild": "缺任何一块都大声失败, 绝不静默补空 —— 空壳重建比重建失败坏得多。",
   "irrecoverable_claim": "标 IRRECOVERABLE 必须带 checked_against(覆盖全部 push 远端)与 checked_at。★ 只查一个仓得出的「不可恢复」不是结论 —— 2026-09-03 实际发生过, 错了 15 条。",
@@ -1252,6 +1252,286 @@
     "checked_at": "2026-09-28",
     "how": "owner 2026-09-28「同意删除」; 删前逐字节备份(保险库 artifacts/<id>/ + _run_logs_<run>.zip + _sha256.txt, 扁平副本逐字节核对相同)。删后核: GET actions/runs/<run>/artifacts total_count=0, GET actions/runs/<run>/logs = 404。"
    }
+  },
+  "32009103841": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/32009103841",
+   "files": 11,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "32010607011": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/32010607011",
+   "files": 14,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "32011858417": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/32011858417",
+   "files": 14,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "32014210283": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/32014210283",
+   "files": 11,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "32014557513": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/32014557513",
+   "files": 11,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "32022040878": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/32022040878",
+   "files": 5,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "32022312018": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/32022312018",
+   "files": 8,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "32023964263": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/32023964263",
+   "files": 11,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "32028151177": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/32028151177",
+   "files": 8,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "32030534650": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/32030534650",
+   "files": 8,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "32087967881": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/32087967881",
+   "files": 11,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "32089277110": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/32089277110",
+   "files": 14,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "32090517282": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/32090517282",
+   "files": 8,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "32091721211": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/32091721211",
+   "files": 8,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "32093610016": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/32093610016",
+   "files": 8,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "33743511788": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/33743511788",
+   "files": 7,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "33744795785": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/33744795785",
+   "files": 8,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "36421040788": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine-oss"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/36421040788",
+   "files": 6,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "36302985238": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/36302985238",
+   "files": 8,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
+  },
+  "36303609675": {
+   "status": "LOCALLY_ARCHIVED",
+   "referenced_in": [
+    "config/cce_archive_index.json"
+   ],
+   "reason": "生产 run 定期归档(cce_archive.py --pull-new)",
+   "checked_against": [
+    "luogangan7-lgtm/cce-engine"
+   ],
+   "checked_at": "2026-09-29",
+   "local_path": "archive/36303609675",
+   "files": 10,
+   "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"
   }
  },
  "negative_test_run_ids": {

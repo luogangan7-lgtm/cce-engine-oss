@@ -208,6 +208,19 @@ assert A._identity_hits("m.json", b'{"reader": {"actor_ref": "reddit:u/user_4"}}
 assert A._identity_hits("log.txt", ("thanks %s for this" % _fake).encode()) == 1
 assert A._identity_hits("log.txt", b"thanks u/user_12") == 0
 
+# ★ 2026-09-29: --pull-new 的挑选 = 已完成 ∧ artifact 未过期 ∧ 未入册(离线替换 gh)
+import subprocess as _sp, types as _ty
+_done = next(iter(INDEX["runs"]))
+def _fake_gh(cmd, **kw):
+    path = cmd[2]
+    out = ("111\n222\n" + _done + "\n") if "/runs?" in path else ("222\n333\n" + _done + "\n")   # 111 无活 artifact; 333 非 cce-submit
+    return _ty.SimpleNamespace(stdout=out, returncode=0)
+_keep = _sp.run; _sp.run = _fake_gh
+try:
+    assert A.pending_production_runs(["x/y"]) == {"x/y": ["222"]}
+finally:
+    _sp.run = _keep
+
 # ★ 2026-09-03 CI 实跑更正: 原断言是 `set(A.push_remotes()) >= {两个仓}` ——
 #   那是把**我这台机器的 git 配置**当成了全局不变量。CI 的 checkout 只有一个 remote,
 #   于是 ①测试在 CI 上必红 ②闸本身在 CI 上自动变松(「全部 push 远端」缩水成「那一个」)。

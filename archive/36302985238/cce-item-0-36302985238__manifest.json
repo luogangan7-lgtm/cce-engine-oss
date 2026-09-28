@@ -1,0 +1,160 @@
+{
+ "mode": "reply",
+ "started": "2026-09-27 07:31:44",
+ "text_sha1": "a6a29700159e",
+ "text_sha256": "sha256:1c1241afe939ce6074ff98098cacc9b9ebe5eaa718849adc8e1adbf2961d75ce",
+ "chain": [
+  "reader_baseline",
+  "s0_context",
+  "s1_readout",
+  "s2_knots",
+  "s3_emotion_policy",
+  "s4_guard",
+  "qualified_readout"
+ ],
+ "submission": {
+  "submission_id": "humaux:reply:20260927:s0-structural-check-1",
+  "job_id": "job:humaux:reply:20260927:s0-structural-check-1",
+  "content_id": "content:humaux:reply:20260927:s0-structural-check-1",
+  "profile": "outbound_reply",
+  "schema_version": "1.1.0",
+  "platform": "reddit",
+  "platform_adapter": {
+   "id": "reddit",
+   "version": "1.0.0"
+  },
+  "surface": "r/HearingAids",
+  "surface_context": {
+   "kind": "community",
+   "id": "r/HearingAids",
+   "observed_at": "2026-09-27T01:00:00Z"
+  },
+  "domain": "hearing_aid",
+  "speaker_role": "otc_hearing_aid_oem",
+  "guard_profile": "hearing_aid",
+  "language": "en",
+  "context_snapshot": {
+   "id": "context:content:humaux:reply:20260927:s0-structural-check-1:2026-09-27T01:00:00Z",
+   "observed_at": "2026-09-27T01:00:00Z",
+   "platform": "reddit",
+   "platform_adapter": {
+    "id": "reddit",
+    "version": "1.0.0"
+   },
+   "surface": {
+    "kind": "community",
+    "id": "r/HearingAids",
+    "observed_at": "2026-09-27T01:00:00Z"
+   },
+   "domain": "hearing_aid",
+   "summary": "Public reply to a Reddit r/HearingAids member",
+   "dimensions": {
+    "time": {
+     "value": "2026-08-13T07:50:00Z",
+     "assertion": "observed",
+     "evidence_refs": [
+      "comment:example:001"
+     ]
+    },
+    "social": {
+     "value": "public member reply",
+     "assertion": "observed",
+     "evidence_refs": [
+      "comment:example:001"
+     ]
+    },
+    "relationship": {
+     "value": "first contact",
+     "assertion": "derived",
+     "evidence_refs": [
+      "comment:example:001"
+     ]
+    },
+    "current_goal": {
+     "value": "troubleshooting",
+     "assertion": "inferred",
+     "evidence_refs": [
+      "comment:example:001"
+     ]
+    }
+   },
+   "provenance": {
+    "producer": "example",
+    "version": "1.1.0"
+   }
+  },
+  "text_sha256": "sha256:1c1241afe939ce6074ff98098cacc9b9ebe5eaa718849adc8e1adbf2961d75ce",
+  "reader_text_sha256": "sha256:297291a67762932b70f7eb36c788e2fdae408bc21ff0e5ff14a61ea7baff5758",
+  "reader_actor_ref": "reddit:u/user_s0check",
+  "reader_evidence_ref": "comment:synthetic:s0-structural-check"
+ },
+ "finished": "2026-09-27 07:32:50",
+ "stages": {
+  "reader_baseline": {
+   "status": "FAIL",
+   "sec": 65.8,
+   "error": "RuntimeError: knot_classify rc=1: ile \"/home/runner/work/cce-engine/cce-engine/scripts/cce_knot_classify.py\", line 973, in _stage2_aggregate\n    raise RuntimeError(f\"stage2 {n} 次抽样全部失败(raw 已存)\")\nRuntimeError: stage2 5 次抽样全部失败(raw 已存)\n"
+  },
+  "s0_context": {
+   "status": "OK",
+   "sec": 8.4,
+   "file": "s0_context.json",
+   "fill_rate": 0.778,
+   "read_backend": "minimax_fallback(NO_TYPESAFE_API_KEY)",
+   "已声明": [
+    "进程位置",
+    "关系位置",
+    "社会在场",
+    "信息环境"
+   ],
+   "结构冷读": [
+    "情绪余温"
+   ],
+   "读出": [
+    "触发事件",
+    "身体状态"
+   ],
+   "未知": [
+    "资源状态",
+    "场景类型"
+   ],
+   "结构冷读提示": "未声明 情绪余温 ⇒ 按首轮处理; 与读者有过上一轮互动时, 调用方必须在 context.declaration 里声明",
+   "置信提示": "填充度足够"
+  },
+  "s1_readout": {
+   "status": "OK",
+   "sec": 57.4,
+   "file": "s1_readout.json",
+   "measurement_status": "qualified",
+   "k": {
+    "k_requested": 3,
+    "k_attempted": 3,
+    "k_valid": 3,
+    "k_abstained": 0
+   },
+   "within_js": {
+    "desire_vec": 0.0664,
+    "need_vec": 0.1348,
+    "emotion_vec": 0.0682,
+    "action_vec": 0.0551
+   },
+   "within_js_max": {
+    "desire_vec": 0.12,
+    "need_vec": 0.161,
+    "emotion_vec": 0.157,
+    "action_vec": 0.125
+   },
+   "over_noise_floor": null,
+   "tops": {
+    "desire": "确认欲",
+    "need": "N01_确定性",
+    "emotion": "approval认同",
+    "action": "approach趋近"
+   },
+   "tops_withheld": null,
+   "high_divergence_flag": null
+  }
+ },
+ "complete": false,
+ "failed_at": "reader_baseline"
+}

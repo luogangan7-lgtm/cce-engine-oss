@@ -1,0 +1,143 @@
+{
+ "input_sha": "472b05b9d376833e",
+ "run_at": "2026-08-17T09:17:06",
+ "instrument": {
+  "stage1": "exp_v4_full_validation(frozen, M3)",
+  "stage2": "knot_taxonomy v1.3.1 (M3)",
+  "taxonomy_status": "v1 操作化启用;验收 gate G-K1(盲标κ≥0.6)/G-K2(行为成本档预测)/G-K3(签名两两可分)未跑,结论引用须带「未验」标注"
+ },
+ "stage1": {
+  "k_requested": 3,
+  "k_ok": 3,
+  "layers": {
+   "desire_vec": [
+    0.013333333333333334,
+    0.20666666666666667,
+    0.043333333333333335,
+    0.09999999999999999,
+    0.016666666666666666,
+    0.20333333333333334,
+    0.3666666666666667,
+    0.03666666666666667,
+    0.013333333333333334
+   ],
+   "need_vec": [
+    0.19333333333333336,
+    0.3,
+    0.1433333333333333,
+    0.20000000000000004,
+    0.013333333333333334,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.03333333333333333,
+    0.08333333333333333,
+    0.03333333333333333,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emotion_vec": [
+    0.006666666666666667,
+    0.03,
+    0.0,
+    0.09000000000000001,
+    0.0,
+    0.07666666666666666,
+    0.0,
+    0.07333333333333333,
+    0.19000000000000003,
+    0.47666666666666674,
+    0.013333333333333334,
+    0.0,
+    0.043333333333333335
+   ],
+   "action_vec": [
+    0.4166666666666667,
+    0.0,
+    0.3,
+    0.016666666666666666,
+    0.01,
+    0.016666666666666666,
+    0.24
+   ]
+  },
+  "tops": {
+   "desire": "控制欲",
+   "need": "N02_掌控局面",
+   "emotion": "curiosity好奇",
+   "action": "approach趋近"
+  },
+  "appraisal": {
+   "goal_relevance": 0.85,
+   "congruence_direction": "促进",
+   "need_status": "未满足",
+   "goal_congruence": "正",
+   "coping_potential": "高",
+   "note": "goal_relevance 高,因为这个模糊求助正中其『答疑解难』的目标;congruence=促进,因为主动写出结构化追问本身就是把不可解题往可解题上推;但 need_status=未满足,因为对方还没回,『具体什么坏了』这个核心信息还没拿到,所以正情绪带『悬置』感(好奇+轻微宽慰,不是完整喜悦);coping_potential=高,他有把握只要对方提供型号+症状就能往下推——这是正而非负情绪的关键"
+  },
+  "chain_trace": "控制欲(想握诊断流程)+成为欲(想当能解题的人) → 看到『I need help』无任何上下文的模糊求助 + 实名群里首轮接触 → 需求N04_理解世界(必须知道型号/连接/具体故障)+N02_掌控局面(用结构化追问夺回主导)+N03_提升能力(把方法外化) → 评价:促进(把模糊往清晰推)+未满足(对方还没回)+正(因高coping)+高应对潜能 → 情绪curiosity好奇(What's going on?)+approval认同(对自己结构化方法)+微量relief/pride → 行动倾向approach趋近(主动回复『Happy to try』)+attend关注(枚举故障模式)+dominate支配(三段式问句主导对话)",
+  "within_js": {
+   "desire_vec": 0.1058,
+   "need_vec": 0.2553,
+   "emotion_vec": 0.1745,
+   "action_vec": 0.0531
+  }
+ },
+ "stage2": {
+  "knots": [
+   {
+    "key": "pain_seek",
+    "weight": 0.7,
+    "evidence_quote": "tell me the model and what they're connected to, and what exactly fails. Sound cutting out, one side only, TV, phone calls. That tells me a lot more than a spec sheet does.",
+    "signature": {
+     "congruence": "威胁",
+     "need_status": "未满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "system",
+     "target_layer": "consumption_goal"
+    },
+    "desire_code": "控制欲",
+    "need_code": "N02",
+    "freshness_days_hint": 2,
+    "name": "痛点·求解结",
+    "family": "推动",
+    "playbook": "给杠杆+机制+可执行下一步;不空承诺,承认边界",
+    "behavior_predicted": "求助通道·高成本:详述症状+已试步骤+照做回报+询盘。高成本行为的必要条件(内部 6/6)"
+   },
+   {
+    "key": "display",
+    "weight": 0.3,
+    "evidence_quote": "That tells me a lot more than a spec sheet does.",
+    "signature": {
+     "congruence": "促进",
+     "need_status": "已满足",
+     "coping": "高",
+     "time": "现在",
+     "attribution": "none",
+     "target_layer": "identity"
+    },
+    "desire_code": "确认欲",
+    "need_code": "N10",
+    "freshness_days_hint": 2,
+    "name": "确证·展示结",
+    "family": "推动",
+    "playbook": "让位;被当同侪;接着他的贡献往前走,绝不纠正姿态压他",
+    "behavior_predicted": "展示通道·低→高成本:纠错亮牌/举反例晒型号/结构化长评/承诺回访。评论区最高质量UGC主力"
+   }
+  ],
+  "levers_present": [
+   "好奇缺口"
+  ],
+  "notes": "专家/验配师型回应者,以结构化追问把模糊求助收口到可执行诊断;主驱为求解结(控制欲·N02),辅以经验展示(display·N10)亮出方法论权威。"
+ },
+ "caveats": [
+  "结分类学 v1: G-K1/G-K2/G-K3 验收未跑,引用须带「未验」",
+  "全占比: knots 是带权组合,禁把单个 top 当断言",
+  "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准"
+ ]
+}

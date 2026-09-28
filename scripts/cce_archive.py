@@ -300,7 +300,7 @@ def pull(run_ids: list[str], repo: str, reason: str) -> int:
                           "conclusion": meta["conclusion"], "created_at": meta["created_at"],
                           "recovered_at": time.strftime("%Y-%m-%d")}, arts)
         index["runs"][rid] = {"status": LOCALLY_ARCHIVED, "referenced_in": ["config/cce_archive_index.json"],
-                              "reason": reason, "checked_against": [repo], "checked_at": meta["updated_at"][:10],
+                              "reason": reason, "checked_against": [repo], "checked_at": time.strftime("%Y-%m-%d"),  # 核的日期, 不是 run 的日期
                               "local_path": f"archive/{rid}", "files": len(arts) + 1,
                               "★rebuildable_locally": "是。经 cce_archive.py --pull 逐件落档(过化名闸)"}
         print(f"✓ {rid}: {len(arts)} 个文件落 archive/{rid}")
@@ -309,7 +309,36 @@ def pull(run_ids: list[str], repo: str, reason: str) -> int:
     return 1 if bad else 0
 
 
+def pending_production_runs(repos: list[str]) -> dict[str, list[str]]:
+    """两仓里已完成、artifact 未过期、却未入册的生产 run(cce-submit.yml)。"""
+    import subprocess
+    indexed = json.load(open(INDEX, encoding="utf-8"))["runs"]
+    out = {}
+    for repo in repos:
+        def _tsv(path, jq):
+            r = subprocess.run(["gh", "api", path, "--paginate", "--jq", jq], capture_output=True, text=True, check=True)
+            return [l.split("\t") for l in r.stdout.strip().splitlines() if l]
+        runs = _tsv(f"repos/{repo}/actions/workflows/cce-submit.yml/runs?per_page=100",
+                    ".workflow_runs[]|select(.status==\"completed\")|[(.id|tostring)]|@tsv")
+        live = {r[0] for r in _tsv(f"repos/{repo}/actions/artifacts?per_page=100",
+                                   ".artifacts[]|select(.expired==false)|[(.workflow_run.id|tostring)]|@tsv")}
+        out[repo] = sorted(r[0] for r in runs if r[0] in live and r[0] not in indexed)
+    return out
+
+
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "--pull-new":
+        # ★ 2026-09-29: 「每个生产 run 都归档」的执行件 —— 幂等, 可反复跑(定期跑它, artifact 就不会在 90 天后无声过期)。
+        #   用法: cce_archive.py --pull-new [--dry-run]
+        pend = pending_production_runs(["luogangan7-lgtm/cce-engine-oss", "luogangan7-lgtm/cce-engine"])
+        print(json.dumps({r: len(v) for r, v in pend.items()}))
+        if "--dry-run" in sys.argv:
+            sys.exit(0)
+        rc = 0
+        for repo, rids in pend.items():
+            if rids:
+                rc |= pull(rids, repo, "生产 run 定期归档(cce_archive.py --pull-new)")
+        sys.exit(rc)
     if len(sys.argv) > 2 and sys.argv[1] == "--pull":
         # 用法: cce_archive.py --pull <run_id>... [--repo owner/name] [--reason 文本]
         args, repo, reason = sys.argv[2:], "luogangan7-lgtm/cce-engine-oss", "手动拉取归档"
