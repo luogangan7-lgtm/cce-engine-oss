@@ -2,6 +2,10 @@ name: CCE Submit
 run-name: CCE ${{ inputs.submission_id || github.event.client_payload.submission.submission_id || github.run_id }}
 
 on:
+  # ★ 2026-09-29 (诊断 #46): push 到 master 只跑合同 job(全量套件), 且只在公开仓(分钟不计费)。
+  #   同一提交之后的每次生产 dispatch 复用这次绿灯, 不再各自重跑全量套件(实测合同 job 占生产运行 64–87%)。
+  push:
+    branches: [master]
   pull_request:
     paths:
       - ".github/workflows/cce-submit.yml"
@@ -37,6 +41,7 @@ concurrency:
 
 jobs:
   contract:
+    if: github.event_name != 'push' || github.repository == 'luogangan7-lgtm/cce-engine-oss'
     runs-on: ubuntu-24.04
     timeout-minutes: 20   # 装 onnxruntime+模型 约 100MB, 10 分钟不够
     steps:
@@ -48,16 +53,33 @@ jobs:
           #     CI 才是权威, 让检查恰好在权威处消失, 就是本项目记过的
           #     「环境降级下断言静默变成恒真」(无 key 时 dissolve_hit 返回 0, 断言退化成 0==0)。
           fetch-depth: 0
+      - id: verified
+        name: Reuse this exact commit's green full-suite run (dispatch only)
+        # 同一 SHA 的 push 运行已跑完全量套件且成功 ⇒ 本次 dispatch 跳过套件与媒体依赖, 其余快闸照跑。
+        # 查不到(还没跑完 / 失败 / 查询出错)⇒ 照旧自己跑全量 —— 只有「查到成功」才跳, 出错一律不跳。
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          n=$(gh api "repos/luogangan7-lgtm/cce-engine-oss/actions/workflows/cce-submit.yml/runs?head_sha=${GITHUB_SHA}&event=push&status=success" --jq '.total_count' 2>/dev/null || echo 0)
+          if [ "${n:-0}" -gt 0 ] 2>/dev/null; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::提交 ${GITHUB_SHA} 的全量套件已在 push 运行中通过 —— 本次跳过重跑"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
       - run: pip install -r requirements.txt
       - name: Media deps
+        if: steps.verified.outputs.found != 'true'
         # 合同 job 跑**全部**测试, 其中 test_cce_image_chain_ci 要真跑 OCR。
         # 不装 ⇒ 它在 CI 上恒走降级路径, 「CI 全链回放」这个晋升条件就永远只是名义上满足。
         run: pip install -r requirements-media.txt
       - name: Submission, content, subject-window, cross-plane and response gates
+        if: steps.verified.outputs.found != 'true'
         # 2026-08-18: 原先是硬编码的 11 行清单。新增测试文件若忘了加进去,
         # 它就**永远不跑, 而 CI 照样全绿** —— 假检查, 且失效时无声。
         # 改成遍历 + 数量下限自守: 路径写错/文件被误删会红, 不会静默跑零个。
@@ -103,7 +125,7 @@ jobs:
 
   prep:
     needs: contract
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch'
     runs-on: ubuntu-24.04
     outputs:
       profile: ${{ steps.package.outputs.profile }}

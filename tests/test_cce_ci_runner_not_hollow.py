@@ -62,3 +62,23 @@ def test_runsuite_names_parallel_only_reds_without_failing():
         assert "绿 1 / 红 1" in p.stdout and "真红 0" in p.stdout and "[仅并行红] 1" in p.stdout, p.stdout
         named = re.findall(r"^### \[仅并行红\] (test_lock_[ab]\.py)$", p.stdout, re.M)
         assert len(named) == 1 and "FileExistsError" in p.stdout.split("### [仅并行红]")[1], p.stdout
+
+
+def test_dispatch_reuses_only_this_commits_green_push_suite():
+    """★ 2026-09-29 (诊断 #46): 生产 dispatch 复用同一提交在 push 上跑绿的全量套件; 只有「查到成功」才跳, push 本身永远跑全量。"""
+    import yaml
+    wf = yaml.safe_load((ROOT / ".github/workflows/cce-submit.yml").read_text(encoding="utf-8"))
+    on = wf.get(True) or wf.get("on")
+    assert on["push"]["branches"] == ["master"]
+    job = wf["jobs"]["contract"]
+    assert job["if"] == "github.event_name != 'push' || github.repository == 'luogangan7-lgtm/cce-engine-oss'"
+    steps = {s.get("name") or s.get("uses") or s.get("run"): s for s in job["steps"]}
+    look = steps["Reuse this exact commit's green full-suite run (dispatch only)"]
+    assert "workflow_dispatch" in look["if"] and "push" not in look["if"], "只有 dispatch 才查, push 必须自己跑"
+    assert "head_sha=${GITHUB_SHA}" in look["run"] and "event=push" in look["run"] and "status=success" in look["run"]
+    assert "|| echo 0" in look["run"], "查询出错必须当作「没查到」—— 出错不跳"
+    suite = steps["Submission, content, subject-window, cross-plane and response gates"]
+    assert suite["if"] == "steps.verified.outputs.found != 'true'" and "python3 probes/dev_runsuite.py" in suite["run"]
+    gates = [n for n in steps if isinstance(n, str) and n.endswith("gate")]
+    assert gates and all("if" not in steps[n] for n in gates), "快闸每次都跑, 不随套件跳过"
+    assert wf["jobs"]["prep"]["if"] == "github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch'", "push 不许触发测量"
