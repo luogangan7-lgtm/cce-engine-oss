@@ -171,7 +171,9 @@ def rows() -> list[dict]:
                          + " ⇒ " + _rp["v1"]["verdict"] + "; **成对读(把我方上一条消息一起给)泄漏比 "
                          + " / ".join(str(v["leak_ratio"]) for v in _rp["paired"]["shift"].values())
                          + " ⇒ " + _rp["paired"]["verdict"] + "**。2026-09-29 owner 同意加合同字段 ⇒ **已接线**: response_source.responses[].prior_turn"
-                           "(我方上一条消息逐字+sha256) 给了才成对读出、完整分布落 s0_context.json; 没给仍扣发。闸 tests/test_cce_s0_paired_residue.py"),
+                           "(我方上一条消息逐字+sha256) 给了才成对读出、完整分布落 s0_context.json 与 manifest; 没给仍扣发。闸 tests/test_cce_s0_paired_residue.py。"
+                           "线上 canary: #1(archive/36572885138)抓到截断 bug(长 prior 把回应截掉, 8 条同为 未知≈0.65), 修后 #2(archive/36580963929)8/8 complete、"
+                           "分布彼此分开(正向 1.0×4 / 正向 0.46–0.73×3 / 负向 0.70×1)。自然文本准确率仍未测(无个体金标), 前瞻闭环攒 n>=40 再判"),
                 "文件": "scripts/cce_s0_jev.py(READ_WITHHELD) · scripts/cce_full_run.py(s0)"})
     out.append({"组件": "s2b 引用证书(影子段)", "状态": UNMEASURED,
                 "证据": ("线上开着(仓库变量 CCE_CITATION_CERT, 未设=开), 只把 top-1=display 且稳定的读数升到 ③′ CITED_UNVERIFIED, "
