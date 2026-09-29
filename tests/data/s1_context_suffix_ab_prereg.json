@@ -1,0 +1,22 @@
+{
+ "block": "S1_CONTEXT_SUFFIX_AB",
+ "prereg_written_at": "2026-09-29",
+ "★frozen_before_measurement": "本文件与 probes/s1_context_suffix_ab.py 在发起调用之前提交。",
+ "★why": "生产状态表 s1 行: 「标定时 s1 的语境串不含 s0【情境】后缀; 生产现在带, 带后缀的全流程重测尚无」。WITHIN_JS_MAX 与 K1 top-1 判定都在不带后缀的条件下标定; 2026-09-29 起 response 模式后缀还可能带 情绪余温(成对读出)。",
+ "material": "16 条真实文本: post6 的 8 条入站回应(prior_turn = post6 发布版正文) + shadow.load_passages()[20:28](此前 s0 各测试未用); 语境基串与生产 response 模式同形; 后缀由生产同一套 s0 函数现读生成, 后缀为空的文本不进对照(两臂相同)",
+ "design": "每条 s1(K=3, 生产 run_knot_classify)跑 4 次: 带后缀 ×2 / 不带 ×2, 交错顺序",
+ "metrics": {
+  "excess_js": "每条每层: 臂间 JS 均值(4 个跨臂配对) − 臂内 JS 均值(两臂各自两次之间)。层 = desire/need/emotion/action 聚合分布(全占比, 不是 top-1)",
+  "stable_top1_flips": "两臂各自两次 top-1 一致、但两臂之间不同的条数 —— 只报告",
+  "ci": "按文本 bootstrap 95%(2000 次, seed 20260929)"
+ },
+ "decision_rule_per_layer": {
+  "SHIFTS": "excess_js 均值 >= 0.05 且区间下界 > 0",
+  "NEUTRAL": "否则",
+  "★thresholds_are_conventions": "0.05 约为 WITHIN_JS_MAX(0.12–0.16)的三分之一; 约定, 不因结果调整"
+ },
+ "★ship_rule": "任一层 SHIFTS ⇒ 生产 s1 读出处于标定条件之外: s1 语境串改回不带后缀(恢复标定条件; s0 情境仍写入 manifest 供下游), 另立预注册再决定是否带后缀重新标定。全部 NEUTRAL ⇒ 保留后缀, 状态表 s1 行的这条缺口改记为已测。",
+ "★predictions": {"P1": "need 层 NEUTRAL(历史: 需求对情境位移仅 .06–.13)", "P2": "emotion 或 action 至少一层 SHIFTS(历史: 情境位移 .36–.78)"},
+ "★cannot_claim": ["带或不带哪种更准(无个体金标)", "只覆盖 response 形态文本与同一社区"],
+ "budget": {"minimax_requests_expected": "16 × 4 × 8 ≈ 512(实测每次 s1 约 8 次)", "jev_requests_expected": "≈ 24", "hard_cap": 600, "on_cap": "撞上限抛 BudgetExceeded 即停, 已得数据照写"}
+}
