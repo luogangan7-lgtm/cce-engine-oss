@@ -1,0 +1,4361 @@
+{
+ "block": "S0_RESIDUE_PROFILE",
+ "run_at": "2026-09-29",
+ "dry_run": false,
+ "prereg_sha256": "cfa14ed498f437b209c42a0e32dbdf22c5afa214e968722e68cb5fe4a20fd189",
+ "probe_sha256": "faba07a1535237c5049196c02925cea3fdbdc2a7bf8a281b3809fb1e73b31f1e",
+ "passages": [
+  "corpus/reddit_hearingaids_audience_v2.txt:17",
+  "corpus/reddit_hearingaids_audience_v2.txt:20",
+  "corpus/reddit_hearingaids_audience_v2.txt:34",
+  "corpus/reddit_hearingaids_audience_v2.txt:37",
+  "corpus/reddit_hearingaids_audience_v2.txt:38",
+  "corpus/reddit_hearingaids_audience_v2.txt:40",
+  "corpus/reddit_hearingaids_audience_v2.txt:42",
+  "corpus/reddit_hearingaids_audience_v2.txt:43",
+  "corpus/reddit_hearingaids_audience_v2.txt:47",
+  "corpus/reddit_hearingaids_audience_v2.txt:52"
+ ],
+ "requests": 260,
+ "errors": {},
+ "arms": {
+  "v1": {
+   "profile_mean": {
+    "OURS_POS": {
+     "正向余温": 0.976,
+     "负向余温": 0.01,
+     "中性": 0.001,
+     "首轮无余温": 0.0,
+     "未知": 0.013
+    },
+    "OURS_NEG": {
+     "正向余温": 0.0025,
+     "负向余温": 0.987,
+     "中性": 0.0005,
+     "首轮无余温": 0.0025,
+     "未知": 0.0075
+    },
+    "OTHER_POS": {
+     "正向余温": 0.586,
+     "负向余温": 0.076,
+     "中性": 0.014,
+     "首轮无余温": 0.0615,
+     "未知": 0.2625
+    },
+    "OTHER_NEG": {
+     "正向余温": 0.12,
+     "负向余温": 0.65,
+     "中性": 0.012,
+     "首轮无余温": 0.0775,
+     "未知": 0.1405
+    },
+    "EVENT_POS": {
+     "正向余温": 0.5495,
+     "负向余温": 0.0555,
+     "中性": 0.007,
+     "首轮无余温": 0.16,
+     "未知": 0.228
+    },
+    "EVENT_NEG": {
+     "正向余温": 0.1225,
+     "负向余温": 0.4185,
+     "中性": 0.0095,
+     "首轮无余温": 0.25,
+     "未知": 0.1995
+    },
+    "baseline": {
+     "正向余温": 0.203,
+     "负向余温": 0.095,
+     "中性": 0.042,
+     "首轮无余温": 0.249,
+     "未知": 0.411
+    }
+   },
+   "shift": {
+    "POS": {
+     "target": "正向余温",
+     "ours_mean_dp": 0.773,
+     "ours_ci": [
+      0.686,
+      0.8545
+     ],
+     "leak_mean_dp": 0.3648,
+     "leak_ci": [
+      0.313,
+      0.4155
+     ],
+     "leak_ratio": 0.4719,
+     "n_ours": 20,
+     "n_leak": 40
+    },
+    "NEG": {
+     "target": "负向余温",
+     "ours_mean_dp": 0.892,
+     "ours_ci": [
+      0.8045,
+      0.9615
+     ],
+     "leak_mean_dp": 0.4393,
+     "leak_ci": [
+      0.36,
+      0.5195
+     ],
+     "leak_ratio": 0.4924,
+     "n_ours": 20,
+     "n_leak": 40
+    }
+   },
+   "verdict": "LEAKS"
+  },
+  "paired": {
+   "profile_mean": {
+    "OURS_POS": {
+     "正向余温": 0.987,
+     "负向余温": 0.0015,
+     "中性": 0.0025,
+     "首轮无余温": 0.001,
+     "未知": 0.008
+    },
+    "OURS_NEG": {
+     "正向余温": 0.0145,
+     "负向余温": 0.972,
+     "中性": 0.0025,
+     "首轮无余温": 0.0045,
+     "未知": 0.0065
+    },
+    "OTHER_POS": {
+     "正向余温": 0.3655,
+     "负向余温": 0.0555,
+     "中性": 0.169,
+     "首轮无余温": 0.102,
+     "未知": 0.3075
+    },
+    "OTHER_NEG": {
+     "正向余温": 0.346,
+     "负向余温": 0.093,
+     "中性": 0.154,
+     "首轮无余温": 0.1075,
+     "未知": 0.2995
+    },
+    "EVENT_POS": {
+     "正向余温": 0.3725,
+     "负向余温": 0.053,
+     "中性": 0.1365,
+     "首轮无余温": 0.0865,
+     "未知": 0.3515
+    },
+    "EVENT_NEG": {
+     "正向余温": 0.3325,
+     "负向余温": 0.0905,
+     "中性": 0.1295,
+     "首轮无余温": 0.105,
+     "未知": 0.3425
+    },
+    "baseline": {
+     "正向余温": 0.389,
+     "负向余温": 0.103,
+     "中性": 0.143,
+     "首轮无余温": 0.078,
+     "未知": 0.286
+    }
+   },
+   "shift": {
+    "POS": {
+     "target": "正向余温",
+     "ours_mean_dp": 0.598,
+     "ours_ci": [
+      0.442,
+      0.7425
+     ],
+     "leak_mean_dp": -0.02,
+     "leak_ci": [
+      -0.0427,
+      0.001
+     ],
+     "leak_ratio": -0.0334,
+     "n_ours": 20,
+     "n_leak": 40
+    },
+    "NEG": {
+     "target": "负向余温",
+     "ours_mean_dp": 0.869,
+     "ours_ci": [
+      0.8235,
+      0.913
+     ],
+     "leak_mean_dp": -0.0112,
+     "leak_ci": [
+      -0.036,
+      0.0117
+     ],
+     "leak_ratio": -0.0129,
+     "n_ours": 20,
+     "n_leak": 40
+    }
+   },
+   "verdict": "DISCRIMINATES"
+  }
+ },
+ "raw": [
+  {
+   "arm": "v1",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": null,
+   "phrasing": null,
+   "top": "未知",
+   "probs": {
+    "首轮无余温": 0.24,
+    "未知": 0.73,
+    "正向余温": 0.0,
+    "负向余温": 0.0,
+    "中性": 0.03
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": null,
+   "phrasing": null,
+   "top": "未知",
+   "probs": {
+    "首轮无余温": 0.12,
+    "中性": 0.01,
+    "未知": 0.87,
+    "负向余温": 0.0,
+    "正向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": null,
+   "phrasing": null,
+   "top": "正向余温",
+   "probs": {
+    "负向余温": 0.01,
+    "首轮无余温": 0.22,
+    "正向余温": 0.61,
+    "未知": 0.16,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": null,
+   "phrasing": null,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.13,
+    "未知": 0.21,
+    "负向余温": 0.57,
+    "中性": 0.01,
+    "正向余温": 0.08
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": null,
+   "phrasing": null,
+   "top": "首轮无余温",
+   "probs": {
+    "中性": 0.01,
+    "首轮无余温": 0.57,
+    "正向余温": 0.0,
+    "未知": 0.33,
+    "负向余温": 0.09
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": null,
+   "phrasing": null,
+   "top": "未知",
+   "probs": {
+    "中性": 0.03,
+    "负向余温": 0.0,
+    "正向余温": 0.35,
+    "首轮无余温": 0.2,
+    "未知": 0.42
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": null,
+   "phrasing": null,
+   "top": "未知",
+   "probs": {
+    "正向余温": 0.33,
+    "首轮无余温": 0.08,
+    "负向余温": 0.02,
+    "未知": 0.49,
+    "中性": 0.08
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": null,
+   "phrasing": null,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.23,
+    "未知": 0.25,
+    "负向余温": 0.01,
+    "正向余温": 0.45999999999999996,
+    "首轮无余温": 0.05
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": null,
+   "phrasing": null,
+   "top": "首轮无余温",
+   "probs": {
+    "首轮无余温": 0.66,
+    "未知": 0.32,
+    "中性": 0.0,
+    "正向余温": 0.0,
+    "负向余温": 0.02
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": null,
+   "phrasing": null,
+   "top": "未知",
+   "probs": {
+    "中性": 0.02,
+    "负向余温": 0.23,
+    "正向余温": 0.2,
+    "首轮无余温": 0.22,
+    "未知": 0.33
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 1.0,
+    "负向余温": 0.0,
+    "中性": 0.0,
+    "首轮无余温": 0.0,
+    "未知": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "未知": 0.0,
+    "正向余温": 1.0,
+    "首轮无余温": 0.0,
+    "中性": 0.0,
+    "负向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.0,
+    "负向余温": 0.0,
+    "正向余温": 1.0,
+    "未知": 0.0,
+    "首轮无余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.0,
+    "未知": 0.01,
+    "首轮无余温": 0.0,
+    "正向余温": 0.98,
+    "负向余温": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.0,
+    "负向余温": 0.0,
+    "正向余温": 1.0,
+    "未知": 0.0,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 1.0,
+    "首轮无余温": 0.0,
+    "中性": 0.0,
+    "未知": 0.0,
+    "负向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "负向余温": 0.0,
+    "未知": 0.0,
+    "正向余温": 1.0,
+    "首轮无余温": 0.0,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.0,
+    "未知": 0.0,
+    "负向余温": 0.0,
+    "中性": 0.0,
+    "正向余温": 1.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "负向余温": 0.0,
+    "首轮无余温": 0.0,
+    "未知": 0.0,
+    "中性": 0.0,
+    "正向余温": 1.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.0,
+    "未知": 0.0,
+    "正向余温": 1.0,
+    "负向余温": 0.0,
+    "首轮无余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 0.99,
+    "首轮无余温": 0.0,
+    "负向余温": 0.0,
+    "未知": 0.01,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.0,
+    "未知": 0.06,
+    "正向余温": 0.9400000000000001,
+    "负向余温": 0.0,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "负向余温": 0.0,
+    "正向余温": 1.0,
+    "首轮无余温": 0.0,
+    "中性": 0.0,
+    "未知": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "未知": 0.03,
+    "负向余温": 0.14,
+    "正向余温": 0.83,
+    "首轮无余温": 0.0,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.0,
+    "负向余温": 0.0,
+    "未知": 0.06,
+    "中性": 0.0,
+    "正向余温": 0.94
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.0,
+    "未知": 0.01,
+    "正向余温": 0.99,
+    "负向余温": 0.0,
+    "首轮无余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.0,
+    "未知": 0.0,
+    "正向余温": 1.0,
+    "中性": 0.0,
+    "负向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.0,
+    "负向余温": 0.0,
+    "未知": 0.0,
+    "首轮无余温": 0.0,
+    "正向余温": 1.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.02,
+    "负向余温": 0.05,
+    "首轮无余温": 0.0,
+    "正向余温": 0.86,
+    "未知": 0.07
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.0,
+    "未知": 0.01,
+    "首轮无余温": 0.0,
+    "正向余温": 0.99,
+    "负向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.0,
+    "正向余温": 0.0,
+    "首轮无余温": 0.0,
+    "负向余温": 1.0,
+    "未知": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "未知": 0.01,
+    "中性": 0.0,
+    "首轮无余温": 0.0,
+    "正向余温": 0.0,
+    "负向余温": 0.99
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.0,
+    "正向余温": 0.0,
+    "负向余温": 1.0,
+    "中性": 0.0,
+    "未知": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.0,
+    "正向余温": 0.0,
+    "负向余温": 0.99,
+    "未知": 0.01,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "负向余温": 1.0,
+    "中性": 0.0,
+    "正向余温": 0.0,
+    "未知": 0.0,
+    "首轮无余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "负向余温": 0.99,
+    "未知": 0.01,
+    "正向余温": 0.0,
+    "首轮无余温": 0.0,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.0,
+    "未知": 0.0,
+    "首轮无余温": 0.0,
+    "负向余温": 1.0,
+    "正向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "负向余温": 1.0,
+    "未知": 0.0,
+    "正向余温": 0.0,
+    "首轮无余温": 0.0,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "负向余温": 1.0,
+    "首轮无余温": 0.0,
+    "正向余温": 0.0,
+    "中性": 0.0,
+    "未知": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.0,
+    "首轮无余温": 0.01,
+    "正向余温": 0.01,
+    "未知": 0.02,
+    "负向余温": 0.96
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.0,
+    "未知": 0.0,
+    "正向余温": 0.0,
+    "负向余温": 1.0,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.0,
+    "未知": 0.01,
+    "首轮无余温": 0.0,
+    "负向余温": 0.99,
+    "正向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.01,
+    "未知": 0.0,
+    "负向余温": 0.99,
+    "中性": 0.0,
+    "正向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.0,
+    "负向余温": 0.96,
+    "正向余温": 0.01,
+    "首轮无余温": 0.01,
+    "未知": 0.02
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "正向余温": 0.0,
+    "负向余温": 0.99,
+    "中性": 0.0,
+    "首轮无余温": 0.0,
+    "未知": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "正向余温": 0.02,
+    "首轮无余温": 0.01,
+    "负向余温": 0.92,
+    "中性": 0.01,
+    "未知": 0.04
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.0,
+    "未知": 0.0,
+    "正向余温": 0.0,
+    "负向余温": 1.0,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.0,
+    "首轮无余温": 0.0,
+    "负向余温": 1.0,
+    "未知": 0.0,
+    "正向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.0,
+    "负向余温": 1.0,
+    "正向余温": 0.0,
+    "未知": 0.0,
+    "首轮无余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.01,
+    "中性": 0.0,
+    "正向余温": 0.01,
+    "负向余温": 0.96,
+    "未知": 0.02
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "正向余温": 0.3,
+    "首轮无余温": 0.08,
+    "负向余温": 0.0,
+    "未知": 0.6,
+    "中性": 0.02
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "正向余温": 0.16,
+    "负向余温": 0.01,
+    "中性": 0.02,
+    "首轮无余温": 0.04,
+    "未知": 0.77
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 0.86,
+    "负向余温": 0.01,
+    "中性": 0.0,
+    "首轮无余温": 0.03,
+    "未知": 0.1
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "正向余温": 0.17,
+    "首轮无余温": 0.05,
+    "负向余温": 0.59,
+    "未知": 0.18,
+    "中性": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "首轮无余温": 0.12,
+    "负向余温": 0.12,
+    "正向余温": 0.17,
+    "中性": 0.03,
+    "未知": 0.56
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.02,
+    "正向余温": 0.67,
+    "首轮无余温": 0.04,
+    "负向余温": 0.0,
+    "未知": 0.27
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.02,
+    "正向余温": 0.76,
+    "未知": 0.19,
+    "负向余温": 0.0,
+    "中性": 0.03
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 0.91,
+    "中性": 0.01,
+    "首轮无余温": 0.01,
+    "负向余温": 0.0,
+    "未知": 0.07
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "首轮无余温": 0.18,
+    "未知": 0.48,
+    "负向余温": 0.08,
+    "中性": 0.03,
+    "正向余温": 0.23
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "正向余温": 0.29,
+    "首轮无余温": 0.08,
+    "中性": 0.03,
+    "未知": 0.39,
+    "负向余温": 0.21
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.0,
+    "正向余温": 0.82,
+    "首轮无余温": 0.04,
+    "负向余温": 0.0,
+    "未知": 0.14
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "首轮无余温": 0.05,
+    "中性": 0.02,
+    "正向余温": 0.42,
+    "负向余温": 0.01,
+    "未知": 0.5
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.05,
+    "中性": 0.0,
+    "正向余温": 0.85,
+    "负向余温": 0.01,
+    "未知": 0.09
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.01,
+    "未知": 0.11,
+    "首轮无余温": 0.03,
+    "正向余温": 0.47,
+    "负向余温": 0.38
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.18,
+    "正向余温": 0.52,
+    "中性": 0.01,
+    "未知": 0.26,
+    "负向余温": 0.03
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "负向余温": 0.0,
+    "首轮无余温": 0.02,
+    "正向余温": 0.88,
+    "未知": 0.09,
+    "中性": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "未知": 0.11,
+    "中性": 0.01,
+    "首轮无余温": 0.01,
+    "负向余温": 0.02,
+    "正向余温": 0.85
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.03,
+    "负向余温": 0.0,
+    "正向余温": 0.88,
+    "中性": 0.01,
+    "未知": 0.08
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "未知": 0.18,
+    "负向余温": 0.02,
+    "正向余温": 0.66,
+    "首轮无余温": 0.13,
+    "中性": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.0,
+    "未知": 0.08,
+    "首轮无余温": 0.04,
+    "正向余温": 0.85,
+    "负向余温": 0.03
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "正向余温": 0.0,
+    "负向余温": 0.73,
+    "中性": 0.0,
+    "首轮无余温": 0.12,
+    "未知": 0.15
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "负向余温": 0.67,
+    "未知": 0.27,
+    "正向余温": 0.0,
+    "首轮无余温": 0.06,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.0,
+    "首轮无余温": 0.13,
+    "正向余温": 0.51,
+    "未知": 0.14,
+    "负向余温": 0.22
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.1,
+    "未知": 0.13,
+    "负向余温": 0.66,
+    "中性": 0.01,
+    "正向余温": 0.1
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.0,
+    "正向余温": 0.0,
+    "负向余温": 0.5700000000000001,
+    "未知": 0.21,
+    "首轮无余温": 0.22
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 0.36,
+    "首轮无余温": 0.05,
+    "未知": 0.24,
+    "负向余温": 0.32,
+    "中性": 0.03
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "未知": 0.17,
+    "中性": 0.05,
+    "首轮无余温": 0.05,
+    "正向余温": 0.26,
+    "负向余温": 0.47
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.04,
+    "正向余温": 0.14,
+    "首轮无余温": 0.07,
+    "负向余温": 0.59,
+    "未知": 0.16
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.0,
+    "未知": 0.13,
+    "正向余温": 0.0,
+    "负向余温": 0.76,
+    "首轮无余温": 0.11
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.08,
+    "未知": 0.19,
+    "正向余温": 0.15,
+    "中性": 0.01,
+    "负向余温": 0.57
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "正向余温": 0.0,
+    "负向余温": 0.92,
+    "中性": 0.0,
+    "首轮无余温": 0.03,
+    "未知": 0.05
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.0,
+    "未知": 0.16,
+    "首轮无余温": 0.03,
+    "负向余温": 0.81,
+    "正向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.13,
+    "正向余温": 0.35,
+    "中性": 0.0,
+    "未知": 0.17,
+    "负向余温": 0.35
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.01,
+    "负向余温": 0.69,
+    "正向余温": 0.07,
+    "首轮无余温": 0.1,
+    "未知": 0.13
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.0,
+    "未知": 0.08,
+    "负向余温": 0.83,
+    "正向余温": 0.0,
+    "首轮无余温": 0.09
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.03,
+    "未知": 0.14,
+    "正向余温": 0.27,
+    "负向余温": 0.52,
+    "中性": 0.04
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.02,
+    "正向余温": 0.07,
+    "中性": 0.02,
+    "未知": 0.09,
+    "负向余温": 0.8
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.02,
+    "正向余温": 0.03,
+    "首轮无余温": 0.04,
+    "未知": 0.08,
+    "负向余温": 0.83
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.0,
+    "首轮无余温": 0.02,
+    "正向余温": 0.0,
+    "未知": 0.02,
+    "负向余温": 0.96
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "正向余温": 0.09,
+    "负向余温": 0.73,
+    "中性": 0.01,
+    "首轮无余温": 0.07,
+    "未知": 0.1
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 0.46,
+    "负向余温": 0.0,
+    "中性": 0.0,
+    "首轮无余温": 0.18,
+    "未知": 0.36
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.09,
+    "正向余温": 0.5,
+    "未知": 0.39,
+    "负向余温": 0.01,
+    "中性": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "负向余温": 0.01,
+    "未知": 0.11,
+    "正向余温": 0.82,
+    "首轮无余温": 0.06,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.06,
+    "正向余温": 0.39,
+    "负向余温": 0.42,
+    "未知": 0.12,
+    "中性": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "首轮无余温",
+   "probs": {
+    "中性": 0.01,
+    "首轮无余温": 0.37,
+    "正向余温": 0.32,
+    "未知": 0.25,
+    "负向余温": 0.05
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.06,
+    "正向余温": 0.78,
+    "未知": 0.15,
+    "负向余温": 0.0,
+    "中性": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "负向余温": 0.02,
+    "未知": 0.07,
+    "正向余温": 0.9,
+    "首轮无余温": 0.01,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.11,
+    "未知": 0.21,
+    "中性": 0.01,
+    "负向余温": 0.0,
+    "正向余温": 0.67
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "首轮无余温",
+   "probs": {
+    "中性": 0.0,
+    "负向余温": 0.03,
+    "正向余温": 0.3,
+    "未知": 0.22,
+    "首轮无余温": 0.45
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.01,
+    "首轮无余温": 0.14,
+    "未知": 0.22,
+    "负向余温": 0.09,
+    "正向余温": 0.54
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "未知": 0.52,
+    "中性": 0.01,
+    "首轮无余温": 0.16,
+    "正向余温": 0.31,
+    "负向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "负向余温": 0.01,
+    "未知": 0.53,
+    "首轮无余温": 0.09,
+    "中性": 0.01,
+    "正向余温": 0.36
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.0,
+    "负向余温": 0.0,
+    "正向余温": 0.96,
+    "首轮无余温": 0.02,
+    "未知": 0.02
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.01,
+    "负向余温": 0.35,
+    "正向余温": 0.46,
+    "未知": 0.12,
+    "首轮无余温": 0.06
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "首轮无余温",
+   "probs": {
+    "未知": 0.32,
+    "中性": 0.01,
+    "首轮无余温": 0.55,
+    "负向余温": 0.04,
+    "正向余温": 0.08
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.03,
+    "中性": 0.0,
+    "正向余温": 0.88,
+    "负向余温": 0.0,
+    "未知": 0.09
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.01,
+    "正向余温": 0.88,
+    "未知": 0.08,
+    "负向余温": 0.02,
+    "中性": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.08,
+    "未知": 0.25,
+    "正向余温": 0.65,
+    "中性": 0.02,
+    "负向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "首轮无余温",
+   "probs": {
+    "中性": 0.0,
+    "负向余温": 0.01,
+    "正向余温": 0.05,
+    "未知": 0.34,
+    "首轮无余温": 0.6
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.07,
+    "未知": 0.19,
+    "负向余温": 0.05,
+    "中性": 0.01,
+    "正向余温": 0.68
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.0,
+    "负向余温": 0.37,
+    "首轮无余温": 0.35,
+    "正向余温": 0.0,
+    "未知": 0.28
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "正向余温": 0.0,
+    "中性": 0.0,
+    "首轮无余温": 0.07,
+    "负向余温": 0.58,
+    "未知": 0.35
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "负向余温": 0.17,
+    "首轮无余温": 0.21,
+    "正向余温": 0.41,
+    "未知": 0.21,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "正向余温": 0.14,
+    "负向余温": 0.57,
+    "中性": 0.01,
+    "首轮无余温": 0.12,
+    "未知": 0.16
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "首轮无余温",
+   "probs": {
+    "正向余温": 0.0,
+    "未知": 0.13,
+    "中性": 0.0,
+    "首轮无余温": 0.61,
+    "负向余温": 0.26
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.08,
+    "未知": 0.2,
+    "正向余温": 0.37,
+    "负向余温": 0.31,
+    "中性": 0.04
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.03,
+    "未知": 0.08,
+    "中性": 0.03,
+    "正向余温": 0.15,
+    "负向余温": 0.71
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.05,
+    "正向余温": 0.11,
+    "负向余温": 0.74,
+    "未知": 0.07,
+    "中性": 0.03
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "首轮无余温",
+   "probs": {
+    "负向余温": 0.25,
+    "中性": 0.0,
+    "首轮无余温": 0.6,
+    "正向余温": 0.0,
+    "未知": 0.15
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.14,
+    "未知": 0.22,
+    "正向余温": 0.11,
+    "中性": 0.01,
+    "负向余温": 0.52
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "首轮无余温",
+   "probs": {
+    "中性": 0.0,
+    "正向余温": 0.0,
+    "首轮无余温": 0.43,
+    "负向余温": 0.25,
+    "未知": 0.32
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.0,
+    "未知": 0.34,
+    "首轮无余温": 0.16,
+    "负向余温": 0.5,
+    "正向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "未知": 0.21,
+    "首轮无余温": 0.27,
+    "正向余温": 0.43,
+    "负向余温": 0.09,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.13,
+    "负向余温": 0.53,
+    "正向余温": 0.14,
+    "未知": 0.19,
+    "中性": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "首轮无余温",
+   "probs": {
+    "负向余温": 0.13,
+    "未知": 0.16,
+    "正向余温": 0.0,
+    "首轮无余温": 0.71,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.09,
+    "负向余温": 0.41,
+    "中性": 0.02,
+    "正向余温": 0.29,
+    "未知": 0.19
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "未知": 0.12,
+    "正向余温": 0.08,
+    "负向余温": 0.75,
+    "首轮无余温": 0.04,
+    "中性": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.11,
+    "中性": 0.02,
+    "未知": 0.19,
+    "负向余温": 0.57,
+    "正向余温": 0.11
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "首轮无余温",
+   "probs": {
+    "中性": 0.0,
+    "未知": 0.16,
+    "首轮无余温": 0.62,
+    "负向余温": 0.22,
+    "正向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "v1",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.01,
+    "未知": 0.26,
+    "首轮无余温": 0.18,
+    "正向余温": 0.11,
+    "负向余温": 0.44
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": null,
+   "phrasing": null,
+   "top": "未知",
+   "probs": {
+    "中性": 0.19,
+    "首轮无余温": 0.1,
+    "正向余温": 0.0,
+    "未知": 0.66,
+    "负向余温": 0.05
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": null,
+   "phrasing": null,
+   "top": "未知",
+   "probs": {
+    "正向余温": 0.01,
+    "负向余温": 0.16,
+    "中性": 0.28,
+    "首轮无余温": 0.11,
+    "未知": 0.44
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": null,
+   "phrasing": null,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.01,
+    "正向余温": 0.93,
+    "首轮无余温": 0.01,
+    "负向余温": 0.0,
+    "未知": 0.04
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": null,
+   "phrasing": null,
+   "top": "正向余温",
+   "probs": {
+    "未知": 0.12,
+    "正向余温": 0.5,
+    "首轮无余温": 0.02,
+    "中性": 0.1,
+    "负向余温": 0.26
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": null,
+   "phrasing": null,
+   "top": "未知",
+   "probs": {
+    "负向余温": 0.16,
+    "首轮无余温": 0.22,
+    "中性": 0.24,
+    "未知": 0.36,
+    "正向余温": 0.02
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": null,
+   "phrasing": null,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 0.61,
+    "负向余温": 0.02,
+    "中性": 0.08,
+    "首轮无余温": 0.05,
+    "未知": 0.24
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": null,
+   "phrasing": null,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.01,
+    "未知": 0.03,
+    "正向余温": 0.71,
+    "负向余温": 0.03,
+    "中性": 0.22
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": null,
+   "phrasing": null,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.13,
+    "未知": 0.03,
+    "首轮无余温": 0.01,
+    "负向余温": 0.0,
+    "正向余温": 0.83
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": null,
+   "phrasing": null,
+   "top": "未知",
+   "probs": {
+    "中性": 0.12,
+    "负向余温": 0.1,
+    "正向余温": 0.0,
+    "首轮无余温": 0.18,
+    "未知": 0.6
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": null,
+   "phrasing": null,
+   "top": "未知",
+   "probs": {
+    "首轮无余温": 0.07,
+    "未知": 0.34,
+    "正向余温": 0.28,
+    "负向余温": 0.25,
+    "中性": 0.06
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.0,
+    "正向余温": 1.0,
+    "未知": 0.0,
+    "负向余温": 0.0,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "负向余温": 0.0,
+    "首轮无余温": 0.0,
+    "正向余温": 1.0,
+    "未知": 0.0,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.0,
+    "未知": 0.0,
+    "负向余温": 0.0,
+    "正向余温": 1.0,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.0,
+    "负向余温": 0.0,
+    "正向余温": 1.0,
+    "未知": 0.0,
+    "首轮无余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 1.0,
+    "负向余温": 0.0,
+    "中性": 0.0,
+    "首轮无余温": 0.0,
+    "未知": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 1.0,
+    "未知": 0.0,
+    "首轮无余温": 0.0,
+    "负向余温": 0.0,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.0,
+    "未知": 0.0,
+    "正向余温": 1.0,
+    "负向余温": 0.0,
+    "首轮无余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 1.0,
+    "负向余温": 0.0,
+    "中性": 0.0,
+    "首轮无余温": 0.0,
+    "未知": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "负向余温": 0.0,
+    "未知": 0.0,
+    "首轮无余温": 0.0,
+    "中性": 0.0,
+    "正向余温": 1.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "OURS_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "未知": 0.01,
+    "首轮无余温": 0.0,
+    "正向余温": 0.99,
+    "中性": 0.0,
+    "负向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.0,
+    "中性": 0.0,
+    "正向余温": 1.0,
+    "负向余温": 0.0,
+    "未知": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.01,
+    "未知": 0.04,
+    "正向余温": 0.93,
+    "负向余温": 0.0,
+    "中性": 0.02
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.0,
+    "未知": 0.0,
+    "中性": 0.0,
+    "正向余温": 1.0,
+    "负向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.0,
+    "正向余温": 1.0,
+    "负向余温": 0.0,
+    "未知": 0.0,
+    "首轮无余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 0.98,
+    "首轮无余温": 0.0,
+    "中性": 0.01,
+    "未知": 0.01,
+    "负向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 1.0,
+    "负向余温": 0.0,
+    "中性": 0.0,
+    "首轮无余温": 0.0,
+    "未知": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "负向余温": 0.0,
+    "正向余温": 1.0,
+    "首轮无余温": 0.0,
+    "未知": 0.0,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 1.0,
+    "负向余温": 0.0,
+    "中性": 0.0,
+    "首轮无余温": 0.0,
+    "未知": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "负向余温": 0.02,
+    "未知": 0.01,
+    "正向余温": 0.96,
+    "首轮无余温": 0.0,
+    "中性": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "OURS_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 0.88,
+    "负向余温": 0.01,
+    "中性": 0.01,
+    "首轮无余温": 0.01,
+    "未知": 0.09
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "未知": 0.0,
+    "首轮无余温": 0.0,
+    "正向余温": 0.0,
+    "负向余温": 1.0,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.0,
+    "正向余温": 0.0,
+    "首轮无余温": 0.01,
+    "负向余温": 0.98,
+    "未知": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.0,
+    "未知": 0.01,
+    "首轮无余温": 0.01,
+    "负向余温": 0.94,
+    "正向余温": 0.04
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "正向余温": 0.05,
+    "首轮无余温": 0.02,
+    "负向余温": 0.9,
+    "未知": 0.02,
+    "中性": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.0,
+    "负向余温": 1.0,
+    "正向余温": 0.0,
+    "未知": 0.0,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "正向余温": 0.02,
+    "负向余温": 0.97,
+    "中性": 0.0,
+    "首轮无余温": 0.0,
+    "未知": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.02,
+    "负向余温": 0.92,
+    "正向余温": 0.03,
+    "未知": 0.01,
+    "首轮无余温": 0.02
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.02,
+    "负向余温": 0.9,
+    "中性": 0.02,
+    "正向余温": 0.04,
+    "未知": 0.02
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.0,
+    "中性": 0.0,
+    "正向余温": 0.0,
+    "负向余温": 1.0,
+    "未知": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "OURS_NEG",
+   "phrasing": 0,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.01,
+    "正向余温": 0.03,
+    "未知": 0.03,
+    "负向余温": 0.93,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.0,
+    "负向余温": 1.0,
+    "首轮无余温": 0.0,
+    "正向余温": 0.0,
+    "未知": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "未知": 0.0,
+    "首轮无余温": 0.0,
+    "正向余温": 0.0,
+    "中性": 0.0,
+    "负向余温": 1.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "正向余温": 0.01,
+    "首轮无余温": 0.0,
+    "中性": 0.0,
+    "未知": 0.0,
+    "负向余温": 0.99
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "负向余温": 0.99,
+    "未知": 0.0,
+    "正向余温": 0.01,
+    "首轮无余温": 0.0,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "正向余温": 0.0,
+    "负向余温": 1.0,
+    "中性": 0.0,
+    "首轮无余温": 0.0,
+    "未知": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "负向余温": 0.97,
+    "正向余温": 0.03,
+    "首轮无余温": 0.0,
+    "未知": 0.0,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "正向余温": 0.0,
+    "未知": 0.0,
+    "负向余温": 1.0,
+    "首轮无余温": 0.0,
+    "中性": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "中性": 0.0,
+    "负向余温": 1.0,
+    "正向余温": 0.0,
+    "首轮无余温": 0.0,
+    "未知": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "首轮无余温": 0.0,
+    "未知": 0.0,
+    "正向余温": 0.0,
+    "中性": 0.0,
+    "负向余温": 1.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "OURS_NEG",
+   "phrasing": 1,
+   "top": "负向余温",
+   "probs": {
+    "正向余温": 0.03,
+    "负向余温": 0.95,
+    "中性": 0.0,
+    "首轮无余温": 0.0,
+    "未知": 0.02
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "中性": 0.18,
+    "正向余温": 0.0,
+    "首轮无余温": 0.2,
+    "负向余温": 0.03,
+    "未知": 0.59
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "正向余温": 0.01,
+    "负向余温": 0.09,
+    "中性": 0.21,
+    "首轮无余温": 0.2,
+    "未知": 0.49
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.03,
+    "未知": 0.06,
+    "首轮无余温": 0.02,
+    "负向余温": 0.0,
+    "正向余温": 0.89
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 0.52,
+    "未知": 0.1,
+    "首轮无余温": 0.04,
+    "负向余温": 0.15,
+    "中性": 0.19
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "正向余温": 0.02,
+    "首轮无余温": 0.22,
+    "中性": 0.24,
+    "未知": 0.45,
+    "负向余温": 0.07
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.08,
+    "未知": 0.19,
+    "首轮无余温": 0.04,
+    "负向余温": 0.01,
+    "正向余温": 0.68
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.01,
+    "未知": 0.03,
+    "中性": 0.21,
+    "负向余温": 0.02,
+    "正向余温": 0.73
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.02,
+    "负向余温": 0.0,
+    "中性": 0.16,
+    "正向余温": 0.77,
+    "未知": 0.05
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "中性": 0.18,
+    "未知": 0.52,
+    "首轮无余温": 0.21,
+    "负向余温": 0.09,
+    "正向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "OTHER_POS",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "正向余温": 0.26,
+    "负向余温": 0.19,
+    "中性": 0.09,
+    "首轮无余温": 0.1,
+    "未知": 0.36
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "中性": 0.2,
+    "负向余温": 0.02,
+    "正向余温": 0.04,
+    "首轮无余温": 0.13,
+    "未知": 0.61
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "中性": 0.2,
+    "未知": 0.6,
+    "首轮无余温": 0.14,
+    "正向余温": 0.01,
+    "负向余温": 0.05
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 0.89,
+    "负向余温": 0.0,
+    "中性": 0.02,
+    "首轮无余温": 0.02,
+    "未知": 0.07
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "未知": 0.17,
+    "正向余温": 0.45,
+    "首轮无余温": 0.07,
+    "负向余温": 0.12,
+    "中性": 0.19
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "正向余温": 0.08,
+    "中性": 0.29,
+    "首轮无余温": 0.18,
+    "负向余温": 0.06,
+    "未知": 0.39
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.06,
+    "中性": 0.12,
+    "正向余温": 0.54,
+    "负向余温": 0.01,
+    "未知": 0.27
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "未知": 0.05,
+    "中性": 0.29,
+    "首轮无余温": 0.03,
+    "正向余温": 0.62,
+    "负向余温": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.28,
+    "正向余温": 0.54,
+    "负向余温": 0.0,
+    "未知": 0.1,
+    "首轮无余温": 0.07
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "正向余温": 0.0,
+    "首轮无余温": 0.17,
+    "中性": 0.15,
+    "未知": 0.62,
+    "负向余温": 0.06
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "OTHER_POS",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "中性": 0.07,
+    "未知": 0.43,
+    "首轮无余温": 0.11,
+    "负向余温": 0.13,
+    "正向余温": 0.26
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "负向余温": 0.04,
+    "中性": 0.21,
+    "未知": 0.53,
+    "正向余温": 0.0,
+    "首轮无余温": 0.22
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "正向余温": 0.0,
+    "首轮无余温": 0.16,
+    "负向余温": 0.08,
+    "中性": 0.21,
+    "未知": 0.55
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.07,
+    "负向余温": 0.01,
+    "正向余温": 0.75,
+    "未知": 0.12,
+    "首轮无余温": 0.05
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.17,
+    "负向余温": 0.06,
+    "正向余温": 0.54,
+    "未知": 0.17,
+    "首轮无余温": 0.06
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "中性": 0.15,
+    "正向余温": 0.01,
+    "首轮无余温": 0.36,
+    "未知": 0.42,
+    "负向余温": 0.06
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.08,
+    "负向余温": 0.01,
+    "首轮无余温": 0.04,
+    "正向余温": 0.69,
+    "未知": 0.18
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.02,
+    "未知": 0.05,
+    "中性": 0.26,
+    "负向余温": 0.01,
+    "正向余温": 0.66
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.18,
+    "首轮无余温": 0.02,
+    "正向余温": 0.69,
+    "未知": 0.1,
+    "负向余温": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "负向余温": 0.07,
+    "首轮无余温": 0.19,
+    "未知": 0.6,
+    "正向余温": 0.0,
+    "中性": 0.14
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "OTHER_NEG",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "负向余温": 0.1,
+    "中性": 0.1,
+    "首轮无余温": 0.11,
+    "正向余温": 0.28,
+    "未知": 0.41
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "正向余温": 0.0,
+    "负向余温": 0.21,
+    "中性": 0.18,
+    "首轮无余温": 0.18,
+    "未知": 0.43
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "首轮无余温": 0.17,
+    "正向余温": 0.0,
+    "中性": 0.15,
+    "未知": 0.54,
+    "负向余温": 0.14
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 0.97,
+    "中性": 0.0,
+    "首轮无余温": 0.01,
+    "负向余温": 0.0,
+    "未知": 0.02
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "未知": 0.2,
+    "正向余温": 0.42,
+    "首轮无余温": 0.06,
+    "中性": 0.18,
+    "负向余温": 0.14
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "首轮无余温": 0.18,
+    "负向余温": 0.25,
+    "正向余温": 0.02,
+    "未知": 0.36,
+    "中性": 0.19
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.03,
+    "未知": 0.17,
+    "中性": 0.09,
+    "正向余温": 0.66,
+    "负向余温": 0.05
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 0.43,
+    "负向余温": 0.12,
+    "中性": 0.37,
+    "首轮无余温": 0.03,
+    "未知": 0.05
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 0.63,
+    "首轮无余温": 0.02,
+    "中性": 0.23,
+    "未知": 0.07,
+    "负向余温": 0.05
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "中性": 0.08,
+    "未知": 0.64,
+    "正向余温": 0.0,
+    "负向余温": 0.11,
+    "首轮无余温": 0.17
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "OTHER_NEG",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "首轮无余温": 0.07,
+    "未知": 0.38,
+    "正向余温": 0.17,
+    "负向余温": 0.34,
+    "中性": 0.04
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "首轮无余温": 0.13,
+    "未知": 0.68,
+    "中性": 0.16,
+    "负向余温": 0.02,
+    "正向余温": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "中性": 0.23,
+    "负向余温": 0.12,
+    "正向余温": 0.01,
+    "未知": 0.49,
+    "首轮无余温": 0.15
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.02,
+    "正向余温": 0.83,
+    "未知": 0.11,
+    "负向余温": 0.0,
+    "中性": 0.04
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.05,
+    "未知": 0.19,
+    "正向余温": 0.44,
+    "负向余温": 0.16,
+    "中性": 0.16
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "首轮无余温": 0.15,
+    "负向余温": 0.14,
+    "中性": 0.27,
+    "正向余温": 0.06,
+    "未知": 0.38
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "正向余温": 0.56,
+    "负向余温": 0.01,
+    "中性": 0.09,
+    "首轮无余温": 0.05,
+    "未知": 0.29
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.28,
+    "正向余温": 0.61,
+    "负向余温": 0.01,
+    "未知": 0.07,
+    "首轮无余温": 0.03
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.02,
+    "正向余温": 0.66,
+    "负向余温": 0.0,
+    "未知": 0.07,
+    "中性": 0.25
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "正向余温": 0.0,
+    "首轮无余温": 0.11,
+    "中性": 0.15,
+    "未知": 0.67,
+    "负向余温": 0.07
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "EVENT_POS",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "负向余温": 0.14,
+    "中性": 0.11,
+    "未知": 0.43,
+    "正向余温": 0.21,
+    "首轮无余温": 0.11
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "正向余温": 0.05,
+    "中性": 0.12,
+    "首轮无余温": 0.11,
+    "未知": 0.7,
+    "负向余温": 0.02
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "中性": 0.16,
+    "首轮无余温": 0.13,
+    "正向余温": 0.05,
+    "未知": 0.58,
+    "负向余温": 0.08
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.02,
+    "未知": 0.13,
+    "首轮无余温": 0.02,
+    "正向余温": 0.83,
+    "负向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.06,
+    "正向余温": 0.54,
+    "未知": 0.2,
+    "负向余温": 0.08,
+    "中性": 0.12
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "正向余温": 0.04,
+    "负向余温": 0.09,
+    "中性": 0.2,
+    "首轮无余温": 0.27,
+    "未知": 0.4
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "未知": 0.37,
+    "负向余温": 0.0,
+    "正向余温": 0.52,
+    "首轮无余温": 0.06,
+    "中性": 0.05
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.14,
+    "正向余温": 0.74,
+    "首轮无余温": 0.02,
+    "负向余温": 0.01,
+    "未知": 0.09
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.01,
+    "负向余温": 0.0,
+    "中性": 0.02,
+    "正向余温": 0.93,
+    "未知": 0.04
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "首轮无余温": 0.15,
+    "中性": 0.11,
+    "未知": 0.69,
+    "负向余温": 0.04,
+    "正向余温": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "EVENT_POS",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "首轮无余温": 0.08,
+    "负向余温": 0.07,
+    "中性": 0.05,
+    "正向余温": 0.35,
+    "未知": 0.45
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "正向余温": 0.0,
+    "首轮无余温": 0.24,
+    "中性": 0.11,
+    "未知": 0.6,
+    "负向余温": 0.05
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "未知": 0.49,
+    "正向余温": 0.01,
+    "首轮无余温": 0.16,
+    "负向余温": 0.13,
+    "中性": 0.21
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.03,
+    "负向余温": 0.01,
+    "首轮无余温": 0.02,
+    "正向余温": 0.83,
+    "未知": 0.11
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.06,
+    "中性": 0.2,
+    "正向余温": 0.45,
+    "负向余温": 0.07,
+    "未知": 0.22
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "正向余温": 0.01,
+    "首轮无余温": 0.3,
+    "中性": 0.14,
+    "未知": 0.49,
+    "负向余温": 0.06
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.05,
+    "未知": 0.2,
+    "中性": 0.08,
+    "正向余温": 0.66,
+    "负向余温": 0.01
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.03,
+    "未知": 0.09,
+    "正向余温": 0.51,
+    "中性": 0.32,
+    "负向余温": 0.05
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "正向余温",
+   "probs": {
+    "首轮无余温": 0.02,
+    "负向余温": 0.01,
+    "正向余温": 0.68,
+    "未知": 0.1,
+    "中性": 0.19
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "负向余温": 0.07,
+    "未知": 0.66,
+    "正向余温": 0.0,
+    "首轮无余温": 0.13,
+    "中性": 0.14
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "EVENT_NEG",
+   "phrasing": 0,
+   "top": "未知",
+   "probs": {
+    "首轮无余温": 0.08,
+    "未知": 0.47,
+    "中性": 0.07,
+    "负向余温": 0.15,
+    "正向余温": 0.23
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:17",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "未知": 0.58,
+    "正向余温": 0.0,
+    "负向余温": 0.14,
+    "首轮无余温": 0.21,
+    "中性": 0.07
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:20",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "未知": 0.59,
+    "正向余温": 0.0,
+    "首轮无余温": 0.14,
+    "中性": 0.14,
+    "负向余温": 0.13
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:34",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.03,
+    "首轮无余温": 0.02,
+    "负向余温": 0.02,
+    "未知": 0.09,
+    "正向余温": 0.84
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:37",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.16,
+    "未知": 0.23,
+    "首轮无余温": 0.07,
+    "正向余温": 0.38,
+    "负向余温": 0.16
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:38",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "中性": 0.09,
+    "负向余温": 0.21,
+    "正向余温": 0.01,
+    "首轮无余温": 0.28,
+    "未知": 0.41
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:40",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.08,
+    "正向余温": 0.6,
+    "首轮无余温": 0.04,
+    "负向余温": 0.04,
+    "未知": 0.24
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:42",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.25,
+    "未知": 0.05,
+    "首轮无余温": 0.02,
+    "负向余温": 0.1,
+    "正向余温": 0.58
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:43",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "正向余温",
+   "probs": {
+    "中性": 0.19,
+    "负向余温": 0.02,
+    "首轮无余温": 0.02,
+    "未知": 0.1,
+    "正向余温": 0.67
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:47",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "中性": 0.05,
+    "未知": 0.64,
+    "首轮无余温": 0.11,
+    "负向余温": 0.2,
+    "正向余温": 0.0
+   },
+   "err": null
+  },
+  {
+   "arm": "paired",
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:52",
+   "cls": "EVENT_NEG",
+   "phrasing": 1,
+   "top": "未知",
+   "probs": {
+    "未知": 0.49,
+    "中性": 0.04,
+    "首轮无余温": 0.1,
+    "正向余温": 0.19,
+    "负向余温": 0.18
+   },
+   "err": null
+  }
+ ]
+}

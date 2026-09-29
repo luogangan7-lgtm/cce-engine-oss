@@ -57,3 +57,17 @@ def test_residue_referent_verdicts_recompute_from_raw():
         assert rr.score([x for x in r["raw"] if x["arm"] == arm]) == r["arms"][arm], arm
     assert r["arms"]["v1"]["verdict"] == r["arms"]["v2"]["verdict"] == "FAIL"
     assert rr.score([{"kind": "plant", "cls": c, "read": {"情绪余温": "未知"}} for c in rr.PLANTS])["verdict"] == "FAIL"   # 恒「未知」过不了召回
+
+
+def test_residue_profile_recomputes_and_stays_distribution_level():
+    """分布口径(全占比): 判决只由概率位移现算; paired 臂 DISCRIMINATES、v1 LEAKS; 常数读者判不过。"""
+    _p = importlib.util.spec_from_file_location("_rp", ROOT / "probes/s0_residue_profile.py"); rp = importlib.util.module_from_spec(_p); _p.loader.exec_module(rp)
+    r = json.loads((ROOT / "results/s0_residue_profile.json").read_text(encoding="utf-8"))
+    assert not r["dry_run"] and r["requests"] == len(r["raw"]) <= rp.CAP and not r["errors"]
+    assert r["prereg_sha256"] == hashlib.sha256((ROOT / "tests/data/s0_residue_profile_prereg.json").read_bytes()).hexdigest()
+    assert all(isinstance(x["probs"], dict) and x["probs"] for x in r["raw"])          # 存的是完整分布, 不是只有 top-1
+    for arm in ("v1", "paired"):
+        assert rp.score([x for x in r["raw"] if x["arm"] == arm]) == r["arms"][arm], arm
+    assert (r["arms"]["v1"]["verdict"], r["arms"]["paired"]["verdict"]) == ("LEAKS", "DISCRIMINATES")
+    flat = [{"kind": x["kind"], "ptr": x["ptr"], "cls": x["cls"], "probs": {"未知": 1.0}} for x in r["raw"] if x["arm"] == "v1"]
+    assert rp.score(flat)["verdict"] == "LEAKS"

@@ -150,18 +150,26 @@ def rows() -> list[dict]:
     # ── 链上其余段(2026-09-28 补: 表里此前没有它们, 诊断 #33) ─────────
     _pv = _j("results/s0_planted_validity.json")["per_facet"]
     _rr = _j("results/s0_residue_referent.json")["arms"]
+    _rp = _j("results/s0_residue_profile.json")["arms"]
     out.append({"组件": "s0 情境读出(5 面)", "状态": UNMEASURED,
                 "证据": ("**没有人类金标**(owner 2026-09-23), 自然文本准确度无从测; 重测一致性见 results/s0_retest.json。"
                          "植入信号必要条件(预注册, results/s0_planted_validity.json, 明说句): "
                          + " · ".join(f"{k} {v['verdict']}(召回 {v['recovery']}, 净连带 {v['net_off_target']})" for k, v in _pv.items() if k != "情绪余温")
-                         + "。WEAK 的连带改动多为植入句本身蕴含(事后分析), 未另测。后端 Jev, 失败回退 MiniMax 并列入 degraded"),
+                         + "。WEAK 的连带改动多为植入句本身蕴含(事后分析), 未另测。★ 这组判决是 top-1 + 布尔阈值口径(owner 2026-09-29 指出应按分布位移判), "
+                           "分布口径复测未做。后端 Jev, 失败回退 MiniMax 并列入 degraded"),
                 "文件": "scripts/cce_full_run.py(s0) · scripts/cce_s0_jev.py · scripts/cce_workflow_manifest.py"})
     out.append({"组件": "s0 情绪余温 读出", "状态": FAILED,
                 "证据": ("留出指代最小对(预注册, results/s0_residue_referent.json): 对我方回复的情绪召回 "
                          + " / ".join(f"{a} {v['recovery_pos']}/{v['recovery_neg']}" for a, v in _rr.items())
                          + ", 但别人回复/无关事件被读成余温 "
                          + " / ".join(f"{a} {v['false_attribution']}" for a, v in _rr.items())
-                         + "(判据 <= 0.05)⇒ 2026-09-29 起任何模式都**扣发**(cce_s0_jev.READ_WITHHELD), 未声明即 未知; 冷读模式仍是结构冷读 首轮无余温"),
+                         + "(判据 <= 0.05)⇒ 2026-09-29 起任何模式都**扣发**(cce_s0_jev.READ_WITHHELD), 未声明即 未知; 冷读模式仍是结构冷读 首轮无余温。"
+                         "★ 分布口径复测(results/s0_residue_profile.json, 全占比、不取 top-1): 只读回应 泄漏比 "
+                         + " / ".join(str(v["leak_ratio"]) for v in _rp["v1"]["shift"].values())
+                         + " ⇒ " + _rp["v1"]["verdict"] + "; **成对读(把我方上一条消息一起给)泄漏比 "
+                         + " / ".join(str(v["leak_ratio"]) for v in _rp["paired"]["shift"].values())
+                         + " ⇒ " + _rp["paired"]["verdict"] + "**。恢复的路 = response 模式成对读出; 但生产 subject_chain 不带我方内容正文"
+                           "(chain.content 只有 id/notion_ref), 接线要改提交合同(config/** 会触发付费 Accuracy)⇒ 等 owner"),
                 "文件": "scripts/cce_s0_jev.py(READ_WITHHELD) · scripts/cce_full_run.py(s0)"})
     out.append({"组件": "s2b 引用证书(影子段)", "状态": UNMEASURED,
                 "证据": ("线上开着(仓库变量 CCE_CITATION_CERT, 未设=开), 只把 top-1=display 且稳定的读数升到 ③′ CITED_UNVERIFIED, "
