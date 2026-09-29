@@ -176,3 +176,19 @@ def test_prior_turn_canary_example_is_valid():
     items = v["normalized"]["subject_dispatch"]["client_payload"]["items"]
     assert len(items) == 8 and all(it.get("prior_turn_text") for it in items)
     assert hashlib.sha1(items[0]["prior_turn_text"].encode()).hexdigest()[:12] == "e925c908bee0"   # = 发布前测量的 post6 正文
+
+
+def test_long_prior_never_truncates_the_reply():
+    """canary 36572885138 的真 bug: 先拼再截 ⇒ 长的我方上一条把对方回应整段挤掉。回应必须完整, 只截我方上一条。"""
+    long_prior, reply = "x" * 3600, "That worked, thanks!"
+    st = cce_s0_jev.paired_state(long_prior, reply)
+    assert st.endswith("[THEIR REPLY]\n" + reply) and len(st) <= cce_s0_jev.PAIRED_MAX
+    assert cce_s0_jev.paired_state(rp.PREV, "y" * 1900) == rp.state("paired", "y" * 1900)[:2400]   # 短上一条: 与实测请求逐字相同
+    calls = []
+    def post(body, key): calls.append(body); return {"answers": {"情绪余温": {"choice": "未知", "probabilities": {"未知": 1.0}}}}, None
+    os.environ["TYPESAFE_API_KEY"] = "k"
+    try:
+        _orig_paired(long_prior, reply, READABLE, post=post)
+    finally:
+        os.environ.pop("TYPESAFE_API_KEY", None)
+    assert calls[0]["state"].endswith(reply)

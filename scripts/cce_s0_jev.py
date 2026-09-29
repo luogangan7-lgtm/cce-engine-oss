@@ -32,8 +32,19 @@ PAIRED_RESIDUE_Q = ("Read only the writer's reaction to OUR PREVIOUS MESSAGE sho
                     "If the reply does not react to our previous message, choose 未知; never guess.")
 
 
+PAIRED_MAX, REPLY_MAX = 2400, 2000
+
+
 def paired_state(prior, reply):
-    return "[OUR PREVIOUS MESSAGE]\n" + prior + "\n\n[THEIR REPLY]\n" + reply
+    """★ 2026-09-29 canary 36572885138 抓到: 旧写法是先拼再整体截 [:2400] —— 我方上一条一长(post6 ≈3600 字), **对方回应被整段截掉**,
+    Jev 只看到我方正文, 8 条读出几乎一样。截断只能截我方上一条, 回应必须完整(回应本身按 s0 惯例取前 2000)。
+    短的上一条(实测用的就是短的)与旧写法逐字相同。"""
+    head, mid = "[OUR PREVIOUS MESSAGE]\n", "\n\n[THEIR REPLY]\n"
+    reply = reply[:REPLY_MAX]
+    room = PAIRED_MAX - len(head) - len(mid) - len(reply)
+    if len(prior) > room:
+        prior = prior[:max(0, room - 2)] + " …"
+    return head + prior + mid + reply
 
 
 def s0_residue_paired(prior, reply, facets, post=None):
@@ -41,7 +52,7 @@ def s0_residue_paired(prior, reply, facets, post=None):
     key = os.environ.get("TYPESAFE_API_KEY", "").strip()
     if not key: return None, None, "NO_TYPESAFE_API_KEY"
     qs = jev_questions(facets); qs["情绪余温"]["instructions"] = PAIRED_RESIDUE_Q
-    resp, err = (post or _post)({"model": MODEL, "state": paired_state(prior, reply)[:2400], "questions": qs}, key)
+    resp, err = (post or _post)({"model": MODEL, "state": paired_state(prior, reply), "questions": qs}, key)
     if err or not resp: return None, None, err or "EMPTY_RESPONSE"
     try:
         a = resp["answers"]["情绪余温"]; return a["choice"], a["probabilities"], None

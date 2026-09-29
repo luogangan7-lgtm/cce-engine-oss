@@ -31,7 +31,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #     ① 每档算出「最近一次 CI 验证是哪天、是否 >= 当前代际」
 #     ② 断言: 凡未达当前代际的档, **不得**在任何地方被说成「当前代码已验证」
 #   这样红的是**虚报**, 不是「今天没全跑一遍」。
-CODE_GENERATION = "2026-09-04"   # 链路代码最后一次实质变更日。改链路就要改它。
+CODE_GENERATION = "2026-09-29"   # 链路代码最后一次实质变更日。改链路就要改它。(09-29: s0 情绪余温 扣发 + 成对读出)
 
 by_profile = {}
 for f in glob.glob(os.path.join(ROOT, "archive", "*", "*normalized.json")):
