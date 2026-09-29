@@ -71,3 +71,26 @@ def test_residue_profile_recomputes_and_stays_distribution_level():
     assert (r["arms"]["v1"]["verdict"], r["arms"]["paired"]["verdict"]) == ("LEAKS", "DISCRIMINATES")
     flat = [{"kind": x["kind"], "ptr": x["ptr"], "cls": x["cls"], "probs": {"未知": 1.0}} for x in r["raw"] if x["arm"] == "v1"]
     assert rp.score(flat)["verdict"] == "LEAKS"
+
+
+def test_planted_profile_recomputes_from_full_distributions():
+    _p = importlib.util.spec_from_file_location("_pp", ROOT / "probes/s0_planted_profile.py"); pp = importlib.util.module_from_spec(_p); _p.loader.exec_module(pp)
+    r = json.loads((ROOT / "results/s0_planted_profile.json").read_text(encoding="utf-8"))
+    assert not r["dry_run"] and r["requests"] == len(r["raw"]) <= pp.CAP and not r["errors"]
+    assert r["prereg_sha256"] == hashlib.sha256((ROOT / "tests/data/s0_planted_profile_prereg.json").read_bytes()).hexdigest()
+    neu, per = pp.analyse(r["raw"])
+    assert neu == r["neutral_tvd"] and per == r["per_facet"]
+    assert {k: v["verdict"] for k, v in per.items()} == {"进程位置": "WEAK", "触发事件": "WEAK", "关系位置": "RESPONSIVE",
+                                                          "身体状态": "RESPONSIVE", "资源状态": "RESPONSIVE", "情绪余温": "WEAK"}
+    assert pp.verdict(0.49, 0.0) == "WEAK" and pp.verdict(0.5, 0.10) == "RESPONSIVE" and pp.verdict(0.24, 0.0) == "UNRESPONSIVE"
+
+
+def test_knot_construct_pilot_recomputes():
+    _p = importlib.util.spec_from_file_location("_kc", ROOT / "probes/knot_construct_pilot.py"); kc = importlib.util.module_from_spec(_p); _p.loader.exec_module(kc)
+    r = json.loads((ROOT / "results/knot_construct_pilot.json").read_text(encoding="utf-8"))
+    assert not r["dry_run"] and r["requests"] == len(r["raw"]) <= kc.CAP and not r["errors"]
+    assert r["prereg_sha256"] == hashlib.sha256((ROOT / "tests/data/knot_construct_pilot_prereg.json").read_bytes()).hexdigest()
+    _, ref = kc.texts()
+    assert kc.analyse(r["raw"], ref) == r["result"]
+    assert {k: v["verdict"] for k, v in r["result"]["per_knot"].items()} == {"display": "SUPPORTED", "pain_seek": "SUPPORTED", "reward": "PARTIAL"}
+    assert all(set(x) == {"ptr", "rep", "probs", "err"} for x in r["raw"])        # 只有指针与概率, 不落原文

@@ -149,14 +149,16 @@ def rows() -> list[dict]:
 
     # ── 链上其余段(2026-09-28 补: 表里此前没有它们, 诊断 #33) ─────────
     _pv = _j("results/s0_planted_validity.json")["per_facet"]
+    _pp = _j("results/s0_planted_profile.json")["per_facet"]
     _rr = _j("results/s0_residue_referent.json")["arms"]
     _rp = _j("results/s0_residue_profile.json")["arms"]
     out.append({"组件": "s0 情境读出(5 面)", "状态": UNMEASURED,
                 "证据": ("**没有人类金标**(owner 2026-09-23), 自然文本准确度无从测; 重测一致性见 results/s0_retest.json。"
                          "植入信号必要条件(预注册, results/s0_planted_validity.json, 明说句): "
                          + " · ".join(f"{k} {v['verdict']}(召回 {v['recovery']}, 净连带 {v['net_off_target']})" for k, v in _pv.items() if k != "情绪余温")
-                         + "。WEAK 的连带改动多为植入句本身蕴含(事后分析), 未另测。★ 这组判决是 top-1 + 布尔阈值口径(owner 2026-09-29 指出应按分布位移判), "
-                           "分布口径复测未做。后端 Jev, 失败回退 MiniMax 并列入 degraded"),
+                         + "(top-1 口径, 已被下面的分布口径取代)。★ 分布口径复测(预注册, results/s0_planted_profile.json, 全占比): "
+                         + " · ".join(f"{k} {v['verdict']}(位移 {v['dp_target']}, 净连带 TVD {v['net_off_target_tvd']})" for k, v in _pp.items() if k != "情绪余温")
+                         + "。WEAK 两面的连带集中在 进程位置↔触发事件↔资源状态(植入句本身蕴含, 事后分析)。后端 Jev, 失败回退 MiniMax 并列入 degraded"),
                 "文件": "scripts/cce_full_run.py(s0) · scripts/cce_s0_jev.py · scripts/cce_workflow_manifest.py"})
     out.append({"组件": "s0 情绪余温 读出", "状态": FAILED,
                 "证据": ("留出指代最小对(预注册, results/s0_residue_referent.json): 对我方回复的情绪召回 "
