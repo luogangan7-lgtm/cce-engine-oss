@@ -779,11 +779,11 @@ def items() -> list[dict]:
                         + "★★ owner 同日纠正: 读出是动态分布(九型式: 主值 + 其余占比), top-1 + 布尔阈值是错口径。分布口径复测(results/s0_residue_profile.json): "
                           "只读回应 %s; **把我方上一条消息成对给 ⇒ %s(泄漏比 ≈ 0)** —— 冷读法「知道自己下的探针, 只看对它的反应」成立。"
                           "owner 同日同意加合同字段 ⇒ 已接线(optional prior_turn; 没给仍扣发)。"
+                          % (_j("results/s0_residue_profile.json")["arms"]["v1"]["verdict"], _j("results/s0_residue_profile.json")["arms"]["paired"]["verdict"])
                         + "★★ 同日另两份预注册: 五面分布口径 %s; 九结多题项构念试验(38 条, 与 MiniMax 分布做 MTMM) %s。"
                           % (" · ".join("%s %s" % (k, v["verdict"]) for k, v in _j("results/s0_planted_profile.json")["per_facet"].items() if k != "情绪余温"),
                              " · ".join("%s %s" % (k, v["verdict"]) for k, v in _j("results/knot_construct_pilot.json")["result"]["per_knot"].items()))
-                        + "前瞻闭环(情绪余温 成对分布 → 对方是否再次回应)已预注册, 攒够 n>=40 才判。"
-                          % (_j("results/s0_residue_profile.json")["arms"]["v1"]["verdict"], _j("results/s0_residue_profile.json")["arms"]["paired"]["verdict"])})
+                        + "前瞻闭环(情绪余温 成对分布 → 对方是否再次回应)已预注册, 攒够 n>=40 才判。"})
         _v4 = os.path.join(ROOT, "results/contract_pairs_v4_check.json")
         if os.path.exists(_v4):
             _C = _j("results/contract_pairs_v4_check.json")
