@@ -18,7 +18,8 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 from exp_crossmodel_desire import DESIRES
 from exp_v4_causal_chain import EMOTIONS, ACTIONS
 from cce_align_v2 import score as knot_align
-from cce_k1_status import knot_readout_usable, playbook_hit_usable
+from cce_k1_status import knot_readout_usable, playbook_hit_usable, layer_status
+from cce_align_atoms import atoms_alignment
 
 # 本链路的仪器。缺它 knot_readout_usable 一律扣发(缺仪器标识 != 仪器相同)。
 INSTRUMENT_HASH = os.environ.get("CCE_INSTRUMENT_HASH", "565470cf26c16d01")
@@ -140,6 +141,15 @@ def main():
                           "**中间地带极差 0.3–0.7** —— 而阈值判决正住在中间。"
                           "非退化闸过了 ⇒ 不是「什么都没测」, 是「在需要它的地方不稳」。")}
 
+    # ── 2026-09-30 对齐出口 v4.1: 读者 top-1 结的逐原子三值(只报留出校对通过的原子; 不出总分、不出放行布尔) ──
+    #   top-1 取 s2 抽样众数 top1_mode(与 cce_full_run.s2 同口径), 不是权重 argmax —— 权重 K1 判 0/5 不可用。
+    _samp = ((a.get("stage2") or {}).get("sampling") or {}) if isinstance(a, dict) else {}
+    try:
+        _t1_ok = _samp.get("top1_stable") is True and layer_status(instrument_hash=_inst)["top1"]["usable"]
+    except Exception:          # 闸不可用 = 不可用
+        _t1_ok = False
+    atoms_align = atoms_alignment(_samp.get("top1_mode"), _t1_ok, draft)
+
     layers = {L: layer_reach(a["stage1"]["layers"][L], b["stage1"]["layers"][L], lab)
               for L, lab in LAYERS.items()}
 
@@ -168,6 +178,7 @@ def main():
         "对方九结": a_knots, "我方九结": b_knots,
         "九结对齐": ka,
         "top1对齐": top1_align,
+        "top1逐原子对齐(v4.1)": atoms_align,
         "四层触达": layers,
         "未触达维度": misses,
         "判据": "need层触达率>=0.5 且 九结对齐分>=theta",

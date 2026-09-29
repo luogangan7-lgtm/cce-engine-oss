@@ -99,7 +99,9 @@ def score(rows, cases=None):
     n_cal = sum(v["verdict"] == "CALIBRATED" for v in per.values())
     return per, {"calibrated": n_cal, "of": len(per),
                  "v4_accuracy": round(sum(v["v4_correct"] for v in per.values()) / max(1, sum(v["v4_n"] for v in per.values())), 4),
-                 "v1_accuracy": round(sum(v["v1_correct"] for v in per.values()) / max(1, sum(v["v1_n"] for v in per.values())), 4)}
+                 # 没跑 v1(留出集)时是「未跑」不是 0 —— 2026-09-30 首版在这里报了 0.0
+                 "v1_accuracy": (round(sum(v["v1_correct"] for v in per.values()) / sum(v["v1_n"] for v in per.values()), 4)
+                                 if sum(v["v1_n"] for v in per.values()) else None)}
 
 
 def main(argv=None):

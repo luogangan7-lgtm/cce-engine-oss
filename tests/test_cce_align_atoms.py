@@ -67,3 +67,19 @@ def test_calibration_results_recompute_and_production_uses_heldout_only():
     per, summ = ac.score(dev["raw"])
     assert per == dev["per_atom"] and summ == dev["summary"] and summ["calibrated"] == 8
     assert AT.CAL.endswith("align_atoms_heldout_v41.json")                         # 开发集不作生产采纳依据
+
+
+def test_heldout_result_recomputes_and_drives_production():
+    import importlib.util as _iu
+    sys.path.insert(0, str(ROOT / "probes"))
+    _p = _iu.spec_from_file_location("_ac2", ROOT / "probes/align_atoms_calibration.py"); ac = _iu.module_from_spec(_p); _p.loader.exec_module(ac)
+    import align_atoms_heldout_cases as HC
+    import hashlib as _h
+    ho = json.loads((ROOT / "results/align_atoms_heldout_v41.json").read_text(encoding="utf-8"))
+    assert ho["prereg_sha256"] == _h.sha256((ROOT / "tests/data/align_atoms_heldout_prereg.json").read_bytes()).hexdigest()
+    assert ho["judge_version"] == "v4.1" and not ho["dry_run"] and ho["requests"]["used"] <= 240
+    per, summ = ac.score(ho["raw"], HC.CASES)
+    assert per == ho["per_atom"] and summ == ho["summary"] and summ["v1_accuracy"] is None
+    cal = AT.calibrated_atoms()
+    assert sum(len(v) for v in cal.values()) == summ["calibrated"] == 11
+    assert 0 not in cal.get("inertia", set())                                          # 条件句原子始终不过
