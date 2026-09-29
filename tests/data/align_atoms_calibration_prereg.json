@@ -1,0 +1,19 @@
+{
+ "block": "ALIGN_ATOMS_CALIBRATION",
+ "prereg_written_at": "2026-09-30",
+ "★frozen_before_measurement": "本文件、probes/align_atoms_calibration.py(含全部 50 份构造草稿 CASES)与判官 scripts/cce_align_atoms.py 在发起调用之前提交。",
+ "★why": "对齐出口 playbook_hit 已测·不达标: 整体命中度 × 结权重(K1-v2 判权重 0/5 不可用), 且同一原子三种问法 27%/100%/3%。owner 2026-09-29: 人给不出个体金标。网页 GPT(2026-09-29)给的无金标路线: 先统一禁令语义(present/absent/uncertain), 用构造正例/难负例 + 相反问法做局部测试神谕, 逐原子设错误预算, 不能跨原子平均救回。owner 2026-09-30「剩下的问题都做了吧, 记得做校对测试」。",
+ "judge": "scripts/cce_align_atoms.judge: 【做】做了/没做/不确定, 【禁】违反/未违反/不确定; 在场一侧必须给逐字在草稿里的子串, 否则记 uncertain。问法 A 与反向问法 B(符合/不符合)映射到同一规范值 satisfied/unsatisfied/uncertain",
+ "material": "25 个原子 × {sat, unsat} 两份构造草稿(英文论坛回复, 见 CASES), 每份在所属结的完整清单下判, 只计目标原子",
+ "design": "v4 问法 A、问法 B 各 2 次(温度 0); 旧提问 v1(probes/playbook_atoms_reliability.read_once form=v1, 生产旧口径)2 次作对照。共 300 次 MiniMax",
+ "decision_rule_per_atom": {
+  "CALIBRATED": "v4 的 8 次读数(2 草稿 × 2 问法 × 2 次)全部等于构造真值(uncertain 在构造的确定性样例上算错)",
+  "NOT_CALIBRATED": "否则 —— 生产不判该原子, 记 not_calibrated(不是「没做」)",
+  "★no_averaging": "不跨原子平均; 一个原子不过不影响别的原子",
+  "★thresholds_are_conventions": "零错误是本轮约定; 每原子只有 2 份构造样例, 通过只证明必要条件"
+ },
+ "★ship_rule": "cce_align_atoms.atoms_alignment 只对读者 top-1(出口闸 usable)结里 CALIBRATED 的原子出三值判定; 不出总分、不出放行布尔。旧 alignment_score 保留为诊断且仍标不可用。",
+ "★predictions": {"P1": "v4 总体准确率高于 v1", "P2": "至少 15/25 原子 CALIBRATED", "P3": "inertia#0(条件句「只有精确命中其机制才值得触碰」)NOT_CALIBRATED —— 它更像适用条件不是动作"},
+ "★cannot_claim": ["真实草稿上的准确率", "构造草稿由维护者撰写, 每原子仅 2 份", "判官与构造者之间可能共享同一种语言直觉"],
+ "budget": {"minimax_requests_expected": 300, "hard_cap": 350, "on_cap": "撞上限抛 BudgetExceeded 即停"}
+}

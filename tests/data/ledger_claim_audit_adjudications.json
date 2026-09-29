@@ -41,6 +41,14 @@
    "裁决": "FALSE_POSITIVE",
    "理由": "命中的是 CE-16 的 problem 段: 「scripts/cce_align_v2.py:20-22 · accuracy/run_gates.py:20 · … 等模块在 import 期自己从磁盘再读一份 TAXO, 对『只改传进去的字典』这类注入结构上是瞎的 … 本轮 v3-093 hard_discriminant @P 又原样栽了一次」。这是在陈述**装置(注入通道)的局限**与一次误判的机制, 不是把「违反必要条件」这类规范效力施加给生产或闸。窗口里的规范词来自同段对 M6 的引用。",
    "★但": "本轮 v3-093 确实由 NO_CONSUMER 改判 LOAD_BEARING_L1_ONLY —— 依据是 hard_discriminant 进了 **scripts/cce_align_v2.py 的 DISSOLVE prompt(discr 槽)**, 那是第三类消费者, **不是 stage2 标注 prompt**。字段送达账本(taxonomy_field_reach_ledger.json)记的是 stage2 prompt 这一面, 两者不矛盾; 但下一个读到这条的人必须把两台机器分开说, 别把「进了对齐链的 prompt」读成「进了标注者」—— tests/test_cce_gk3_not_a_tautology.py 钉的正是后者。"
+  },
+  {
+   "文件": "tests/data/align_atoms_calibration_prereg.json",
+   "字段": "playbook",
+   "说法": "playbook",
+   "裁决": "FALSE_POSITIVE",
+   "理由": "窗口里的「不符合」是判官问法 B 的**输出标签**(符合/不符合/不确定), 不是在断言某台仪器违反 playbook; 「生产」指的是对齐出口 scripts/cce_align_atoms(它直接读 cce_align_v2.PLAYBOOK, playbook **确实送达**这台判官), 不是账本里 playbook 够不着的分类器 P(s2_prompt)。本文件没有把 playbook 的规范效力施加给分类器 P。",
+   "★但": "账本说 playbook 不进分类器 P —— 这正是对齐出口要单独用判官逐原子读 playbook 的原因; 两者不矛盾, 但日后若有人把「对齐出口」读成「分类器已按 playbook 判」就是真错。"
   }
  ],
  "★★★这个闸的真实性能_不许粉饰": {
