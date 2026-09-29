@@ -79,7 +79,7 @@ def test_planted_profile_recomputes_from_full_distributions():
     assert not r["dry_run"] and r["requests"] == len(r["raw"]) <= pp.CAP and not r["errors"]
     assert r["prereg_sha256"] == hashlib.sha256((ROOT / "tests/data/s0_planted_profile_prereg.json").read_bytes()).hexdigest()
     neu, per = pp.analyse(r["raw"])
-    assert neu == r["neutral_tvd"] and per == r["per_facet"]
+    assert neu == r["neutral_tvd"] and per == r["per_facet"]   # tvd 用 fsum ⇒ 3.11(CI) 与 3.12+ 逐字相同
     assert {k: v["verdict"] for k, v in per.items()} == {"进程位置": "WEAK", "触发事件": "WEAK", "关系位置": "RESPONSIVE",
                                                           "身体状态": "RESPONSIVE", "资源状态": "RESPONSIVE", "情绪余温": "WEAK"}
     assert pp.verdict(0.49, 0.0) == "WEAK" and pp.verdict(0.5, 0.10) == "RESPONSIVE" and pp.verdict(0.24, 0.0) == "UNRESPONSIVE"

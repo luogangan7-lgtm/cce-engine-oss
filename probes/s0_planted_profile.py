@@ -5,7 +5,7 @@
 存 Jev 每面完整分布; 判 ① 目标面位移 dp = p(植入值) − baseline 同值占比 ② 其余面分布位移(总变差距离 TVD)扣掉中性句的 TVD。
 只调 Jev, 硬上限 600。产物只放指针、类别与概率。用法: python3 probes/s0_planted_profile.py [--dry-run]
 """
-import argparse, collections, hashlib, importlib.util, json, os, pathlib, statistics, threading
+import argparse, collections, hashlib, importlib.util, json, math, os, pathlib, statistics, threading
 from concurrent.futures import ThreadPoolExecutor
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -18,7 +18,8 @@ CAP = 600
 
 def tvd(p, q):
     ks = set(p) | set(q)
-    return 0.5 * sum(abs(p.get(k, 0.0) - q.get(k, 0.0)) for k in ks)
+    # fsum: 各 Python 版本都精确 —— 3.12 起内建 sum() 对浮点改成补偿求和, 3.11(CI)与 3.12+(本机)第 4 位小数会不同(2026-09-29 公开仓合同 job 实测 0.2526 vs 0.2525, uv 装 3.11 本机复现)
+    return 0.5 * math.fsum(abs(p.get(k, 0.0) - q.get(k, 0.0)) for k in ks)
 
 
 def verdict(dp, net):
