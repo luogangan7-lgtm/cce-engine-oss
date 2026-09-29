@@ -167,3 +167,12 @@ def test_prospective_scorer_reads_manifest_and_withholds_until_n():
         write_package(env, pathlib.Path(tmp))
         items = json.loads((pathlib.Path(tmp) / "items.json").read_text(encoding="utf-8"))
         assert all(it["_meta"]["observed_at"] for it in items)
+
+
+def test_prior_turn_canary_example_is_valid():
+    env = json.loads((ROOT / "examples/cce_submission_subject_chain_prior_v1.json").read_text(encoding="utf-8"))
+    v = validate_submission(env)
+    assert v["ok"], v["errors"]
+    items = v["normalized"]["subject_dispatch"]["client_payload"]["items"]
+    assert len(items) == 8 and all(it.get("prior_turn_text") for it in items)
+    assert hashlib.sha1(items[0]["prior_turn_text"].encode()).hexdigest()[:12] == "e925c908bee0"   # = 发布前测量的 post6 正文
