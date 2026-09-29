@@ -152,6 +152,9 @@ def rows() -> list[dict]:
                          + " · ".join(f"{k.replace('_vec', '')} {_over[k]}/{_n}" for k in WITHIN_JS_MAX)
                          + f"(按各自仪器的阈值); 其中现行 k=3 仪器 {_cur} 的 {_ncur} 份: "
                          + " · ".join(f"{k.replace('_vec', '')} {_ocur[k]}/{_ncur}" for k in WITHIN_JS_MAX)
+                         + "。★ 2026-09-30 该仪器阈值按原规则(median+2×MAD)重标并过留出检验(results/within_js_recalibration.json): "
+                         + " · ".join(f"{k.replace('_vec', '')} {v['old_threshold']}→{v['new_threshold']}(留出扣发 {v['holdout_exceed_new']}, 预示跨次不稳 ρ={v['gate_validity_spearman']})"
+                                      for k, v in _j("results/within_js_recalibration.json")["holdout"].items())
                          + "。★ 标定时 s1 的语境串**不含** s0 的【情境】后缀, 生产现在带 —— 2026-09-30 已测(预注册, results/s1_context_suffix_ab.json, "
                            "16 条真实文本 × 带/不带 × 2 次): 四层 "
                          + " · ".join(f"{k.replace('_vec', '')} 超噪 {v['mean_excess_js']}" for k, v in _j("results/s1_context_suffix_ab.json")["result"]["per_layer"].items())
