@@ -778,7 +778,7 @@ def items() -> list[dict]:
                         + "★ 只证明必要条件, 不证明自然文本准确率。★ 恢复需新题面在新留出集上过同一判据并另立预注册。"
                         + "★★ owner 同日纠正: 读出是动态分布(九型式: 主值 + 其余占比), top-1 + 布尔阈值是错口径。分布口径复测(results/s0_residue_profile.json): "
                           "只读回应 %s; **把我方上一条消息成对给 ⇒ %s(泄漏比 ≈ 0)** —— 冷读法「知道自己下的探针, 只看对它的反应」成立。"
-                          "接线缺我方内容正文字段(改合同 = config/**, 触发付费 Accuracy)⇒ 等 owner。"
+                          "owner 同日同意加合同字段 ⇒ 已接线(optional prior_turn; 没给仍扣发)。"
                           % (_j("results/s0_residue_profile.json")["arms"]["v1"]["verdict"], _j("results/s0_residue_profile.json")["arms"]["paired"]["verdict"])})
         _v4 = os.path.join(ROOT, "results/contract_pairs_v4_check.json")
         if os.path.exists(_v4):

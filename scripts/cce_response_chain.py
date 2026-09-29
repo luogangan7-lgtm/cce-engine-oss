@@ -154,6 +154,7 @@ def build_dispatch(source: dict[str, Any], chain: dict[str, Any]) -> dict[str, A
                        f"inbound response to {source['content_ref']}: {context['summary']}",
             "ref_tag": f"post6-inbound-{comment_id}",
             "context_snapshot": copy.deepcopy(context),
+            **({"prior_turn_text": row["prior_turn"]["text"]} if isinstance(row.get("prior_turn"), dict) else {}),
         })
     return {
         "event_type": "cce-batch",

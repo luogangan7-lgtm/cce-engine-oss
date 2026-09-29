@@ -18,6 +18,7 @@ if os.environ.get("ITEMS_FILE"):
     guard_profile = (_it.get("guard_profile") or "").strip()
     media_decl = _it.get("media_declaration")
     submission_meta = _it.get("_meta") or {}
+    prior_turn = _it.get("prior_turn_text") or ""
 else:
     mode = (os.environ.get("MODE") or "").strip()
     text = os.environ.get("TEXT") or ""
@@ -30,8 +31,11 @@ else:
     guard_profile = (os.environ.get("GUARD_PROFILE") or "").strip()
     media_decl = os.environ.get("MEDIA_DECLARATION")
     submission_meta = {}
+    prior_turn = ""
 
 errs = []
+if prior_turn and mode != "response":
+    errs.append("prior_turn_text 只用于 response 模式(对方回应所回复的我方上一条消息)")
 # 2026-09-01: 摘掉 "post"。旧九环节链(s0-s8)已于 2026-08-13 退役, 契约里从来没有
 # post 这一档 —— 但入口一直允许它, 于是「拿退役组件当现行标准」复发了三次
 # (08-13 旧 s0-s8 当尺子 / 08-14 s8 写进判注 / 08-14 帖15 九条 run 全跑旧链)。
@@ -109,6 +113,8 @@ if reader_text:
     open("run/reader.txt", "w", encoding="utf-8").write(reader_text)
 if guard_profile:
     open("run/guard_profile", "w", encoding="utf-8").write(guard_profile)
+if prior_turn:
+    open("run/prior_turn.txt", "w", encoding="utf-8").write(prior_turn)
 if submission_meta:
     open("run/submission_meta.json", "w", encoding="utf-8").write(
         _j.dumps(submission_meta, ensure_ascii=False, indent=2))

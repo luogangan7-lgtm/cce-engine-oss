@@ -186,7 +186,8 @@ def s0(ctx):
     if ctx.get("context_decl"):
         decl = json.loads(open(ctx["context_decl"], encoding="utf-8").read()) \
             if os.path.exists(ctx["context_decl"]) else json.loads(ctx["context_decl"])
-    from cce_s0_jev import s0_jev_read, STRUCTURAL, COLD_READ_MODES, READ_WITHHELD   # 调用期导入(闸用 monkeypatch 替换 s0_jev_read)
+    from cce_s0_jev import s0_jev_read, STRUCTURAL, COLD_READ_MODES, READ_WITHHELD, PAIRED_READ   # 调用期导入(闸用 monkeypatch 替换 s0_jev_read)
+    import cce_s0_jev
     # 结构冷读只在冷读模式; response/未知模式 ⇒ 空集 = 改动前行为
     STRUCTURAL = STRUCTURAL if ctx.get("mode") in COLD_READ_MODES else {}
     need_read = [f for f in CTX_FACETS
@@ -209,6 +210,20 @@ def s0(ctx):
             c, _ = call_model("M3", p, temperature=0.0)
             read = extract_json_robust(c, log_note="s0_ctx") or {}
             backend = "minimax_fallback(%s)" % jerr
+    # ★ 2026-09-29 成对读(见 cce_s0_jev.PAIRED_READ): 只在 response 模式且有我方上一条消息时; 输出完整分布(全占比), 主值 = 占比最高
+    paired, paired_dist, paired_err = {}, {}, None
+    if ctx.get("mode") == "response" and ctx.get("prior_turn_file"):
+        prior = open(ctx["prior_turn_file"], encoding="utf-8").read()
+        body = open(ctx["text_file"], encoding="utf-8").read()[:2000]
+        _readable = [f for f in CTX_FACETS if f.get("readable_from_text") in (True, "partial")]
+        for k in PAIRED_READ:
+            if k in decl:
+                continue
+            choice, probs, paired_err = cce_s0_jev.s0_residue_paired(prior, body, _readable)
+            if probs:
+                paired_dist[k] = probs
+            if choice is not None:
+                paired[k] = choice
     merged, src = {}, {}
     for f in CTX_FACETS:
         k = f["key"]
@@ -216,6 +231,8 @@ def s0(ctx):
             merged[k], src[k] = decl[k], "已声明"
         elif k in STRUCTURAL:                                  # 模型就算多答了也不采用
             merged[k], src[k] = STRUCTURAL[k], "结构冷读"
+        elif k in paired and paired[k] not in CTX_UNKNOWN and paired[k] in f["values"]:
+            merged[k], src[k] = paired[k], "成对读出"
         elif k not in READ_WITHHELD and read.get(k) not in CTX_UNKNOWN and read.get(k) in f["values"]:   # 扣发面: 模型多答也不采用
             merged[k], src[k] = read[k], "读出"
         else:
@@ -226,14 +243,15 @@ def s0(ctx):
         raise RuntimeError(f"情境声明未生效: {miss} —— 传参链路断了, 拒绝用读出值冒充声明值")
     known = [k for k, v in src.items() if v != "未知(走先验)"]
     fill = round(len(known) / len(CTX_FACETS), 3)
-    withheld = sorted(k for k in READ_WITHHELD if src.get(k) == "未知(走先验)")   # 本可读、因效度未过而没问模型的面
-    ctx["ctx_layer"] = {"facets": merged, "source": src, "fill_rate": fill, "read_backend": backend, "扣发": withheld}
+    withheld = sorted(k for k in READ_WITHHELD if src.get(k) == "未知(走先验)" and k not in paired_dist)   # 本可读、因效度未过而没问模型的面
+    ctx["ctx_layer"] = {"facets": merged, "source": src, "fill_rate": fill, "read_backend": backend, "扣发": withheld,
+                        "成对读出分布": paired_dist, "成对读出错误": paired_err}
     # 情境并入下游语境串, 让 s1/s5 看到
     ctx["context"] = ctx["context"] + " 【情境】" + json.dumps(
         {k: v for k, v in merged.items() if v != "未知"}, ensure_ascii=False)
     json.dump(ctx["ctx_layer"], open(f"{ctx['outdir']}/s0_context.json", "w"),
               ensure_ascii=False, indent=1)
-    if not any(v in ("已声明", "读出") for v in src.values()):
+    if not any(v in ("已声明", "读出", "成对读出") for v in src.values()):
         # ★ 2026-09-28: response 模式(读他人的回应, subject_chain)不拒答 —— 读者情境读不出是常态, 各面走先验即可,
         #   且此时 s1 语境串不带【情境】后缀, 正是 s1 标定时的条件。此前这道拒答在 response 模式从未响过:
         #   MiniMax 42 条零未知(读不出也填); 换 Jev 如实答「未知」后, 一条读不出的回应就让整条 subject_chain 挂掉
@@ -247,12 +265,13 @@ def s0(ctx):
             "读出": [k for k, v in src.items() if v == "读出"],
             "未知": [k for k, v in src.items() if v == "未知(走先验)"],
             "扣发": withheld,
+            "成对读出": sorted(paired_dist), "成对读出错误": paired_err,
             "结构冷读提示": ("未声明 " + "、".join(structural) + " ⇒ 按首轮处理; 与读者有过上一轮互动时, 调用方必须在 context.declaration 里声明"
                          if structural else None),
             "置信提示": ("填充度低, 下游只出人群级结论, 不出个体级判断"
                        if fill < 0.5 else "填充度足够"),
             "拒答豁免": ("response 模式: 情境全未知, 各面走先验" if ctx.get("mode") == "response"
-                       and not any(v in ("已声明", "读出") for v in src.values()) else None)}
+                       and not any(v in ("已声明", "读出", "成对读出") for v in src.values()) else None)}
 
 
 # 2026-08-18: within_js 是这台仪器的自测噪声底 —— K 次采样两两的 JS 散度。
@@ -693,6 +712,7 @@ def main():
     ap.add_argument("--audience-file")
     ap.add_argument("--reader-file", help="reply 链的读者原文(run/reader.txt); reader_baseline 段必需")
     ap.add_argument("--context-decl", help="情境声明(JSON文件或内联JSON); 生产时应显式声明已知面")
+    ap.add_argument("--prior-turn-file", help="response 模式: 对方这条回应所回复的**我方上一条消息**正文; 有它 情绪余温 才成对读出")
     ap.add_argument("--ref-post")
     ap.add_argument("--guard-profile", default="hearing_aid",
                     help="outbound compliance profile; platform/community independent")
@@ -707,7 +727,7 @@ def main():
     ctx = {"mode": a.mode, "text_file": a.text_file, "context": a.context, "outdir": a.outdir,
            "reader_file": a.reader_file,
            "audience_file": a.audience_file, "ref_post": a.ref_post,
-           "context_decl": a.context_decl, "guard_profile": a.guard_profile,
+           "context_decl": a.context_decl, "guard_profile": a.guard_profile, "prior_turn_file": a.prior_turn_file,
            "k": 5 if a.mode in {"post", "outbound_post"} else 3}
     txt = open(a.text_file, encoding="utf-8").read()
     meta = {"mode": a.mode, "started": time.strftime("%Y-%m-%d %H:%M:%S"),

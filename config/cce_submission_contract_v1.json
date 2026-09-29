@@ -99,6 +99,9 @@
    "required": [
     "subject_chain + response_source, inline or repository path with sha256"
    ],
+   "optional": [
+    "response_source.responses[].prior_turn = {text, text_sha256}: 这条回应所回复的**我方上一条消息**逐字正文。给了 ⇒ s0 情绪余温 成对读出(完整分布落 s0_context.json 的 成对读出分布); 没给 ⇒ 情绪余温 扣发(历史缺失 ≠ 首轮)。依据 results/s0_residue_profile.json; 2026-09-29 owner 同意加字段"
+   ],
    "success_gate": "all response s1 measurements valid; business VERIFIED remains evidence-dependent"
   },
   "media_ingest": {

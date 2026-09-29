@@ -168,8 +168,8 @@ def rows() -> list[dict]:
                          + " / ".join(str(v["leak_ratio"]) for v in _rp["v1"]["shift"].values())
                          + " ⇒ " + _rp["v1"]["verdict"] + "; **成对读(把我方上一条消息一起给)泄漏比 "
                          + " / ".join(str(v["leak_ratio"]) for v in _rp["paired"]["shift"].values())
-                         + " ⇒ " + _rp["paired"]["verdict"] + "**。恢复的路 = response 模式成对读出; 但生产 subject_chain 不带我方内容正文"
-                           "(chain.content 只有 id/notion_ref), 接线要改提交合同(config/** 会触发付费 Accuracy)⇒ 等 owner"),
+                         + " ⇒ " + _rp["paired"]["verdict"] + "**。2026-09-29 owner 同意加合同字段 ⇒ **已接线**: response_source.responses[].prior_turn"
+                           "(我方上一条消息逐字+sha256) 给了才成对读出、完整分布落 s0_context.json; 没给仍扣发。闸 tests/test_cce_s0_paired_residue.py"),
                 "文件": "scripts/cce_s0_jev.py(READ_WITHHELD) · scripts/cce_full_run.py(s0)"})
     out.append({"组件": "s2b 引用证书(影子段)", "状态": UNMEASURED,
                 "证据": ("线上开着(仓库变量 CCE_CITATION_CERT, 未设=开), 只把 top-1=display 且稳定的读数升到 ③′ CITED_UNVERIFIED, "

@@ -292,7 +292,8 @@ jobs:
         run: |
           python3 scripts/cce_full_run.py --mode "$(cat run/mode)" --text-file run/input.txt \
             --context "$(cat run/context)" --outdir run/out \
-            --submission-meta run/submission_meta.json
+            --submission-meta run/submission_meta.json \
+            $(test -f run/prior_turn.txt && echo "--prior-turn-file run/prior_turn.txt")
       - name: Require exact valid s1 measurement
         run: |
           jq -e '.stages.s1_readout.status == "OK"' run/out/manifest.json >/dev/null

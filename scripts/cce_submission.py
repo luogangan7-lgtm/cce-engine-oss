@@ -317,6 +317,11 @@ def validate_submission(value: dict[str, Any]) -> dict[str, Any]:
             if not 1 <= len(responses) <= MAX_ITEMS: errors.append(f"response_source.responses must contain 1-{MAX_ITEMS} entries")
             for index, response in enumerate(responses):
                 _exact_text(response, f"response_source.responses[{index}]", errors)
+                # ★ 2026-09-29 可选 prior_turn = 这条回应所回复的**我方上一条消息**(情绪余温 成对读出用; 缺它 ⇒ 情绪余温 扣发)。
+                #   与回应正文同一纪律: 逐字 + sha256 + 身份闸(路径引用的 source 不经过信封级身份闸, 这里单独过)。
+                if "prior_turn" in response:
+                    _exact_text(response["prior_turn"], f"response_source.responses[{index}].prior_turn", errors)
+                    _identity_invariant(response["prior_turn"], errors, f"response_source.responses[{index}].prior_turn")
             if not errors:
                 subject_dispatch = build_dispatch(source, chain)
 

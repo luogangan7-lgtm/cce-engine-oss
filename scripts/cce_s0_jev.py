@@ -21,6 +21,31 @@ COLD_READ_MODES = {"outbound_post", "reply"}   # 只有冷读模式才有「没�
 #   (判据 <= 0.05)。读者分不清「对我们的感觉」与「任何感觉」, 读出值与该面定义相冲突。
 #   恢复条件: 新题面在**新的留出集**上过同一判据, 且另立预注册; 调用方仍可在 context.declaration 里声明。
 READ_WITHHELD = {"情绪余温"}
+# ★ 2026-09-29 owner「可以加合同字段」: 情绪余温 的恢复路 = **成对读**(冷读法: 我们知道自己下了什么探针, 只看对方对它的反应)。
+#   依据 results/s0_residue_profile.json(预注册 5dc6031, 全占比口径): 只读回应 泄漏比 0.47/0.49 LEAKS;
+#   把我方上一条消息一起给 ⇒ 泄漏比 -0.03/-0.01、位移 0.60/0.87 DISCRIMINATES。
+#   只在 response 模式、且调用方给了 prior_turn(我方上一条消息正文)时走; 没给 ⇒ 仍扣发(历史缺失 ≠ 首轮)。
+#   请求与实测**逐字相同**: 同一 state 版式、同一题集(六面, 只把 情绪余温 换成 PAIRED_RESIDUE_Q), 只取 情绪余温 一面; 闸钉探针与此处相等。
+PAIRED_READ = {"情绪余温"}
+PAIRED_RESIDUE_Q = ("Read only the writer's reaction to OUR PREVIOUS MESSAGE shown above their reply. "
+                    "Feelings about anything else (other people, other replies, devices, events) do not count. "
+                    "If the reply does not react to our previous message, choose 未知; never guess.")
+
+
+def paired_state(prior, reply):
+    return "[OUR PREVIOUS MESSAGE]\n" + prior + "\n\n[THEIR REPLY]\n" + reply
+
+
+def s0_residue_paired(prior, reply, facets, post=None):
+    """(我方上一条消息, 对方回应) → (选中值, {值: 概率}, err)。facets = 与实测相同的六面题集来源。"""
+    key = os.environ.get("TYPESAFE_API_KEY", "").strip()
+    if not key: return None, None, "NO_TYPESAFE_API_KEY"
+    qs = jev_questions(facets); qs["情绪余温"]["instructions"] = PAIRED_RESIDUE_Q
+    resp, err = (post or _post)({"model": MODEL, "state": paired_state(prior, reply)[:2400], "questions": qs}, key)
+    if err or not resp: return None, None, err or "EMPTY_RESPONSE"
+    try:
+        a = resp["answers"]["情绪余温"]; return a["choice"], a["probabilities"], None
+    except (KeyError, TypeError) as e: return None, None, "BAD_SHAPE:%s" % type(e).__name__
 
 
 def jev_questions(facets):
