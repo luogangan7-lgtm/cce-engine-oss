@@ -1,0 +1,27 @@
+{
+ "block": "S0_RESIDUE_REFERENT_HELDOUT",
+ "prereg_written_at": "2026-09-29",
+ "★frozen_before_measurement": "本文件与 probes/s0_residue_referent.py 在发起调用之前提交。",
+ "★why": "emotion_v2 探索臂(results/s0_planted_validity_emotion_v2.json)按其预注册达到 ADOPT_CANDIDATE, 但那是在开发材料上(同 10 段、维护者自写植入句、已看过 v2 输出)。网页 GPT 方法学调研(2026-09-29)要求: 开发材料只作回归; 冻结候选后在**留出**段落与**留出句式**上测一次, 核心是**指代最小对** —— 同样的情绪, 指向「我们上一条回复」vs「别人的回复」vs「无关事件」。",
+ "material": {
+  "passages": "shadow.load_passages()[10:20] —— 与此前所有 s0 植入测试不重叠",
+  "placement": "**嵌入**: 插在第一个段落分隔后(无分隔则第一句后, 再无则追加), 不同于此前的段末追加",
+  "classes": "OURS_POS / OURS_NEG(指向我们上一条回复, 期望 正向余温/负向余温) · OTHER_POS / OTHER_NEG(指向别人的回复) · EVENT_POS / EVENT_NEG(无关事件) —— 各两种说法, 句子见 probes/s0_residue_referent.PLANTS, 与此前植入句不同",
+  "arms": "v1 = 生产现行题面; v2 = probes/s0_planted_validity.EMOTION_V2(冻结, 一字不改)。同一批输入两臂都读"
+ },
+ "metrics": {
+  "recovery_pos": "OURS_POS 读成 正向余温 的比例(n=20)",
+  "recovery_neg": "OURS_NEG 读成 负向余温 的比例(n=20)",
+  "false_attribution": "OTHER_* + EVENT_* 读成 正向余温 或 负向余温 的比例(n=80)",
+  "baseline_attribution": "10 段原文读成 正/负向余温 的条数(只报告不判: 原文不是对我们的回应, 但读者不知道这一点)"
+ },
+ "decision_rule_per_arm": {
+  "PASS": "recovery_pos >= 0.90 且 recovery_neg >= 0.90 且 false_attribution <= 0.05",
+  "FAIL": "任一不满足 —— 一律输出「未知」的读者会在 recovery 上失败",
+  "★ship_rule": "v2 PASS ⇒ v2 成为候选, 另走 s0_context 合同 pin + canary 才进生产; v1 与 v2 都 FAIL ⇒ response 模式下 情绪余温 标为不可用(withhold), 不以默认值替代",
+  "★no_post_hoc": "阈值不因结果调整"
+ },
+ "★predictions": {"P1": "v1 FAIL(false_attribution > 0.05)", "P2": "v2 false_attribution < v1"},
+ "★cannot_claim": ["自然文本准确率", "隐含指代", "句子仍由维护者撰写 —— 这是局部测试神谕, 不是金标"],
+ "budget": {"jev_requests_expected": 260, "hard_cap": 400, "cost_estimate_usd": "≈0.013"}
+}
