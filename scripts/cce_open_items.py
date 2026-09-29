@@ -231,7 +231,11 @@ def items() -> list[dict]:
                                "(.800 是 convention **不是**统计定律) · 样本量**按条目**算不可混池"
                                "(per-item validity 至少 50/条目, 要分报敏感度/特异度则约 100)。"
                                "★ 文献(BARS Smith&Kendall 1963 · Eguchi&Kyle 2023 人类 stance span F1 仅 **0.663** · "
-                               "Klie et al. 591 项目综述)**均待核**, 未核前不作证据。")})
+                               "Klie et al. 591 项目综述)**均待核**, 未核前不作证据。"
+                               "★★ 2026-09-29 网页 GPT 二次调研(无人类金标下怎么验判官): 构造正例/难负例 + 对抗最小编辑 + "
+                               "框架不变性只给**局部测试神谕**不给金标; 按**原子**设错误预算, 不能跨 25 条平均救回; "
+                               "零失败需约 59 例/族才得 5% 上界; 27%/100%/3% 的框架摆动 ⇒ **继续扣发**, 不选最有利的提示词。"
+                               "构造稿测试**本轮未跑**: 禁令语义(三值)未定之前, 它即使通过也恢复不了出口 —— 先定三值是前置。")})
 
     # ⑤ 文档与代码的分歧
     # 「已就地标注」= 分歧仍在但读那一节的人不会被误导, 且有闸钉住 ⇒ 与「符合」同属已解决
@@ -764,6 +768,14 @@ def items() -> list[dict]:
                 "证据": "逐面 κ mm/jev: " + " · ".join("%s %s/%s" % (k, _P["mm"][k]["kappa"], _P["jev"][k]["kappa"]) for k in _P["mm"])
                         + "。情绪余温结构违反(冷读却填 正/负/中性) 轮1/轮2: MiniMax %d/%d · Jev %d/%d" % tuple(_T[a][r]["违反结构约束(填了 正向/负向/中性)"] for a in ("mm", "jev") for r in ("轮1", "轮2"))
                         + "。★ 只比稳定性与纪律, 不比准确率(无真值); κ 高可能是稳定的同一偏见。★ 据此 owner 已点头接线(见上条)。"})
+        _rr = os.path.join(ROOT, "results/s0_residue_referent.json")
+        if os.path.exists(_rr):
+            _RR = _j("results/s0_residue_referent.json")["arms"]; _PV = _j("results/s0_planted_validity.json")["per_facet"]
+            out.append({"类": DECIDED, "项": "s0 无金标效度(2026-09-29, 两份预注册): 五面对明说情境敏感; 情绪余温 分不清「对我们」与「任何」情绪 ⇒ **任何模式扣发**",
+                "证据": "植入信号: " + " · ".join("%s %s" % (k, v["verdict"]) for k, v in _PV.items())
+                        + "。留出指代最小对 误归因 v1 %s / v2 %s(判据 <= 0.05, 召回均 1.0)⇒ cce_s0_jev.READ_WITHHELD, 未声明即 未知。"
+                          % (_RR["v1"]["false_attribution"], _RR["v2"]["false_attribution"])
+                        + "★ 只证明必要条件, 不证明自然文本准确率。★ 恢复需新题面在新留出集上过同一判据并另立预注册。"})
         _v4 = os.path.join(ROOT, "results/contract_pairs_v4_check.json")
         if os.path.exists(_v4):
             _C = _j("results/contract_pairs_v4_check.json")

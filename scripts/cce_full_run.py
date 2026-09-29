@@ -186,11 +186,12 @@ def s0(ctx):
     if ctx.get("context_decl"):
         decl = json.loads(open(ctx["context_decl"], encoding="utf-8").read()) \
             if os.path.exists(ctx["context_decl"]) else json.loads(ctx["context_decl"])
-    from cce_s0_jev import s0_jev_read, STRUCTURAL, COLD_READ_MODES   # 调用期导入(闸用 monkeypatch 替换 s0_jev_read)
+    from cce_s0_jev import s0_jev_read, STRUCTURAL, COLD_READ_MODES, READ_WITHHELD   # 调用期导入(闸用 monkeypatch 替换 s0_jev_read)
     # 结构冷读只在冷读模式; response/未知模式 ⇒ 空集 = 改动前行为
     STRUCTURAL = STRUCTURAL if ctx.get("mode") in COLD_READ_MODES else {}
     need_read = [f for f in CTX_FACETS
-                 if f["key"] not in decl and f["key"] not in STRUCTURAL and f.get("readable_from_text") in (True, "partial")]
+                 if f["key"] not in decl and f["key"] not in STRUCTURAL and f["key"] not in READ_WITHHELD
+                 and f.get("readable_from_text") in (True, "partial")]
     read, backend = {}, "none"
     if need_read:
         body = open(ctx["text_file"], encoding="utf-8").read()[:2000]
@@ -215,7 +216,7 @@ def s0(ctx):
             merged[k], src[k] = decl[k], "已声明"
         elif k in STRUCTURAL:                                  # 模型就算多答了也不采用
             merged[k], src[k] = STRUCTURAL[k], "结构冷读"
-        elif read.get(k) not in CTX_UNKNOWN and read.get(k) in f["values"]:
+        elif k not in READ_WITHHELD and read.get(k) not in CTX_UNKNOWN and read.get(k) in f["values"]:   # 扣发面: 模型多答也不采用
             merged[k], src[k] = read[k], "读出"
         else:
             merged[k], src[k] = "未知", "未知(走先验)"
@@ -225,7 +226,8 @@ def s0(ctx):
         raise RuntimeError(f"情境声明未生效: {miss} —— 传参链路断了, 拒绝用读出值冒充声明值")
     known = [k for k, v in src.items() if v != "未知(走先验)"]
     fill = round(len(known) / len(CTX_FACETS), 3)
-    ctx["ctx_layer"] = {"facets": merged, "source": src, "fill_rate": fill, "read_backend": backend}
+    withheld = sorted(k for k in READ_WITHHELD if src.get(k) == "未知(走先验)")   # 本可读、因效度未过而没问模型的面
+    ctx["ctx_layer"] = {"facets": merged, "source": src, "fill_rate": fill, "read_backend": backend, "扣发": withheld}
     # 情境并入下游语境串, 让 s1/s5 看到
     ctx["context"] = ctx["context"] + " 【情境】" + json.dumps(
         {k: v for k, v in merged.items() if v != "未知"}, ensure_ascii=False)
@@ -244,6 +246,7 @@ def s0(ctx):
             "结构冷读": structural,
             "读出": [k for k, v in src.items() if v == "读出"],
             "未知": [k for k, v in src.items() if v == "未知(走先验)"],
+            "扣发": withheld,
             "结构冷读提示": ("未声明 " + "、".join(structural) + " ⇒ 按首轮处理; 与读者有过上一轮互动时, 调用方必须在 context.declaration 里声明"
                          if structural else None),
             "置信提示": ("填充度低, 下游只出人群级结论, 不出个体级判断"

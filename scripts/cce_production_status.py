@@ -148,11 +148,21 @@ def rows() -> list[dict]:
                 "文件": "scripts/cce_knot_classify.py(stage1) · scripts/cce_full_run.py(WITHIN_JS_MAX)"})
 
     # ── 链上其余段(2026-09-28 补: 表里此前没有它们, 诊断 #33) ─────────
-    out.append({"组件": "s0 情境读出", "状态": UNMEASURED,
-                "证据": ("六个可读面**没有人类金标**(owner 2026-09-23 撤回金标前置), 准确度无从测; 只有重测一致性"
-                         "(results/s0_retest.json)。后端 2026-09-28 起生产走 Jev(probes/jev_secret_check.py 两仓各一次 backend=jev); "
-                         "Jev 失败时回退 MiniMax 并在聚合 manifest 里列入 degraded、production_verified=false"),
+    _pv = _j("results/s0_planted_validity.json")["per_facet"]
+    _rr = _j("results/s0_residue_referent.json")["arms"]
+    out.append({"组件": "s0 情境读出(5 面)", "状态": UNMEASURED,
+                "证据": ("**没有人类金标**(owner 2026-09-23), 自然文本准确度无从测; 重测一致性见 results/s0_retest.json。"
+                         "植入信号必要条件(预注册, results/s0_planted_validity.json, 明说句): "
+                         + " · ".join(f"{k} {v['verdict']}(召回 {v['recovery']}, 净连带 {v['net_off_target']})" for k, v in _pv.items() if k != "情绪余温")
+                         + "。WEAK 的连带改动多为植入句本身蕴含(事后分析), 未另测。后端 Jev, 失败回退 MiniMax 并列入 degraded"),
                 "文件": "scripts/cce_full_run.py(s0) · scripts/cce_s0_jev.py · scripts/cce_workflow_manifest.py"})
+    out.append({"组件": "s0 情绪余温 读出", "状态": FAILED,
+                "证据": ("留出指代最小对(预注册, results/s0_residue_referent.json): 对我方回复的情绪召回 "
+                         + " / ".join(f"{a} {v['recovery_pos']}/{v['recovery_neg']}" for a, v in _rr.items())
+                         + ", 但别人回复/无关事件被读成余温 "
+                         + " / ".join(f"{a} {v['false_attribution']}" for a, v in _rr.items())
+                         + "(判据 <= 0.05)⇒ 2026-09-29 起任何模式都**扣发**(cce_s0_jev.READ_WITHHELD), 未声明即 未知; 冷读模式仍是结构冷读 首轮无余温"),
+                "文件": "scripts/cce_s0_jev.py(READ_WITHHELD) · scripts/cce_full_run.py(s0)"})
     out.append({"组件": "s2b 引用证书(影子段)", "状态": UNMEASURED,
                 "证据": ("线上开着(仓库变量 CCE_CITATION_CERT, 未设=开), 只把 top-1=display 且稳定的读数升到 ③′ CITED_UNVERIFIED, "
                          "citable_as_confirmed 恒 False、不改任何判决; 证书语义校验器的准确度未测"),

@@ -15,6 +15,12 @@ import json, os, time, urllib.request, urllib.error
 API = "https://api.typesafe.ai/v1/systemone"; MODEL = "jev-latest"; UNKNOWN = {"未知", "未提及", "", None}
 STRUCTURAL = {"情绪余温": "首轮无余温"}   # 结构冷读: 不出模型题; 生产唯一定义(候选合同 v2 由闸钉等)
 COLD_READ_MODES = {"outbound_post", "reply"}   # 只有冷读模式才有「没有上一轮」; response(对我方内容的进站回复)有上一轮, 照旧让模型读
+# ★ 2026-09-29 扣发: 情绪余温 在**任何模式**都不再让模型读(未声明、非结构冷读 ⇒ 未知, 走先验)。
+#   依据 results/s0_residue_referent.json(预注册 tests/data/s0_residue_referent_prereg.json, 留出段落 + 指代最小对):
+#   指向我方上一条回复的情绪召回 1.0, 但指向**别人的回复/无关事件**的情绪被读成 正/负向余温 —— 现行题面 0.79、收窄题面 0.55
+#   (判据 <= 0.05)。读者分不清「对我们的感觉」与「任何感觉」, 读出值与该面定义相冲突。
+#   恢复条件: 新题面在**新的留出集**上过同一判据, 且另立预注册; 调用方仍可在 context.declaration 里声明。
+READ_WITHHELD = {"情绪余温"}
 
 
 def jev_questions(facets):

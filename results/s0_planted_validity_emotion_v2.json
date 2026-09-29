@@ -1,0 +1,3744 @@
+{
+ "block": "S0_PLANTED_SIGNAL_VALIDITY_EXPLORATORY_EMOTION_V2",
+ "variant": "emotion_v2",
+ "run_at": "2026-09-29",
+ "dry_run": false,
+ "prereg_sha256": "4235cb691eda8dfc990d62996a18e15fbfe322073894423b4595cacd5a6b517b",
+ "probe_sha256": "0297f36bf94f4ecc3e1bfa0df30d14a23937aaa1fb0bf504d5845b948e676cf3",
+ "jev_question_sha": "e92737943a5431e9",
+ "passages": [
+  "corpus/reddit_hearingaids_audience_v2.txt:0",
+  "corpus/reddit_hearingaids_audience_v2.txt:1",
+  "corpus/reddit_hearingaids_audience_v2.txt:2",
+  "corpus/reddit_hearingaids_audience_v2.txt:3",
+  "corpus/reddit_hearingaids_audience_v2.txt:6",
+  "corpus/reddit_hearingaids_audience_v2.txt:8",
+  "corpus/reddit_hearingaids_audience_v2.txt:9",
+  "corpus/reddit_hearingaids_audience_v2.txt:10",
+  "corpus/reddit_hearingaids_audience_v2.txt:12",
+  "corpus/reddit_hearingaids_audience_v2.txt:16"
+ ],
+ "requests": 230,
+ "jobs": 230,
+ "errors": {},
+ "neutral_change": null,
+ "per_facet": {
+  "触发事件 ⇒ 情绪余温 溢出": {
+   "n": 100,
+   "changed": 5,
+   "rate": 0.05,
+   "to": {
+    "首轮无余温": 4,
+    "负向余温": 1
+   }
+  },
+  "触发事件 召回": 0.96,
+  "身体状态 ⇒ 情绪余温 溢出": {
+   "n": 60,
+   "changed": 2,
+   "rate": 0.0333,
+   "to": {
+    "正向余温": 2
+   }
+  },
+  "身体状态 召回": 1.0,
+  "情绪余温 召回(按值)": {
+   "正向余温": 1.0,
+   "负向余温": 1.0,
+   "中性": 0.05
+  },
+  "baseline 情绪余温 分布": {
+   "正向余温": 3,
+   "首轮无余温": 6,
+   "未知": 1
+  }
+ },
+ "★predictions": "探索臂: 不设预注册判决, 只报溢出与召回",
+ "★what_it_cannot_claim": [
+  "不能说自然文本上的准确率 —— 真实评论里情境多是**隐含**的, 植入句是明说的。",
+  "不能说隐含线索读得对。",
+  "植入句由维护者撰写(英文), 措辞效应只用两种说法粗控, 不代表全部措辞。"
+ ],
+ "raw": [
+  {
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": null,
+   "value": null,
+   "phrasing": null,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "未知",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": null,
+   "value": null,
+   "phrasing": null,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": null,
+   "value": null,
+   "phrasing": null,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "未知",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": null,
+   "value": null,
+   "phrasing": null,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": null,
+   "value": null,
+   "phrasing": null,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": null,
+   "value": null,
+   "phrasing": null,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "未知",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": null,
+   "value": null,
+   "phrasing": null,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": null,
+   "value": null,
+   "phrasing": null,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "未知",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": null,
+   "value": null,
+   "phrasing": null,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "baseline",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": null,
+   "value": null,
+   "phrasing": null,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "刚意识到问题",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "刚意识到问题",
+    "触发事件": "受挫/出故障",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "受挫/出故障",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "症状正发作",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "刚意识到问题",
+    "触发事件": "受挫/出故障",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "刚意识到问题",
+    "触发事件": "受挫/出故障",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "受挫/出故障",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "受挫/出故障",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "症状正发作",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "回看复盘",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "触发事件",
+   "value": "受挫/出故障",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "被否定或质疑",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "被否定或质疑",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "被否定或质疑",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "被否定或质疑",
+    "关系位置": "接触过几次",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "被否定或质疑",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "被否定或质疑",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "被否定或质疑",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "被否定或质疑",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "被否定或质疑",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "被否定或质疑",
+    "关系位置": "有过负面经历",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "被否定或质疑",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "被否定或质疑",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "被否定或质疑",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "被否定或质疑",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "被否定或质疑",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "被否定或质疑",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "被否定或质疑",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "被否定或质疑",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "触发事件",
+   "value": "被否定或质疑",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "被否定或质疑",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "正在比价",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "正在比价",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "预算受限",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "正在比价",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "正在比价",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "正在比价",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "正在比价",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "预算受限",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "正在比价",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "正在比价",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "正在比价",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "正在比价",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "正在比价",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "预算受限",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "正在比价",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "接触过几次",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "正在比价",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "预算受限",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "正在比价",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "正在比价",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "预算受限",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "正在比价",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "正在比价",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "触发事件",
+   "value": "正在比价",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "正在比价",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚花过钱",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚花过钱",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚花过钱",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚花过钱",
+    "关系位置": "已购买",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "刚花过钱",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "刚花过钱",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚花过钱",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "刚花过钱",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "回看复盘",
+    "触发事件": "刚花过钱",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "刚花过钱",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚花过钱",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚花过钱",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚花过钱",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚花过钱",
+    "关系位置": "已购买",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "刚花过钱",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "刚花过钱",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚花过钱",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "刚花过钱",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "刚意识到问题",
+    "触发事件": "刚花过钱",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "触发事件",
+   "value": "刚花过钱",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "刚花过钱",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "刚得到好结果",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "回看复盘",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "刚得到好结果",
+    "关系位置": "未知",
+    "身体状态": "已缓解",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "未知",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "回看复盘",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "触发事件",
+   "value": "刚得到好结果",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "刚得到好结果",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "症状正发作",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "症状正发作",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "症状正发作",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "症状正发作",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "症状正发作",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "症状正发作",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "未知",
+    "身体状态": "症状正发作",
+    "资源状态": "未提及",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "已购买",
+    "身体状态": "症状正发作",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "症状正发作",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "症状正发作",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "未知",
+    "关系位置": "未知",
+    "身体状态": "症状正发作",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "症状正发作",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "未知",
+    "关系位置": "首次接触",
+    "身体状态": "症状正发作",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "症状正发作",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "已购买",
+    "身体状态": "症状正发作",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "未知",
+    "关系位置": "未知",
+    "身体状态": "症状正发作",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "症状正发作",
+    "资源状态": "未提及",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "未知",
+    "关系位置": "已购买",
+    "身体状态": "症状正发作",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "已购买",
+    "身体状态": "症状正发作",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "身体状态",
+   "value": "症状正发作",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "症状正发作",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "未知",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "未知",
+    "关系位置": "接触过几次",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "已购买",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "未知",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "未知",
+    "关系位置": "已购买",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "回看复盘",
+    "触发事件": "受挫/出故障",
+    "关系位置": "已购买",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "未知",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "未知",
+    "关系位置": "接触过几次",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "未知",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "未知",
+    "关系位置": "已购买",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "回看复盘",
+    "触发事件": "无明显触发",
+    "关系位置": "有过负面经历",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "身体状态",
+   "value": "长期困扰",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "未知",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "回看复盘",
+    "触发事件": "刚得到好结果",
+    "关系位置": "未知",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "已缓解",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "刚得到好结果",
+    "关系位置": "未知",
+    "身体状态": "已缓解",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "未知",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "回看复盘",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "已缓解",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "回看复盘",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "未知",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "已缓解",
+    "资源状态": "有决定权",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "未知",
+    "关系位置": "未知",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "刚得到好结果",
+    "关系位置": "未知",
+    "身体状态": "已缓解",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "未知",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "未知",
+    "关系位置": "已购买",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "回看复盘",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "首轮无余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "身体状态",
+   "value": "已缓解",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "刚得到好结果",
+    "关系位置": "未知",
+    "身体状态": "已缓解",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "未知",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "接触过几次",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "未知",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "未知",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "接触过几次",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "接触过几次",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "回看复盘",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "情绪余温",
+   "value": "正向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "被否定或质疑",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "受挫/出故障",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "回看复盘",
+    "触发事件": "受挫/出故障",
+    "关系位置": "有过负面经历",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "情绪余温",
+   "value": "负向余温",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "接触过几次",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "负向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "未知",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "接触过几次",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "未知",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "未知",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "中性"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 0,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "接触过几次",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:0",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "未知",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:1",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:2",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "已决定在执行",
+    "触发事件": "刚得到好结果",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:3",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "有决定权",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:6",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:8",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在找方案",
+    "触发事件": "未知",
+    "关系位置": "接触过几次",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:9",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "回看复盘",
+    "触发事件": "刚得到好结果",
+    "关系位置": "未知",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:10",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "未知",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "有决定权",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:12",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "回看复盘",
+    "触发事件": "受挫/出故障",
+    "关系位置": "已购买",
+    "身体状态": "未提及",
+    "资源状态": "未提及",
+    "情绪余温": "未知"
+   },
+   "err": null
+  },
+  {
+   "kind": "plant",
+   "ptr": "corpus/reddit_hearingaids_audience_v2.txt:16",
+   "facet": "情绪余温",
+   "value": "中性",
+   "phrasing": 1,
+   "read": {
+    "进程位置": "在比较权衡",
+    "触发事件": "受挫/出故障",
+    "关系位置": "未知",
+    "身体状态": "长期困扰",
+    "资源状态": "未提及",
+    "情绪余温": "正向余温"
+   },
+   "err": null
+  }
+ ]
+}
