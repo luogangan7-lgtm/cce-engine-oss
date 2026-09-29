@@ -1,0 +1,14 @@
+{
+ "block": "S0_EMOTION_V2_EXPLORATORY",
+ "prereg_written_at": "2026-09-29",
+ "★frozen_before_measurement": "本文件与 probes/s0_planted_validity.py --variant emotion_v2 在发起调用之前提交。",
+ "★why": "S0_PLANTED_SIGNAL_VALIDITY(results/s0_planted_validity.json)事后分析: Jev 把非互动事件读成 情绪余温 —— 触发事件植入 ⇒ 情绪余温 被改 47/100, 身体状态植入 ⇒ 25/60(基线同一批 raw 现算, 见 analyse_v2)。情绪余温 定义是「上一轮互动留下的感觉(闭环接口)」, 在 response 模式会进 s1 上下文。",
+ "change": "只改 情绪余温 一道题的 instructions(见 probes/s0_planted_validity.EMOTION_V2), 选项/criteria 不变; 生产 scripts/cce_s0_jev.py 不改",
+ "material": "同主测试: 前 10 段 × 触发事件/身体状态/情绪余温 三面植入(各两种说法) + baseline, 共 230 次 Jev",
+ "★adopt_rule": {
+  "ADOPT_CANDIDATE": "两处溢出率都 <= 0.10 且 正向余温/负向余温 召回都 >= 0.90 且 触发事件/身体状态 召回不低于主测试 0.05 以上",
+  "REJECT": "任一不满足",
+  "note": "即便 ADOPT_CANDIDATE 也只是候选: 改生产题面要另走 s0_context 合同 pin + canary; 中性 值植入句设计本身弱, 不据此判"
+ },
+ "budget": {"jev_requests_expected": 230, "hard_cap": 600, "cost_estimate_usd": "≈0.01"}
+}

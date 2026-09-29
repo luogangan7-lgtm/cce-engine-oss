@@ -64,6 +64,13 @@ PLANTS = {
 }
 NEUTRAL = ["The weather here has been mild this week.", "I usually read these threads in the evening."]
 
+# ★ 探索臂(非预注册, 不作采纳依据): 情绪余温 题面收窄。主测试发现 Jev 会从非互动事件(设备故障→负向余温、
+#   症状缓解→正向余温)推断「上一轮互动留下的感觉」。本臂只改这一道题的说明, 看溢出是否下降、正/负是否仍读得出。
+EMOTION_V2 = ("Read only the feeling the writer expresses toward OUR previous message or reply in this thread. "
+              "Feelings about products, devices, symptoms, prices or other people do NOT count. "
+              "If the text does not react to a previous message from us, choose 首轮无余温 if it reads as a first contact, otherwise 未知; never guess.")
+V2_FACETS = ("触发事件", "身体状态", "情绪余温")
+
 
 def norm(v, facet):
     return "未知" if (v in shadow.UNKNOWN or v not in facet["values"]) else v
@@ -106,11 +113,42 @@ def analyse(rows):
     return round(neu_ch, 4), per
 
 
+def analyse_v2(rows):
+    """探索臂读数: ① 触发事件/身体状态植入 ⇒ 情绪余温 从 baseline 被改掉的比例(溢出) ② 情绪余温 植入的召回。"""
+    fac = {f["key"]: f for f in FACETS}
+    base = {r["ptr"]: r["read"] for r in rows if r["kind"] == "baseline" and r["read"]}
+    ok = [r for r in rows if r["read"] and r["ptr"] in base]
+    out = {}
+    for f in ("触发事件", "身体状态"):
+        pr = [r for r in ok if r["kind"] == "plant" and r["facet"] == f]
+        spill = [r for r in pr if norm(r["read"]["情绪余温"], fac["情绪余温"]) != norm(base[r["ptr"]]["情绪余温"], fac["情绪余温"])]
+        out[f + " ⇒ 情绪余温 溢出"] = {"n": len(pr), "changed": len(spill), "rate": round(len(spill) / max(1, len(pr)), 4),
+                                    "to": dict(collections.Counter(norm(r["read"]["情绪余温"], fac["情绪余温"]) for r in spill))}
+        out[f + " 召回"] = round(sum(norm(r["read"][f], fac[f]) == r["value"] for r in pr) / max(1, len(pr)), 4)
+    pe = [r for r in ok if r["kind"] == "plant" and r["facet"] == "情绪余温"]
+    out["情绪余温 召回(按值)"] = {v: round(sum(norm(r["read"]["情绪余温"], fac["情绪余温"]) == v for r in pe if r["value"] == v)
+                                       / max(1, sum(r["value"] == v for r in pe)), 4) for v in PLANTS["情绪余温"]}
+    out["baseline 情绪余温 分布"] = dict(collections.Counter(norm(base[p]["情绪余温"], fac["情绪余温"]) for p in base))
+    return out
+
+
 def main(argv=None):
-    ap = argparse.ArgumentParser(); ap.add_argument("--dry-run", action="store_true"); a = ap.parse_args(argv)
+    ap = argparse.ArgumentParser(); ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--variant", choices=["main", "emotion_v2"], default="main"); a = ap.parse_args(argv)
     pre = json.loads(PRE.read_text(encoding="utf-8"))
     passages = shadow.load_passages()[:N_PASSAGES]
     js = jobs(passages)
+    out_path = OUT
+    if a.variant == "emotion_v2":
+        js = [j for j in js if j[0] == "baseline" or (j[0] == "plant" and j[2] in V2_FACETS)]
+        out_path = ROOT / "results/s0_planted_validity_emotion_v2.json"
+        _orig_q = S0.jev_questions
+        def _qs(facets):
+            q = _orig_q(facets)
+            if "情绪余温" in q:
+                q["情绪余温"]["instructions"] = EMOTION_V2
+            return q
+        S0.jev_questions = _qs
     assert len(js) <= CAP, (len(js), CAP)
     ledger, lock = {"req": 0}, threading.Lock()
     if a.dry_run:
@@ -135,21 +173,24 @@ def main(argv=None):
     with ThreadPoolExecutor(max_workers=4) as ex:
         rows = list(ex.map(one, js))
     errs = collections.Counter(r["err"] for r in rows if r["err"])
-    neu_ch, per = analyse(rows)
-    res = {"block": "S0_PLANTED_SIGNAL_VALIDITY", "run_at": "2026-09-29", "dry_run": a.dry_run,
+    neu_ch, per = analyse(rows) if a.variant == "main" else (None, analyse_v2(rows))
+    res = {"block": "S0_PLANTED_SIGNAL_VALIDITY" + ("" if a.variant == "main" else "_EXPLORATORY_EMOTION_V2"),
+           "variant": a.variant, "run_at": "2026-09-29", "dry_run": a.dry_run,
            "prereg_sha256": hashlib.sha256(PRE.read_bytes()).hexdigest(),
            "probe_sha256": hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest(),
            "jev_question_sha": shadow.question_sha(), "passages": [p for p, _ in passages],
            "requests": ledger["req"], "jobs": len(js), "errors": dict(errs),
            "neutral_change": neu_ch, "per_facet": per,
-           "★predictions": {"P1": {k: per[k]["verdict"] for k in ("进程位置", "触发事件", "资源状态")},
-                            "P2_情绪余温": per["情绪余温"]["verdict"], "P3_neutral_change<=0.05": neu_ch <= 0.05},
+           "★predictions": ({"P1": {k: per[k]["verdict"] for k in ("进程位置", "触发事件", "资源状态")},
+                             "P2_情绪余温": per["情绪余温"]["verdict"], "P3_neutral_change<=0.05": neu_ch <= 0.05}
+                            if a.variant == "main" else "探索臂: 不设预注册判决, 只报溢出与召回"),
            "★what_it_cannot_claim": pre["★what_it_cannot_claim"],
            "raw": [{k: r[k] for k in ("kind", "ptr", "facet", "value", "phrasing", "read", "err")} for r in rows]}
     if not a.dry_run:
-        OUT.write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
+        out_path.write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps({"requests": ledger["req"], "errors": dict(errs), "neutral_change": neu_ch,
-                      "per_facet": {k: {kk: v[kk] for kk in ("recovery", "net_off_target", "verdict")} for k, v in per.items()}},
+                      "per_facet": per if a.variant != "main" else
+                      {k: {kk: v[kk] for kk in ("recovery", "net_off_target", "verdict")} for k, v in per.items()}},
                      ensure_ascii=False, indent=1))
 
 
