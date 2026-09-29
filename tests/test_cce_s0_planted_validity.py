@@ -94,3 +94,12 @@ def test_knot_construct_pilot_recomputes():
     assert kc.analyse(r["raw"], ref) == r["result"]
     assert {k: v["verdict"] for k, v in r["result"]["per_knot"].items()} == {"display": "SUPPORTED", "pain_seek": "SUPPORTED", "reward": "PARTIAL"}
     assert all(set(x) == {"ptr", "rep", "probs", "err"} for x in r["raw"])        # 只有指针与概率, 不落原文
+
+
+def test_s1_context_suffix_ab_recomputes():
+    _p = importlib.util.spec_from_file_location("_sa", ROOT / "probes/s1_context_suffix_ab.py"); sa = importlib.util.module_from_spec(_p); _p.loader.exec_module(sa)
+    r = json.loads((ROOT / "results/s1_context_suffix_ab.json").read_text(encoding="utf-8"))
+    assert r["prereg_sha256"] == hashlib.sha256((ROOT / "tests/data/s1_context_suffix_ab_prereg.json").read_bytes()).hexdigest()
+    assert r["requests"]["used"] <= sa.CAP and r["result"] == sa.score(r["raw"])
+    assert r["result"]["overall"] == "NEUTRAL" and r["result"]["n_texts_used"] == 16
+    assert sa.js([0.5, 0.5], [0.5, 0.5]) == 0 and sa.js({"a": 1.0}, {"b": 1.0}) == 1.0     # list 与 dict 两种层向量都认

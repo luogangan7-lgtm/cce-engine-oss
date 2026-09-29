@@ -143,8 +143,10 @@ def rows() -> list[dict]:
     out.append({"组件": "s1 四层分布", "状态": USABLE,
                 "证据": (f"逐次运行由组内散布闸判: 超噪声底的层扣发 top。存档 {_n} 份读数的逐层扣发率 "
                          + " · ".join(f"{k.replace('_vec', '')} {_over[k]}/{_n}" for k in WITHIN_JS_MAX)
-                         + "。★ 标定时 s1 的语境串**不含** s0 的【情境】后缀; 生产现在带(2026-09-28 起由 Jev 读出), "
-                           "带后缀的全流程重测尚无"),
+                         + "。★ 标定时 s1 的语境串**不含** s0 的【情境】后缀, 生产现在带 —— 2026-09-30 已测(预注册, results/s1_context_suffix_ab.json, "
+                           "16 条真实文本 × 带/不带 × 2 次): 四层 "
+                         + " · ".join(f"{k.replace('_vec', '')} 超噪 {v['mean_excess_js']}" for k, v in _j("results/s1_context_suffix_ab.json")["result"]["per_layer"].items())
+                         + "(判据 >= 0.05)⇒ 全部 NEUTRAL, 后缀不把读数挪出标定条件; desire 有 3/16 条两臂稳定 top-1 不同(分布差仍在噪声内)"),
                 "文件": "scripts/cce_knot_classify.py(stage1) · scripts/cce_full_run.py(WITHIN_JS_MAX)"})
 
     # ── 链上其余段(2026-09-28 补: 表里此前没有它们, 诊断 #33) ─────────

@@ -21,7 +21,13 @@ SRC = ROOT / "examples/cce_reddit_post6_responses_prior_v1.json"
 CAP, LAYERS = 600, ("desire_vec", "need_vec", "emotion_vec", "action_vec")
 
 
+def _d(v):
+    """s1 的层向量是按固定词表顺序的概率 list(不是 dict)—— 统一成 {下标: 概率}。2026-09-30 评分崩在这里: 干跑用了 dict 假数据。"""
+    return dict(enumerate(v)) if isinstance(v, list) else v
+
+
 def js(p, q):
+    p, q = _d(p), _d(q)
     ks = sorted(set(p) | set(q))
     a = [p.get(k, 0.0) for k in ks]; b = [q.get(k, 0.0) for k in ks]
     sa, sb = math.fsum(a) or 1.0, math.fsum(b) or 1.0
@@ -63,7 +69,7 @@ def score(rows):
             between = statistics.fmean(js(a, b) for a in w for b in o)
             within = statistics.fmean([js(*w), js(*o)])
             per[l].append(between - within)
-            tw = [max(x, key=x.get) for x in w]; to = [max(x, key=x.get) for x in o]
+            tw = [max(_d(x), key=_d(x).get) for x in w]; to = [max(_d(x), key=_d(x).get) for x in o]
             flips[l] += int(tw[0] == tw[1] and to[0] == to[1] and tw[0] != to[0])
     res = {}
     for l, ds in per.items():
@@ -78,8 +84,29 @@ def score(rows):
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(); ap.add_argument("--dry-run", action="store_true"); a = ap.parse_args(argv)
+    ap = argparse.ArgumentParser(); ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--rescore", help="零调用: 从已跑完的 s1 原始产物目录重建 rows 再评分(评分崩溃后用)"); a = ap.parse_args(argv)
     base, tx = texts()
+    if a.rescore:
+        rows = []
+        for n, (ptr, _b, _p) in enumerate(tx):
+            for rep in (0, 1):
+                for arm in ("with", "without"):
+                    f = os.path.join(a.rescore, "s1_%d_%s_%d.json" % (n, arm, rep))
+                    if os.path.exists(f):
+                        rows.append({"ptr": ptr, "arm": arm, "rep": rep, "layers": json.loads(pathlib.Path(f).read_text(encoding="utf-8"))["stage1"].get("layers")})
+        b = json.loads(pathlib.Path(a.rescore, "budget.json").read_text(encoding="utf-8"))["authorizations"]
+        used = list(b.values())[0]["used"] if b else None
+        res = {"block": "S1_CONTEXT_SUFFIX_AB", "run_at": "2026-09-29/30", "dry_run": False,
+               "prereg_sha256": hashlib.sha256(PRE.read_bytes()).hexdigest(),
+               "probe_sha256": hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest(),
+               "python": "%d.%d" % sys.version_info[:2], "requests": {"limit": CAP, "used": used},
+               "suffix": {ptr: {"has_suffix": any(r["ptr"] == ptr for r in rows)} for ptr, _b, _p in tx},
+               "★rescored": "首次运行在评分步崩溃(层向量是 list, 评分代码按 dict 写); 64 份 s1 原始产物完好, 用 --rescore 零调用重算。"
+                            "判据/阈值未改。后缀里具体是哪些面没保存(崩溃前只在内存里)。",
+               "result": score(rows), "raw": rows}
+        OUT.write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
+        print(json.dumps({k: res[k] for k in ("requests", "result")}, ensure_ascii=False, indent=1)); return
     if not a.dry_run:
         os.environ["TYPESAFE_API_KEY"] = shadow._key()          # 仅本进程内, 不打印不落盘
         sys.path.insert(0, str(ROOT / "probes")); import extractor_counterexample_run_r2 as KR   # noqa: E402
