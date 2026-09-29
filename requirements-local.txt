@@ -1,0 +1,20 @@
+# 本机专用依赖 —— CI 不装(那里没有 3D-Speaker 工具目录与本地真实音频, 走 not_available 分支)。
+# 用途: tests/test_cce_audio_prosody.py 等在**本机**有真实音频时跑源分离(demucs)与说话人分离(3D-Speaker CAM++)。
+# 版本钉成 2026-09-29 本机原 3.14 环境里的版本; 装进 .venv(Python 版本见 .python-version):
+#   uv pip install --python .venv/bin/python -r requirements.txt -r requirements-media.txt -r requirements-local.txt
+torch==2.11.0
+torchaudio==2.11.0
+demucs==4.1.0
+modelscope==1.36.3
+kaldiio==2.18.1
+pandas==3.0.2
+addict==2.4.0
+datasets==5.0.1
+simplejson==4.1.2
+sortedcontainers==2.4.0
+oss2==2.19.1
+pyannote.audio==4.0.7
+funasr==1.3.26
+fastcluster==1.3.0
+umap-learn==0.5.12
+hdbscan==0.8.44

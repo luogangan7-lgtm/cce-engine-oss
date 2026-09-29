@@ -35,7 +35,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
-          python-version: "3.11"
+          python-version-file: .python-version
       - name: Admit permit (atomic single-use ref, no model code)
         id: admit
         env:
@@ -76,7 +76,7 @@ jobs:
           name: cce-jev-admission-${{ github.run_id }}
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
-          python-version: "3.11"
+          python-version-file: .python-version
       - name: Runner identity, disk and download plan (before any download)
         run: |
           echo "runner=$RUNNER_NAME arch=$RUNNER_ARCH os=$RUNNER_OS env=$RUNNER_ENVIRONMENT run=$GITHUB_RUN_ID attempt=$GITHUB_RUN_ATTEMPT model=$MODEL_KEY"

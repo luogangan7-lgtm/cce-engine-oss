@@ -25,12 +25,15 @@ def synth(path: str, *, lines=SYNTH_LINES, size=(480, 240)) -> dict:
     from PIL import Image, ImageDraw, ImageFont
     im = Image.new("RGB", size, (255, 255, 255))
     d = ImageDraw.Draw(im)
-    try:
-        font = ImageFont.truetype("DejaVuSans-Bold.ttf", 44)
-    except Exception:
-        font = ImageFont.load_default(44) if hasattr(ImageFont, "load_default") else ImageFont.load_default()
+    # ★ 2026-09-29: 一律用 Pillow 自带字体(各平台同一个字体文件), 不再「有 DejaVu 用 DejaVu, 没有就回退」——
+    #   那样 Linux(CI)与 macOS(本机)测的根本不是同一张图: rapidocr 1.4.4 在 macOS 回退字体上把 HEARING TEST 读成一个词,
+    #   CI 上却是绿的。词间距显式放宽(逐词绘制), 分词不依赖字体自带的空格宽度。
+    font = ImageFont.load_default(44)
     for i, t in enumerate(lines):
-        d.text((24, 40 + i * 80), t, fill=(0, 0, 0), font=font)
+        x = 24
+        for w in t.split():
+            d.text((x, 40 + i * 80), w, fill=(0, 0, 0), font=font)
+            x += int(d.textlength(w, font=font)) + 36
     im.save(path, "PNG", optimize=False)          # 不压缩 ⇒ 同输入同字节
     return {"path": path, "ground_truth": list(lines), "size": list(size)}
 

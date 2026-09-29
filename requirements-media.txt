@@ -1,3 +1,5 @@
+# ★ 2026-09-29 同一份版本锁(见 requirements.txt 顶注)
+-c constraints.txt
 # 媒体本体依赖 —— 只在跑 media_ingest 的 job 装, 不进主 requirements。
 # 理由: onnxruntime + 模型约 100MB, 让每个 job 都装是白等; 但**跑媒体的 job 必须装**,
 # 否则 CI 上 OCR 恒为 not_available, 「全链回放」只跑到降级路径 —— 那是绿而没测到东西。

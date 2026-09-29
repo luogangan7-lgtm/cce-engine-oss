@@ -107,7 +107,7 @@ def scan_referenced_run_ids() -> dict[str, list[str]]:
     out: dict[str, list[str]] = {}
     for dirpath, dirnames, filenames in os.walk(ROOT):
         dirnames[:] = [d for d in dirnames
-                       if d not in {".git", "__pycache__", "results", "archive"}]
+                       if d not in {".git", "__pycache__", "results", "archive", ".venv"}]   # .venv: 第三方库源码里的长数字不是我们的 run_id(2026-09-29)
         for fn in filenames:
             if not fn.endswith((".json", ".py", ".md", ".yml", ".yaml")):
                 continue

@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: {python-version: "3.11", cache: pip}
+        with: {python-version-file: .python-version, cache: pip}
       - run: pip install -r requirements.txt
       - name: 探针必须存在（不存在就红，别让它静默跑空）
         run: test -f "${{ inputs.probe }}" || { echo "❌ 找不到 ${{ inputs.probe }}"; exit 1; }

@@ -33,6 +33,7 @@ def test_runsuite_has_no_machine_path_and_refuses_zero_tests():
     with tempfile.TemporaryDirectory() as tmp:
         root = pathlib.Path(tmp); (root / "probes").mkdir(); (root / "tests").mkdir()
         rs = root / "probes" / "dev_runsuite.py"; rs.write_text(src, encoding="utf-8")
+        (root / ".python-version").write_text((ROOT / ".python-version").read_text(encoding="utf-8"), encoding="utf-8")   # 2026-09-29: 跑批器要它
         p = subprocess.run([sys.executable, str(rs)], capture_output=True, text=True, cwd=tmp, timeout=120)
         assert p.returncode != 0 and "空跑" in p.stdout, (p.returncode, p.stdout)
         (root / "tests" / "test_one.py").write_text("def test_x():\n    assert True\n", encoding="utf-8")
@@ -56,6 +57,7 @@ def test_runsuite_names_parallel_only_reds_without_failing():
     with tempfile.TemporaryDirectory() as tmp:
         root = pathlib.Path(tmp); (root / "probes").mkdir(); (root / "tests").mkdir()
         rs = root / "probes" / "dev_runsuite.py"; rs.write_text(src, encoding="utf-8")
+        (root / ".python-version").write_text((ROOT / ".python-version").read_text(encoding="utf-8"), encoding="utf-8")   # 2026-09-29: 跑批器要它
         for n in ("a", "b"): (root / "tests" / ("test_lock_%s.py" % n)).write_text(body, encoding="utf-8")
         p = subprocess.run([sys.executable, str(rs)], capture_output=True, text=True, cwd=tmp, timeout=300)
         assert p.returncode == 0, (p.returncode, p.stdout, p.stderr)

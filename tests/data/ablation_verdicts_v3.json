@@ -78,7 +78,7 @@
    "note": "生产面 = 这三个目录下全部 *.py 递归 + config/ 顶层 *.json。tests/ 与 archive/ 不计入分母(它们是语料与守卫, 不是被消融的生产代码)。"
   },
   "scope_files": 266,
-  "scope_lines": 53661,
+  "scope_lines": 53673,
   "touched_files_union": [
    "accuracy/run_gates.py",
    "config/cce_core_manifest.json",
@@ -230,7 +230,7 @@
    "probes/cross_family_reference_81.py": 125,
    "probes/derived_layer_reliability.py": 154,
    "probes/dev_refresh_cov.py": 23,
-   "probes/dev_runsuite.py": 39,
+   "probes/dev_runsuite.py": 48,
    "probes/diarization_der.py": 124,
    "probes/discriminability.py": 205,
    "probes/draw_latency_probe.py": 102,
@@ -403,7 +403,7 @@
    "scripts/cce_structural_gate.py": 244,
    "scripts/cce_subject_profile.py": 111,
    "scripts/cce_submission.py": 398,
-   "scripts/cce_synth_image.py": 40,
+   "scripts/cce_synth_image.py": 43,
    "scripts/cce_video_parse.py": 625,
    "scripts/cce_window_chain.py": 490,
    "scripts/cce_workflow_manifest.py": 119,
@@ -995,7 +995,8 @@
    "2026-09-29 分布口径复测入账: tests/test_cce_s0_planted_validity.py、cce_production_status.py、cce_open_items.py 行数增加(文件数不变)。",
    "2026-09-29 情绪余温 成对读出接线: cce_full_run.py / cce_s0_jev.py / cce_submission.py / cce_response_chain.py 行数增加(scope 文件数不变 263; 新增的 tests/test_cce_s0_paired_residue.py 不在 scope)。★ 分子未动 ⇒ 下降是稀释不是倒退。",
    "2026-09-29 三份预注册入账: 新增 probes/s0_planted_profile.py、probes/knot_construct_pilot.py、probes/residue_followup_score.py(263→266 文件); cce_full_run.py / cce_submission.py 行数增加。★ 分子未动 ⇒ 下降是稀释不是倒退。",
-   "2026-09-29 canary 36572885138 抓到成对读截断 bug(先拼再截把对方回应截掉), 修 scripts/cce_s0_jev.py 行数增加(文件数不变)。"
+   "2026-09-29 canary 36572885138 抓到成对读截断 bug(先拼再截把对方回应截掉), 修 scripts/cce_s0_jev.py 行数增加(文件数不变)。",
+   "2026-09-29 Python/依赖同步: probes/dev_runsuite.py(版本闸+子进程 PATH/DYLD)、scripts/cce_synth_image.py(固定字体)、scripts/cce_archive.py(扫描排除 .venv) 行数变化, 文件数不变。"
   ],
   "★刷新记录": [
    {
@@ -1250,7 +1251,7 @@
   ],
   "③_合计": {
    "n_files_never_touched": 237,
-   "lines_never_touched": 41168,
+   "lines_never_touched": 41180,
    "★为什么变了": [
     "2026-09-11 收口后 26596→26622: scripts/cce_open_items.py(从未触及)由 612 涨到 638 行 —— 把写死的「只覆盖 17.3%」改成现算所致。**本闸自己抓到的第二处连带**。",
     "2026-09-12 parser_plane 收口: 169→166 文件 / 26622→26301 行。减少的三件是 parser_plane 的 cce_case_assemble(144) · cce_event_assemble(125) · cce_platform_adapter(64) = 333 行; 同时 config/ontology_legacy_exceptions_v1.json 因补登 P1 豁免多了 12 行(它从未被触及, 故净变化 = -333+12 = -321)。",
