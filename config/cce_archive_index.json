@@ -5,7 +5,7 @@
  "finding": "★ 2026-09-03 更正: 原 finding「32 个 run 全部不可重建」**是错的, 错在查错了仓** —— 那次 gh api 只查了私仓 luogangan7-lgtm/cce-engine, 而 2026-08-17 起生产入口已迁公开仓 luogangan7-lgtm/cce-engine-oss。换仓复查后 23 个 run 仍有 artifact 且 expired=false, 已全部取回落入 archive/(391 文件, 逐件 sha256, 源与落档件数相等)。根因不是「查错了」而是「这个查询根本没有代码」: 人工跑一次把结论写死, 没有可重跑的检查 ⇒ 错了 15 条也没有任何东西会发现。当前: 本地已归档 26 个, 两仓皆无 19 个。",
  "what_survived": "本地归档 26 见 archive/<run_id>/_listing.json",
  "policy": {
-  "future_runs": "执行件: scripts/cce_archive.py --pull-new(幂等, 过化名闸)。2026-09-29 首跑后存量待归档 = 0; 定期触发尚未接(见 scripts/cce_open_items.py)。",
+  "future_runs": "执行件: scripts/cce_archive.py --pull-new(幂等, 过化名闸)。2026-09-29 首跑后存量待归档 = 0。owner 2026-09-29 裁定不加定时触发 ⇒ 新 run 过期(90 天)前需手动跑一次。",
   "new_claims": "任何新机制/新结论不得直接引用 run_id 作证据。",
   "rebuild": "缺任何一块都大声失败, 绝不静默补空 —— 空壳重建比重建失败坏得多。",
   "irrecoverable_claim": "标 IRRECOVERABLE 必须带 checked_against(覆盖全部 push 远端)与 checked_at。★ 只查一个仓得出的「不可恢复」不是结论 —— 2026-09-03 实际发生过, 错了 15 条。",

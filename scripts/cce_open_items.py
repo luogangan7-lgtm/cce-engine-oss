@@ -544,11 +544,11 @@ def items() -> list[dict]:
     #   只有拟合参数这类浮点漂移)。见 docs/cce_jev_deployment.md。清单只列未完成的事, 故移除。
 
     # ★ 2026-09-28 诊断 #32: 「每个 run 完成时 archive_run 落本地」只是散文, archive_run 没有调用方。
-    out.append({"类": OPEN,
-                "项": "生产 run 归档: 执行件已有、存量已清, 但还没有定期触发",
-                "证据": ("2026-09-29: scripts/cce_archive.py --pull-new(幂等)拉两仓所有已完成、artifact 未过期、未入册的 cce-submit run, "
-                         "落树前过化名闸; 首跑归档 20 个(公开仓 18 · 私仓 2), 之后待归档 = 0。★ 缺的是「定期跑它」: "
-                         "本机定时任务属持久配置, 需 owner 点头; 未定期跑时, 新 run 仍会在 90 天后过期而无人察觉。")})
+    out.append({"类": DECIDED,
+                "项": "生产 run 归档不加定时触发(owner 2026-09-29 裁定没必要)",
+                "证据": ("执行件 scripts/cce_archive.py --pull-new(幂等, 过化名闸)已有; 2026-09-29 首跑后待归档 = 0。"
+                         "owner 裁定不加本机定时任务。★ 代价如实记: 新生产 run 的 artifact 90 天后过期, 过期前需手动跑一次 --pull-new。"
+                         "★ 同日另一裁定: 公开仓 secret ALIYUN_API_BASE 先留着(无 workflow 读它; 删了值不可恢复)。")})
     # ★ 2026-09-28: 「公开仓历史 run 含真实 handle」一项已解: owner「同意删除」后 7 个 run 的公开 artifact 与日志全删,
     #   证据登在 config/cce_archive_index.json 各行的 public_copies_cleared, 由归档闸 ⑤ 守。清单只列未完成的事, 故移除。
 
