@@ -1,0 +1,25 @@
+{
+ "block": "S0_RESIDUE_PROFILE",
+ "prereg_written_at": "2026-09-29",
+ "★frozen_before_measurement": "本文件与 probes/s0_residue_profile.py 在发起调用之前提交。",
+ "★why": "owner 2026-09-29 纠正: CCE 读出是动态分布不是确定值(全占比原则; 像九型: 占比最高=主判断, 其余类型占比一并给出); 人给不出个体金标。上一轮 S0_RESIDUE_REFERENT_HELDOUT 取 Jev top-1 并按布尔阈值判, 违反库里「禁 argmax 退化 / 禁布尔 gate」, 且丢掉了 Jev 返回的概率。本轮保存完整分布, 只按分布位移判。",
+ "★what_changes_vs_last_round": ["判的是占比位移, 不是 top-1", "新增 paired 臂: 把我方上一条消息作为显式上下文一起给 —— 冷读法: 我们知道自己下了什么探针, 只看对方对它的反应"],
+ "material": "与 S0_RESIDUE_REFERENT_HELDOUT 完全相同: 留出段落 load_passages()[10:20], 嵌入式植入, probes/s0_residue_referent.PLANTS 六类 × 两说法; 另每臂 10 条 baseline",
+ "arms": {"v1": "生产现行题面, 只读回应", "paired": "state = [我方上一条消息 PREV] + [对方回应]; 题面 PAIRED_Q 只问对这条消息的反应(见 probe)"},
+ "metrics": {
+  "dp": "同段落配对: 植入行在目标值上的概率 − 该段落 baseline 在同一值上的概率",
+  "ours_mean_dp": "OURS_POS 在 正向余温 / OURS_NEG 在 负向余温 上的平均 dp(方向性 + 敏感度)",
+  "leak_ratio": "OTHER_* 与 EVENT_* 在同号值上的平均 dp ÷ ours_mean_dp(指代特异性; 0 = 只对我方反应, 1 = 分不清)",
+  "profile_mean": "每类条件下 情绪余温 各值的平均占比(九型式画像: 主值 + 其余占比), 只报告",
+  "ci": "按行 bootstrap 95% 区间, 只报告(同段落两说法是聚类, 区间偏窄)"
+ },
+ "decision_rule_per_arm": {
+  "DISCRIMINATES": "正/负两号都满足: ours_mean_dp >= 0.5 且 leak_ratio <= 0.25",
+  "LEAKS": "否则",
+  "★thresholds_are_conventions": "0.5 / 0.25 是本轮约定, 不是文献常数; 不因结果调整",
+  "★ship_rule": "paired DISCRIMINATES ⇒ 情绪余温 在 response 模式可改为「带我方上一条消息成对读出、输出完整分布」的候选(接线 + 合同 + canary 另走); v1 与 paired 都 LEAKS ⇒ 维持扣发"
+ },
+ "★predictions": {"P1": "v1 LEAKS(与上一轮 top-1 结论同向)", "P2": "paired 的 leak_ratio 低于 v1"},
+ "★cannot_claim": ["自然文本准确率", "植入句仍由维护者撰写, 是局部测试神谕不是金标", "PREV 是构造的单条消息"],
+ "budget": {"jev_requests_expected": 260, "hard_cap": 400, "cost_estimate_usd": "≈0.013"}
+}
