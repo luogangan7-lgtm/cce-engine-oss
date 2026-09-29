@@ -1,0 +1,44 @@
+{
+ "block": "S0_PLANTED_SIGNAL_VALIDITY",
+ "prereg_written_at": "2026-09-29",
+ "★frozen_before_measurement": "本文件与 probes/s0_planted_validity.py 在发起任何调用之前提交(见 git)。判据、材料、判决映射一次写死。",
+ "★why": "s0 情境读出(生产后端 TypeSafe Jev)的准确度是「未测」: owner 2026-09-23 裁定 s0 无人类金标, 只用无金标判据; 已有的只是重测稳定性(Jev 四面 κ=1.0、两面 ≈0.88)。稳定 ≠ 读得对。本测试用**构造出的真值**(往真实段落里植入一句明说某面取值的话)问一个必要条件: 读者能不能读出**明说**的情境, 且不因此乱改别的面。",
+ "★what_it_can_claim": "Jev 对**明说**的情境是否敏感(必要条件)。",
+ "★what_it_cannot_claim": [
+  "不能说自然文本上的准确率 —— 真实评论里情境多是**隐含**的, 植入句是明说的。",
+  "不能说隐含线索读得对。",
+  "植入句由维护者撰写(英文), 措辞效应只用两种说法粗控, 不代表全部措辞。"
+ ],
+ "material": {
+  "passages": "tests/data/real_corpus_pilot_prereg.json 冻结输入集的前 10 条(指针 + sha256 校验), body[:2000] 与生产 s0 相同; 产物只放指针与统计量, 不落原文",
+  "facets": "config/context_taxonomy.json 里 readable_from_text 为 True/partial 的 6 面, 与生产 s0 相同的 Jev 题目集(scripts/cce_s0_jev.jev_questions)",
+  "planted_values": "每面只植入**实质性**取值(不植入 未知/未提及/无关/无明显触发/无关进程/首轮无余温 这类「缺席」取值), 共 25 个取值, 每个两种说法(A 直白 / B 稍口语), 句子见 probes/s0_planted_validity.py 的 PLANTS",
+  "placement": "植入句作为新段落追加在段末(不插入原文中间, 不改原文一个字)",
+  "neutral_control": "同 10 条段落各追加两句与情境无关的中性句 —— 量「追加任何一句话」本身带来的读数变动(噪声底)",
+  "baseline": "同 10 条段落原文各读一次"
+ },
+ "metrics": {
+  "recovery": "某面某取值: 植入后该面读出 == 植入值 的比例(分母 = 10 段落 × 2 说法)。某面的 recovery = 该面各取值 recovery 的均值",
+  "off_target_change": "植入某面后, **其他五面**读数与该段落 baseline 不同的比例",
+  "neutral_change": "中性句追加后, 六面读数与 baseline 不同的比例",
+  "net_off_target": "off_target_change − neutral_change(扣掉追加本身的噪声)"
+ },
+ "decision_rule_per_facet": {
+  "RESPONSIVE": "recovery >= 0.80 且 net_off_target <= 0.10",
+  "WEAK": "0.50 <= recovery < 0.80(或 recovery >= 0.80 但 net_off_target > 0.10 —— 读得出但会连带改别的面)",
+  "UNRESPONSIVE": "recovery < 0.50",
+  "★no_post_hoc": "阈值不因看到结果而调整; 若要改, 另立预注册"
+ },
+ "★predictions_written_before_measurement": {
+  "P1": "明说型面(进程位置 / 触发事件 / 资源状态)RESPONSIVE",
+  "P2": "情绪余温 WEAK 或更差 —— 它描述的是上一轮互动留下的感觉, 单段里明说也可能被读成「首轮无余温」或「未知」",
+  "P3": "neutral_change <= 0.05 —— 此前同文本两轮重测 Jev 四面 κ=1.0"
+ },
+ "budget": {
+  "jev_requests_expected": 530,
+  "hard_cap": 600,
+  "cost_estimate_usd": "≈0.03(Jev ≈$0.00005/请求)",
+  "on_cap": "撞上限即停, 已得数据写 partial, 不出判决"
+ },
+ "★owner_rulings_respected": "不用人类金标(owner 2026-09-23); 只调 Jev, 不调 MiniMax; 不改生产 s0 任何代码"
+}
