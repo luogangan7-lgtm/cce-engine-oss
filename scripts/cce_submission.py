@@ -371,7 +371,7 @@ def write_package(value: dict[str, Any], outdir: Path) -> dict[str, Any]:
                 "job_id": response.get("evidence_ref"), "content_id": content_id,
                 "profile": "subject_chain", "schema_version": SCHEMA_VERSION,
                 "text_sha256": response.get("text_sha256"), "actor_ref": response.get("actor_ref"),
-                "evidence_ref": response.get("evidence_ref"),
+                "evidence_ref": response.get("evidence_ref"), "observed_at": response.get("observed_at"),   # 前瞻闭环记分要逐条时间
                 "context_snapshot": (normalized.get("response_source") or {}).get("context")}
         normalized["items"] = items
     (outdir / "normalized.json").write_text(json.dumps(normalized, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

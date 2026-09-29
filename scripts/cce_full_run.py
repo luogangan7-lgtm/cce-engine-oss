@@ -266,6 +266,7 @@ def s0(ctx):
             "未知": [k for k, v in src.items() if v == "未知(走先验)"],
             "扣发": withheld,
             "成对读出": sorted(paired_dist), "成对读出错误": paired_err,
+            "成对读出分布": paired_dist,        # 归档只收 manifest ⇒ 分布必须在这里, 前瞻闭环记分(residue_followup_score 探针)才读得到
             "结构冷读提示": ("未声明 " + "、".join(structural) + " ⇒ 按首轮处理; 与读者有过上一轮互动时, 调用方必须在 context.declaration 里声明"
                          if structural else None),
             "置信提示": ("填充度低, 下游只出人群级结论, 不出个体级判断"

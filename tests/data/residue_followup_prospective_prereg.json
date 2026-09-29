@@ -1,0 +1,18 @@
+{
+ "block": "RESIDUE_FOLLOWUP_PROSPECTIVE",
+ "prereg_written_at": "2026-09-29",
+ "★frozen_before_measurement": "预测规则与判据在**任何**带 prior_turn 的生产测量发生之前提交(本提交时归档里 0 条)。",
+ "★why": "owner 2026-09-29: 市场营销靠用户背书(规模化的真实行为), 冷读靠下探针看反应。回溯数据做不了干净检验: 自有 4 帖 86 评论没有我方回复正文(OP 自复已剔)、且九结成本档正是在这 86 条上校准的(样本内); 1208 帖赞数的「给定原文预测互动量」已两次预注册为负(2026-08-09/10)。⇒ 只剩前瞻: 从今天起每条带 prior_turn 的 response 测量自动留下冻结的预测, 结局由之后的真实行为给出。",
+ "prediction": "预测分 = P(正向余温) − P(负向余温)(s0 成对读出分布, 归档 manifest 的 stages.s0_context.成对读出分布); 预测分越高, 该化名 actor 之后再次回应我方的概率越高",
+ "outcome": "同一 actor_ref 在归档里出现更晚 observed_at 的 response(= 又回应了我方一次)",
+ "metric": "AUC(followed_up vs not), bootstrap 95% 区间(2000 次, seed 20260929)",
+ "decision_rule": {
+  "INSUFFICIENT": "n < 40 或任一类 < 10 —— 不出判决",
+  "PREDICTIVE": "AUC >= 0.60 且区间下界 > 0.5",
+  "NOT_PREDICTIVE": "否则",
+  "★thresholds_are_conventions": "约定, 不因结果调整"
+ },
+ "★cannot_claim": ["个体情绪真值", "因果(没有随机分配回复策略; 那是 GPT 建议的 P3 前瞻随机试验, 另立)", "只覆盖进了归档的 subject_chain 运行"],
+ "scorer": "probes/residue_followup_score.py(零调用, 只读归档)",
+ "budget": "零调用"
+}

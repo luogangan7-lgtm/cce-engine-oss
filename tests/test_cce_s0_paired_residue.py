@@ -64,7 +64,7 @@ def test_paired_read_in_response_mode(monkeypatch):
     assert single and "情绪余温" not in single[0]["questions"]                          # 只读回应的那次仍不问
     assert layer["facets"]["情绪余温"] == "正向余温" and layer["source"]["情绪余温"] == "成对读出"
     assert layer["成对读出分布"]["情绪余温"] == {"正向余温": 0.9, "未知": 0.1}           # 完整分布落盘(全占比)
-    assert out["扣发"] == [] and out["成对读出"] == ["情绪余温"]
+    assert out["扣发"] == [] and out["成对读出"] == ["情绪余温"] and out["成对读出分布"] == layer["成对读出分布"]   # 归档只收 manifest
 
 
 def test_paired_unknown_or_failure_stays_unknown(monkeypatch):
@@ -152,3 +152,18 @@ def test_prepare_materializes_prior_turn_only_for_response():
 def test_workflow_passes_prior_turn_to_response_chain():
     wf = (ROOT / ".github/workflows/cce-submit.yml").read_text(encoding="utf-8")
     assert '$(test -f run/prior_turn.txt && echo "--prior-turn-file run/prior_turn.txt")' in wf
+
+
+def test_prospective_scorer_reads_manifest_and_withholds_until_n():
+    _q = importlib.util.spec_from_file_location("_fs", ROOT / "probes/residue_followup_score.py"); fs = importlib.util.module_from_spec(_q); _q.loader.exec_module(fs)
+    assert fs.score([{"score": 0.5, "followed_up": True}] * 5)["verdict"] == "INSUFFICIENT"
+    rs = [{"score": 0.9, "followed_up": True}] * 20 + [{"score": -0.5, "followed_up": False}] * 20
+    assert fs.score(rs)["verdict"] == "PREDICTIVE"
+    rs = [{"score": s, "followed_up": f} for s in (0.1, 0.2) for f in (True, False) for _ in range(10)]
+    assert fs.score(rs)["verdict"] == "NOT_PREDICTIVE"
+    with tempfile.TemporaryDirectory() as tmp:           # 写包: 逐条 observed_at 进 _meta(记分要用)
+        from cce_submission import write_package
+        env = copy.deepcopy(_env)
+        write_package(env, pathlib.Path(tmp))
+        items = json.loads((pathlib.Path(tmp) / "items.json").read_text(encoding="utf-8"))
+        assert all(it["_meta"]["observed_at"] for it in items)

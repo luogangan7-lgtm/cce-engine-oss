@@ -1,0 +1,27 @@
+{
+ "block": "KNOT_CONSTRUCT_PILOT",
+ "prereg_written_at": "2026-09-29",
+ "★frozen_before_measurement": "本文件与 probes/knot_construct_pilot.py(含全部题项原文 ITEMS)在发起调用之前提交。",
+ "★why": "owner 2026-09-29: 人格/九型/情绪量表不靠逐人金标, 靠多题聚合、在人群层面验证构念; 网页 GPT(同日)给出最小可行版: 2–3 构念 × 3–4 题项, 内部结构 + 有限 MTMM + 重测。",
+ "material": {
+  "texts": "accuracy/data/warm_reference.json 的 sample_ids 在 accuracy/data/corpus.json 里的评论(38 条, 化名语料), body[:2000]",
+  "knots": "display / pain_seek / reward —— 本语料三模型平均占比 0.45 / 0.24 / 0.09, 有自然变异; audit/suspend/belong 过稀, 本轮不测",
+  "items": "见 probes/knot_construct_pilot.ITEMS(D1–D4, P1–P4, R1–R3); 题项分数 = Jev P(支持); 两轮重复, 取均值",
+  "other_method": "warm_reference.json 的三个 MiniMax 模型九结分布, 按条平均 —— 另一种方法(不同模型、直接出分布、不经题项)"
+ },
+ "metrics": {
+  "alpha": "每结题项的 Cronbach α —— 只报告不判(GPT: 只有反射式解释成立时才有意义; 九结分布和为 1)",
+  "distinct": "结内题项平均互相关 − 该结题项与其他两结题项的平均互相关 >= 0.20",
+  "converges": "结内合成分与 MiniMax 同结占比的 Spearman ρ >= 0.40, 且高于与另两结占比的 ρ(MTMM 效度对角线 > 异质异法)",
+  "retest_r": "两轮合成分的 Pearson r —— 只报告"
+ },
+ "decision_rule_per_knot": {
+  "SUPPORTED": "distinct 且 converges",
+  "PARTIAL": "二者之一",
+  "NOT_SUPPORTED": "都不满足",
+  "★thresholds_are_conventions": "0.20 / 0.40 为本轮约定, 不因结果调整"
+ },
+ "★predictions": {"P1": "display 与 pain_seek SUPPORTED", "P2": "reward 至多 PARTIAL(感谢类表达与 display 的分享动作可能共变)"},
+ "★cannot_claim": ["个体准确率", "九结整体结构(只测 3 结)", "两个 LLM 共享文本与语言先验, 跨方法证据有限", "warm_reference 曾参与分类学校准, 不是独立样本"],
+ "budget": {"jev_requests_expected": 76, "hard_cap": 120, "cost_estimate_usd": "≈0.004"}
+}

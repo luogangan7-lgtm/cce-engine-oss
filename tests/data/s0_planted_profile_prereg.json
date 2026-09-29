@@ -1,0 +1,22 @@
+{
+ "block": "S0_PLANTED_PROFILE",
+ "prereg_written_at": "2026-09-29",
+ "★frozen_before_measurement": "本文件与 probes/s0_planted_profile.py 在发起调用之前提交。",
+ "★why": "owner 2026-09-29: 读出是动态分布(九型式: 主值 + 其余占比), 不是确定值。S0_PLANTED_SIGNAL_VALIDITY 按 top-1 + 布尔阈值判, 口径错; 同材料按分布位移重判。",
+ "material": "与 tests/data/s0_planted_validity_prereg.json 完全相同(前 10 段、PLANTS 两说法、两句中性对照、baseline), 530 次 Jev",
+ "metrics": {
+  "dp_target": "某面: 各植入值上 p(植入值) − 同段落 baseline 同值占比 的均值, 再对该面各值取均值(方向性 + 敏感度)",
+  "off_target_tvd": "植入某面后, 其余五面分布与 baseline 的总变差距离(TVD)均值; 逐面也报告(看连带是哪一面)",
+  "neutral_tvd": "中性句追加后六面 TVD 均值(噪声底)",
+  "net_off_target_tvd": "off_target_tvd − neutral_tvd"
+ },
+ "decision_rule_per_facet": {
+  "RESPONSIVE": "dp_target >= 0.5 且 net_off_target_tvd <= 0.10",
+  "WEAK": "dp_target >= 0.25 但不满足 RESPONSIVE",
+  "UNRESPONSIVE": "dp_target < 0.25",
+  "★thresholds_are_conventions": "约定, 不是文献常数; 不因结果调整"
+ },
+ "★predictions": {"P1": "资源状态、关系位置 RESPONSIVE(与 top-1 口径同向)", "P2": "逐面连带 TVD 最大的配对与 top-1 口径事后分析的蕴含对一致(进程位置↔关系位置/触发事件)"},
+ "★cannot_claim": ["自然文本准确率", "隐含情境", "植入句为维护者撰写"],
+ "budget": {"jev_requests_expected": 530, "hard_cap": 600, "cost_estimate_usd": "≈0.03"}
+}
