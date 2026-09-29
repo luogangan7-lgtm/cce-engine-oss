@@ -49,3 +49,21 @@ def test_alignment_reports_only_calibrated_atoms(monkeypatch, tmp_path):
     assert r["status"] == "ok" and r["summary"] == {"calibrated": 2, "satisfied": 2, "unsatisfied": 0, "uncertain": 0}
     assert [a["canonical"] for a in r["atoms"]] == ["satisfied", "not_calibrated", "satisfied"]
     assert "alignment_score" not in r and "pass" not in r                           # 不出总分、不出放行布尔
+
+
+def test_v41_typography_normalized_but_words_are_not():
+    T = "You're right, it's fine"
+    assert AT.canonical("做了", "you’re RIGHT", False, "a", T) == "satisfied"      # 引号样式/大小写不算改字
+    assert AT.canonical("做了", "you are right", False, "a", T) == "uncertain"     # 改了词 ⇒ 不逐字
+    assert AT.canonical("违反", "it’s fine", False, "a", T) == "unsatisfied"       # 【做】条目答「违反」+逐字 ⇒ 没做到
+    assert AT.canonical("违反", "", False, "a", T) == "uncertain"
+
+
+def test_calibration_results_recompute_and_production_uses_heldout_only():
+    import importlib.util as _iu
+    _p = _iu.spec_from_file_location("_ac", ROOT / "probes/align_atoms_calibration.py"); ac = _iu.module_from_spec(_p); _p.loader.exec_module(ac)
+    dev = json.loads((ROOT / "results/align_atoms_calibration.json").read_text(encoding="utf-8"))
+    assert not dev["dry_run"] and dev["requests"]["used"] <= 350
+    per, summ = ac.score(dev["raw"])
+    assert per == dev["per_atom"] and summ == dev["summary"] and summ["calibrated"] == 8
+    assert AT.CAL.endswith("align_atoms_heldout_v41.json")                         # 开发集不作生产采纳依据

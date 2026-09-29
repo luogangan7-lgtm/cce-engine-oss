@@ -10,7 +10,7 @@ MiniMax 经生产同一出站路径, 本进程开请求作用域, 硬上限 350�
 import argparse, collections, hashlib, importlib.util, json, os, pathlib, sys, tempfile, threading
 from concurrent.futures import ThreadPoolExecutor
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]; sys.path.insert(0, str(ROOT / "scripts"))
+ROOT = pathlib.Path(__file__).resolve().parents[1]; sys.path.insert(0, str(ROOT / "scripts")); sys.path.insert(0, str(ROOT / "probes"))
 import cce_align_atoms as AT                                   # noqa: E402
 from cce_request_budget import open_scope, scope_status        # noqa: E402
 PRE = ROOT / "tests/data/align_atoms_calibration_prereg.json"
@@ -71,20 +71,20 @@ CASES = {
 }
 
 
-def jobs():
+def jobs(cases=None, arms=("v4a", "v4b", "v1")):
     out = []
-    for key, d in CASES.items():
+    for key, d in (cases or CASES).items():
         knot, i = key.rsplit("#", 1)
         for kind in ("sat", "unsat"):
             for rep in range(REPS):
-                for arm in ("v4a", "v4b", "v1"):
+                for arm in arms:
                     out.append((key, knot, int(i), kind, rep, arm, d[kind]))
     return out
 
 
-def score(rows):
+def score(rows, cases=None):
     per = {}
-    for key in CASES:
+    for key in (cases or CASES):
         rs = [r for r in rows if r["key"] == key]
         v4 = [r for r in rs if r["arm"] in ("v4a", "v4b")]
         v1 = [r for r in rs if r["arm"] == "v1"]
@@ -103,8 +103,18 @@ def score(rows):
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(); ap.add_argument("--dry-run", action="store_true"); a = ap.parse_args(argv)
-    js = jobs(); assert len(js) <= CAP
+    ap = argparse.ArgumentParser(); ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--heldout", action="store_true", help="v4.1 留出校对: 新构造草稿, 只跑 v4 两种问法(预注册 tests/data/align_atoms_heldout_prereg.json)")
+    a = ap.parse_args(argv)
+    global PRE, OUT, CAP
+    cases = None
+    if a.heldout:
+        import align_atoms_heldout_cases as HC   # noqa: E402
+        cases, PRE, OUT, CAP = HC.CASES, ROOT / "tests/data/align_atoms_heldout_prereg.json", ROOT / "results/align_atoms_heldout_v41.json", 240
+        js = jobs(cases, arms=("v4a", "v4b"))
+    else:
+        js = jobs()
+    assert len(js) <= CAP
     if a.dry_run:
         def call(prompt, temperature=0.0):
             n = prompt.count("【做】") + prompt.count("【禁】")
@@ -134,8 +144,9 @@ def main(argv=None):
                 "quote_verbatim": bool(r[i]["quote"]) and r[i]["quote"] in text}
     with ThreadPoolExecutor(max_workers=4) as ex:
         rows = list(ex.map(one, js))
-    per, summ = score(rows)
-    res = {"block": "ALIGN_ATOMS_CALIBRATION", "run_at": "2026-09-30", "dry_run": a.dry_run,
+    per, summ = score(rows, cases)
+    res = {"block": "ALIGN_ATOMS_HELDOUT_V41" if a.heldout else "ALIGN_ATOMS_CALIBRATION", "judge_version": AT.VERSION if a.heldout else "v4",
+           "run_at": "2026-09-30", "dry_run": a.dry_run,
            "prereg_sha256": hashlib.sha256(PRE.read_bytes()).hexdigest(),
            "probe_sha256": hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest(),
            "judge_sha256": hashlib.sha256((ROOT / "scripts/cce_align_atoms.py").read_bytes()).hexdigest(),

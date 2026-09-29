@@ -17,7 +17,8 @@ import re
 import cce_align_v2 as A
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CAL = os.path.join(ROOT, "results", "align_atoms_calibration.json")
+# ★ 生产只认 **v4.1 留出集**的校对结果; v4 开发集(results/align_atoms_calibration.json)已用来发现并修 v4.1 的两处问题, 不再作采纳依据。
+CAL = os.path.join(ROOT, "results", "align_atoms_heldout_v41.json")
 _NEG = ("不", "别", "绝不", "勿", "禁止")
 
 PROMPT_A = """你判定一段回复草稿对一份"拆除动作清单"的逐条符合情况。
@@ -59,15 +60,26 @@ def atoms_of(knot):
     return [(p, any(p.startswith(n) or n in p[:3] for n in _NEG)) for p in parts]
 
 
+VERSION = "v4.1"
+
+
+def _norm(s):
+    """逐字核对前的归一: 大小写、空白、标点与引号样式(’ ‘ “ ” 等)不算改字。v4.1(2026-09-30): v4 校对里 8 次方向对、
+    只因模型把 ' 写成 ’ 之类被判 uncertain。归一只抹掉排版差异, 词一个都不许变。"""
+    s = s.lower().replace("’", "'").replace("‘", "'").replace("“", '"').replace("”", '"')
+    return re.sub(r"[\s\W_]+", " ", s).strip()
+
+
 def canonical(state, quote, is_prohibition, framing, text):
-    """→ "satisfied" | "unsatisfied" | "uncertain"。在场一侧(做了 / 违反 / B 的对应侧)必须给**逐字在草稿里**的子串, 否则 uncertain。"""
+    """→ "satisfied" | "unsatisfied" | "uncertain"。在场一侧(做了 / 违反 / B 的对应侧)必须给**逐字在草稿里**的子串(排版归一后), 否则 uncertain。"""
     q = (quote or "").strip()
-    present_ok = bool(q) and q in text
+    present_ok = bool(q) and bool(_norm(q)) and _norm(q) in _norm(text)
     if framing == "a":
         if is_prohibition:
             m = {"违反": ("unsatisfied", True), "未违反": ("satisfied", False)}
         else:
-            m = {"做了": ("satisfied", True), "没做": ("unsatisfied", False)}
+            # v4.1: 【做】条目上答「违反」且给了逐字子串 = 草稿里有句子在做相反的事 ⇒ 没做到(v4 校对里 6 次方向对、标签不在集合里)
+            m = {"做了": ("satisfied", True), "没做": ("unsatisfied", False), "违反": ("unsatisfied", True)}
     else:
         if is_prohibition:
             m = {"不符合": ("unsatisfied", True), "符合": ("satisfied", False)}

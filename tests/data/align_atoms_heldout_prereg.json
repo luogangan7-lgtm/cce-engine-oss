@@ -1,0 +1,17 @@
+{
+ "block": "ALIGN_ATOMS_HELDOUT_V41",
+ "prereg_written_at": "2026-09-30",
+ "★frozen_before_measurement": "本文件、判官 scripts/cce_align_atoms.py(VERSION v4.1)与留出草稿 probes/align_atoms_heldout_cases.py 在任何 v4.1 调用之前提交。",
+ "★why": "ALIGN_ATOMS_CALIBRATION(v4, 开发集)8/25 原子校对通过。错误分析(事后, 只用于改判官, 不用于判定): 16 次 uncertain 里 6 次是【做】条目答了「违反」(方向对, 标签不在集合里), 8 次方向对但子串因排版差异(’ 与 ' 等)不逐字。v4.1 两处改动: ①【做】条目「违反」+逐字子串 ⇒ unsatisfied ② 逐字核对前做排版归一(大小写/空白/标点/引号样式), 词不许变。这两处是**看过开发集之后**改的 ⇒ 不能再用开发集证明, 必须在新写的留出草稿上判。",
+ "material": "25 原子 × {sat, unsat} 50 份**新**构造草稿(不同场景与措辞: 耳鸣、退款、聚餐、音乐会、电池、流媒体……), 见 probes/align_atoms_heldout_cases.CASES",
+ "design": "v4.1 问法 A、问法 B 各 2 次(温度 0), 200 次 MiniMax; 不再跑 v1(对照已在开发集做过)",
+ "decision_rule_per_atom": {
+  "CALIBRATED": "留出集上 8 次读数(2 草稿 × 2 问法 × 2 次)全部等于构造真值; uncertain 算错",
+  "NOT_CALIBRATED": "否则 —— 生产不判该原子",
+  "★only_heldout_counts": "生产采纳只看本留出集; 开发集结果只作记录",
+  "★thresholds_are_conventions": "零错误为约定; 每原子仅 2 份留出样例, 通过只证明必要条件"
+ },
+ "★predictions": {"P1": "留出集 CALIBRATED 原子数 >= 开发集的 8", "P2": "inertia#0 仍 NOT_CALIBRATED", "P3": "开发集已通过的 8 个原子里至少 6 个在留出集仍通过"},
+ "★cannot_claim": ["真实草稿上的准确率", "草稿仍由维护者撰写"],
+ "budget": {"minimax_requests_expected": 200, "hard_cap": 240, "on_cap": "撞上限抛 BudgetExceeded 即停"}
+}
