@@ -129,20 +129,29 @@ def rows() -> list[dict]:
     # ── s1 分布层 ─────────────────────────────────────────────────────
     # ★ 2026-09-28: 此前是一句写死的「同侧 K=3 JS 0.02–0.09」, 生产存档与之矛盾(诊断 #3)。改为从存档现算逐层扣发率。
     import glob as _gl
-    from cce_full_run import WITHIN_JS_MAX
+    from cce_full_run import WITHIN_JS_MAX_DEFAULT as WITHIN_JS_MAX, within_js_max
     _n, _over = 0, {k: 0 for k in WITHIN_JS_MAX}
+    _cur, _ncur, _ocur = "d4cce4c745f3f991", 0, {k: 0 for k in WITHIN_JS_MAX}   # 现行 k=3 仪器单列(2026-09-30 起阈值按仪器取)
     for _f in _gl.glob(os.path.join(ROOT, "archive", "**", "*s1_readout.json"), recursive=True):
         try:
-            _js = json.load(open(_f, encoding="utf-8"))["stage1"].get("within_js")
+            _d = json.load(open(_f, encoding="utf-8")); _js = _d["stage1"].get("within_js")
         except Exception:
             continue
         if _js:
+            _ih = ((_d.get("stage2") or {}).get("instrument") or {}).get("instrument_hash")
+            _mx = within_js_max(_ih)
             _n += 1
             for _k, _v in _js.items():
-                _over[_k] = _over.get(_k, 0) + (_v > WITHIN_JS_MAX.get(_k, 1.0))
+                _over[_k] = _over.get(_k, 0) + (_v > _mx.get(_k, 1.0))
+            if _ih == _cur:
+                _ncur += 1
+                for _k, _v in _js.items():
+                    _ocur[_k] = _ocur.get(_k, 0) + (_v > _mx.get(_k, 1.0))
     out.append({"组件": "s1 四层分布", "状态": USABLE,
                 "证据": (f"逐次运行由组内散布闸判: 超噪声底的层扣发 top。存档 {_n} 份读数的逐层扣发率 "
                          + " · ".join(f"{k.replace('_vec', '')} {_over[k]}/{_n}" for k in WITHIN_JS_MAX)
+                         + f"(按各自仪器的阈值); 其中现行 k=3 仪器 {_cur} 的 {_ncur} 份: "
+                         + " · ".join(f"{k.replace('_vec', '')} {_ocur[k]}/{_ncur}" for k in WITHIN_JS_MAX)
                          + "。★ 标定时 s1 的语境串**不含** s0 的【情境】后缀, 生产现在带 —— 2026-09-30 已测(预注册, results/s1_context_suffix_ab.json, "
                            "16 条真实文本 × 带/不带 × 2 次): 四层 "
                          + " · ".join(f"{k.replace('_vec', '')} 超噪 {v['mean_excess_js']}" for k, v in _j("results/s1_context_suffix_ab.json")["result"]["per_layer"].items())

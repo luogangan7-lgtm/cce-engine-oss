@@ -168,3 +168,20 @@ print(f"test_cce_usable_routing: OK "
       f"判据改名必红 · 两层可独立开关 | 散文 caveat 已删 | "
       f"派生量实测已落盘(weight 比 intensity 稳 · mass 更差 · quadrant 退化) | "
       f"跨仪器/缺仪器标识 各自扣发)")
+
+
+def test_top1_only_verdict_reports_never_judged_not_routing_alarm():
+    """2026-09-30: k=5 的判定文件只判 top-1 ⇒ intensity 的扣发理由应是「从未判定」, 不是「判据变了却没更新路由」。
+    路由报警保留给真的缺项(非 TOP1 判定文件里找不到判据)。"""
+    import json as _json, os as _os, sys as _sys, tempfile as _tf
+    _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "scripts"))
+    import cce_k1_status as K
+    st = K.layer_status(instrument_hash="0e9ca1d4e7a2f180")
+    assert st["top1"]["usable"] is True
+    assert st["intensity"]["usable"] is False and "从未在这台仪器上判定" in st["intensity"]["reason"]
+    assert "判据变了" not in st["intensity"]["reason"]
+    with _tf.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as fh:
+        _json.dump({"block": "K1_SOMETHING_ELSE", "instrument_hash": "x", "checks": [{"name": "top-1 一致 >= 7/8", "pass": True, "value": "5/5"}]}, fh)
+    st2 = K.layer_status(path=fh.name, instrument_hash="x")
+    _os.unlink(fh.name)
+    assert "判据变了却没更新路由" in st2["intensity"]["reason"]          # 真缺项仍然报警

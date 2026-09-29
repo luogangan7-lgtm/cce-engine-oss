@@ -1,0 +1,71 @@
+{
+ "block": "WITHIN_JS_RECALIBRATION_D4CCE4",
+ "prereg_written_at": "2026-09-30",
+ "★frozen_before_measurement": "本文件与 probes/within_js_recalibrate.py 在计算新阈值与留出评估之前提交。",
+ "★why": "s1 组内散布闸 WITHIN_JS_MAX 是 2026-08-17/18 在 31 份读数上按「中位数 + 2×MAD(未缩放)」标定的; 仪器此后多次换代, 现行 k=3 仪器 d4cce4c745f3f991 上 need 层中位数已 0.136、逼近阈值 0.161 ⇒ 存档 44% 扣发。原注释写明「首次样本外检验就是它上线之后的每一次生产运行」—— 按**同一规则**在现行仪器的生产读数上重标, 并在留出集上检验。",
+ "calibration_set": {
+  "instrument_hash": "d4cce4c745f3f991",
+  "files": [
+   "archive/36302985238/cce-item-0-36302985238__s1_readout.json",
+   "archive/36303609675/cce-item-0-36303609675__s1_readout.json",
+   "archive/36421037554/cce-item-0-36421037554__s1_readout.json",
+   "archive/36421041849/cce-subject-item-0-36421041849__s1_readout.json",
+   "archive/36421041849/cce-subject-item-1-36421041849__s1_readout.json",
+   "archive/36421041849/cce-subject-item-2-36421041849__s1_readout.json",
+   "archive/36421041849/cce-subject-item-3-36421041849__s1_readout.json",
+   "archive/36421041849/cce-subject-item-4-36421041849__s1_readout.json",
+   "archive/36421041849/cce-subject-item-5-36421041849__s1_readout.json",
+   "archive/36421041849/cce-subject-item-6-36421041849__s1_readout.json",
+   "archive/36424971966/cce-subject-item-0-36424971966__s1_readout.json",
+   "archive/36424971966/cce-subject-item-1-36424971966__s1_readout.json",
+   "archive/36424971966/cce-subject-item-2-36424971966__s1_readout.json",
+   "archive/36424971966/cce-subject-item-3-36424971966__s1_readout.json",
+   "archive/36424971966/cce-subject-item-4-36424971966__s1_readout.json",
+   "archive/36424971966/cce-subject-item-5-36424971966__s1_readout.json",
+   "archive/36424971966/cce-subject-item-6-36424971966__s1_readout.json",
+   "archive/36424971966/cce-subject-item-7-36424971966__s1_readout.json",
+   "archive/36484762668/cce-item-0-36484762668__s1_readout.json",
+   "archive/36572885138/cce-subject-item-0-36572885138__s1_readout.json",
+   "archive/36572885138/cce-subject-item-1-36572885138__s1_readout.json",
+   "archive/36572885138/cce-subject-item-2-36572885138__s1_readout.json",
+   "archive/36572885138/cce-subject-item-3-36572885138__s1_readout.json",
+   "archive/36572885138/cce-subject-item-4-36572885138__s1_readout.json",
+   "archive/36572885138/cce-subject-item-5-36572885138__s1_readout.json",
+   "archive/36572885138/cce-subject-item-6-36572885138__s1_readout.json",
+   "archive/36572885138/cce-subject-item-7-36572885138__s1_readout.json",
+   "archive/36580963929/cce-subject-item-0-36580963929__s1_readout.json",
+   "archive/36580963929/cce-subject-item-1-36580963929__s1_readout.json",
+   "archive/36580963929/cce-subject-item-2-36580963929__s1_readout.json",
+   "archive/36580963929/cce-subject-item-3-36580963929__s1_readout.json",
+   "archive/36580963929/cce-subject-item-4-36580963929__s1_readout.json",
+   "archive/36580963929/cce-subject-item-5-36580963929__s1_readout.json",
+   "archive/36580963929/cce-subject-item-6-36580963929__s1_readout.json",
+   "archive/36580963929/cce-subject-item-7-36580963929__s1_readout.json"
+  ],
+  "n": 35,
+  "rule": "每层 阈值 = median + 2 × MAD, MAD = median(|x − median|)(未缩放, 与 08-17 标定同口径), 四舍五入到 3 位"
+ },
+ "holdout_set": "S1_CONTEXT_SUFFIX_AB 的 64 次 s1(同一仪器, 16 条文本 × 4 次, 不在存档里); 其 within_js 与层向量由本探针从原始产物抽成数字落 results/within_js_holdout_numbers.json(只有数字)",
+ "metrics": {
+  "holdout_exceed_rate": "每层: 留出 64 次里 within_js > 新阈值 的比例",
+  "gate_validity": "每层: Spearman(within_js_r, instability_r); instability_r = 该次层向量与同文本其余 3 次层向量 JS 的均值(这次读数离同文本别的读数多远)",
+  "old_vs_new": "旧阈值在留出集上的扣发率, 一并报告"
+ },
+ "decision_rule": {
+  "ADOPT_LAYER": "该层 留出扣发率在 [0.05, 0.25] 内 ⇒ 该仪器该层采用新阈值",
+  "KEEP_OLD_LAYER": "否则保留旧阈值",
+  "GATE_WEAK": "该层 gate_validity Spearman < 0.2 ⇒ 另记「该层组内散布不预示跨次不稳」, 只报告, 不据此撤闸",
+  "scope": "新阈值只挂在 d4cce4c745f3f991 上; 其余仪器(含 k=5 c4419c3e, 存档仅 2 份)沿用旧阈值",
+  "★thresholds_are_conventions": "[0.05, 0.25] 与 0.2 为本轮约定, 不因结果调整"
+ },
+ "★predictions": {
+  "P1": "need 与 desire 新阈值高于旧值",
+  "P2": "四层留出扣发率都落在 [0.05, 0.25]",
+  "P3": "至少两层 gate_validity >= 0.2"
+ },
+ "★cannot_claim": [
+  "新阈值下读数更准(没有个体金标)",
+  "只覆盖 k=3 仪器 d4cce4"
+ ],
+ "budget": "零调用"
+}

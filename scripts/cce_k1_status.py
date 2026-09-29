@@ -179,7 +179,13 @@ def layer_status(path=None, instrument_hash=None):
     out = {}
     for layer, needle in (("intensity", INTENSITY_CRITERION), ("top1", TOP1_CRITERION)):
         c = _criterion(v, needle)
-        if c is None:
+        if c is None and layer != "top1" and "TOP1" in str(v.get("block", "")):
+            # ★ 2026-09-30: 只判 top-1 的判定文件(block 名带 TOP1, 如 k=5 那份)本来就没有 intensity 这一项 ——
+            #   那是「这台仪器的 intensity 从未判定」, 不是「判据变了却没更新路由」。此前两者共用一句报警, 生产扣发理由在说假话。
+            out[layer] = {"usable": False,
+                          "reason": (f"本仪器的 K1 判定只判了 top-1({os.path.relpath(path, ROOT)}), {layer} 从未在这台仪器上判定 —— "
+                                     "未判定不是判定通过, 扣发")}
+        elif c is None:
             out[layer] = {"usable": False,
                           "reason": f"K1 判定里找不到「{needle}」这一项 —— 判据变了却没更新路由"}
         elif c["pass"]:

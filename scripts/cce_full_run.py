@@ -129,9 +129,10 @@ def _reader_out(d, body):
     st = d["stage1"]
     # ★ 2026-09-28 (诊断 #23): 读者 tops 与 s1 走同一道组内散布闸 —— 此前超噪声底的层照发 top, 且不进出口闸台账。
     js, tops, withheld = st.get("within_js") or {}, dict(st.get("tops") or {}), {}
+    _max = within_js_max(((d.get("stage2") or {}).get("instrument") or {}).get("instrument_hash"))
     for name, layer in _LAYER_OF_TOP.items():
-        if name in tops and js.get(layer) is not None and js[layer] > WITHIN_JS_MAX.get(layer, 1.0):
-            withheld[name] = f"{layer} within_js={round(js[layer], 4)} > {WITHIN_JS_MAX[layer]}"
+        if name in tops and js.get(layer) is not None and js[layer] > _max.get(layer, 1.0):
+            withheld[name] = f"{layer} within_js={round(js[layer], 4)} > {_max[layer]}"
             tops[name] = None
     return {"file": "reader_baseline.json", "reader_chars": len(body),
             "measurement_status": st.get("measurement_status"),   # 读者弃权是读者的状态, 不是本段 FAIL
@@ -288,8 +289,21 @@ def s0(ctx):
 # 动作不是让 build 红, 而是**扣发该层的 top 标签** —— 与 s2 的 playbook 扣发同一逻辑:
 # 一个内部离散超过自身噪声底的层, 它的 top 是在读噪声。这与既有纪律同源
 # (「差距落在噪声内的层禁止排名」「情绪层禁单top」「CCE 输出禁止 argmax」)。
-WITHIN_JS_MAX = {"desire_vec": 0.120, "need_vec": 0.161,
-                 "emotion_vec": 0.157, "action_vec": 0.125}
+WITHIN_JS_MAX_DEFAULT = {"desire_vec": 0.120, "need_vec": 0.161,
+                         "emotion_vec": 0.157, "action_vec": 0.125}
+WITHIN_JS_MAX = WITHIN_JS_MAX_DEFAULT   # 兼容旧引用; 逐次运行一律走 within_js_max(仪器)
+
+
+def within_js_max(instrument_hash):
+    """★ 2026-09-30: 阈值**按仪器**取。上面那组是 08-17 在旧仪器 31 份读数上标的; 现行 k=3 仪器 d4cce4 的重标
+    (同一规则 median+2×MAD, 预注册 tests/data/within_js_recalibration_prereg.json, 留出集检验)只挂在那台仪器上,
+    且只采纳留出检验通过的层(results/within_js_recalibration.json 的 adopted)。别的仪器沿用旧值。"""
+    f = os.path.join(ROOT, "results/within_js_recalibration.json")
+    if instrument_hash and os.path.exists(f):
+        r = json.load(open(f, encoding="utf-8"))
+        if r.get("adopted_for") == instrument_hash:
+            return dict(r["adopted"])
+    return dict(WITHIN_JS_MAX_DEFAULT)
 _LAYER_OF_TOP = {"desire": "desire_vec", "need": "need_vec",
                  "emotion": "emotion_vec", "action": "action_vec"}
 
@@ -321,18 +335,19 @@ def s1(ctx):
                 "over_noise_floor": None, "high_divergence_flag": None,
                 "k": {kk: st.get(kk) for kk in
                       ("k_requested", "k_attempted", "k_valid", "k_abstained")}}
-    over = {l: round(v, 4) for l, v in js.items() if v > WITHIN_JS_MAX.get(l, 1.0)}
+    _max = within_js_max(((d.get("stage2") or {}).get("instrument") or {}).get("instrument_hash"))
+    over = {l: round(v, 4) for l, v in js.items() if v > _max.get(l, 1.0)}
     tops = dict(d["stage1"]["tops"])
     withheld = {}
     for name, layer in _LAYER_OF_TOP.items():
         if layer in over:
-            withheld[name] = f"{layer} within_js={over[layer]} > {WITHIN_JS_MAX[layer]}"
+            withheld[name] = f"{layer} within_js={over[layer]} > {_max[layer]}"
             tops[name] = None
     return {"file": "s1_readout.json", "measurement_status": "qualified",
             "k": {kk: st.get(kk) for kk in
                   ("k_requested", "k_attempted", "k_valid", "k_abstained")},
             "within_js": js,
-            "within_js_max": WITHIN_JS_MAX,
+            "within_js_max": _max,
             "over_noise_floor": over or None,
             "tops": tops,
             "tops_withheld": withheld or None,
