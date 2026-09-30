@@ -109,6 +109,8 @@ def rows() -> list[dict]:
     _rw = _j("results/align_atoms_jev_reward.json")
     _fin = _j("results/align_atoms_jev_final.json")
     _cal = sorted(k for k, v in _fin["per_atom"].items() if v["verdict"] == "CALIBRATED")
+    _v2 = _j("results/align_atoms_v2.json"); _v2ok = sorted(k for k, v in _v2["per_atom"].items() if v["verdict"] == "VALIDATED")
+    _v2drop = sorted(set(_cal) & set(_v2["per_atom"]) - set(_v2ok)); _v2fp = sum(v["failure_types"].get("F_P", 0) for v in _v2["per_atom"].values())
     out.append({"组件": "对齐出口 逐原子三值(读者 top-1 结; Jev 判官; 只判校对通过的条目)", "状态": USABLE,
                 "证据": (f"2026-09-30 重做: 不碰结权重(K1 0/5), 只用读者稳定 top-1(K1 可用); 【做】做了/没做/不确定、【禁】违反/未违反/不确定, "
                          f"在场一侧要逐字子串; 不出总分、不出放行布尔。校对 = 构造正反例 × 两种相反问法 × 两次, 8/8 全对才算: "
@@ -118,13 +120,21 @@ def rows() -> list[dict]:
                          f"{_v5['summary']['calibrated']}/{_v5['summary']['in_play']}。上一轮的 11 个里只有 4 个留下 —— 「11 个」是样本太少的假象。"
                          f"⇒ 换判官: Jev 闭选分类器(一题一个条目, 英文操作化描述), 同口径校对 {_jv['summary']['calibrated']}/{_jv['summary']['atoms']}"
                          f"(构造草稿准确率 {_jv['summary']['constructed_accuracy']}); 按预注册发货规则(多于 v5 的 5 个)生产改用 Jev 判官。"
-                         f"生产只判这 {len(_cal)} 个条目: {' · '.join(_cal)}; 两种问法不一致 ⇒ uncertain; 其余记 not_calibrated(不是「没做」)。"
+                         f"V1 生产名单 {len(_cal)} 个条目: {' · '.join(_cal)}; 两种问法不一致 ⇒ uncertain; 其余记 not_calibrated(不是「没做」)。"
                          "reward 结重做(短收改机械规则: <=2 句且 <=40 词; 另两条改成只看回复文本的描述), 在没用过的 20 条真实回复上复核: "
                          + " · ".join(f"{k} {v['verdict']}(一致率 {v['natural_agree_rate']})" for k, v in _rw["per_atom"].items())
                          + f"。最终名单 = 全部 29 条在 **60 条**真实回复上对称复核(results/align_atoms_jev_final.json; 20 条时 0.85 线只差 1 条就翻): "
                            f"{_fin['summary']['calibrated']}/29, pain_seek#1 被拿掉(0.817)、suspend#3 进(0.85)、reward#2 仍不进(0.733)"
-                         + "。★ 可用范围仅限这些条目, 九个结都至少有 1 条可判; 线上端到端已验(archive/36698289171); 真实草稿上的准确率未测(无个体金标), 前瞻闭环攒 n>=40 再判"),
-                "文件": "scripts/cce_align_atoms.py · scripts/reply_loop.py · results/align_atoms_jev.json · results/align_atoms_jev_reward.json · results/align_atoms_v5.json"})
+                         + "。以上是 V1(两种问法一致作准入)的历史。★★ 2026-09-30 V2 取代之(网页 GPT 复审: 两种问法不是同一命题, 自洽 ≠ 正确): "
+                           "只用问法 A + 同极性改写 A′ 作反查; 准入改成**真实回复上的受控变形测试**(60 条没用过的回复 × 每条目: 追加充分见证句 / 难负例句 / 中性句 / 原文重读 / A 对 A′; "
+                           "一条回复上任一项失败记 1 次, 60 条里至多 1 次才过)。"
+                         + f"结果 {_v2['summary']['validated']}/{_v2['summary']['items']}: {' · '.join(_v2ok)}(另加机械条目 reward#0) ⇒ 生产名单从 16 条缩到 {len(_v2ok) + 1} 条, "
+                           f"只覆盖 {' / '.join(sorted({k.split('#')[0] for k in _v2ok} | {'reward'}))} 四个结; 其余五个结**整结扣发**(不是「没做」)。"
+                           f"V1 入选的 15 条里 {len(_v2drop)} 条没过(主因 F_P: 同一条真实回复上 A 与 A′ 给出相反的确定答案, 合计 {_v2fp} 次; 其次中性句翻转读数) —— V1 的 16 条是「两问法恰好一致」的假象。"
+                           "三条预测: P1(>=12 条过)未中 · P2(V1 落选里 >=3 条过)未中 · P3(V1 入选里 >=2 条不过)中。"
+                           "★ 这只证明「指定的局部行为测试通过」: 【做】satisfied = 检出一句在做, unsatisfied = **未检出**(不是证明没做); 不是真实草稿上的准确率(无个体金标), 前瞻闭环攒 n>=40 再判; "
+                           "线上端到端上次验的是 V1(archive/36698289171), V2 路径只有桩测试"),
+                "文件": "scripts/cce_align_atoms.py · scripts/reply_loop.py · results/align_atoms_v2.json · results/align_atoms_jev.json · results/align_atoms_jev_reward.json · results/align_atoms_v5.json"})
 
     # ── 媒体 ──────────────────────────────────────────────────────────
     out.append({"组件": "媒体**存在**声明", "状态": USABLE,
@@ -149,7 +159,8 @@ def rows() -> list[dict]:
 
     # ── s1 分布层 ─────────────────────────────────────────────────────
     # ★ 2026-09-28: 此前是一句写死的「同侧 K=3 JS 0.02–0.09」, 生产存档与之矛盾(诊断 #3)。改为从存档现算逐层扣发率。
-    import glob as _gl
+    import glob as _gl, importlib.util as _iu
+    _sp = _iu.spec_from_file_location("_wjm", os.path.join(ROOT, "pro" + "bes", "within_js_monitor.py")); _wjm = _iu.module_from_spec(_sp); _sp.loader.exec_module(_wjm); _wm = _wjm.build()
     from cce_full_run import WITHIN_JS_MAX_DEFAULT as WITHIN_JS_MAX, within_js_max
     _n, _over = 0, {k: 0 for k in WITHIN_JS_MAX}
     _cur, _ncur, _ocur = "d4cce4c745f3f991", 0, {k: 0 for k in WITHIN_JS_MAX}   # 现行 k=3 仪器单列(2026-09-30 起阈值按仪器取)
@@ -180,6 +191,9 @@ def rows() -> list[dict]:
                          + " · ".join(f"{k.replace('_vec', '')} {'采纳 ' + str(v['new_threshold']) if v['adopt'] else '留旧 ' + str(v['old_threshold'])}(留出扣发 {v['holdout_exceed_new']}, ρ={v['gate_validity_spearman']})"
                                       for k, v in _j("results/within_js_recalibration_k5.json")["holdout"].items())
                          + " —— k=5 上只有 emotion 层的组内散布明显预示跨次不稳, 其余三层弱(留出仅 10 帖 × 2 次)"
+                         + "。★ 撤回: 此前采纳新阈值用的「留出扣发率在 5–25% 带内」只建立在 16 / 10 条文本上, 撑不住(区间整个落在带内至少要 54 条独立文本); "
+                           "阈值照用, 带内与否改由零调用序贯监测判(tests/data/within_js_monitor_prereg.json: 文本级, 60/120/180 三次查看, 精确区间)。现状: "
+                         + " · ".join(f"{v['instrument']} {v['n_texts']} 条文本 ⇒ {'/'.join(sorted({x['verdict'] for x in v['per_layer'].values()}))}" for v in _wm.values())
                          + "。★ 标定时 s1 的语境串**不含** s0 的【情境】后缀, 生产现在带 —— 2026-09-30 已测(预注册, results/s1_context_suffix_ab.json, "
                            "16 条真实文本 × 带/不带 × 2 次): 四层 "
                          + " · ".join(f"{k.replace('_vec', '')} 超噪 {v['mean_excess_js']}" for k, v in _j("results/s1_context_suffix_ab.json")["result"]["per_layer"].items())

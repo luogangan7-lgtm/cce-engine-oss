@@ -80,3 +80,40 @@ def test_judge_v2_maps_and_handles_mechanical(monkeypatch):
     assert r[1]["a"] == "satisfied" and r[2]["a"] == "unsatisfied"                         # done ⇒ satisfied; violated ⇒ unsatisfied
     r, _ = AT.judge_jev_v2("inertia", "x", post=post)
     assert 0 not in r and set(r) == {1, 2}                                                 # 指导用条目不判
+
+
+def test_confirm_result_recomputes_and_sets_the_production_list(monkeypatch):
+    import hashlib
+    r = json.loads((ROOT / "results/align_atoms_v2.json").read_text(encoding="utf-8"))
+    assert r["prereg_sha256"] == hashlib.sha256((ROOT / "tests/data/align_atoms_v2_prereg.json").read_bytes()).hexdigest()
+    assert r["plants_sha256"] == hashlib.sha256((ROOT / "probes/align_atoms_v2_plants.py").read_bytes()).hexdigest(), "植入句在确认后被改过"
+    assert r["questions_sha256"] == hashlib.sha256(json.dumps({k: AT.jev_questions_v2(k) for k in AT.ATOMS_EN}, sort_keys=True).encode()).hexdigest(), "题面在确认后被改过"
+    assert r["stage"] == "confirm" and not r["dry_run"] and r["requests"] <= V2.CAP["confirm"] and sum(r["errors"].values()) <= 1
+    used = {p for s in (0, 20, 40, 60) for p, _ in V2.V5.natural(s)}
+    assert len(set(r["base_pointers"])) == 60 and not used & set(r["base_pointers"])
+    per, summ = V2.score(r["raw"], 60)
+    assert per == r["per_atom"] and summ == r["summary"] == {"items": 26, "validated": 5}
+    for v in per.values():
+        assert (v["verdict"] == "VALIDATED") == (v["failing_bases"] <= 1 and v["coverage"] >= 0.70)
+    # 预注册的三条预测: P1(>=12 条通过)未中, P2(V1 落选的里 >=3 条通过)未中, P3(V1 入选的里 >=2 条不过)中
+    v1 = {k for k, v in json.loads((ROOT / "results/align_atoms_jev_final.json").read_text(encoding="utf-8"))["per_atom"].items() if v["verdict"] == "CALIBRATED"}
+    val = {k for k, v in per.items() if v["verdict"] == "VALIDATED"}
+    assert len(val) < 12 and len(val - v1) < 3 and len((v1 & set(per)) - val) >= 2
+    # 发货规则: 生产名单 = V2 通过的 + 机械条目; 没有条目的结整结扣发
+    assert AT.calibrated_atoms() == {"pain_seek": {1}, "injustice": {1}, "reward": {0, 1}, "suspend": {1, 3}}
+    assert AT.atoms_alignment("belong", True, "x")["status"] == "withheld"
+
+
+def test_v2_production_path(monkeypatch):
+    monkeypatch.setenv("TYPESAFE_API_KEY", "k")
+    def post(body, key):                       # suspend: #1 两问都检出; #3(禁) A 检出违规而 A′ 说没有 ⇒ uncertain
+        pick = {"1a": "done", "1p": "done", "3a": "violated", "3p": "not_violated"}
+        return {"answers": {q: {"choice": pick.get(q, "not_violated" if "not_violated" in spec["criteria"] else "not_done"), "probabilities": {}} for q, spec in body["questions"].items()}}, None
+    r = AT.atoms_alignment("suspend", True, "reply", post=post)
+    a = {x["i"]: x for x in r["atoms"]}
+    assert r["status"] == "ok" and r["judge_version"] == "v2" and r["summary"] == {"calibrated": 2, "satisfied": 1, "unsatisfied": 0, "uncertain": 1}
+    assert a[1]["canonical"] == "satisfied" and a[3]["canonical"] == "uncertain" and a[0]["canonical"] == a[2]["canonical"] == "not_calibrated"
+    assert "未检出" in r["★v2_reading"]
+    g = AT.atoms_alignment("reward", True, "Thanks, glad it helped.", post=post)     # 机械条目按规则判
+    assert {x["i"]: x["canonical"] for x in g["atoms"]}[0] == "satisfied"
+    assert AT.atoms_alignment("suspend", True, "reply", post=lambda b, k: (None, "HTTP 503"))["status"] == "failed"
