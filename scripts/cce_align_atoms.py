@@ -297,3 +297,68 @@ def judge_jev(knot, text, post=None):
     except (KeyError, TypeError) as e:
         return None, "BAD_SHAPE:%s" % type(e).__name__
     return out, None
+
+
+# ══ V2(2026-09-30): 单问法 A + 同极性改写 A′ 反证, 真实底稿变形测试准入 ═══════════════════════════════
+# 网页 GPT 调研(2026-09-30)的三条更正:
+#   ① 「做了 X 吗」(A)与「符合『应当做 X』的要求吗」(B)未必是同一个命题(条件项尤其), B 多答 unclear 不说明 A 错 ——
+#      A/B 一致率不该当准入门。生产仪器只用 A; 再用同极性改写 A′ 作反证: 两者给出**相反的确定答案** ⇒ uncertain(单边弃权不算冲突)。
+#   ② 自洽 ≠ 判得对。准入改看真实底稿上的受控变形测试(probes/align_atoms_v2.py): 充分见证检出 / 难负例不误触发 / 中性编辑不动 / 逐字恢复。
+#      这只验证了**在场一侧**(做了 / 违反了)的检出与抗误触发 —— 缺席一侧的读数是「未检出」, 不是「证明没做」。
+#   ③ 只看单篇回复判不了的条目登记为「指导用」, 不判、不删、留在分母里。
+# V1(A/B 一致率)的代码与结果原样保留作记录; V2 名单落 results/align_atoms_v2.json 后生产才切换(预注册发货规则)。
+GUIDANCE_ONLY = {
+    ("inertia", 0): "要判「是否针对读者给出的那个具体理由」必须同时看到读者原话; 只给回复稿, 同一段回复在两种读者原话下正确判定不同 —— 单篇回复不可识别",
+    ("display", 1): "「被当同侪」是宽泛的关系品质: 说一句「我们都是老用户」不足以证明整体平等相待, 没有充分见证可构造 —— 不从单篇回复测量",
+}
+JEV_V2 = os.path.join(ROOT, "results", "align_atoms_v2.json")
+
+
+def jev_questions_v2(knot):
+    """A(与 V1 的 A 题逐字相同)+ A′(同极性改写)。机械规则与指导用条目不出题。"""
+    v1 = jev_questions(knot)
+    qs = {}
+    for i, ((_, neg), en) in enumerate(zip(atoms_of(knot), ATOMS_EN[knot])):
+        if (knot, i) in MECHANICAL or (knot, i) in GUIDANCE_ONLY:
+            continue
+        qs["%da" % i] = v1["%da" % i]
+        if neg:
+            qs["%dp" % i] = {"type": "choice", "instructions": "Read the reply. Is there at least one sentence in it that does this (something the reply is not supposed to do): %s? Talking about the topic without doing it does not count." % en,
+                             "criteria": {"violated": "yes, a sentence in the reply does this", "not_violated": "no sentence in the reply does this", "unclear": "cannot tell from the reply; do not guess"}}
+        else:
+            qs["%dp" % i] = {"type": "choice", "instructions": "Read the reply. Is there at least one sentence in it that does this: %s? Talking about the topic without doing it does not count." % en,
+                             "criteria": {"done": "yes, a sentence in the reply does this", "not_done": "no sentence in the reply does this", "unclear": "cannot tell from the reply; do not guess"}}
+    return qs
+
+
+def judge_jev_v2(knot, text, post=None):
+    """一次 Jev 调用 → ({下标: {"a": 规范值, "p": A′ 规范值, "p_a": 概率表}}, err)。机械条目按规则填; 指导用条目不在返回里。"""
+    import cce_s0_jev as S0
+    out = {}
+    for i in range(len(atoms_of(knot))):
+        if (knot, i) in MECHANICAL:
+            v = "satisfied" if MECHANICAL[(knot, i)](text) else "unsatisfied"
+            out[i] = {"a": v, "p": v, "p_a": None}
+    qs = jev_questions_v2(knot)
+    if not qs:
+        return out, None
+    key = os.environ.get("TYPESAFE_API_KEY", "").strip()
+    if not key:
+        return None, "NO_TYPESAFE_API_KEY"
+    resp, err = (post or S0._post)({"model": S0.MODEL, "state": text[:2000], "questions": qs}, key)
+    if err or not resp:
+        return None, err or "EMPTY_RESPONSE"
+    try:
+        for i, (_, neg) in enumerate(atoms_of(knot)):
+            if "%da" % i not in qs:
+                continue
+            a, p = resp["answers"]["%da" % i], resp["answers"]["%dp" % i]
+            out[i] = {"a": _JEV_MAP["a"][neg].get(a["choice"], "uncertain"), "p": _JEV_MAP["a"][neg].get(p["choice"], "uncertain"), "p_a": a.get("probabilities")}
+    except (KeyError, TypeError) as e:
+        return None, "BAD_SHAPE:%s" % type(e).__name__
+    return out, None
+
+
+def witness_value(is_prohibition):
+    """在场一侧的规范值: 【做】= satisfied(检出执行), 【禁】= unsatisfied(检出违规)。"""
+    return "unsatisfied" if is_prohibition else "satisfied"

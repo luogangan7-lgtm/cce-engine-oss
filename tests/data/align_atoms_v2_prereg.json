@@ -1,0 +1,38 @@
+{
+ "block": "ALIGN_ATOMS_V2",
+ "prereg_written_at": "2026-09-30",
+ "★frozen_before_measurement": "本文件、判官 V2(cce_align_atoms.jev_questions_v2 / judge_jev_v2 / GUIDANCE_ONLY)、植入句 probes/align_atoms_v2_plants.py 与探针 probes/align_atoms_v2.py 在任何 V2 调用之前提交。dev 阶段之后若改植入句, 必须先重新提交(植入句文件 sha 进结果), 再跑 confirm; 题面与判据不因 dev 结果改动。",
+ "★why": "owner 2026-09-30「本来就没有金标，还没解决的需要想办法解决」。V1 的准入 = 构造草稿全对 + 真实回复上 A/B 两问法一致率 >= 0.85, 最终 16/29。网页 GPT(同日, 思考 12m47s)指出两点: ① A(做了 X 吗)与 B(符合应当做 X 的要求吗)未必同一命题, B 多答 unclear 不说明 A 错 —— A/B 一致率不该当准入门; ② 自洽不是判得对, 无金标时能拿到的真实文本证据是受控变形测试。",
+ "v1_record": "V1 结果原样保留(results/align_atoms_jev.json / _reward.json / _final.json: 16 条通过、13 条未通过), 不追溯改判。",
+ "v2_instrument": {
+  "production": "只用问法 A(题面与 V1 的 A 题逐字相同)",
+  "counter_check": "同极性改写 A′; 原文上 A 与 A′ 给出相反的确定答案 ⇒ 冲突(生产里该条目报 uncertain); 单边 unclear 不算冲突",
+  "guidance_only": "inertia#0(要看读者原话才判得了)、display#1(宽泛关系品质, 没有充分见证可构造)登记为指导用: 不判、不删、留在分母里",
+  "mechanical": "reward#0 短收 = 规则(<=2 句且 <=40 词), 不问模型, 不进本测试"
+ },
+ "material": {
+  "dev": "8 条已用过的真实回复(V5.natural(0)[:8]); 只为查植入句本身有没有毛病",
+  "confirm": "60 条此前任何一轮都没用过的真实回复(V5.natural(80)+(100)+(120)); 准入只看它",
+  "plants": "每条目两句充分见证 W、两句难负例 H(谈到但没做: 否定/引述/自我说明), 按底稿序号交替; 中性句两句; 都追加在原文之后另起一段"
+ },
+ "failure_events_per_base_item": {
+  "F_W": "追加见证句后, A 不是在场一侧的确定值(unclear 也算失败)",
+  "F_H": "原文不在在场一侧, 追加难负例后 A 变成在场一侧",
+  "F_N": "追加中性句后 A 变成在场一侧(原文不是), 或从在场一侧翻到对侧",
+  "F_R": "同一原文两次读数给出相反确定值",
+  "F_P": "原文上 A 与 A′ 给出相反确定值",
+  "INCOMPLETE": "五次调用里任一次失败 ⇒ 该底稿记失败(不当通过)",
+  "unit": "一个(底稿, 条目)只记 1 次失败事件, 不把同一底稿的多次读数当多个独立样本"
+ },
+ "decision_rule_per_item": {
+  "VALIDATED": "confirm 集 60 个底稿里失败底稿数 <= 1(单条目单侧 95% 精确上界: 0 失败 4.9%、1 失败 7.7%、2 失败 10.1%)且原文覆盖率(A 给出确定值的比例)>= 0.70",
+  "NOT_VALIDATED": "否则 —— 包括 V1 已通过的 16 条, 不保送",
+  "★what_validated_means": "在场一侧(做了 / 违反了)的检出与抗误触发在这 60 个自然背景 + 这些植入句上成立。**不**是自然文本上的敏感度/特异度; 缺席一侧的读数是「未检出」, 不是证明没做",
+  "★multiplicity": "上界是逐条目口径; 不声称 26 条同时达到 95%",
+  "★thresholds_are_conventions": "<=1/60 与 0.70 为约定, 不因结果调整; 不过线的不再加样重测"
+ },
+ "★ship_rule": "生产名单 = V2 VALIDATED 的条目 + 机械条目 reward#0; cce_align_atoms.atoms_alignment 改用 judge_jev_v2(A 为准, A′ 相反确定 ⇒ uncertain)。指导用条目在输出里标 guidance_only。",
+ "★predictions": {"P1": "26 条里至少 12 条 VALIDATED", "P2": "V1 未通过的 13 条里至少 3 条在 V2 VALIDATED", "P3": "V1 已通过的 16 条里至少 2 条在 V2 不过(主要因难负例误触发)"},
+ "★cannot_claim": ["未编辑自然回复上的准确率", "缺席一侧的正确性", "植入句由维护者撰写, 只有两种说法", "所有底稿来自同一社区 16 位常驻者"],
+ "budget": {"jev_requests_expected": {"dev": 632, "confirm": 4740}, "hard_cap": {"dev": 700, "confirm": 5200}, "cost_estimate_usd": "≈0.27"}
+}
