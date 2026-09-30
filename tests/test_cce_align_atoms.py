@@ -103,3 +103,23 @@ def test_v5_result_recomputes_and_is_the_production_list():
     for v in per.values():
         assert (v["verdict"] == "CALIBRATED") == (v["setC_correct"] == v["setC_n"] == 16 and v["natural_agree_rate"] >= 0.85)
     assert all("ptr" in x and "text" not in x for x in r["raw"] if x["part"] == "N")     # 真实回复只留指针
+
+
+def test_jev_judge_questions_align_with_atoms_and_map_both_framings(monkeypatch):
+    for k, en in AT.ATOMS_EN.items():
+        assert len(en) == len(AT.atoms_of(k)), k
+        qs = AT.jev_questions(k)
+        for i, (_, neg) in enumerate(AT.atoms_of(k)):
+            assert set(qs["%da" % i]["criteria"]) == ({"violated", "not_violated", "unclear"} if neg else {"done", "not_done", "unclear"})
+            assert ("must not" in qs["%db" % i]["instructions"]) is neg
+    monkeypatch.setenv("TYPESAFE_API_KEY", "k")
+    def post(body, key):
+        ans = {}
+        for q, spec in body["questions"].items():
+            ans[q] = {"choice": [c for c in spec["criteria"] if c in ("done", "violated", "complies")][0], "probabilities": {}}
+        return {"answers": ans}, None
+    r, err = AT.judge_jev("reward", TXT, post=post)
+    assert err is None and r[0] == {"a": "satisfied", "b": "satisfied", "p_a": {}}           # 【做】done / complies
+    assert r[2]["a"] == "unsatisfied" and r[2]["b"] == "satisfied"                            # 【禁】violated ⇒ 不满足; complies ⇒ 满足
+    r, err = AT.judge_jev("reward", TXT, post=lambda b, k: (None, "HTTP 503"))
+    assert r is None and err == "HTTP 503"

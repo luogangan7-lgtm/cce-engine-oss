@@ -168,3 +168,79 @@ def atoms_alignment(reader_top1, top1_usable, text, call=None):
                         "unsatisfied": sum(r["canonical"] == "unsatisfied" for r in judged),
                         "uncertain": sum(r["canonical"] == "uncertain" for r in judged)},
             "★rule": "只看逐原子状态; 不出总分、不出放行布尔。uncertain 与 not_calibrated 都不是「没做」。"}
+
+
+# ══ Jev 判官(2026-09-30) ═══════════════════════════════════════════════════════════════════════
+# v5 加严后 MiniMax 判官只剩 5 个原子可判, reward/display/inertia/suspend 四结为 0。换一台判官试: 生产 s0 已在用的
+# TypeSafe Jev 闭选分类器(重测 κ≈1, 逐题给概率, 约 $0.00005/次)。一题只问一个原子; Jev 以英文为主 ⇒ 每个原子配一句英文操作化描述
+# (测量侧翻译, playbook 原文不动; 下标与 atoms_of(knot) 逐位对应, 闸钉长度与做/禁类型一致)。
+ATOMS_EN = {
+    "pain_seek": ["give a lever, the mechanism behind the problem, and a concrete next step the reader can act on",
+                  "make an empty promise or guarantee an outcome without acknowledging limits"],
+    "injustice": ["acknowledge that the reader's grievance is legitimate",
+                  "point the reader to a concrete, actionable accountability path (for example: document what happened, file a complaint, get a case or reference number)",
+                  "defend or excuse the party responsible for the problem"],
+    "belong": ["include a line telling the reader they are not alone or that others share this experience",
+               "give a piece of new, specific knowledge",
+               "give more than one piece of new advice or information (a list of several tips)",
+               "assign the reader tasks or homework"],
+    "reward": ["keep it short (one or two sentences) and close the exchange",
+               "play down the writer's own role or give the credit to the reader",
+               "add further information or new topics after the reader's need is already met"],
+    "display": ["step back and put the reader's contribution in the foreground",
+                "treat the reader as a peer or equal",
+                "build on the reader's contribution instead of correcting them"],
+    "itch": ["paint a vivid scene or identity that the reader can picture themselves in",
+             "assign the reader tasks or homework",
+             "keep the longing pleasant (wistful enjoyment) rather than sad or bitter"],
+    "suspend": ["give one criterion the reader can use to make the decision",
+                "give a zero-cost way to test the options (a free trial, a loaner, a comparison they can already do) to resolve the uncertainty",
+                "state an honest trade-off (what the reader would give up with an option)",
+                "push the reader to buy (including by zero-risk promises, samples, or other people's testimonials)"],
+    "inertia": ["address the specific reason the reader gave for not acting",
+                "propose one small, reversible step",
+                "preach or moralize about what the reader ought to do"],
+    "audit": ["defend or justify the writer's own method or credentials",
+              "perform or show off (cite credentials, loyalty, or the writer's own virtues)",
+              "give a verifiable fact (a specific number, source, or checkable record)",
+              "explicitly invite the reader to check the claim or ask about specific details"],
+}
+JEV_CAL = os.path.join(ROOT, "results", "align_atoms_jev.json")
+_JEV_MAP = {"a": {False: {"done": "satisfied", "not_done": "unsatisfied"}, True: {"violated": "unsatisfied", "not_violated": "satisfied"}},
+            "b": {False: {"complies": "satisfied", "does_not_comply": "unsatisfied"}, True: {"complies": "satisfied", "does_not_comply": "unsatisfied"}}}
+
+
+def jev_questions(knot):
+    qs = {}
+    for i, ((_, neg), en) in enumerate(zip(atoms_of(knot), ATOMS_EN[knot])):
+        if neg:
+            qs["%da" % i] = {"type": "choice", "instructions": "Judge the reply text only. Does the reply do the following thing, which it should NOT do: %s? Merely mentioning the topic does not count." % en,
+                             "criteria": {"violated": "the reply contains a sentence that does this", "not_violated": "the reply does not do this", "unclear": "cannot tell from the reply; do not guess"}}
+            qs["%db" % i] = {"type": "choice", "instructions": "Requirement for the reply: it must not %s. Does the reply comply with this requirement?" % en,
+                             "criteria": {"complies": "the reply does not do the forbidden thing", "does_not_comply": "the reply contains a sentence doing the forbidden thing", "unclear": "cannot tell from the reply; do not guess"}}
+        else:
+            qs["%da" % i] = {"type": "choice", "instructions": "Judge the reply text only. Does the reply do the following: %s? Merely mentioning the topic does not count." % en,
+                             "criteria": {"done": "the reply contains a sentence that does this", "not_done": "the reply does not do this", "unclear": "cannot tell from the reply; do not guess"}}
+            qs["%db" % i] = {"type": "choice", "instructions": "Requirement for the reply: it should %s. Does the reply comply with this requirement?" % en,
+                             "criteria": {"complies": "the reply contains a sentence that fulfils the requirement", "does_not_comply": "the reply does not fulfil the requirement", "unclear": "cannot tell from the reply; do not guess"}}
+    return qs
+
+
+def judge_jev(knot, text, post=None):
+    """一次 Jev 调用判该结全部原子的两种问法 → {下标: {"a": 规范值, "b": 规范值, "p_a": 概率表}} 或 (None, err)。"""
+    import cce_s0_jev as S0
+    key = os.environ.get("TYPESAFE_API_KEY", "").strip()
+    if not key:
+        return None, "NO_TYPESAFE_API_KEY"
+    resp, err = (post or S0._post)({"model": S0.MODEL, "state": text[:2000], "questions": jev_questions(knot)}, key)
+    if err or not resp:
+        return None, err or "EMPTY_RESPONSE"
+    out = {}
+    try:
+        for i, (_, neg) in enumerate(atoms_of(knot)):
+            a, b = resp["answers"]["%da" % i], resp["answers"]["%db" % i]
+            out[i] = {"a": _JEV_MAP["a"][neg].get(a["choice"], "uncertain"), "b": _JEV_MAP["b"][neg].get(b["choice"], "uncertain"),
+                      "p_a": a.get("probabilities")}
+    except (KeyError, TypeError) as e:
+        return None, "BAD_SHAPE:%s" % type(e).__name__
+    return out, None

@@ -1,0 +1,20 @@
+{
+ "block": "ALIGN_ATOMS_JEV",
+ "prereg_written_at": "2026-09-30",
+ "★frozen_before_measurement": "本文件、scripts/cce_align_atoms.py 的 ATOMS_EN / jev_questions / judge_jev 与探针 probes/align_atoms_jev.py 在任何 Jev 判官调用之前提交。",
+ "★why": "ALIGN_ATOMS_V5: MiniMax 判官(一次调用判整份清单)加严后只剩 5/19 原子可判, reward/display/inertia/suspend 四结为 0。再调同一台判官的提示词只会继续照着样例改。换判官: 生产 s0 已在用的 TypeSafe Jev 闭选分类器(重测 κ≈1)。",
+ "judge": "cce_align_atoms.judge_jev: 每个条目一句英文操作化描述(ATOMS_EN, 测量侧翻译, playbook 原文不动), 每条两种问法各一题(做了/没做 或 违反/未违反 vs 符合/不符合), 取 Jev 选中的选项; unclear ⇒ uncertain",
+ "material": {
+  "constructed": "三批已有构造草稿, 都没用来调过 Jev 题面: 开发集 A 与留出集 B(7 个结的 21 个原子各 2+2 份; suspend/audit 的旧复合原子草稿不用)+ C 集(19 个条目各 4 份)。每条目 4–8 份草稿",
+  "natural": "与 ALIGN_ATOMS_V5 相同的 20 条真实社区回复, 每条在 9 个结下各判一次"
+ },
+ "decision_rule_per_atom": {
+  "CALIBRATED": "该条目名下全部构造草稿(>= 4 份)的两种问法读数都等于构造真值, 且真实回复上两问法一致率 >= 0.85",
+  "NOT_CALIBRATED": "否则",
+  "★thresholds_are_conventions": "与 v5 同口径, 不因结果调整"
+ },
+ "★ship_rule": "Jev 判官 CALIBRATED 的条目数 > MiniMax v5 的 5 个 ⇒ 生产对齐出口改用 Jev 判官及其名单(reply_loop 不变, cce_align_atoms.atoms_alignment 内部切换); 否则维持 v5。两台判官不混用。",
+ "★predictions": {"P1": "Jev 两问法在真实回复上的一致率中位数高于 MiniMax v5", "P2": "CALIBRATED 条目数 >= 8", "P3": "reward#0(短收)通过 —— 长度是表面特征"},
+ "★cannot_claim": ["真实草稿上的准确率", "英文描述是维护者翻译的操作化, 不等于 playbook 原文的全部含义", "构造草稿由同一个人撰写"],
+ "budget": {"jev_requests_expected": 340, "hard_cap": 400, "cost_estimate_usd": "≈0.02"}
+}
