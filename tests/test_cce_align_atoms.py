@@ -36,6 +36,7 @@ def test_judge_rejects_incomplete_answers():
 
 def test_alignment_withholds_without_usable_top1_or_calibration(monkeypatch, tmp_path):
     assert AT.atoms_alignment("reward", False, TXT)["status"] == "withheld"
+    monkeypatch.setattr(AT, "PRODUCTION_JUDGE", "minimax")        # 本条测 MiniMax 判官那条路
     monkeypatch.setattr(AT, "CAL", str(tmp_path / "none.json"))
     assert AT.atoms_alignment("reward", True, TXT)["status"] == "withheld"
 
@@ -44,7 +45,7 @@ def test_alignment_reports_only_calibrated_atoms(monkeypatch, tmp_path):
     cal = tmp_path / "cal.json"
     cal.write_text(json.dumps({"per_atom": {"reward#0": {"verdict": "CALIBRATED"}, "reward#1": {"verdict": "NOT_CALIBRATED"},
                                             "reward#2": {"verdict": "CALIBRATED"}}}), encoding="utf-8")
-    monkeypatch.setattr(AT, "CAL", str(cal))
+    monkeypatch.setattr(AT, "CAL", str(cal)); monkeypatch.setattr(AT, "PRODUCTION_JUDGE", "minimax")
     r = AT.atoms_alignment("reward", True, TXT, call=_stub([("做了", "Glad it worked out"), ("没做", ""), ("未违反", "")]))
     assert r["status"] == "ok" and r["summary"] == {"calibrated": 2, "satisfied": 2, "unsatisfied": 0, "uncertain": 0}
     assert [a["canonical"] for a in r["atoms"]] == ["satisfied", "not_calibrated", "satisfied"]
@@ -123,3 +124,36 @@ def test_jev_judge_questions_align_with_atoms_and_map_both_framings(monkeypatch)
     assert r[2]["a"] == "unsatisfied" and r[2]["b"] == "satisfied"                            # 【禁】violated ⇒ 不满足; complies ⇒ 满足
     r, err = AT.judge_jev("reward", TXT, post=lambda b, k: (None, "HTTP 503"))
     assert r is None and err == "HTTP 503"
+
+
+def test_production_judge_is_jev_and_backed_by_results():
+    """发货规则: Jev 校对通过的条目数 > MiniMax v5 才切换。常量必须有结果撑着。"""
+    import importlib.util as _iu, hashlib as _h
+    sys.path.insert(0, str(ROOT / "probes"))
+    _p = _iu.spec_from_file_location("_aj", ROOT / "probes/align_atoms_jev.py"); aj = _iu.module_from_spec(_p); _p.loader.exec_module(aj)
+    r = json.loads((ROOT / "results/align_atoms_jev.json").read_text(encoding="utf-8"))
+    assert r["prereg_sha256"] == _h.sha256((ROOT / "tests/data/align_atoms_jev_prereg.json").read_bytes()).hexdigest()
+    assert not r["dry_run"] and r["requests"] <= aj.CAP and not r["errors"]
+    assert r["questions_sha256"] == _h.sha256(json.dumps({k: AT.jev_questions(k) for k in AT.ATOMS_EN}, sort_keys=True).encode()).hexdigest(), "题面在校对后被改过"
+    per, summ = aj.score(r["raw"])
+    assert per == r["per_atom"] and summ == r["summary"]
+    n_jev = sum(len(v) for v in AT.calibrated_atoms("jev").values()); n_mm = sum(len(v) for v in AT.calibrated_atoms("minimax").values())
+    assert AT.PRODUCTION_JUDGE == "jev" and n_jev == summ["calibrated"] == 14 > n_mm == 5
+    assert "reward" not in AT.calibrated_atoms("jev")                                    # reward 三条都没过 —— 一条都不判
+
+
+def test_jev_alignment_path(monkeypatch):
+    monkeypatch.setenv("TYPESAFE_API_KEY", "k")
+    def post(body, key):
+        ans = {}
+        for q, spec in body["questions"].items():
+            pos = [c for c in spec["criteria"] if c in ("done", "violated", "complies")][0]
+            neg = [c for c in spec["criteria"] if c in ("not_done", "not_violated", "does_not_comply")][0]
+            ans[q] = {"choice": pos if q in ("0a", "0b", "1a", "1b") else neg, "probabilities": {pos: 0.9}}   # 第 1 条(禁): A=violated、B=complies ⇒ 两问法不一致
+        return {"answers": ans}, None
+    r = AT.atoms_alignment("pain_seek", True, TXT, post=post)
+    assert r["status"] == "ok" and r["judge"] == "jev" and r["summary"]["calibrated"] == 2
+    assert r["atoms"][0]["canonical"] == "satisfied"
+    assert r["atoms"][1]["canonical"] == "uncertain"                                     # 两问法规范值不同 ⇒ uncertain
+    assert AT.atoms_alignment("reward", True, TXT, post=post)["status"] == "withheld"   # reward 无校对通过的条目
+    assert AT.atoms_alignment("pain_seek", True, TXT, post=lambda b, k: (None, "HTTP 503"))["status"] == "failed"

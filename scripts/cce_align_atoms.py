@@ -135,11 +135,17 @@ def judge(knot, text, framing="a", temperature=0.0, call=None):
              "canonical": canonical(got[i][0], got[i][1], items[i][1], framing, text)} for i in range(len(items))]
 
 
-def calibrated_atoms():
-    """校对通过的原子 {knot: {atom 下标}}; 没有校对结果 ⇒ 空(一个都不判)。"""
-    if not os.path.exists(CAL):
+# ★ 2026-09-30 生产判官 = Jev。预注册发货规则(tests/data/align_atoms_jev_prereg.json): Jev 校对通过的条目数 > MiniMax v5 的 5 个才切换;
+#   实测 Jev 14/29(构造草稿准确率 0.969)vs v5 5/19 ⇒ 切换。两台判官不混用; 闸钉「Jev 名单确实更大」, 否则这行常量就是空口。
+PRODUCTION_JUDGE = "jev"
+
+
+def calibrated_atoms(judge=None):
+    """校对通过的原子 {knot: {atom 下标}}; 没有校对结果 ⇒ 空(一个都不判)。judge: "jev" | "minimax", 缺省 = 生产判官。"""
+    path = JEV_CAL if (judge or PRODUCTION_JUDGE) == "jev" else CAL
+    if not os.path.exists(path):
         return {}
-    r = json.load(open(CAL, encoding="utf-8"))
+    r = json.load(open(path, encoding="utf-8"))
     out = {}
     for key, v in (r.get("per_atom") or {}).items():
         if v.get("verdict") == "CALIBRATED":
@@ -148,14 +154,24 @@ def calibrated_atoms():
     return out
 
 
-def atoms_alignment(reader_top1, top1_usable, text, call=None):
-    """生产出口。reader_top1: 读者 s2 的 top-1 结; top1_usable: 该读数是否在出口闸 usable 里(K1 + 稳定)。"""
+def atoms_alignment(reader_top1, top1_usable, text, call=None, post=None):
+    """生产出口。reader_top1: 读者 s2 的 top-1 结; top1_usable: 该读数是否在出口闸 usable 里(K1 + 稳定)。
+    call / post: 测试桩(MiniMax 判官用 call, Jev 判官用 post)。"""
     if not reader_top1 or not top1_usable:
         return {"status": "withheld", "reason": "读者 top-1 结不可用(不稳或无 K1 判定) —— 没有「对哪个结对齐」就不判", "atoms": []}
     cal = calibrated_atoms().get(reader_top1, set())
     if not cal:
         return {"status": "withheld", "knot": reader_top1, "reason": f"{reader_top1} 没有校对通过的原子 —— 一个都不判", "atoms": []}
-    res = judge(reader_top1, text, framing="a", call=call)
+    if PRODUCTION_JUDGE == "jev":
+        jr, err = judge_jev(reader_top1, text, post=post)
+        if jr is None:
+            return {"status": "failed", "knot": reader_top1, "reason": "Jev 判官调用失败: %s" % err, "atoms": []}
+        items = atoms_of(reader_top1)
+        # 两种问法不一致 ⇒ uncertain(只会更保守: 校对时要求的正是两问法一致)
+        res = [{"i": i, "atom": items[i][0], "is_prohibition": items[i][1], "state": "A=%s/B=%s" % (jr[i]["a"], jr[i]["b"]), "quote": "",
+                "canonical": jr[i]["a"] if jr[i]["a"] == jr[i]["b"] else "uncertain", "p_a": jr[i]["p_a"]} for i in range(len(items))]
+    else:
+        res = judge(reader_top1, text, framing="a", call=call)
     if res is None:
         return {"status": "failed", "knot": reader_top1, "reason": "判官调用或格式失败", "atoms": []}
     atoms = [dict(r, calibrated=r["i"] in cal) for r in res]
@@ -163,7 +179,7 @@ def atoms_alignment(reader_top1, top1_usable, text, call=None):
         if not r["calibrated"]:
             r["canonical"] = "not_calibrated"      # 没过校对: 不判(不是「没做」)
     judged = [r for r in atoms if r["calibrated"]]
-    return {"status": "ok", "judge_version": VERSION, "knot": reader_top1, "atoms": atoms,
+    return {"status": "ok", "judge": PRODUCTION_JUDGE, "judge_version": VERSION, "knot": reader_top1, "atoms": atoms,
             "summary": {"calibrated": len(judged), "satisfied": sum(r["canonical"] == "satisfied" for r in judged),
                         "unsatisfied": sum(r["canonical"] == "unsatisfied" for r in judged),
                         "uncertain": sum(r["canonical"] == "uncertain" for r in judged)},
