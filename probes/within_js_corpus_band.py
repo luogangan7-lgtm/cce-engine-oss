@@ -7,7 +7,8 @@
 k=3: 保险库多轮链语料里非楼主的首条顶层评论(每帖至多 2 条)。k=5: 保险库帖子(跳过重标定用过的前 30 帖)。只送正文, 产物只落数字与 sha。
 用法: .venv/bin/python probes/within_js_corpus_band.py [--dry-run | --rescore]
 """
-import argparse, collections, hashlib, importlib.util, json, os, pathlib, random, re, sys, tempfile
+import argparse, collections, hashlib, importlib.util, json, os, pathlib, random, re, sys, tempfile, threading
+from concurrent.futures import ThreadPoolExecutor
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]; sys.path.insert(0, str(ROOT / "scripts")); sys.path.insert(0, str(ROOT / "probes"))
 import cce_full_run as FR                                   # noqa: E402
@@ -19,7 +20,7 @@ PRE = ROOT / "tests/data/within_js_corpus_band_prereg.json"
 NUM = ROOT / "results/within_js_corpus_band_numbers.json"
 OUT = ROOT / "results/within_js_corpus_band.json"
 VAULT = pathlib.Path("/Volumes/data/cce-identified-vault")
-N, SEED, BAND, MAX_PER_POST = 100, 20261001, (0.05, 0.25), 2
+N, SEED, BAND, MAX_PER_POST, WORKERS = 100, 20261001, (0.05, 0.25), 2, 3
 ARMS = {"k3": {"k": 3, "instrument": "d4cce4c745f3f991"}, "k5": {"k": 5, "instrument": "c4419c3e53aa2fa9"}}
 CAP = 2150          # 两臂合计(open_scope 一个进程只开一次); 实测约 8.4 / 10.2 次请求每份读数
 LAYERS = MON.LAYERS
@@ -76,29 +77,38 @@ def main(argv=None):
     if not a.rescore:
         import extractor_counterexample_run_r2 as KR   # noqa: E402
         KR._load_key()
-        rows = json.loads(NUM.read_text(encoding="utf-8"))["rows"] if NUM.exists() else []      # 断点续跑: 已有读数不重采
-        td = tempfile.mkdtemp(); open_scope("within_js_corpus", CAP, os.path.join(td, "budget.json"))
-        for arm, cfg in ARMS.items():
-            done = {r["sha16"] for r in rows if r["arm"] == arm}
-            for n, (ctx, t) in enumerate(samples[arm]):
-                if sum(r["arm"] == arm for r in rows) >= N:
-                    break
-                sha = hashlib.sha256(t.encode()).hexdigest()[:16]
-                if sha in done:
-                    continue
-                tf = os.path.join(td, "%s_t%d.txt" % (arm, n)); pathlib.Path(tf).write_text(t, encoding="utf-8")
-                try:
-                    d = FR.run_knot_classify(tf, ctx, cfg["k"], os.path.join(td, "%s_s1_%d.json" % (arm, n)))
-                    js = d["stage1"].get("within_js")
-                    if js:
-                        rows.append({"arm": arm, "order": n, "sha16": sha, "instrument": d["stage2"]["instrument"]["instrument_hash"], "within_js": js})
-                    else:
-                        print("skip(no within_js)", arm, n, d["stage1"].get("measurement_status"))
-                except Exception as e:      # noqa: BLE001
-                    print("fail", arm, n, type(e).__name__, str(e)[:100])
-                    if "BUDGET" in str(e).upper():
-                        break
-                NUM.write_text(json.dumps({"source": "语料抽样 s1 读数(只有数字与 sha)", "requests": scope_status(), "rows": rows}, indent=1), encoding="utf-8")
+        prev = json.loads(NUM.read_text(encoding="utf-8")) if NUM.exists() else {"rows": [], "requests": {"used": 0}}      # 断点续跑: 已有读数不重采, 已用请求数累计
+        rows, used0 = prev["rows"], (prev.get("requests") or {}).get("used", 0)
+        td = tempfile.mkdtemp(); open_scope("within_js_corpus", CAP - used0, os.path.join(td, "budget.json")); lock = threading.Lock()
+
+        def one(job):
+            arm, n, ctx, t = job
+            tf = os.path.join(td, "%s_t%d.txt" % (arm, n)); pathlib.Path(tf).write_text(t, encoding="utf-8")
+            try:
+                d = FR.run_knot_classify(tf, ctx, ARMS[arm]["k"], os.path.join(td, "%s_s1_%d.json" % (arm, n)))
+                js = d["stage1"].get("within_js")
+                if not js:
+                    print("skip(no within_js)", arm, n, d["stage1"].get("measurement_status")); return None
+                return {"arm": arm, "order": n, "sha16": hashlib.sha256(t.encode()).hexdigest()[:16], "instrument": d["stage2"]["instrument"]["instrument_hash"], "within_js": js}
+            except Exception as e:      # noqa: BLE001
+                print("fail", arm, n, type(e).__name__, str(e)[:100]); return "BUDGET" if "BUDGET" in str(e).upper() else None
+
+        for arm in ARMS:
+            nxt, stop = 0, False
+            while not stop and sum(r["arm"] == arm for r in rows) < N and nxt < len(samples[arm]):
+                done = {r["sha16"] for r in rows if r["arm"] == arm}; batch = []
+                while nxt < len(samples[arm]) and len(batch) < min(WORKERS * 2, N - len(done)):     # 按抽样顺序取; 失败的由后面的顺序递补
+                    ctx, t = samples[arm][nxt]
+                    if hashlib.sha256(t.encode()).hexdigest()[:16] not in done: batch.append((arm, nxt, ctx, t))
+                    nxt += 1
+                with ThreadPoolExecutor(max_workers=WORKERS) as ex:
+                    for r in ex.map(one, batch):
+                        if r == "BUDGET": stop = True
+                        elif r: rows.append(r)
+                rows.sort(key=lambda r: (r["arm"], r["order"]))
+                st = scope_status() or {"used": 0}
+                NUM.write_text(json.dumps({"source": "语料抽样 s1 读数(只有数字与 sha)", "requests": {"limit": CAP, "used": used0 + st["used"]}, "rows": rows,
+                                           "★execution_note": "前 7 份 k=3 读数串行采(约 1.7 分钟/份, 全程要 5–6 小时), 其后改为 3 条文本并行; 抽样顺序、递补规则、判据未变"}, indent=1), encoding="utf-8")
     num = json.loads(NUM.read_text(encoding="utf-8"))
     res = {"block": "WITHIN_JS_CORPUS_BAND", "run_at": "2026-09-30", "prereg_sha256": hashlib.sha256(PRE.read_bytes()).hexdigest(),
            "probe_sha256": hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest(), "numbers_sha256": hashlib.sha256(NUM.read_bytes()).hexdigest(),

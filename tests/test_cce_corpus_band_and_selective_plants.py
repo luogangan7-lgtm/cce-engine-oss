@@ -19,7 +19,7 @@ def test_band_rule_is_11_to_16_of_100():
     if out.exists():
         r = json.loads(out.read_text(encoding="utf-8")); num = json.loads((ROOT / "results/within_js_corpus_band_numbers.json").read_text(encoding="utf-8"))
         assert r["prereg_sha256"] == _sha("tests/data/within_js_corpus_band_prereg.json") and r["numbers_sha256"] == _sha("results/within_js_corpus_band_numbers.json")
-        assert r["result"] == CB.build(num["rows"]) and num["requests"]["used"] <= CB.CAP
+        assert r["result"] == json.loads(json.dumps(CB.build(num["rows"]))) and num["requests"]["used"] <= CB.CAP
         for arm in r["result"].values():
             assert len({x for x in [row["sha16"] for row in num["rows"]]}) == len(num["rows"])       # 文本不重复
 
@@ -60,4 +60,4 @@ def test_selective_plant_rules():
     if out.exists():
         r = json.loads(out.read_text(encoding="utf-8"))
         assert r["prereg_sha256"] == _sha("tests/data/s0_selective_plants_prereg.json") and not r["dry_run"] and r["requests"] <= SP.CAP
-        assert r["result"] == SP.analyse(r["raw"]) and r["root_pointers"] == [p for p, _ in SP.roots()]
+        assert r["result"] == json.loads(json.dumps(SP.analyse(r["raw"]))) and r["root_pointers"] == [p for p, _ in SP.roots()]
