@@ -1,0 +1,16 @@
+{
+ "block": "ALIGN_ATOMS_JEV_N3",
+ "prereg_written_at": "2026-09-30",
+ "★frozen_before_measurement": "本文件与 probes/align_atoms_jev_n3.py 在任何 N3 调用之前提交; 题面(cce_align_atoms.ATOMS_EN / jev_questions)与前两轮逐字相同, 一字不改。",
+ "★why": "「两问法一致率 >= 0.85」在 20 条上只差 1 条就翻(16/20 vs 17/20): reward#2 以 0.80 落选, injustice#0 / display#0 / audit#2 以 0.85 擦线入选。2026-09-30 已记过的教训: 每项样本太少会高估。只给落选的加样本是挑着重测 ⇒ 对全部 29 个条目对称扩样。",
+ "material": "V5.natural(40) + V5.natural(60): 同一 seed 打乱后的第 41–80 条真实回复, 此前任何一轮都没用过; 每条在 9 个结下各判一次, 360 次 Jev",
+ "decision_rule_per_atom": {
+  "CALIBRATED": "构造草稿全对(沿用已有结果, >= 4 份)且**合并 60 条**(该条目原判定用的 20 条 + 新 40 条)上两问法一致率 >= 0.85(即 >= 51/60)",
+  "NOT_CALIBRATED": "否则 —— 包括此前已入选的条目",
+  "★symmetric": "过线的进, 不过线的出; 不因结果改阈值或再加样本"
+ },
+ "★ship_rule": "cce_align_atoms.calibrated_atoms('jev') 改认 results/align_atoms_jev_final.json(全部 29 条的最终判定)。",
+ "★predictions": {"P1": "此前入选的 16 条里至多 2 条被拿掉", "P2": "reward#2 合并后仍低于 0.85"},
+ "★cannot_claim": ["真实草稿上的准确率 —— 一致率只说明两种问法自洽"],
+ "budget": {"jev_requests_expected": 360, "hard_cap": 400, "cost_estimate_usd": "≈0.02"}
+}
