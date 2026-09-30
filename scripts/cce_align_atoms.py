@@ -163,7 +163,7 @@ def atoms_alignment(reader_top1, top1_usable, text, call=None):
         if not r["calibrated"]:
             r["canonical"] = "not_calibrated"      # 没过校对: 不判(不是「没做」)
     judged = [r for r in atoms if r["calibrated"]]
-    return {"status": "ok", "knot": reader_top1, "atoms": atoms,
+    return {"status": "ok", "judge_version": VERSION, "knot": reader_top1, "atoms": atoms,
             "summary": {"calibrated": len(judged), "satisfied": sum(r["canonical"] == "satisfied" for r in judged),
                         "unsatisfied": sum(r["canonical"] == "unsatisfied" for r in judged),
                         "uncertain": sum(r["canonical"] == "uncertain" for r in judged)},

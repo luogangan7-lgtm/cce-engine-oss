@@ -89,3 +89,17 @@ def test_v5_operational_split_touches_only_suspend_and_audit():
         assert len(items) == 4 and AT.atoms_of(k) == [(t, neg) for t, neg, _ in items]
         assert {src for _, _, src in items} <= set(range(len([p for p in __import__("re").split(r"[;；]", AT.A.PLAYBOOK[k]) if p.strip()])))
     assert len(AT.atoms_of("reward")) == 3 and len(AT.atoms_of("injustice")) == 3      # 其余结清单不变
+
+
+def test_v5_result_recomputes_and_is_the_production_list():
+    import importlib.util as _iu, hashlib as _h
+    sys.path.insert(0, str(ROOT / "probes"))
+    _p = _iu.spec_from_file_location("_v5", ROOT / "probes/align_atoms_v5.py"); v5 = _iu.module_from_spec(_p); _p.loader.exec_module(v5)
+    r = json.loads((ROOT / "results/align_atoms_v5.json").read_text(encoding="utf-8"))
+    assert r["prereg_sha256"] == _h.sha256((ROOT / "tests/data/align_atoms_v5_prereg.json").read_bytes()).hexdigest()
+    assert not r["dry_run"] and r["requests"]["used"] <= v5.CAP
+    per, summ = v5.score(r["raw"])
+    assert per == r["per_atom"] and summ == r["summary"]
+    for v in per.values():
+        assert (v["verdict"] == "CALIBRATED") == (v["setC_correct"] == v["setC_n"] == 16 and v["natural_agree_rate"] >= 0.85)
+    assert all("ptr" in x and "text" not in x for x in r["raw"] if x["part"] == "N")     # 真实回复只留指针

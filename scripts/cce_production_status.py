@@ -104,16 +104,18 @@ def rows() -> list[dict]:
                              "⇒ 再推一版要动的是 **playbook 原子本身**(效度), 不是读数形态(复现性), "
                              "那是改干预设计, **需 owner 拍板**"),
                     "文件": "tests/data/phase2/playbook_atoms_verdict.json"})
-    _ho = _j("results/align_atoms_heldout_v41.json"); _dv = _j("results/align_atoms_calibration.json")
-    _cal = sorted(k for k, v in _ho["per_atom"].items() if v["verdict"] == "CALIBRATED")
-    out.append({"组件": "对齐出口 v4.1 逐原子三值(读者 top-1 结; 只判校对通过的原子)", "状态": USABLE,
+    _ho = _j("results/align_atoms_heldout_v41.json"); _dv = _j("results/align_atoms_calibration.json"); _v5 = _j("results/align_atoms_v5.json")
+    _cal = sorted(k for k, v in _v5["per_atom"].items() if v["verdict"] == "CALIBRATED")
+    out.append({"组件": "对齐出口 v5 逐原子三值(读者 top-1 结; 只判校对通过的原子)", "状态": USABLE,
                 "证据": (f"2026-09-30 重做: 不碰结权重(K1 0/5), 只用读者稳定 top-1(K1 可用); 【做】做了/没做/不确定、【禁】违反/未违反/不确定, "
                          f"在场一侧要逐字子串; 不出总分、不出放行布尔。校对 = 构造正反例 × 两种相反问法 × 两次, 8/8 全对才算: "
                          f"开发集(v4){_dv['summary']['calibrated']}/25(准确率 {_dv['summary']['v4_accuracy']}, 旧问法 {_dv['summary']['v1_accuracy']})"
-                         f" → 修两处后在**新写的留出集**(v4.1)上 {_ho['summary']['calibrated']}/25(准确率 {_ho['summary']['v4_accuracy']})。"
+                         f" → 修两处后在**新写的留出集**(v4.1)上 {_ho['summary']['calibrated']}/25(准确率 {_ho['summary']['v4_accuracy']})"
+                         f" → v5 加严(每原子再 4 份新草稿 16/16 + 20 条真实回复上两种问法一致率 >= 0.85; suspend/audit 拆成 8 条单动作条目): "
+                         f"{_v5['summary']['calibrated']}/{_v5['summary']['in_play']}。上一轮的 11 个里只有 4 个留下 —— 「11 个」是样本太少的假象。"
                          f"生产只判这 {len(_cal)} 个原子: {' · '.join(_cal)}; 其余记 not_calibrated(不是「没做」)。"
-                         "★ 可用范围仅限这些原子; 每原子只有 2 份构造样例, 真实草稿上的准确率未测(无个体金标)"),
-                "文件": "scripts/cce_align_atoms.py · scripts/reply_loop.py · results/align_atoms_heldout_v41.json"})
+                         "★ 可用范围仅限这些原子; reward/display/inertia/suspend 四个结当前 0 个可判。真实草稿上的准确率未测(无个体金标)"),
+                "文件": "scripts/cce_align_atoms.py · scripts/reply_loop.py · results/align_atoms_v5.json"})
 
     # ── 媒体 ──────────────────────────────────────────────────────────
     out.append({"组件": "媒体**存在**声明", "状态": USABLE,

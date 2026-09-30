@@ -141,7 +141,7 @@ def main():
                           "**中间地带极差 0.3–0.7** —— 而阈值判决正住在中间。"
                           "非退化闸过了 ⇒ 不是「什么都没测」, 是「在需要它的地方不稳」。")}
 
-    # ── 2026-09-30 对齐出口 v4.1: 读者 top-1 结的逐原子三值(只报留出校对通过的原子; 不出总分、不出放行布尔) ──
+    # ── 2026-09-30 对齐出口(cce_align_atoms, 现 v5): 读者 top-1 结的逐原子三值(只报留出校对通过的原子; 不出总分、不出放行布尔) ──
     #   top-1 取 s2 抽样众数 top1_mode(与 cce_full_run.s2 同口径), 不是权重 argmax —— 权重 K1 判 0/5 不可用。
     _samp = ((a.get("stage2") or {}).get("sampling") or {}) if isinstance(a, dict) else {}
     try:
@@ -178,7 +178,7 @@ def main():
         "对方九结": a_knots, "我方九结": b_knots,
         "九结对齐": ka,
         "top1对齐": top1_align,
-        "top1逐原子对齐(v4.1)": atoms_align,
+        "top1逐原子对齐": atoms_align,        # 判官版本见其中的 judge_version
         "四层触达": layers,
         "未触达维度": misses,
         "判据": "need层触达率>=0.5 且 九结对齐分>=theta",

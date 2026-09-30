@@ -26,7 +26,7 @@ def _run(monkeypatch, sampling):
 
 def test_uses_stable_top1_mode_not_weight_argmax(monkeypatch):
     seen, v = _run(monkeypatch, {"top1_stable": True, "top1_mode": "pain_seek"})
-    assert seen == {"knot": "pain_seek", "ok": True} and v["top1逐原子对齐(v4.1)"] == {"status": "stub"}
+    assert seen == {"knot": "pain_seek", "ok": True} and v["top1逐原子对齐"] == {"status": "stub"}
 
 
 def test_unstable_top1_is_not_usable(monkeypatch):
