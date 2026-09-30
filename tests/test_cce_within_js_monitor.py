@@ -31,3 +31,7 @@ def test_current_state_is_not_a_band_claim():
         assert v["n_texts"] == len({sha for _, sha, _ in M.events(inst)[:180]})          # 文本级, 不重复
         if v["n_texts"] < 60:
             assert all(x["verdict"] == "ACCUMULATING" for x in v["per_layer"].values())
+
+
+def test_written_monitor_state_is_current():
+    assert json.loads((ROOT / "results/within_js_monitor.json").read_text(encoding="utf-8")) == json.loads(json.dumps(M.build())), "归档有新读数 ⇒ 重跑 probes/within_js_monitor.py"

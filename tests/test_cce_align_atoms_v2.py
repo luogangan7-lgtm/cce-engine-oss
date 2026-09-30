@@ -82,7 +82,8 @@ def test_judge_v2_maps_and_handles_mechanical(monkeypatch):
     assert 0 not in r and set(r) == {1, 2}                                                 # 指导用条目不判
 
 
-def test_confirm_result_recomputes_and_sets_the_production_list(monkeypatch):
+def test_confirm_result_recomputes_and_sets_the_production_list(monkeypatch, tmp_path):
+    monkeypatch.setattr(AT, "JEV_V3", str(tmp_path / "none.json"))      # V2 名单是 V3 发货前的生产行为, 留作回归
     import hashlib
     r = json.loads((ROOT / "results/align_atoms_v2.json").read_text(encoding="utf-8"))
     assert r["prereg_sha256"] == hashlib.sha256((ROOT / "tests/data/align_atoms_v2_prereg.json").read_bytes()).hexdigest()
@@ -104,8 +105,9 @@ def test_confirm_result_recomputes_and_sets_the_production_list(monkeypatch):
     assert AT.atoms_alignment("belong", True, "x")["status"] == "withheld"
 
 
-def test_v2_production_path(monkeypatch):
+def test_v2_production_path(monkeypatch, tmp_path):
     monkeypatch.setenv("TYPESAFE_API_KEY", "k")
+    monkeypatch.setattr(AT, "JEV_V3", str(tmp_path / "none.json"))
     def post(body, key):                       # suspend: #1 两问都检出; #3(禁) A 检出违规而 A′ 说没有 ⇒ uncertain
         pick = {"1a": "done", "1p": "done", "3a": "violated", "3p": "not_violated"}
         return {"answers": {q: {"choice": pick.get(q, "not_violated" if "not_violated" in spec["criteria"] else "not_done"), "probabilities": {}} for q, spec in body["questions"].items()}}, None

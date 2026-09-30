@@ -149,7 +149,7 @@ def test_production_judge_is_jev_and_backed_by_results():
 
 def test_jev_alignment_path(monkeypatch, tmp_path):
     monkeypatch.setenv("TYPESAFE_API_KEY", "k")
-    monkeypatch.setattr(AT, "JEV_V2", str(tmp_path / "none.json"))      # V1 路径(V2 确认结果落盘前的生产行为), 留作回归
+    monkeypatch.setattr(AT, "JEV_V2", str(tmp_path / "none.json")); monkeypatch.setattr(AT, "JEV_V3", str(tmp_path / "none3.json"))      # V1 路径, 留作回归
     def post(body, key):
         ans = {}
         for q, spec in body["questions"].items():
@@ -192,7 +192,7 @@ def test_alignment_prospective_scorer_withholds_until_n():
 
 
 def test_final_jev_list_recomputes_from_60_replies_and_covers_every_knot(monkeypatch, tmp_path):
-    monkeypatch.setattr(AT, "JEV_V2", str(tmp_path / "none.json"))      # V1 名单是历史记录; 现行生产名单见 test_cce_align_atoms_v2
+    monkeypatch.setattr(AT, "JEV_V2", str(tmp_path / "none.json")); monkeypatch.setattr(AT, "JEV_V3", str(tmp_path / "none3.json"))      # V1 名单是历史记录; 现行生产名单见 test_cce_align_atoms_v3
     import importlib.util as _iu, hashlib as _h
     sys.path.insert(0, str(ROOT / "probes"))
     _p = _iu.spec_from_file_location("_n3", ROOT / "probes/align_atoms_jev_n3.py"); n3 = _iu.module_from_spec(_p); _p.loader.exec_module(n3)

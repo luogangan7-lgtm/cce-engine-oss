@@ -64,3 +64,33 @@ def test_prereg_and_confirm_result():
         assert not r["dry_run"] and r["requests"] <= V3.CAP["confirm"] and r["base_pointers"] == [p for p, _ in bs]
         per, summ = V3.score(r["raw"], 116)
         assert json.loads(json.dumps(per)) == r["per_atom"] and summ == r["summary"]
+
+
+def test_v3_ships_and_production_reports_shares(monkeypatch, tmp_path):
+    r = json.loads((ROOT / "results/align_atoms_v3.json").read_text(encoding="utf-8"))
+    val = sorted(k for k, v in r["per_atom"].items() if v["verdict"] == "VALIDATED")
+    assert r["summary"] == {"items": 26, "validated": 18, "strict_tier_pass": 8} and len(val) > AT.V3_SHIP_MIN        # 预测 P1(>=15)中, P3(类别口径 <=8)中
+    assert not {"suspend#0", "belong#1", "display#2"} & set(val)                                                        # 预测 P2 中
+    want = {}
+    for k in val + ["reward#0"]:
+        want.setdefault(k.split("#")[0], set()).add(int(k.split("#")[1]))
+    assert AT.calibrated_atoms() == AT.v3_shipped() == want and "display" not in want and want["reward"] == {0}       # display 整结扣发; reward 只剩机械条目
+    monkeypatch.setenv("TYPESAFE_API_KEY", "k")
+    def post(body, key):       # suspend: #1 五票在场; #3(禁) 四票检出违规 + 一票未检出 ⇒ 有相反票 ⇒ uncertain
+        def pick(q, spec):
+            i, f = q.split("_")
+            if i == "1": return "done"
+            if i == "3": return "not_violated" if f == "4" else "violated"
+            return "not_violated" if "not_violated" in spec["criteria"] else "not_done"
+        assert len(body["questions"]) == 20 and not any(q.endswith("_5") for q in body["questions"])                    # 生产只问五个题面, 不问审计题面
+        return {"answers": {q: {"choice": pick(q, spec), "probabilities": {}} for q, spec in body["questions"].items()}}, None
+    out = AT.atoms_alignment("suspend", True, "reply", post=post); a = {x["i"]: x for x in out["atoms"]}
+    assert out["status"] == "ok" and out["judge_version"] == "v3" and out["summary"] == {"calibrated": 3, "satisfied": 1, "unsatisfied": 1, "uncertain": 1}
+    assert a[1]["canonical"] == "satisfied" and a[1]["share"] == {"satisfied": 1.0, "unsatisfied": 0.0, "uncertain": 0.0}
+    assert a[3]["canonical"] == "uncertain" and a[3]["share"] == {"satisfied": 0.2, "unsatisfied": 0.8, "uncertain": 0.0}
+    assert a[0]["canonical"] == "not_calibrated" and a[2]["canonical"] == "unsatisfied" and "不是真值概率" in out["★v3_reading"]
+    assert AT.atoms_alignment("display", True, "reply", post=post)["status"] == "withheld"
+    assert AT.atoms_alignment("suspend", True, "reply", post=lambda b, k: (None, "HTTP 503"))["status"] == "failed"
+    few = dict(r, per_atom={k: dict(v, verdict="VALIDATED" if n < 5 else "NOT_VALIDATED") for n, (k, v) in enumerate(r["per_atom"].items())})
+    f = tmp_path / "v3.json"; f.write_text(json.dumps(few), encoding="utf-8"); monkeypatch.setattr(AT, "JEV_V3", str(f))
+    assert AT.v3_shipped() is None and AT.calibrated_atoms() == {"pain_seek": {1}, "injustice": {1}, "reward": {0, 1}, "suspend": {1, 3}}   # 不到发货线 ⇒ 留在 V2

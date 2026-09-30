@@ -88,5 +88,9 @@ def build():
     return res
 
 
+OUT = ROOT / "results/within_js_monitor.json"      # 状态表读这份(生产脚本不 import 探针); 闸钉它 == build(), 归档新增读数后要重写
+
+
 if __name__ == "__main__":
-    print(json.dumps(build(), ensure_ascii=False, indent=1))
+    OUT.write_text(json.dumps(build(), ensure_ascii=False, indent=1), encoding="utf-8")
+    print(OUT.read_text(encoding="utf-8"))

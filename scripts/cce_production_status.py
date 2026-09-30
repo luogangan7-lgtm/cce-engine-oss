@@ -110,6 +110,7 @@ def rows() -> list[dict]:
     _fin = _j("results/align_atoms_jev_final.json")
     _cal = sorted(k for k, v in _fin["per_atom"].items() if v["verdict"] == "CALIBRATED")
     _v2 = _j("results/align_atoms_v2.json"); _v2ok = sorted(k for k, v in _v2["per_atom"].items() if v["verdict"] == "VALIDATED")
+    _v3 = _j("results/align_atoms_v3.json"); _v3ok = sorted(k for k, v in _v3["per_atom"].items() if v["verdict"] == "VALIDATED")
     _v2drop = sorted(set(_cal) & set(_v2["per_atom"]) - set(_v2ok)); _v2fp = sum(v["failure_types"].get("F_P", 0) for v in _v2["per_atom"].values())
     out.append({"组件": "对齐出口 逐原子三值(读者 top-1 结; Jev 判官; 只判校对通过的条目)", "状态": USABLE,
                 "证据": (f"2026-09-30 重做: 不碰结权重(K1 0/5), 只用读者稳定 top-1(K1 可用); 【做】做了/没做/不确定、【禁】违反/未违反/不确定, "
@@ -133,8 +134,16 @@ def rows() -> list[dict]:
                            f"V1 入选的 15 条里 {len(_v2drop)} 条没过(主因 F_P: 同一条真实回复上 A 与 A′ 给出相反的确定答案, 合计 {_v2fp} 次; 其次中性句翻转读数) —— V1 的 16 条是「两问法恰好一致」的假象。"
                            "三条预测: P1(>=12 条过)未中 · P2(V1 落选里 >=3 条过)未中 · P3(V1 入选里 >=2 条不过)中。"
                            "★ 这只证明「指定的局部行为测试通过」: 【做】satisfied = 检出一句在做, unsatisfied = **未检出**(不是证明没做); 不是真实草稿上的准确率(无个体金标), 前瞻闭环攒 n>=40 再判; "
+                           "★★★ 2026-09-30 V3 取代 V2(多题项口径; 预注册 tests/data/align_atoms_v3_prereg.json): 每个条目用 5 个冻结题面去问, 报在场/不在场/不清的全占比, "
+                           "主值要 ≥4 票同侧且 0 票相反; 第 6 个不相交题面只作审计。准入按分布口径(重读漂移 / 中性句漂移 / 见证响应 / 难负例 / 审计题面差, 容差 0.05 / 0.05 / 0.90 / 0.05 / 0.10, 按底稿自助的单侧 95% 界), "
+                         + f"在 116 条没用过的真实回复上({_v3['requests']} 次 Jev, {sum(_v3['errors'].values())} 次调用失败按最坏值计): **{_v3['summary']['validated']}/{_v3['summary']['items']}** 通过 —— {' · '.join(_v3ok)}; "
+                           f"没过的 {' · '.join(k + '(' + '/'.join(c for c, ok in v['criteria'].items() if not ok) + ')' for k, v in _v3['per_atom'].items() if v['verdict'] != 'VALIDATED')}。"
+                           f"⇒ 生产名单 {len(_v3ok) + 1} 条(加机械条目 reward#0), 覆盖 {len({k.split('#')[0] for k in _v3ok} | {'reward'})}/9 个结; display 结没有条目过 ⇒ 整结扣发; reward#1 在 V2 过、V3 的难负例上界 0.0552 擦线不过 ⇒ 按规则拿掉。"
+                           f"更严的类别口径(确定值不许变也不许失去确定, 至多 1 条)只有 {_v3['summary']['strict_tier_pass']} 条过 —— Jev 对逐字相同的原文重读就有约 4% 的单票变动, 所以准入看占比漂移而不是看确定值翻不翻。"
+                           "三条预测全中(P1 >=15 条过 · P2 suspend#0/belong#1/display#2 不过 · P3 类别口径 <=8 条)。"
+                           "★ 占比 = 这五个题面里的支持度, 不是真值概率; 审计只有一个题面, 只代表这一族措辞; 逐条口径, 未做多重性校正。"
                            "线上端到端: V2 判官已在 runner 上跑通(archive/36713557903, 读者 top-1 5/5 稳, pain_seek#1 判出, 17 次请求); 前一次(archive/36712867977)读者 top-1 4/5 不稳 ⇒ 按规则整条扣发, 没走到判官"),
-                "文件": "scripts/cce_align_atoms.py · scripts/reply_loop.py · results/align_atoms_v2.json · results/align_atoms_jev.json · results/align_atoms_jev_reward.json · results/align_atoms_v5.json"})
+                "文件": "scripts/cce_align_atoms.py · scripts/reply_loop.py · results/align_atoms_v3.json · results/align_atoms_v2.json · results/align_atoms_jev.json · results/align_atoms_jev_reward.json · results/align_atoms_v5.json"})
 
     # ── 媒体 ──────────────────────────────────────────────────────────
     out.append({"组件": "媒体**存在**声明", "状态": USABLE,
@@ -159,8 +168,8 @@ def rows() -> list[dict]:
 
     # ── s1 分布层 ─────────────────────────────────────────────────────
     # ★ 2026-09-28: 此前是一句写死的「同侧 K=3 JS 0.02–0.09」, 生产存档与之矛盾(诊断 #3)。改为从存档现算逐层扣发率。
-    import glob as _gl, importlib.util as _iu
-    _sp = _iu.spec_from_file_location("_wjm", os.path.join(ROOT, "pro" + "bes", "within_js_monitor.py")); _wjm = _iu.module_from_spec(_sp); _sp.loader.exec_module(_wjm); _wm = _wjm.build()
+    import glob as _gl
+    _wm = _j("results/within_js_monitor.json")      # 由监测脚本写出, 闸钉它与现算一致
     from cce_full_run import WITHIN_JS_MAX_DEFAULT as WITHIN_JS_MAX, within_js_max
     _n, _over = 0, {k: 0 for k in WITHIN_JS_MAX}
     _cur, _ncur, _ocur = "d4cce4c745f3f991", 0, {k: 0 for k in WITHIN_JS_MAX}   # 现行 k=3 仪器单列(2026-09-30 起阈值按仪器取)
@@ -205,14 +214,26 @@ def rows() -> list[dict]:
     _pp = _j("results/s0_planted_profile.json")["per_facet"]
     _rr = _j("results/s0_residue_referent.json")["arms"]
     _rp = _j("results/s0_residue_profile.json")["arms"]
-    out.append({"组件": "s0 情境读出(5 面)", "状态": UNMEASURED,
-                "证据": ("**没有人类金标**(owner 2026-09-23), 自然文本准确度无从测; 重测一致性见 results/s0_retest.json。"
-                         "植入信号必要条件(预注册, results/s0_planted_validity.json, 明说句): "
-                         + " · ".join(f"{k} {v['verdict']}(召回 {v['recovery']}, 净连带 {v['net_off_target']})" for k, v in _pv.items() if k != "情绪余温")
-                         + "(top-1 口径, 已被下面的分布口径取代)。★ 分布口径复测(预注册, results/s0_planted_profile.json, 全占比): "
-                         + " · ".join(f"{k} {v['verdict']}(位移 {v['dp_target']}, 净连带 TVD {v['net_off_target_tvd']})" for k, v in _pp.items() if k != "情绪余温")
-                         + "。WEAK 两面的连带集中在 进程位置↔触发事件↔资源状态(植入句本身蕴含, 事后分析)。后端 Jev, 失败回退 MiniMax 并列入 degraded"),
+    # 2026-09-30: 「准确率未测」只是一个字段, 不是整个组件的状态(网页 GPT 第三次复审; Messick / AERA 的证据类别) ⇒ 按面拆成两行, 各自给行为合格与否的判决
+    _sp = _j("results/s0_selective_plants.json")["result"]
+    _good = [k for k, v in _pp.items() if k != "情绪余温" and v["verdict"] == "RESPONSIVE"]; _weak = [k for k, v in _pp.items() if k != "情绪余温" and v["verdict"] != "RESPONSIVE"]
+    _scope = "★ 这是「明说句上的响应与选择性」的行为合格; 自然文本上读得准不准**按设计不估**(没有人类金标, owner 2026-09-23)。重测一致性见 results/s0_retest.json。后端 Jev, 失败回退 MiniMax 并列入 degraded"
+    out.append({"组件": "s0 情境读出 · " + " / ".join(_good), "状态": USABLE,
+                "证据": ("植入信号(预注册, results/s0_planted_profile.json, 全占比): "
+                         + " · ".join(f"{k} 位移 {_pp[k]['dp_target']}, 净连带 TVD {_pp[k]['net_off_target_tvd']}" for k in _good)
+                         + f" ⇒ RESPONSIVE。★ 关系位置 对一句无关的话也会动: 两句假句之间 TVD {_sp['sham_floor_tvd']['关系位置'][0]} —— 其中一句(「我通常晚上看这些帖子」)本身蕴含长期关注, 是读出了言外之意, 不是随机噪声, 但下游要知道它对顺口一提很敏感。"
+                         + _scope),
                 "文件": "scripts/cce_full_run.py(s0) · scripts/cce_s0_jev.py · scripts/cce_workflow_manifest.py"})
+    out.append({"组件": "s0 情境读出 · " + " / ".join(_weak), "状态": FAILED,
+                "证据": ("目标响应够, 但**会带动邻面**。原植入句(results/s0_planted_profile.json): "
+                         + " · ".join(f"{k} 位移 {_pp[k]['dp_target']}, 净连带 TVD {_pp[k]['net_off_target_tvd']}" for k in _weak)
+                         + f"。归因确认(预注册, results/s0_selective_plants.json, {_sp['n_roots_complete']} 条没用过的真实评论, 对照 = 等长假句): 换成刻意避开邻面的新植入句后 "
+                         + " · ".join(f"{k} {v['verdict']}(目标位移下界 {min(x['target_shift'][1] for x in v['per_wording'].values())}, 邻面净变化上界最大 {max(o['net'][2] for x in v['per_wording'].values() for g, o in x['off_target'].items() if g != '关系位置')})" for k, v in _sp["selective"].items())
+                         + "(判据: 每套措辞邻面净变化上界 <= 0.05)⇒ 串扰是真的, 不全是植入句的问题; 原句上更大的那部分连带来自句子自己蕴含邻面: "
+                         + " · ".join(f"{k} {v['verdict']}" for k, v in _sp["entailing"].items())
+                         + "。⇒ 这两面照常读出, 但下游**不得**把它们与 进程位置/触发事件/资源状态/身体状态 里的邻面当成相互独立的证据。预测 P1/P2(两面都 SELECTIVE)未中, P3(四条蕴含全 NESTED)未中(3/4)。"
+                         + _scope),
+                "文件": "scripts/cce_full_run.py(s0) · scripts/cce_s0_jev.py · probes/s0_selective_plants.py"})
     out.append({"组件": "s0 情绪余温 读出", "状态": FAILED,
                 "证据": ("留出指代最小对(预注册, results/s0_residue_referent.json): 对我方回复的情绪召回 "
                          + " / ".join(f"{a} {v['recovery_pos']}/{v['recovery_neg']}" for a, v in _rr.items())
