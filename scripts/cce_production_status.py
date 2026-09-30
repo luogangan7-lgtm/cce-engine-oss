@@ -165,6 +165,10 @@ def rows() -> list[dict]:
                          + "。★ 2026-09-30 该仪器阈值按原规则(median+2×MAD)重标并过留出检验(results/within_js_recalibration.json): "
                          + " · ".join(f"{k.replace('_vec', '')} {v['old_threshold']}→{v['new_threshold']}(留出扣发 {v['holdout_exceed_new']}, 预示跨次不稳 ρ={v['gate_validity_spearman']})"
                                       for k, v in _j("results/within_js_recalibration.json")["holdout"].items())
+                         + "。k=5 仪器 c4419c3e 自采 20+10×2 次同社区帖子重标(results/within_js_recalibration_k5.json): "
+                         + " · ".join(f"{k.replace('_vec', '')} {'采纳 ' + str(v['new_threshold']) if v['adopt'] else '留旧 ' + str(v['old_threshold'])}(留出扣发 {v['holdout_exceed_new']}, ρ={v['gate_validity_spearman']})"
+                                      for k, v in _j("results/within_js_recalibration_k5.json")["holdout"].items())
+                         + " —— k=5 上只有 emotion 层的组内散布明显预示跨次不稳, 其余三层弱(留出仅 10 帖 × 2 次)"
                          + "。★ 标定时 s1 的语境串**不含** s0 的【情境】后缀, 生产现在带 —— 2026-09-30 已测(预注册, results/s1_context_suffix_ab.json, "
                            "16 条真实文本 × 带/不带 × 2 次): 四层 "
                          + " · ".join(f"{k.replace('_vec', '')} 超噪 {v['mean_excess_js']}" for k, v in _j("results/s1_context_suffix_ab.json")["result"]["per_layer"].items())
