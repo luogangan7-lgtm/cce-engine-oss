@@ -1,0 +1,14 @@
+{
+ "block": "ALIGN_ATOMS_JEV_REWARD",
+ "prereg_written_at": "2026-09-30",
+ "★frozen_before_measurement": "本文件、scripts/cce_align_atoms.py 里 reward 的新题面(ATOMS_EN['reward'])、机械规则(_is_short: 句数 <= 2 且词数 <= 40)与探针 probes/align_atoms_jev_reward.py 在任何新调用之前提交。",
+ "★why": "ALIGN_ATOMS_JEV: reward 三条在构造草稿上全对, 但真实回复上两问法一致率 0.60 / 0.65 / 0.45 —— 拆开看, 不一致几乎都是问法 B 答 unclear(每条 5–6 次): 原描述带着只看回复文本判不了的前提(「需求已闭之后」「收束对话」)。owner 2026-09-30「没有解决的，继续做」。",
+ "changes": {"reward#0": "短收 → 机械规则, 不问模型(句数 <= 2 且词数 <= 40; 阈值事先定, 不因结果调)。★ 机械规则在构造草稿上零调用可算, 写本文件时干跑已见 8/8 —— 它的「校对」只是规则自检, 不是模型判定", "reward#1": "改成只看回复文本: 明确把功劳给读者或明确缩小自己的作用", "reward#2": "改成只看回复文本: 在致意/祝贺之外引入新信息、新建议或新话题",
+             "others": "其余 8 个结的题面逐字不变(ATOMS_EN_V1 与已校对结果的 questions_sha256 由闸钉等)"},
+ "material": {"constructed": "三批已有草稿里 reward 的全部: #0、#1 各 4 份, #2 8 份", "heldout_natural": "V5.natural(start=20): 同一 seed 打乱后的第 21–40 条真实回复, 此前任何一轮都没用过 —— 判定只看它", "dev_natural": "原来那 20 条(结果已看过), 只报告"},
+ "decision_rule_per_atom": {"CALIBRATED": "全部构造草稿两问法读数都对(>= 4 份), 且**新** 20 条真实回复上两问法一致率 >= 0.85(机械规则的条目两问法恒一致, 实际只受构造草稿约束)", "NOT_CALIBRATED": "否则", "★thresholds_are_conventions": "与前两轮同口径"},
+ "★ship_rule": "cce_align_atoms.calibrated_atoms('jev') 的 reward 条目只认本结果文件; 其余结仍认 results/align_atoms_jev.json。",
+ "★predictions": {"P1": "reward#0(机械)CALIBRATED", "P2": "reward#1、#2 至少一条 CALIBRATED", "P3": "三条在新 20 条上的一致率都高于原描述在旧 20 条上的 0.60/0.65/0.45"},
+ "★cannot_claim": ["真实草稿上的准确率", "「短」的阈值是约定", "题面是看过开发集结果后改的 —— 所以判定只用新 20 条"],
+ "budget": {"jev_requests_expected": 56, "hard_cap": 80}
+}

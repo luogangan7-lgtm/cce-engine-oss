@@ -111,6 +111,8 @@ def test_jev_judge_questions_align_with_atoms_and_map_both_framings(monkeypatch)
         assert len(en) == len(AT.atoms_of(k)), k
         qs = AT.jev_questions(k)
         for i, (_, neg) in enumerate(AT.atoms_of(k)):
+            if (k, i) in AT.MECHANICAL:
+                assert "%da" % i not in qs; continue            # 机械规则的条目不发给模型
             assert set(qs["%da" % i]["criteria"]) == ({"violated", "not_violated", "unclear"} if neg else {"done", "not_done", "unclear"})
             assert ("must not" in qs["%db" % i]["instructions"]) is neg
     monkeypatch.setenv("TYPESAFE_API_KEY", "k")
@@ -120,8 +122,10 @@ def test_jev_judge_questions_align_with_atoms_and_map_both_framings(monkeypatch)
             ans[q] = {"choice": [c for c in spec["criteria"] if c in ("done", "violated", "complies")][0], "probabilities": {}}
         return {"answers": ans}, None
     r, err = AT.judge_jev("reward", TXT, post=post)
-    assert err is None and r[0] == {"a": "satisfied", "b": "satisfied", "p_a": {}}           # 【做】done / complies
+    assert err is None and r[0] == {"a": "satisfied", "b": "satisfied", "p_a": None}         # reward#0 机械规则: TXT 一句话 ⇒ 短
+    assert r[1] == {"a": "satisfied", "b": "satisfied", "p_a": {}}                            # 【做】done / complies
     assert r[2]["a"] == "unsatisfied" and r[2]["b"] == "satisfied"                            # 【禁】violated ⇒ 不满足; complies ⇒ 满足
+    assert AT.judge_jev("reward", "One. Two. Three.", post=post)[0][0]["a"] == "unsatisfied"  # 三句 ⇒ 不短
     r, err = AT.judge_jev("reward", TXT, post=lambda b, k: (None, "HTTP 503"))
     assert r is None and err == "HTTP 503"
 
@@ -134,12 +138,13 @@ def test_production_judge_is_jev_and_backed_by_results():
     r = json.loads((ROOT / "results/align_atoms_jev.json").read_text(encoding="utf-8"))
     assert r["prereg_sha256"] == _h.sha256((ROOT / "tests/data/align_atoms_jev_prereg.json").read_bytes()).hexdigest()
     assert not r["dry_run"] and r["requests"] <= aj.CAP and not r["errors"]
-    assert r["questions_sha256"] == _h.sha256(json.dumps({k: AT.jev_questions(k) for k in AT.ATOMS_EN}, sort_keys=True).encode()).hexdigest(), "题面在校对后被改过"
+    assert r["questions_sha256"] == _h.sha256(json.dumps({k: AT.jev_questions(k, AT.ATOMS_EN_V1) for k in AT.ATOMS_EN_V1}, sort_keys=True).encode()).hexdigest(), "题面在校对后被改过"
+    assert {k for k in AT.ATOMS_EN if AT.ATOMS_EN[k] != AT.ATOMS_EN_V1[k]} == {"reward"}       # 只有 reward 的题面重做过, 其余逐字不变
     per, summ = aj.score(r["raw"])
     assert per == r["per_atom"] and summ == r["summary"]
-    n_jev = sum(len(v) for v in AT.calibrated_atoms("jev").values()); n_mm = sum(len(v) for v in AT.calibrated_atoms("minimax").values())
+    n_jev = sum(len(v) for k, v in AT.calibrated_atoms("jev").items() if k != "reward"); n_mm = sum(len(v) for v in AT.calibrated_atoms("minimax").values())
     assert AT.PRODUCTION_JUDGE == "jev" and n_jev == summ["calibrated"] == 14 > n_mm == 5
-    assert "reward" not in AT.calibrated_atoms("jev")                                    # reward 三条都没过 —— 一条都不判
+    assert not any(k.startswith("reward#") and v["verdict"] == "CALIBRATED" for k, v in per.items())   # 原题面下 reward 三条都没过
 
 
 def test_jev_alignment_path(monkeypatch):
@@ -155,5 +160,4 @@ def test_jev_alignment_path(monkeypatch):
     assert r["status"] == "ok" and r["judge"] == "jev" and r["summary"]["calibrated"] == 2
     assert r["atoms"][0]["canonical"] == "satisfied"
     assert r["atoms"][1]["canonical"] == "uncertain"                                     # 两问法规范值不同 ⇒ uncertain
-    assert AT.atoms_alignment("reward", True, TXT, post=post)["status"] == "withheld"   # reward 无校对通过的条目
     assert AT.atoms_alignment("pain_seek", True, TXT, post=lambda b, k: (None, "HTTP 503"))["status"] == "failed"

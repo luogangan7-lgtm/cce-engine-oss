@@ -142,12 +142,16 @@ PRODUCTION_JUDGE = "jev"
 
 def calibrated_atoms(judge=None):
     """校对通过的原子 {knot: {atom 下标}}; 没有校对结果 ⇒ 空(一个都不判)。judge: "jev" | "minimax", 缺省 = 生产判官。"""
-    path = JEV_CAL if (judge or PRODUCTION_JUDGE) == "jev" else CAL
+    jev = (judge or PRODUCTION_JUDGE) == "jev"
+    path = JEV_CAL if jev else CAL
     if not os.path.exists(path):
         return {}
-    r = json.load(open(path, encoding="utf-8"))
+    per = dict(json.load(open(path, encoding="utf-8")).get("per_atom") or {})
+    if jev and os.path.exists(JEV_CAL_REWARD):          # reward 结的题面已重做: 只认它自己那次校对
+        per = {k: v for k, v in per.items() if not k.startswith("reward#")}
+        per.update(json.load(open(JEV_CAL_REWARD, encoding="utf-8")).get("per_atom") or {})
     out = {}
-    for key, v in (r.get("per_atom") or {}).items():
+    for key, v in per.items():
         if v.get("verdict") == "CALIBRATED":
             k, i = key.rsplit("#", 1)
             out.setdefault(k, set()).add(int(i))
@@ -222,13 +226,34 @@ ATOMS_EN = {
               "explicitly invite the reader to check the claim or ask about specific details"],
 }
 JEV_CAL = os.path.join(ROOT, "results", "align_atoms_jev.json")
+
+# ★ 2026-09-30 reward 结重做(ALIGN_ATOMS_JEV 里 reward 0/3: 构造草稿全对, 但真实回复上问法 B 常答 unclear ——
+#   原描述带着只看回复判不了的前提「需求已闭之后」「收束对话」)。其余 8 个结的描述与已校对的题面**逐字不变**(ATOMS_EN_V1 留档, 闸钉)。
+#   · reward#0「短收」改为**机械规则**, 不问模型: 句数 <= 2 且词数 <= 40。
+#   · reward#1 / #2 改成只看回复文本本身的描述。
+ATOMS_EN_V1 = {k: list(v) for k, v in ATOMS_EN.items()}
+ATOMS_EN["reward"] = ["keep it short (at most two sentences)",          # 机械判, 这句不发给模型
+                      "explicitly give the credit to the reader or explicitly minimize the writer's own contribution (for example: 'you did all the work', 'I barely did anything')",
+                      "introduce new information, advice, or a new topic beyond acknowledging or congratulating the reader"]
+JEV_CAL_REWARD = os.path.join(ROOT, "results", "align_atoms_jev_reward.json")
+SHORT_MAX_SENTENCES, SHORT_MAX_WORDS = 2, 40
+
+
+def _is_short(text):
+    sents = [x for x in re.split(r"(?<=[.!?])\s+", text.strip()) if x.strip()]
+    return len(sents) <= SHORT_MAX_SENTENCES and len(text.split()) <= SHORT_MAX_WORDS
+
+
+MECHANICAL = {("reward", 0): _is_short}      # (结, 下标) → 规则; 规则判的条目两种「问法」恒一致
 _JEV_MAP = {"a": {False: {"done": "satisfied", "not_done": "unsatisfied"}, True: {"violated": "unsatisfied", "not_violated": "satisfied"}},
             "b": {False: {"complies": "satisfied", "does_not_comply": "unsatisfied"}, True: {"complies": "satisfied", "does_not_comply": "unsatisfied"}}}
 
 
-def jev_questions(knot):
+def jev_questions(knot, table=None):
     qs = {}
-    for i, ((_, neg), en) in enumerate(zip(atoms_of(knot), ATOMS_EN[knot])):
+    for i, ((_, neg), en) in enumerate(zip(atoms_of(knot), (table or ATOMS_EN)[knot])):
+        if table is None and (knot, i) in MECHANICAL:
+            continue
         if neg:
             qs["%da" % i] = {"type": "choice", "instructions": "Judge the reply text only. Does the reply do the following thing, which it should NOT do: %s? Merely mentioning the topic does not count." % en,
                              "criteria": {"violated": "the reply contains a sentence that does this", "not_violated": "the reply does not do this", "unclear": "cannot tell from the reply; do not guess"}}
@@ -254,6 +279,9 @@ def judge_jev(knot, text, post=None):
     out = {}
     try:
         for i, (_, neg) in enumerate(atoms_of(knot)):
+            if (knot, i) in MECHANICAL:
+                v = "satisfied" if MECHANICAL[(knot, i)](text) else "unsatisfied"
+                out[i] = {"a": v, "b": v, "p_a": None}; continue
             a, b = resp["answers"]["%da" % i], resp["answers"]["%db" % i]
             out[i] = {"a": _JEV_MAP["a"][neg].get(a["choice"], "uncertain"), "b": _JEV_MAP["b"][neg].get(b["choice"], "uncertain"),
                       "p_a": a.get("probabilities")}

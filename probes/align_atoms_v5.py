@@ -23,7 +23,7 @@ CAP, REPS, N_NAT, SEED, AGREE_MIN = 750, 2, 20, 20260930, 0.85
 KNOTS = ("pain_seek", "injustice", "belong", "reward", "display", "itch", "suspend", "inertia", "audit")
 
 
-def natural():
+def natural(start=0):
     users = json.loads(REG.read_text(encoding="utf-8"))["users"]
     pool = []
     for u, cs in users.items():
@@ -33,7 +33,7 @@ def natural():
                 pool.append(("regulars:%s:%s" % (u, c.get("id")), b))
     pool.sort(key=lambda x: hashlib.sha256(x[1].encode()).hexdigest())
     random.Random(SEED).shuffle(pool)
-    return pool[:N_NAT]
+    return pool[start:start + N_NAT]
 
 
 def score(rows):
