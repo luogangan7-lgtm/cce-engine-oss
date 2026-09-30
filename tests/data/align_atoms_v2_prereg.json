@@ -32,7 +32,35 @@
   "★thresholds_are_conventions": "<=1/60 与 0.70 为约定, 不因结果调整; 不过线的不再加样重测"
  },
  "★ship_rule": "生产名单 = V2 VALIDATED 的条目 + 机械条目 reward#0; cce_align_atoms.atoms_alignment 改用 judge_jev_v2(A 为准, A′ 相反确定 ⇒ uncertain)。指导用条目在输出里标 guidance_only。",
- "★predictions": {"P1": "26 条里至少 12 条 VALIDATED", "P2": "V1 未通过的 13 条里至少 3 条在 V2 VALIDATED", "P3": "V1 已通过的 16 条里至少 2 条在 V2 不过(主要因难负例误触发)"},
- "★cannot_claim": ["未编辑自然回复上的准确率", "缺席一侧的正确性", "植入句由维护者撰写, 只有两种说法", "所有底稿来自同一社区 16 位常驻者"],
- "budget": {"jev_requests_expected": {"dev": 632, "confirm": 4740}, "hard_cap": {"dev": 700, "confirm": 5200}, "cost_estimate_usd": "≈0.27"}
+ "★predictions": {
+  "P1": "26 条里至少 12 条 VALIDATED",
+  "P2": "V1 未通过的 13 条里至少 3 条在 V2 VALIDATED",
+  "P3": "V1 已通过的 16 条里至少 2 条在 V2 不过(主要因难负例误触发)"
+ },
+ "★cannot_claim": [
+  "未编辑自然回复上的准确率",
+  "缺席一侧的正确性",
+  "植入句由维护者撰写, 只有两种说法",
+  "所有底稿来自同一社区 16 位常驻者"
+ ],
+ "budget": {
+  "jev_requests_expected": {
+   "dev": 632,
+   "confirm": 4740
+  },
+  "hard_cap": {
+   "dev": 700,
+   "confirm": 5200
+  },
+  "cost_estimate_usd": "≈0.27"
+ },
+ "★plants_revision_after_dev(唯一一次, 确认集读数之前提交)": {
+  "dev_result": "results/align_atoms_v2_dev.json(8 条旧底稿, 632 次 Jev, 19/26 过 dev 线; dev 不作准入)",
+  "changed": {
+   "injustice#0 H[0]": "原句「Some people would say your complaint is justified, but…」本身带了一句弱认可, 4 个底稿里 3 个被读成在场 ⇒ 是植入句的毛病, 改成明确不作判断的说法",
+   "audit#0 H[1]": "原句「There's no need for me to justify how I did it」本身就是一种辩护姿态, 4 个底稿里 3 个被读成违禁 ⇒ 植入句的毛病, 改成承认方法可能有缺陷"
+  },
+  "not_changed": "suspend#0 / display#0 / display#2 / belong#1 / reward#2 的 dev 失败主要是 A 与 A′ 在原文上相反或见证没检出 —— 那是判官的问题不是植入句的问题, 植入句与题面都不动, 留给确认集判",
+  "questions": "题面一字未改(questions_sha256 与 dev 相同)"
+ }
 }
