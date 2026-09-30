@@ -298,11 +298,12 @@ def within_js_max(instrument_hash):
     """★ 2026-09-30: 阈值**按仪器**取。上面那组是 08-17 在旧仪器 31 份读数上标的; 现行 k=3 仪器 d4cce4 的重标
     (同一规则 median+2×MAD, 预注册 tests/data/within_js_recalibration_prereg.json, 留出集检验)只挂在那台仪器上,
     且只采纳留出检验通过的层(results/within_js_recalibration.json 的 adopted)。别的仪器沿用旧值。"""
-    f = os.path.join(ROOT, "results/within_js_recalibration.json")
-    if instrument_hash and os.path.exists(f):
-        r = json.load(open(f, encoding="utf-8"))
-        if r.get("adopted_for") == instrument_hash:
-            return dict(r["adopted"])
+    for name in ("within_js_recalibration.json", "within_js_recalibration_k5.json"):   # 每台仪器一份重标结果
+        f = os.path.join(ROOT, "results", name)
+        if instrument_hash and os.path.exists(f):
+            r = json.load(open(f, encoding="utf-8"))
+            if r.get("adopted_for") == instrument_hash:
+                return dict(r["adopted"])
     return dict(WITHIN_JS_MAX_DEFAULT)
 _LAYER_OF_TOP = {"desire": "desire_vec", "need": "need_vec",
                  "emotion": "emotion_vec", "action": "action_vec"}

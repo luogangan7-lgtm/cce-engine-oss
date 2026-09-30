@@ -1,0 +1,15 @@
+{
+ "block": "WITHIN_JS_RECALIBRATION_K5",
+ "prereg_written_at": "2026-09-30",
+ "★frozen_before_measurement": "本文件与 probes/within_js_k5_recalibrate.py 在发起调用之前提交。",
+ "★why": "k=3 仪器已按原规则重标并过留出检验(results/within_js_recalibration.json)。k=5 仪器 c4419c3e53aa2fa9(outbound_post)存档里只有 2 份读数, 仍用 08-17 旧仪器的阈值 —— owner 2026-09-30「进行解决吧」⇒ 自己采数据重标。",
+ "material": "保险库 hearingaids_others_20260809.json 的真实帖子(标题+正文, 80–400 词, 不含用户名提及), 按正文 sha 排序后用 seed 20260930 打乱: 前 20 帖为标定集(各 1 次), 其后 10 帖为留出集(各 2 次)。只把正文送 MiniMax; 产物只落 within_js、层向量与 sha16",
+ "instrument": "生产 run_knot_classify, k=5, 语境串固定为「reddit subreddit HearingAids hearing_aids outbound post」(不带情境后缀); 采到的仪器哈希必须是 c4419c3e53aa2fa9, 否则作废",
+ "rule": "每层 阈值 = median + 2 × MAD(未缩放), 四舍五入 3 位 —— 与 08-17 及 k=3 重标相同",
+ "metrics": {"holdout_exceed_rate": "留出 20 次里超新阈值的比例", "gate_validity": "Spearman(within_js, 该次与同帖另一次层向量的 JS)"},
+ "decision_rule": {"ADOPT_LAYER": "留出扣发率在 [0.05, 0.25] ⇒ 该仪器该层采用新阈值", "KEEP_OLD_LAYER": "否则保留旧阈值", "GATE_WEAK": "Spearman < 0.2 只报告",
+                   "★thresholds_are_conventions": "与 k=3 那次相同的约定, 不因结果调整"},
+ "★predictions": {"P1": "need 新阈值高于旧值 0.161", "P2": "至少三层留出扣发率落在区间内"},
+ "★cannot_claim": ["标定文本是别人的帖子, 不是我方出站稿 —— 同社区同体裁, 但不是同一作者群", "留出只有 10 帖 × 2 次, 扣发率粒度 5%", "新阈值下读数更准(没有个体金标)"],
+ "budget": {"minimax_requests_expected": "40 次 s1 × 约 11 ≈ 440", "hard_cap": 520, "on_cap": "撞上限即停, 已采数字已逐步落盘"}
+}
