@@ -106,7 +106,9 @@ def rows() -> list[dict]:
                     "文件": "tests/data/phase2/playbook_atoms_verdict.json"})
     _ho = _j("results/align_atoms_heldout_v41.json"); _dv = _j("results/align_atoms_calibration.json"); _v5 = _j("results/align_atoms_v5.json")
     _jv = _j("results/align_atoms_jev.json")
-    _cal = sorted(k for k, v in _jv["per_atom"].items() if v["verdict"] == "CALIBRATED")
+    _rw = _j("results/align_atoms_jev_reward.json")
+    _cal = sorted([k for k, v in _jv["per_atom"].items() if v["verdict"] == "CALIBRATED" and not k.startswith("reward#")]
+                  + [k for k, v in _rw["per_atom"].items() if v["verdict"] == "CALIBRATED"])
     out.append({"组件": "对齐出口 逐原子三值(读者 top-1 结; Jev 判官; 只判校对通过的条目)", "状态": USABLE,
                 "证据": (f"2026-09-30 重做: 不碰结权重(K1 0/5), 只用读者稳定 top-1(K1 可用); 【做】做了/没做/不确定、【禁】违反/未违反/不确定, "
                          f"在场一侧要逐字子串; 不出总分、不出放行布尔。校对 = 构造正反例 × 两种相反问法 × 两次, 8/8 全对才算: "
@@ -117,8 +119,10 @@ def rows() -> list[dict]:
                          f"⇒ 换判官: Jev 闭选分类器(一题一个条目, 英文操作化描述), 同口径校对 {_jv['summary']['calibrated']}/{_jv['summary']['atoms']}"
                          f"(构造草稿准确率 {_jv['summary']['constructed_accuracy']}); 按预注册发货规则(多于 v5 的 5 个)生产改用 Jev 判官。"
                          f"生产只判这 {len(_cal)} 个条目: {' · '.join(_cal)}; 两种问法不一致 ⇒ uncertain; 其余记 not_calibrated(不是「没做」)。"
-                         "★ 可用范围仅限这些条目; reward 结 0 个可判(构造草稿全对, 但真实回复上两问法一致率 0.45–0.65)。真实草稿上的准确率未测(无个体金标)"),
-                "文件": "scripts/cce_align_atoms.py · scripts/reply_loop.py · results/align_atoms_jev.json · results/align_atoms_v5.json"})
+                         "reward 结重做(短收改机械规则: <=2 句且 <=40 词; 另两条改成只看回复文本的描述), 在没用过的 20 条真实回复上复核: "
+                         + " · ".join(f"{k} {v['verdict']}(一致率 {v['natural_agree_rate']})" for k, v in _rw["per_atom"].items())
+                         + "。★ 可用范围仅限这些条目, 九个结都至少有 1 条可判; 真实草稿上的准确率未测(无个体金标)"),
+                "文件": "scripts/cce_align_atoms.py · scripts/reply_loop.py · results/align_atoms_jev.json · results/align_atoms_jev_reward.json · results/align_atoms_v5.json"})
 
     # ── 媒体 ──────────────────────────────────────────────────────────
     out.append({"组件": "媒体**存在**声明", "状态": USABLE,

@@ -77,8 +77,8 @@
    ],
    "note": "生产面 = 这三个目录下全部 *.py 递归 + config/ 顶层 *.json。tests/ 与 archive/ 不计入分母(它们是语料与守卫, 不是被消融的生产代码)。"
   },
-  "scope_files": 276,
-  "scope_lines": 55021,
+  "scope_files": 277,
+  "scope_lines": 55078,
   "touched_files_union": [
    "accuracy/run_gates.py",
    "config/cce_core_manifest.json",
@@ -119,9 +119,9 @@
    "tests/test_cce_structural_gate.py"
   ],
   "n_touched_files": 29,
-  "file_level_pct": 10.51,
+  "file_level_pct": 10.47,
   "lines_in_touched_files": 12526,
-  "line_level_pct_GENEROUS_UPPER_BOUND": 22.77,
+  "line_level_pct_GENEROUS_UPPER_BOUND": 22.74,
   "by_round": {
    "v2_only_files": [
     "config/need_taxonomy.json",
@@ -210,6 +210,7 @@
    "probes/align_atoms_jev_reward.py": 79,
    "probes/align_atoms_setc_cases.py": 82,
    "probes/align_atoms_v5.py": 104,
+   "probes/align_followup_score.py": 53,
    "probes/align_theta_sensitivity.py": 86,
    "probes/anchor_expansion_cross_family.py": 143,
    "probes/annex_a_coverage.py": 177,
@@ -401,7 +402,7 @@
    "scripts/cce_population.py": 459,
    "scripts/cce_population_v1_reader.py": 66,
    "scripts/cce_preparation_bridge.py": 190,
-   "scripts/cce_production_status.py": 252,
+   "scripts/cce_production_status.py": 256,
    "scripts/cce_registry_gate.py": 139,
    "scripts/cce_request_budget.py": 186,
    "scripts/cce_resample_power.py": 104,
@@ -1022,7 +1023,8 @@
    "2026-09-30 对齐出口 Jev 判官预注册: 新增 probes/align_atoms_jev.py; cce_align_atoms.py 行数变化。★ 分子未动 ⇒ 下降是稀释不是倒退。",
    "2026-09-30 对齐出口改用 Jev 判官: cce_align_atoms.py / cce_production_status.py 行数变化, 文件数不变。",
    "2026-09-30 第六轮 canary 入册: config/cce_archive_index.json 行数增加, 文件数不变。",
-   "2026-09-30 reward 结重做预注册: 新增 probes/align_atoms_jev_reward.py; cce_align_atoms.py / align_atoms_v5.py 行数变化。★ 分子未动 ⇒ 下降是稀释不是倒退。"
+   "2026-09-30 reward 结重做预注册: 新增 probes/align_atoms_jev_reward.py; cce_align_atoms.py / align_atoms_v5.py 行数变化。★ 分子未动 ⇒ 下降是稀释不是倒退。",
+   "2026-09-30 reward 复核结果 + 对齐出口前瞻闭环: 新增 probes/align_followup_score.py; cce_production_status.py 行数变化。★ 分子未动 ⇒ 下降是稀释不是倒退。"
   ],
   "★刷新记录": [
    {
@@ -1276,8 +1278,8 @@
    }
   ],
   "③_合计": {
-   "n_files_never_touched": 247,
-   "lines_never_touched": 42495,
+   "n_files_never_touched": 248,
+   "lines_never_touched": 42552,
    "★为什么变了": [
     "2026-09-11 收口后 26596→26622: scripts/cce_open_items.py(从未触及)由 612 涨到 638 行 —— 把写死的「只覆盖 17.3%」改成现算所致。**本闸自己抓到的第二处连带**。",
     "2026-09-12 parser_plane 收口: 169→166 文件 / 26622→26301 行。减少的三件是 parser_plane 的 cce_case_assemble(144) · cce_event_assemble(125) · cce_platform_adapter(64) = 333 行; 同时 config/ontology_legacy_exceptions_v1.json 因补登 P1 豁免多了 12 行(它从未被触及, 故净变化 = -333+12 = -321)。",

@@ -161,3 +161,30 @@ def test_jev_alignment_path(monkeypatch):
     assert r["atoms"][0]["canonical"] == "satisfied"
     assert r["atoms"][1]["canonical"] == "uncertain"                                     # 两问法规范值不同 ⇒ uncertain
     assert AT.atoms_alignment("pain_seek", True, TXT, post=lambda b, k: (None, "HTTP 503"))["status"] == "failed"
+
+
+def test_reward_rework_recomputes_and_every_knot_has_a_judgeable_item():
+    import importlib.util as _iu, hashlib as _h
+    sys.path.insert(0, str(ROOT / "probes"))
+    _p = _iu.spec_from_file_location("_ar", ROOT / "probes/align_atoms_jev_reward.py"); ar = _iu.module_from_spec(_p); _p.loader.exec_module(ar)
+    r = json.loads((ROOT / "results/align_atoms_jev_reward.json").read_text(encoding="utf-8"))
+    assert r["prereg_sha256"] == _h.sha256((ROOT / "tests/data/align_atoms_jev_reward_prereg.json").read_bytes()).hexdigest()
+    assert not r["dry_run"] and r["requests"] <= ar.CAP and not r["errors"]
+    assert r["questions_sha256"] == _h.sha256(json.dumps(AT.jev_questions("reward"), sort_keys=True).encode()).hexdigest(), "reward 题面在校对后被改过"
+    assert r["short_rule"] == {"max_sentences": AT.SHORT_MAX_SENTENCES, "max_words": AT.SHORT_MAX_WORDS}
+    per, summ = ar.score(r["raw"])
+    assert per == r["per_atom"] and summ == r["summary"]
+    assert {k: v["verdict"] for k, v in per.items()} == {"reward#0": "CALIBRATED", "reward#1": "CALIBRATED", "reward#2": "NOT_CALIBRATED"}
+    cal = AT.calibrated_atoms("jev")
+    assert cal["reward"] == {0, 1} and set(cal) == set(AT.ATOMS_EN) and sum(len(v) for v in cal.values()) == 16
+    n1, n2 = ar.AJ.V5.natural(0), ar.AJ.V5.natural(20)
+    assert r["heldout_natural_pointers"] == [p for p, _ in n2] and not {p for p, _ in n1} & {p for p, _ in n2}   # 判定只用没见过的 20 条
+
+
+def test_alignment_prospective_scorer_withholds_until_n():
+    import importlib.util as _iu
+    _p = _iu.spec_from_file_location("_af", ROOT / "probes/align_followup_score.py"); af = _iu.module_from_spec(_p); _p.loader.exec_module(af)
+    assert af.score([{"score": 1.0, "followed_up": True}] * 5)["verdict"] == "INSUFFICIENT"
+    assert af.score([{"score": 1.0, "followed_up": True}] * 20 + [{"score": -1.0, "followed_up": False}] * 20)["verdict"] == "PREDICTIVE"
+    assert af.score([{"score": s, "followed_up": f} for s in (0.0, 0.5) for f in (True, False) for _ in range(10)])["verdict"] == "NOT_PREDICTIVE"
+    assert isinstance(af.rows(), list)                       # 能读现有归档, 不崩

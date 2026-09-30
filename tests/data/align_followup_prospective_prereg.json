@@ -1,0 +1,13 @@
+{
+ "block": "ALIGN_FOLLOWUP_PROSPECTIVE",
+ "prereg_written_at": "2026-09-30",
+ "★frozen_before_measurement": "预测规则与判据在任何「Jev 判官出过逐原子判定」的生产运行进归档之前提交(本提交时归档里 0 条 status=ok 的逐原子判定)。",
+ "★why": "对齐出口的校对(构造草稿 + 真实回复两问法一致)只证明必要条件。owner 2026-09-29: 人给不出个体金标, 营销靠用户背书(规模化的真实行为)。⇒ 真实草稿上「按清单回是不是更好」只能前瞻: 每次带对齐的出站回复留下冻结的逐原子判定, 结局由读者之后的真实行为给出。",
+ "prediction": "预测分 = (satisfied − unsatisfied) / 已校对条目数(归档 reply_alignment.json 的 verdict.top1逐原子对齐.summary); 预测分越高, 该读者(化名)之后再次回应我方的概率越高",
+ "outcome": "同一 reader_actor_ref 在归档里出现 observed_at 晚于该次运行的 response(subject_chain 测量)",
+ "metric": "AUC, bootstrap 95% 区间(2000 次, seed 20260930)",
+ "decision_rule": {"INSUFFICIENT": "n < 40 或任一类 < 10 —— 不出判决", "PREDICTIVE": "AUC >= 0.60 且区间下界 > 0.5", "NOT_PREDICTIVE": "否则", "★thresholds_are_conventions": "约定, 不因结果调整"},
+ "★cannot_claim": ["因果(没有随机分配回复写法)", "个体心理真值", "只覆盖开了 with_alignment 且读者 top-1 稳定、落在可判结上的运行"],
+ "scorer": "probes/align_followup_score.py(零调用)",
+ "budget": "零调用"
+}
