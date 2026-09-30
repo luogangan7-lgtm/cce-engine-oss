@@ -133,7 +133,7 @@ def rows() -> list[dict]:
                            f"V1 入选的 15 条里 {len(_v2drop)} 条没过(主因 F_P: 同一条真实回复上 A 与 A′ 给出相反的确定答案, 合计 {_v2fp} 次; 其次中性句翻转读数) —— V1 的 16 条是「两问法恰好一致」的假象。"
                            "三条预测: P1(>=12 条过)未中 · P2(V1 落选里 >=3 条过)未中 · P3(V1 入选里 >=2 条不过)中。"
                            "★ 这只证明「指定的局部行为测试通过」: 【做】satisfied = 检出一句在做, unsatisfied = **未检出**(不是证明没做); 不是真实草稿上的准确率(无个体金标), 前瞻闭环攒 n>=40 再判; "
-                           "线上端到端上次验的是 V1(archive/36698289171), V2 路径只有桩测试"),
+                           "线上端到端: V2 判官已在 runner 上跑通(archive/36713557903, 读者 top-1 5/5 稳, pain_seek#1 判出, 17 次请求); 前一次(archive/36712867977)读者 top-1 4/5 不稳 ⇒ 按规则整条扣发, 没走到判官"),
                 "文件": "scripts/cce_align_atoms.py · scripts/reply_loop.py · results/align_atoms_v2.json · results/align_atoms_jev.json · results/align_atoms_jev_reward.json · results/align_atoms_v5.json"})
 
     # ── 媒体 ──────────────────────────────────────────────────────────
