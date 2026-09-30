@@ -1,0 +1,29 @@
+{
+ "block": "ALIGN_ATOMS_V5",
+ "prereg_written_at": "2026-09-30",
+ "★frozen_before_measurement": "本文件、判官 scripts/cce_align_atoms.py(VERSION v5, 含 OPERATIONAL 拆分)、C 集草稿 probes/align_atoms_setc_cases.py 与探针 probes/align_atoms_v5.py 在任何 v5 调用之前提交。",
+ "★why": "上一轮遗留三点里的两点(owner 2026-09-30「进行解决吧」): ① v4.1 留出集每原子只有 2 份构造草稿, 且开发集→留出集之间有原子进出(pain_seek#0 掉、display#2 进), 真实草稿上没测过; ② suspend / audit 0 个原子通过 —— 它们的 playbook 原文一条塞了多件事。",
+ "changes": {
+  "operational_split": "suspend 与 audit 各拆成 4 条一条只说一件事的可判条目(cce_align_atoms.OPERATIONAL); config/knot_taxonomy.json 的 playbook 原文一字不改(Core)。其余 7 结的清单与 v4.1 逐字相同。",
+  "in_play": "在用原子 = v4.1 留出集通过的 11 个 + 拆分出的 8 个 = 19 个; 其余 14 个旧原子不在本轮, 继续不判"
+ },
+ "material": {
+  "set_C": "每个在用原子 2 份满足 + 2 份不满足的新构造草稿(probes/align_atoms_setc_cases.CASES), 两种相反问法 × 2 次(温度 0)= 16 次读数/原子, 共 304 次",
+  "set_N": "20 条真实社区回复: accuracy/data/hearingaids_regulars_20260809.json(化名语料), 25–120 词、不含用户名提及, 按正文 sha 排序后 seed 20260930 打乱取前 20; 每条在 9 个结的清单下各用两种问法判 1 次, 共 360 次"
+ },
+ "metrics": {
+  "setC_correct": "C 集 16 次读数里等于构造真值的次数(uncertain 算错)",
+  "natural_agree_rate": "N 集: 该原子在 20 条真实回复上, 问法 A 与问法 B 的规范值(satisfied/unsatisfied/uncertain)相同的比例; 任一侧调用失败算不一致",
+  "natural_A_distribution": "问法 A 在真实回复上的规范值分布 —— 只报告(看它是不是恒答同一个值)"
+ },
+ "decision_rule_per_atom": {
+  "CALIBRATED": "setC_correct == 16/16 且 natural_agree_rate >= 0.85",
+  "NOT_CALIBRATED": "否则 —— 生产不判该原子",
+  "★for_prior_11": "它们此前已在 v4.1 留出集 8/8; 本轮不过就从生产名单里拿掉",
+  "★thresholds_are_conventions": "16/16 与 0.85 为约定, 不因结果调整"
+ },
+ "★ship_rule": "生产 cce_align_atoms.CAL 改指 results/align_atoms_v5.json; 只判其中 CALIBRATED 的原子。",
+ "★predictions": {"P1": "11 个旧原子里至少 8 个仍 CALIBRATED", "P2": "拆分出的 8 个新条目里至少 4 个 CALIBRATED", "P3": "至少有一个原子因真实回复上两问法不一致(而不是 C 集)被拿掉"},
+ "★cannot_claim": ["真实草稿上的准确率 —— N 集测的是两种问法是否自洽, 不是判得对不对", "构造草稿由维护者撰写", "N 集是社区成员的回复, 不是我方回复稿"],
+ "budget": {"minimax_requests_expected": 664, "hard_cap": 750, "on_cap": "撞上限抛 BudgetExceeded 即停"}
+}

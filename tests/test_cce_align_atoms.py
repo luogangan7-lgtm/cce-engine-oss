@@ -66,7 +66,7 @@ def test_calibration_results_recompute_and_production_uses_heldout_only():
     assert not dev["dry_run"] and dev["requests"]["used"] <= 350
     per, summ = ac.score(dev["raw"])
     assert per == dev["per_atom"] and summ == dev["summary"] and summ["calibrated"] == 8
-    assert AT.CAL.endswith("align_atoms_heldout_v41.json")                         # 开发集不作生产采纳依据
+    assert not AT.CAL.endswith("align_atoms_calibration.json")                     # 开发集不作生产采纳依据
 
 
 def test_heldout_result_recomputes_and_drives_production():
@@ -80,6 +80,12 @@ def test_heldout_result_recomputes_and_drives_production():
     assert ho["judge_version"] == "v4.1" and not ho["dry_run"] and ho["requests"]["used"] <= 240
     per, summ = ac.score(ho["raw"], HC.CASES)
     assert per == ho["per_atom"] and summ == ho["summary"] and summ["v1_accuracy"] is None
-    cal = AT.calibrated_atoms()
-    assert sum(len(v) for v in cal.values()) == summ["calibrated"] == 11
-    assert 0 not in cal.get("inertia", set())                                          # 条件句原子始终不过
+    assert summ["calibrated"] == 11 and ho["per_atom"]["inertia#0"]["verdict"] == "NOT_CALIBRATED"   # 条件句原子不过
+
+
+def test_v5_operational_split_touches_only_suspend_and_audit():
+    assert set(AT.OPERATIONAL) == {"suspend", "audit"}
+    for k, items in AT.OPERATIONAL.items():
+        assert len(items) == 4 and AT.atoms_of(k) == [(t, neg) for t, neg, _ in items]
+        assert {src for _, _, src in items} <= set(range(len([p for p in __import__("re").split(r"[;；]", AT.A.PLAYBOOK[k]) if p.strip()])))
+    assert len(AT.atoms_of("reward")) == 3 and len(AT.atoms_of("injustice")) == 3      # 其余结清单不变

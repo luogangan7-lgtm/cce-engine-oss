@@ -17,8 +17,11 @@ import re
 import cce_align_v2 as A
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# ★ 生产只认 **v4.1 留出集**的校对结果; v4 开发集(results/align_atoms_calibration.json)已用来发现并修 v4.1 的两处问题, 不再作采纳依据。
-CAL = os.path.join(ROOT, "results", "align_atoms_heldout_v41.json")
+# ★ 生产只认 v5 的最终校对名单(results/align_atoms_v5.json): 留出集 8/8(v4.1)→ 再加 C 集 16/16 + 真实回复上两种问法一致率 >= 0.85。
+#   v4 开发集、v4.1 留出集的结果文件保留作记录。
+CAL = os.path.join(ROOT, "results", "align_atoms_v5.json")
+if not os.path.exists(CAL):      # v5 结果落地之前沿用 v4.1 留出名单(suspend/audit 在那份里本来就 0 个通过, 拆分不影响)
+    CAL = os.path.join(ROOT, "results", "align_atoms_heldout_v41.json")
 _NEG = ("不", "别", "绝不", "勿", "禁止")
 
 PROMPT_A = """你判定一段回复草稿对一份"拆除动作清单"的逐条符合情况。
@@ -54,13 +57,31 @@ PROMPT_B = """下面是一份回复写作要求清单, 请逐条检查一段回�
 只输出JSON: {{"atoms": [{{"i": 序号, "state": "符合|不符合|不确定", "quote": "原样子串, 不需要时填空"}}]}}"""
 
 
+# ★ 2026-09-30 v5: suspend / audit 的**测量侧**操作化拆分(不改 config/knot_taxonomy.json 的 playbook 原文, 那是 Core)。
+#   原子原文一条塞了多件事(suspend#0「给判据+零成本测试塌缩不确定性+如实说trade」= 三件; audit 两条各两件), v4/v4.1 两轮校对里
+#   这两结 0 个原子通过。拆成一条只说一件事的可判条目; source = 它出自 playbook 的第几条。与 2026-09-05 belong 的 A2 拆分同性质。
+#   owner 2026-09-30「进行解决吧」。拆分后的条目同样要过校对才进生产。
+OPERATIONAL = {
+    "suspend": [("给出一条可用来做决定的判据(说明按什么来选)", False, 0),
+                ("给出一个零成本的测试办法(免费试用、借用、现成可做的对比), 用来消除不确定", False, 0),
+                ("如实说出取舍(选这个会失去什么)", False, 0),
+                ("不推购买(包括用零风险承诺、样品、他人证言来催单)", True, 1)],
+    "audit": [("不辩解(不为自己的做法或资历辩护)", True, 0),
+              ("不表演(不摆资历、不表忠心、不夸耀自己)", True, 0),
+              ("给出可验证的事实(具体数字、来源或可查的记录)", False, 1),
+              ("明确邀请对方检验或追问具体细节", False, 1)],
+}
+
+
 def atoms_of(knot):
+    if knot in OPERATIONAL:
+        return [(t, neg) for t, neg, _src in OPERATIONAL[knot]]
     raw = A.PLAYBOOK.get(knot, "")
     parts = [p.strip() for p in re.split(r"[;；]", raw) if p.strip()]
     return [(p, any(p.startswith(n) or n in p[:3] for n in _NEG)) for p in parts]
 
 
-VERSION = "v4.1"
+VERSION = "v5"   # v4.1 判官 + suspend/audit 操作化拆分(其余 7 结的清单与 v4.1 逐字相同)
 
 
 def _norm(s):
