@@ -1,0 +1,87 @@
+{
+  "kind": "cce.submission.v1",
+  "schema_version": "1.1.0",
+  "submission_id": "canary15:2026-10-01:outbound_reply_align_v3",
+  "profile": "outbound_reply",
+  "submitted_at": "2026-08-13T08:00:00Z",
+  "producer": {
+    "system": "example",
+    "trace_id": "trace:canary15:reply"
+  },
+  "items": [
+    {
+      "job_id": "job:canary15:reply:001",
+      "content_id": "content:canary15:reply:001",
+      "platform": "reddit",
+      "platform_adapter": {
+        "id": "reddit",
+        "version": "1.0.0"
+      },
+      "surface": {
+        "kind": "community",
+        "id": "r/HearingAids",
+        "observed_at": "2026-08-13T07:50:00Z"
+      },
+      "domain": "hearing_aid",
+      "language": "en",
+      "speaker_role": "otc_hearing_aid_oem",
+      "guard_profile": "hearing_aid",
+      "context": {
+        "summary": "Public reply to a Reddit r/HearingAids member",
+        "declaration": {
+          "进程位置": "在找方案",
+          "关系位置": "首次接触",
+          "社会在场": "半匿名",
+          "信息环境": "推荐流",
+          "情绪余温": "首轮无余温"
+        },
+        "dimensions": {
+          "time": {
+            "value": "2026-08-13T07:50:00Z",
+            "assertion": "observed",
+            "evidence_refs": [
+              "comment:example:001"
+            ]
+          },
+          "social": {
+            "value": "public member reply",
+            "assertion": "observed",
+            "evidence_refs": [
+              "comment:example:001"
+            ]
+          },
+          "relationship": {
+            "value": "first contact",
+            "assertion": "derived",
+            "evidence_refs": [
+              "comment:example:001"
+            ]
+          },
+          "current_goal": {
+            "value": "troubleshooting",
+            "assertion": "inferred",
+            "evidence_refs": [
+              "comment:example:001"
+            ]
+          }
+        },
+        "provenance": {
+          "producer": "example",
+          "version": "1.1.0"
+        }
+      },
+      "reader": {
+        "actor_ref": "reddit:u/example",
+        "evidence_ref": "anchor:p1ypm4q",
+        "observed_at": "2026-08-13T07:50:00Z",
+        "source": "https://www.reddit.com/r/HearingAids/example",
+        "text": "OP your musings are interesting and informative. \n\nI was one of the posters asking about BT connectivity last weekend. It was a miserable weekend trying unsuccessfully to pair my new Starkeys with Windows. \n\nI was especially pissed at my audiologist who swore ",
+        "text_sha256": "sha256:d3f96db5736685c715b43465d4ee97e66a9256870fb5759fa0d8833d6f8d0573"
+      },
+      "draft": {
+        "text": "That echo on calls usually comes from the phone mic picking up the sound from your aid's receiver. Switch the call audio to hearing aid only in the Bluetooth menu, and if it's still there, forget the aids in the phone settings and pair them again. I can't promise that clears it, since a few phone models handle this badly, but it's the first thing worth ruling out.",
+        "text_sha256": "sha256:2583edbc2b26d8f2af8e31cccb6d59c103059a33c6cd3ea4b526638ca82b266e"
+      }
+    }
+  ]
+}
