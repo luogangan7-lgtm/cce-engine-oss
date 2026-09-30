@@ -169,7 +169,7 @@ def rows() -> list[dict]:
     # ── s1 分布层 ─────────────────────────────────────────────────────
     # ★ 2026-09-28: 此前是一句写死的「同侧 K=3 JS 0.02–0.09」, 生产存档与之矛盾(诊断 #3)。改为从存档现算逐层扣发率。
     import glob as _gl
-    _wm = _j("results/within_js_monitor.json")      # 由监测脚本写出, 闸钉它与现算一致
+    _wm = _j("results/within_js_monitor.json"); _cb = _j("results/within_js_corpus_band.json")      # 由监测脚本写出, 闸钉它与现算一致
     from cce_full_run import WITHIN_JS_MAX_DEFAULT as WITHIN_JS_MAX, within_js_max
     _n, _over = 0, {k: 0 for k in WITHIN_JS_MAX}
     _cur, _ncur, _ocur = "d4cce4c745f3f991", 0, {k: 0 for k in WITHIN_JS_MAX}   # 现行 k=3 仪器单列(2026-09-30 起阈值按仪器取)
@@ -203,6 +203,10 @@ def rows() -> list[dict]:
                          + "。★ 撤回: 此前采纳新阈值用的「留出扣发率在 5–25% 带内」只建立在 16 / 10 条文本上, 撑不住(区间整个落在带内至少要 54 条独立文本); "
                            "阈值照用, 带内与否改由零调用序贯监测判(tests/data/within_js_monitor_prereg.json: 文本级, 60/120/180 三次查看, 精确区间)。现状: "
                          + " · ".join(f"{v['instrument']} {v['n_texts']} 条文本 ⇒ {'/'.join(sorted({x['verdict'] for x in v['per_layer'].values()}))}" for v in _wm.values())
+                         + "(★ 该方案在 n=60 那次查看用 99% 区间, 没有任何计数能判带内, 最早 n=120 才可能)。另开的**语料抽样研究**(预注册, results/within_js_corpus_band.json, 每台仪器 100 条社区文本各读一次, "
+                           f"{_cb['requests']['used']} 次请求; 单次 95% 精确区间整个在带内才算 = 11–16/100): "
+                         + " · ".join(f"{a} " + " ".join(f"{l.replace('_vec', '')} {x['exceed']}/100 {x['verdict']}" for l, x in v["per_layer"].items()) for a, v in _cb["result"].items())
+                         + " ⇒ 8 个逐点结论里 3 个带内、5 个跨界(点估计 5–17%, 没有一个整个在带外); 三条预测全中。这是语料总体(多轮评论者的首评 / 社区帖子), **不是**生产流, 不与上面的生产计数合并"
                          + "。★ 标定时 s1 的语境串**不含** s0 的【情境】后缀, 生产现在带 —— 2026-09-30 已测(预注册, results/s1_context_suffix_ab.json, "
                            "16 条真实文本 × 带/不带 × 2 次): 四层 "
                          + " · ".join(f"{k.replace('_vec', '')} 超噪 {v['mean_excess_js']}" for k, v in _j("results/s1_context_suffix_ab.json")["result"]["per_layer"].items())

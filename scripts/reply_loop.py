@@ -74,6 +74,18 @@ def layer_reach(a_vec, b_vec, labels):
             "逐维": rows}
 
 
+def four_layers(a, b):
+    """两侧 s1 四层 → (逐层触达, 扣发原因 | None)。任一侧 s1 没产出四层分布(合法弃权 / 有效 draw 不足)⇒ 触达不可判, 不是 0。
+    ★ 2026-10-01 根因修在共用函数: 线上 run 36740247086 我方草稿被 s1 判「功能性文本, 不构成个人表达」而弃权, 这里直接索引 layers 崩了, 整条 measure 失败。
+      cce_full_run.s3 在 2026-09-28 修过同一族问题, 当时漏了这条路和 reply_batch。"""
+    sides = {"对方": (a.get("stage1") or {}), "我方": (b.get("stage1") or {})}
+    bad = ["%s侧 measurement_status=%s" % (k, v.get("measurement_status")) for k, v in sides.items() if not all(L in (v.get("layers") or {}) for L in LAYERS)]
+    if bad:
+        why = "s1 未产出四层分布(" + "; ".join(bad) + ") —— 触达不可判, 不是 0"
+        return {L: {"显著维": 0, "触达数": 0, "触达率": None, "饱和": None, "★饱和说明": None, "逐维": [], "★withheld": why} for L in LAYERS}, why
+    return {L: layer_reach(sides["对方"]["layers"][L], sides["我方"]["layers"][L], lab) for L, lab in LAYERS.items()}, None
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--reader", required=True)
@@ -150,14 +162,13 @@ def main():
         _t1_ok = False
     atoms_align = atoms_alignment(_samp.get("top1_mode"), _t1_ok, draft)
 
-    layers = {L: layer_reach(a["stage1"]["layers"][L], b["stage1"]["layers"][L], lab)
-              for L, lab in LAYERS.items()}
+    layers, _l_why = four_layers(a, b)
 
     misses = [r["dim"] for L in layers.values() for r in L["逐维"] if not r["触达"]]
     # ★ need_ok 是第三层叠加阈值(pa<SALIENT 筛维 -> pb>=pa*REACH 二值化 -> 率>=0.5 再二值化)。
     #   2026-09-03 实测: 现有唯一可测数据里它恒为 1.000(饱和), 因此它在判决线附近的行为
     #   **未被测量** —— 既不能说它稳, 也不能说它坏。缺口已登记, 不许当作「已验收」。
-    need_ok = (layers["need_vec"]["触达率"] or 0) >= 0.5
+    need_ok = None if _l_why else (layers["need_vec"]["触达率"] or 0) >= 0.5
     # 2026-08-18: 补 top1_stable 守卫。此前不确定性只在 cce_full_run.py 的 s2 段生效
     # (top1 不稳时扣发 playbook_primary), 而这里照旧拿被抖动过的 weight 算出 PASS/FAIL ——
     # 同一份不可靠读数, 一条路上被扣住、另一条路上照发判决。爆炸半径不一致本身就是缺陷。
@@ -185,7 +196,8 @@ def main():
         "need_ok": need_ok, "knot_ok": knot_ok,
         # ★ 2026-09-28 (诊断 #9): knot_ok 不可判时 PASS 也不可判 —— 此前 bool(None) 恒为 False, 于是恒报不通过,
         #   还据此发一条「九结对齐不足」的改写指令, 而那个分数本身已被扣发。改写指令只来自可用的部分。
-        "PASS": None if knot_ok is None else bool(need_ok and knot_ok),
+        "PASS": None if knot_ok is None or need_ok is None else bool(need_ok and knot_ok),
+        "★四层扣发": _l_why,
         "改写指令": ([f"补上未触达维度: {', '.join(misses)}"] if misses else []) + (
                    ["九结对齐不足: 我方结分布未响应对方主结, 检查是否答非所问"] if knot_ok is False else []),
     }

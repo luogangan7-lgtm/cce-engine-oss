@@ -18,7 +18,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
-from reply_loop import readout, layer_reach, LAYERS, norm  # noqa: E402
+from reply_loop import readout, layer_reach, four_layers, LAYERS, norm  # noqa: E402
 from cce_align_v2 import score as knot_align               # noqa: E402
 
 # 并发度: MiniMax 侧限流, 实测 3 路稳定; 调高会出 429 把整批拖垮
@@ -55,7 +55,7 @@ def phase_a(it, outdir):
             "九结": knots,
             "推荐钩子": hooks_for(knots),
             "打法": a["stage2"].get("playbook_primary") or a["stage2"].get("playbook"),
-            "四层": {L: top_dims(a["stage1"]["layers"][L], lab) for L, lab in LAYERS.items()}}
+            "四层": {L: top_dims(a["stage1"]["layers"][L], lab) for L, lab in LAYERS.items() if L in (a["stage1"].get("layers") or {})}}     # s1 弃权 ⇒ 空, 不崩
 
 
 def phase_b(it, outdir):
@@ -68,10 +68,9 @@ def phase_b(it, outdir):
     bk = {x["key"]: x["weight"] for x in b["stage2"]["knots"]}
     ka = knot_align(ak, bk, draft, mode="reply",
                     instrument_hash=(a["stage2"].get("instrument") or {}).get("instrument_hash"))
-    layers = {L: layer_reach(a["stage1"]["layers"][L], b["stage1"]["layers"][L], lab)
-              for L, lab in LAYERS.items()}
+    layers, _l_why = four_layers(a, b)      # 任一侧 s1 弃权 ⇒ 触达不可判(与 reply_loop 共用)
     misses = [r["dim"] for L in layers.values() for r in L["逐维"] if not r["触达"]]
-    need_ok = (layers["need_vec"]["触达率"] or 0) >= 0.5
+    need_ok = None if _l_why else (layers["need_vec"]["触达率"] or 0) >= 0.5
     # ★ 与 reply_loop 同源: 读数层不可用 -> 不可判, 不发 True/False。
     #   守卫已下沉到 cce_align_v2.score(根因修在共用函数, 不在各调用方), 这里只是照它扣发。
     knot_ok = (ka["alignment_score"] >= float(os.environ.get("CCE_ALIGN_THETA", "0.35"))
@@ -83,8 +82,8 @@ def phase_b(it, outdir):
                        for L, v in layers.items()},
             "逐维缺口": [r for L in layers.values() for r in L["逐维"] if not r["触达"]],
             "未触达": misses, "need_ok": need_ok, "knot_ok": knot_ok,
-            "PASS": bool(need_ok and knot_ok),
-            "改写指令": ([] if (need_ok and knot_ok)
+            "PASS": None if need_ok is None else bool(need_ok and knot_ok), "★四层扣发": _l_why,
+            "改写指令": ([] if (need_ok and knot_ok) or need_ok is None
                        else [f"补上未触达维度: {', '.join(misses)}"] if misses
                        else ["九结对齐不足: 我方结分布未响应对方主结, 检查是否答非所问"])}
 

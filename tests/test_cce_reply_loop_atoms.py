@@ -32,3 +32,30 @@ def test_uses_stable_top1_mode_not_weight_argmax(monkeypatch):
 def test_unstable_top1_is_not_usable(monkeypatch):
     seen, _ = _run(monkeypatch, {"top1_stable": None, "top1_mode": "pain_seek"})
     assert seen["ok"] is False
+
+
+def test_s1_abstain_on_either_side_withholds_reach_instead_of_crashing(monkeypatch):
+    """线上 run 36740247086: 我方草稿被 s1 判弃权(layers 为空)⇒ reply_loop 索引 layers 崩, 整条 measure 失败。现在: 触达不可判。"""
+    ok = {"stage1": {"measurement_status": "qualified", "layers": {L: [1.0, 0.0] for L in reply_loop.LAYERS}}}
+    ab = {"stage1": {"measurement_status": "abstain", "layers": {}}}
+    for a, b, side in ((ok, ab, "我方"), (ab, ok, "对方")):
+        layers, why = reply_loop.four_layers(a, b)
+        assert side in why and "abstain" in why and all(v["触达率"] is None and v["逐维"] == [] for v in layers.values())
+    assert reply_loop.four_layers(ok, ok)[1] is None
+    def fake_readout(text, context, k, tag, outdir):
+        st1 = {"measurement_status": "abstain", "layers": {}} if tag == "B_draft" else {"layers": {L: [1.0, 0.0, 0.0, 0.0] for L in reply_loop.LAYERS}}
+        return {"stage1": st1, "stage2": {"knots": [{"key": "display", "weight": 1.0}], "sampling": {"top1_stable": True, "top1_mode": "display"}, "instrument": {"instrument_hash": "d4cce4c745f3f991"}}}
+    monkeypatch.setattr(reply_loop, "readout", fake_readout)
+    monkeypatch.setattr(reply_loop, "knot_align", lambda *a, **k: {"alignment_score": 0.5, "resonance": 0, "dissolution": 0.5, "detail": []})
+    monkeypatch.setattr(reply_loop, "atoms_alignment", lambda knot, ok, text: {"status": "stub"})
+    d = tempfile.mkdtemp(); r, w, o = (os.path.join(d, x) for x in ("r.txt", "w.txt", "o.json"))
+    open(r, "w").write("READER"); open(w, "w").write("DRAFT")
+    monkeypatch.setattr(sys, "argv", ["reply_loop.py", "--reader", r, "--draft", w, "--context", "t", "--out", o])
+    reply_loop.main()
+    v = json.load(open(o))["verdict"]
+    assert v["need_ok"] is None and v["PASS"] is None and "我方" in v["★四层扣发"] and v["未触达维度"] == [] and v["top1逐原子对齐"] == {"status": "stub"}
+    import reply_batch
+    monkeypatch.setattr(reply_batch, "readout", fake_readout)
+    monkeypatch.setattr(reply_batch, "knot_align", lambda *a, **k: {"alignment_score": 0.5, "★usable": False})
+    out = reply_batch.phase_b({"tag": "draft", "url": "u", "reader": "R", "context": "c", "draft": "D"}, d)
+    assert out["PASS"] is None and out["need_ok"] is None and out["改写指令"] == [] and "我方" in out["★四层扣发"]
