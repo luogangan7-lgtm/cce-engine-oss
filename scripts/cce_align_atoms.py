@@ -143,6 +143,14 @@ PRODUCTION_JUDGE = "jev"
 def calibrated_atoms(judge=None):
     """校对通过的原子 {knot: {atom 下标}}; 没有校对结果 ⇒ 空(一个都不判)。judge: "jev" | "minimax", 缺省 = 生产判官。"""
     jev = (judge or PRODUCTION_JUDGE) == "jev"
+    if jev and os.path.exists(JEV_FINAL):      # 最终名单: 全部条目在 60 条真实回复上对称复核后的判定(预注册 align_atoms_jev_n3)
+        per = json.load(open(JEV_FINAL, encoding="utf-8")).get("per_atom") or {}
+        out = {}
+        for key, v in per.items():
+            if v.get("verdict") == "CALIBRATED":
+                k, i = key.rsplit("#", 1)
+                out.setdefault(k, set()).add(int(i))
+        return out
     path = JEV_CAL if jev else CAL
     if not os.path.exists(path):
         return {}
@@ -236,6 +244,7 @@ ATOMS_EN["reward"] = ["keep it short (at most two sentences)",          # 机械
                       "explicitly give the credit to the reader or explicitly minimize the writer's own contribution (for example: 'you did all the work', 'I barely did anything')",
                       "introduce new information, advice, or a new topic beyond acknowledging or congratulating the reader"]
 JEV_CAL_REWARD = os.path.join(ROOT, "results", "align_atoms_jev_reward.json")
+JEV_FINAL = os.path.join(ROOT, "results", "align_atoms_jev_final.json")
 SHORT_MAX_SENTENCES, SHORT_MAX_WORDS = 2, 40
 
 

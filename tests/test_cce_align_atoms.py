@@ -142,8 +142,8 @@ def test_production_judge_is_jev_and_backed_by_results():
     assert {k for k in AT.ATOMS_EN if AT.ATOMS_EN[k] != AT.ATOMS_EN_V1[k]} == {"reward"}       # 只有 reward 的题面重做过, 其余逐字不变
     per, summ = aj.score(r["raw"])
     assert per == r["per_atom"] and summ == r["summary"]
-    n_jev = sum(len(v) for k, v in AT.calibrated_atoms("jev").items() if k != "reward"); n_mm = sum(len(v) for v in AT.calibrated_atoms("minimax").values())
-    assert AT.PRODUCTION_JUDGE == "jev" and n_jev == summ["calibrated"] == 14 > n_mm == 5
+    n_jev = sum(len(v) for v in AT.calibrated_atoms("jev").values()); n_mm = sum(len(v) for v in AT.calibrated_atoms("minimax").values())
+    assert AT.PRODUCTION_JUDGE == "jev" and summ["calibrated"] == 14 > n_mm == 5 and n_jev > n_mm      # 首轮 14 条; 最终名单见 n3 复核
     assert not any(k.startswith("reward#") and v["verdict"] == "CALIBRATED" for k, v in per.items())   # 原题面下 reward 三条都没过
 
 
@@ -157,9 +157,9 @@ def test_jev_alignment_path(monkeypatch):
             ans[q] = {"choice": pos if q in ("0a", "0b", "1a", "1b") else neg, "probabilities": {pos: 0.9}}   # 第 1 条(禁): A=violated、B=complies ⇒ 两问法不一致
         return {"answers": ans}, None
     r = AT.atoms_alignment("pain_seek", True, TXT, post=post)
-    assert r["status"] == "ok" and r["judge"] == "jev" and r["summary"]["calibrated"] == 2
-    assert r["atoms"][0]["canonical"] == "satisfied"
-    assert r["atoms"][1]["canonical"] == "uncertain"                                     # 两问法规范值不同 ⇒ uncertain
+    assert r["status"] == "ok" and r["judge"] == "jev" and r["summary"]["calibrated"] == 1          # 最终名单里 pain_seek 只剩 #0
+    assert r["atoms"][0]["canonical"] == "satisfied" and r["atoms"][0]["calibrated"]
+    assert r["atoms"][1]["canonical"] == "not_calibrated"                                # #1 在 60 条复核里落选 ⇒ 不判
     assert AT.atoms_alignment("pain_seek", True, TXT, post=lambda b, k: (None, "HTTP 503"))["status"] == "failed"
 
 
@@ -175,8 +175,6 @@ def test_reward_rework_recomputes_and_every_knot_has_a_judgeable_item():
     per, summ = ar.score(r["raw"])
     assert per == r["per_atom"] and summ == r["summary"]
     assert {k: v["verdict"] for k, v in per.items()} == {"reward#0": "CALIBRATED", "reward#1": "CALIBRATED", "reward#2": "NOT_CALIBRATED"}
-    cal = AT.calibrated_atoms("jev")
-    assert cal["reward"] == {0, 1} and set(cal) == set(AT.ATOMS_EN) and sum(len(v) for v in cal.values()) == 16
     n1, n2 = ar.AJ.V5.natural(0), ar.AJ.V5.natural(20)
     assert r["heldout_natural_pointers"] == [p for p, _ in n2] and not {p for p, _ in n1} & {p for p, _ in n2}   # 判定只用没见过的 20 条
 
@@ -190,3 +188,22 @@ def test_alignment_prospective_scorer_withholds_until_n():
     assert af.is_test_run("canary7:2026-09-30:outbound_reply_jev_e2e") and af.is_test_run("submit:example:reply:001") and not af.is_test_run("humaux:reply:20261001:abc")
     rs = af.rows()                                           # 归档里已有一条 status=ok 的 canary(36698289171) —— 不得进前瞻样本
     assert isinstance(rs, list) and not any("36698289171" in r["src"] for r in rs)
+
+
+def test_final_jev_list_recomputes_from_60_replies_and_covers_every_knot():
+    import importlib.util as _iu, hashlib as _h
+    sys.path.insert(0, str(ROOT / "probes"))
+    _p = _iu.spec_from_file_location("_n3", ROOT / "probes/align_atoms_jev_n3.py"); n3 = _iu.module_from_spec(_p); _p.loader.exec_module(n3)
+    r = json.loads((ROOT / "results/align_atoms_jev_final.json").read_text(encoding="utf-8"))
+    assert r["prereg_sha256"] == _h.sha256((ROOT / "tests/data/align_atoms_jev_n3_prereg.json").read_bytes()).hexdigest()
+    assert not r["dry_run"] and r["requests"] <= n3.CAP and not r["errors"]
+    assert r["questions_sha256"] == _h.sha256(json.dumps({k: AT.jev_questions(k) for k in AT.ATOMS_EN}, sort_keys=True).encode()).hexdigest(), "题面在复核后被改过"
+    per, summ = n3.score(r["raw"])
+    assert per == r["per_atom"] and summ == r["summary"] == {"atoms": 29, "calibrated": 16}
+    for v in per.values():
+        assert (v["verdict"] == "CALIBRATED") == (v["constructed_ok"] and v["combined_agree_rate"] >= 0.85) and v["n3_n"] == 40
+    cal = AT.calibrated_atoms("jev")
+    assert set(cal) == set(AT.ATOMS_EN) and sum(len(v) for v in cal.values()) == 16       # 九个结都至少 1 条可判
+    assert cal["pain_seek"] == {0} and 3 in cal["suspend"] and cal["reward"] == {0, 1}    # 对称: pain_seek#1 出, suspend#3 进, reward#2 仍不进
+    used = {p for s in (0, 20) for p, _ in n3.AJ.V5.natural(s)}
+    assert not used & set(r["n3_pointers"]) and len(set(r["n3_pointers"])) == 40

@@ -107,8 +107,8 @@ def rows() -> list[dict]:
     _ho = _j("results/align_atoms_heldout_v41.json"); _dv = _j("results/align_atoms_calibration.json"); _v5 = _j("results/align_atoms_v5.json")
     _jv = _j("results/align_atoms_jev.json")
     _rw = _j("results/align_atoms_jev_reward.json")
-    _cal = sorted([k for k, v in _jv["per_atom"].items() if v["verdict"] == "CALIBRATED" and not k.startswith("reward#")]
-                  + [k for k, v in _rw["per_atom"].items() if v["verdict"] == "CALIBRATED"])
+    _fin = _j("results/align_atoms_jev_final.json")
+    _cal = sorted(k for k, v in _fin["per_atom"].items() if v["verdict"] == "CALIBRATED")
     out.append({"组件": "对齐出口 逐原子三值(读者 top-1 结; Jev 判官; 只判校对通过的条目)", "状态": USABLE,
                 "证据": (f"2026-09-30 重做: 不碰结权重(K1 0/5), 只用读者稳定 top-1(K1 可用); 【做】做了/没做/不确定、【禁】违反/未违反/不确定, "
                          f"在场一侧要逐字子串; 不出总分、不出放行布尔。校对 = 构造正反例 × 两种相反问法 × 两次, 8/8 全对才算: "
@@ -121,7 +121,9 @@ def rows() -> list[dict]:
                          f"生产只判这 {len(_cal)} 个条目: {' · '.join(_cal)}; 两种问法不一致 ⇒ uncertain; 其余记 not_calibrated(不是「没做」)。"
                          "reward 结重做(短收改机械规则: <=2 句且 <=40 词; 另两条改成只看回复文本的描述), 在没用过的 20 条真实回复上复核: "
                          + " · ".join(f"{k} {v['verdict']}(一致率 {v['natural_agree_rate']})" for k, v in _rw["per_atom"].items())
-                         + "。★ 可用范围仅限这些条目, 九个结都至少有 1 条可判; 真实草稿上的准确率未测(无个体金标)"),
+                         + f"。最终名单 = 全部 29 条在 **60 条**真实回复上对称复核(results/align_atoms_jev_final.json; 20 条时 0.85 线只差 1 条就翻): "
+                           f"{_fin['summary']['calibrated']}/29, pain_seek#1 被拿掉(0.817)、suspend#3 进(0.85)、reward#2 仍不进(0.733)"
+                         + "。★ 可用范围仅限这些条目, 九个结都至少有 1 条可判; 线上端到端已验(archive/36698289171); 真实草稿上的准确率未测(无个体金标), 前瞻闭环攒 n>=40 再判"),
                 "文件": "scripts/cce_align_atoms.py · scripts/reply_loop.py · results/align_atoms_jev.json · results/align_atoms_jev_reward.json · results/align_atoms_v5.json"})
 
     # ── 媒体 ──────────────────────────────────────────────────────────
