@@ -12,6 +12,11 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 MIN_N, MIN_EACH = 40, 10
 
 
+def is_test_run(submission_id):
+    s = str(submission_id or "")
+    return s.startswith("canary") or s.startswith("submit:example")
+
+
 def rows():
     later = {}
     for f in glob.glob(str(ROOT / "archive/*/*manifest.json")):
@@ -28,6 +33,8 @@ def rows():
         m = json.loads(mf.read_text(encoding="utf-8")); sub = m.get("submission") or {}
         actor, t = sub.get("reader_actor_ref"), (m.get("finished") or m.get("started") or "").replace(" ", "T")
         if not actor or not t:
+            continue
+        if is_test_run(sub.get("submission_id")):      # canary / 样例不是真的发出去的回复, 不进前瞻样本
             continue
         out.append({"src": str(pathlib.Path(f).relative_to(ROOT)), "knot": v.get("knot"), "judge": v.get("judge"),
                     "score": (s["satisfied"] - s["unsatisfied"]) / s["calibrated"],

@@ -187,4 +187,6 @@ def test_alignment_prospective_scorer_withholds_until_n():
     assert af.score([{"score": 1.0, "followed_up": True}] * 5)["verdict"] == "INSUFFICIENT"
     assert af.score([{"score": 1.0, "followed_up": True}] * 20 + [{"score": -1.0, "followed_up": False}] * 20)["verdict"] == "PREDICTIVE"
     assert af.score([{"score": s, "followed_up": f} for s in (0.0, 0.5) for f in (True, False) for _ in range(10)])["verdict"] == "NOT_PREDICTIVE"
-    assert isinstance(af.rows(), list)                       # 能读现有归档, 不崩
+    assert af.is_test_run("canary7:2026-09-30:outbound_reply_jev_e2e") and af.is_test_run("submit:example:reply:001") and not af.is_test_run("humaux:reply:20261001:abc")
+    rs = af.rows()                                           # 归档里已有一条 status=ok 的 canary(36698289171) —— 不得进前瞻样本
+    assert isinstance(rs, list) and not any("36698289171" in r["src"] for r in rs)

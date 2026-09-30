@@ -11,6 +11,11 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 MIN_N, MIN_EACH = 40, 10
 
 
+def is_test_run(submission_id):
+    s = str(submission_id or "")
+    return s.startswith("canary") or s.startswith("submit:example")
+
+
 def rows():
     out = []
     for f in glob.glob(str(ROOT / "archive/*/*manifest.json")):
@@ -18,6 +23,8 @@ def rows():
         s0 = ((m.get("stages") or {}).get("s0_context") or {})
         dist = (s0.get("成对读出分布") or {}).get("情绪余温")
         sub = m.get("submission") or {}
+        if is_test_run(sub.get("submission_id")):     # ★ 2026-09-30: canary / 样例不是生产测量 —— 此前两次 prior_turn canary 的 16 条(其中 8 条还是截断 bug 下的读数)被算了进来
+            continue
         if dist and sub.get("actor_ref") and sub.get("observed_at"):
             out.append({"actor": sub["actor_ref"], "t": sub["observed_at"],
                         "score": dist.get("正向余温", 0.0) - dist.get("负向余温", 0.0), "src": str(pathlib.Path(f).relative_to(ROOT))})

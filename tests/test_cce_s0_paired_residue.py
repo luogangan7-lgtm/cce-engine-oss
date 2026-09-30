@@ -157,6 +157,8 @@ def test_workflow_passes_prior_turn_to_response_chain():
 def test_prospective_scorer_reads_manifest_and_withholds_until_n():
     _q = importlib.util.spec_from_file_location("_fs", ROOT / "probes/residue_followup_score.py"); fs = importlib.util.module_from_spec(_q); _q.loader.exec_module(fs)
     assert fs.score([{"score": 0.5, "followed_up": True}] * 5)["verdict"] == "INSUFFICIENT"
+    assert fs.is_test_run("canary-prior-turn-20260929") and not fs.is_test_run("humaux:subject:20261001")
+    assert not any(x in r["src"] for r in fs.rows() for x in ("36572885138", "36580963929"))   # 两次 prior_turn canary 不进前瞻样本
     rs = [{"score": 0.9, "followed_up": True}] * 20 + [{"score": -0.5, "followed_up": False}] * 20
     assert fs.score(rs)["verdict"] == "PREDICTIVE"
     rs = [{"score": s, "followed_up": f} for s in (0.1, 0.2) for f in (True, False) for _ in range(10)]
