@@ -157,10 +157,12 @@ def main():
     #   top-1 取 s2 抽样众数 top1_mode(与 cce_full_run.s2 同口径), 不是权重 argmax —— 权重 K1 判 0/5 不可用。
     _samp = ((a.get("stage2") or {}).get("sampling") or {}) if isinstance(a, dict) else {}
     try:
+        # 5 次抽样全一致才判。2026-10-01 预注册确认(results/reader_mode_gate.json): 放到「众数占比 >= 0.8」时, 众数与另两次运行的共识只一致 14/21 ⇒ 不放宽
         _t1_ok = _samp.get("top1_stable") is True and layer_status(instrument_hash=_inst)["top1"]["usable"]
     except Exception:          # 闸不可用 = 不可用
         _t1_ok = False
     atoms_align = atoms_alignment(_samp.get("top1_mode"), _t1_ok, draft)
+    atoms_align["reader_top1_share"] = _samp.get("top1_mode_share")      # 判的是众数结; 占比照报
 
     layers, _l_why = four_layers(a, b)
 

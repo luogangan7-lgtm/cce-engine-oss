@@ -783,7 +783,10 @@ def items() -> list[dict]:
                         + "★★ 同日另两份预注册: 五面分布口径 %s; 九结多题项构念试验(38 条, 与 MiniMax 分布做 MTMM) %s。"
                           % (" · ".join("%s %s" % (k, v["verdict"]) for k, v in _j("results/s0_planted_profile.json")["per_facet"].items() if k != "情绪余温"),
                              " · ".join("%s %s" % (k, v["verdict"]) for k, v in _j("results/knot_construct_pilot.json")["result"]["per_knot"].items()))
-                        + "前瞻闭环(情绪余温 成对分布 → 对方是否再次回应)已预注册, 攒够 n>=40 才判。"})
+                        + "前瞻闭环(情绪余温 成对分布 → 对方是否再次回应)已预注册, 攒够 n>=40 才判。"
+                          "★ 2026-10-01: 生产 n=0。想用历史数据做结局盲的回放(网页 GPT: 合法, 但要抽「机会」—— 含没回来的人, 且 n=40 不够, AUC≈0.7 时 100+100 才有 ±0.07)—— **现有语料做不了**: "
+                          "多轮链语料只收了 >=2 轮的人(全是回来的); 86 条互动语料里深度 0 只有 11 个回来的; 快照没有时间戳与父子关系, 我方回复稿也不在里面。"
+                          "要做需要: 带 parent_id / 时间 / 作者、包含只评论一次的人的整帖导出(约 400+ 个「对方回应我方」的机会)。在那之前两条前瞻闭环保持「待定 n=0」, 不拿别的东西顶替。"})
         _v4 = os.path.join(ROOT, "results/contract_pairs_v4_check.json")
         if os.path.exists(_v4):
             _C = _j("results/contract_pairs_v4_check.json")

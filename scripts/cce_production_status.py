@@ -110,6 +110,7 @@ def rows() -> list[dict]:
     _fin = _j("results/align_atoms_jev_final.json")
     _cal = sorted(k for k, v in _fin["per_atom"].items() if v["verdict"] == "CALIBRATED")
     _v2 = _j("results/align_atoms_v2.json"); _v2ok = sorted(k for k, v in _v2["per_atom"].items() if v["verdict"] == "VALIDATED")
+    _rg = _j("results/reader_mode_gate.json")["result"]
     _v3 = _j("results/align_atoms_v3.json"); _v3ok = sorted(k for k, v in _v3["per_atom"].items() if v["verdict"] == "VALIDATED")
     _v2drop = sorted(set(_cal) & set(_v2["per_atom"]) - set(_v2ok)); _v2fp = sum(v["failure_types"].get("F_P", 0) for v in _v2["per_atom"].values())
     out.append({"组件": "对齐出口 逐原子三值(读者 top-1 结; Jev 判官; 只判校对通过的条目)", "状态": USABLE,
@@ -142,6 +143,10 @@ def rows() -> list[dict]:
                            f"更严的类别口径(确定值不许变也不许失去确定, 至多 1 条)只有 {_v3['summary']['strict_tier_pass']} 条过 —— Jev 对逐字相同的原文重读就有约 4% 的单票变动, 所以准入看占比漂移而不是看确定值翻不翻。"
                            "三条预测全中(P1 >=15 条过 · P2 suspend#0/belong#1/display#2 不过 · P3 类别口径 <=8 条)。"
                            "★ 占比 = 这五个题面里的支持度, 不是真值概率; 审计只有一个题面, 只代表这一族措辞; 逐条口径, 未做多重性校正。"
+                           "★ V3 线上端到端: archive/36757594946 读者 5/5 belong, 面板判出 belong#0 / #3(五票全同, 占比照报), 17 次请求。"
+                         + f"★ 可用率: 读者闸要求 5 次抽样全一致; 在 24 条真实评论 × 3 次运行上(预注册 results/reader_mode_gate.json)全一致的运行只占 {_rg['availability']['unanimous_only']}, "
+                           f"放宽到众数占比 >= 0.8 能到 {_rg['availability']['share_ge_0.8']}, 但占比 0.8 的运行里众数与另两次共识只一致 {_rg['by_share']['0.8']['agree']}/{_rg['by_share']['0.8']['n']}(判据 >= 7/8)⇒ {_rg['verdict']}, 不放宽 —— "
+                           "22 条里有 7 条三次运行的众数结都不一样 —— 读者 top-1 在约三分之一的真实评论上跨次就不稳, 那时扣发是对的。归档里「0.8 时 46/49 一致」是两条 canary 文本反复跑出来的, 没泛化。"
                            "线上端到端: V2 判官已在 runner 上跑通(archive/36713557903, 读者 top-1 5/5 稳, pain_seek#1 判出, 17 次请求); 前一次(archive/36712867977)读者 top-1 4/5 不稳 ⇒ 按规则整条扣发, 没走到判官"),
                 "文件": "scripts/cce_align_atoms.py · scripts/reply_loop.py · results/align_atoms_v3.json · results/align_atoms_v2.json · results/align_atoms_jev.json · results/align_atoms_jev_reward.json · results/align_atoms_v5.json"})
 
@@ -253,9 +258,15 @@ def rows() -> list[dict]:
                            "线上 canary: #1(archive/36572885138)抓到截断 bug(长 prior 把回应截掉, 8 条同为 未知≈0.65), 修后 #2(archive/36580963929)8/8 complete、"
                            "分布彼此分开(正向 1.0×4 / 正向 0.46–0.73×3 / 负向 0.70×1)。自然文本准确率仍未测(无个体金标), 前瞻闭环攒 n>=40 再判"),
                 "文件": "scripts/cce_s0_jev.py(READ_WITHHELD) · scripts/cce_full_run.py(s0)"})
-    out.append({"组件": "s2b 引用证书(影子段)", "状态": UNMEASURED,
+    _cb2 = _j("results/citation_cert_binding.json"); _cr = _cb2["result"]
+    out.append({"组件": "s2b 引用证书(影子段)", "状态": FAILED,
                 "证据": ("线上开着(仓库变量 CCE_CITATION_CERT, 未设=开), 只把 top-1=display 且稳定的读数升到 ③′ CITED_UNVERIFIED, "
-                         "citable_as_confirmed 恒 False、不改任何判决; 证书语义校验器的准确度未测"),
+                         "citable_as_confirmed 恒 False、不改任何判决。★ 2026-10-01 真实文本上的说话人绑定测试(预注册 tests/data/citation_cert_binding_prereg.json, "
+                         f"{_cb2['requests']['used']} 次 MiniMax): 筛 {_cr['screened']} 条多轮评论, 原文发证 {_cr['issued_on_original']} 条({round(_cr['issued_on_original'] / _cr['screened'] * 100)}%); "
+                         f"取 {_cr['roots']} 条根: 前置「以下我从未拥有/用过/经历过, 只是转述陌生人原话」后仍发证 **{_cr['b_neg_still_issued']}/{_cr['roots']}**(上界 {_cr['b_neg_ucb95']}; 其中 {_cr['b_neg_decisions'].get('CALL_FAIL', 0)} 条是调用失败不是干净的拒绝)"
+                         f" —— 说话人绑定的方向是对的; 但**同一原文再跑一次只有 {_cr['reread_preserved']}/{_cr['roots']} 仍发证**, 前置「这是我自己的经历」只有 {_cr['sham_preserved']}/{_cr['roots']}(下界 {_cr['sham_lcb95']} < 0.80)"
+                         f" ⇒ 按预注册判 {_cr['verdict'].split('(')[0]}: 证书本身不可复现, 「拒绝」里有相当一部分是抽样噪声, 不能单独当证据。预测 P1(绑定会失败)未中, P2(重读保持 < 0.80)中, P3(发证率 8–20%)中。"
+                         "⇒ 继续只作影子段, 不得升格; 要升格先解决发证的可复现性(例如多张证书取多数), 再重测绑定"),
                 "文件": "scripts/cce_citation_certificate.py"})
     out.append({"组件": "s4 出站守卫", "状态": USABLE,
                 "证据": ("按 guard_profile 查合规词表 + 破折号纪律 + P7 生成物闸(2026-09-28 接入: 引用未达标机制或 K1 未达标强度读数即拦, "

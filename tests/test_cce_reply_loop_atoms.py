@@ -26,7 +26,7 @@ def _run(monkeypatch, sampling):
 
 def test_uses_stable_top1_mode_not_weight_argmax(monkeypatch):
     seen, v = _run(monkeypatch, {"top1_stable": True, "top1_mode": "pain_seek"})
-    assert seen == {"knot": "pain_seek", "ok": True} and v["top1逐原子对齐"] == {"status": "stub"}
+    assert seen == {"knot": "pain_seek", "ok": True} and v["top1逐原子对齐"] == {"status": "stub", "reader_top1_share": None}
 
 
 def test_unstable_top1_is_not_usable(monkeypatch):
@@ -53,9 +53,17 @@ def test_s1_abstain_on_either_side_withholds_reach_instead_of_crashing(monkeypat
     monkeypatch.setattr(sys, "argv", ["reply_loop.py", "--reader", r, "--draft", w, "--context", "t", "--out", o])
     reply_loop.main()
     v = json.load(open(o))["verdict"]
-    assert v["need_ok"] is None and v["PASS"] is None and "我方" in v["★四层扣发"] and v["未触达维度"] == [] and v["top1逐原子对齐"] == {"status": "stub"}
+    assert v["need_ok"] is None and v["PASS"] is None and "我方" in v["★四层扣发"] and v["未触达维度"] == [] and v["top1逐原子对齐"]["status"] == "stub"
     import reply_batch
     monkeypatch.setattr(reply_batch, "readout", fake_readout)
     monkeypatch.setattr(reply_batch, "knot_align", lambda *a, **k: {"alignment_score": 0.5, "★usable": False})
     out = reply_batch.phase_b({"tag": "draft", "url": "u", "reader": "R", "context": "c", "draft": "D"}, d)
     assert out["PASS"] is None and out["need_ok"] is None and out["改写指令"] == [] and "我方" in out["★四层扣发"]
+
+
+
+def test_reader_gate_stays_unanimous_after_the_mode_gate_study():
+    r = json.loads((ROOT / "results/reader_mode_gate.json").read_text(encoding="utf-8"))["result"]
+    assert r["verdict"] == "KEEP_UNANIMOUS" and r["by_share"]["0.8"]["rate"] < 0.875          # 众数占比 0.8 的运行与另两次共识只一致 14/21
+    src = (ROOT / "scripts/reply_loop.py").read_text(encoding="utf-8")
+    assert '_samp.get("top1_stable") is True and layer_status' in src and 'atoms_align["reader_top1_share"]' in src
