@@ -1,0 +1,134 @@
+{
+ "block": "OCR_CROSS_DOMAIN_R3_PREREG",
+ "prereg_written_at": "2026-10-01",
+ "★frozen_before_measurement": "本文件与分析代码 probes/ocr_cross_domain_r3.py 在**第三轮任何样本帧被转写或跑 OCR 之前**提交(见 git)。真值写完后其 sha256 另行提交(ocr_cross_domain_r3_gt_freeze.json), 之后才跑 OCR。顺序由 git 时间线可验。",
+ "question": "RapidOCR 1.4.4 在抖音视频帧上的中文抽取质量(1−CER)是否随内容域变化。第一轮(4 域 x30)判 STILL_UNDETERMINED; 第二轮(4 域 ~85)主过滤器吃字 ⇒ INSTRUMENT_GATE_FAILED。本轮换**未看过的新域**, 修好过滤器并把过滤器保真闸写进预注册。",
+ "★prior_rounds_role": {
+  "rule": "第一/二轮的**读数**只用于功效估算(下方 power)与陈述假设; **不并入**本轮判定, 不用于改判据(δ、区间、留一创作者、overall 规则沿用前两轮预注册)。",
+  "instrument_development": "第一/二轮**已看过的帧**另用于开发与自检有界水印过滤器 keep_v3(仪器开发, 不涉及任何判据; 那些帧不进本轮样本)。这是第二轮教训「复用仪器到新条件前先做该条件下的仪器自检」的执行。",
+  "why": "本仓铁律: 看过的数据只能生成假设, 不能当证据复用。"
+ },
+ "material": {
+  "source_video_check": {
+   "done_at": "2026-10-01, 转写前",
+   "method": "find /Volumes/data -name '*.mp4' 的文件名(去扩展名)与 assets/stackA_frames/ 下的 aweme_id 求交; stackA_frames_manifest.jsonl 的 method 字段: remote_seek 841 / local_mp4 90 / full_download 7(整片抽完即删)。",
+   "result": "898 条帧视频里本机有 mp4 的 134 条; 其中第一/二轮的 4 域: 家常菜教程 0 · 职场干货 0 · 汽车评测 0 · 游戏解说 10(5 名创作者)。",
+   "decision": "老 4 域源视频基本不在本机 ⇒ 不重抽新时刻帧(游戏 10 条 x 2 个新时刻 = 20 帧, 按第二轮约 52% 有字率约 10 张, 远低于 60); 改用未用过的其他域的现有帧。不联网重抽(remote_seek 需访问抖音分享页, 不在本轮授权内)。"
+  },
+  "source": "/Volumes/data/viral-skill-eval/assets/stackA_frames/<aweme_id>/{00,01,02}.jpg(stackA_frames_backfill.py 规格 K=3: t = 0 / (dur−0.35)/2 / dur−0.35, 448px 短边; 本轮不新抽帧, 无抽帧命令)",
+  "domain_label_source": "同前两轮: prereg{,2,3,4,5}_douyin 的 meta.kw(采集时给定)",
+  "language": "zh。英文不判。"
+ },
+ "domains": {
+  "pool": ["效率工具", "露营装备", "读书分享", "情感成长", "三农生活", "装修避坑"],
+  "pool_rule": "第一/二轮没用过、stackA_frames 里 >=48 条视频且恰 5 名创作者的全部域(按 meta.kw 计数; 其余域 <=40 条或 <5 名创作者)。",
+  "selection_rule": "按 sha256(域名 UTF-8) 十六进制升序取前 3 —— 选域时没看任何一帧, 也不按难易挑。",
+  "chosen": ["情感成长", "三农生活", "效率工具"],
+  "per_domain_pool": "每域 49 条视频 / 5 名创作者 / 147 帧候选(全部未看过)。",
+  "why_three": "3 域 = 3 对; 加域会增加多重比较而每对 n 不变。"
+ },
+ "exclusions": {
+  "seen_frames": "第一轮真值 ocr_gt_douyin_frames_v1.json、第二轮真值 ocr_gt_douyin_frames_v2.json 的每一帧 + 第一轮 pilot 的 4 帧 01.jpg 一律排除(I5 校验)。所选 3 域与前两轮的域不相交, 预期排除 0 帧。",
+  "★independence": "新域 = 新视频 = 新创作者; 与前两轮在帧、视频、创作者层面均不重叠。"
+ },
+ "sampling": {
+  "order": "每域: 该域全部视频 x {00,01,02}, 按 sha256('<aweme_id>/<帧名>') 十六进制升序(同第二轮)。",
+  "stop_rule": "依序转写, 直到该域累计 **85 张有字帧**(去水印后真值中文字符 >=2)即停; 途中无字帧保留为零文字对照。",
+  "exhaustion_rule": "候选耗尽仍不足 85: n >= 60 ⇒ 以实际 n 判(OK_REDUCED); n < 60 ⇒ 该域 INSUFFICIENT ⇒ H1 不能判可搬(不可搬对仍算)。**不补其它来源、不换域、不启用 pool 里的后备域。**",
+  "no_cherry_pick": "顺序由哈希决定, 不因画面难易跳帧。解码失败/近全黑(亮度标准差 < 5)记仪器排除并计数。"
+ },
+ "annotation": {
+  "annotator": "Claude(单人, **非人类**), 与前两轮同一标注规则。结果中写 annotator=Claude_single_non_human。",
+  "blind": "全部真值写完并冻结 sha256 之前, 不在本轮样本上运行 OCR、不看 OCR 输出。",
+  "scope_rule": "同前两轮: 448px 原图上肉眼可辨的全部文字, 阅读序每视觉行一行; 排除抖音平台水印块(抖音 logo/抖音号/搜索图标+昵称); 部分可辨只录可辨部分并记 flags=partial; 图上有字但小到不可辨记 flags=illegible_text_present; 放大(zoomed)只用于看清原像素, 不补推测字。",
+  "storage": "真值存仓外 /Volumes/data/viral-skill-eval/results/ocr_gt_douyin_frames_v3.json(含屏幕上的创作者名, 不进 git)。仓内只放路径/图像 sha256/域/逐帧数字/真值 sha256。"
+ },
+ "ocr": {
+  "engine": "RapidOCR via scripts/cce_image_ingest.visual_observation(生产同一调用), rapidocr-onnxruntime==1.4.4 / onnxruntime==1.30.0(constraints.txt 锁定)。",
+  "watermark_filter": {
+   "primary": "keep_v3「有界水印块」(probes/ocr_cross_domain_r3.keep_v3, 本文件提交后不再改): 只删 ① 含「抖音」且核心字 <=4 的 logo 行 ② 抖音号锚行中「…音号: <字母数字号>」那一段(同框残余文字保留) ③ 锚正下方紧邻且同字号(字高 <= 1.5x 锚高, 间隙 <= 1.5x 锚高, 水平相交)的 1 行昵称 ④ 锚正上方紧邻且核心字 <= 4 的 1 行(读错的 logo) ⑤ 无锚时只删以 Q/🔍 开头且与 meta 昵称互为子串的行。块外一行不删。",
+   "dev_on_seen_frames": {
+    "note": "开发/自检只在第一/二轮已看帧上做(第二轮缓存 OCR + 第二轮仓外真值); 数字为过滤后比不过滤的 1−CER 平均损失 / 零文字对照无中生有次数。",
+    "round2_frames_loss": {"家常菜教程": 0.0, "职场干货": 0.0, "汽车评测": 0.0016, "游戏解说": 0.0009},
+    "round2_frames_loss_by_position": {"00.jpg": 0.0012, "01.jpg": 0.0, "02.jpg": 0.0003},
+    "round2_blank_hallucination": {"家常菜教程": "0/20", "职场干货": "0/10", "汽车评测": "0/25", "游戏解说": "0/47"},
+    "round1_frames_loss": {"家常菜教程": 0.0, "职场干货": 0.0, "汽车评测": 0.0, "游戏解说": 0.0},
+    "round1_blank_hallucination": {"游戏解说": "0/12"},
+    "compare_round2_v2_anchor_loss": {"家常菜教程": 0.4163, "职场干货": 0.3173, "汽车评测": 0.2443, "游戏解说": 0.2263},
+    "★not_evidence": "这是仪器在旧帧上的自检, 不是本轮的闸; 本轮的闸 I6 在新帧上重算。"
+   },
+   "no_filter_reference": "不过滤的读数只作 I6 参照与上界, 不参与判定。"
+  }
+ },
+ "metric": {
+  "primary": "逐帧中文 1−CER, 与前两轮同式(NFKC 后只留 CJK 统一表意字符, difflib 匹配块, 召回型, 多读不罚; 复用 probes/ocr_accuracy_real_zh._cer)。",
+  "domain_statistic": "域内逐帧 1−CER 的均值(帧加权); 同时报中位/四分位/最小/字符加权, 及按帧时刻(00/01/02)分报。",
+  "hallucination": "零文字对照: 过滤水印后 OCR 读出 >=2 个中文字符记一次无中生有, 分域报(描述, 不作闸)。",
+  "instrument_failures": "completeness.status=='failed' 记仪器失败并排除; 任一域 > 10% ⇒ 闸不过。"
+ },
+ "criterion": {
+  "SESOI": "δ = 0.10(1−CER 绝对差), 与前两轮相同, 不改。",
+  "pairwise_interval": "3 域两两 3 对, 90% 百分位区间, 10000 次重采样, numpy default_rng(seed 20261003)。**视频聚类**重采样(同第二轮 R2.cluster_boot): 每域内对视频有放回抽样, 带上该视频的全部样本帧, 统计量 = 帧加权均值差。",
+  "pair_TRANSFERABLE": "90% 区间完全落在 (−0.10, +0.10) 内",
+  "pair_NOT_TRANSFERABLE": "90% 区间完全落在 [−0.10, +0.10] 之外",
+  "pair_INCONCLUSIVE": "其余",
+  "creator_robustness": "留一创作者: 逐一剔除任一边任一创作者重算(仍视频聚类); 任一次判定改变 ⇒ 该对降为 INCONCLUSIVE。",
+  "creator_cluster_descriptive": "另报创作者聚类区间, 仅描述(每域 5 名创作者, 百分位 bootstrap 不校准), 不参与判定。",
+  "H1_overall": {
+   "domains": ["情感成长", "三农生活", "效率工具"],
+   "TRANSFERS_ACROSS_TESTED_DOMAINS": "3 对全部 TRANSFERABLE(仅限这三域)",
+   "DOES_NOT_TRANSFER": ">=1 对 NOT_TRANSFERABLE(只在非 INSUFFICIENT 的域之间算对)",
+   "STILL_UNDETERMINED": "其余(含任一域 INSUFFICIENT 且无不可搬对)"
+  },
+  "H2_nongame_transfer": {
+   "statement": "「非游戏内容域之间, OCR 1−CER 差 < δ(可搬)」。",
+   "provenance": "由第一轮(非游戏三域 0.925–0.988 vs 游戏 0.836)与第二轮事后探索(非游戏三域两两区间在 ±0.10 内)**生成的假设**。",
+   "test": "在 3 个**新的**非游戏域上做样本外检验, 判定 = H1 的判定(同一套逐对规则)。原先那三域(家常菜/职场/汽车)本轮不复测(候选帧耗尽), 它们的事后探索结果仍只是探索。",
+   "scope_if_supported": "只能说「在这 3 个新域上 H2 得到样本外支持」, 不能外推到未测域; 与第二轮探索合起来只能说「已测的 6 个非游戏域里未见可检出的域差」, 不得写成「非游戏域普遍可搬」。"
+  },
+  "H3_game_vs_others": {
+   "statement": "「游戏解说 vs 其他域 不可搬(游戏偏低 > δ)」—— 第一轮差 0.152 区间跨 δ, 第二轮游戏 51 张 INSUFFICIENT。",
+   "status_this_round": "NOT_TESTABLE_THIS_ROUND —— 不检验, 不出判定。",
+   "why": "游戏解说在 stackA_frames 里 0 张未看过的帧; 本机有 mp4 的游戏视频只有 10 条(5 名创作者), 即使每条抽多个新时刻, 视频聚类也只有 10 个, 而且全是第二轮已看过帧的视频。",
+   "what_is_missing": "游戏域 >= 60 张未看过的有字帧, 来自 >= 30 条视频: 需对 stackA 的 47 条游戏视频用 remote_seek 通道(联网访问抖音分享页, 零付费)重抽新时刻帧(如 25%/75%), 或另采新游戏视频。两者都要联网, 本轮未做。"
+  },
+  "instrument_gate_before_any_verdict": [
+   "I0 读回: 3 条已知中文串合成渲染后 OCR, 1−CER 必须全部 = 1.0",
+   "I1 确定性: 每域前 3 帧连跑两次 OCR 输出逐字相同",
+   "I2 版本: rapidocr_onnxruntime==1.4.4 且 onnxruntime==1.30.0",
+   "I3 真值冻结: 真值文件 sha256 = ocr_cross_domain_r3_gt_freeze.json 所记; 逐帧图像 sha256 = 转写时所记",
+   "I4 退化守卫: 每域逐帧 1−CER 有变异(不得全 0 / 全 1)",
+   "I5 新样本: 真值里不得出现任何第一/二轮看过的帧",
+   "★ I6 过滤器保真(本轮起写进预注册, 第二轮是事后补的): 每域 mean(不过滤 1−CER − keep_v3 过滤后 1−CER) <= 0.02, 在本轮新帧上算。不过 ⇒ 过滤器在吃真值文字 = 仪器坏了",
+   "仪器失败率 <= 10%",
+   "任一不过 ⇒ overall = INSTRUMENT_GATE_FAILED, 不出判定, 只报仪器故障; 不允许事后换过滤器补判"
+  ]
+ },
+ "power_from_prior_rounds": {
+  "method": "以第二轮已看帧在 keep_v3 下的逐帧读数为总体(按视频聚类), 每域抽视频至 >=85 帧, 500 次视频聚类 bootstrap, 200 次模拟; 不含留一创作者(只会更难判)。这是对**已观测效应**的重抽, 偏乐观。",
+  "round2_frames_under_v3_means(仅功效用)": {"家常菜教程": 0.9977, "职场干货": 0.9776, "汽车评测": 0.9585, "游戏解说": 0.7762},
+  "pair_decisive_probability": {
+   "家常菜|职场": "TRANSFERABLE 200/200",
+   "家常菜|汽车": "TRANSFERABLE 200/200",
+   "职场|汽车": "TRANSFERABLE 200/200",
+   "家常菜|游戏": "NOT_TRANSFERABLE 197/200",
+   "职场|游戏": "NOT_TRANSFERABLE 189/200",
+   "汽车|游戏": "NOT_TRANSFERABLE 157/200"
+  },
+  "★expectation_written_before_data": "若 3 个新域都像前两轮的非游戏域(均值 0.94–1.0), H1 判 TRANSFERS 的概率高(留一创作者前约 >0.9); 若某个新域像游戏那样有密集小字 UI(效率工具里的屏幕录制最可能), 则可能判出 DOES_NOT_TRANSFER 或 STILL_UNDETERMINED。写在这里是为了让结果出来后没法说「早就知道」。"
+ },
+ "writeback_rule": {
+  "registry": "config/cce_capability_registry_v1.json 的 standalone_image_ingest / video_multimodal_parse_v5 missing[0] 与 config/cce_chain_conformance.json P3 ★condition 追加第三轮段落, 数字从产物现读、测试钉死。",
+  "across_domains": "scope.across_domains(cce_ksep 显著性测量的作用域, 指 CCE 动态读数的跨域标定) **不因本探针改动**: 本探针只测抽取层(OCR)的域稳定性, 「OCR 跨域可搬」不等于「across_domains 成立」。H1 判 TRANSFERS ⇒ 登记「OCR 抽取层在这 3 个新域间可搬(δ=0.10)」; 判 DOES_NOT_TRANSFER ⇒ 登记「OCR 抽取层随域变, 扣发更该保持」; 都不改 across_domains=NOT_ESTABLISHED 与 p3.cross_domain_calibration 扣发。",
+  "P3_status": "DONE_WITH_SCOPED_WITHHOLDING 不因本探针改动(扣发的 p3.cross_domain_calibration 是标定层)。"
+ },
+ "★what_this_can_establish": "RapidOCR 1.4.4 在抖音视频帧(三个时刻)上的中文抽取质量, 在 情感成长/三农生活/效率工具 三域之间是否可搬(H1 = H2 的样本外检验)。",
+ "★what_this_cannot_establish": [
+  "CCE 动态读数(四层占比/阈值/分辨率)的跨域标定 —— 那是语义层不是抽取层",
+  "游戏 vs 其他(H3, 本轮不可检验)",
+  "未测的其他关键词域、非抖音平台、封面图、英文",
+  "社媒音轨(ASR)跨域",
+  "人类标注一致性 —— 标注者是 Claude 单人",
+  "域效应与创作者效应的分离 —— 每域 5 名创作者, 留一创作者只能排除「单一创作者驱动」"
+ ]
+}
