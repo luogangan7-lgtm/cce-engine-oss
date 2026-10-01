@@ -1,0 +1,435 @@
+{
+ "block": "ACCURACY_MAIN_E2E_OFFLINE",
+ "written_at": "2026-10-01",
+ "★zero_api": "全程零真实调用; 每臂 socket 绊线 tripped=[] 由性质「零网络」逐臂断言。",
+ "★替换边界": "只替换 urlopen 的传输结果; 资格考/准入/标注/落盘/G-K1/G-K2/汇总/扣发 全走原代码。",
+ "★★★据此能支持的结论": "**main() 编排与 G-K2 链路的离线软件验证**: 谁进面板、调用了几次、什么时候落盘、什么时候扣发、overall 由哪几项合成。**不能**证明真实 provider 的语义准确率或重复稳定性 —— 假回复是合成的, 不是金标。",
+ "arms": {
+  "A_全员准入_跑G-K2": {
+   "rc": null,
+   "exception": null,
+   "tripwire_tripped": [],
+   "source_mutated": false,
+   "calls": {
+    "dist": 405,
+    "fact": 81,
+    "qualify": 25
+   },
+   "dist_calls_by_model": {
+    "MiniMax-M3": 81,
+    "MiniMax-M2.5": 81,
+    "MiniMax-M2.7": 81,
+    "MiniMax-M2": 81,
+    "MiniMax-Text-01": 81
+   },
+   "gates_result_written": true,
+   "raw_written": true,
+   "admitted": [
+    "MiniMax-M3",
+    "MiniMax-M2.5",
+    "MiniMax-M2.7",
+    "MiniMax-M2",
+    "MiniMax-Text-01"
+   ],
+   "qual_status": "OK",
+   "overall_pass": false,
+   "withheld": false,
+   "G_K1_pass": true,
+   "G_K2_n": 81,
+   "G_K2_pass": false,
+   "G_K2_withheld": false,
+   "pass_components": {
+    "G_K1": true,
+    "G_K2": false,
+    "annotator_qualification": "OK"
+   },
+   "structural_max": 1536,
+   "budget_limit": 1600
+  },
+  "B_全员准入_跳G-K2": {
+   "rc": null,
+   "exception": null,
+   "tripwire_tripped": [],
+   "source_mutated": false,
+   "calls": {
+    "dist": 405,
+    "qualify": 25
+   },
+   "dist_calls_by_model": {
+    "MiniMax-M3": 81,
+    "MiniMax-M2.5": 81,
+    "MiniMax-M2.7": 81,
+    "MiniMax-M2": 81,
+    "MiniMax-Text-01": 81
+   },
+   "gates_result_written": true,
+   "raw_written": true,
+   "admitted": [
+    "MiniMax-M3",
+    "MiniMax-M2.5",
+    "MiniMax-M2.7",
+    "MiniMax-M2",
+    "MiniMax-Text-01"
+   ],
+   "qual_status": "OK",
+   "overall_pass": null,
+   "withheld": false,
+   "G_K1_pass": true,
+   "G_K2_n": 0,
+   "G_K2_pass": null,
+   "G_K2_withheld": true,
+   "pass_components": {
+    "G_K1": true,
+    "G_K2": null,
+    "annotator_qualification": "OK"
+   },
+   "structural_max": 1293,
+   "budget_limit": 1600
+  },
+  "C_两名被剔除_跑G-K2": {
+   "rc": null,
+   "exception": null,
+   "tripwire_tripped": [],
+   "source_mutated": false,
+   "calls": {
+    "dist": 243,
+    "fact": 81,
+    "qualify": 25
+   },
+   "dist_calls_by_model": {
+    "MiniMax-M3": 81,
+    "MiniMax-M2.5": 81,
+    "MiniMax-M2.7": 81,
+    "MiniMax-M2": 0,
+    "MiniMax-Text-01": 0
+   },
+   "gates_result_written": true,
+   "raw_written": true,
+   "admitted": [
+    "MiniMax-M3",
+    "MiniMax-M2.5",
+    "MiniMax-M2.7"
+   ],
+   "qual_status": "OK",
+   "overall_pass": false,
+   "withheld": false,
+   "G_K1_pass": true,
+   "G_K2_n": 81,
+   "G_K2_pass": false,
+   "G_K2_withheld": false,
+   "pass_components": {
+    "G_K1": true,
+    "G_K2": false,
+    "annotator_qualification": "OK"
+   },
+   "structural_max": 1020,
+   "budget_limit": 1600
+  },
+  "D_全员被剔除": {
+   "rc": 2,
+   "exception": null,
+   "tripwire_tripped": [],
+   "source_mutated": false,
+   "calls": {
+    "qualify": 25
+   },
+   "dist_calls_by_model": {
+    "MiniMax-M3": 0,
+    "MiniMax-M2.5": 0,
+    "MiniMax-M2.7": 0,
+    "MiniMax-M2": 0,
+    "MiniMax-Text-01": 0
+   },
+   "gates_result_written": true,
+   "raw_written": false,
+   "admitted": null,
+   "qual_status": "INSUFFICIENT_QUALIFIED_ANNOTATORS",
+   "overall_pass": null,
+   "withheld": true,
+   "G_K1_pass": null,
+   "G_K2_n": null,
+   "G_K2_pass": null,
+   "G_K2_withheld": false,
+   "pass_components": null,
+   "structural_max": 1293,
+   "budget_limit": 1600
+  },
+  "E_事实抽取全断_跑G-K2": {
+   "rc": null,
+   "exception": "IndexError",
+   "tripwire_tripped": [],
+   "source_mutated": false,
+   "calls": {
+    "dist": 405,
+    "fact": 81,
+    "qualify": 25
+   },
+   "dist_calls_by_model": {
+    "MiniMax-M3": 81,
+    "MiniMax-M2.5": 81,
+    "MiniMax-M2.7": 81,
+    "MiniMax-M2": 81,
+    "MiniMax-Text-01": 81
+   },
+   "gates_result_written": false,
+   "raw_written": true,
+   "admitted": [
+    "MiniMax-M3",
+    "MiniMax-M2.5",
+    "MiniMax-M2.7",
+    "MiniMax-M2",
+    "MiniMax-Text-01"
+   ],
+   "qual_status": null,
+   "overall_pass": null,
+   "withheld": false,
+   "G_K1_pass": null,
+   "G_K2_n": null,
+   "G_K2_pass": null,
+   "G_K2_withheld": false,
+   "pass_components": null,
+   "structural_max": 1536,
+   "budget_limit": 1600
+  },
+  "F_面板一致_事实相关": {
+   "rc": null,
+   "exception": null,
+   "tripwire_tripped": [],
+   "source_mutated": false,
+   "calls": {
+    "dist": 405,
+    "fact": 81,
+    "qualify": 25
+   },
+   "dist_calls_by_model": {
+    "MiniMax-M3": 81,
+    "MiniMax-M2.5": 81,
+    "MiniMax-M2.7": 81,
+    "MiniMax-M2": 81,
+    "MiniMax-Text-01": 81
+   },
+   "gates_result_written": true,
+   "raw_written": true,
+   "admitted": [
+    "MiniMax-M3",
+    "MiniMax-M2.5",
+    "MiniMax-M2.7",
+    "MiniMax-M2",
+    "MiniMax-Text-01"
+   ],
+   "qual_status": "OK",
+   "overall_pass": true,
+   "withheld": false,
+   "G_K1_pass": true,
+   "G_K2_n": 81,
+   "G_K2_pass": true,
+   "G_K2_withheld": false,
+   "pass_components": {
+    "G_K1": true,
+    "G_K2": true,
+    "annotator_qualification": "OK"
+   },
+   "structural_max": 1536,
+   "budget_limit": 1600
+  },
+  "G_次结分歧_事实相关": {
+   "rc": null,
+   "exception": null,
+   "tripwire_tripped": [],
+   "source_mutated": false,
+   "calls": {
+    "dist": 405,
+    "fact": 81,
+    "qualify": 25
+   },
+   "dist_calls_by_model": {
+    "MiniMax-M3": 81,
+    "MiniMax-M2.5": 81,
+    "MiniMax-M2.7": 81,
+    "MiniMax-M2": 81,
+    "MiniMax-Text-01": 81
+   },
+   "gates_result_written": true,
+   "raw_written": true,
+   "admitted": [
+    "MiniMax-M3",
+    "MiniMax-M2.5",
+    "MiniMax-M2.7",
+    "MiniMax-M2",
+    "MiniMax-Text-01"
+   ],
+   "qual_status": "OK",
+   "overall_pass": false,
+   "withheld": false,
+   "G_K1_pass": false,
+   "G_K2_n": 81,
+   "G_K2_pass": true,
+   "G_K2_withheld": false,
+   "pass_components": {
+    "G_K1": false,
+    "G_K2": true,
+    "annotator_qualification": "OK"
+   },
+   "structural_max": 1536,
+   "budget_limit": 1600
+  }
+ },
+ "properties": {
+  "A_全员准入_跑G-K2": {
+   "零网络": true,
+   "资格考每人考满锚例": true,
+   "结构上限 <= 预算": true,
+   "总调用 <= 结构上限": true,
+   "原始标注已落盘且面板=准入者": true,
+   "被剔除者零标注调用": true,
+   "准入者每人标满样本": true,
+   "gates_result 已落盘": true,
+   "G-K2 真跑了: 事实抽取每样本一次": true,
+   "G-K2 有行": true,
+   "overall = G_K1 ∧ G_K2 ∧ 准入OK": true
+  },
+  "B_全员准入_跳G-K2": {
+   "零网络": true,
+   "资格考每人考满锚例": true,
+   "结构上限 <= 预算": true,
+   "总调用 <= 结构上限": true,
+   "原始标注已落盘且面板=准入者": true,
+   "被剔除者零标注调用": true,
+   "准入者每人标满样本": true,
+   "gates_result 已落盘": true,
+   "跳 G-K2 ⇒ 零事实抽取": true,
+   "跳 G-K2 ⇒ G-K2 扣发": true,
+   "跳 G-K2 ⇒ overall 扣发(None)": true
+  },
+  "C_两名被剔除_跑G-K2": {
+   "零网络": true,
+   "资格考每人考满锚例": true,
+   "结构上限 <= 预算": true,
+   "总调用 <= 结构上限": true,
+   "原始标注已落盘且面板=准入者": true,
+   "被剔除者零标注调用": true,
+   "准入者每人标满样本": true,
+   "gates_result 已落盘": true,
+   "G-K2 真跑了: 事实抽取每样本一次": true,
+   "G-K2 有行": true,
+   "overall = G_K1 ∧ G_K2 ∧ 准入OK": true,
+   "恰好剔除两名": true
+  },
+  "D_全员被剔除": {
+   "零网络": true,
+   "资格考每人考满锚例": true,
+   "结构上限 <= 预算": true,
+   "总调用 <= 结构上限": true,
+   "扣发返回 2": true,
+   "扣发写 gates_result 且 overall=None": true,
+   "扣发 ⇒ 零标注零抽取": true
+  },
+  "E_事实抽取全断_跑G-K2": {
+   "零网络": true,
+   "资格考每人考满锚例": true,
+   "结构上限 <= 预算": true,
+   "总调用 <= 结构上限": true,
+   "原始标注先落盘(崩前不丢数据)": true,
+   "不产出通过": true
+  },
+  "F_面板一致_事实相关": {
+   "零网络": true,
+   "资格考每人考满锚例": true,
+   "结构上限 <= 预算": true,
+   "总调用 <= 结构上限": true,
+   "原始标注已落盘且面板=准入者": true,
+   "被剔除者零标注调用": true,
+   "准入者每人标满样本": true,
+   "gates_result 已落盘": true,
+   "G-K2 真跑了: 事实抽取每样本一次": true,
+   "G-K2 有行": true,
+   "overall = G_K1 ∧ G_K2 ∧ 准入OK": true,
+   "通过路径真被走到: G_K1 过 ∧ G_K2 过 ⇒ overall=True": true
+  },
+  "G_次结分歧_事实相关": {
+   "零网络": true,
+   "资格考每人考满锚例": true,
+   "结构上限 <= 预算": true,
+   "总调用 <= 结构上限": true,
+   "原始标注已落盘且面板=准入者": true,
+   "被剔除者零标注调用": true,
+   "准入者每人标满样本": true,
+   "gates_result 已落盘": true,
+   "G-K2 真跑了: 事实抽取每样本一次": true,
+   "G-K2 有行": true,
+   "overall = G_K1 ∧ G_K2 ∧ 准入OK": true,
+   "G_K1 不过而 G_K2 过 ⇒ overall=False": true
+  }
+ },
+ "★all_properties_hold": {
+  "A_全员准入_跑G-K2": true,
+  "B_全员准入_跳G-K2": true,
+  "C_两名被剔除_跑G-K2": true,
+  "D_全员被剔除": true,
+  "E_事实抽取全断_跑G-K2": true,
+  "F_面板一致_事实相关": true,
+  "G_次结分歧_事实相关": true
+ },
+ "mutations": {
+  "M1_跳G-K2仍发overall": {
+   "arm": "B_全员准入_跳G-K2",
+   "source_mutated": true,
+   "properties_turned_false": [
+    "跳 G-K2 ⇒ overall 扣发(None)"
+   ],
+   "detected": true
+  },
+  "M2_剔除后仍用全员标注": {
+   "arm": "C_两名被剔除_跑G-K2",
+   "source_mutated": true,
+   "properties_turned_false": [
+    "恰好剔除两名"
+   ],
+   "detected": true
+  },
+  "M3_扣发返回0": {
+   "arm": "D_全员被剔除",
+   "source_mutated": true,
+   "properties_turned_false": [
+    "扣发返回 2"
+   ],
+   "detected": true
+  },
+  "M4_原始标注不落盘": {
+   "arm": "A_全员准入_跑G-K2",
+   "source_mutated": true,
+   "properties_turned_false": [
+    "原始标注已落盘且面板=准入者",
+    "被剔除者零标注调用"
+   ],
+   "detected": true
+  },
+  "M5_overall不看G-K1": {
+   "arm": "G_次结分歧_事实相关",
+   "source_mutated": true,
+   "properties_turned_false": [
+    "G_K1 不过而 G_K2 过 ⇒ overall=False",
+    "overall = G_K1 ∧ G_K2 ∧ 准入OK"
+   ],
+   "detected": true
+  }
+ },
+ "★all_mutations_detected": true,
+ "★finding_fact_outage": {
+  "observed": {
+   "exception": "IndexError",
+   "gates_result_written": false,
+   "raw_written": true,
+   "calls": {
+    "dist": 405,
+    "fact": 81,
+    "qualify": 25
+   }
+  },
+  "reading": "CCE_SKIP_GK2=0 且事实抽取全部返回空(如 Text-01 故障)时, G-K2 的 rows 为空, `collections.Counter(...).most_common(1)[0]` 抛 IndexError ⇒ main() 在全部标注调用**之后**崩, gates_result.json 不写。方向是 fail-closed(不产出通过), 原始标注已先落盘 ⇒ 数据不丢; 但付费调用已花完、且没有扣发记录说明原因。2026-09-07 修过 SKIP_GK2=1 的同一崩法, 这条路径没修。accuracy/run_gates.py 是冻结件, 本轮只登记不改。"
+ },
+ "★仍未验证(零 API 测不了)": [
+  "真实 provider 的语义判断准确率",
+  "真实 provider 的重复稳定性"
+ ]
+}
