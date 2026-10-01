@@ -175,6 +175,14 @@ IMPL_FIX = ("2026-10-01 转写完成后、冻结真值与任何 OCR 之前修正
             "STILL_UNDETERMINED; H2 三域都够才判。δ/区间/留一创作者/阈值均未动。")
 
 
+I6_MAX = 0.02
+I6_NOTE = ("I6 是**跑完 OCR 之后**补的仪器检查, 不在预注册里。发现经过: 主过滤器 v2 下家常菜 00 帧(t=0)均值 0.028, "
+           "v1 下同批帧 0.994。原因: t=0 时抖音水印块在**左上角**, v2 的规则「抖音号框下方且 x 中心 >= 锚框左缘−10px "
+           "的行都算水印」此时覆盖几乎整帧 —— 过滤器吃掉了真值文字。第一轮只用 01 帧(水印在右下), 没暴露。"
+           "I6 判据: 每域 mean(不过滤 1−CER − 过滤后 1−CER) <= 0.02。按预注册「任一仪器闸不过 ⇒ 不出判定」, "
+           "主分析作废; v1 的结果只能当事后探索, 不得改注册表判定。")
+
+
 def judge_all(domains, pre, rng):
     pairs = {}
     kws = [k for k in domains if domains[k]["status"] != "INSUFFICIENT"]
@@ -235,20 +243,32 @@ def cmd_run():
             determinism.append({"domain": kw, "aweme_id": i, "frame": f, "same": R1.ocr(p) == cache[p]})
     gate["I1_determinism"] = bool(determinism) and all(d["same"] for d in determinism)
     results = {name: measure(flt, ords, by_key, m, cache)
-               for name, flt in (("v2_anchor", R1.keep_v2), ("v1_prereg_r1", R1.keep_v1))}
+               for name, flt in (("v2_anchor", R1.keep_v2), ("v1_prereg_r1", R1.keep_v1),
+                                 ("no_filter_upper_bound", lambda rows, _n: [t for t, _ in rows]))}
     d2 = results["v2_anchor"]
     gate["I4_variance"] = all(d["acc_zh_mean"] is not None and 0 < d["acc_zh_mean"] < 1
                               and len({r["acc_zh"] for r in d["per_frame"]}) > 1 for d in d2.values())
     gate["fail_rate_ok"] = all(d["n_ocr_failed"] <= 0.10 * max(1, d["n_text_frames"] + d["n_blank_controls"])
                                for d in d2.values())
-    gate_ok = all(gate.values())
+    # ★ I6(事后补的仪器检查, 见 I6_NOTE): 指标只罚漏读, 水印过滤器唯一的正当作用是挡水印字偶然对齐;
+    #   它若让读数比「不过滤」低一截, 就是在吃真值文字 = 仪器坏了, 不是 OCR 差。
+    up = {k: {r["frame"]: r["acc_zh"] for r in d["per_frame"]} for k, d in results["no_filter_upper_bound"].items()}
+    i6 = {}
+    for name in ("v2_anchor", "v1_prereg_r1"):
+        i6[name] = {k: round(statistics.mean(up[k][r["frame"]] - r["acc_zh"] for r in d["per_frame"]), 4)
+                    for k, d in results[name].items() if d["per_frame"]}
+        gate[f"I6_filter_preserves_text[{name}]"] = all(v <= I6_MAX for v in i6[name].values())
+    base_ok = all(v for k, v in gate.items() if not k.startswith("I6_"))
     out = {}
     for name, domains in results.items():
         pairs, ov, h2 = {}, "INSTRUMENT_GATE_FAILED", "INSTRUMENT_GATE_FAILED"
-        if gate_ok:
+        if base_ok and gate.get(f"I6_filter_preserves_text[{name}]", True):
             pairs, ov, h2 = judge_all(domains, pre, np.random.default_rng(SEED))
-        out[name] = {"role": "primary" if name == "v2_anchor" else "descriptive_only",
-                     "domains": domains, "pairs": pairs, "overall": ov, "H2_subset": h2}
+        out[name] = {"role": {"v2_anchor": "primary_preregistered",
+                              "v1_prereg_r1": "EXPLORATORY_POST_HOC(预注册为只描述; 主过滤器坏后才拿来看)",
+                              "no_filter_upper_bound": "upper_bound_only(不过滤, 水印字可能虚增召回)"}[name],
+                     "domains": domains, "pairs": pairs, "overall": ov, "H2_subset": h2,
+                     "I6_mean_acc_loss_vs_no_filter": i6.get(name)}
     res = {"block": "OCR_CROSS_DOMAIN_R2", "measured_at": "2026-10-01",
            "prereg": "tests/data/phase2/ocr_cross_domain_r2_prereg.json",
            "annotator": "Claude_single_non_human", "gt_path": GT, "gt_sha256": R1._sha(GT),
@@ -258,19 +278,17 @@ def cmd_run():
            "by_filter": out,
            "★round1_not_pooled": "第一轮数据只用于功效估算, 不并入本轮判定。",
            "★implementation_fix_before_ocr": IMPL_FIX,
+           "★I6_added_after_ocr": I6_NOTE,
            "★no_transcriptions_in_repo": "本文件只有路径/sha/数字; 转写在仓外真值文件。"}
     json.dump(res, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    o = out["v2_anchor"]
-    print(json.dumps({"gate": gate, "overall": res["overall"], "H2_subset": res["H2_subset"],
-                      "v1_overall_descriptive": out["v1_prereg_r1"]["overall"],
-                      "domains": {k: {x: v[x] for x in ("status", "n_text_frames", "n_videos", "n_creators",
-                                                        "n_blank_controls", "acc_zh_mean", "acc_zh_median",
-                                                        "acc_zh_micro", "by_frame_position",
-                                                        "hallucinated_on_blank", "hallucinated_on_truly_blank")}
-                                  for k, v in o["domains"].items()},
-                      "pairs": {k: {x: v[x] for x in ("mean_diff", "ci90", "verdict_raw", "loco_all_same",
-                                                      "verdict", "creator_cluster_ci90_descriptive")}
-                                for k, v in o["pairs"].items()}}, ensure_ascii=False, indent=1))
+    print(json.dumps({"gate": gate, "overall": res["overall"], "H2_subset": res["H2_subset"], **{
+        name: {"overall": o["overall"], "H2": o["H2_subset"], "I6": o["I6_mean_acc_loss_vs_no_filter"],
+               "domains": {k: [v["status"], v["n_text_frames"], v["acc_zh_mean"], v["acc_zh_micro"],
+                               v["by_frame_position"], f"hall {v['hallucinated_on_blank']}/{v['n_blank_controls']}"]
+                           for k, v in o["domains"].items()},
+               "pairs": {k: [v["mean_diff"], v["ci90"], v["verdict"], v["creator_cluster_ci90_descriptive"]]
+                         for k, v in o["pairs"].items()}} for name, o in out.items()}},
+        ensure_ascii=False, indent=1))
     return 0
 
 
