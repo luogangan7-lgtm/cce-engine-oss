@@ -47,7 +47,8 @@ def test_alignment_reports_only_calibrated_atoms(monkeypatch, tmp_path):
                                             "reward#2": {"verdict": "CALIBRATED"}}}), encoding="utf-8")
     monkeypatch.setattr(AT, "CAL", str(cal)); monkeypatch.setattr(AT, "PRODUCTION_JUDGE", "minimax")
     r = AT.atoms_alignment("reward", True, TXT, call=_stub([("做了", "Glad it worked out"), ("没做", ""), ("未违反", "")]))
-    assert r["status"] == "ok" and r["summary"] == {"calibrated": 2, "satisfied": 2, "unsatisfied": 0, "uncertain": 0}
+    assert r["status"] == "ok" and r["summary"] == {"calibrated": 2, "satisfied": 2, "unsatisfied": 0, "uncertain": 0,
+                                                    "tri": {"SATISFIED": 1, "VIOLATED": 0, "INDETERMINATE": 1}}   # 2026-10-01: 禁令「未违反」无准入 ⇒ INDETERMINATE
     assert [a["canonical"] for a in r["atoms"]] == ["satisfied", "not_calibrated", "satisfied"]
     assert "alignment_score" not in r and "pass" not in r                           # 不出总分、不出放行布尔
 
