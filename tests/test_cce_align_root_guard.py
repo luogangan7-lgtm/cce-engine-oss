@@ -29,10 +29,13 @@ assert r["pass"] is None, "★ 不可用时 pass 必须是 None(不可判), 给�
 assert "不得作为放行/拦截依据" in r["★why_not_usable"]
 
 # ── 两个调用方都不许自己发布尔 ────────────────────────────────────────
-for f in ("reply_loop.py", "reply_batch.py"):
-    src = open(os.path.join(ROOT, "scripts", f), encoding="utf-8").read()
-    assert "knot_ok = None" in src or "else None" in src, \
-        f"★ {f} 在读数层不可用时仍会发 True/False"
+# ★ 2026-10-01: 判决式(knot_ok/PASS/改写指令)只在 reply_loop.judge 一处; reply_batch 只调它 ——
+#   它曾自抄一份(缺 top1_stable 守卫, PASS=bool(None)=False), 同 13 对输入与 reply_loop 13/13 不一致。
+_rl = open(os.path.join(ROOT, "scripts", "reply_loop.py"), encoding="utf-8").read()
+_rb = open(os.path.join(ROOT, "scripts", "reply_batch.py"), encoding="utf-8").read()
+assert "def judge(" in _rl and "knot_ok = None" in _rl, "★ reply_loop.judge 在读数层不可用时仍会发 True/False"
+assert "judge(a, b, ka, need_ok, misses)" in _rb and "knot_ok =" not in _rb, \
+    "★ reply_batch.py 必须走 reply_loop.judge, 不许自抄判决式"
 # 根部必须**现问**, 不许写死
 alsrc = open(os.path.join(ROOT, "scripts", "cce_align_v2.py"), encoding="utf-8").read()
 assert "knot_readout_usable" in alsrc, "★ 守卫必须在 cce_align_v2 里现问可用性"

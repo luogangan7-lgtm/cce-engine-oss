@@ -589,7 +589,7 @@
     "reply_batch": {
      "OP_prod(allowlist={top1})": {
       "n": 13,
-      "base_L2_sha": "d15dc2d9210aa16c",
+      "base_L2_sha": "cee4d591d4e357e9",
       "determinism_base_twice_identical": true,
       "arms": {
        "need_ok_True": {
@@ -620,17 +620,17 @@
      },
      "OP_stated(allowlist 放行 weight)": {
       "n": 13,
-      "base_L2_sha": "4e50a05e10ebce2f",
+      "base_L2_sha": "69e252a93710e90f",
       "determinism_base_twice_identical": true,
       "arms": {
        "need_ok_True": {
         "L1": 11,
-        "L2": 5,
+        "L2": 0,
         "n": 13
        },
        "need_ok_False": {
         "L1": 2,
-        "L2": 1,
+        "L2": 0,
         "n": 13
        },
        "noop": {
@@ -641,17 +641,17 @@
       },
       "noop_zero_change": true,
       "valid": true,
-      "verdict_here": "LOAD_BEARING_L2",
+      "verdict_here": "LOAD_BEARING_L1_ONLY",
       "component_arms": [
        "need_ok_True",
        "need_ok_False"
       ],
       "inject_arm": null,
-      "component_L2_changed": 6
+      "component_L2_changed": 0
      },
      "OP_cond(放行 weight 且两侧 top1_stable=True)": {
       "n": 13,
-      "base_L2_sha": "4e50a05e10ebce2f",
+      "base_L2_sha": "1bef5108b87aebf6",
       "determinism_base_twice_identical": true,
       "arms": {
        "need_ok_True": {
@@ -687,7 +687,7 @@
    "prod_unchanged": true,
    "reply_batch_mirror": {
     "OP_prod(allowlist={top1})": "LOAD_BEARING_L1_ONLY",
-    "OP_stated(allowlist 放行 weight)": "LOAD_BEARING_L2",
+    "OP_stated(allowlist 放行 weight)": "LOAD_BEARING_L1_ONLY",
     "OP_cond(放行 weight 且两侧 top1_stable=True)": "LOAD_BEARING_L2"
    },
    "corpus": "archive/*/*__reply_alignment.json 共 13 对真实存量读数(sha16 a7e821862e4d790d); knot_align/readout 按 tag 回放存量值",

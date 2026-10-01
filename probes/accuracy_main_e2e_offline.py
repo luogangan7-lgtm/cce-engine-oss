@@ -166,6 +166,10 @@ def properties(name, a):
     if name == "E_事实抽取全断_跑G-K2":
         P["原始标注先落盘(崩前不丢数据)"] = a["raw_written"]
         P["不产出通过"] = a["overall_pass"] is not True
+        # 2026-10-01 修复后补的性质(fail-closed 扣发, 不是崩, 也不是「不通过」):
+        P["不崩且 gates_result 照常落盘"] = a["gates_result_written"] and a["exception"] is None
+        P["G-K2 扣发: n=0 ∧ pass=None ∧ 写明原因"] = a["G_K2_n"] == 0 and a["G_K2_pass"] is None and a["G_K2_withheld"]
+        P["overall 扣发(None), 不折成 False"] = a["overall_pass"] is None
     return P
 
 
@@ -187,6 +191,9 @@ MUTATIONS = {
     "M4_原始标注不落盘": ("A_全员准入_跑G-K2", '_raw = os.path.join(_OUT_DIR, "raw_annotations.json")', '_raw = os.path.join(_OUT_DIR, "_lost", "raw.json")'),
     "M5_overall不看G-K1": ("G_次结分歧_事实相关", '"overall_pass": (None if SKIP_GK2 else\n                            bool(gk1["pass"] and gk2["pass"]',
                            '"overall_pass": (None if SKIP_GK2 else\n                            bool(gk2["pass"]'),
+    # 2026-10-01 修复的两道守卫: 拿掉任一道, E 臂必须红
+    "M6_空抽取不扣发G-K2": ("E_事实抽取全断_跑G-K2", "        if not rows:\n            # ★ fail-closed", "        if False:\n            # ★ fail-closed"),
+    "M7_G-K2扣发时overall折成bool": ("E_事实抽取全断_跑G-K2", 'if gk2["pass"] is not None else None),', 'if True else None),'),
 }
 
 
@@ -219,12 +226,19 @@ def main():
         "mutations": muts, "★all_mutations_detected": all(v["detected"] for v in muts.values()),
         "★finding_fact_outage": {
             "observed": {"exception": e["exception"], "gates_result_written": e["gates_result_written"],
-                         "raw_written": e["raw_written"], "calls": e["calls"]},
-            "reading": ("CCE_SKIP_GK2=0 且事实抽取全部返回空(如 Text-01 故障)时, G-K2 的 rows 为空, "
+                         "raw_written": e["raw_written"], "calls": e["calls"],
+                         "G_K2_n": e["G_K2_n"], "G_K2_pass": e["G_K2_pass"], "G_K2_withheld": e["G_K2_withheld"],
+                         "overall_pass": e["overall_pass"]},
+            "registered_2026_10_01": ("CCE_SKIP_GK2=0 且事实抽取全部返回空(如 Text-01 故障)时, G-K2 的 rows 为空, "
                         "`collections.Counter(...).most_common(1)[0]` 抛 IndexError ⇒ main() 在全部标注调用**之后**崩, "
                         "gates_result.json 不写。方向是 fail-closed(不产出通过), 原始标注已先落盘 ⇒ 数据不丢; "
-                        "但付费调用已花完、且没有扣发记录说明原因。2026-09-07 修过 SKIP_GK2=1 的同一崩法, 这条路径没修。"
-                        "accuracy/run_gates.py 是冻结件, 本轮只登记不改。") if e["exception"] else "未复现",
+                        "但付费调用已花完、且没有扣发记录说明原因。2026-09-07 修过 SKIP_GK2=1 的同一崩法, 这条路径没修。"),
+            "status": "FIXED_2026-10-01" if not e["exception"] else "★ 仍复现",
+            "fix": ("run_gates.main(): rows 为空时不再索引 most_common(1)[0]; G-K2 置 pass=None 并写 ★withheld(带事实抽取覆盖数), "
+                    "overall_pass 在 G-K2 扣发时为 None(此前 bool(... and None) 会折成 False), ★overall_withheld_because 写同一原因; "
+                    "gates_result.json 照常落盘。路由: config/cce_core_manifest.json refactor_log 事件 "
+                    "GK2_EMPTY_FACTS_WITHHELD_NOT_CRASH(非 core_files、闸协议材料未动 ⇒ gate_protocol_hash 不变)。"
+                    "回归: 本臂 3 条新性质 + 变异 M6/M7。"),
         },
         "★仍未验证(零 API 测不了)": ["真实 provider 的语义判断准确率", "真实 provider 的重复稳定性"],
     }

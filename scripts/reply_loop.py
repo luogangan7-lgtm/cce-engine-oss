@@ -86,6 +86,39 @@ def four_layers(a, b):
     return {L: layer_reach(sides["对方"]["layers"][L], sides["我方"]["layers"][L], lab) for L, lab in LAYERS.items()}, None
 
 
+def judge(a, b, ka, need_ok, misses):
+    """九结判决面(need_ok / knot_ok / PASS / 改写指令) —— reply_loop.main 与 reply_batch.phase_b **共用**, 守卫只写在这里。
+    ka 须带 ★usable(weight 读数层可用性; cce_align_v2.score 自带, reply_loop 按本次仪器覆盖)。
+    ★ 2026-10-01 根因修在共用函数: 消融第三轮(tests/data/ablation_verdicts_v3.json v2-012 ★sibling_inconsistency)
+      实测同 13 对输入 reply_batch PASS=False 13/13、reply_loop PASS=None 13/13 —— phase_b 自己抄了一份判决式,
+      缺 top1_stable 守卫, 且 knot_ok=None 时 bool(need_ok and None)=False。2026-08-18 / 09-03 / 09-28 三次都只修了一条路。"""
+    # 2026-08-18: 补 top1_stable 守卫。此前不确定性只在 cce_full_run.py 的 s2 段生效
+    # (top1 不稳时扣发 playbook_primary), 而这里照旧拿被抖动过的 weight 算出 PASS/FAIL ——
+    # 同一份不可靠读数, 一条路上被扣住、另一条路上照发判决。爆炸半径不一致本身就是缺陷。
+    # ★ 2026-09-28: `is False` 把 None(可投票 draw<2, 不可判)当成稳定 —— 与 s2 同口径改为 `is not True`
+    _unstable = [x.get("stage2", {}).get("sampling", {}).get("top1_stable") is not True
+                 for x in (a, b) if isinstance(x, dict)]
+    _w_ok = ka.get("★usable") is True        # 缺字段 = 不可用(不降级放行)
+    knot_ok = ka["alignment_score"] >= float(os.environ.get("CCE_ALIGN_THETA", "0.35"))
+    # ★ 这道旧守卫守的是 top1_stable —— 但 top-1 恰恰是**稳的**那一层(实测 1.000),
+    #   而真正的输入 weight 才是 0/5。**守错了对象**, 于是它几乎从不触发。
+    #   现在先按读数层可用性扣发: weight 不可用 ⇒ 一律不可判。
+    if not _w_ok:
+        knot_ok = None
+    if any(_unstable):
+        # 不判 FAIL —— 判「不可判」。首结不稳时这个分数本身没有可解释性,
+        # 强行给 PASS 或 FAIL 都是把噪声当结论。
+        knot_ok = None
+    return {
+        "need_ok": need_ok, "knot_ok": knot_ok,
+        # ★ 2026-09-28 (诊断 #9): knot_ok 不可判时 PASS 也不可判 —— 此前 bool(None) 恒为 False, 于是恒报不通过,
+        #   还据此发一条「九结对齐不足」的改写指令, 而那个分数本身已被扣发。改写指令只来自可用的部分。
+        "PASS": None if knot_ok is None or need_ok is None else bool(need_ok and knot_ok),
+        "改写指令": ([f"补上未触达维度: {', '.join(misses)}"] if misses else []) + (
+                   ["九结对齐不足: 我方结分布未响应对方主结, 检查是否答非所问"] if knot_ok is False else []),
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--reader", required=True)
@@ -171,22 +204,7 @@ def main():
     #   2026-09-03 实测: 现有唯一可测数据里它恒为 1.000(饱和), 因此它在判决线附近的行为
     #   **未被测量** —— 既不能说它稳, 也不能说它坏。缺口已登记, 不许当作「已验收」。
     need_ok = None if _l_why else (layers["need_vec"]["触达率"] or 0) >= 0.5
-    # 2026-08-18: 补 top1_stable 守卫。此前不确定性只在 cce_full_run.py 的 s2 段生效
-    # (top1 不稳时扣发 playbook_primary), 而这里照旧拿被抖动过的 weight 算出 PASS/FAIL ——
-    # 同一份不可靠读数, 一条路上被扣住、另一条路上照发判决。爆炸半径不一致本身就是缺陷。
-    # ★ 2026-09-28: `is False` 把 None(可投票 draw<2, 不可判)当成稳定 —— 与 s2 同口径改为 `is not True`
-    _unstable = [x.get("stage2", {}).get("sampling", {}).get("top1_stable") is not True
-                 for x in (a, b) if isinstance(x, dict)]
-    knot_ok = ka["alignment_score"] >= float(os.environ.get("CCE_ALIGN_THETA", "0.35"))
-    # ★ 这道旧守卫守的是 top1_stable —— 但 top-1 恰恰是**稳的**那一层(实测 1.000),
-    #   而真正的输入 weight 才是 0/5。**守错了对象**, 于是它几乎从不触发。
-    #   现在先按读数层可用性扣发: weight 不可用 ⇒ 一律不可判。
-    if not _w_ok:
-        knot_ok = None
-    if any(_unstable):
-        # 不判 FAIL —— 判「不可判」。首结不稳时这个分数本身没有可解释性,
-        # 强行给 PASS 或 FAIL 都是把噪声当结论。
-        knot_ok = None
+    judged = judge(a, b, ka, need_ok, misses)    # 判决面只在这一处算(reply_batch.phase_b 同走它)
     verdict = {
         "对方九结": a_knots, "我方九结": b_knots,
         "九结对齐": ka,
@@ -195,13 +213,8 @@ def main():
         "四层触达": layers,
         "未触达维度": misses,
         "判据": "need层触达率>=0.5 且 九结对齐分>=theta",
-        "need_ok": need_ok, "knot_ok": knot_ok,
-        # ★ 2026-09-28 (诊断 #9): knot_ok 不可判时 PASS 也不可判 —— 此前 bool(None) 恒为 False, 于是恒报不通过,
-        #   还据此发一条「九结对齐不足」的改写指令, 而那个分数本身已被扣发。改写指令只来自可用的部分。
-        "PASS": None if knot_ok is None or need_ok is None else bool(need_ok and knot_ok),
+        **judged,
         "★四层扣发": _l_why,
-        "改写指令": ([f"补上未触达维度: {', '.join(misses)}"] if misses else []) + (
-                   ["九结对齐不足: 我方结分布未响应对方主结, 检查是否答非所问"] if knot_ok is False else []),
     }
     json.dump({"reader_readout": a, "draft_readout": b, "verdict": verdict},
               open(A.out, "w"), ensure_ascii=False, indent=1)
