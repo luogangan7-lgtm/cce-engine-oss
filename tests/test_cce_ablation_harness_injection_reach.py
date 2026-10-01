@@ -142,8 +142,10 @@ FROZEN_SHA8 = {
         # ★ 2026-09-28 第二次: s2 单次 draw 类型/取值校验(cce_knot_classify.py pin 更新 + refactor_log 追加 S2_DRAW_TYPE_AND_RANGE_VALIDATION)。
         # ★ 2026-09-28 第三次: s2 attempt 账本 + CCE_RAW_DIR(cce_knot_classify.py pin 更新 + refactor_log 追加 S2_ATTEMPT_LEDGER_AND_CI_RAW_DIR)。
         # ★ 2026-09-29: PRODUCTION_REQUEST_CAP_PER_RUN(见 ablation_verdicts_v3.json ★冻结件变更登记)。
-    "config/cce_core_manifest.json": "e85cfc157d783ba5",
-    "accuracy/run_gates.py": "da0fb5a566cc9502",
+        # ★ 2026-10-01: 追加 GK2_EMPTY_FACTS_WITHHELD_NOT_CRASH(run_gates 空事实抽取 fail-closed 扣发, 闸 prompt 未动)。
+        #   摘掉那条重算 = e85cfc157d783ba5, 与上一钉逐字节相同。见 ablation_verdicts_v3.json ★冻结件变更登记。
+    "config/cce_core_manifest.json": "f161311f2c4b6e4c",
+    "accuracy/run_gates.py": "62586ef7bd050df8",
 }
 
 

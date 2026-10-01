@@ -77,7 +77,7 @@ jobs:
                       print(f"|{r['tag']}|-|-|-|❌|{r.get('ERROR') or r.get('skip')}|"); continue
                   n = r["四层触达"]["need_vec"]
                   print(f"|{r['tag']}|{r['words']}|{r['对齐分']}|{n['触达数']}/{n['显著维']}"
-                        f"|{'✅' if r['PASS'] else '❌'}|{', '.join(r['未触达']) or '—'}|")
+                        f"|{'✅' if r['PASS'] is True else '❌' if r['PASS'] is False else '⏸ 不可判'}|{', '.join(r['未触达']) or '—'}|")
           EOF
       # 不用 flow mapping: `${{` 里的 `{` 会让整份 YAML 不可解析(2026-08-09 three.yml 实伤,
       # 且 `gh workflow list` 仍显示 active, 只有 dispatch 时 422, 极难发现)

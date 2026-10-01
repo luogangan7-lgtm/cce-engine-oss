@@ -156,7 +156,7 @@
   },
   "E_事实抽取全断_跑G-K2": {
    "rc": null,
-   "exception": "IndexError",
+   "exception": null,
    "tripwire_tripped": [],
    "source_mutated": false,
    "calls": {
@@ -171,7 +171,7 @@
     "MiniMax-M2": 81,
     "MiniMax-Text-01": 81
    },
-   "gates_result_written": false,
+   "gates_result_written": true,
    "raw_written": true,
    "admitted": [
     "MiniMax-M3",
@@ -180,14 +180,18 @@
     "MiniMax-M2",
     "MiniMax-Text-01"
    ],
-   "qual_status": null,
+   "qual_status": "OK",
    "overall_pass": null,
    "withheld": false,
-   "G_K1_pass": null,
-   "G_K2_n": null,
+   "G_K1_pass": true,
+   "G_K2_n": 0,
    "G_K2_pass": null,
-   "G_K2_withheld": false,
-   "pass_components": null,
+   "G_K2_withheld": true,
+   "pass_components": {
+    "G_K1": true,
+    "G_K2": null,
+    "annotator_qualification": "OK"
+   },
    "structural_max": 1536,
    "budget_limit": 1600
   },
@@ -330,7 +334,10 @@
    "结构上限 <= 预算": true,
    "总调用 <= 结构上限": true,
    "原始标注先落盘(崩前不丢数据)": true,
-   "不产出通过": true
+   "不产出通过": true,
+   "不崩且 gates_result 照常落盘": true,
+   "G-K2 扣发: n=0 ∧ pass=None ∧ 写明原因": true,
+   "overall 扣发(None), 不折成 False": true
   },
   "F_面板一致_事实相关": {
    "零网络": true,
@@ -412,21 +419,44 @@
     "overall = G_K1 ∧ G_K2 ∧ 准入OK"
    ],
    "detected": true
+  },
+  "M6_空抽取不扣发G-K2": {
+   "arm": "E_事实抽取全断_跑G-K2",
+   "source_mutated": true,
+   "properties_turned_false": [
+    "G-K2 扣发: n=0 ∧ pass=None ∧ 写明原因",
+    "overall 扣发(None), 不折成 False"
+   ],
+   "detected": true
+  },
+  "M7_G-K2扣发时overall折成bool": {
+   "arm": "E_事实抽取全断_跑G-K2",
+   "source_mutated": true,
+   "properties_turned_false": [
+    "overall 扣发(None), 不折成 False"
+   ],
+   "detected": true
   }
  },
  "★all_mutations_detected": true,
  "★finding_fact_outage": {
   "observed": {
-   "exception": "IndexError",
-   "gates_result_written": false,
+   "exception": null,
+   "gates_result_written": true,
    "raw_written": true,
    "calls": {
     "dist": 405,
     "fact": 81,
     "qualify": 25
-   }
+   },
+   "G_K2_n": 0,
+   "G_K2_pass": null,
+   "G_K2_withheld": true,
+   "overall_pass": null
   },
-  "reading": "CCE_SKIP_GK2=0 且事实抽取全部返回空(如 Text-01 故障)时, G-K2 的 rows 为空, `collections.Counter(...).most_common(1)[0]` 抛 IndexError ⇒ main() 在全部标注调用**之后**崩, gates_result.json 不写。方向是 fail-closed(不产出通过), 原始标注已先落盘 ⇒ 数据不丢; 但付费调用已花完、且没有扣发记录说明原因。2026-09-07 修过 SKIP_GK2=1 的同一崩法, 这条路径没修。accuracy/run_gates.py 是冻结件, 本轮只登记不改。"
+  "registered_2026_10_01": "CCE_SKIP_GK2=0 且事实抽取全部返回空(如 Text-01 故障)时, G-K2 的 rows 为空, `collections.Counter(...).most_common(1)[0]` 抛 IndexError ⇒ main() 在全部标注调用**之后**崩, gates_result.json 不写。方向是 fail-closed(不产出通过), 原始标注已先落盘 ⇒ 数据不丢; 但付费调用已花完、且没有扣发记录说明原因。2026-09-07 修过 SKIP_GK2=1 的同一崩法, 这条路径没修。",
+  "status": "FIXED_2026-10-01",
+  "fix": "run_gates.main(): rows 为空时不再索引 most_common(1)[0]; G-K2 置 pass=None 并写 ★withheld(带事实抽取覆盖数), overall_pass 在 G-K2 扣发时为 None(此前 bool(... and None) 会折成 False), ★overall_withheld_because 写同一原因; gates_result.json 照常落盘。路由: config/cce_core_manifest.json refactor_log 事件 GK2_EMPTY_FACTS_WITHHELD_NOT_CRASH(非 core_files、闸协议材料未动 ⇒ gate_protocol_hash 不变)。回归: 本臂 3 条新性质 + 变异 M6/M7。"
  },
  "★仍未验证(零 API 测不了)": [
   "真实 provider 的语义判断准确率",

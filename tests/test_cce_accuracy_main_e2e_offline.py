@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 """accuracy/run_gates.py main() 编排与 G-K2 链路的离线软件验证 —— 现算, 不信存盘。
 
-守: ① 探针现算 == tests/data/accuracy_main_e2e_offline.json ② 7 臂的性质全真 ③ 5 条源码变异全被检出且源码真被改
-    ④ 「事实抽取全断」那条崩法若被修好, 本闸红 —— 提醒同步改登记(不许登记与代码各说各话)。
+守: ① 探针现算 == tests/data/accuracy_main_e2e_offline.json ② 7 臂的性质全真 ③ 7 条源码变异全被检出且源码真被改
+    ④ 「事实抽取全断」(2026-10-01 修): 不崩、gates_result 照常落盘、G-K2 与 overall 扣发(None) —— 回到崩或折成 False 即红。
 ★ 证据范围: 离线软件验证。不证明真实 provider 的语义准确率与重复稳定性(见 tests/data/accuracy_real_provider_prereg.json)。
 反向: 每条断言都在做坏的副本上验过会红。零网络: socket 绊线(探针每臂另有自己的绊线)。
 """
@@ -38,13 +38,21 @@ def check_mutations(f, s):
     for mid, m in f["mutations"].items():
         assert m["source_mutated"], "%s 源码没被改动 —— 空变异臂" % mid
         assert m["detected"] and m["properties_turned_false"], "%s 没被检出 —— 性质集有盲区" % mid
-    assert len(f["mutations"]) == 5 and f["★all_mutations_detected"] is True
+    assert len(f["mutations"]) == 7 and f["★all_mutations_detected"] is True
+    # 2026-10-01 修复的两道守卫(空抽取扣发 G-K2 / overall 不折成 False)各自被拿掉时必须由 E 臂抓到
+    for mid in ("M6_空抽取不扣发G-K2", "M7_G-K2扣发时overall折成bool"):
+        assert f["mutations"][mid]["arm"] == "E_事实抽取全断_跑G-K2" and f["mutations"][mid]["detected"], mid
 
 
 def check_outage_finding_current(f, s):
-    o = f["★finding_fact_outage"]["observed"]
-    assert o["exception"] == "IndexError" and o["raw_written"] and not o["gates_result_written"], (
-        "★ 事实抽取全断那条崩法的现象变了(可能被修了): %r —— 同步改 ★finding_fact_outage 的登记" % o)
+    """2026-10-01 修复后: 事实抽取全断 ⇒ 不崩、照常落盘、G-K2 与 overall 扣发(None)。回到崩或折成 False 都红。"""
+    fo = f["★finding_fact_outage"]
+    o = fo["observed"]
+    assert o["exception"] is None and o["raw_written"] and o["gates_result_written"], (
+        "★ 事实抽取全断又崩了或没落盘: %r" % o)
+    assert o["G_K2_n"] == 0 and o["G_K2_pass"] is None and o["G_K2_withheld"] and o["overall_pass"] is None, (
+        "★ 空抽取没有 fail-closed 扣发: %r" % o)
+    assert fo["status"] == "FIXED_2026-10-01"
 
 
 CHECKS = [check_recomputed, check_properties, check_mutations, check_outage_finding_current]
@@ -62,7 +70,9 @@ REVERSE = [
     ("一条性质翻假", _both(lambda d: d["properties"]["D_全员被剔除"].__setitem__("扣发返回 2", False))),
     ("一条变异漏检", _both(lambda d: d["mutations"]["M5_overall不看G-K1"].__setitem__("detected", False))),
     ("空变异臂", _both(lambda d: d["mutations"]["M3_扣发返回0"].__setitem__("source_mutated", False))),
-    ("崩法被修而登记没改", _both(lambda d: d["★finding_fact_outage"]["observed"].__setitem__("exception", None))),
+    ("空抽取又崩了", _both(lambda d: d["★finding_fact_outage"]["observed"].__setitem__("exception", "IndexError"))),
+    ("空抽取折成 False", _both(lambda d: d["★finding_fact_outage"]["observed"].__setitem__("overall_pass", False))),
+    ("M6 漏检", _both(lambda d: d["mutations"]["M6_空抽取不扣发G-K2"].__setitem__("detected", False))),
 ]
 
 

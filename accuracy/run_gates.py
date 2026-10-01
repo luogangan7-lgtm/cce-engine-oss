@@ -714,7 +714,10 @@ def main():
 
         scores = [r["score"] for r in rows]
         obs_ords = [r["obs_ord"] for r in rows]
-        bc = collections.Counter(r["obs"] for r in rows).most_common(1)[0]
+        # ★ 2026-10-01: rows 为空(CCE_SKIP_GK2=0 而事实抽取全空, 如 Text-01 故障)时这里曾抛 IndexError ——
+        #   405 次标注调用之后崩, gates_result.json 不写。与 2026-09-07 SKIP_GK2 那条同一崩法, 当时只修了跳过路径。
+        #   现在: 照常算完并落盘, 由下方 fail-closed 扣发 G-K2 与 overall(不可判 != 通过 != 不通过)。
+        bc = collections.Counter(r["obs"] for r in rows).most_common(1)[0] if rows else (None, 0)
         base = bc[1] / len(rows) if rows else 0
 
         # ① 信号问题(与校准无关): 成本分与实测档的秩相关
@@ -765,6 +768,11 @@ def main():
                             "辅判: macro-recall > 1/类别数。精确率对多数基线仅作参考(基率偏斜时不可判)"),
                "pass": bool(rho is not None and rho >= 0.3 and p_rho is not None and p_rho < 0.05
                             and macro_r is not None and macro_r > 1 / n_cls)}
+        if not rows:
+            # ★ fail-closed: 零可判行 ⇒ G-K2 扣发(pass=None), overall 随之扣发 —— 不当通过, 也不冒充「不通过」。
+            gk2.update({"pass": None, "★withheld": (
+                f"事实抽取覆盖 {sum(1 for v in facts.values() if v)}/{len(SAMPLE)}, G-K2 可判行 0 —— "
+                "G-K2 本轮不可判(扣发 != 不通过)。查事实抽取模型/端点后重跑。")})
 
     # ── 混淆诊断(问题2) ──
     disagree = []
@@ -802,11 +810,13 @@ def main():
            # ★ 2026-09-07: 资格考此前**只被报告, 不进判决** —— 于是 4/5 不合格也能 overall_pass=True。
            #   现在它是判决的一部分。三项缺一即不通过。
            # ★ SKIP_GK2 下 **不发 overall_pass** —— 缺一道闸就宣称整体通过, 正是本仓修过的 fail-open。
+           # ★ 2026-10-01: G-K2 扣发(pass=None, 如事实抽取全空)同理 —— 此前 bool(... and None) 会把它折成 False。
            "overall_pass": (None if SKIP_GK2 else
                             bool(gk1["pass"] and gk2["pass"]
-                                 and (globals().get("QUAL_REPORT") or {}).get("status") == "OK")),
+                                 and (globals().get("QUAL_REPORT") or {}).get("status") == "OK")
+                            if gk2["pass"] is not None else None),
            "★overall_withheld_because": ("G-K2 本轮未跑(外部语料无互动字段且 G-K2 已冻结) ⇒ "
-                                          "整体判决**扣发**, 只报 G-K1 与类实现台账") if SKIP_GK2 else None,
+                                          "整体判决**扣发**, 只报 G-K1 与类实现台账") if SKIP_GK2 else gk2.get("★withheld"),
            "★pass_components": {"G_K1": gk1["pass"], "G_K2": gk2["pass"],
                                 "annotator_qualification":
                                     (globals().get("QUAL_REPORT") or {}).get("status")}}

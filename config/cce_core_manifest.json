@@ -1767,6 +1767,23 @@
    "★evidence_is_required_because": "「instrument_hash 没变」不足以证明行为没变 —— 请求上限不在提示词里, 哈希看不见; 只能靠作用域内外两种路径的离线测试证明。",
    "★代价": "每次 POST 多一次文件锁读写(毫秒级); 超上限的运行会失败而不是继续花钱 —— 这正是目的, 但若将来 k/n 调大, 必须同步调 CCE_MAX_REQUESTS, 否则正常运行会被拦。",
    "instrument_hash": "不变。"
+  },
+  {
+   "date": "2026-10-01",
+   "event": "GK2_EMPTY_FACTS_WITHHELD_NOT_CRASH",
+   "file": "accuracy/run_gates.py",
+   "from_sha": "da0fb5a566cc9502",
+   "to_sha": "62586ef7bd050df8",
+   "route": "**判决面 fail-closed 修复(非 core_files, instrument_generation 不变; 闸协议材料未动 ⇒ gate_protocol_hash 不变, gate_protocol_version 仍 2)**。不是 GATE_PROTOCOL_CHANGE: 凡修前能产出判决的输入(G-K2 可判行 ≥1), 判决逐字不变; 只改修前**崩溃、无判决**的那一类输入的出口。",
+   "reason": "消融第三轮补做(probes/accuracy_main_e2e_offline.py E 臂)登记: CCE_SKIP_GK2=0 且事实抽取全空(如 Text-01 故障)⇒ G-K2 rows=[] ⇒ `collections.Counter(...).most_common(1)[0]` 抛 IndexError, main() 在 405 次标注调用之后崩, gates_result.json 不写、无扣发原因。与 2026-09-07 SKIP_GK2=1 那条同一崩法, 当时只修了跳过路径。修法(fail-closed): rows 为空时不索引; G-K2 置 pass=None 并写 ★withheld(带事实抽取覆盖数); overall_pass 在 G-K2 扣发时为 None(此前 bool(... and None) 会折成 False); ★overall_withheld_because 写同一原因; gates_result.json 照常落盘。",
+   "behavior_evidence": [
+    "tests/test_cce_accuracy_main_e2e_offline.py",
+    "tests/data/accuracy_main_e2e_offline.json"
+   ],
+   "★行为等价的实测": "离线装置(probes/accuracy_offline_harness, 零 API) 7 臂: A/B/C/D/F/G 六臂的性质与修前同值(修前存盘 6/6 臂性质全真, 修后同); E 臂由「IndexError、gates_result 不写」变为「不崩、照常落盘、G-K2 n=0 pass=None 带 ★withheld、overall=None」。变异 7/7 被抓, 其中 M6(拿掉空抽取扣发)、M7(G-K2 扣发时 overall 折成 bool)为本次新增; 另验: 把 most_common 的空守卫拿掉 ⇒ E 臂复现 IndexError 并红。",
+   "★这一类输入的行为确实变了": "零可判行: 旧 = 崩溃无产物; 新 = 扣发(None)并落盘。不得说「所有输入行为不变」。",
+   "★evidence_is_required_because": "「instrument_hash / gate_protocol_hash 没变」**不足以**证明行为没变 —— 两者只覆盖提示词材料, 看不见聚合/扣发逻辑; 行为只能靠离线端到端臂(7 臂 + 变异)证明。",
+   "instrument_hash": "不变(生产 s1/s2 未动); gate_protocol_hash 不变(dbdff13f9da155bc, 闸 prompt 未动)。"
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",
