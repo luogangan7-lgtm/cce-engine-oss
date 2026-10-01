@@ -64,15 +64,45 @@ def acc(ref, hyp):
     return round(1.0 - _cer(ref, hyp), 4)
 
 
-def hyp_lines(path, nickname):
+def ocr(path):
+    """→ (status, [(text, xywh|None), ...])。生产同一调用。"""
     import cce_image_ingest as II
     vo = II.visual_observation(path)
-    st = vo["completeness"]["status"]
-    lines = [o["value"] for o in vo["observations"] if o["channel"] == "ocr_text"]
+    return vo["completeness"]["status"], [
+        (o["value"], (o.get("region") or {}).get("xywh"))
+        for o in vo["observations"] if o["channel"] == "ocr_text"]
+
+
+def _core(s):
+    return "".join(CJK.findall(unicodedata.normalize("NFKC", s))) + \
+        "".join(LAT.findall(unicodedata.normalize("NFKC", s)))
+
+
+def keep_v1(rows, nickname):
+    """预注册写的过滤: 含「抖音」或 去前导 Q/🔍 后 == meta.nickname。"""
     nick = unicodedata.normalize("NFKC", nickname).replace(" ", "")
-    kept = [t for t in lines if "抖音" not in t
+    return [t for t, _ in rows if "抖音" not in t
             and unicodedata.normalize("NFKC", t).lstrip("Q🔍 ").replace(" ", "") != nick]
-    return st, lines, kept
+
+
+def keep_v2(rows, nickname):
+    """★ 偏离预注册(2026-10-01, 冻结真值后、看过 v1 读数后): v1 被零文字对照实测打穿 ——
+    ① meta 昵称带 emoji ② OCR 只读出昵称前几字 ③ 创作者改名(水印是下载时的新名)。
+    v2 以本帧 OCR 读到的「抖音号」框为锚: 其下方且 x 中心 >= 锚框左缘−10px 的行一律视为水印块;
+    无锚时退回「去掉 Q 后与昵称核心字互为子串(>=2 字)」。两版读数并报, 判定须一致。"""
+    anchor = next((b for t, b in rows if "抖音号" in t and b), None)
+    nick = _core(nickname)
+    out = []
+    for t, b in rows:
+        if "抖音" in t:
+            continue
+        if anchor and b and b[0] + b[2] / 2 >= anchor[0] - 10 and b[1] >= anchor[1]:
+            continue
+        c = _core(t.lstrip("Q🔍 "))
+        if len(c) >= 2 and (c in nick or nick in c):
+            continue
+        out.append(t)
+    return out
 
 
 def boot_ci(a, b, rng):
@@ -132,7 +162,6 @@ def cmd_freeze():
 
 def cmd_run():
     import importlib.metadata as md
-    from PIL import Image, ImageStat
     if not (os.path.exists(GT) and os.path.isdir(FRAMES)):
         print("★ 真值或素材不在本机 —— 不出结论。"); return 2
     pre, m, fz = json.load(open(PRE, encoding="utf-8")), meta(), json.load(open(FREEZE, encoding="utf-8"))
@@ -143,8 +172,69 @@ def cmd_run():
     gt = json.load(open(GT, encoding="utf-8"))
     by_id = {it["aweme_id"]: it for it in gt["items"]}
     ords = order(pre, m)
-    creator_idx = {}
-    domains, determinism = {}, []
+    cache, determinism = {}, []
+    for kw, ids in ords.items():                     # I1: 每域前 3 帧连跑两次
+        for i in [x for x in ids if x in by_id][:3]:
+            p = f"{FRAMES}/{i}/01.jpg"
+            cache[p] = ocr(p)
+            determinism.append({"domain": kw, "aweme_id": i, "same": ocr(p) == cache[p]})
+    gate["I1_determinism"] = bool(determinism) and all(d["same"] for d in determinism)
+    results = {name: measure(flt, ords, by_id, m, cache)
+               for name, flt in (("v2_anchor", keep_v2), ("v1_prereg", keep_v1))}
+    for name, domains in results.items():
+        gate[f"I4_variance[{name}]"] = all(
+            d["acc_zh_mean"] is not None and 0 < d["acc_zh_mean"] < 1
+            and len({r["acc_zh"] for r in d["per_frame"]}) > 1 for d in domains.values())
+        gate[f"fail_rate_ok[{name}]"] = all(
+            d["n_ocr_failed"] <= 0.10 * max(1, d["n_text_frames"] + d["n_blank_controls"])
+            for d in domains.values())
+    gate_ok = all(gate.values())
+    out = {}
+    for name, domains in results.items():
+        pairs, overall = {}, "INSTRUMENT_GATE_FAILED"
+        if gate_ok:
+            rng = random.Random(SEED)
+            kws = list(domains)
+            if all(domains[k]["status"] == "OK" for k in kws):
+                for x in range(len(kws)):
+                    for y in range(x + 1, len(kws)):
+                        pairs[f"{kws[x]}|{kws[y]}"] = pair_verdict(
+                            domains[kws[x]]["per_frame"], domains[kws[y]]["per_frame"], rng)
+                vs = [p["verdict"] for p in pairs.values()]
+                overall = ("TRANSFERS_ACROSS_TESTED_DOMAINS" if all(v == "TRANSFERABLE" for v in vs)
+                           else "DOES_NOT_TRANSFER" if "NOT_TRANSFERABLE" in vs else "STILL_UNDETERMINED")
+            else:
+                overall = "STILL_UNDETERMINED"
+        cers = [d["cer_zh_mean"] for d in domains.values() if d["cer_zh_mean"]]
+        out[name] = {"domains": domains, "pairs": pairs, "overall": overall,
+                     "max_over_min_domain_cer_ratio": round(max(cers) / min(cers), 2) if len(cers) > 1 else None}
+    agree = len({o["overall"] for o in out.values()}) == 1
+    res = {"block": "OCR_CROSS_DOMAIN_GEN1", "measured_at": "2026-10-01",
+           "prereg": "tests/data/phase2/ocr_cross_domain_prereg.json",
+           "annotator": "Claude_single_non_human",
+           "gt_path": GT, "gt_sha256": _sha(GT), "engine_versions": vers,
+           "instrument_gate": gate, "determinism_checks": determinism,
+           "★deviation_watermark_filter": keep_v2.__doc__.strip(),
+           "filters_agree_on_overall": agree,
+           "overall": out["v2_anchor"]["overall"] if agree else "STILL_UNDETERMINED",
+           "by_filter": out,
+           "★no_transcriptions_in_repo": "本文件只有路径/sha/数字; 转写在仓外真值文件。"}
+    json.dump(res, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    print(json.dumps({"gate": gate, "overall": res["overall"], "filters_agree": agree, **{
+        name: {"overall": o["overall"], "cer_ratio": o["max_over_min_domain_cer_ratio"],
+               "domains": {k: {x: v[x] for x in ("status", "n_text_frames", "n_blank_controls",
+                                                 "acc_zh_mean", "acc_zh_median", "acc_zh_micro",
+                                                 "hallucinated_on_blank", "hallucinated_on_truly_blank")}
+                           for k, v in o["domains"].items()},
+               "pairs": {k: {x: v[x] for x in ("mean_diff", "ci90", "verdict_raw", "loco_all_same", "verdict")}
+                         for k, v in o["pairs"].items()}} for name, o in out.items()}},
+        ensure_ascii=False, indent=1))
+    return 0
+
+
+def measure(flt, ords, by_id, m, cache):
+    from PIL import Image, ImageStat
+    creator_idx, domains = {}, {}
     for kw, ids in ords.items():
         rows, blanks, excluded, failed, n_text = [], [], [], 0, 0
         for i in ids:
@@ -160,12 +250,12 @@ def cmd_run():
                     excluded.append({"aweme_id": i, "why": "near_black"}); continue
             except OSError as e:
                 excluded.append({"aweme_id": i, "why": f"decode:{type(e).__name__}"}); continue
-            st, raw, kept = hyp_lines(p, m[i][2])
+            if p not in cache:
+                cache[p] = ocr(p)
+            st, raw = cache[p]
             if st == "failed":
                 failed += 1; excluded.append({"aweme_id": i, "why": "ocr_failed"}); continue
-            if len(determinism) < 3 * len(ords) and sum(1 for d in determinism if d["domain"] == kw) < 3:
-                st2, raw2, _ = hyp_lines(p, m[i][2])
-                determinism.append({"domain": kw, "aweme_id": i, "same": raw2 == raw})
+            kept = flt(raw, m[i][2])
             ref = "".join(it["lines"])
             rz, hz = _keep(ref, CJK), _keep("".join(kept), CJK)
             cidx = creator_idx.setdefault(m[i][1], len(creator_idx))
@@ -204,44 +294,10 @@ def cmd_run():
             "hallucinated_on_truly_blank": sum(b["hallucinated"] for b in blanks
                                                if not b["illegible_text_present"]),
             "per_frame": rows, "blank_controls": blanks, "excluded": excluded}
-    gate["I1_determinism"] = bool(determinism) and all(d["same"] for d in determinism)
-    gate["I4_variance"] = all(d["acc_zh_mean"] is not None and 0 < d["acc_zh_mean"] < 1
-                              and len({r["acc_zh"] for r in d["per_frame"]}) > 1 for d in domains.values())
-    gate["fail_rate_ok"] = all(d["n_ocr_failed"] <= 0.10 * max(1, d["n_text_frames"] + d["n_blank_controls"])
-                               for d in domains.values())
-    gate_ok = all(gate.values())
-    pairs, overall = {}, "INSTRUMENT_GATE_FAILED"
-    if gate_ok:
-        rng = random.Random(SEED)
-        kws = list(domains)
-        if all(domains[k]["status"] == "OK" for k in kws):
-            for x in range(len(kws)):
-                for y in range(x + 1, len(kws)):
-                    pairs[f"{kws[x]}|{kws[y]}"] = pair_verdict(
-                        domains[kws[x]]["per_frame"], domains[kws[y]]["per_frame"], rng)
-            vs = [p["verdict"] for p in pairs.values()]
-            overall = ("TRANSFERS_ACROSS_TESTED_DOMAINS" if all(v == "TRANSFERABLE" for v in vs)
-                       else "DOES_NOT_TRANSFER" if "NOT_TRANSFERABLE" in vs else "STILL_UNDETERMINED")
-        else:
-            overall = "STILL_UNDETERMINED"
-    means = [d["cer_zh_mean"] for d in domains.values() if d["cer_zh_mean"]]
-    res = {"block": "OCR_CROSS_DOMAIN_GEN1", "measured_at": "2026-10-01",
-           "prereg": "tests/data/phase2/ocr_cross_domain_prereg.json",
-           "annotator": "Claude_single_non_human",
-           "gt_path": GT, "gt_sha256": _sha(GT), "engine_versions": vers,
-           "instrument_gate": gate, "determinism_checks": determinism,
-           "domains": domains, "pairs": pairs, "overall": overall,
-           "max_over_min_domain_cer_ratio": round(max(means) / min(means), 2) if len(means) > 1 else None,
-           "★no_transcriptions_in_repo": "本文件只有路径/sha/数字; 转写在仓外真值文件。"}
-    json.dump(res, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    print(json.dumps({"gate": gate, "overall": overall,
-                      "domains": {k: {x: v[x] for x in ("status", "n_text_frames", "n_blank_controls",
-                                                        "acc_zh_mean", "acc_zh_median", "acc_zh_micro",
-                                                        "hallucinated_on_blank")} for k, v in domains.items()},
-                      "pairs": {k: {x: v[x] for x in ("mean_diff", "ci90", "verdict_raw", "loco_all_same", "verdict")}
-                                for k, v in pairs.items()}}, ensure_ascii=False, indent=1))
-    return 0
+    return domains
 
 
 if __name__ == "__main__":
-    sys.exit({"sample": cmd_sample, "freeze": cmd_freeze, "run": cmd_run}[sys.argv[1] if len(sys.argv) > 1 else "run"]())
+    rc = {"sample": cmd_sample, "freeze": cmd_freeze, "run": cmd_run}[sys.argv[1] if len(sys.argv) > 1 else "run"]()
+    sys.stdout.flush()
+    os._exit(rc)  # onnxruntime 在解释器退出析构时 abort(libc++ recursive_mutex), 产物已落盘
