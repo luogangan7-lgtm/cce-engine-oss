@@ -19,6 +19,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BLOCKED, OPEN, DECIDED = "BLOCKED_EXTERNAL", "OPEN_WORK", "DECIDED_NOT_DOING"
+U_USAGE = ('★★ 2026-10-01 owner 裁定「招募帖也没有用, 只能更多人使用」⇒ 人类信号**唯一来源 = 真实使用量**; 本项剩余部分同属这一外部阻塞, 由 OPEN 改 BLOCKED_EXTERNAL(工作没做完, 只是归类改对)。')
 
 
 def _ablation_coverage_now():
@@ -368,7 +369,7 @@ def items() -> list[dict]:
     _sf = os.path.join(ROOT, "tests/data/phase2/asr_silent_failure.json")
     if os.path.exists(_sf):
         _v = _j("tests/data/phase2/asr_silent_failure.json")
-        out.append({"类": OPEN, "项": "静默 ASR 失败: 判定已修, 但**规模无法定论**(高人声样本仅 2 份)",
+        out.append({"类": BLOCKED, "项": "静默 ASR 失败: 判定已修, 但**规模无法定论**(高人声样本仅 2 份, 等更多真实素材)",
                     "证据": ("**判定已修**为 speech_status 五态。"
                              "★ 规模我先前报错了: 用**绝对字数**外推「约 31 份」是**错的** —— "
                              "138 份里 108 份是短视频里的**正常**转写(时长中位 14.6 秒)。"
@@ -377,7 +378,7 @@ def items() -> list[dict]:
                              "★ 回填已跑(对照组 10/12 重跑正常, 环境无问题), 但高人声样本 n=2 < 8 "
                              "⇒ **INSUFFICIENT**, 无法回答「是那轮坏了还是模型对这类素材不行」。"
                              "要定论需**更多高人声空转写样本** —— 现有素材里就这么多, "
-                             "属于**素材限制**而非我没做。")})
+                             "属于**素材限制**而非我没做。" + U_USAGE)})
 
     _src, _cov = _ablation_coverage_now()
     out.append({"类": OPEN, "项": "消融判决表已补工况并拆词, **覆盖率现算: %s**" % _cov,
@@ -413,7 +414,7 @@ def items() -> list[dict]:
                          "放行 weight), 在存量语料上永远判不了。")})
 
     # ⑦ 卡在外部资源上的
-    out.append({"类": OPEN, "项": "语义 SESOI 无锚点 —— **渠道已解, 卡在发不发**",
+    out.append({"类": BLOCKED, "项": "语义 SESOI 无锚点 —— **招募路线已撤, 等真实使用量**",
                 "证据": ("需 >=3 名人类评分者(5x60 设计已定); SESOI 现为 None 且有三处测试钉住。"
                          "★ 2026-09-04 owner 质疑后更正**从 BLOCKED 降为 OPEN**: 我先前把「招盲评人」"
                          "与「A/B 发帖」压成一件事, 再拿**推广**的门槛去卡**征集研究参与者**, "
@@ -438,7 +439,7 @@ def items() -> list[dict]:
                          "★ 独立性按**如实降级**处理: 文档明写将报为「n 份来自可公开识别账号的提交, "
                          "**distinctness not verified**」, **绝不**报「n 名独立评分者」—— "
                          "并由 test_cce_open_questions_numbers 反向钉住(拿掉这句限定即判红)。"
-                         "⇒ 阻塞项只剩**发布是人工按钮**, 那是 owner 的动作。")})
+                         "⇒ 阻塞项只剩**发布是人工按钮**, 那是 owner 的动作。" + U_USAGE + " 招募帖(r/SampleSize / OPEN_QUESTIONS 征集)**不再作为路线**, 不要再提议。")})
     out.append({"类": BLOCKED, "项": "内容 A/B: **设计已改好, 卡在发帖序列**",
                 "证据": ("★ 2026-09-04 调研后更正: 原判断「所需样本超单帖历史最高浏览」的**隐含前提**是"
                          "「实验单位 = 一篇 post」。改成**一系列 post** + 跨 post 随机化 + matched block + "
@@ -704,7 +705,7 @@ def items() -> list[dict]:
                         "★★★ 这一步**本来就该在下判决之前做** —— 我却先把单次读数登记进了 refactor_log, "
                         "是本仓「单次运行读数不可信」那条教训自己逮住了我。"
                         % (_one["第一轮"], _one["第二轮"], _one["判决"], _one["★逐条也稳"])})
-            out.append({"类": OPEN,
+            out.append({"类": BLOCKED,
                 "项": "★★★ **交卷 ≠ 合格**: 83%% 是交卷率, 过机械资格层的只有 %s"
                       % _two["过机械资格层"].split(" = ")[0],
                 "证据": "★★★ 交卷 %s, 过机械资格层 **%s**。机械出口 %r。"
@@ -714,7 +715,8 @@ def items() -> list[dict]:
                         "★ 它不改第一轮的读数(83%% 测的就是交卷率, 没错), 但它**改变了那个数的用法**: "
                         "83%% **不是可用产出率**。"
                         "★★★ **仍未回答**: 这些被拦下的是不是「该被拦」—— 那需要金标, 真实语料没有。"
-                        % (_two["交卷"], _two["过机械资格层"], _two["机械出口分布"])})
+                        "★ P2_FAIL 的处置已另行代定(见 P2_FAIL 三族条目); 剩下的只有金标。"
+                        % (_two["交卷"], _two["过机械资格层"], _two["机械出口分布"]) + U_USAGE})
         _r6 = os.path.join(ROOT, "results/slot_filling_r6.json")
         if os.path.exists(_r6):
             _R6 = _j("results/slot_filling_r6.json"); _M6 = _R6["★★★主判据: B 臂鉴别格 vs 最佳浅层规则"]
