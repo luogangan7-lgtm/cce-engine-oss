@@ -115,6 +115,14 @@ def order(m):
     return out
 
 
+DEVIATIONS = [
+    "转写规则澄清(转写中途、任何 OCR 之前): 抖音片尾卡(「来抖音 发现更多创作者」+抖音号/搜索昵称+logo 整屏)按「排除抖音平台水印块」"
+    "同一规则记为无字(flags: platform_end_card, 共 13 帧), 已回改此前同类 3 帧。keep_v3 不删片尾卡上的「来抖音 发现更多创作者」"
+    "(含「抖音」但核心字 > 4), 故零文字对照的无中生有计数里大部分是片尾卡泄漏 —— 无中生有只作描述, 不是闸, 不影响判定。",
+    "非偏离、如实登记: 三农生活候选 147 帧耗尽只有 77 张有字帧(OK_REDUCED), 且只来自 4 名创作者(第 5 名创作者入样的 27 帧全部无字, 只进零文字对照), 留一创作者在该侧只有 4 次。",
+]
+
+
 def judge(domains, rng):
     kws = [k for k in domains if domains[k]["status"] != "INSUFFICIENT"]
     pairs = {f"{kws[x]}|{kws[y]}": R2.pair_verdict(domains[kws[x]]["per_frame"], domains[kws[y]]["per_frame"], rng)
@@ -194,6 +202,7 @@ def cmd_run():
            "by_filter": {"v3_bounded": {"role": "primary_preregistered", "domains": d3},
                          "no_filter_upper_bound": {"role": "I6_reference_only(不过滤, 水印字可能虚增召回)",
                                                    "domains": results["no_filter_upper_bound"]}},
+           "★deviations_registered": DEVIATIONS,
            "★prior_rounds_not_pooled": "第一/二轮数据只用于功效估算与过滤器开发, 不并入本轮判定。",
            "★no_transcriptions_in_repo": "本文件只有路径/sha/数字; 转写在仓外真值文件。"}
     json.dump(res, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
