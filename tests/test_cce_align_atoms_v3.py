@@ -85,7 +85,8 @@ def test_v3_ships_and_production_reports_shares(monkeypatch, tmp_path):
         assert len(body["questions"]) == 20 and not any(q.endswith("_5") for q in body["questions"])                    # 生产只问五个题面, 不问审计题面
         return {"answers": {q: {"choice": pick(q, spec), "probabilities": {}} for q, spec in body["questions"].items()}}, None
     out = AT.atoms_alignment("suspend", True, "reply", post=post); a = {x["i"]: x for x in out["atoms"]}
-    assert out["status"] == "ok" and out["judge_version"] == "v3" and out["summary"] == {"calibrated": 3, "satisfied": 1, "unsatisfied": 1, "uncertain": 1}
+    assert out["status"] == "ok" and out["judge_version"] == "v3" and out["summary"] == {"calibrated": 3, "satisfied": 1, "unsatisfied": 1, "uncertain": 1,
+                                                                                                  "tri": {"SATISFIED": 1, "VIOLATED": 0, "INDETERMINATE": 2}}   # #2【做】未检出 ⇒ 缺席一侧未准入 ⇒ INDETERMINATE
     assert a[1]["canonical"] == "satisfied" and a[1]["share"] == {"satisfied": 1.0, "unsatisfied": 0.0, "uncertain": 0.0}
     assert a[3]["canonical"] == "uncertain" and a[3]["share"] == {"satisfied": 0.2, "unsatisfied": 0.8, "uncertain": 0.0}
     assert a[0]["canonical"] == "not_calibrated" and a[2]["canonical"] == "unsatisfied" and "不是真值概率" in out["★v3_reading"]

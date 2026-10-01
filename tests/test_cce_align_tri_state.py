@@ -89,3 +89,36 @@ def test_absent_validated_reads_only_adopted(monkeypatch, tmp_path):
     assert AT.absent_validated() == {("suspend", 3)}
     monkeypatch.setattr(AT, "TRI_RESULT", str(tmp_path / "none.json"))
     assert AT.absent_validated() == set()
+
+
+def _probe(name):
+    import importlib.util as iu
+    s = iu.spec_from_file_location(name, ROOT / "probes/align_atoms_tri.py"); P = iu.module_from_spec(s); s.loader.exec_module(P); return P
+
+
+def test_constructed_run_recomputes_and_drives_production():
+    """预注册 tests/data/align_atoms_tri_prereg.json 的真实读数: 现算判决 == 落盘判决 == 生产名单。"""
+    import hashlib, json
+    P = _probe("_tri")
+    r = json.loads((ROOT / "results/align_atoms_tri.json").read_text(encoding="utf-8"))
+    assert r["prereg_sha256"] == hashlib.sha256((ROOT / "tests/data/align_atoms_tri_prereg.json").read_bytes()).hexdigest(), "预注册在读数之后被改过"
+    assert not r["dry_run"] and r["requests"] <= P.CAP and not r["errors"] and len(r["raw"]) == P.N * 7
+    assert r["questions_sha256"] == hashlib.sha256(json.dumps({k.split("#")[0]: AT.jev_questions_v3(k.split("#")[0]) for k in P.prereg()["items"]}, sort_keys=True).encode()).hexdigest()
+    per, summ = P.score(r["raw"], P.prereg()["items"])
+    assert per == r["per_atom"] and summ == r["summary"] == {"items": 7, "adopted": 6}
+    assert per["itch#1"]["verdict"] == "NOT_ADOPTED" and per["itch#1"]["false_satisfied"] == 2       # 未达线 ⇒ 不采纳, 不改线
+    assert AT.absent_validated() == {(k.split("#")[0], int(k.split("#")[1])) for k, v in per.items() if v["verdict"] == "ADOPTED"}
+    # 选底稿与植入在现算下逐条复现(底稿 / 植入句下标 / 位置任何一处被改都红)
+    js = P.jobs(P.prereg(), json.loads(P.V3.read_text(encoding="utf-8")), P.base_texts())
+    assert [(j["key"], j["ptr"], j["plant"], j["pos"]) for j in js] == [(x["key"], x["ptr"], x["plant"], x["pos"]) for x in r["raw"]]
+
+
+def test_constructed_scorer_can_fail():
+    """反向: 任一难例被判「未违反」或调用失败 ⇒ NOT_ADOPTED; 未跑满 ⇒ NOT_ADOPTED。"""
+    P = _probe("_tri2")
+    row = lambda panel: {"key": "audit#1", "panel": panel, "votes": None, "family": "F1", "pos": "append"}
+    v = lambda rows: P.score(rows, ["audit#1"])[0]["audit#1"]["verdict"]
+    assert v([row("unsatisfied")] * 36) == "ADOPTED"
+    assert v([row("unsatisfied")] * 35 + [row("satisfied")]) == "NOT_ADOPTED"
+    assert v([row("unsatisfied")] * 35 + [row(None)]) == "NOT_ADOPTED"
+    assert v([row("unsatisfied")] * 35) == "NOT_ADOPTED"
