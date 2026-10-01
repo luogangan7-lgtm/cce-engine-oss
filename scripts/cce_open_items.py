@@ -389,10 +389,22 @@ def items() -> list[dict]:
     _src, _cov = _ablation_coverage_now()
     _rv = os.path.exists(os.path.join(ROOT, "tests/data/ablation_v3/unreachable_revival.json"))
     _rp = os.path.exists(os.path.join(ROOT, "tests/data/accuracy_real_provider_result.json"))
+    _rn = None
+    if _rp:   # ★ 2026-10-01 重测已在 workflow 跑完(run 36856235034): 读数现算, 不手抄
+        _RC = _j("tests/data/accuracy_real_provider_result.json")["cells"]
+        _rn = ("★★★ 2026-10-01 真实 provider 重测**已跑**(oss probe.yml run 36856235034, 预注册 sha 核对一致, 结果逐字节取自 artifact, "
+               "见 tests/data/accuracy_real_provider_result{,.provenance}.json): "
+               + " · ".join("%s %s" % (k, v["verdict"]) for k, v in _RC.items())
+               + "。S1 重测一致性两名都未达 STABLE(top1 Wilson 下界 <0.80 且 JS >0.05) ⇒ 九结分布的**重复稳定性仍未确立**; "
+               "S2 n=5 只能排除不能认证; S3 事实抽取稳定。预测 P1(M3 STABLE)被违反, 其余成立。按预注册不改生产、不追加样本。"
+               "★ 仍缺(都能做, 所以 OPEN): ① S1 判出 STABLE/UNSTABLE 需新预注册加大 n(本轮规则禁止追加); "
+               "② main() 真实端到端约 512 次调用, 超单轮预算, 需另立预注册; "
+               "③ 九结语义**准确率**需覆盖九结的金标 —— 等真实使用量(与 SESOI 同源)。零 API 部分照旧: ")
     out.append({"类": BLOCKED if (_rv and not _rp) else OPEN,
                 "项": ("消融判决表: 零 API 部分已收口, 真实 provider 重测**等推送后在 workflow 跑**(覆盖率现算: %s)" if (_rv and not _rp) else
+                       "消融判决表: 零 API 与真实重测已收口, 剩 S1 加大 n 与 main() 真实端到端(覆盖率现算: %s)" if _rp else
                        "消融判决表已补工况并拆词, **覆盖率现算: %s**") % _cov,
-                "前注": '★★★ 2026-10-01 **零 API 部分已收口**: ② ksep 3 条已于 v3 重跑, 现算 corpus_lock 7/7 一致(语料再变由 test_cce_unreachable_revival 判红); ③ 7 条 UNREACHABLE 在复活工况做真消融(tests/data/ablation_v3/unreachable_revival.json): 生产 L2 7/7 不变, 复活工况 7/7 LOAD_BEARING_L2, 更正两处复活条件(v2-004 实为 R>=4 且 alpha<2/C(2R,R); v2-011/012/015 需放行 weight 且两侧 top1_stable); 顺带修掉同族缺陷 reply_batch 缺 top1 守卫(判决面并入 reply_loop.judge, 两路径 39/39 一致) 与 run_gates 空事实抽取崩溃(fail-closed 扣发); ① knot_taxonomy 与 s0/s2/s3 已消融, run_gates main()/G-K2 离线 7 臂全真、变异 7/7。★ 仍缺: 真实 provider 重测稳定性与锚例排除检验 —— 预注册已冻结(tests/data/accuracy_real_provider_prereg.json, <=200 次, sha 钉在 probes/accuracy_real_provider_run.py), 但 MINIMAX_API_KEY 只在 GitHub secrets, 本机没有 ⇒ 只能推送后在 workflow 里跑, **卡在 owner 裁定(是否同意推送到两仓)**。以下为历史证据: ' if (_rv and not _rp) else None,
+                "前注": (_rn + '★★★ 2026-10-01 **零 API 部分已收口**: ② ksep 3 条已于 v3 重跑, 现算 corpus_lock 7/7 一致(语料再变由 test_cce_unreachable_revival 判红); ③ 7 条 UNREACHABLE 在复活工况做真消融(tests/data/ablation_v3/unreachable_revival.json): 生产 L2 7/7 不变, 复活工况 7/7 LOAD_BEARING_L2, 更正两处复活条件(v2-004 实为 R>=4 且 alpha<2/C(2R,R); v2-011/012/015 需放行 weight 且两侧 top1_stable); 顺带修掉同族缺陷 reply_batch 缺 top1 守卫(判决面并入 reply_loop.judge, 两路径 39/39 一致) 与 run_gates 空事实抽取崩溃(fail-closed 扣发); ① knot_taxonomy 与 s0/s2/s3 已消融, run_gates main()/G-K2 离线 7 臂全真、变异 7/7。') if _rp else '★★★ 2026-10-01 **零 API 部分已收口**: ② ksep 3 条已于 v3 重跑, 现算 corpus_lock 7/7 一致(语料再变由 test_cce_unreachable_revival 判红); ③ 7 条 UNREACHABLE 在复活工况做真消融(tests/data/ablation_v3/unreachable_revival.json): 生产 L2 7/7 不变, 复活工况 7/7 LOAD_BEARING_L2, 更正两处复活条件(v2-004 实为 R>=4 且 alpha<2/C(2R,R); v2-011/012/015 需放行 weight 且两侧 top1_stable); 顺带修掉同族缺陷 reply_batch 缺 top1 守卫(判决面并入 reply_loop.judge, 两路径 39/39 一致) 与 run_gates 空事实抽取崩溃(fail-closed 扣发); ① knot_taxonomy 与 s0/s2/s3 已消融, run_gates main()/G-K2 离线 7 臂全真、变异 7/7。★ 仍缺: 真实 provider 重测稳定性与锚例排除检验 —— 预注册已冻结(tests/data/accuracy_real_provider_prereg.json, <=200 次, sha 钉在 probes/accuracy_real_provider_run.py), 但 MINIMAX_API_KEY 只在 GitHub secrets, 本机没有 ⇒ 只能推送后在 workflow 里跑, **卡在 owner 裁定(是否同意推送到两仓)**。以下为历史证据: ' if (_rv and not _rp) else None,
                 "证据": ("★★★ 2026-09-11 覆盖率**由本脚本从 %s 现算**, 不再硬编 —— "
                          "此处原写死「只覆盖 17.3%%」且指向 v2, v3 落地后**它永远不会自己更新**。"
                          % (_src or "(判决表缺失)")) + ("★ 2026-09-06 两轮消融(88 agent)后重判, 见 tests/data/ablation_verdicts_v2.json。"
