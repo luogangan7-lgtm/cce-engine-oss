@@ -590,9 +590,11 @@ def items() -> list[dict]:
         rv = _j("tests/data/assertion_review_v2_offline.json")
         # ★★★ 2026-09-13 **由 BLOCKED 转 OPEN**: owner 明确「P1–P4 仍归你, 也做了吧」⇒ 授权代定。
         #   把已经解开的东西继续挂在 BLOCKED 上, 与「把 BLOCKED 混进 OPEN」是同一种误导的两个方向。
-        out.append({"类": OPEN,
-                    "项": "★ display 对象域**已定**(2026-09-13 owner 授权代定 P1=只含物) —— 剩下的是**实现**",
-                    "证据": ("原问题: " + rv["⑥★★★新增的 owner 待决项"]["问题"] +
+        _dr = os.path.exists(os.path.join(ROOT, "docs/decisions/DISPLAY_REMAINDER_DECIDED_2026-10-01.md"))
+        out.append({"类": DECIDED if _dr else OPEN,
+                    "项": ("display ④ 确定性识别器: 2026-10-01 授权代定不做(P1=只含物 已于 09-13 代定)" if _dr else
+                          "★ display 对象域**已定**(2026-09-13 owner 授权代定 P1=只含物) —— 剩下的是**实现**"),
+                    "证据": (("★★★ 2026-10-01 **授权代定不做**(docs/decisions/DISPLAY_REMAINDER_DECIDED_2026-10-01.md, owner 一句话可作废): ④=附件 C「已确认存在」, 需确定性识别器(provenance='rule')。三条路均已实测关闭: prompt 灌合同 gen9 display 1/80→40/80 且倒挂(A 27/48>B 13/32); 模型填槽 predicate 鉴别格 r5 4/24(门>=11) · r6 1/24 · r6-jev 2/24(门>=8); 表层规则冻结族 378 条在真实证书上最佳净增益 0, 附件 D 禁代理当判据。rule 仍抛错并指向裁定; citable 恒 False, top-1 照发, 生产判决不受影响。重开: 新预注册留出集胜冻结族并过同口径门, 且精度由非设计者金标核过。闸 tests/test_cce_display_remainder_decided.py(变异 8/8)。" if _dr else "") + "原问题: " + rv["⑥★★★新增的 owner 待决项"]["问题"] +
                             " ★★★ **已裁定**: P1 = **只含物**(产品/使用体验, 不含选购/决策过程), "
                             "留档 P1_P4_DECIDED_2026-09-13.md, 并钉住「这是**授权代定**、owner 随时可推翻、整体作废重来」"
                             "(tests/test_cce_p1_p4_decided.py)。"
@@ -675,8 +677,11 @@ def items() -> list[dict]:
             _p = _j("results/real_corpus_pilot.json")
             _R = _p["★★★ 主读数: 真实语料交卷率"]
             _fq = _j("results/real_corpus_pilot_formal_quality.json")
-            out.append({"类": OPEN,
-                "项": "真实语料小批试**已跑完**(42 次) —— 因子一测到了, **因子二仍未测**",
+            _dr2 = os.path.exists(os.path.join(ROOT, "docs/decisions/DISPLAY_REMAINDER_DECIDED_2026-10-01.md"))
+            out.append({"类": DECIDED if _dr2 else OPEN,
+                "项": ("真实语料因子二: 2026-10-01 授权代定不测(小批试 42 次, 因子一已测)" if _dr2 else
+                       "真实语料小批试**已跑完**(42 次) —— 因子一测到了, **因子二仍未测**"),
+                "前注": '★★★ 2026-10-01 **授权代定不测**(同上裁定文件): 更正「人标不出」只对句子成立, 对证书可标; 真阻塞是 84 行 pilot 未存 A 支片段(仅 span_逐字 布尔/对象 sha16/kind sha16), 零调用不可重算。不改定义: 移出 A 支属性后类别变成「只指认」, 17 条候选本应落 B 支, 测的是另一问题。不测: 唯一消费者是约 570 次的真实语料鉴别格集, 而判据层不进生产、④ 不做 ⇒ 无用处, 且远超单轮 200 上限。不是 BLOCKED: 有人类金标上述理由照样成立。重开: ④ 重开或判据层获准进生产; 采集须存 A 支片段偏移。' if _dr2 else "",
                 "证据": "★★★ 读数: 交卷 %s = %s, CP95 %r, 对手构模板级底数 %s 的 Fisher 两侧 p=%s "
                         "⇒ 判决 **%s**。"
                         "★★★★★ **这推翻了我自己的事前预期** —— 我预期真实语料更难交卷(功效分析全盯下尾), "
@@ -848,6 +853,9 @@ def items() -> list[dict]:
 
     # ★ 去重: 同一件事可能既被注册表列为 missing, 又被显式标为 BLOCKED。
     #   显式的分类优先 —— 否则「卡在外部资源」会被误报成「我能做只是没做」。
+    for r in out:                      # 「前注」= 后来的裁定, 前置到证据里(原证据一字不改)
+        if r.get("前注") is not None:
+            r["证据"] = r.pop("前注") + r["证据"]
     blocked_keys = [r["项"] for r in out if r["类"] == BLOCKED]
     # ★ 2026-09-04 补: 前缀去重挡不住「注册表 missing 与显式项讲同一件事但措辞不同」——
     #   静默 ASR 失败就同时出现了两条。改为**按主题词**去重, 显式项(证据更细的那条)优先。
