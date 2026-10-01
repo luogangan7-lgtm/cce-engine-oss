@@ -74,7 +74,7 @@ def test_it_is_merged_with_the_bookmark_only_memo():
     r = M.build()
     assert "合同在某一格上判不出来" in r["★与「仅收藏」是同一族"], "★ 断言要钉在**值**上, 不是重复键名"
     assert "并入同一份交办件" in r["★与「仅收藏」是同一族"]
-    memo = (ROOT / "OWNER_DECISION_log_2026-09-09_to_11.md").read_text(encoding="utf-8")
+    memo = (ROOT / "docs/decisions/OWNER_DECISION_log_2026-09-09_to_11.md").read_text(encoding="utf-8")
     assert "已决定但尚未取得" in memo, \
         "★ 交办件还没并入这一格 —— 让 owner 分两次做同型决定是我的问题, 不是他的"
 

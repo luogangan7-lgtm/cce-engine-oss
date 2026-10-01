@@ -655,7 +655,7 @@ def items() -> list[dict]:
     _rbp = os.path.join(ROOT, "results/three_decisions_rollup.json")
     if os.path.exists(_rbp):
         _g = _j("results/three_decisions_rollup.json")["★★★★★ 三项同尺后的读数"]["逐项新增鉴别格"]
-        _annexd = os.path.exists(os.path.join(ROOT, "FIVE_KINDS_ANNEX_D_CANDIDATE_2026-09-23.md"))
+        _annexd = os.path.exists(os.path.join(ROOT, "docs/decisions/FIVE_KINDS_ANNEX_D_CANDIDATE_2026-09-23.md"))
         out.append({"类": DECIDED if _annexd else BLOCKED,
                     "项": ("五类成立条件: ★ 2026-09-23 **授权代定**写成候选附件 D(FIVE_KINDS_ANNEX_D_CANDIDATE_2026-09-23.md), **不升合同**; 启用门槛冻结(每类 ≥6 鉴别格 · 总 ≥30 · B 臂超浅层臂 · CONTRACT_CHANGE 路)" if _annexd else
                           "五类成立条件**升不升合同**: 卡在「附件 A 里根本没有这五条定义文本」"),

@@ -144,7 +144,7 @@ def test_new_owner_item_was_opened_not_swallowed():
     o = R["⑥★★★新增的 owner 待决项"]
     assert "对象域" in o["问题"] and "规范决定" in o["为什么必须由 owner 定"]
     assert "恢复" in o["★它决定了什么"] and "作废" in o["★它决定了什么"]
-    memo = (ROOT / "OWNER_DECISION_log_2026-09-09_to_11.md").read_text(encoding="utf-8")
+    memo = (ROOT / "docs/decisions/OWNER_DECISION_log_2026-09-09_to_11.md").read_text(encoding="utf-8")
     assert "对象域" in memo, "★ 新待决项没进交办件"
 
 

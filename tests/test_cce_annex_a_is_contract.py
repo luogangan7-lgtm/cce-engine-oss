@@ -9,8 +9,8 @@ import json, pathlib, re, sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-SHEET = ROOT / "OWNER_DECISION_SHEET.md"
-ANNEX = ROOT / "OWNER_DECISION_ANNEX_definitions.md"
+SHEET = ROOT / "docs/decisions/OWNER_DECISION_SHEET.md"
+ANNEX = ROOT / "docs/decisions/OWNER_DECISION_ANNEX_definitions.md"
 REPLAY = ROOT / "results/claim_frame_replay.json"
 RANN = ROOT / "tests/data/claim_frame_replay_annotations.json"
 PAIRS = ROOT / "tests/data/semantic_minimal_pairs.json"

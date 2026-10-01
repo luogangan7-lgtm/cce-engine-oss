@@ -11,7 +11,7 @@
 import json, pathlib, sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-DOC = (ROOT / "P1_P4_DECIDED_2026-09-13.md").read_text(encoding="utf-8")
+DOC = (ROOT / "docs/decisions/P1_P4_DECIDED_2026-09-13.md").read_text(encoding="utf-8")
 sys.path.insert(0, str(ROOT / "probes"))
 import withdrawn_display_assertions_reclassify as R  # noqa: E402
 

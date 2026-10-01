@@ -14,7 +14,7 @@ R = json.loads((ROOT / "tests/data/webgpt_ruling_round9_2026-09-10.json").read_t
 G8 = json.loads((ROOT / "tests/data/gen8_shipping_result.json").read_text(encoding="utf-8"))
 D2 = json.loads((ROOT / "tests/data/DEV-002-destructive-checkout.json").read_text(encoding="utf-8"))
 AC = json.loads((ROOT / "tests/data/accuracy_testability_blocked.json").read_text(encoding="utf-8"))
-MEMO = (ROOT / "OWNER_DECISION_log_2026-09-09_to_11.md").read_text(encoding="utf-8")
+MEMO = (ROOT / "docs/decisions/OWNER_DECISION_log_2026-09-09_to_11.md").read_text(encoding="utf-8")
 
 
 def test_the_common_shape_was_replaced_not_kept():

@@ -12,7 +12,7 @@ import pathlib
 import re
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-DOC = ROOT / "OPEN_QUESTIONS.md"
+DOC = ROOT / "docs/OPEN_QUESTIONS.md"
 P2 = ROOT / "tests" / "data" / "phase2"
 
 

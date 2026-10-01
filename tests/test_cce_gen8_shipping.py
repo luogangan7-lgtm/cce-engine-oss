@@ -92,7 +92,7 @@ def test_headline_denies_what_it_cannot_claim():
 
 
 def test_owner_memo_exists_and_claims_no_evidence_authority():
-    m = (ROOT / "OWNER_DECISION_log_2026-09-09_to_11.md").read_text(encoding="utf-8")
+    m = (ROOT / "docs/decisions/OWNER_DECISION_log_2026-09-09_to_11.md").read_text(encoding="utf-8")
     assert "不能**用你的签字补出候选缺失的验证证据" in m
     # ★ 第八轮把这条改精确了 —— 钉住**新措辞**, 且它比旧的更强
     assert "不是**规范正确性或标签真值的证据**" in m or "不是**规范正确性或标签真值的证据" in m, \

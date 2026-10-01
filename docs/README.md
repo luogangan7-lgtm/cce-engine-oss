@@ -14,6 +14,13 @@
 | `cce_skill_architecture_v1.md` | **现行 · Skill 入口** | Skill 是薄入口：读注册表、判路由、调 GitHub 权威入口，不复制测量引擎。 |
 | `cce_jev_deployment.md` | **现行 · Decider 候选部署** | 本地 Jev(Mapika/decider-2b v10)只在 GitHub 托管 runner 跑的候选测量入口: 状态阶梯、三个 workflow、执行边界、什么没做。2026-09-24。 |
 | `cce_jev_acceptance.md` | **现行 · Decider 候选验收矩阵** | §13.1 每条纯测试对应的注错与拒绝码; GitHub smoke 验收项(尚未执行)。2026-09-24。 |
+| `OPEN_QUESTIONS.md` | **现行 · 对外未证项** | 对外(英文)列出仪器仍未证明的部分。2026-10-01 由仓库根目录移入。 |
+| `decisions/OWNER_DECISION_SHEET.md` | **现行 · 裁定** | 两类文本的裁定边界(语义提案)。 |
+| `decisions/OWNER_DECISION_ANNEX_definitions.md` | **现行 · 裁定附件** | 三项定义; 附件 A 已升合同明文。 |
+| `decisions/OWNER_DECISION_log_2026-09-09_to_11.md` | **现行 · 裁定日志** | 合同判不出来的三个格子(2026-09-09 至 11)。 |
+| `decisions/P1_P4_DECIDED_2026-09-13.md` | **现行 · 授权代定** | P1–P4 代定; owner 可整体作废。 |
+| `decisions/P2_FAIL_FAMILIES_DECIDED_2026-09-23.md` | **现行 · 授权代定** | P2_FAIL 三族处置。 |
+| `decisions/FIVE_KINDS_ANNEX_D_CANDIDATE_2026-09-23.md` | **现行 · 候选附件(未升合同)** | 五类信息增量的成立条件, 启用门槛冻结。 |
 | `cce_chain_architecture_v3.md` | 已被取代 → `cce_chain_architecture_v3_1.md` | v3 正确禁止均值冒充人群，但错在没有正式合成 Population Subject。 |
 | `cce_chain_architecture_v2.md` | 已被取代 → `cce_chain_architecture_v3.md` | 平台/社区边界仍有效；「主体只在测量下游形成」已被 v3 修正。 |
 | `cce_foundation_architecture_v1_2026-08-13.md` | 部分被取代 → `cce_chain_architecture_v3.md` | post6 实证审计部分**保留**；通用架构边界已由 v3 接管。 |
@@ -32,3 +39,13 @@
 - 铁律分档与文档核对：`config/cce_doc_reconciliation.json`
 - 链路一致性：`config/cce_chain_conformance.json`
 - 归档与损失登记：`config/cce_archive_index.json`
+
+## 目录约定(2026-10-01 集中)
+
+本地所有 CCE 文档只放在 `docs/` 一处:
+
+- `docs/*.md` —— 架构与对外文档(上表)
+- `docs/decisions/` —— owner 裁定与授权代定(原在仓库根目录)
+- `docs/_local/` —— **不入仓**(`.gitignore`)的本地旧档: 前身项目 viral-skill-eval 的 CCE 文档、
+  下载目录里的 Jev 部署任务书。仅供追溯, 不是现行标准; 两仓同一 master 且公开仓对外, 所以不进版本库。
+- 运行产物 `archive/<run_id>/summary.md` 属于归档数据, 不算文档, 留在原处。

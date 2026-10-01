@@ -24,7 +24,10 @@ rows = re.findall(r"^\| `([^`]+)` \| ([^|]+) \|", idx_src, re.M)
 listed = {f: s.strip() for f, s in rows}
 
 # ── ① 一份都不许漏登 ──────────────────────────────────────────────────
-on_disk = {f for f in os.listdir(DOCS) if f.endswith(".md") and f != "README.md"}
+# ★ 2026-10-01: 文档集中到 docs/ 后有子目录(decisions/), 一并纳入; _local/ 是不入仓的本地旧档, 不登记。
+on_disk = {os.path.relpath(os.path.join(d, f), DOCS)
+           for d, subs, fs in os.walk(DOCS) if "_local" not in os.path.relpath(d, DOCS).split(os.sep)
+           for f in fs if f.endswith(".md") and os.path.join(d, f) != INDEX}
 missing = on_disk - set(listed)
 extra = set(listed) - on_disk
 assert not missing, f"★ docs/ 里这些没登进索引: {sorted(missing)} —— 漏一份索引就不可信"

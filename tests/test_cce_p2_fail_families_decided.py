@@ -4,7 +4,7 @@ import hashlib, importlib.util, json, pathlib, sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]; sys.path.insert(0, str(ROOT / "scripts"))
 import cce_label_qualification as Q
-DOC = (ROOT / "P2_FAIL_FAMILIES_DECIDED_2026-09-23.md").read_text(encoding="utf-8")
+DOC = (ROOT / "docs/decisions/P2_FAIL_FAMILIES_DECIDED_2026-09-23.md").read_text(encoding="utf-8")
 _s = importlib.util.spec_from_file_location("_rs", ROOT / "probes/p2_policy_v2_rescore.py"); rs = importlib.util.module_from_spec(_s); _s.loader.exec_module(rs)
 TEXT = ("Settled on the Oticon after two fittings; the TV Connector also came in the box. "
         "Been wearing the Oticon daily since March and it gets me through a full day.")

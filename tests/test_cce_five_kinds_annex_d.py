@@ -3,7 +3,7 @@
 import pathlib, re, sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]; sys.path.insert(0, str(ROOT / "scripts"))
-DOC = (ROOT / "FIVE_KINDS_ANNEX_D_CANDIDATE_2026-09-23.md").read_text(encoding="utf-8")
+DOC = (ROOT / "docs/decisions/FIVE_KINDS_ANNEX_D_CANDIDATE_2026-09-23.md").read_text(encoding="utf-8")
 
 
 def test_delegation_head_and_candidate_status():

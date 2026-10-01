@@ -13,8 +13,8 @@
 import json, pathlib, re, sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SHEET = (ROOT / "OWNER_DECISION_SHEET.md").read_text(encoding="utf-8")
-LOG_P = ROOT / "OWNER_DECISION_log_2026-09-09_to_11.md"
+SHEET = (ROOT / "docs/decisions/OWNER_DECISION_SHEET.md").read_text(encoding="utf-8")
+LOG_P = ROOT / "docs/decisions/OWNER_DECISION_log_2026-09-09_to_11.md"
 LOG = LOG_P.read_text(encoding="utf-8")
 sys.path.insert(0, str(ROOT / "probes"))
 import owner_decision_consequence_matrix as M  # noqa: E402
@@ -164,7 +164,7 @@ def test_options_within_one_decision_are_described_symmetrically():
     return lens
 
 
-ANNEX_P = ROOT / "OWNER_DECISION_ANNEX_definitions.md"
+ANNEX_P = ROOT / "docs/decisions/OWNER_DECISION_ANNEX_definitions.md"
 
 
 def test_my_own_debts_are_discharged_not_just_labelled():

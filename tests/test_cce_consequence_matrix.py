@@ -7,7 +7,7 @@ import json, pathlib, sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "probes"))
 import owner_decision_consequence_matrix as M  # noqa: E402
-MEMO = (ROOT / "OWNER_DECISION_log_2026-09-09_to_11.md").read_text(encoding="utf-8")
+MEMO = (ROOT / "docs/decisions/OWNER_DECISION_log_2026-09-09_to_11.md").read_text(encoding="utf-8")
 
 
 def test_it_produces_no_current_assertions():
