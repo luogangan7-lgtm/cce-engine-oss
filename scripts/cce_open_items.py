@@ -400,8 +400,22 @@ def items() -> list[dict]:
                "★ 仍缺(都能做, 所以 OPEN): ① S1 判出 STABLE/UNSTABLE 需新预注册加大 n(本轮规则禁止追加); "
                "② main() 真实端到端约 512 次调用, 超单轮预算, 需另立预注册; "
                "③ 九结语义**准确率**需覆盖九结的金标 —— 等真实使用量(与 SESOI 同源)。零 API 部分照旧: ")
-    out.append({"类": BLOCKED if (_rv and not _rp) else OPEN,
+    _fu = all(os.path.exists(os.path.join(ROOT, f)) for f in (
+        "tests/data/accuracy_s1_large_n_result.json", "tests/data/accuracy_main_e2e_real_result.json"))
+    if _rp and _fu:   # ★ 2026-10-01 两份后续预注册也已在 workflow 跑完(run 36871127524 / 36871132945)
+        _S = _j("tests/data/accuracy_s1_large_n_result.json")["cells"]
+        _E = _j("tests/data/accuracy_main_e2e_real_result.json")
+        _rn = ("★★★ 2026-10-01 后续两份预注册已跑(见 tests/data/accuracy_followup_results.provenance.json): "
+               "S1 加大条目数 n=%d(81 条语料扣掉第一轮 30 条的全部): " % len(_j("tests/data/accuracy_s1_large_n_result.json")["items"])
+               + " · ".join("%s %s %s JS %.3f%s" % (k, v["top1_agree"], v["verdict"], v["mean_JS"], " STABLE_EXCLUDED" if v.get("STABLE_EXCLUDED") else "") for k, v in _S.items())
+               + " ⇒ 两名在现行 JS 判据下**排除 STABLE**, 但 STABLE/UNSTABLE 仍判不出; 语料已用尽, 再判需更多真实语料。"
+               "main() 真实端到端(%d 次 HTTP): %s(编排 O1–O8 全真, 离线回放逐字段相等, 空抽取臂不崩)。描述性(不判): G-K1 %s · G-K2 %s ⇒ overall %s。"
+               % (_E["http_attempts"], _E["verdict"], _E["descriptive_only_not_adjudicated"]["G_K1_pass"],
+                  _E["descriptive_only_not_adjudicated"]["G_K2_pass"], _E["descriptive_only_not_adjudicated"]["overall_pass"])
+               + "★ 能做的都做完了; 剩下: ① S1 判出 STABLE/UNSTABLE 需超出现有 81 条的新语料 ② 九结语义准确率需覆盖九结的金标 —— 两者都等真实使用量。" + U_USAGE + " 第一轮与零 API 部分: ")
+    out.append({"类": BLOCKED if ((_rv and not _rp) or (_rp and _fu)) else OPEN,
                 "项": ("消融判决表: 零 API 部分已收口, 真实 provider 重测**等推送后在 workflow 跑**(覆盖率现算: %s)" if (_rv and not _rp) else
+                       "消融判决表: 零 API、真实重测、main() 端到端均已收口; 剩下的等更多真实语料与金标(覆盖率现算: %s)" if (_rp and _fu) else
                        "消融判决表: 零 API 与真实重测已收口, 剩 S1 加大 n 与 main() 真实端到端(覆盖率现算: %s)" if _rp else
                        "消融判决表已补工况并拆词, **覆盖率现算: %s**") % _cov,
                 "前注": (_rn + '★★★ 2026-10-01 **零 API 部分已收口**: ② ksep 3 条已于 v3 重跑, 现算 corpus_lock 7/7 一致(语料再变由 test_cce_unreachable_revival 判红); ③ 7 条 UNREACHABLE 在复活工况做真消融(tests/data/ablation_v3/unreachable_revival.json): 生产 L2 7/7 不变, 复活工况 7/7 LOAD_BEARING_L2, 更正两处复活条件(v2-004 实为 R>=4 且 alpha<2/C(2R,R); v2-011/012/015 需放行 weight 且两侧 top1_stable); 顺带修掉同族缺陷 reply_batch 缺 top1 守卫(判决面并入 reply_loop.judge, 两路径 39/39 一致) 与 run_gates 空事实抽取崩溃(fail-closed 扣发); ① knot_taxonomy 与 s0/s2/s3 已消融, run_gates main()/G-K2 离线 7 臂全真、变异 7/7。') if _rp else '★★★ 2026-10-01 **零 API 部分已收口**: ② ksep 3 条已于 v3 重跑, 现算 corpus_lock 7/7 一致(语料再变由 test_cce_unreachable_revival 判红); ③ 7 条 UNREACHABLE 在复活工况做真消融(tests/data/ablation_v3/unreachable_revival.json): 生产 L2 7/7 不变, 复活工况 7/7 LOAD_BEARING_L2, 更正两处复活条件(v2-004 实为 R>=4 且 alpha<2/C(2R,R); v2-011/012/015 需放行 weight 且两侧 top1_stable); 顺带修掉同族缺陷 reply_batch 缺 top1 守卫(判决面并入 reply_loop.judge, 两路径 39/39 一致) 与 run_gates 空事实抽取崩溃(fail-closed 扣发); ① knot_taxonomy 与 s0/s2/s3 已消融, run_gates main()/G-K2 离线 7 臂全真、变异 7/7。★ 仍缺: 真实 provider 重测稳定性与锚例排除检验 —— 预注册已冻结(tests/data/accuracy_real_provider_prereg.json, <=200 次, sha 钉在 probes/accuracy_real_provider_run.py), 但 MINIMAX_API_KEY 只在 GitHub secrets, 本机没有 ⇒ 只能推送后在 workflow 里跑, **卡在 owner 裁定(是否同意推送到两仓)**。以下为历史证据: ' if (_rv and not _rp) else None,

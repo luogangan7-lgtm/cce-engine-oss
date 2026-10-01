@@ -1,0 +1,79 @@
+{
+ "block": "ACCURACY_MAIN_E2E_REAL_RESULT",
+ "prereg_sha256": "b428990b7b554ff2524a032889ca5d566b73cadcd6863537719c08873b86ff6f",
+ "offline_dry_run": false,
+ "rc": null,
+ "exception": null,
+ "logical_calls": {
+  "diag": 1,
+  "dist": 405,
+  "fact": 81,
+  "qualify": 25
+ },
+ "http_attempts": 514,
+ "dist_calls_by_model": {
+  "MiniMax-M3": 81,
+  "MiniMax-M2.5": 81,
+  "MiniMax-M2.7": 81,
+  "MiniMax-M2": 81,
+  "MiniMax-Text-01": 81
+ },
+ "properties": {
+  "O1_gates_result 已落盘且无异常": true,
+  "O2_资格考每人考满锚例": true,
+  "O3_尝试数 <= 上限 且 >= 逻辑调用数": true,
+  "O4_run_params 盖章与本仓闸协议一致": true,
+  "O5_原始标注已落盘且面板=准入者=gates 面板": true,
+  "O5_被剔除者零标注, 准入者每人标满样本": true,
+  "O5_事实抽取每样本一次, 诊断 <= 1": true,
+  "O6_gates_result 字段齐": true,
+  "O6_overall = G_K1 ∧ G_K2 ∧ 准入OK(G-K2 扣发则 None)": true,
+  "O7_离线回放: 零网络、零缺失、gates_result 逐字段相等": true,
+  "O8_空抽取臂: 不崩、落盘、G-K2 n=0 扣发、overall=None": true
+ },
+ "verdict": "ORCHESTRATION_PASS",
+ "failed_properties": [],
+ "descriptive_only_not_adjudicated": {
+  "annotators_admitted": [
+   "MiniMax-M3",
+   "MiniMax-M2.5",
+   "MiniMax-M2.7",
+   "MiniMax-M2",
+   "MiniMax-Text-01"
+  ],
+  "qualification": [
+   [
+    "MiniMax-M3",
+    "5/5"
+   ],
+   [
+    "MiniMax-M2.5",
+    "5/5"
+   ],
+   [
+    "MiniMax-M2.7",
+    "5/5"
+   ],
+   [
+    "MiniMax-M2",
+    "5/5"
+   ],
+   [
+    "MiniMax-Text-01",
+    "5/5"
+   ]
+  ],
+  "coverage": {
+   "MiniMax-M3": 81,
+   "MiniMax-M2.5": 81,
+   "MiniMax-M2.7": 80,
+   "MiniMax-M2": 80,
+   "MiniMax-Text-01": 81
+  },
+  "G_K1_pass": false,
+  "G_K2_pass": true,
+  "G_K2_n": 81,
+  "overall_pass": false
+ }
+}
+
