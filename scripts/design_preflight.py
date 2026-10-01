@@ -116,8 +116,33 @@ def gate3_rank(design, formula_terms, fails, warns):
     return rank, cond
 
 
-def gate4_support(design, formula_terms, fails, warns):
+MAX_CATEGORICAL_LEVELS = 6   # 工程阈值: 超过就不像类别因子, 更像被改名的连续剂量
+
+
+def gate4_support(design, formula_terms, fails, warns, categorical=()):
     pts = {tuple(round(d[t], 6) for t in formula_terms) for d in design}
+    # ★ 2026-10-01: 「>=12 个唯一点」防的是连续剂量上的局部平面外推; 全类别因子没有外推,
+    #   原规则让任何二值因子实验(如 model x replicate 重测)结构上都过不了。
+    #   类别分支只在**所有**项都声明为类别时生效, 且要求: 每个因子水平数 <= 6(防把剂量改名成类别绕门)、
+    #   完全析因(每个水平组合都有)、每格 >= 2 行。未声明 categorical 的设计走原规则, 一字不变。
+    if formula_terms and set(formula_terms) <= set(categorical):
+        levels = {t: sorted({d[t] for d in design}) for t in formula_terms}
+        many = {t: len(v) for t, v in levels.items() if len(v) > MAX_CATEGORICAL_LEVELS}
+        if many:
+            fails.append({"gate": 4, "code": "FAIL_CATEGORICAL_TOO_MANY_LEVELS",
+                          "detail": f"声明为类别的因子水平过多 {many} (上限 {MAX_CATEGORICAL_LEVELS}) ⇒ 按连续因子审"})
+        else:
+            cells = Counter(tuple(d[t] for t in formula_terms) for d in design)
+            full = list(itertools.product(*levels.values()))
+            missing = [c for c in full if c not in cells]
+            thin = [c for c in full if 0 < cells.get(c, 0) < 2]
+            if missing:
+                fails.append({"gate": 4, "code": "FAIL_INCOMPLETE_FACTORIAL",
+                              "detail": f"类别设计缺格 {missing[:5]} ⇒ 交互/主效应不可分"})
+            if thin:
+                fails.append({"gate": 4, "code": "FAIL_THIN_CELL",
+                              "detail": f"类别设计有格只 1 行 {thin[:5]} ⇒ 格内无重复"})
+        return len(pts)
     if len(pts) < MIN_SUPPORT_POINTS:
         fails.append({"gate": 4, "code": "FAIL_INSUFFICIENT_SUPPORT",
                       "detail": f"唯一设计点仅 {len(pts)} < {MIN_SUPPORT_POINTS} ⇒ "
@@ -202,7 +227,7 @@ def preflight(spec):
     dof = gate1_algebraic(V, E, fails)
     gate2_isolated_contrast(design, E, fails)
     rank, cond = gate3_rank(design, terms, fails, warns)
-    pts = gate4_support(design, terms, fails, warns)
+    pts = gate4_support(design, terms, fails, warns, V.get("categorical", ()))
     gate5_unit_audit(spec["n_raw_observations"], spec["n_experimental_units"],
                      spec["claimed_inferential_n"], fails)
     gate6_synthetic(design, terms, logistic_fit, fails)

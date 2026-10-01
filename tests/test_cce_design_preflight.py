@@ -101,5 +101,30 @@ r6 = preflight({
 assert not r6["pass"] and "FAIL_PSEUDOREPLICATION" in codes(r6), \
     "★ 单 base 多 draw 声称 n=16 属伪重复, 必须拦"
 
-print("test_cce_design_preflight: OK (第一轮秩亏+合成失败/2x2结构不可分辨/"
+# ── ⑦ 类别分支(2026-10-01): 只放行「全类别 + 完全析因 + 每格>=2」, 不成为绕门口子 ──────
+def _cat(design, categorical=("model", "replicate"), units=30, claimed=30):
+    return preflight({
+        "variables": {"primitive": ["model", "replicate"], "derived": {}, "categorical": list(categorical)},
+        "estimands": [{"name": "rep", "target": "replicate", "nuisance": ["model"]},
+                      {"name": "mod", "target": "model", "nuisance": ["replicate"]}],
+        "analysis_formula": {"terms": ["model", "replicate"]},
+        "design": design, "n_raw_observations": len(design),
+        "n_experimental_units": units, "claimed_inferential_n": claimed})
+_full = [{"model": m, "replicate": r} for m in (0, 1) for r in (0, 1) for _ in range(30)]
+r7 = _cat(_full)
+assert r7["pass"], f"★ 2x2 类别完全析因(每格 30)应放行: {codes(r7)}"
+assert "FAIL_INSUFFICIENT_SUPPORT" in codes(_cat(_full, categorical=())), \
+    "★ 不声明 categorical 时原规则必须一字不变地拦 2x2"
+assert "FAIL_INSUFFICIENT_SUPPORT" in codes(_cat(_full, categorical=("model",))), \
+    "★ 只有部分项声明类别时不得走类别分支"
+assert "FAIL_INCOMPLETE_FACTORIAL" in codes(_cat([d for d in _full if (d["model"], d["replicate"]) != (1, 1)])), \
+    "★ 缺格的类别设计必须拦"
+assert "FAIL_THIN_CELL" in codes(_cat([d for d in _full if (d["model"], d["replicate"]) != (1, 1)]
+                                      + [{"model": 1, "replicate": 1}])), "★ 只有 1 行的格必须拦"
+_dose = [{"model": m, "replicate": r} for m in range(8) for r in (0, 1) for _ in range(3)]
+assert "FAIL_CATEGORICAL_TOO_MANY_LEVELS" in codes(_cat(_dose)), \
+    "★ 把 8 档剂量声明成类别来绕「>=12 点」必须拦"
+assert "FAIL_PSEUDOREPLICATION" in codes(_cat(_full, claimed=120)), "★ 类别分支不豁免 gate5"
+
+print("test_cce_design_preflight: OK (第一轮秩亏+合成失败/2x2结构不可分辨/类别分支6向/"
       f"干净设计放行 cond={r3['report']['condition_number']:.2f}/门可归因)")

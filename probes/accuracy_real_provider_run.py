@@ -129,3 +129,5 @@ if __name__ == "__main__":
     else:
         RESULT.write_text(txt, encoding="utf-8")
         print("写入", RESULT.relative_to(ROOT))
+        if os.environ.get("GITHUB_ACTIONS"):   # probe.yml 的 artifact 只收 /tmp/*.json
+            pathlib.Path("/tmp", RESULT.name).write_text(txt, encoding="utf-8")
