@@ -1,0 +1,108 @@
+{
+ "block": "OCR_CROSS_DOMAIN_R2_PREREG",
+ "prereg_written_at": "2026-10-01",
+ "★frozen_before_measurement": "本文件与分析代码 probes/ocr_cross_domain_r2.py 在**第二轮任何样本帧被转写或跑 OCR 之前**提交(见 git)。真值写完后其 sha256 另行提交(ocr_cross_domain_r2_gt_freeze.json), 之后才跑 OCR。顺序由 git 时间线可验。",
+ "question": "与第一轮相同: RapidOCR 1.4.4 在抖音视频帧上的中文抽取质量(1−CER)是否随内容域变化。第一轮 4 域 x30 判 STILL_UNDETERMINED, 本轮用**新样本**、更大 n 重判。",
+ "★round1_role": {
+  "rule": "第一轮数据(ocr_cross_domain.json)只用于两件事: ① 功效估算(下方 power); ② 生成假设 H2。**不并入**本轮判定, 不用于改判据(δ、区间、留一创作者、overall 规则全部沿用第一轮预注册)。",
+  "why": "本仓铁律: 看过的数据只能生成假设, 不能当证据复用。"
+ },
+ "material": {
+  "source": "/Volumes/data/viral-skill-eval/assets/stackA_frames/<aweme_id>/{00,01,02}.jpg",
+  "frames": "stackA_frames_backfill.py 规格 K=3: t = 0 / (dur−0.35)/2 / dur−0.35, 448px 短边。第一轮只用了 01(中点); 本轮三个时刻都用。",
+  "domain_label_source": "同第一轮: prereg{,2,3,4,5}_douyin 的 meta.kw(采集时给定)",
+  "language": "zh。英文只描述不判决。"
+ },
+ "domains": {
+  "chosen": ["家常菜教程", "职场干货", "汽车评测", "游戏解说"],
+  "why_same_four": "先把第一轮的 4 域做够(任务优先级); 不加新域 —— 加域会把 6 对变成更多对, 每对 n 不变而多重比较变多。"
+ },
+ "exclusions": {
+  "round1_frames": "第一轮真值文件 ocr_gt_douyin_frames_v1.json 里的每一帧(全部是 01.jpg)一律排除 —— 那些帧我看过、转写过、见过其 OCR 读数。",
+  "round1_pilot_aweme_ids": ["7647819251587321115", "7657959015633229416", "7645540029887952975", "7662631763784535311"],
+  "round1_pilot_rule": "第一轮 pilot 看过的是这 4 条视频的 01.jpg ⇒ 只排除这 4 帧; 它们的 00/02 我没看过, 可入样。",
+  "★not_independent_of_round1_at_video_level": "本轮的 00/02 帧可能来自第一轮用过的视频(第一轮只用了其 01)。帧是新的, 视频/创作者与第一轮重叠 ⇒ 本轮是**新帧样本**, 不是新视频总体的独立复制; 结果里如实写明。"
+ },
+ "sampling": {
+  "order": "每域: 该域全部视频 x {00,01,02}, 去掉 exclusions, 按 sha256('<aweme_id>/<帧名>') 十六进制升序。三个时刻与各视频由哈希混排, 不按时刻分层(各域同规则 ⇒ 时刻构成各域期望相同)。",
+  "stop_rule": "依序转写, 直到该域累计 **85 张有字帧**(去水印后真值中文字符 >=2)即停; 途中无字帧保留为零文字对照。",
+  "exhaustion_rule": "该域候选耗尽仍不足 85: n >= 60 ⇒ 以实际 n 判(status OK_REDUCED); n < 60 ⇒ 该域 INSUFFICIENT ⇒ overall STILL_UNDETERMINED。不补其它来源、不换域。",
+  "no_cherry_pick": "顺序由哈希决定, 不因画面难易跳帧。解码失败/近全黑(亮度标准差 < 5)记仪器排除并计数。"
+ },
+ "annotation": {
+  "annotator": "Claude(单人, **非人类**), 与第一轮同一标注规则。结果中写 annotator=Claude_single_non_human。",
+  "blind": "全部真值写完并冻结 sha256 之前, 不在本轮样本上运行 OCR、不看 OCR 输出。",
+  "scope_rule": "同第一轮: 448px 原图上肉眼可辨的全部文字, 阅读序每视觉行一行; 排除抖音平台水印块(抖音 logo/抖音号/搜索图标+昵称); 部分可辨只录可辨部分并记 flags=partial; 图上有字但小到不可辨记 flags=illegible_text_present。",
+  "storage": "真值存仓外 /Volumes/data/viral-skill-eval/results/ocr_gt_douyin_frames_v2.json(含屏幕上的创作者名, 不进 git)。仓内只放路径/图像 sha256/域/逐帧数字/真值 sha256。"
+ },
+ "ocr": {
+  "engine": "RapidOCR via scripts/cce_image_ingest.visual_observation(生产同一调用), rapidocr-onnxruntime==1.4.4 / onnxruntime==1.30.0(constraints.txt 锁定)。",
+  "watermark_filter_on_hypothesis": {
+   "primary": "v2「抖音号位置锚」(probes/ocr_cross_domain.keep_v2, 第一轮改后版本, 原样复用不再改): 丢含「抖音」的行; 以本帧 OCR 读到的「抖音号」框为锚, 其下方且 x 中心 >= 锚框左缘−10px 的行视为水印; 无锚时去掉前导 Q 后与 meta.nickname 核心字互为子串(>=2 字)的行视为水印。",
+   "descriptive_only": "v1(第一轮预注册的昵称精确匹配)只描述, 不参与判定 —— 第一轮已被零文字对照实测打穿。"
+  }
+ },
+ "metric": {
+  "primary": "逐帧中文 1−CER, 与第一轮同式(NFKC 后只留 CJK 统一表意字符, difflib 匹配块, 召回型, 多读不罚; 复用 probes/ocr_accuracy_real_zh._cer)。",
+  "domain_statistic": "域内逐帧 1−CER 的均值(帧加权); 同时报中位/四分位/最小/字符加权, 及按帧时刻(00/01/02)分报。",
+  "hallucination": "零文字对照: 过滤水印后 OCR 读出 >=2 个中文字符记一次无中生有, 分域报; 另报剔除 illegible_text_present 后的次数。",
+  "instrument_failures": "completeness.status=='failed' 记仪器失败并排除; 任一域 > 10% ⇒ 闸不过。"
+ },
+ "criterion": {
+  "SESOI": "δ = 0.10(1−CER 绝对差), 与第一轮相同, 不改。★ 第一轮写的依据「渲染差 0.10(合成 1.000 vs 真实 0.900)」中的 0.900 是 rapidocr 1.2.3 读数, 本轮会在 1.4.4 上重测(见 drift_remeasure); **无论重测结果如何 δ 都不改** —— δ 是本文件冻结的判据, 重测只描述。",
+  "pairwise_interval": "4 域两两 6 对, 90% 百分位区间, 10000 次重采样, numpy default_rng(seed 20261002)。★ **视频聚类**重采样: 每域内对视频有放回抽样, 带上该视频在样本中的全部帧, 统计量 = 帧加权均值差。不把同视频的多帧当 iid。",
+  "pair_TRANSFERABLE": "90% 区间完全落在 (−0.10, +0.10) 内",
+  "pair_NOT_TRANSFERABLE": "90% 区间完全落在 [−0.10, +0.10] 之外",
+  "pair_INCONCLUSIVE": "其余",
+  "creator_robustness": "留一创作者: 逐一剔除任一边任一创作者重算(仍视频聚类); 任一次判定改变 ⇒ 该对降为 INCONCLUSIVE。",
+  "creator_cluster_descriptive": "另报**创作者聚类**区间(对创作者有放回抽样)仅作描述 —— 每域只有 5 名创作者, 5 个聚类的百分位 bootstrap 不校准, 不参与判定。",
+  "overall_H1": {
+   "TRANSFERS_ACROSS_TESTED_DOMAINS": "6 对全部 TRANSFERABLE",
+   "DOES_NOT_TRANSFER": ">=1 对 NOT_TRANSFERABLE",
+   "STILL_UNDETERMINED": "其余(含任一域 INSUFFICIENT)"
+  },
+  "H2_subset": {
+   "domains": ["家常菜教程", "职场干货", "汽车评测"],
+   "provenance": "**由第一轮数据生成的假设**(第一轮这三域均值 0.925–0.988, 游戏 0.836): 「除游戏解说外的三域之间可搬」。本轮在新帧上检验, 只用 H1 同一套逐对判定。",
+   "rule": "这 3 对全部 TRANSFERABLE ⇒ TRANSFERS_ACROSS_TESTED_DOMAINS(仅限这三域); 任一 NOT_TRANSFERABLE ⇒ DOES_NOT_TRANSFER; 其余 STILL_UNDETERMINED。",
+   "★not_a_replacement": "H2 是附加假设, 不替代 H1; H1 判不了时不许用 H2 的结果改写 H1。"
+  },
+  "instrument_gate_before_any_verdict": [
+   "I0 读回: 3 条已知中文串合成渲染(ocr_quality_curve._render)后 OCR, 1−CER 必须全部 = 1.0(仪器读不回原文 ⇒ 红)",
+   "I1 确定性: 每域前 3 帧连跑两次 OCR 输出逐字相同",
+   "I2 版本: rapidocr_onnxruntime==1.4.4 且 onnxruntime==1.30.0",
+   "I3 真值冻结: 真值文件 sha256 = ocr_cross_domain_r2_gt_freeze.json 所记; 逐帧图像 sha256 = 转写时所记",
+   "I4 退化守卫: 每域逐帧 1−CER 有变异(不得全 0 / 全 1)",
+   "I5 新样本: 真值里不得出现任何第一轮看过的帧",
+   "仪器失败率 <= 10%",
+   "任一不过 ⇒ 不出判定, 只报仪器故障"
+  ]
+ },
+ "power_from_round1": {
+  "method": "以第一轮 v2 逐帧读数为总体分布, 模拟本轮 n(家常菜/职场/汽车 85, 游戏 70 —— 游戏第一轮 42 帧里 12 帧无字, 预计候选耗尽), 每格 150 次, 400 次 bootstrap; 两种相关假设: 帧独立 / 两帧一视频且同视频完全相关(最坏)。不含留一创作者(只会更难判)。",
+  "pair_decisive_probability": {
+   "家常菜|职场": "可搬 0.75 / 0.47",
+   "家常菜|汽车": "可搬 0.97 / 0.81",
+   "家常菜|游戏": "不可搬 0.47 / 0.31",
+   "职场|汽车": "可搬 0.98 / 0.91",
+   "职场|游戏": "判不了 0.85 / 0.87",
+   "汽车|游戏": "判不了 0.85 / 0.87"
+  },
+  "★expectation_written_before_data": "H1 最可能结局: 若家常菜|游戏 判出不可搬 ⇒ DOES_NOT_TRANSFER(概率约 0.3–0.5, 再被留一创作者打折); 否则 STILL_UNDETERMINED。H1 判出全部可搬的概率 ≈ 0(游戏两对)。H2 判出可搬的概率约 0.3–0.7。—— 写在这里是为了让结果出来后没法说「早就知道」。"
+ },
+ "drift_remeasure": {
+  "why": "2026-09-29 锁版本时本机 rapidocr 由 1.2.3 换成 1.4.4; 第一轮发现旧 6 张中文图逐张读数全变(中位 0.900→1.0)。ocr_accuracy_real_zh.json / ocr_quality_en.json / transfer_across_conditions.json 的数是 2026-09-04 在 1.2.3 上测的。",
+  "plan": "probes/ocr_version_drift.py: 同一批图、同一真值、同一指标, 在 ① 锁定版 1.4.4(.venv) ② 旧版 1.2.3(/opt/homebrew python3.14, 本机仍装着, onnxruntime 1.27.0)上各跑一遍: 旧 6 张中文图(ocr_accuracy_real_zh 的真值, vault 只读) + TextOCR v0.1 val 排序前 100 张中本机实有的 98 张(ocr_quality_en 的取图规则)。重算「语言/密度」倍数 = 中文真实中位 / 英文词级 F1 中位。",
+  "attribution_rule": "1.2.3 臂逐张复现 09-04 旧数(逐图 |差| <= 0.001) ⇒ 漂移归因于版本; 不复现 ⇒ 旧数来源不明, 如实报, 不归因。",
+  "bookkeeping": "旧数不删: 原文件保留并加标「旧版 1.2.3 读数·已被重测取代」, 新数另落 ocr_version_drift.json; transfer_across_conditions 的倍数按 1.4.4 重算后写回, 旧倍数保留并标注。",
+  "★no_effect_on_cross_domain_verdict": "重测结果不改本文件任何判据。"
+ },
+ "★what_this_can_establish": "RapidOCR 1.4.4 在抖音视频帧(三个时刻)上的中文抽取质量是否随这 4 个内容域变化(H1), 以及非游戏三域之间是否可搬(H2)。",
+ "★what_this_cannot_establish": [
+  "CCE 动态读数(四层占比/阈值/分辨率)的跨域标定 —— 那是语义层不是抽取层; 「OCR 跨域可搬」不得说成「across_domains 成立」",
+  "未测的另 20 个关键词域、非抖音平台、封面图、英文",
+  "社媒音轨(ASR)跨域",
+  "人类标注一致性 —— 标注者是 Claude 单人",
+  "域效应与创作者效应的分离 —— 每域 5 名创作者, 留一创作者只能排除「单一创作者驱动」"
+ ]
+}

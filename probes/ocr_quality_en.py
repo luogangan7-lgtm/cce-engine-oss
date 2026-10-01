@@ -44,7 +44,7 @@ def norm_form(s):       # 大写 + 去标点 + 折空白
     return "".join(re.sub(r"[^A-Z0-9]+", "", s))
 
 
-def main():
+def main(write=True):
     if not (os.path.exists(ANN) and os.path.isdir(IMGS)):
         print(f"★ 无语料({ANN}) —— 只在备好语料的机器上成立, **不出结论**。")
         return 2
@@ -118,6 +118,8 @@ def main():
                                  "当通用 scorer ⇒ 两档都报, **不合成一个「标准 OCR 准确率」**"),
            "★why_not_icdar": "ICDAR2013/2015 官方下载在 RRC 需注册, 不满足匿名可复现; HF 转存许可不明",
            "★criterion": "与公开报告值同量级 ⇒ 集成没坏; 差一倍以上 ⇒ 是我的集成有缺陷"}
+    if not write:                       # probes/ocr_version_drift.py 用: 只测不落盘, 带逐图读数
+        return {**out, "per_image": [{"id": r[0], "raw": r[2], "norm": r[3], "f1": r[4]} for r in rows]}
     json.dump(out, open(os.path.join(ROOT, "tests/data/phase2/ocr_quality_en.json"),
                         "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     return 0
