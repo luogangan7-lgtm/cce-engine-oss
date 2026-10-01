@@ -1,0 +1,186 @@
+{
+ "block": "ACCURACY_S1_LARGE_N_PREREG",
+ "prereg_written_at": "2026-10-01",
+ "★frozen_before_measurement": "判据、样本、n、模型、停止规则、预测在任何一次真实调用之前提交; 本文件 sha256 钉在 probes/accuracy_s1_large_n_run.py 的 PREREG_SHA256, 改一个字节跑批即拒跑。",
+ "★why": "第一轮(oss probe.yml run 36856235034; tests/data/accuracy_real_provider_result.json) S1 两名均 INCONCLUSIVE: MiniMax-M3 top1 一致 26/30 Wilson95 [0.703,0.947] 平均 JS 0.10; MiniMax-M2.7 23/30 [0.591,0.882] JS 0.157。第一轮预注册的停止规则禁止在该轮追加样本 ⇒ 要判出 S1 只能另立预注册, 用第一轮没用过的条目。",
+ "★n_here_is_items_not_repeats": "本预注册加的是**条目数**(实验单位 = 条目; 每条仍是同一模型 temp=0 的 2 次重测, 温度与 prompt 不变)。台账里已否决的「加大 n」(2026-08-18: 同一文本采样数 n 从 5 提到 20, 4 倍成本只把布尔结集不稳定带从 0.51 压到 0.28 ⇒ 处方改为发布 occur/n) 里的 n 是**同一文本的重复采样数**(K/R), 改的是单条读数的分辨率, 即换仪器。本轮不碰它: 不加每条重测次数、不扩温度阶梯。两者不可互换 —— 加重复不增加独立单位(design_preflight gate5 伪重复), 加条目不改变单条读数, 只收窄跨条目的 Wilson 区间。",
+ "provider": "MiniMax(accuracy/run_gates.py 的 BASE 与 call(), temperature=0.0, 逐字原 prompt; 与第一轮相同)",
+ "key_handling": "只从环境变量 MINIMAX_API_KEY 读; 不写文件、不打日志、不进产物。缺 key ⇒ 拒跑并报 BLOCKED_NO_KEY。",
+ "sample": {
+  "items": "accuracy/data/corpus.json 去掉 5 个锚例后的 SAMPLE(81 条), 按 sha256(id) 升序, **跳过前 30 条**(即第一轮所用; 守卫测试逐条核对与 tests/data/accuracy_real_provider_result.json 的 items 不相交), 取余下全部 51 条。选样只看 id 哈希, 不看正文与历史标注。",
+  "n": 51,
+  "n_ceiling": "51 = 81 − 30, 是本语料在「第一轮未用过」约束下的上限。81 条以外不取 —— 换语料即换总体, 读数不能与第一轮并列。",
+  "models": [
+   "MiniMax-M3",
+   "MiniMax-M2.7"
+  ],
+  "why_these_two": "与第一轮同两名, 使两轮可并列报告(不合并)。"
+ },
+ "cells": {
+  "S1_dist_retest": {
+   "what": "run_gates.annot_dist 在 51 条 × 2 模型上各跑 2 次",
+   "calls_planned": 204
+  }
+ },
+ "budget": {
+  "hard_cap_requests": 260,
+  "calls_planned": 204,
+  "retry_slack": 56,
+  "auth_id": "accuracy_s1_large_n_2026_10_01",
+  "mechanism": "scripts/cce_request_budget.reserve(先占后用, 持久化, 重试同样计数): 跑批把 run_gates 的 BUDGET_ID/BUDGET_LIMIT 换成本授权单与 260 —— 每次 POST 前(含重试)扣 1 次。撞上限抛 BudgetExceeded, 不裁尾不续跑。Actions 下账本写 /tmp/accuracy_s1_large_n_budget.json 随 artifact 上传; 结果另记 http_attempts。"
+ },
+ "power_analysis": {
+  "method": "精确二项。对真 top1 一致率 p: P(STABLE 的 top1 部分) = P(K >= k_s), k_s = 使 Wilson95 下界 >= 0.80 的最小 k; P(UNSTABLE) = P(K <= k_u), k_u = 使 Wilson95 上界 < 0.80 的最大 k。STABLE 还要求平均 JS <= 0.05 —— 第一轮只存了 JS 均值、没有逐条 JS, 无法建模 ⇒ 表中 STABLE 列是**上界**, INCONCLUSIVE 列是**下界**。由 probes/accuracy_s1_large_n_run.py --power 现算, 守卫测试核对本节与现算逐字相等。",
+  "computed": {
+   "n=30": {
+    "k_min_for_stable_top1": 29,
+    "k_max_for_unstable": 19,
+    "by_true_p": {
+     "0.70": {
+      "P_stable_top1_part_UPPER_BOUND": 0.0,
+      "P_unstable": 0.27,
+      "P_inconclusive_AT_LEAST": 0.73
+     },
+     "0.75": {
+      "P_stable_top1_part_UPPER_BOUND": 0.002,
+      "P_unstable": 0.106,
+      "P_inconclusive_AT_LEAST": 0.892
+     },
+     "0.77": {
+      "P_stable_top1_part_UPPER_BOUND": 0.004,
+      "P_unstable": 0.064,
+      "P_inconclusive_AT_LEAST": 0.932
+     },
+     "0.80": {
+      "P_stable_top1_part_UPPER_BOUND": 0.011,
+      "P_unstable": 0.026,
+      "P_inconclusive_AT_LEAST": 0.964
+     },
+     "0.82": {
+      "P_stable_top1_part_UPPER_BOUND": 0.02,
+      "P_unstable": 0.012,
+      "P_inconclusive_AT_LEAST": 0.968
+     },
+     "0.85": {
+      "P_stable_top1_part_UPPER_BOUND": 0.048,
+      "P_unstable": 0.003,
+      "P_inconclusive_AT_LEAST": 0.949
+     },
+     "0.87": {
+      "P_stable_top1_part_UPPER_BOUND": 0.084,
+      "P_unstable": 0.001,
+      "P_inconclusive_AT_LEAST": 0.915
+     },
+     "0.90": {
+      "P_stable_top1_part_UPPER_BOUND": 0.184,
+      "P_unstable": 0.0,
+      "P_inconclusive_AT_LEAST": 0.816
+     },
+     "p_hat_MiniMax-M3=26/30": {
+      "P_stable_top1_part_UPPER_BOUND": 0.077,
+      "P_unstable": 0.001,
+      "P_inconclusive_AT_LEAST": 0.922
+     },
+     "p_hat_MiniMax-M2.7=23/30": {
+      "P_stable_top1_part_UPPER_BOUND": 0.003,
+      "P_unstable": 0.07,
+      "P_inconclusive_AT_LEAST": 0.926
+     }
+    }
+   },
+   "n=51": {
+    "k_min_for_stable_top1": 47,
+    "k_max_for_unstable": 35,
+    "by_true_p": {
+     "0.70": {
+      "P_stable_top1_part_UPPER_BOUND": 0.0,
+      "P_unstable": 0.468,
+      "P_inconclusive_AT_LEAST": 0.532
+     },
+     "0.75": {
+      "P_stable_top1_part_UPPER_BOUND": 0.002,
+      "P_unstable": 0.185,
+      "P_inconclusive_AT_LEAST": 0.813
+     },
+     "0.77": {
+      "P_stable_top1_part_UPPER_BOUND": 0.004,
+      "P_unstable": 0.107,
+      "P_inconclusive_AT_LEAST": 0.888
+     },
+     "0.80": {
+      "P_stable_top1_part_UPPER_BOUND": 0.016,
+      "P_unstable": 0.037,
+      "P_inconclusive_AT_LEAST": 0.947
+     },
+     "0.82": {
+      "P_stable_top1_part_UPPER_BOUND": 0.035,
+      "P_unstable": 0.015,
+      "P_inconclusive_AT_LEAST": 0.95
+     },
+     "0.85": {
+      "P_stable_top1_part_UPPER_BOUND": 0.102,
+      "P_unstable": 0.002,
+      "P_inconclusive_AT_LEAST": 0.895
+     },
+     "0.87": {
+      "P_stable_top1_part_UPPER_BOUND": 0.19,
+      "P_unstable": 0.001,
+      "P_inconclusive_AT_LEAST": 0.809
+     },
+     "0.90": {
+      "P_stable_top1_part_UPPER_BOUND": 0.413,
+      "P_unstable": 0.0,
+      "P_inconclusive_AT_LEAST": 0.587
+     },
+     "p_hat_MiniMax-M3=26/30": {
+      "P_stable_top1_part_UPPER_BOUND": 0.172,
+      "P_unstable": 0.001,
+      "P_inconclusive_AT_LEAST": 0.827
+     },
+     "p_hat_MiniMax-M2.7=23/30": {
+      "P_stable_top1_part_UPPER_BOUND": 0.004,
+      "P_unstable": 0.118,
+      "P_inconclusive_AT_LEAST": 0.878
+     }
+    }
+   },
+   "n_needed_for_80pct_decisive_at_p_hat": {
+    "MiniMax-M3": 260,
+    "MiniMax-M2.7": 1160
+   }
+  },
+  "★how_likely_undecided": "n=51 下, 在第一轮观测率处判不出(INCONCLUSIVE)的概率: M3(p̂=26/30) 至少 0.827, M2.7(p̂=23/30) 至少 0.878; 在 p∈[0.77,0.87] 全段至少 0.809。要在 p̂ 处有 80% 判出概率: M3 需约 260 条(top1 部分), M2.7 需约 1160 条 —— 都远超语料上限 51。另: 0.80 是判据的无差别点, p 在 0.80–0.82 时 n=51 判出概率 <= 0.053, 加多少条也不会变高很多。",
+  "★what_this_round_can_still_deliver": "(a) 51 个新单位上的一致率点估计与区间, 与第一轮并列看是否复现; (b) 次读数 JS: 若平均 JS 的自助 95% 下界 > 0.05, 则在现行 STABLE 判据下 STABLE 被排除(STABLE_EXCLUDED) —— 这一项是可判出的; 第一轮 JS 0.10/0.157 是阈值的 2–3 倍, 预期即落在这里。"
+ },
+ "decision": {
+  "S1_per_model": {
+   "metric": "两次重测的 top1 一致率(51 条; 任一次解析失败记为不一致, 不剔除) 与 两次分布的平均 JS(仅两次都解析成功的条目)",
+   "STABLE": "top1 一致率 Wilson 95% 下界 >= 0.80 且 平均 JS <= 0.05",
+   "UNSTABLE": "top1 一致率 Wilson 95% 上界 < 0.80",
+   "INCONCLUSIVE": "其余",
+   "secondary_JS_readout": "平均 JS 的条目自助 95% 区间(B=2000, random.Random(20261001), 百分位): 下界 > 0.05 ⇒ JS_ABOVE; 上界 <= 0.05 ⇒ JS_BELOW; 其余 JS_UNRESOLVED。verdict=INCONCLUSIVE 且 JS_ABOVE ⇒ 标 STABLE_EXCLUDED=true(STABLE 在现行判据下被排除; 不等于 UNSTABLE)。"
+  }
+ },
+ "stopping_rules": [
+  "撞 260 次硬上限 ⇒ 立即停, 未跑完的格判 INSUFFICIENT, 已跑的格照报",
+  "任一格前 10 次调用里解析失败 >= 5 次 ⇒ 停该格, 判 PARSE_FAILURE(不计入稳定), 预算留给另一名",
+  "不追加样本、不重跑失败条目、不换模型 —— 一次过"
+ ],
+ "★no_pooling_with_round_1": "不把第一轮 30 条与本轮 51 条合并成 81 条判。第一轮已出 INCONCLUSIVE, 看过结果再续采并合并 = 数据依赖的续采(optional stopping), 合并后的 Wilson 覆盖率不再成立。两轮各自判、并列报告。",
+ "predictions": {
+  "P1": "M3: INCONCLUSIVE 且 STABLE_EXCLUDED(JS_ABOVE) —— 第一轮 JS 0.10 是阈值 2 倍; top1 部分按 p̂ 只有 <=0.172 的机会过线",
+  "P2": "M2.7: INCONCLUSIVE(按 p̂ 判 UNSTABLE 的机会 0.118) 且 JS_ABOVE",
+  "P3": "两名的 top1 一致率点估计都落在第一轮 Wilson95 区间内(M3 [0.703,0.947], M2.7 [0.591,0.882])",
+  "P4": "不撞 260 次上限"
+ },
+ "consequence": "任何结果都不改生产代码与 GATE_PROTOCOL。结果写 tests/data/accuracy_s1_large_n_result.json, 带本文件 sha256。若 STABLE_EXCLUDED: 「九结分布重测稳定」在现行判据下不可声称, 是否修改判据(JS 0.05 的来源与适用性)须由 owner 另立裁定, 不在本轮事后改。",
+ "★cannot_claim": [
+  "九结语义判断的**准确率** —— 本轮只测同一标注者的重测一致性, 不涉金标",
+  "跨模型家族的稳定性(只 MiniMax 两名)",
+  "81 条以外语料上的稳定性",
+  "两轮合并的 81 条判决(见 ★no_pooling_with_round_1)",
+  "INCONCLUSIVE ⇒ 不稳定: 判不出不是不稳",
+  "STABLE_EXCLUDED ⇒ UNSTABLE: 前者只说 JS 过不了 0.05, top1 仍可能高"
+ ],
+ "status_at_write": "BLOCKED_NO_KEY —— 2026-10-01 写入时本机环境无 MINIMAX_API_KEY, 0 次真实调用; 真跑由主线经 oss probe.yml 派发。"
+}

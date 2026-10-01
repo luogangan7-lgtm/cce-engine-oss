@@ -1,0 +1,64 @@
+{
+ "block": "ACCURACY_MAIN_E2E_REAL_PREREG",
+ "prereg_written_at": "2026-10-01",
+ "★frozen_before_measurement": "判据、刺激、上限、停止规则、预测在任何一次真实调用之前提交; 本文件 sha256 钉在 probes/accuracy_main_e2e_real_run.py 的 PREREG_SHA256, 改一个字节跑批即拒跑。",
+ "★judged_here": "**编排**, 不是准确率: 谁进面板、调了几次、什么时候落盘、什么时候扣发、overall 由哪几项合成、产物是否齐全、判定能否由记录的回复离线复现。",
+ "★why": "main() 编排迄今只在离线装置上用合成回复验证过(tests/data/accuracy_main_e2e_offline.json: 7 臂性质全真、7 条变异全检出)。2026-09-07 以来修过的三处 —— qualify 模板 KeyError、原始标注先于 G-K2 落盘、空事实抽取 fail-closed 扣发 —— 都没在真实 provider 上端到端走过一次。真实回复有合成回复没有的形状: 推理模型 content 为空回落 reasoning_content、非 JSON 或截断 JSON、base_resp 非 0 与限流引起的重试、8 线程并发下的账本扣额、资格考剔除后的面板变化。",
+ "★why_worth_the_money": "最多 512 次调用(上限 520)换三样: ① 第一次真实端到端的编排判决; ② 一份可永久离线回放的真实回复记录(tests/data/accuracy_main_e2e_real_replay.json) —— 之后 run_gates 的任何改动都能在真实回复上零调用重放, 不必再花这 512 次; ③ 5 名 × 81 条的逐条原始标注落盘(raw_annotations), 补上 2026-09-07 那次 430+ 次调用丢掉的逐条数据。不做 ⇒ 生产验收闸的编排只有合成证据。",
+ "provider": "MiniMax(accuracy/run_gates.py 的 BASE 与 call(), temperature=0.0, 逐字原 prompt)",
+ "key_handling": "只从环境变量 MINIMAX_API_KEY 读; 不写文件、不打日志、不进产物。缺 key ⇒ 拒跑并报 BLOCKED_NO_KEY。",
+ "stimulus": "默认刺激: 环境变量 CCE_CORPUS / CCE_BODY_CHARS / CCE_UNIT_LABEL / CCE_SKIP_GK2 一律不得预设(语料 accuracy/data/corpus.json 81 条 + 5 锚例, 截断 700, 单位「评论」), 探针自己置 CCE_SKIP_GK2=0 以跑 G-K2; 预设了任一 ⇒ 拒跑。面板 = run_gates.MODELS 5 名(M3/M2.5/M2.7/M2/Text-01), 不改。",
+ "what_runs": "run_gates.main() 原样一次。探针只做两处透传替换: call() 外包记录器(记返回值, 不改返回值), reserve() 改记本授权单。main() 开头的结构上限自检(structural_max_requests()=1536 <= BUDGET_LIMIT=1600)照常执行, 不动 BUDGET_LIMIT; 真正的花费上限由本授权单 520 管。",
+ "calls_planned": {
+  "qualify": 25,
+  "dist_max": 405,
+  "fact": 81,
+  "diag_max": 1,
+  "total_max": 512,
+  "note": "被资格考剔除的标注者不标注 ⇒ dist 实际 = 准入人数 × 81; 全员被剔除 ⇒ 只有 25 次资格考, 走扣发路径。"
+ },
+ "budget": {
+  "hard_cap_requests": 520,
+  "calls_planned_max": 512,
+  "retry_slack": 8,
+  "auth_id": "accuracy_main_e2e_real_2026_10_01",
+  "mechanism": "scripts/cce_request_budget.reserve(先占后用, 持久化, 重试同样计数), 每次 POST 前(含重试)扣 1 次; Actions 下账本写 /tmp/accuracy_main_e2e_real_budget.json 随 artifact 上传。撞上限抛 BudgetExceeded ⇒ main() 中止, 判 BUDGET_STOP。",
+  "★slack_risk": "余量只有 8 次(1.6%): call() 对异常或 base_resp 非 0 最多 3 次尝试且无退避, main() 8 线程并发, 若遇限流, 撞上限的可能不可忽略。这是把上限写死在 520 以内的代价, 如实登记, 不为此抬上限; 撞了就是 BUDGET_STOP, 要再跑须新授权单。"
+ },
+ "decision": {
+  "properties": {
+   "O1": "gates_result.json 已落盘且 main() 无异常",
+   "O2": "资格考每人考满锚例(25 次逻辑调用)",
+   "O3": "逻辑调用数 <= HTTP 尝试数 <= 520",
+   "O4": "gates_result.run_params 盖章: gate_protocol_hash / gate_protocol_version 与本仓 run_gates 现算一致, CCE_SKIP_GK2=false, CCE_BODY_CHARS=700",
+   "O5": "(准入路径) 原始标注已落盘且其面板 = gates 面板 = 有标注调用者; 被剔除者零标注、准入者每人恰 81 次; 事实抽取恰 81 次、诊断 <= 1 次。(扣发路径: 全员被剔除) 返回 2、overall=None、★withheld 非空、零标注零抽取",
+   "O6": "(准入路径) gates_result 字段齐(gate/run_params/sample_n/annotators/coverage/G_K1v2/G_K2v2/混淆诊断/annotator_qualification/overall_pass/★overall_withheld_because/★pass_components; G_K1 含 pass/pairwise/core_panel; G_K2 含 n/pass), 且 overall = G_K1 ∧ G_K2 ∧ 准入OK(G-K2 扣发则 None)",
+   "O7": "离线回放: 用本次记录的真实回复(零调用, socket 绊线未触发, 零缺失)重放 main(), 返回码与 gates_result 逐字段相等 —— 即 G-K1/G-K2/overall 判定是记录回复的确定函数, 可在离线装置上复现",
+   "O8": "(准入路径) 空抽取臂: 同一批真实回复、事实抽取全置空, 重放 main() 不崩、gates_result 落盘、G-K2 n=0 且 pass=None 且写明 ★withheld、overall=None"
+  },
+  "ORCHESTRATION_PASS": "所走路径适用的 O1–O8 全真",
+  "ORCHESTRATION_FAIL": "任一适用性质为假(结果里列出 failed_properties)",
+  "BUDGET_STOP": "撞 520 次上限 ⇒ 编排判据不可判(INSUFFICIENT), 不是 FAIL",
+  "BLOCKED_NO_KEY": "无 key, 0 次调用"
+ },
+ "stopping_rules": [
+  "撞 520 次硬上限 ⇒ 立即停, 判 BUDGET_STOP, 不续跑",
+  "不重跑、不换模型、不改刺激 —— 一次过",
+  "ORCHESTRATION_FAIL ⇒ 本轮不修; 用回放记录离线定位并补回归, 是否再跑真实调用须另立授权单"
+ ],
+ "predictions": {
+  "P1": "ORCHESTRATION_PASS",
+  "P2": "不撞 520 次上限",
+  "P3": "至少 M3 与 M2.7 通过资格考进面板(第一轮 S2 两名各 5/5)"
+ },
+ "consequence": "任何结果都不改生产代码与 GATE_PROTOCOL。G-K1 / G-K2 / overall 的取值只登记在 descriptive_only_not_adjudicated, 不作准确率声明、不改 gate_record。结果写 tests/data/accuracy_main_e2e_real_result.json, 回放记录写 tests/data/accuracy_main_e2e_real_replay.json, 均带本文件 sha256。",
+ "★cannot_claim": [
+  "九结语义判断的**准确率**(无覆盖九结的金标)",
+  "重复稳定性(单次运行, 无重测; 见 tests/data/accuracy_s1_large_n_prereg.json)",
+  "G-K1/G-K2/overall 的取值是有效性证据 —— 只登记不判",
+  "O7 回放相等 ⇒ 真实端点确定: 不是; 它只说明 main() 是 call() 返回值的确定函数",
+  "撞上限场景、事实抽取部分失败场景下的编排(本轮只自然走到哪条算哪条; 全断场景由 O8 离线覆盖)",
+  "81 条以外语料、非 MiniMax 家族"
+ ],
+ "status_at_write": "BLOCKED_NO_KEY —— 2026-10-01 写入时本机环境无 MINIMAX_API_KEY, 0 次真实调用; 真跑由主线经 oss probe.yml 派发。"
+}
