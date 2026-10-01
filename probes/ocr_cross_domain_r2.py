@@ -168,17 +168,27 @@ def measure(flt, ords, by_key, m, cache):
     return domains
 
 
+IMPL_FIX = ("2026-10-01 转写完成后、冻结真值与任何 OCR 之前修正(只看到了逐域有字帧计数, 游戏解说 51 < 60): "
+            "预注册提交的代码在任一域 INSUFFICIENT 时整体不算任何对, 连 H2(只涉及另三域)也一并判不了 —— "
+            "与预注册文字不符(H2 只由那三对决定; H1 的「>=1 对不可搬 ⇒ DOES_NOT_TRANSFER」先于「其余含 INSUFFICIENT」)。"
+            "改为: 只在 status != INSUFFICIENT 的域之间算对; H1 有不可搬对 ⇒ DOES_NOT_TRANSFER, 否则有域 INSUFFICIENT ⇒ "
+            "STILL_UNDETERMINED; H2 三域都够才判。δ/区间/留一创作者/阈值均未动。")
+
+
 def judge_all(domains, pre, rng):
     pairs = {}
-    kws = list(domains)
-    if any(domains[k]["status"] == "INSUFFICIENT" for k in kws):
-        return pairs, "STILL_UNDETERMINED", "STILL_UNDETERMINED"
+    kws = [k for k in domains if domains[k]["status"] != "INSUFFICIENT"]
     for x in range(len(kws)):
         for y in range(x + 1, len(kws)):
             pairs[f"{kws[x]}|{kws[y]}"] = pair_verdict(domains[kws[x]]["per_frame"], domains[kws[y]]["per_frame"], rng)
+    vs = [p["verdict"] for p in pairs.values()]
+    h1 = overall(vs)
+    if h1 != "DOES_NOT_TRANSFER" and len(kws) < len(domains):
+        h1 = "STILL_UNDETERMINED"
     sub = set(pre["criterion"]["H2_subset"]["domains"])
-    h2 = overall([p["verdict"] for k, p in pairs.items() if set(k.split("|")) <= sub])
-    return pairs, overall([p["verdict"] for p in pairs.values()]), h2
+    h2 = (overall([p["verdict"] for k, p in pairs.items() if set(k.split("|")) <= sub])
+          if sub <= set(kws) else "STILL_UNDETERMINED")
+    return pairs, h1, h2
 
 
 def cmd_selftest():
@@ -247,6 +257,7 @@ def cmd_run():
            "overall": out["v2_anchor"]["overall"], "H2_subset": out["v2_anchor"]["H2_subset"],
            "by_filter": out,
            "★round1_not_pooled": "第一轮数据只用于功效估算, 不并入本轮判定。",
+           "★implementation_fix_before_ocr": IMPL_FIX,
            "★no_transcriptions_in_repo": "本文件只有路径/sha/数字; 转写在仓外真值文件。"}
     json.dump(res, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     o = out["v2_anchor"]
