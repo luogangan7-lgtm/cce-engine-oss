@@ -217,17 +217,53 @@ def atoms_alignment(reader_top1, top1_usable, text, call=None, post=None):
     if res is None:
         return {"status": "failed", "knot": reader_top1, "reason": "判官调用或格式失败", "atoms": []}
     atoms = [dict(r, calibrated=r["i"] in cal) for r in res]
+    scan = complete_scan(text) if PRODUCTION_JUDGE == "jev" else True      # MiniMax 题面带全文
+    ok_abs = absent_validated() if PRODUCTION_JUDGE == "jev" else set()
     for r in atoms:
         if not r["calibrated"] and r["canonical"] != "guidance_only":
             r["canonical"] = "not_calibrated"      # 没过校对: 不判(不是「没做」)
+        r["tri"] = tri_state(r["canonical"], r["is_prohibition"], scan, (reader_top1, r["i"]) in ok_abs or (reader_top1, r["i"]) in MECHANICAL)
     judged = [r for r in atoms if r["calibrated"]]
     return {"status": "ok", "judge": PRODUCTION_JUDGE, "judge_version": "v3" if v3 else ("v2" if v2 else VERSION), "knot": reader_top1, "atoms": atoms,
             "★v2_reading": "【做】satisfied = 检出一句在做; unsatisfied = 未检出(不是证明没做)。【禁】unsatisfied = 检出违规; satisfied = 未检出违规。" if (v2 or v3) else None,
             "★v3_reading": "share = 五个冻结题面里各答案的占比(题面支持度, 不是真值概率); 主值要 ≥4 票同侧且 0 票相反。" if v3 else None,
             "summary": {"calibrated": len(judged), "satisfied": sum(r["canonical"] == "satisfied" for r in judged),
                         "unsatisfied": sum(r["canonical"] == "unsatisfied" for r in judged),
-                        "uncertain": sum(r["canonical"] == "uncertain" for r in judged)},
+                        "uncertain": sum(r["canonical"] == "uncertain" for r in judged),
+                        "tri": {t: sum(r["tri"] == t for r in judged) for t in ("SATISFIED", "VIOLATED", "INDETERMINATE")}},
+            "complete_scan": scan,
+            "★tri_reading": "tri = 主张层三值。在场见证(【做】检出执行 / 【禁】检出违规)单独成立; 缺席结论(【禁】SATISFIED / 【做】VIOLATED)"
+                            "要 complete_scan(判官看到整篇)且该条目缺席一侧过了构造稿准入(results/align_atoms_tri.json), 否则 INDETERMINATE。",
             "★rule": "只看逐原子状态; 不出总分、不出放行布尔。uncertain 与 not_calibrated 都不是「没做」。"}
+
+
+# ══ 三值主张层(2026-10-01, docs/decisions/PLAYBOOK_TRI_STATE_AUDIT_DECIDED_2026-10-01.md) ════════════════════
+# 旧反转(「找不到违反」⇒ 未违反)把假违反换成了假满足。按 safety property(Alpern & Schneider 1985): 违反由有限坏前缀(一句)见证即成立;
+# 满足是全称命题, 只有扫完整篇且检出器对该条目足够灵敏时才可下(Reiter 闭世界)。两条都不满足 ⇒ INDETERMINATE。
+# ★ 这是本项目的操作化, 不是 LLM-judge 的命名标准做法(2026-09-05 调研明说无文献命名过它)。
+JEV_STATE_MAX = 2000          # 判官只看到 text[:2000](judge_jev* 的 state)
+TRI_RESULT = os.path.join(ROOT, "results", "align_atoms_tri.json")
+
+
+def complete_scan(text):
+    return len(text) <= JEV_STATE_MAX
+
+
+def absent_validated():
+    """缺席一侧过了构造稿准入的条目 {(结, 下标)}; 没有结果 ⇒ 空集(缺席结论一律 INDETERMINATE)。"""
+    if not os.path.exists(TRI_RESULT):
+        return set()
+    per = json.load(open(TRI_RESULT, encoding="utf-8")).get("per_atom") or {}
+    return {(k, int(i)) for k, i in (key.rsplit("#", 1) for key, v in per.items() if v.get("verdict") == "ADOPTED")}
+
+
+def tri_state(canonical, is_prohibition, scan_ok, absent_ok):
+    present, absent = witness_value(is_prohibition), ("satisfied" if is_prohibition else "unsatisfied")
+    if canonical == present:
+        return "VIOLATED" if is_prohibition else "SATISFIED"
+    if canonical == absent and scan_ok and absent_ok:
+        return "SATISFIED" if is_prohibition else "VIOLATED"
+    return "INDETERMINATE"
 
 
 # ══ Jev 判官(2026-09-30) ═══════════════════════════════════════════════════════════════════════

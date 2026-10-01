@@ -21,6 +21,7 @@
 | `decisions/P1_P4_DECIDED_2026-09-13.md` | **现行 · 授权代定** | P1–P4 代定; owner 可整体作废。 |
 | `decisions/P2_FAIL_FAMILIES_DECIDED_2026-09-23.md` | **现行 · 授权代定** | P2_FAIL 三族处置。 |
 | `decisions/DISPLAY_REMAINDER_DECIDED_2026-10-01.md` | **现行 · 授权代定** | ④ 确定性识别器不做 · 真实语料因子二不测; owner 可整体作废。 |
+| `decisions/PLAYBOOK_TRI_STATE_AUDIT_DECIDED_2026-10-01.md` | **现行 · 授权代定** | 对齐出口禁令三值 + audit 弃用潜在姿态; owner 可整体作废。 |
 | `decisions/FIVE_KINDS_ANNEX_D_CANDIDATE_2026-09-23.md` | **现行 · 候选附件(未升合同)** | 五类信息增量的成立条件, 启用门槛冻结。 |
 | `cce_chain_architecture_v3.md` | 已被取代 → `cce_chain_architecture_v3_1.md` | v3 正确禁止均值冒充人群，但错在没有正式合成 Population Subject。 |
 | `cce_chain_architecture_v2.md` | 已被取代 → `cce_chain_architecture_v3.md` | 平台/社区边界仍有效；「主体只在测量下游形成」已被 v3 修正。 |

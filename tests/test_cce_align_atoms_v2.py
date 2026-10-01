@@ -113,7 +113,8 @@ def test_v2_production_path(monkeypatch, tmp_path):
         return {"answers": {q: {"choice": pick.get(q, "not_violated" if "not_violated" in spec["criteria"] else "not_done"), "probabilities": {}} for q, spec in body["questions"].items()}}, None
     r = AT.atoms_alignment("suspend", True, "reply", post=post)
     a = {x["i"]: x for x in r["atoms"]}
-    assert r["status"] == "ok" and r["judge_version"] == "v2" and r["summary"] == {"calibrated": 2, "satisfied": 1, "unsatisfied": 0, "uncertain": 1}
+    assert r["status"] == "ok" and r["judge_version"] == "v2" and r["summary"] == {"calibrated": 2, "satisfied": 1, "unsatisfied": 0, "uncertain": 1,
+                                                                                         "tri": {"SATISFIED": 1, "VIOLATED": 0, "INDETERMINATE": 1}}
     assert a[1]["canonical"] == "satisfied" and a[3]["canonical"] == "uncertain" and a[0]["canonical"] == a[2]["canonical"] == "not_calibrated"
     assert "未检出" in r["★v2_reading"]
     g = AT.atoms_alignment("reward", True, "Thanks, glad it helped.", post=post)     # 机械条目按规则判
