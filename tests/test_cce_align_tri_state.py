@@ -161,6 +161,37 @@ def test_do_jobs_are_absent_bases_with_one_plant_per_item():
             assert len({p["pos"] for p in j["plants"]}) == 2 or {p["pos"] for p in j["plants"]} == {"append"}
 
 
+def test_do_run_recomputes_and_drives_production():
+    """真实读数(238 次 Jev): 现算判决 == 落盘判决; 生产名单 == 两轮 ADOPTED 的并集, 未准入的【做】条目「没做」仍 INDETERMINATE。"""
+    import hashlib, json
+    P = _probe_do("_trido3")
+    r = json.loads((ROOT / "results/align_atoms_tri_do.json").read_text(encoding="utf-8"))
+    assert r["prereg_sha256"] == hashlib.sha256(P.PRE.read_bytes()).hexdigest(), "预注册在读数之后被改过"
+    assert not r["dry_run"] and r["requests"] == r["calls_planned"] == 238 <= P.CAP and not r["errors"]
+    assert r["questions_sha256"] == hashlib.sha256(json.dumps({k: AT.jev_questions_v3(k) for k in P.prereg()["knots"]}, sort_keys=True).encode()).hexdigest()
+    per, summ = P.score(r["raw"], P.prereg()["items"])
+    assert per == r["per_atom"] and summ == r["summary"] == {"items": 11, "adopted": 8}
+    assert {k: v["false_violated"] for k, v in per.items() if v["verdict"] == "NOT_ADOPTED"} == \
+        {"injustice#0": 1, "injustice#1": 2, "suspend#2": 1}                     # 未达线 ⇒ 不采纳, 不改线
+    js = P.jobs(P.prereg(), json.loads(P.TRI.V3.read_text(encoding="utf-8")), P.TRI.base_texts())
+    assert [(j["ptr"], p["key"], p["plant"], p["pos"]) for j in js for p in j["plants"]] == [(x["ptr"], x["key"], x["plant"], x["pos"]) for x in r["raw"]]
+    tri = json.loads((ROOT / "results/align_atoms_tri.json").read_text(encoding="utf-8"))["per_atom"]
+    ok = lambda d: {(k.split("#")[0], int(k.split("#")[1])) for k, v in d.items() if v["verdict"] == "ADOPTED"}
+    assert AT.absent_validated() == ok(tri) | ok(per)
+    assert ("injustice", 0) not in AT.absent_validated() and ("audit", 3) in AT.absent_validated()
+
+
+def test_do_absent_side_in_production_path(monkeypatch):
+    """生产出口: audit#3(已准入)判「没做」⇒ VIOLATED; 截断 ⇒ INDETERMINATE; injustice#0(未准入)判「没做」⇒ INDETERMINATE。"""
+    monkeypatch.setenv("TYPESAFE_API_KEY", "k")
+    r = AT.atoms_alignment("audit", True, "Here is what I know.", post=_post_for(set()))
+    assert r["atoms"][3]["canonical"] == "unsatisfied" and r["atoms"][3]["tri"] == "VIOLATED"
+    r = AT.atoms_alignment("audit", True, "Here is what I know. " + "x" * 2100, post=_post_for(set()))
+    assert r["atoms"][3]["tri"] == "INDETERMINATE"
+    r = AT.atoms_alignment("injustice", True, "Here is what I know.", post=_post_for(set()))
+    assert r["atoms"][0]["canonical"] == "unsatisfied" and r["atoms"][0]["tri"] == "INDETERMINATE"
+
+
 def test_do_scorer_can_fail():
     """反向: 任一难例被判「没做」或调用失败 ⇒ NOT_ADOPTED; 未跑满 ⇒ NOT_ADOPTED; 「做了」/uncertain 不是错误。"""
     P = _probe_do("_trido2")
