@@ -51,6 +51,8 @@ import re
 CANDIDATE = "UNCONFIRMED_CANDIDATE"      # ③ 没有证据 ⇒ 候选
 CITED_UNVERIFIED = "CITED_SEMANTICS_UNVERIFIED"   # ③′ 有引文: 出处可核, **语义未独立验证**
 RULE_CONFIRMED = "RULE_CONFIRMED"        # ④ 语义由**确定性识别器**验过 —— **尚未实现**
+# ④ 不做的裁定与重开条件(授权代定, owner 可整体作废)
+DECISION_RULE_CONFIRMED = "docs/decisions/DISPLAY_REMAINDER_DECIDED_2026-10-01.md"
 
 # ★ 兼容旧名: CONFIRMED 现在指向 ③′ 而不是 ④。任何写着「已确认存在」的下游
 #   都会因此拿到一个**更弱**的状态 —— 这是有意的, 降格不该悄悄发生。
@@ -211,7 +213,8 @@ def qualify(knot: str, text: str, evidence=None, required_conjuncts=None,
     if ceiling is RULE_CONFIRMED:
         raise NotImplementedError(
             "★★★ provenance='rule' 需要**确定性、窄覆盖的正证据识别器**, 它**尚未实现**。"
-            "在它存在之前, 没有任何读数有资格进 ④ —— 不许用这个参数绕过去。")
+            "在它存在之前, 没有任何读数有资格进 ④ —— 不许用这个参数绕过去。"
+            "★ 2026-10-01 授权代定**不做**, 重开条件见 " + DECISION_RULE_CONFIRMED)
     return _out(ceiling, knot, ev, req,
                 "每个必要条件都有**可指名原文片段**的正面证据支撑"
                 + ("; 且它们**落在同一个对象**上(P2 见证 x 存在), 增量支已指名合同枚举的种类且超出对象标识本身。"
