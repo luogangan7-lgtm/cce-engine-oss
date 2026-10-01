@@ -1,0 +1,63 @@
+{
+ "block": "ACCURACY_REAL_PROVIDER_PREREG",
+ "prereg_written_at": "2026-10-01",
+ "★frozen_before_measurement": "判据、样本、n、停止规则在任何一次真实调用之前提交; 本文件 sha256 钉在 probes/accuracy_real_provider_run.py 的 PREREG_SHA256, 改一个字节跑批即拒跑。",
+ "★why": "tests/data/accuracy_directed_tests.json「★仍未验证的」四条里, G-K2 链路与 main() 编排已由离线软件验证覆盖(tests/data/accuracy_main_e2e_offline.json); 剩下两条 —— 真实 provider 的重复稳定性与语义判断准确率 —— 零 API 测不了。已有的真实数据: 资格考 4 次独立运行(tests/data/qualification_exam_resolution.json)与两次整轮聚合量对比(tests/data/run_a_repeatability_result.json); 缺的是**逐条**重测一致性 —— run1 没落盘逐条标注, run2 的逐条标注在仓外保险库, CI 读不到。本轮在一次运行内部自带重测, 不依赖仓外数据。",
+ "provider": "MiniMax(accuracy/run_gates.py 的 BASE 与 call(), temperature=0.0, 逐字原 prompt)",
+ "key_handling": "只从环境变量 MINIMAX_API_KEY 读; 不写文件、不打日志、不进产物。缺 key ⇒ 拒跑并报 BLOCKED_NO_KEY。",
+ "sample": {
+  "items": "accuracy/data/corpus.json 去掉 5 个锚例后的 SAMPLE(81 条), 按 sha256(id) 升序取前 30 条; 选样只看 id 哈希, 不看正文与历史标注。",
+  "anchors": "accuracy/data/anchors.json 的 5 个锚例(留一法, 即 run_gates.qualify 原样)。",
+  "models": ["MiniMax-M3", "MiniMax-M2.7"],
+  "why_these_two": "M3 = 面板首位; M2.7 = 资格考在 4 次运行里 3/5→5/5→4/5→4/5 来回翻的那一名。两名足以回答「同一标注者 temp=0 重测稳不稳」; 不为凑全员加预算。"
+ },
+ "cells": {
+  "S1_dist_retest": {"what": "run_gates.annot_dist 在 30 条 × 2 模型上各跑 2 次", "calls_planned": 120},
+  "S2_anchor_accuracy": {"what": "run_gates.qualify 每模型 1 次(5 锚例)", "calls_planned": 10},
+  "S3_fact_retest": {"what": "run_gates.extract_facts(MiniMax-Text-01)在同 30 条上跑 2 次", "calls_planned": 60}
+ },
+ "budget": {
+  "hard_cap_requests": 200,
+  "calls_planned": 190,
+  "auth_id": "accuracy_real_provider_2026_10_01",
+  "mechanism": "scripts/cce_request_budget.reserve(先占后用, 持久化, 重试同样计数): 跑批把 run_gates 的 BUDGET_ID/BUDGET_LIMIT 换成本授权单与 200 —— 每次 POST 前(含重试)扣 1 次。撞上限抛 BudgetExceeded, 不裁尾不续跑。"
+ },
+ "decision": {
+  "S1_per_model": {
+   "metric": "两次重测的 top1 一致率(30 条; 任一次解析失败记为不一致, 不剔除) 与 两次分布的平均 JS(仅两次都解析成功的条目)",
+   "STABLE": "top1 一致率 Wilson 95% 下界 >= 0.80 且 平均 JS <= 0.05",
+   "UNSTABLE": "top1 一致率 Wilson 95% 上界 < 0.80",
+   "INCONCLUSIVE": "其余"
+  },
+  "S2_per_model": {
+   "metric": "留一法锚例 top1 命中 k/5",
+   "DISQUALIFIED": "Wilson 95% 上界 <= 0.70(即 k <= 1)",
+   "NOT_DISQUALIFIED": "其余 —— ★ n=5 只能排除不能认证(见 qualification_exam_resolution.json: 区分需 14–49 条锚例), 本格**不产出**「准确率合格」"
+  },
+  "S3": {
+   "metric": "run_gates.observed_tier_from_facts 两次重测的成本档一致率(30 条; 解析失败记不一致) 与 六个事实逐项一致率",
+   "STABLE": "成本档一致率 Wilson 95% 下界 >= 0.80",
+   "UNSTABLE": "Wilson 95% 上界 < 0.80",
+   "INCONCLUSIVE": "其余"
+  }
+ },
+ "stopping_rules": [
+  "撞 200 次硬上限 ⇒ 立即停, 未跑完的格判 INSUFFICIENT, 已跑的格照报",
+  "任一格前 10 次调用里解析失败 >= 5 次 ⇒ 停该格, 判 PARSE_FAILURE(不计入稳定), 预算留给其余格",
+  "不追加样本、不重跑失败条目、不换模型 —— 一次过"
+ ],
+ "predictions": {
+  "P1": "S1: M3 STABLE(2026-09-07 两次整轮的 JS 差仅 0.08×SE, 标注本身跨运行稳)",
+  "P2": "S1: M2.7 INCONCLUSIVE 或 STABLE —— 它不稳的是资格考那道 5 题闸, 不是标注",
+  "P3": "S2: 两名都 NOT_DISQUALIFIED(4 次运行里两人最低 3/5)",
+  "P4": "S3: STABLE(事实抽取是抽取型任务)"
+ },
+ "consequence": "任何结果都不改生产代码与 GATE_PROTOCOL。结果写 tests/data/accuracy_real_provider_result.json, 带本文件 sha256; accuracy_directed_tests.json 的「★仍未验证的」由主线按结果改写。",
+ "★cannot_claim": [
+  "九结语义判断的**准确率** —— 没有覆盖九个结的金标(anchors 5 条只覆盖少数结), S2 只能排除",
+  "跨模型家族的稳定性(本轮只 MiniMax)",
+  "81 条以外语料上的稳定性",
+  "main() 真实端到端(需约 512 次调用, 超本轮预算; 编排已离线验证)"
+ ],
+ "status_at_write": "BLOCKED_NO_KEY —— 2026-10-01 写入时本机环境无 MINIMAX_API_KEY, 0 次真实调用。"
+}

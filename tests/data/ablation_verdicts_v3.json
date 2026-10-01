@@ -77,8 +77,8 @@
    ],
    "note": "生产面 = 这三个目录下全部 *.py 递归 + config/ 顶层 *.json。tests/ 与 archive/ 不计入分母(它们是语料与守卫, 不是被消融的生产代码)。"
   },
-  "scope_files": 286,
-  "scope_lines": 56543,
+  "scope_files": 289,
+  "scope_lines": 57390,
   "touched_files_union": [
    "accuracy/run_gates.py",
    "config/cce_core_manifest.json",
@@ -119,9 +119,9 @@
    "tests/test_cce_structural_gate.py"
   ],
   "n_touched_files": 29,
-  "file_level_pct": 10.14,
+  "file_level_pct": 10.03,
   "lines_in_touched_files": 12539,
-  "line_level_pct_GENEROUS_UPPER_BOUND": 22.18,
+  "line_level_pct_GENEROUS_UPPER_BOUND": 21.85,
   "by_round": {
    "v2_only_files": [
     "config/need_taxonomy.json",
@@ -199,10 +199,13 @@
    "probes/ab_knot_n.py": 73,
    "probes/ablation_harness_v3.py": 774,
    "probes/ablation_r3_chain_stages.py": 752,
+   "probes/ablation_unreachable_revival.py": 464,
    "probes/abstention_false_positive.py": 87,
    "probes/abstention_uptake.py": 100,
    "probes/accuracy_directed_tests.py": 209,
+   "probes/accuracy_main_e2e_offline.py": 252,
    "probes/accuracy_offline_harness.py": 153,
+   "probes/accuracy_real_provider_run.py": 131,
    "probes/alias_merge_miss_surface.py": 85,
    "probes/align_atoms_calibration.py": 163,
    "probes/align_atoms_heldout_cases.py": 55,
@@ -1301,8 +1304,8 @@
    }
   ],
   "③_合计": {
-   "n_files_never_touched": 257,
-   "lines_never_touched": 44004,
+   "n_files_never_touched": 260,
+   "lines_never_touched": 44851,
    "★为什么变了": [
     "2026-09-11 收口后 26596→26622: scripts/cce_open_items.py(从未触及)由 612 涨到 638 行 —— 把写死的「只覆盖 17.3%」改成现算所致。**本闸自己抓到的第二处连带**。",
     "2026-09-12 parser_plane 收口: 169→166 文件 / 26622→26301 行。减少的三件是 parser_plane 的 cce_case_assemble(144) · cce_event_assemble(125) · cce_platform_adapter(64) = 333 行; 同时 config/ontology_legacy_exceptions_v1.json 因补登 P1 豁免多了 12 行(它从未被触及, 故净变化 = -333+12 = -321)。",
@@ -2372,7 +2375,7 @@
    "verdict": "UNREACHABLE",
    "status": "active",
    "deletable": false,
-   "deletable_reason": "它的**全部职责**就是拦住 R=3 这种「p_floor=0.1 > alpha=0.05, 永远不可能拒绝零假设」的设计。存量语料全 R>=4 ⇒ 本工况下永不触发。删掉 = 静默放行一个必然无意义的检验。**典型的防御性守卫被判装饰。**",
+   "deletable_reason": "它的真实职责是拦住 R>=4 但 alpha < 2/C(2R,R) 的调用(R=4 时 alpha<1/35): 那种设计 p 永远不可能 <= alpha。2026-10-01 消融实测: 拆掉它 ⇒ 12/12 由抛错变成静默 NOT_SEPARATED, 含 6 对强分离对 ⇒ 静默假阴性。现有调用点全传 alpha=0.05 ⇒ 生产不触发。删掉 = 让第一个做多重比较校正的人拿到一整轮无意义的阴性结果。(原理由写的是 R=3, 那是错的: R=3 在 _check 里已被 R<4 先拦。)",
    "operating_point_ref": "★operating_point",
    "source_artifact": "tests/data/ablation_verdicts_v2.json",
    "evidence_class": "direct",
@@ -2382,7 +2385,7 @@
    "ablated_files": [
     "scripts/cce_ksep.py"
    ],
-   "unreachable_condition": "任何一次 R=3 的 separation 调用",
+   "unreachable_condition": "separation() 被以 R>=4 且 alpha < 2/C(2R,R) 调用(R=4: alpha<1/35≈0.0286) —— 例如任何多重比较校正后的 alpha。R=3 到不了本守卫(_check 先拦)。",
    "★reclassified_from": "DECORATIVE",
    "_ablated_files_source": "face_fallback",
    "_v2_original": {
@@ -2407,6 +2410,43 @@
      "corpus": "tests/data/operating_points/ · 裁定台 probes/operating_point_adjudication.py",
      "★still_unreachable_in_production": true
     }
+   },
+   "★revival_ablation_2026_10_01": {
+    "artifact": "tests/data/ablation_v3/unreachable_revival.json",
+    "probe": "probes/ablation_unreachable_revival.py(零 API; --check 现算对存盘)",
+    "gate": "tests/test_cce_unreachable_revival.py",
+    "verdict_in_production": "UNREACHABLE",
+    "verdict_at_stated_condition": "INCONCLUSIVE",
+    "verdict_at_revival_condition": "LOAD_BEARING_L2",
+    "prod_L2_unchanged": true,
+    "★still_unreachable_in_production": true,
+    "why_verdict_word_not_changed": "判决词随行的工况是生产工况(★operating_point); 生产上组件臂 L2 仍 0 变 ⇒ UNREACHABLE 仍是生产工况上的正确词。本块回答的是 UNREACHABLE 要求的另一半: 换到复活工况它活不活 —— 活, 且是 L2 承重。",
+    "reading": "原复活条件(R=3)是错的: R=3 被 _check 的 R<4 先拦, 守卫一行都执行不到(消融臂/注入臂 0/24 变, 基线 24/24 抛错来源 = _check)。真复活条件 R>=4 且 alpha<2/C(2R,R): 拆掉守卫 ⇒ 12/12 由抛错变成静默 NOT_SEPARATED, 其中 6 对在 alpha=0.05 下判 SEPARATED 的强分离对也被判 NOT_SEPARATED ⇒ 静默假阴性。",
+    "numbers": {
+     "OP_stated_R3_alpha05(原复活条件)": {
+      "verdict_here": "INCONCLUSIVE",
+      "n": 24,
+      "guard_removed": "L1 0/24 · L2 0/24",
+      "inject_guard_always_raise": "L1 0/24 · L2 0/24",
+      "noop": "L1 0/24 · L2 0/24"
+     },
+     "OP_prod_R4_alpha05": {
+      "verdict_here": "NO_CONSUMER",
+      "n": 12,
+      "guard_removed": "L1 0/12 · L2 0/12",
+      "inject_guard_always_raise": "L1 12/12 · L2 12/12",
+      "noop": "L1 0/12 · L2 0/12"
+     },
+     "OP_cond_R4_alpha01(真复活条件: alpha < 1/35)": {
+      "verdict_here": "LOAD_BEARING_L2",
+      "n": 12,
+      "guard_removed": "L1 12/12 · L2 12/12",
+      "inject_guard_always_raise": "L1 0/12 · L2 0/12",
+      "noop": "L1 0/12 · L2 0/12"
+     }
+    },
+    "unreachable_condition_before": "任何一次 R=3 的 separation 调用",
+    "deletable_reason_before": "它的**全部职责**就是拦住 R=3 这种「p_floor=0.1 > alpha=0.05, 永远不可能拒绝零假设」的设计。存量语料全 R>=4 ⇒ 本工况下永不触发。删掉 = 静默放行一个必然无意义的检验。**典型的防御性守卫被判装饰。**"
    }
   },
   {
@@ -2524,6 +2564,38 @@
      "corpus": "tests/data/operating_points/ · 裁定台 probes/operating_point_adjudication.py",
      "★still_unreachable_in_production": true
     }
+   },
+   "★revival_ablation_2026_10_01": {
+    "artifact": "tests/data/ablation_v3/unreachable_revival.json",
+    "probe": "probes/ablation_unreachable_revival.py(零 API; --check 现算对存盘)",
+    "gate": "tests/test_cce_unreachable_revival.py",
+    "verdict_in_production": "UNREACHABLE",
+    "verdict_at_stated_condition": "LOAD_BEARING_L2",
+    "verdict_at_revival_condition": "LOAD_BEARING_L2",
+    "prod_L2_unchanged": true,
+    "★still_unreachable_in_production": true,
+    "why_verdict_word_not_changed": "判决词随行的工况是生产工况(★operating_point); 生产上组件臂 L2 仍 0 变 ⇒ UNREACHABLE 仍是生产工况上的正确词。本块回答的是 UNREACHABLE 要求的另一半: 换到复活工况它活不活 —— 活, 且是 L2 承重。",
+    "reading": "market=cn 上整层拆掉 L2 10/16 变; 单拆 ADLAW_CN_FORBIDDEN 8/16、单拆 ABSOLUTE_EXTRA 2/16 —— 两张表各自承重。UNIVERSAL_ADLAW 现为 0 条, ADLAW_CN_FORBIDDEN 是实际生效的后备表。生产(intl)上全部臂 0 变, 连注入的荒谬规则都 0 变 ⇒ 不可达的唯一原因是 --intl。",
+    "numbers": {
+     "OP_prod(market=intl, profile=hearing_aid)": {
+      "verdict_here": "INCONCLUSIVE",
+      "n": 16,
+      "adlaw_layer_all_removed": "L1 0/16 · L2 0/16",
+      "ADLAW_CN_FORBIDDEN_only_removed": "L1 0/16 · L2 0/16",
+      "ABSOLUTE_EXTRA_only_removed": "L1 0/16 · L2 0/16",
+      "inject_absurd_rule_into_ABSOLUTE_EXTRA": "L1 0/16 · L2 0/16",
+      "noop": "L1 0/16 · L2 0/16"
+     },
+     "OP_cond(market=cn, profile=hearing_aid)": {
+      "verdict_here": "LOAD_BEARING_L2",
+      "n": 16,
+      "adlaw_layer_all_removed": "L1 10/16 · L2 10/16",
+      "ADLAW_CN_FORBIDDEN_only_removed": "L1 8/16 · L2 8/16",
+      "ABSOLUTE_EXTRA_only_removed": "L1 2/16 · L2 2/16",
+      "inject_absurd_rule_into_ABSOLUTE_EXTRA": "L1 16/16 · L2 6/16",
+      "noop": "L1 0/16 · L2 0/16"
+     }
+    }
    }
   },
   {
@@ -2571,6 +2643,34 @@
      "corpus": "tests/data/operating_points/ · 裁定台 probes/operating_point_adjudication.py",
      "★still_unreachable_in_production": true
     }
+   },
+   "★revival_ablation_2026_10_01": {
+    "artifact": "tests/data/ablation_v3/unreachable_revival.json",
+    "probe": "probes/ablation_unreachable_revival.py(零 API; --check 现算对存盘)",
+    "gate": "tests/test_cce_unreachable_revival.py",
+    "verdict_in_production": "UNREACHABLE",
+    "verdict_at_stated_condition": "LOAD_BEARING_L2",
+    "verdict_at_revival_condition": "LOAD_BEARING_L2",
+    "prod_L2_unchanged": true,
+    "★still_unreachable_in_production": true,
+    "why_verdict_word_not_changed": "判决词随行的工况是生产工况(★operating_point); 生产上组件臂 L2 仍 0 变 ⇒ UNREACHABLE 仍是生产工况上的正确词。本块回答的是 UNREACHABLE 要求的另一半: 换到复活工况它活不活 —— 活, 且是 L2 承重。",
+    "reading": "profile=agent_memory 上清空 PROFILE_HALLUC ⇒ L2 3/11 变(由拦变放)。生产 profile=hearing_aid 上清空与注入都 0/11 变 ⇒ 不可达原因是 profile 路由, 不是表没用。",
+    "numbers": {
+     "OP_prod(market=intl, profile=hearing_aid)": {
+      "verdict_here": "INCONCLUSIVE",
+      "n": 11,
+      "table_emptied": "L1 0/11 · L2 0/11",
+      "inject_absurd_rule_at_agent_memory": "L1 0/11 · L2 0/11",
+      "noop": "L1 0/11 · L2 0/11"
+     },
+     "OP_cond(market=intl, profile=agent_memory)": {
+      "verdict_here": "LOAD_BEARING_L2",
+      "n": 11,
+      "table_emptied": "L1 3/11 · L2 3/11",
+      "inject_absurd_rule_at_agent_memory": "L1 11/11 · L2 5/11",
+      "noop": "L1 0/11 · L2 0/11"
+     }
+    }
    }
   },
   {
@@ -2617,6 +2717,34 @@
      },
      "corpus": "tests/data/operating_points/ · 裁定台 probes/operating_point_adjudication.py",
      "★still_unreachable_in_production": true
+    }
+   },
+   "★revival_ablation_2026_10_01": {
+    "artifact": "tests/data/ablation_v3/unreachable_revival.json",
+    "probe": "probes/ablation_unreachable_revival.py(零 API; --check 现算对存盘)",
+    "gate": "tests/test_cce_unreachable_revival.py",
+    "verdict_in_production": "UNREACHABLE",
+    "verdict_at_stated_condition": "LOAD_BEARING_L2",
+    "verdict_at_revival_condition": "LOAD_BEARING_L2",
+    "prod_L2_unchanged": true,
+    "★still_unreachable_in_production": true,
+    "why_verdict_word_not_changed": "判决词随行的工况是生产工况(★operating_point); 生产上组件臂 L2 仍 0 变 ⇒ UNREACHABLE 仍是生产工况上的正确词。本块回答的是 UNREACHABLE 要求的另一半: 换到复活工况它活不活 —— 活, 且是 L2 承重。",
+    "reading": "profile=agent_memory 上清空 PROFILE_EFFICACY ⇒ L2 2/11 变。生产 profile 上清空与注入都 0/11 变。",
+    "numbers": {
+     "OP_prod(market=intl, profile=hearing_aid)": {
+      "verdict_here": "INCONCLUSIVE",
+      "n": 11,
+      "table_emptied": "L1 0/11 · L2 0/11",
+      "inject_absurd_rule_at_agent_memory": "L1 0/11 · L2 0/11",
+      "noop": "L1 0/11 · L2 0/11"
+     },
+     "OP_cond(market=intl, profile=agent_memory)": {
+      "verdict_here": "LOAD_BEARING_L2",
+      "n": 11,
+      "table_emptied": "L1 2/11 · L2 2/11",
+      "inject_absurd_rule_at_agent_memory": "L1 11/11 · L2 5/11",
+      "noop": "L1 0/11 · L2 0/11"
+     }
     }
    }
   },
@@ -2675,7 +2803,7 @@
    "ablated_files": [
     "scripts/reply_loop.py"
    ],
-   "unreachable_condition": "KNOT_READOUT_ALLOWLIST 放行 weight",
+   "unreachable_condition": "KNOT_READOUT_ALLOWLIST 放行 weight 且 reply_loop 两侧 stage2.sampling.top1_stable 均为 True",
    "★reclassified_from": "DECORATIVE",
    "_ablated_files_source": "face_fallback",
    "_v2_original": {
@@ -2704,6 +2832,42 @@
      "corpus": "tests/data/operating_points/ · 裁定台 probes/operating_point_adjudication.py",
      "★still_unreachable_in_production": true
     }
+   },
+   "★revival_ablation_2026_10_01": {
+    "artifact": "tests/data/ablation_v3/unreachable_revival.json",
+    "probe": "probes/ablation_unreachable_revival.py(零 API; --check 现算对存盘)",
+    "gate": "tests/test_cce_unreachable_revival.py",
+    "verdict_in_production": "UNREACHABLE",
+    "verdict_at_stated_condition": "LOAD_BEARING_L2",
+    "verdict_at_revival_condition": "LOAD_BEARING_L2",
+    "prod_L2_unchanged": true,
+    "★still_unreachable_in_production": true,
+    "why_verdict_word_not_changed": "判决词随行的工况是生产工况(★operating_point); 生产上组件臂 L2 仍 0 变 ⇒ UNREACHABLE 仍是生产工况上的正确词。本块回答的是 UNREACHABLE 要求的另一半: 换到复活工况它活不活 —— 活, 且是 L2 承重。",
+    "reading": "原复活条件(只放行 weight)不够: reply_loop 对两侧 top1 不稳另行扣发 knot_ok, 存量 13 对里两侧都稳的只有 1 对 ⇒ 只放行 weight 时 PASS 拆掉只变 1/13。放行 weight 且两侧 top1_stable=True 时 PASS→None 13/13 变。生产上 PASS→None 0/13 变(PASS 恒为 None)。",
+    "numbers": {
+     "OP_prod(allowlist={top1})": {
+      "verdict_here": "NO_CONSUMER",
+      "n": 13,
+      "PASS_constant_None": "L1 0/13 · L2 0/13",
+      "PASS_constant_True": "L1 0/13 · L2 13/13",
+      "noop": "L1 0/13 · L2 0/13"
+     },
+     "OP_stated(allowlist 放行 weight)": {
+      "verdict_here": "LOAD_BEARING_L2",
+      "n": 13,
+      "PASS_constant_None": "L1 0/13 · L2 1/13",
+      "PASS_constant_True": "L1 0/13 · L2 13/13",
+      "noop": "L1 0/13 · L2 0/13"
+     },
+     "OP_cond(放行 weight 且两侧 top1_stable=True)": {
+      "verdict_here": "LOAD_BEARING_L2",
+      "n": 13,
+      "PASS_constant_None": "L1 0/13 · L2 13/13",
+      "PASS_constant_True": "L1 0/13 · L2 12/13",
+      "noop": "L1 0/13 · L2 0/13"
+     }
+    },
+    "unreachable_condition_before": "KNOT_READOUT_ALLOWLIST 放行 weight"
    }
   },
   {
@@ -2726,7 +2890,7 @@
     "scripts/reply_batch.py",
     "scripts/reply_loop.py"
    ],
-   "unreachable_condition": "KNOT_READOUT_ALLOWLIST 放行 weight",
+   "unreachable_condition": "KNOT_READOUT_ALLOWLIST 放行 weight 且两侧 top1_stable 均为 True(reply_loop); reply_batch 只需放行 weight",
    "★reclassified_from": "DECORATIVE",
    "_ablated_files_source": "component",
    "_v2_original": {
@@ -2755,6 +2919,67 @@
      "corpus": "tests/data/operating_points/ · 裁定台 probes/operating_point_adjudication.py",
      "★still_unreachable_in_production": true
     }
+   },
+   "★revival_ablation_2026_10_01": {
+    "artifact": "tests/data/ablation_v3/unreachable_revival.json",
+    "probe": "probes/ablation_unreachable_revival.py(零 API; --check 现算对存盘)",
+    "gate": "tests/test_cce_unreachable_revival.py",
+    "verdict_in_production": "UNREACHABLE",
+    "verdict_at_stated_condition": "LOAD_BEARING_L1_ONLY",
+    "verdict_at_revival_condition": "LOAD_BEARING_L2",
+    "prod_L2_unchanged": true,
+    "★still_unreachable_in_production": true,
+    "why_verdict_word_not_changed": "判决词随行的工况是生产工况(★operating_point); 生产上组件臂 L2 仍 0 变 ⇒ UNREACHABLE 仍是生产工况上的正确词。本块回答的是 UNREACHABLE 要求的另一半: 换到复活工况它活不活 —— 活, 且是 L2 承重。",
+    "reading": "reply_loop: 只放行 weight 时 need_ok 三臂 L2 仍 0/13(knot_ok 被首结不稳扣成 None); 再加两侧 top1_stable 后 L2 1–6/13 变 ⇒ LOAD_BEARING_L2。★ reply_batch 镜像在「只放行 weight」时就 L2 5/13 变 —— 它没有 top1_stable 守卫, 两条回复路径对同一份不稳读数的处置不一致(见 ★sibling_inconsistency)。",
+    "numbers": {
+     "reply_loop|OP_prod(allowlist={top1})": {
+      "verdict_here": "LOAD_BEARING_L1_ONLY",
+      "n": 13,
+      "need_ok_True": "L1 11/13 · L2 0/13",
+      "need_ok_False": "L1 2/13 · L2 0/13",
+      "need_ok_flipped": "L1 13/13 · L2 0/13",
+      "noop": "L1 0/13 · L2 0/13"
+     },
+     "reply_loop|OP_stated(allowlist 放行 weight)": {
+      "verdict_here": "LOAD_BEARING_L1_ONLY",
+      "n": 13,
+      "need_ok_True": "L1 11/13 · L2 0/13",
+      "need_ok_False": "L1 2/13 · L2 0/13",
+      "need_ok_flipped": "L1 13/13 · L2 0/13",
+      "noop": "L1 0/13 · L2 0/13"
+     },
+     "reply_loop|OP_cond(放行 weight 且两侧 top1_stable=True)": {
+      "verdict_here": "LOAD_BEARING_L2",
+      "n": 13,
+      "need_ok_True": "L1 11/13 · L2 5/13",
+      "need_ok_False": "L1 2/13 · L2 1/13",
+      "need_ok_flipped": "L1 13/13 · L2 6/13",
+      "noop": "L1 0/13 · L2 0/13"
+     },
+     "reply_batch|OP_prod(allowlist={top1})": {
+      "verdict_here": "LOAD_BEARING_L1_ONLY",
+      "n": 13,
+      "need_ok_True": "L1 11/13 · L2 0/13",
+      "need_ok_False": "L1 2/13 · L2 0/13",
+      "noop": "L1 0/13 · L2 0/13"
+     },
+     "reply_batch|OP_stated(allowlist 放行 weight)": {
+      "verdict_here": "LOAD_BEARING_L2",
+      "n": 13,
+      "need_ok_True": "L1 11/13 · L2 5/13",
+      "need_ok_False": "L1 2/13 · L2 1/13",
+      "noop": "L1 0/13 · L2 0/13"
+     },
+     "reply_batch|OP_cond(放行 weight 且两侧 top1_stable=True)": {
+      "verdict_here": "LOAD_BEARING_L2",
+      "n": 13,
+      "need_ok_True": "L1 11/13 · L2 5/13",
+      "need_ok_False": "L1 2/13 · L2 1/13",
+      "noop": "L1 0/13 · L2 0/13"
+     }
+    },
+    "unreachable_condition_before": "KNOT_READOUT_ALLOWLIST 放行 weight",
+    "★sibling_inconsistency": "scripts/reply_batch.py phase_b 没有 reply_loop 的 top1_stable 守卫, 且 knot_ok=None 时 PASS=bool(need_ok and None)=False(无未触达维度时还会发「九结对齐不足」改写指令)—— 正是 reply_loop 在 2026-09-28(诊断 #9)修掉的形状。实测(生产工况, 存量 13 对同输入重放): reply_batch PASS=False 13/13, reply_loop PASS=None 13/13。未改代码, 只登记。"
    }
   },
   {
@@ -2842,7 +3067,7 @@
    "ablated_files": [
     "scripts/reply_loop.py"
    ],
-   "unreachable_condition": "KNOT_READOUT_ALLOWLIST 放行 weight",
+   "unreachable_condition": "KNOT_READOUT_ALLOWLIST 放行 weight 且 reply_loop 两侧 stage2.sampling.top1_stable 均为 True",
    "★reclassified_from": "DECORATIVE",
    "_ablated_files_source": "component",
    "_v2_original": {
@@ -2871,6 +3096,42 @@
      "corpus": "tests/data/operating_points/ · 裁定台 probes/operating_point_adjudication.py",
      "★still_unreachable_in_production": true
     }
+   },
+   "★revival_ablation_2026_10_01": {
+    "artifact": "tests/data/ablation_v3/unreachable_revival.json",
+    "probe": "probes/ablation_unreachable_revival.py(零 API; --check 现算对存盘)",
+    "gate": "tests/test_cce_unreachable_revival.py",
+    "verdict_in_production": "UNREACHABLE",
+    "verdict_at_stated_condition": "LOAD_BEARING_L2",
+    "verdict_at_revival_condition": "LOAD_BEARING_L2",
+    "prod_L2_unchanged": true,
+    "★still_unreachable_in_production": true,
+    "why_verdict_word_not_changed": "判决词随行的工况是生产工况(★operating_point); 生产上组件臂 L2 仍 0 变 ⇒ UNREACHABLE 仍是生产工况上的正确词。本块回答的是 UNREACHABLE 要求的另一半: 换到复活工况它活不活 —— 活, 且是 L2 承重。",
+    "reading": "只放行 weight: theta=0.0 臂 L2 1/13 变(唯一两侧都稳的那对); 加两侧 top1_stable 后 theta=0.0 7/13、theta=9.9 6/13 变 ⇒ LOAD_BEARING_L2。生产上两臂 0/13 变。",
+    "numbers": {
+     "OP_prod(allowlist={top1})": {
+      "verdict_here": "INCONCLUSIVE",
+      "n": 13,
+      "theta_0.0": "L1 0/13 · L2 0/13",
+      "theta_9.9": "L1 0/13 · L2 0/13",
+      "noop": "L1 0/13 · L2 0/13"
+     },
+     "OP_stated(allowlist 放行 weight)": {
+      "verdict_here": "LOAD_BEARING_L2",
+      "n": 13,
+      "theta_0.0": "L1 1/13 · L2 1/13",
+      "theta_9.9": "L1 0/13 · L2 0/13",
+      "noop": "L1 0/13 · L2 0/13"
+     },
+     "OP_cond(放行 weight 且两侧 top1_stable=True)": {
+      "verdict_here": "LOAD_BEARING_L2",
+      "n": 13,
+      "theta_0.0": "L1 7/13 · L2 7/13",
+      "theta_9.9": "L1 6/13 · L2 6/13",
+      "noop": "L1 0/13 · L2 0/13"
+     }
+    },
+    "unreachable_condition_before": "KNOT_READOUT_ALLOWLIST 放行 weight"
    }
   },
   {
@@ -21682,7 +21943,7 @@
    ],
    "v2-004": [
     false,
-    "beaec131"
+    "2a61ea2d"
    ],
    "v2-005": [
     false,
@@ -23890,5 +24151,25 @@
   ],
   "owner": "2026-09-27「做吧」",
   "stale_harness_arms": "probes/ablation_r3_chain_stages.py 的 S0_A6 / S0_A9 臂按改动前的源码文本打补丁, 现在锚点文本已不存在, 重跑会失败; 重判这些位点要按新源码写新臂。 另: probes/ablation_r3_chain_stages.py 的 observe_s0 / observe_len_face 构造的 ctx 不带 mode, 改动后会静默走非冷读路径(与 response 相同); 写新臂时必须显式给 mode(outbound_post / reply 与 response 各测一次)。"
+ },
+ "★unreachable_revival_2026_10_01": {
+  "what": "v2 的 7 条 UNREACHABLE 在复活工况上的真消融(基线臂 vs 消融臂 + 注入臂 + 空操作臂 + 基线跑两遍)。判决词不改(生产工况上它们仍不可达), 每行加 ★revival_ablation_2026_10_01 块。",
+  "result": {
+   "v2-004": "LOAD_BEARING_L2",
+   "v2-007": "LOAD_BEARING_L2",
+   "v2-008": "LOAD_BEARING_L2",
+   "v2-009": "LOAD_BEARING_L2",
+   "v2-011": "LOAD_BEARING_L2",
+   "v2-012": "LOAD_BEARING_L2",
+   "v2-015": "LOAD_BEARING_L2"
+  },
+  "conditions_corrected": [
+   "v2-004",
+   "v2-011",
+   "v2-012",
+   "v2-015"
+  ],
+  "supersedes_in_part": "probes/operating_point_adjudication.py 的 R=3 一条(「守卫 24/24 触发」= _check 的 R<4, 归因错) 与 weight 三条(只确认了 usable 翻转, 没测组件本身)。其 market=cn / agent_memory 两条结论被本轮消融臂确认并拆到逐表。",
+  "evidence_scope": "夹具语料与构造工况只回答「换到那个工况它会不会活」; 不产出真实违规率 / 真实触发频率。"
  }
 }

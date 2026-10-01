@@ -1,0 +1,798 @@
+{
+ "block": "ABLATION_UNREACHABLE_REVIVAL",
+ "written_at": "2026-10-01",
+ "★zero_api": "全程零 API; 仓内文件一字不改(进出 sha256 相同); 绊线 tripped=[]",
+ "★tripwire_scope": "覆盖: 本进程内**经 socket.socket.connect 新建**的连接(含 urllib/requests/http.client)。 **不覆盖**: ① 进入本上下文**之前已建立**的连接 ② 不走 socket 的传输(共享内存 / 本机文件 / unix pipe 以外的自带通道) ③ **子进程**(subprocess / os.system 另起进程, 有自己的 socket 模块) ④ **C 扩展自带的网络栈**(不经 Python socket 对象) ⑤ 本进程外的任何东西。",
+ "★decision_rule": "· 每条在两个工况上各跑全部臂: OP_prod(生产现状) 与 OP_cond(复活工况)。\n  · OP_prod 上任一组件臂 L1/L2 有变 ⇒ 原 UNREACHABLE 不成立(报出来, 不在这里改判)。\n  · OP_cond 上: 组件臂 L2 变 > 0 ⇒ LOAD_BEARING_L2; 只有 L1 变 ⇒ LOAD_BEARING_L1_ONLY;\n    都不变且注入臂 L2 变 > 0 ⇒ NO_CONSUMER; 注入臂也不变 ⇒ INCONCLUSIVE(面到不了, 不许判无差异)。\n  · 每个工况必须: 空操作臂 0 变 · 基线跑两遍逐字节相同 · 绊线未触发。任一不满足 ⇒ 该工况作废。",
+ "★evidence_scope": "夹具语料与构造工况只回答「换到那个工况它会不会活」; 不产出真实违规率 / 真实触发频率。",
+ "★revision_log": "首跑后改过两处**臂的归类**(判决规则本身未改), 两处都写在这里: ① v2-011 的 PASS_constant_True 由组件臂改记为注入臂 —— 它往判决面里塞一个值, 不是拆掉判决; 首跑把它当组件臂, OP_prod 上 13/13 变, 被误读成「生产上也承重」。② prod_unchanged 由「组件臂 L1 与 L2 都不变」改为「组件臂 L2 不变」—— 与 v2 原判口径一致(v2-012 原文: L1 确实变, L2 逐字节不变 ⇒ UNREACHABLE)。另补了 v2-004 的注入臂(守卫恒抛), 用来区分「R=3 上守卫没被执行到」与「执行到了但不改判决面」。",
+ "file_integrity_identical": true,
+ "rows": {
+  "v2-004": {
+   "component": "`if p_floor > alpha: raise` 守卫 (scripts/cce_ksep.py separation)",
+   "stated_condition": "任何一次 R=3 的 separation 调用",
+   "corrected_condition": "R >= 4 且 alpha < 2/C(2R,R)(R=4 时 alpha < 1/35≈0.0286; R=5 时 < 1/126) —— R=3 在 _check 里已被 `R<4` 先拦, 到不了本守卫。现有 8 个调用点全传 alpha=0.05 ⇒ 生产仍不可达; verdict3()/separation() 的 alpha 是公开参数, 任何多重比较校正(如 0.05/5)就会走到它。",
+   "corpus": {
+    "real_r3": "tests/data/operating_points/r3_separation.json (24 对真实 L0 读数)",
+    "synthetic_r4": "本探针 _synthetic_pairs(R=4, seed=20261001): 6 对强分离 + 6 对同分布"
+   },
+   "ops": {
+    "OP_stated_R3_alpha05(原复活条件)": {
+     "n": 24,
+     "base_L2_sha": "be7311e0ca94c0e0",
+     "determinism_base_twice_identical": true,
+     "arms": {
+      "guard_removed": {
+       "L1": 0,
+       "L2": 0,
+       "n": 24
+      },
+      "inject_guard_always_raise": {
+       "L1": 0,
+       "L2": 0,
+       "n": 24
+      },
+      "noop": {
+       "L1": 0,
+       "L2": 0,
+       "n": 24
+      }
+     },
+     "noop_zero_change": true,
+     "valid": true,
+     "verdict_here": "INCONCLUSIVE",
+     "component_arms": [
+      "guard_removed"
+     ],
+     "inject_arm": "inject_guard_always_raise",
+     "component_L2_changed": 0,
+     "base_raise_sources": {
+      "_check_R_lt_4": 24
+     }
+    },
+    "OP_prod_R4_alpha05": {
+     "n": 12,
+     "base_L2_sha": "162c5e9124b18cf7",
+     "determinism_base_twice_identical": true,
+     "arms": {
+      "guard_removed": {
+       "L1": 0,
+       "L2": 0,
+       "n": 12
+      },
+      "inject_guard_always_raise": {
+       "L1": 12,
+       "L2": 12,
+       "n": 12
+      },
+      "noop": {
+       "L1": 0,
+       "L2": 0,
+       "n": 12
+      }
+     },
+     "noop_zero_change": true,
+     "valid": true,
+     "verdict_here": "NO_CONSUMER",
+     "component_arms": [
+      "guard_removed"
+     ],
+     "inject_arm": "inject_guard_always_raise",
+     "component_L2_changed": 0,
+     "base_raise_sources": {}
+    },
+    "OP_cond_R4_alpha01(真复活条件: alpha < 1/35)": {
+     "n": 12,
+     "base_L2_sha": "7ee1a9005fc80c1c",
+     "determinism_base_twice_identical": true,
+     "arms": {
+      "guard_removed": {
+       "L1": 12,
+       "L2": 12,
+       "n": 12
+      },
+      "inject_guard_always_raise": {
+       "L1": 0,
+       "L2": 0,
+       "n": 12
+      },
+      "noop": {
+       "L1": 0,
+       "L2": 0,
+       "n": 12
+      }
+     },
+     "noop_zero_change": true,
+     "valid": true,
+     "verdict_here": "LOAD_BEARING_L2",
+     "component_arms": [
+      "guard_removed"
+     ],
+     "inject_arm": "inject_guard_always_raise",
+     "component_L2_changed": 12,
+     "base_raise_sources": {
+      "p_floor_guard": 12
+     }
+    },
+    "★guard_removed_at_alpha01_on_separated_pairs": [
+     "NOT_SEPARATED"
+    ],
+    "★positive_control_same_pairs_alpha05": {
+     "separated": 6,
+     "null": 0
+    }
+   },
+   "verdict_at_stated_condition": "INCONCLUSIVE",
+   "★stated_condition_reading": "原复活条件下守卫**根本执行不到**: 基线 24/24 的抛错来源都是 _check 的 R<4, 消融臂与注入臂(守卫恒抛)都 0/24 变。operating_point_adjudication.py 记的「守卫 24/24 触发」是把 _check 的 ValueError 记到了本守卫头上(它 catch 的是 Exception, 没分来源)。",
+   "verdict_at_revival_condition": "LOAD_BEARING_L2",
+   "prod_unchanged": true
+  },
+  "v2-007": {
+   "component": "adlaw_cn 规则层(ADLAW_CN_FORBIDDEN + ABSOLUTE_EXTRA + UNIVERSAL_ADLAW)",
+   "stated_condition": "market=cn(去掉 cce_full_run.py 的硬编 --intl) + 中文出站语料",
+   "corpus": "tests/data/operating_points/cn_outbound.json (9 阳性 + 7 阴性近似, 造的夹具)",
+   "ops": {
+    "OP_prod(market=intl, profile=hearing_aid)": {
+     "n": 16,
+     "base_L2_sha": "f9ba6e0f85e46bc7",
+     "determinism_base_twice_identical": true,
+     "arms": {
+      "adlaw_layer_all_removed": {
+       "L1": 0,
+       "L2": 0,
+       "n": 16
+      },
+      "ADLAW_CN_FORBIDDEN_only_removed": {
+       "L1": 0,
+       "L2": 0,
+       "n": 16
+      },
+      "ABSOLUTE_EXTRA_only_removed": {
+       "L1": 0,
+       "L2": 0,
+       "n": 16
+      },
+      "inject_absurd_rule_into_ABSOLUTE_EXTRA": {
+       "L1": 0,
+       "L2": 0,
+       "n": 16
+      },
+      "noop": {
+       "L1": 0,
+       "L2": 0,
+       "n": 16
+      }
+     },
+     "noop_zero_change": true,
+     "valid": true,
+     "verdict_here": "INCONCLUSIVE",
+     "component_arms": [
+      "adlaw_layer_all_removed",
+      "ADLAW_CN_FORBIDDEN_only_removed",
+      "ABSOLUTE_EXTRA_only_removed"
+     ],
+     "inject_arm": "inject_absurd_rule_into_ABSOLUTE_EXTRA",
+     "component_L2_changed": 0
+    },
+    "OP_cond(market=cn, profile=hearing_aid)": {
+     "n": 16,
+     "base_L2_sha": "74b8c88b3f0790b8",
+     "determinism_base_twice_identical": true,
+     "arms": {
+      "adlaw_layer_all_removed": {
+       "L1": 10,
+       "L2": 10,
+       "n": 16
+      },
+      "ADLAW_CN_FORBIDDEN_only_removed": {
+       "L1": 8,
+       "L2": 8,
+       "n": 16
+      },
+      "ABSOLUTE_EXTRA_only_removed": {
+       "L1": 2,
+       "L2": 2,
+       "n": 16
+      },
+      "inject_absurd_rule_into_ABSOLUTE_EXTRA": {
+       "L1": 16,
+       "L2": 6,
+       "n": 16
+      },
+      "noop": {
+       "L1": 0,
+       "L2": 0,
+       "n": 16
+      }
+     },
+     "noop_zero_change": true,
+     "valid": true,
+     "verdict_here": "LOAD_BEARING_L2",
+     "component_arms": [
+      "adlaw_layer_all_removed",
+      "ADLAW_CN_FORBIDDEN_only_removed",
+      "ABSOLUTE_EXTRA_only_removed"
+     ],
+     "inject_arm": "inject_absurd_rule_into_ABSOLUTE_EXTRA",
+     "component_L2_changed": 20
+    },
+    "★cond_base_blocked": {
+     "pos": 9,
+     "neg": 1
+    },
+    "★UNIVERSAL_ADLAW_len": 0,
+    "★cond_base_blocked_negatives": [
+     "cn_n07"
+    ],
+    "★specificity_note": "判决面取生产 s4_guard 的「clean AND clean_strict」。cn_n07(如实否定「我们没有国家级认证」)在 clean 下豁免、在 clean_strict 下被拦 ⇒ 生产 s4 面上被拦。夹具作者按 strict=False 写的预期(operating_point_adjudication 报 7/7 用的是 is_clean 非严格); 生产 s4 要求两者都过, 否定豁免在生产上不生效。这是现有策略(最严出站)的后果, 不是本层误报。",
+    "★UNIVERSAL_ADLAW_note": "UNIVERSAL_ADLAW 现为 0 条 ⇒ `UNIVERSAL_ADLAW or ADLAW_CN_FORBIDDEN` 走后备, ADLAW_CN_FORBIDDEN 是当前实际生效的那张表; 一旦 compliance_profiles 装上通用层, 它就整张变成死后备。"
+   },
+   "verdict_at_revival_condition": "LOAD_BEARING_L2",
+   "prod_unchanged": true
+  },
+  "v2-008": {
+   "component": "PROFILE_HALLUC 查表(品类凭证幻觉词)",
+   "stated_condition": "guard_profile=agent_memory 的一次投料",
+   "corpus": "tests/data/operating_points/agent_memory_drafts.json (6 阳性 + 5 阴性近似, 造的夹具)",
+   "ops": {
+    "OP_prod(market=intl, profile=hearing_aid)": {
+     "n": 11,
+     "base_L2_sha": "c0364390d8091e37",
+     "determinism_base_twice_identical": true,
+     "arms": {
+      "table_emptied": {
+       "L1": 0,
+       "L2": 0,
+       "n": 11
+      },
+      "inject_absurd_rule_at_agent_memory": {
+       "L1": 0,
+       "L2": 0,
+       "n": 11
+      },
+      "noop": {
+       "L1": 0,
+       "L2": 0,
+       "n": 11
+      }
+     },
+     "noop_zero_change": true,
+     "valid": true,
+     "verdict_here": "INCONCLUSIVE",
+     "component_arms": [
+      "table_emptied"
+     ],
+     "inject_arm": "inject_absurd_rule_at_agent_memory",
+     "component_L2_changed": 0
+    },
+    "OP_cond(market=intl, profile=agent_memory)": {
+     "n": 11,
+     "base_L2_sha": "c090de9abaa5a312",
+     "determinism_base_twice_identical": true,
+     "arms": {
+      "table_emptied": {
+       "L1": 3,
+       "L2": 3,
+       "n": 11
+      },
+      "inject_absurd_rule_at_agent_memory": {
+       "L1": 11,
+       "L2": 5,
+       "n": 11
+      },
+      "noop": {
+       "L1": 0,
+       "L2": 0,
+       "n": 11
+      }
+     },
+     "noop_zero_change": true,
+     "valid": true,
+     "verdict_here": "LOAD_BEARING_L2",
+     "component_arms": [
+      "table_emptied"
+     ],
+     "inject_arm": "inject_absurd_rule_at_agent_memory",
+     "component_L2_changed": 3
+    }
+   },
+   "verdict_at_revival_condition": "LOAD_BEARING_L2",
+   "prod_unchanged": true
+  },
+  "v2-009": {
+   "component": "PROFILE_EFFICACY 查表(品类疗效红线)",
+   "stated_condition": "guard_profile=agent_memory 的一次投料",
+   "corpus": "tests/data/operating_points/agent_memory_drafts.json (6 阳性 + 5 阴性近似, 造的夹具)",
+   "ops": {
+    "OP_prod(market=intl, profile=hearing_aid)": {
+     "n": 11,
+     "base_L2_sha": "c0364390d8091e37",
+     "determinism_base_twice_identical": true,
+     "arms": {
+      "table_emptied": {
+       "L1": 0,
+       "L2": 0,
+       "n": 11
+      },
+      "inject_absurd_rule_at_agent_memory": {
+       "L1": 0,
+       "L2": 0,
+       "n": 11
+      },
+      "noop": {
+       "L1": 0,
+       "L2": 0,
+       "n": 11
+      }
+     },
+     "noop_zero_change": true,
+     "valid": true,
+     "verdict_here": "INCONCLUSIVE",
+     "component_arms": [
+      "table_emptied"
+     ],
+     "inject_arm": "inject_absurd_rule_at_agent_memory",
+     "component_L2_changed": 0
+    },
+    "OP_cond(market=intl, profile=agent_memory)": {
+     "n": 11,
+     "base_L2_sha": "c090de9abaa5a312",
+     "determinism_base_twice_identical": true,
+     "arms": {
+      "table_emptied": {
+       "L1": 2,
+       "L2": 2,
+       "n": 11
+      },
+      "inject_absurd_rule_at_agent_memory": {
+       "L1": 11,
+       "L2": 5,
+       "n": 11
+      },
+      "noop": {
+       "L1": 0,
+       "L2": 0,
+       "n": 11
+      }
+     },
+     "noop_zero_change": true,
+     "valid": true,
+     "verdict_here": "LOAD_BEARING_L2",
+     "component_arms": [
+      "table_emptied"
+     ],
+     "inject_arm": "inject_absurd_rule_at_agent_memory",
+     "component_L2_changed": 2
+    }
+   },
+   "verdict_at_revival_condition": "LOAD_BEARING_L2",
+   "prod_unchanged": true
+  },
+  "v2-011": {
+   "component": "PASS 判决式 (scripts/reply_loop.py; 现为 None-aware: `None if knot_ok is None or need_ok is None else bool(need_ok and knot_ok)`)",
+   "stated_condition": "KNOT_READOUT_ALLOWLIST 放行 weight",
+   "ops": {
+    "OP_prod(allowlist={top1})": {
+     "n": 13,
+     "base_L2_sha": "cee4d591d4e357e9",
+     "determinism_base_twice_identical": true,
+     "arms": {
+      "PASS_constant_None": {
+       "L1": 0,
+       "L2": 0,
+       "n": 13
+      },
+      "PASS_constant_True": {
+       "L1": 0,
+       "L2": 13,
+       "n": 13
+      },
+      "noop": {
+       "L1": 0,
+       "L2": 0,
+       "n": 13
+      }
+     },
+     "noop_zero_change": true,
+     "valid": true,
+     "verdict_here": "NO_CONSUMER",
+     "component_arms": [
+      "PASS_constant_None"
+     ],
+     "inject_arm": "PASS_constant_True",
+     "component_L2_changed": 0
+    },
+    "OP_stated(allowlist 放行 weight)": {
+     "n": 13,
+     "base_L2_sha": "69e252a93710e90f",
+     "determinism_base_twice_identical": true,
+     "arms": {
+      "PASS_constant_None": {
+       "L1": 0,
+       "L2": 1,
+       "n": 13
+      },
+      "PASS_constant_True": {
+       "L1": 0,
+       "L2": 13,
+       "n": 13
+      },
+      "noop": {
+       "L1": 0,
+       "L2": 0,
+       "n": 13
+      }
+     },
+     "noop_zero_change": true,
+     "valid": true,
+     "verdict_here": "LOAD_BEARING_L2",
+     "component_arms": [
+      "PASS_constant_None"
+     ],
+     "inject_arm": "PASS_constant_True",
+     "component_L2_changed": 1
+    },
+    "OP_cond(放行 weight 且两侧 top1_stable=True)": {
+     "n": 13,
+     "base_L2_sha": "1bef5108b87aebf6",
+     "determinism_base_twice_identical": true,
+     "arms": {
+      "PASS_constant_None": {
+       "L1": 0,
+       "L2": 13,
+       "n": 13
+      },
+      "PASS_constant_True": {
+       "L1": 0,
+       "L2": 12,
+       "n": 13
+      },
+      "noop": {
+       "L1": 0,
+       "L2": 0,
+       "n": 13
+      }
+     },
+     "noop_zero_change": true,
+     "valid": true,
+     "verdict_here": "LOAD_BEARING_L2",
+     "component_arms": [
+      "PASS_constant_None"
+     ],
+     "inject_arm": "PASS_constant_True",
+     "component_L2_changed": 13
+    }
+   },
+   "verdict_at_stated_condition": "LOAD_BEARING_L2",
+   "verdict_at_revival_condition": "LOAD_BEARING_L2",
+   "prod_unchanged": true,
+   "corpus": "archive/*/*__reply_alignment.json 共 13 对真实存量读数(sha16 a7e821862e4d790d); knot_align/readout 按 tag 回放存量值",
+   "corrected_condition": "KNOT_READOUT_ALLOWLIST 放行 weight **且** 两侧 stage2.sampling.top1_stable 为 True —— reply_loop 对首结不稳单独扣发 knot_ok; 存量 13 对里两侧都稳的只有 1 对。"
+  },
+  "v2-012": {
+   "component": "need_ok / need 层触达率 >= 0.5 闸 (reply_loop + 镜像 reply_batch.phase_b)",
+   "stated_condition": "KNOT_READOUT_ALLOWLIST 放行 weight",
+   "ops": {
+    "reply_loop": {
+     "OP_prod(allowlist={top1})": {
+      "n": 13,
+      "base_L2_sha": "cee4d591d4e357e9",
+      "determinism_base_twice_identical": true,
+      "arms": {
+       "need_ok_True": {
+        "L1": 11,
+        "L2": 0,
+        "n": 13
+       },
+       "need_ok_False": {
+        "L1": 2,
+        "L2": 0,
+        "n": 13
+       },
+       "need_ok_flipped": {
+        "L1": 13,
+        "L2": 0,
+        "n": 13
+       },
+       "noop": {
+        "L1": 0,
+        "L2": 0,
+        "n": 13
+       }
+      },
+      "noop_zero_change": true,
+      "valid": true,
+      "verdict_here": "LOAD_BEARING_L1_ONLY",
+      "component_arms": [
+       "need_ok_True",
+       "need_ok_False",
+       "need_ok_flipped"
+      ],
+      "inject_arm": null,
+      "component_L2_changed": 0
+     },
+     "OP_stated(allowlist 放行 weight)": {
+      "n": 13,
+      "base_L2_sha": "69e252a93710e90f",
+      "determinism_base_twice_identical": true,
+      "arms": {
+       "need_ok_True": {
+        "L1": 11,
+        "L2": 0,
+        "n": 13
+       },
+       "need_ok_False": {
+        "L1": 2,
+        "L2": 0,
+        "n": 13
+       },
+       "need_ok_flipped": {
+        "L1": 13,
+        "L2": 0,
+        "n": 13
+       },
+       "noop": {
+        "L1": 0,
+        "L2": 0,
+        "n": 13
+       }
+      },
+      "noop_zero_change": true,
+      "valid": true,
+      "verdict_here": "LOAD_BEARING_L1_ONLY",
+      "component_arms": [
+       "need_ok_True",
+       "need_ok_False",
+       "need_ok_flipped"
+      ],
+      "inject_arm": null,
+      "component_L2_changed": 0
+     },
+     "OP_cond(放行 weight 且两侧 top1_stable=True)": {
+      "n": 13,
+      "base_L2_sha": "1bef5108b87aebf6",
+      "determinism_base_twice_identical": true,
+      "arms": {
+       "need_ok_True": {
+        "L1": 11,
+        "L2": 5,
+        "n": 13
+       },
+       "need_ok_False": {
+        "L1": 2,
+        "L2": 1,
+        "n": 13
+       },
+       "need_ok_flipped": {
+        "L1": 13,
+        "L2": 6,
+        "n": 13
+       },
+       "noop": {
+        "L1": 0,
+        "L2": 0,
+        "n": 13
+       }
+      },
+      "noop_zero_change": true,
+      "valid": true,
+      "verdict_here": "LOAD_BEARING_L2",
+      "component_arms": [
+       "need_ok_True",
+       "need_ok_False",
+       "need_ok_flipped"
+      ],
+      "inject_arm": null,
+      "component_L2_changed": 12
+     }
+    },
+    "reply_batch": {
+     "OP_prod(allowlist={top1})": {
+      "n": 13,
+      "base_L2_sha": "d15dc2d9210aa16c",
+      "determinism_base_twice_identical": true,
+      "arms": {
+       "need_ok_True": {
+        "L1": 11,
+        "L2": 0,
+        "n": 13
+       },
+       "need_ok_False": {
+        "L1": 2,
+        "L2": 0,
+        "n": 13
+       },
+       "noop": {
+        "L1": 0,
+        "L2": 0,
+        "n": 13
+       }
+      },
+      "noop_zero_change": true,
+      "valid": true,
+      "verdict_here": "LOAD_BEARING_L1_ONLY",
+      "component_arms": [
+       "need_ok_True",
+       "need_ok_False"
+      ],
+      "inject_arm": null,
+      "component_L2_changed": 0
+     },
+     "OP_stated(allowlist 放行 weight)": {
+      "n": 13,
+      "base_L2_sha": "4e50a05e10ebce2f",
+      "determinism_base_twice_identical": true,
+      "arms": {
+       "need_ok_True": {
+        "L1": 11,
+        "L2": 5,
+        "n": 13
+       },
+       "need_ok_False": {
+        "L1": 2,
+        "L2": 1,
+        "n": 13
+       },
+       "noop": {
+        "L1": 0,
+        "L2": 0,
+        "n": 13
+       }
+      },
+      "noop_zero_change": true,
+      "valid": true,
+      "verdict_here": "LOAD_BEARING_L2",
+      "component_arms": [
+       "need_ok_True",
+       "need_ok_False"
+      ],
+      "inject_arm": null,
+      "component_L2_changed": 6
+     },
+     "OP_cond(放行 weight 且两侧 top1_stable=True)": {
+      "n": 13,
+      "base_L2_sha": "4e50a05e10ebce2f",
+      "determinism_base_twice_identical": true,
+      "arms": {
+       "need_ok_True": {
+        "L1": 11,
+        "L2": 5,
+        "n": 13
+       },
+       "need_ok_False": {
+        "L1": 2,
+        "L2": 1,
+        "n": 13
+       },
+       "noop": {
+        "L1": 0,
+        "L2": 0,
+        "n": 13
+       }
+      },
+      "noop_zero_change": true,
+      "valid": true,
+      "verdict_here": "LOAD_BEARING_L2",
+      "component_arms": [
+       "need_ok_True",
+       "need_ok_False"
+      ],
+      "inject_arm": null,
+      "component_L2_changed": 6
+     }
+    }
+   },
+   "verdict_at_stated_condition": "LOAD_BEARING_L1_ONLY",
+   "verdict_at_revival_condition": "LOAD_BEARING_L2",
+   "prod_unchanged": true,
+   "reply_batch_mirror": {
+    "OP_prod(allowlist={top1})": "LOAD_BEARING_L1_ONLY",
+    "OP_stated(allowlist 放行 weight)": "LOAD_BEARING_L2",
+    "OP_cond(放行 weight 且两侧 top1_stable=True)": "LOAD_BEARING_L2"
+   },
+   "corpus": "archive/*/*__reply_alignment.json 共 13 对真实存量读数(sha16 a7e821862e4d790d); knot_align/readout 按 tag 回放存量值",
+   "corrected_condition": "KNOT_READOUT_ALLOWLIST 放行 weight **且** 两侧 stage2.sampling.top1_stable 为 True —— reply_loop 对首结不稳单独扣发 knot_ok; 存量 13 对里两侧都稳的只有 1 对。"
+  },
+  "v2-015": {
+   "component": "CCE_ALIGN_THETA 阈值 (scripts/reply_loop.py knot_ok 判决线)",
+   "stated_condition": "KNOT_READOUT_ALLOWLIST 放行 weight",
+   "ops": {
+    "OP_prod(allowlist={top1})": {
+     "n": 13,
+     "determinism_base_twice_identical": true,
+     "arms": {
+      "theta_0.0": {
+       "L1": 0,
+       "L2": 0,
+       "n": 13
+      },
+      "theta_9.9": {
+       "L1": 0,
+       "L2": 0,
+       "n": 13
+      },
+      "noop": {
+       "L1": 0,
+       "L2": 0,
+       "n": 13
+      }
+     },
+     "noop_zero_change": true,
+     "valid": true,
+     "verdict_here": "INCONCLUSIVE",
+     "component_arms": [
+      "theta_0.0",
+      "theta_9.9"
+     ],
+     "inject_arm": null,
+     "component_L2_changed": 0
+    },
+    "OP_stated(allowlist 放行 weight)": {
+     "n": 13,
+     "determinism_base_twice_identical": true,
+     "arms": {
+      "theta_0.0": {
+       "L1": 1,
+       "L2": 1,
+       "n": 13
+      },
+      "theta_9.9": {
+       "L1": 0,
+       "L2": 0,
+       "n": 13
+      },
+      "noop": {
+       "L1": 0,
+       "L2": 0,
+       "n": 13
+      }
+     },
+     "noop_zero_change": true,
+     "valid": true,
+     "verdict_here": "LOAD_BEARING_L2",
+     "component_arms": [
+      "theta_0.0",
+      "theta_9.9"
+     ],
+     "inject_arm": null,
+     "component_L2_changed": 1
+    },
+    "OP_cond(放行 weight 且两侧 top1_stable=True)": {
+     "n": 13,
+     "determinism_base_twice_identical": true,
+     "arms": {
+      "theta_0.0": {
+       "L1": 7,
+       "L2": 7,
+       "n": 13
+      },
+      "theta_9.9": {
+       "L1": 6,
+       "L2": 6,
+       "n": 13
+      },
+      "noop": {
+       "L1": 0,
+       "L2": 0,
+       "n": 13
+      }
+     },
+     "noop_zero_change": true,
+     "valid": true,
+     "verdict_here": "LOAD_BEARING_L2",
+     "component_arms": [
+      "theta_0.0",
+      "theta_9.9"
+     ],
+     "inject_arm": null,
+     "component_L2_changed": 13
+    }
+   },
+   "verdict_at_stated_condition": "LOAD_BEARING_L2",
+   "verdict_at_revival_condition": "LOAD_BEARING_L2",
+   "prod_unchanged": true,
+   "corpus": "archive/*/*__reply_alignment.json 共 13 对真实存量读数(sha16 a7e821862e4d790d); knot_align/readout 按 tag 回放存量值",
+   "corrected_condition": "KNOT_READOUT_ALLOWLIST 放行 weight **且** 两侧 stage2.sampling.top1_stable 为 True —— reply_loop 对首结不稳单独扣发 knot_ok; 存量 13 对里两侧都稳的只有 1 对。"
+  }
+ }
+}
