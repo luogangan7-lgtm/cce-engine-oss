@@ -1,0 +1,161 @@
+{
+ "block": "OCR_VERSION_DRIFT_REMEASURE",
+ "measured_at": "2026-10-01",
+ "prereg": "tests/data/phase2/ocr_cross_domain_r2_prereg.json#drift_remeasure",
+ "arms": {
+  "locked_1.4.4": {
+   "rapidocr_onnxruntime": "1.4.4",
+   "onnxruntime": "1.30.0"
+  },
+  "old_1.2.3": {
+   "rapidocr_onnxruntime": "1.2.3",
+   "onnxruntime": "1.27.0"
+  }
+ },
+ "gate": {
+  "locked_version_is_1.4.4": true,
+  "old_version_is_1.2.3": true,
+  "zh_material_present": true,
+  "en_corpus_present": true
+ },
+ "attribution": {
+  "rule": "1.2.3 臂逐图复现 09-04 旧数(|差| <= 0.001) ⇒ 漂移归因于版本",
+  "zh_old_reproduced_on_1.2.3": true,
+  "en_old_reproduced_on_1.2.3": true,
+  "verdict": "VERSION_ATTRIBUTED"
+ },
+ "zh_real_n6": {
+  "per_image_old_vs_locked": {
+   "ad_goods.jpg": {
+    "old_0904": 1.0,
+    "now": 0.889
+   },
+   "ad_kitchen.jpg": {
+    "old_0904": 0.25,
+    "now": 1.0
+   },
+   "kn_health.jpg": {
+    "old_0904": 0.545,
+    "now": 0.364
+   },
+   "kn_names.jpg": {
+    "old_0904": 1.0,
+    "now": 1.0
+   },
+   "life_kitchen.jpg": {
+    "old_0904": null,
+    "now": null
+   },
+   "life_roomtour.jpg": {
+    "old_0904": 0.9,
+    "now": 1.0
+   }
+  },
+  "per_image_old_vs_1.2.3_rerun": {
+   "ad_goods.jpg": {
+    "old_0904": 1.0,
+    "now": 1.0
+   },
+   "ad_kitchen.jpg": {
+    "old_0904": 0.25,
+    "now": 0.25
+   },
+   "kn_health.jpg": {
+    "old_0904": 0.545,
+    "now": 0.545
+   },
+   "kn_names.jpg": {
+    "old_0904": 1.0,
+    "now": 1.0
+   },
+   "life_kitchen.jpg": {
+    "old_0904": null,
+    "now": null
+   },
+   "life_roomtour.jpg": {
+    "old_0904": 0.9,
+    "now": 0.9
+   }
+  },
+  "median": {
+   "old_1.2.3_0904": 0.9,
+   "locked_1.4.4": 1.0
+  },
+  "range_locked": [
+   0.364,
+   1.0
+  ],
+  "hallucinated_on_blank_locked": 0
+ },
+ "en_textocr": {
+  "n_images": {
+   "old": 98,
+   "locked": 98
+  },
+  "old_1.2.3_0904": {
+   "raw": {
+    "median": 0.4763,
+    "mean": 0.4672,
+    "q1": 0.241,
+    "q3": 0.7162,
+    "min": 0.0,
+    "max": 1.0
+   },
+   "normalized": {
+    "median": 0.554,
+    "mean": 0.5055,
+    "q1": 0.2705,
+    "q3": 0.773,
+    "min": 0.0,
+    "max": 1.0
+   },
+   "word_f1_order_insensitive": {
+    "median": 0.3174,
+    "mean": 0.3376,
+    "q1": 0.0,
+    "q3": 0.5036,
+    "min": 0.0,
+    "max": 1.0
+   }
+  },
+  "locked_1.4.4": {
+   "raw": {
+    "median": 0.4602,
+    "mean": 0.4914,
+    "q1": 0.288,
+    "q3": 0.751,
+    "min": 0.0,
+    "max": 1.0
+   },
+   "normalized": {
+    "median": 0.5158,
+    "mean": 0.5345,
+    "q1": 0.2997,
+    "q3": 0.811,
+    "min": 0.0,
+    "max": 1.0
+   },
+   "word_f1_order_insensitive": {
+    "median": 0.3765,
+    "mean": 0.3923,
+    "q1": 0.1914,
+    "q3": 0.5848,
+    "min": 0.0,
+    "max": 1.0
+   }
+  },
+  "per_image_f1": {
+   "n_paired": 98,
+   "n_changed": 72,
+   "mean_diff_new_minus_old": 0.0547
+  }
+ },
+ "language_density_ratio": {
+  "formula": "中文真实图 1−CER 中位 / 英文 TextOCR 顺序无关词级 F1 中位(同 transfer_across_conditions)",
+  "old_1.2.3": 2.84,
+  "locked_1.4.4": 2.66,
+  "zh_real_cover_locked": 1.0,
+  "en_dense_scene_locked": 0.3765
+ },
+ "★n_is_small": "中文仍是 n=6(5 有字 + 1 零文字对照), 区间宽, 不得当稳定基线。"
+}

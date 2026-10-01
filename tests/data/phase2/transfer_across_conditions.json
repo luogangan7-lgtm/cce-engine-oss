@@ -7,7 +7,8 @@
    "zh_real_cover": 0.9,
    "en_dense_scene": 0.3174,
    "ratio": 2.84,
-   "note": "同一个 OCR 引擎, 换语言+场景密度"
+   "note": "同一个 OCR 引擎, 换语言+场景密度",
+   "★version": "旧版 1.2.3 读数·已被重测取代(rapidocr 1.2.3)"
   },
   "difficulty(ASR)": {
    "test_clean_mean_wer": 0.0234,
@@ -19,12 +20,31 @@
    "synthetic_clean": 1.0,
    "real_material": 0.9,
    "ratio": 1.11,
-   "note": "合成干净渲染是上界, 已实证"
+   "note": "合成干净渲染是上界, 已实证",
+   "★version": "旧版 1.2.3 读数·已被重测取代(real_material 0.9 是 1.2.3 读数)"
   }
  },
  "★what_this_establishes": "**条件转移不成立**: 在语言、场景密度、录音难度这三条轴上, 同一个模型的抽取质量差 2.8–5.0 倍。⇒ 任何在一种条件下标定的阈值/分辨率, **不得**搬到另一种条件。这直接支持继续扣发 p3.cross_domain_calibration。",
  "★what_this_does_NOT_establish": "★ 我变化的是**语言 / 场景密度 / 录音难度**, **不是「域」**(助听器 vs 生活方式 vs 广告)。**域**这条轴仍**未测** —— 不许把条件转移失败说成域转移失败, 那是两个不同的断言。要测域需要: 同一读数在 >=2 个内容域上各自测, 且每域样本足够。本机现有的真实素材只有 6 张, 分 3 个内容类别 ⇒ 每类 2 张, **远不足以判**。",
  "★consequence": "across_domains 保持 NOT_ESTABLISHED, 但状态说明改为: 「条件转移已实测不成立(2.8–5.0 倍); 域转移仍未测」—— 比笼统的 NOT_ESTABLISHED 更有信息量, 且指明了下一步要什么。",
  "★next_if_resumed": "每个内容域 >=30 份带逐字标注的真实素材; 公开集里没有本项目的域 ⇒ 需自建标注。",
- "★numbers_are_derived_not_transcribed": "下面每个数都**从产物现读**(ocr_quality_en / ocr_accuracy_real_zh / asr_quality_en_gen2 / asr_quality_en_other / ocr_quality_curve), **不是手抄** —— 手抄会漂移, 本文件第一版就抄错了一位(0.317 vs 0.3174), 被测试当场抓住。"
+ "★numbers_are_derived_not_transcribed": "下面每个数都**从产物现读**(ocr_quality_en / ocr_accuracy_real_zh / asr_quality_en_gen2 / asr_quality_en_other / ocr_quality_curve), **不是手抄** —— 手抄会漂移, 本文件第一版就抄错了一位(0.317 vs 0.3174), 被测试当场抓住。",
+ "remeasured_on_locked_rapidocr_1.4.4": {
+  "measured_at": "2026-10-01",
+  "source": "tests/data/phase2/ocr_version_drift.json",
+  "attribution": "VERSION_ATTRIBUTED",
+  "language(OCR)": {
+   "zh_real_cover": 1.0,
+   "en_dense_scene": 0.3765,
+   "ratio": 2.66,
+   "old_ratio_1.2.3": 2.84
+  },
+  "rendering(OCR)": {
+   "synthetic_clean": 1.0,
+   "real_material": 1.0,
+   "note": "锁定版上真实中文 n=6 中位也是 1.0 ⇒ 渲染这条在中位数上看不出差; n=6 不足以说「渲染无影响」。ocr_quality_curve(合成)未在本次重测, 若当年也是 1.2.3 读数则同样待重测。"
+  },
+  "★conclusion": "语言/密度倍数 2.84 → 2.66, 仍 >2 ⇒ 「条件转移不成立」结论不变; 渲染那条的 0.10 差在锁定版上消失(中位), 它曾是跨域实验 δ=0.10 的依据之一 —— δ 已在预注册冻结, 不追改。"
+ },
+ "★domain_axis_update_2026-10-01": "域这条轴已不是「未测」: 第一轮 4 域 x30 判 STILL_UNDETERMINED(ocr_cross_domain.json); 第二轮新帧预注册主分析 INSTRUMENT_GATE_FAILED(主过滤器吃真值文字 + 游戏解说 INSUFFICIENT), 见 ocr_cross_domain_r2.json。上文「6 张」的盘点已在第一轮更正。"
 }
