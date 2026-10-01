@@ -14,7 +14,7 @@
   "★status": "**v2 已启用**(2026-09-09)。第⑤条完整验收闸已重跑并落盘, G-K1 两项均达标。★ 与 v1 的读数**可比不可合**。★★ 余量极薄, 见 refactor_log 的代价一节。"
  },
  "core_files": {
-  "config/knot_taxonomy.json": "56a1c1977bf8d18c",
+  "config/knot_taxonomy.json": "41d83598c45c5c86",
   "scripts/cce_knot_classify.py": "d008a333cd233720",
   "scripts/cce_ksep.py": "ffd5d26a7e0cb29b",
   "scripts/exp_crossmodel_desire.py": "0920933d6ed3bd41",
@@ -1784,6 +1784,29 @@
    "★这一类输入的行为确实变了": "零可判行: 旧 = 崩溃无产物; 新 = 扣发(None)并落盘。不得说「所有输入行为不变」。",
    "★evidence_is_required_because": "「instrument_hash / gate_protocol_hash 没变」**不足以**证明行为没变 —— 两者只覆盖提示词材料, 看不见聚合/扣发逻辑; 行为只能靠离线端到端臂(7 臂 + 变异)证明。",
    "instrument_hash": "不变(生产 s1/s2 未动); gate_protocol_hash 不变(dbdff13f9da155bc, 闸 prompt 未动)。"
+  },
+  {
+   "date": "2026-10-01",
+   "event": "AUDIT_PLAYBOOK_LANDED_ROUTE_5",
+   "file": "config/knot_taxonomy.json",
+   "from_sha": "56a1c1977bf8d18c",
+   "to_sha": "41d83598c45c5c86",
+   "route": "第五条路(下游 manipulation 改动, 非纯重构亦非换代) —— 授权代定, owner 一句话可整体作废",
+   "changed_field": "knots[audit].playbook",
+   "reason": "落地 docs/decisions/PLAYBOOK_TRI_STATE_AUDIT_DECIDED_2026-10-01.md ② 裁定的新串: 「不辩解不表演;给可验证事实+接受检验的姿态(『Ask me anything specific』)」→「不辩解不表演;给可验证事实(数字/来源/可查记录)+明确邀请对方核验或追问具体细节(『Ask me anything specific』)」。弃用潜在姿态, 产品主张改为两件可指认的事(A 可验证事实 / B 明确邀请核验), 与 cce_align_atoms.OPERATIONAL[\"audit\"] 的测量定义对齐。分号结构不变(旧分解仍 2 原子 / 1 正向)。按裁定的落地顺序: ① 先修消融探针阴性对照(本分支 8a8af9e: NEITHER_AXIS/NEITHER_NOTE 两张声明表被算成消费者) ② 在新串上重跑消融 ③ 本条登记。",
+   "★★★谁裁的": "授权代定(owner 2026-10-01「把没有完成的进行完成吧」)。推理与取舍是 agent 做的, 不是 owner 的判断; owner 说不是这个意思即整体作废, 回滚点见下。",
+   "instrument_hash_unchanged": true,
+   "behavior_evidence": [
+    "tests/test_cce_audit_playbook_landed.py",
+    "tests/test_cce_playbook_audit_decided.py",
+    "tests/data/knot_taxonomy_ablation.json",
+    "tests/test_cce_ablation_verdict_schema.py"
+   ],
+   "★which_half_of_behavior_changed": "**变了的一半**: ① 交付给写稿方的 s2 knots[audit].playbook 与出口闸 playbook_primary(audit 为 top-1 时)是新串(v3-203 的消费者); ② cce_align_v2.PLAYBOOK[\"audit\"] → dissolve_hit() 的 DISSOLVE_PROMPT 拆除规范是新串(v3-205 的消费者)。\n**没变的一半**: 生产分类器 P 与验收闸 G。新旧串并排现算: instrument_hash 均 = instrument_expected(d4cce4c745f3f991)、s2 模板逐字相同、run_gates 闸材料(gate_materials)逐字相同 ⇒ 已采集 draw 与 G-K1 标定照旧有效, 不换代、不换闸。现行对齐出口 v5/V3/三值层不读这串(audit 走 OPERATIONAL), 读数不受影响。",
+   "★evidence_is_required_because": "哈希没变不足以证明行为没变, 而本次行为确实变了一半。证据都可现查: tests/test_cce_audit_playbook_landed.py 把新旧两份 taxonomy 并排现算 P/G 不变与两个消费者到达; LOAD_BEARING_L2 字段改了 ⇒ probes/knot_taxonomy_ablation.py 在改后的文件上重跑(零 API 存量重放 8 base), 阳性/阴性对照双向通过, 37 行判决与改前逐字节相同(playbook 仍 LOAD_BEARING_L2)。",
+   "★可比不可合": "playbook_hit / playbook_mode / playbook_atoms(GEN1–GEN4)与 cce_align_v2 dissolve_hit 在 audit 上的读数都是在旧串(含「接受检验的姿态」)下产出的; 新串下若再产出, 与旧读数可比不可合, 不汇总成一个 n。这三个读数已退役(对齐出口改走 cce_align_atoms v5/V3 + 三值层), 故不另立新预注册; 谁要在新串上重启它们, 必须先另立预注册。",
+   "★not_rerun_and_why": "ablation_verdicts_v2 的 dissolve_hit() 三票抽样判决(LOAD_BEARING_L1_ONLY)未重跑(需真实调用): 它的四臂把判官输出换成常量, 臂间比较不读 playbook 文本; 但其 A0 基线 0.0384 是旧串下的读数, 与新串可比不可合。",
+   "★回滚点": "把 knots[audit].playbook 改回旧串 ⇒ sha 回到 56a1c1977bf8d18c; 同时撤销本条与 ablation_verdicts_v2/v3、test_cce_ablation_harness_injection_reach 的对应登记。"
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",

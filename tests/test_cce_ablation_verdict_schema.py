@@ -244,6 +244,16 @@ def test_ref_counter_excludes_declaration_registries():
     assert not missed, (
         f"★★ consistency_check 新增了声明式登记表 {missed} 但 _REGISTRY_NAMES 没跟上 ⇒ "
         "计数器会再次被自己骗")
+    # ★★★ 2026-10-01: 上面只看 consistency_check, 而 09-09 的登记表落在 probes/ 里, 阴性对照
+    #   在真跑时红了三周, 本测试读的是 09-07 的旧产物照绿。⇒ **现算**, 不只读落盘文件。
+    import importlib
+    import sys as _s
+    _s.path.insert(0, str(ROOT / "probes"))
+    A = importlib.import_module("knot_taxonomy_ablation")
+    live = {f: A.code_refs(f)[0] for f in A.TAXO if f.startswith("changelog")}
+    assert live and not any(live.values()), (
+        f"★★★ 现算: changelog 拿到非零引用 {({k: v for k, v in live.items() if v})} ⇒ "
+        "又有一张声明式登记表没进 _REGISTRY_NAMES, 阴性对照在真跑时会红")
 
 
 def test_dead_changelogs_are_no_consumer_not_inconclusive():

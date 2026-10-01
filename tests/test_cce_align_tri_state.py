@@ -86,8 +86,14 @@ def test_absent_validated_reads_only_adopted(monkeypatch, tmp_path):
     p = tmp_path / "tri.json"
     p.write_text('{"per_atom": {"suspend#3": {"verdict": "ADOPTED"}, "audit#1": {"verdict": "NOT_ADOPTED"}}}', encoding="utf-8")
     monkeypatch.setattr(AT, "TRI_RESULT", str(p))
+    monkeypatch.setattr(AT, "TRI_DO_RESULT", str(tmp_path / "none_do.json"))
     assert AT.absent_validated() == {("suspend", 3)}
+    q = tmp_path / "tri_do.json"
+    q.write_text('{"per_atom": {"audit#3": {"verdict": "ADOPTED"}, "itch#0": {"verdict": "NOT_ADOPTED"}}}', encoding="utf-8")
+    monkeypatch.setattr(AT, "TRI_DO_RESULT", str(q))
+    assert AT.absent_validated() == {("suspend", 3), ("audit", 3)}          # 两轮取并集, 只认 ADOPTED
     monkeypatch.setattr(AT, "TRI_RESULT", str(tmp_path / "none.json"))
+    monkeypatch.setattr(AT, "TRI_DO_RESULT", str(tmp_path / "none_do.json"))
     assert AT.absent_validated() == set()
 
 
@@ -107,7 +113,7 @@ def test_constructed_run_recomputes_and_drives_production():
     per, summ = P.score(r["raw"], P.prereg()["items"])
     assert per == r["per_atom"] and summ == r["summary"] == {"items": 7, "adopted": 6}
     assert per["itch#1"]["verdict"] == "NOT_ADOPTED" and per["itch#1"]["false_satisfied"] == 2       # 未达线 ⇒ 不采纳, 不改线
-    assert AT.absent_validated() == {(k.split("#")[0], int(k.split("#")[1])) for k, v in per.items() if v["verdict"] == "ADOPTED"}
+    assert {(k.split("#")[0], int(k.split("#")[1])) for k, v in per.items() if v["verdict"] == "ADOPTED"} <= AT.absent_validated()
     # 选底稿与植入在现算下逐条复现(底稿 / 植入句下标 / 位置任何一处被改都红)
     js = P.jobs(P.prereg(), json.loads(P.V3.read_text(encoding="utf-8")), P.base_texts())
     assert [(j["key"], j["ptr"], j["plant"], j["pos"]) for j in js] == [(x["key"], x["ptr"], x["plant"], x["pos"]) for x in r["raw"]]
@@ -122,3 +128,76 @@ def test_constructed_scorer_can_fail():
     assert v([row("unsatisfied")] * 35 + [row("satisfied")]) == "NOT_ADOPTED"
     assert v([row("unsatisfied")] * 35 + [row(None)]) == "NOT_ADOPTED"
     assert v([row("unsatisfied")] * 35) == "NOT_ADOPTED"
+
+
+# ══ 【做】条目缺席一侧(VIOLATED)的构造稿准入 · 预注册 tests/data/align_atoms_tri_do_prereg.json ══════════
+def _probe_do(name):
+    import importlib.util as iu
+    s = iu.spec_from_file_location(name, ROOT / "probes/align_atoms_tri_do.py"); P = iu.module_from_spec(s); s.loader.exec_module(P); return P
+
+
+def test_do_prereg_covers_exactly_the_v3_validated_do_items():
+    """预注册的条目 == V3 VALIDATED 的全部【做】条目(机械条目不走判官, 不在内); 植入句每条 12 句、两两不重。"""
+    import json
+    P = _probe_do("_trido0"); pre = P.prereg()
+    v3 = json.loads((ROOT / "results/align_atoms_v3.json").read_text(encoding="utf-8"))["per_atom"]
+    want = sorted(k for k, v in v3.items() if v["verdict"] == "VALIDATED" and not AT.atoms_of(k.split("#")[0])[int(k.split("#")[1])][1])
+    assert sorted(pre["items"]) == want and sorted(k for ks in pre["knots"].values() for k in ks) == want
+    allp = [s for k in pre["items"] for s in pre["plants"][k]]
+    assert all(len(pre["plants"][k]) == 12 for k in pre["items"]) and len(set(allp)) == len(allp)
+    assert len(pre["knots"]) * P.N <= P.CAP == 250
+
+
+def test_do_jobs_are_absent_bases_with_one_plant_per_item():
+    """每篇底稿含该结每个条目恰一句植入; 同结两句位置相反(第一句切不出时都退化为追加); 全部 complete_scan。"""
+    import json
+    P = _probe_do("_trido1"); pre = P.prereg(); v3 = json.loads(P.TRI.V3.read_text(encoding="utf-8"))
+    js = P.jobs(pre, v3, P.TRI.base_texts())
+    assert len(js) == P.N * len(pre["knots"]) and all(AT.complete_scan(j["text"]) for j in js)
+    for j in js:
+        assert [p["key"] for p in j["plants"]] == pre["knots"][j["knot"]]
+        assert all(pre["plants"][p["key"]][p["plant"]] in j["text"] for p in j["plants"])
+        if len(j["plants"]) == 2:
+            assert len({p["pos"] for p in j["plants"]}) == 2 or {p["pos"] for p in j["plants"]} == {"append"}
+
+
+def test_do_run_recomputes_and_drives_production():
+    """真实读数(238 次 Jev): 现算判决 == 落盘判决; 生产名单 == 两轮 ADOPTED 的并集, 未准入的【做】条目「没做」仍 INDETERMINATE。"""
+    import hashlib, json
+    P = _probe_do("_trido3")
+    r = json.loads((ROOT / "results/align_atoms_tri_do.json").read_text(encoding="utf-8"))
+    assert r["prereg_sha256"] == hashlib.sha256(P.PRE.read_bytes()).hexdigest(), "预注册在读数之后被改过"
+    assert not r["dry_run"] and r["requests"] == r["calls_planned"] == 238 <= P.CAP and not r["errors"]
+    assert r["questions_sha256"] == hashlib.sha256(json.dumps({k: AT.jev_questions_v3(k) for k in P.prereg()["knots"]}, sort_keys=True).encode()).hexdigest()
+    per, summ = P.score(r["raw"], P.prereg()["items"])
+    assert per == r["per_atom"] and summ == r["summary"] == {"items": 11, "adopted": 8}
+    assert {k: v["false_violated"] for k, v in per.items() if v["verdict"] == "NOT_ADOPTED"} == \
+        {"injustice#0": 1, "injustice#1": 2, "suspend#2": 1}                     # 未达线 ⇒ 不采纳, 不改线
+    js = P.jobs(P.prereg(), json.loads(P.TRI.V3.read_text(encoding="utf-8")), P.TRI.base_texts())
+    assert [(j["ptr"], p["key"], p["plant"], p["pos"]) for j in js for p in j["plants"]] == [(x["ptr"], x["key"], x["plant"], x["pos"]) for x in r["raw"]]
+    tri = json.loads((ROOT / "results/align_atoms_tri.json").read_text(encoding="utf-8"))["per_atom"]
+    ok = lambda d: {(k.split("#")[0], int(k.split("#")[1])) for k, v in d.items() if v["verdict"] == "ADOPTED"}
+    assert AT.absent_validated() == ok(tri) | ok(per)
+    assert ("injustice", 0) not in AT.absent_validated() and ("audit", 3) in AT.absent_validated()
+
+
+def test_do_absent_side_in_production_path(monkeypatch):
+    """生产出口: audit#3(已准入)判「没做」⇒ VIOLATED; 截断 ⇒ INDETERMINATE; injustice#0(未准入)判「没做」⇒ INDETERMINATE。"""
+    monkeypatch.setenv("TYPESAFE_API_KEY", "k")
+    r = AT.atoms_alignment("audit", True, "Here is what I know.", post=_post_for(set()))
+    assert r["atoms"][3]["canonical"] == "unsatisfied" and r["atoms"][3]["tri"] == "VIOLATED"
+    r = AT.atoms_alignment("audit", True, "Here is what I know. " + "x" * 2100, post=_post_for(set()))
+    assert r["atoms"][3]["tri"] == "INDETERMINATE"
+    r = AT.atoms_alignment("injustice", True, "Here is what I know.", post=_post_for(set()))
+    assert r["atoms"][0]["canonical"] == "unsatisfied" and r["atoms"][0]["tri"] == "INDETERMINATE"
+
+
+def test_do_scorer_can_fail():
+    """反向: 任一难例被判「没做」或调用失败 ⇒ NOT_ADOPTED; 未跑满 ⇒ NOT_ADOPTED; 「做了」/uncertain 不是错误。"""
+    P = _probe_do("_trido2")
+    row = lambda panel: {"key": "audit#3", "panel": panel, "votes": None, "family": "F1", "pos": "append"}
+    v = lambda rows: P.score(rows, ["audit#3"])[0]["audit#3"]["verdict"]
+    assert v([row("satisfied")] * 33 + [row("uncertain")]) == "ADOPTED"
+    assert v([row("satisfied")] * 33 + [row("unsatisfied")]) == "NOT_ADOPTED"
+    assert v([row("satisfied")] * 33 + [row(None)]) == "NOT_ADOPTED"
+    assert v([row("satisfied")] * 33) == "NOT_ADOPTED"

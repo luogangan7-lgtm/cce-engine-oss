@@ -30,7 +30,7 @@
   "corpus_sha": {
    "tests/data/phase2/panel_checkpoint.jsonl": "d4907b3a1782a6be",
    "tests/data/phase2/stimuli_frozen.json": "42fb6f763604f0b4",
-   "config/knot_taxonomy.json": "56a1c1977bf8d18c"
+   "config/knot_taxonomy.json": "41d83598c45c5c86"
   },
   "★corpus_caveat": "存量语料是**合成的、单语种(0 条中文)、单主题(助听器)**, 由 GLM-5.2/Qwen-3.8 生成。⇒ 中文出站、agent_memory profile、v5 媒体批次、[[mech:]] 标记的覆盖率**都是 0**。",
   "★pollution_incident": "2026-09-06 第二轮审计期间, 并行 agent 把 run/guard_profile 从 daerdo 改成字面量 \"g\", 并把 tests/data/phase2/panel_analysis.json 改了 +948/−316 行 —— **那正是三条 ksep 判决的下游消费语料**。已 git checkout 还原; 受影响的三条判决(separation 枚举 / p 数值 / alpha)标为 needs_rerun。",
@@ -93,6 +93,19 @@
     "★what_changed_in_the_file": "只有描述性文本(status 修订 + 一个修订说明键)。进 prompt 的字段全未动。",
     "★why_the_old_verdicts_survive": "cce_core_boundary 现算 instrument_hash 未报不符 ⇒ 仪器未变。",
     "★what_this_restamp_does_NOT_claim": "★ 下次若改动触及进 prompt 的字段, **必须重跑**。"
+   },
+   {
+    "date": "2026-10-01",
+    "changed": {
+     "config/knot_taxonomy.json": {
+      "from": "56a1c1977bf8d18c",
+      "to": "41d83598c45c5c86"
+     }
+    },
+    "★what_changed_in_the_file": "knots[audit].playbook 一个值(授权代定 ② 的新串)。**这是进 9 个 LOAD_BEARING_L2 之一的字段** —— 不是描述性文本, 不得援引此前四条 restamp。",
+    "★why_the_old_verdicts_survive": "按 ★what_would_have_invalidated_them 重跑, 不是援引: ① probes/knot_taxonomy_ablation.py 在改后的文件上重跑(零 API, 8 base 存量 draw), 阳性/阴性对照双向通过(阴性对照先在本分支修好: 8a8af9e), 37 行判决与改前逐字节相同; ② playbook 不进 s1/s2 prompt 也不进验收闸材料 —— tests/test_cce_audit_playbook_landed.py 并排现算新旧串: instrument_hash、s2 模板、gate_materials 全同; ③ cce_core_boundary 现算 instrument_hash 与清单相符。本表其余判决的观测面(prompt / 聚合 / 判决面结构)不读 playbook 的文本内容。",
+    "★what_is_NOT_preserved": "dissolve_hit() 三票抽样那条(LOAD_BEARING_L1_ONLY)的 A0 基线数值是旧串下的读数, 未重跑(需真实调用); 判决词不受影响(臂间比较不读文本), 数值与新串可比不可合。",
+    "★what_this_restamp_does_NOT_claim": "★ 不主张「改 LOAD_BEARING_L2 字段只要重盖章」。本条成立只因重跑实测为相同; 下次改 playbook 以外的 L2 字段(key/name/family/behavior/signature/typical_codes/version/levers_not_knots)必须作废并重跑相关判决。"
    }
   ]
  },

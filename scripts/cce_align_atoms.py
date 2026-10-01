@@ -233,7 +233,7 @@ def atoms_alignment(reader_top1, top1_usable, text, call=None, post=None):
                         "tri": {t: sum(r["tri"] == t for r in judged) for t in ("SATISFIED", "VIOLATED", "INDETERMINATE")}},
             "complete_scan": scan,
             "★tri_reading": "tri = 主张层三值。在场见证(【做】检出执行 / 【禁】检出违规)单独成立; 缺席结论(【禁】SATISFIED / 【做】VIOLATED)"
-                            "要 complete_scan(判官看到整篇)且该条目缺席一侧过了构造稿准入(results/align_atoms_tri.json), 否则 INDETERMINATE。",
+                            "要 complete_scan(判官看到整篇)且该条目缺席一侧过了构造稿准入(results/align_atoms_tri.json 禁令 / results/align_atoms_tri_do.json 【做】), 否则 INDETERMINATE。",
             "★rule": "只看逐原子状态; 不出总分、不出放行布尔。uncertain 与 not_calibrated 都不是「没做」。"}
 
 
@@ -242,7 +242,8 @@ def atoms_alignment(reader_top1, top1_usable, text, call=None, post=None):
 # 满足是全称命题, 只有扫完整篇且检出器对该条目足够灵敏时才可下(Reiter 闭世界)。两条都不满足 ⇒ INDETERMINATE。
 # ★ 这是本项目的操作化, 不是 LLM-judge 的命名标准做法(2026-09-05 调研明说无文献命名过它)。
 JEV_STATE_MAX = 2000          # 判官只看到 text[:2000](judge_jev* 的 state)
-TRI_RESULT = os.path.join(ROOT, "results", "align_atoms_tri.json")
+TRI_RESULT = os.path.join(ROOT, "results", "align_atoms_tri.json")          # 【禁】缺席一侧(SATISFIED)
+TRI_DO_RESULT = os.path.join(ROOT, "results", "align_atoms_tri_do.json")    # 【做】缺席一侧(VIOLATED), 2026-10-01 第二轮
 
 
 def complete_scan(text):
@@ -250,11 +251,13 @@ def complete_scan(text):
 
 
 def absent_validated():
-    """缺席一侧过了构造稿准入的条目 {(结, 下标)}; 没有结果 ⇒ 空集(缺席结论一律 INDETERMINATE)。"""
-    if not os.path.exists(TRI_RESULT):
-        return set()
-    per = json.load(open(TRI_RESULT, encoding="utf-8")).get("per_atom") or {}
-    return {(k, int(i)) for k, i in (key.rsplit("#", 1) for key, v in per.items() if v.get("verdict") == "ADOPTED")}
+    """缺席一侧过了构造稿准入的条目 {(结, 下标)}(禁令轮 ∪ 【做】轮); 没有结果 ⇒ 空集(缺席结论一律 INDETERMINATE)。"""
+    out = set()
+    for path in (TRI_RESULT, TRI_DO_RESULT):
+        if os.path.exists(path):
+            per = json.load(open(path, encoding="utf-8")).get("per_atom") or {}
+            out |= {(k, int(i)) for k, i in (key.rsplit("#", 1) for key, v in per.items() if v.get("verdict") == "ADOPTED")}
+    return out
 
 
 def tri_state(canonical, is_prohibition, scan_ok, absent_ok):

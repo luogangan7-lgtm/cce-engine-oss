@@ -51,8 +51,14 @@ _SRC = {p: p.read_text(encoding="utf-8", errors="ignore")
 
 
 # ★★ 声明式登记表 —— 它们**记录**某字段没有消费者, 本身不是消费者。
-#    只列 consistency_check 里的三张表; 新增同类表要在这里加, 否则计数会再次被自己骗。
-_REGISTRY_NAMES = {"TOPLEVEL_DOC_ONLY", "DESCRIPTIVE", "EXEMPT_BLOCKS"}
+#    consistency_check 的三张表 + taxonomy_field_reach_ledger 的两张(NEITHER_*)。
+#    新增同类表要在这里加, 否则计数会再次被自己骗。
+#  ★★★ 2026-10-01: 阴性对照在**未改动**的 taxonomy 上红(11 个 changelog 各 refs=2 ⇒ INCONCLUSIVE)。
+#    根因与 2026-09-07 同族: probes/taxonomy_field_reach_ledger.py(09-09 新增)的
+#    NEITHER_AXIS / NEITHER_NOTE 逐字列着每个 changelog 名 —— 又一张「声明它不进 prompt」的表,
+#    被算成了消费者。而 tests/data/knot_taxonomy_ablation.json 是 09-07 的旧产物, 测试读旧文件照绿。
+#    ⇒ 修量具(登记这两张表) + 测试改为**现算** changelog 引用数, 不再只读落盘产物。
+_REGISTRY_NAMES = {"TOPLEVEL_DOC_ONLY", "DESCRIPTIVE", "EXEMPT_BLOCKS", "NEITHER_AXIS", "NEITHER_NOTE"}
 _SRC_CLEAN = None
 
 
@@ -296,7 +302,15 @@ def main():
     print("对照:", "✅ 双向通过" if ok else "★★ 未通过 —— 本轮判决作废", ctrl)
     print("汇总:", tally)
 
+    # ★ 人工更正记录(键以 ★★★ 开头, 如 negative_examples_prompt 的 09-09 更正)不是探针产物,
+    #   重跑不许把它们冲掉 —— 合并而非整体替换。
+    prev = json.loads(OUT.read_text(encoding="utf-8")) if OUT.exists() else {}
+    keep = {(r.get("scope"), r.get("field")): {k: v for k, v in r.items() if k.startswith("★★★")}
+            for r in prev.get("rows", [])}
+    for r in rows:
+        r.update(keep.get((r["scope"], r["field"]), {}))
     OUT.write_text(json.dumps({
+        **{k: v for k, v in prev.items() if k.startswith("★★★")},
         "block": "KNOT_TAXONOMY_ABLATION_GEN1",
         "★first_ever": "本文件从未被消融过(两轮审计均跳过) ⇒ 无基线可比, 故自带双向对照。",
         "★operating_point": {"instrument": "d4cce4c745f3f991(gen6)", "k": 3,
