@@ -51,3 +51,17 @@
 - 为了让【做】条目也能下 VIOLATED 再烧一轮同判官重复 —— 先想清楚难例怎么构造（【做】的难例是「做了但说法绕」），另立预注册再跑。
 - 拿「实际很开放」的回复去申诉 audit B 判漏 —— 测量定义如此；要量隐含姿态，等 ③ 的人类层。
 - 为了让产品串与测量一致，直接改 `config/knot_taxonomy.json` 再手改三处冻结件 sha 让闸变绿 —— **禁止**。那三道闸红是对的；先修消融探针、重跑、再盖章。
+
+---
+
+## 落地记录（同日第二轮，仍属本授权代定）
+
+**② 写手指导串已落地**，按上面的顺序：
+1. 消融探针阴性对照的根因：`probes/taxonomy_field_reach_ledger.py`（09-09 新增）的 `NEITHER_AXIS` / `NEITHER_NOTE` 逐字列着每个 changelog 名，被 `code_refs` 当成了消费者（11 个 changelog 各 refs=2 ⇒ INCONCLUSIVE）。落盘的 `tests/data/knot_taxonomy_ablation.json` 是 09-07 的旧产物，所以守卫测试一直读到「通过」。修法：把这两张声明表登记进 `_REGISTRY_NAMES`；守卫测试改为**现算** changelog 引用数。判据没动。
+2. 在新串上重跑：对照双向通过，37 行判决与改前逐字节相同（playbook 仍 LOAD_BEARING_L2）。修好后有 3 个字段从 NO_CONSUMER 变成 INCONCLUSIVE（definition_of_knot / identity_criterion / evidence_level），因为 09-07 之后出现了真实代码引用，照报。
+3. 登记：`config/cce_core_manifest.json` pin 56a1c1977bf8d18c → 41d83598c45c5c86 + refactor_log `AUDIT_PLAYBOOK_LANDED_ROUTE_5`（两半行为、可比不可合、回滚点）；`ablation_verdicts_v2` restamp（重跑依据，不援引旧条）；`ablation_verdicts_v3` 冻结件登记；行为证据 `tests/test_cce_audit_playbook_landed.py`（新旧串并排算：P 的 instrument_hash、s2 模板、G 的闸材料都相同；写稿方载荷与拆除判官拿到的是新串）。
+
+**① 【做】条目缺席一侧已测**（预注册 `tests/data/align_atoms_tri_do_prereg.json` → `results/align_atoms_tri_do.json`，238 次 Jev，上限 250，0 错误；错误预算同禁令轮：假违反 CP 单侧 95% 上界 ≤ 0.10，n=34 下即 0 次）：**8/11 ADOPTED**。injustice#0（1/34）、injustice#1（2/34）、suspend#2（1/34）**NOT_ADOPTED**，这三条的「没做」在生产里仍读 INDETERMINATE，线不改。4 次假违反都是 F2（跨两句）且都插在第一句之后。
+- 预测记账：P1（F1 零假违反）成立；P2（至多 7 条过）**被违反**（实际 8 条）；P3（两种插入位置的假违反率差 ≤ 0.10）成立（追加 0/202，插在第一句后 4/172）。
+- 同结两条目共用一次调用（联合植入），这样会遮住漏检、偏向 ADOPTED。injustice / itch / suspend / audit 四个结的 ADOPTED 应该比单条目结的读得弱一些（预注册 ★joint_planting）。
+- 上面「代价」一节说【做】条目的「没做」一条都说不出 —— 现在已有 8 条可以说。

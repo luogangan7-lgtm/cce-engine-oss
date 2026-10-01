@@ -93,7 +93,10 @@ _REAL_OPEN = builtins.open
 #   现算已在 tests/data/ablation_verdicts_v3.json 的 ★frozen_files_更新记录 里逐条留档。
 FROZEN_SHA8 = {
     "scripts/cce_knot_classify.py": "d008a333cd233720",
-    "config/knot_taxonomy.json": "56a1c1977bf8d18c",
+    "config/knot_taxonomy.json": "41d83598c45c5c86",
+    # ★ 2026-10-01: knots[audit].playbook 新串落地(第五条路, refactor_log AUDIT_PLAYBOOK_LANDED_ROUTE_5)。
+    #   换回旧串重算 = 56a1c1977bf8d18c; manifest 摘掉那条并改回 pin 重算 = e85cfc157d783ba5, 均与旧钉逐字节相同。
+    #   见 ablation_verdicts_v3.json ★frozen_files_更新记录 / ★冻结件变更登记。
     # ★ 2026-09-15 更新(第三次): 向 refactor_log 追加 ANNEX_A_MADE_OBSERVABLE。
     #   core_files 六个 pin 与 parser_plane 四件**逐一现算未变**, instrument_generation 仍 6。
     #   ★ 这格防的是「消融期间真仓被写穿」, **防未经记录的改动**, 不是禁止一切改动 ——
@@ -142,7 +145,7 @@ FROZEN_SHA8 = {
         # ★ 2026-09-28 第二次: s2 单次 draw 类型/取值校验(cce_knot_classify.py pin 更新 + refactor_log 追加 S2_DRAW_TYPE_AND_RANGE_VALIDATION)。
         # ★ 2026-09-28 第三次: s2 attempt 账本 + CCE_RAW_DIR(cce_knot_classify.py pin 更新 + refactor_log 追加 S2_ATTEMPT_LEDGER_AND_CI_RAW_DIR)。
         # ★ 2026-09-29: PRODUCTION_REQUEST_CAP_PER_RUN(见 ablation_verdicts_v3.json ★冻结件变更登记)。
-    "config/cce_core_manifest.json": "e85cfc157d783ba5",
+    "config/cce_core_manifest.json": "f2a7c930e0c01888",
     "accuracy/run_gates.py": "da0fb5a566cc9502",
 }
 
