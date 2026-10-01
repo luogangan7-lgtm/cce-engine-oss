@@ -331,6 +331,18 @@ def cmd_run():
     gate_ok = all(gate.values())
     verdicts = judge_all(d3, chosen, np.random.default_rng(SEED)) if gate_ok else {
         "H_density": "INSTRUMENT_GATE_FAILED", "H_domain_given_density": "INSTRUMENT_GATE_FAILED"}
+    explo = None
+    if not gate_ok:                                               # 只描述, 不判定(预注册: 不许事后换过滤器补判)
+        ex = R2.measure(keep_v3b, cl, by_key, m, cache)
+        i6b = {c: round(statistics.mean(up[c][r["frame"]] - r["acc_zh"] for r in d["per_frame"]), 4)
+               for c, d in ex.items() if d["per_frame"]}
+        base_ok = all(v for k, v in gate.items() if k != "I6_filter_preserves_text")
+        ok_b = base_ok and all(v <= I6_MAX for v in i6b.values())
+        explo = {"role": "EXPLORATORY_POST_HOC —— 主过滤器 I6 不过之后才写的 keep_v3b, **不作判定、不改注册表状态**",
+                 "root_cause": I6_ROOT_CAUSE, "I6_under_keep_v3b": i6b, "I6_would_pass": ok_b,
+                 "acc_zh_mean": {c: d["acc_zh_mean"] for c, d in ex.items()},
+                 "n_text_frames": {c: d["n_text_frames"] for c, d in ex.items()},
+                 "verdict_shaped_readout": judge_all(ex, chosen, np.random.default_rng(SEED)) if ok_b else None}
     cell_density = {c: {"D_median": statistics.median(dens_of(r) for r in d["per_frame"]) if d["per_frame"] else None}
                     for c, d in d3.items()}
     res = {"block": "OCR_CROSS_DOMAIN_R4", "measured_at": "2026-10-01",
@@ -344,6 +356,7 @@ def cmd_run():
            "verdicts": verdicts, "cell_density": cell_density,
            "cells": {"v3_bounded": {"role": "primary_preregistered", "cells": d3},
                      "no_filter_upper_bound": {"role": "I6_reference_only", "cells": results["no_filter_upper_bound"]}},
+           "exploratory_post_hoc": explo,
            "★deviations_registered": DEVIATIONS,
            "★prior_rounds_not_pooled": "第一到三轮数据只用于功效估算与档界先验, 不并入本轮判定。",
            "★no_transcriptions_in_repo": "本文件只有路径/sha/数字; 转写在仓外真值文件。"}
@@ -362,6 +375,27 @@ def cmd_run():
     return 0
 
 
+def keep_v3b(rows, nickname):
+    """★ 事后(I6 不过之后)的探索用过滤器, 不是本轮仪器: keep_v3 ② 用「行首 … 音号: 号码」整段删除,
+    OCR 把锚左侧同一行的正文并进锚框时会连正文一起删。v3b 先把锚框里「音号」前一字之前的前缀拆成独立行(无框, 不参与
+    ③④ 的几何判断)再交给 keep_v3, 其余规则不变。"""
+    out = []
+    for t, b in rows:
+        mm = R3.WM_ID.search(t)
+        k = None if not mm else max(0, mm.start() - (1 if t[mm.start():mm.start() + 2] == "音号" else 0))
+        if k and len(R1._core(t[:k])) >= 1:
+            out += [(t[:k], None), (t[k:], b)]
+        else:
+            out.append((t, b))
+    return R3.keep_v3(out, nickname)
+
+
+I6_ROOT_CAUSE = ("户外跑步|SPARSE 损失 0.0435 来自 2 帧(单帧损失 0.556 / 0.75): 底部一行免责声明与「抖音号: …」在同一水平线上, "
+                 "RapidOCR 把两者并成一个框(核心字 27), keep_v3 ② 的「行首到号码」整段删除连同前面的正文一起删掉。"
+                 "第三轮只验证了「号码之后的残余」保留, 没验证「号码之前的前缀」—— 同一条教训再次出现: 仪器在新版式上没先自检。"
+                 "另 户外跑步|DENSE 1 帧(t=0)锚正下方紧邻的大字标题被 ③ 当昵称删(字高约 1.2x 锚高 < 1.5x 阈值), 该格 I6 0.0091 未超限。")
+
+
 _DENS_CACHE = {}
 
 
@@ -371,7 +405,11 @@ def dens_of(row):
     return _DENS_CACHE[row["frame"].split("stackA_frames/")[1]][0]
 
 
-DEVIATIONS = []
+DEVIATIONS = [
+    "转写规则澄清(转写中途、任何被测 OCR 之前): 满屏平铺重复的背景品牌字样只录一次并记 partial(召回型指标, OCR 多读不罚)。",
+    "非偏离、如实登记(冻结真值前已知, 只看了有字帧计数): 户外跑步 SPARSE 68 候选耗尽只有 30 张有字帧(OK_REDUCED); "
+    "DENSE 三格候选 47/22/20, 户外跑步 22、智能家居 20 均耗尽(OK_REDUCED, 智能家居恰好等于下限 20); DENSE 候选无一帧真值无字。",
+]
 
 
 if __name__ == "__main__":
