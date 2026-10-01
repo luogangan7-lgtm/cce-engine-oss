@@ -141,7 +141,13 @@ def items() -> list[dict]:
     if at_v:
         _ev += (f"; 替代方案已试并实测: 原子分解 {at_v['decision']} "
                 f"{at_v['meeting_criterion']}/{at_v['texts']}(改善真实且非退化, 但未到 7/8 采纳线 ⇒ 不采纳)")
-    out.append({"类": OPEN, "项": "对齐出口 playbook_hit 不可靠, 替代已测但未达采纳线",
+    _pbd = all(os.path.exists(os.path.join(ROOT, f)) for f in (
+        "docs/decisions/PLAYBOOK_TRI_STATE_AUDIT_DECIDED_2026-10-01.md",
+        "results/align_atoms_tri.json", "results/align_atoms_tri_do.json"))
+    out.append({"类": DECIDED if _pbd else OPEN,
+                "项": ("对齐出口 playbook_hit 已退役: 三值主张层 + 构造稿准入(禁令 6/7 · 【做】8/11)落地" if _pbd else
+                       "对齐出口 playbook_hit 不可靠, 替代已测但未达采纳线"),
+                "前注": '★★★ 2026-10-01 **收口(授权代定, docs/decisions/PLAYBOOK_TRI_STATE_AUDIT_DECIDED_2026-10-01.md, owner 一句话可作废)**: playbook_hit 退役, 替代已落地 = V3 五题面面板 + 主张层三值 SATISFIED/VIOLATED/INDETERMINATE + complete_scan; 缺席结论须过构造稿准入(判据: 假结论单侧 95% 上界 <=0.10): 禁令 6/7 ADOPTED(results/align_atoms_tri.json, 252 次) · 【做】8/11 ADOPTED(results/align_atoms_tri_do.json, 238 次); itch#1 / injustice#0 / injustice#1 / suspend#2 的缺席结论按设计读 INDETERMINATE, 线不改, 再测须另立预注册换新难例。audit 写手指导串已走 Core 第五条路落地(AUDIT_PLAYBOOK_LANDED_ROUTE_5), 消融探针阴性对照根因已修并在改后文件上重跑通过。未测: 真实草稿上的漏检率、人类金标准确率 —— 属等真实使用量(BLOCKED 同源)。以下为历史证据, 一字未改: ' if _pbd else None,
                 "证据": _ev + ("。★ 下一步不是再换读数形态 —— 实测显示残余不稳定不在标尺上"
                                "(belong 的正向原子只剩 1 条, 连二值都在 0/1 间摆)。"
                                "要动的是 **playbook 原子本身**(措辞太抽象, 无法逐字指认), "
@@ -381,7 +387,12 @@ def items() -> list[dict]:
                              "属于**素材限制**而非我没做。" + U_USAGE)})
 
     _src, _cov = _ablation_coverage_now()
-    out.append({"类": OPEN, "项": "消融判决表已补工况并拆词, **覆盖率现算: %s**" % _cov,
+    _rv = os.path.exists(os.path.join(ROOT, "tests/data/ablation_v3/unreachable_revival.json"))
+    _rp = os.path.exists(os.path.join(ROOT, "tests/data/accuracy_real_provider_result.json"))
+    out.append({"类": BLOCKED if (_rv and not _rp) else OPEN,
+                "项": ("消融判决表: 零 API 部分已收口, 真实 provider 重测**等推送后在 workflow 跑**(覆盖率现算: %s)" if (_rv and not _rp) else
+                       "消融判决表已补工况并拆词, **覆盖率现算: %s**") % _cov,
+                "前注": '★★★ 2026-10-01 **零 API 部分已收口**: ② ksep 3 条已于 v3 重跑, 现算 corpus_lock 7/7 一致(语料再变由 test_cce_unreachable_revival 判红); ③ 7 条 UNREACHABLE 在复活工况做真消融(tests/data/ablation_v3/unreachable_revival.json): 生产 L2 7/7 不变, 复活工况 7/7 LOAD_BEARING_L2, 更正两处复活条件(v2-004 实为 R>=4 且 alpha<2/C(2R,R); v2-011/012/015 需放行 weight 且两侧 top1_stable); 顺带修掉同族缺陷 reply_batch 缺 top1 守卫(判决面并入 reply_loop.judge, 两路径 39/39 一致) 与 run_gates 空事实抽取崩溃(fail-closed 扣发); ① knot_taxonomy 与 s0/s2/s3 已消融, run_gates main()/G-K2 离线 7 臂全真、变异 7/7。★ 仍缺: 真实 provider 重测稳定性与锚例排除检验 —— 预注册已冻结(tests/data/accuracy_real_provider_prereg.json, <=200 次, sha 钉在 probes/accuracy_real_provider_run.py), 但 MINIMAX_API_KEY 只在 GitHub secrets, 本机没有 ⇒ 只能推送后在 workflow 里跑, **卡在 owner 裁定(是否同意推送到两仓)**。以下为历史证据: ' if (_rv and not _rp) else None,
                 "证据": ("★★★ 2026-09-11 覆盖率**由本脚本从 %s 现算**, 不再硬编 —— "
                          "此处原写死「只覆盖 17.3%%」且指向 v2, v3 落地后**它永远不会自己更新**。"
                          % (_src or "(判决表缺失)")) + ("★ 2026-09-06 两轮消融(88 agent)后重判, 见 tests/data/ablation_verdicts_v2.json。"
