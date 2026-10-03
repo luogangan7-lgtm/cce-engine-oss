@@ -92,8 +92,8 @@ _REAL_OPEN = builtins.open
 #   **core_files 六个 pin 与 parser_plane 四件逐字未动**(instrument_generation 仍 6) ——
 #   现算已在 tests/data/ablation_verdicts_v3.json 的 ★frozen_files_更新记录 里逐条留档。
 FROZEN_SHA8 = {
-    "scripts/cce_knot_classify.py": "d008a333cd233720",
-    "config/knot_taxonomy.json": "41d83598c45c5c86",
+    "scripts/cce_knot_classify.py": "15c95a3a3fff9d67",
+    "config/knot_taxonomy.json": "9a96ef98f88db6bb",
     # ★ 2026-10-01: knots[audit].playbook 新串落地(第五条路, refactor_log AUDIT_PLAYBOOK_LANDED_ROUTE_5)。
     #   换回旧串重算 = 56a1c1977bf8d18c; manifest 摘掉那条并改回 pin 重算 = e85cfc157d783ba5, 均与旧钉逐字节相同。
     #   见 ablation_verdicts_v3.json ★frozen_files_更新记录 / ★冻结件变更登记。
@@ -148,7 +148,11 @@ FROZEN_SHA8 = {
         # ★ 2026-10-01: 追加 GK2_EMPTY_FACTS_WITHHELD_NOT_CRASH(run_gates 空事实抽取 fail-closed 扣发, 闸 prompt 未动)。
         #   摘掉那条重算 = e85cfc157d783ba5, 与上一钉逐字节相同。见 ablation_verdicts_v3.json ★冻结件变更登记。
         # ★ 2026-10-01 同日合并: 再追加 AUDIT_PLAYBOOK_LANDED_ROUTE_5(两分支各追加一条 refactor_log, 合并后两条并存)。
-    "config/cce_core_manifest.json": "28e20d6267c44ee4",
+        # ★ 2026-10-03: 追加 GK1_V2_NO_ROBUST_PASS_RESTATED(owner「2和3都做吧」③, 第四条路纯描述性文本):
+        #   knot_taxonomy status/gate_record 与 cce_knot_classify CANDIDATE_CAVEAT 改述为「G-K1 未建立稳健通过证据」。
+        #   摘掉本次改动重算: taxonomy = 41d83598c45c5c86 · classify = d008a333cd233720 · manifest = 28e20d6267c44ee4, 均与旧钉逐字节相同。
+        #   见 ablation_verdicts_v3.json ★frozen_files_更新记录 / ★冻结件变更登记。
+    "config/cce_core_manifest.json": "c1e8ece8ce5ac860",
     "accuracy/run_gates.py": "62586ef7bd050df8",
 }
 

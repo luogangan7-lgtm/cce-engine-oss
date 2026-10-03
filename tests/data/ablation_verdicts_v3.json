@@ -78,7 +78,7 @@
    "note": "生产面 = 这三个目录下全部 *.py 递归 + config/ 顶层 *.json。tests/ 与 archive/ 不计入分母(它们是语料与守卫, 不是被消融的生产代码)。"
   },
   "scope_files": 302,
-  "scope_lines": 60999,
+  "scope_lines": 61064,
   "touched_files_union": [
    "accuracy/run_gates.py",
    "config/cce_core_manifest.json",
@@ -120,8 +120,8 @@
   ],
   "n_touched_files": 29,
   "file_level_pct": 9.6,
-  "lines_in_touched_files": 12598,
-  "line_level_pct_GENEROUS_UPPER_BOUND": 20.65,
+  "lines_in_touched_files": 12642,
+  "line_level_pct_GENEROUS_UPPER_BOUND": 20.7,
   "by_round": {
    "v2_only_files": [
     "config/need_taxonomy.json",
@@ -174,7 +174,7 @@
    "config/cce_archive_index.json": 1956,
    "config/cce_capability_registry_v1.json": 199,
    "config/cce_chain_conformance.json": 287,
-   "config/cce_core_manifest.json": 1815,
+   "config/cce_core_manifest.json": 1859,
    "config/cce_doc_reconciliation.json": 397,
    "config/cce_eval_benchmarks_v1.json": 201,
    "config/cce_foundation_contract_v1.json": 41,
@@ -421,7 +421,7 @@
    "scripts/cce_mechanism.py": 121,
    "scripts/cce_media_declaration.py": 153,
    "scripts/cce_necessary_condition_reach.py": 165,
-   "scripts/cce_open_items.py": 1038,
+   "scripts/cce_open_items.py": 1059,
    "scripts/cce_outbound_guard.py": 449,
    "scripts/cce_platform_adapter.py": 64,
    "scripts/cce_population.py": 459,
@@ -1318,7 +1318,7 @@
   ],
   "③_合计": {
    "n_files_never_touched": 273,
-   "lines_never_touched": 48401,
+   "lines_never_touched": 48422,
    "★为什么变了": [
     "2026-09-11 收口后 26596→26622: scripts/cce_open_items.py(从未触及)由 612 涨到 638 行 —— 把写死的「只覆盖 17.3%」改成现算所致。**本闸自己抓到的第二处连带**。",
     "2026-09-12 parser_plane 收口: 169→166 文件 / 26622→26301 行。减少的三件是 parser_plane 的 cce_case_assemble(144) · cce_event_assemble(125) · cce_platform_adapter(64) = 333 行; 同时 config/ontology_legacy_exceptions_v1.json 因补登 P1 豁免多了 12 行(它从未被触及, 故净变化 = -333+12 = -321)。",
@@ -2196,9 +2196,9 @@
   }
  ],
  "★frozen_files_sha256": {
-  "scripts/cce_knot_classify.py": "d008a333cd233720b09989071e20cae6f6b0d64c30da230616a3dccac1998ecf",
-  "config/knot_taxonomy.json": "41d83598c45c5c86d3a6eba8b489cc202d873bf7f4dde8206d7de46ef7c8c03d",
-  "config/cce_core_manifest.json": "28e20d6267c44ee416711138cfcea421b31e942afbd166cfa60decac39fabf3d",
+  "scripts/cce_knot_classify.py": "15c95a3a3fff9d67ebded810d5a71a74dfe5b230b89428f4cc79377d6f457032",
+  "config/knot_taxonomy.json": "9a96ef98f88db6bb35cc276ad7153bb96cf4a4d4a317d52ba5a7c4adbc11621a",
+  "config/cce_core_manifest.json": "c1e8ece8ce5ac860321be9e171c9f23846a6a6366641fee457a1676729ac408c",
   "accuracy/run_gates.py": "62586ef7bd050df87cd97dc961de9af70689053038850e4f15323c5671b72fea"
  },
  "★frozen_files_verdict": "第一轮开工前与收工后各算一次, 逐一相同。**第二轮(2026-09-11)出过一起事故并已还原**: 19:40:25 scripts/cce_knot_classify.py 被 L4 农场经 symlink 写穿真仓, 追加两行(空行 + `# refactor log reverse test`), sha f2cef2f99c949a75… → ad6503a8db0e871d…, 仓自己的 CORE_BOUNDARY 闸当场转红。造成它的 agent 已逐字节剥掉后缀 b'\\n# refactor log reverse test\\n' 并与并行 agent 的 pristine 副本逐行 diff 确认, `python3 scripts/cce_core_boundary.py` 重跑 = CORE_BOUNDARY_PASS。★ 收口时我自己第三次重算四个冻结件 sha256, 与 ★frozen_files_sha256 逐一相同(见 ★frozen_files_recheck_this_round)。★ 因此: 若某个产物的 file_integrity 报 sha_after=ad6503a8…, 那是事故窗口内的读数, **已失效**; 一律按 f2cef2f99c949a75… 比对。根因与修法见 ★claims_exceeding_evidence 的 CE-17(L4 农场必须实拷贝, 禁止 symlink)。",
@@ -23697,6 +23697,27 @@
    "改的是哪一半": "只改 knots[audit].playbook 的值: 交付载荷(v3-203)与 cce_align_v2 拆除判官规范(v3-205)变; P 的 instrument_hash / s2 模板与 G 的闸材料逐字不变(v3-204 仍 NO_CONSUMER)。",
    "★判决表是否仍然有效": "是, 按重跑而非援引: 分类学消融在改后文件上重跑, 对照双向通过、37 行与改前逐字节相同; v3-203/v3-205 的消费者现算到达新串; v3-326(截断 [:120])仍 UNREACHABLE(最长 playbook 69 字)。v3-205 证据里的基线 PLAYBOOK 表 sha(c7bc4b12540317eb)是旧串下的值, 判决词不变。",
    "行为证据": "tests/test_cce_audit_playbook_landed.py"
+  },
+  {
+   "日期": "2026-10-03",
+   "变更": "G-K1 v2 现行状态改述为「未建立稳健通过证据」(owner「2和3都做吧」③, Core 第四条路纯描述性文本; refactor_log GK1_V2_NO_ROBUST_PASS_RESTATED)",
+   "改了": {
+    "config/knot_taxonomy.json": {
+     "from": "41d83598c45c5c86",
+     "to": "9a96ef98f88db6bb"
+    },
+    "scripts/cce_knot_classify.py": {
+     "from": "d008a333cd233720",
+     "to": "15c95a3a3fff9d67"
+    },
+    "config/cce_core_manifest.json": {
+     "from": "28e20d6267c44ee4",
+     "to": "c1e8ece8ce5ac860"
+    }
+   },
+   "改的是哪一半": "只改自述文本: taxonomy 的 status 与 annotation_protocol.gate_record、classify 的 CANDIDATE_CAVEAT 字面、manifest 的 gate_protocol_expected.★status + 两个 pin + 两条 refactor_log。进 prompt 的字段一个未动: instrument_hash d4cce4c745f3f991 · qualification_policy_hash b41ef5217a77d311 · s2 模板 b8d0f60d66d10f12 · gate_protocol_hash dbdff13f9da155bc · gate_materials 全同(改前/改后并排现算); caveats() 仍 3 条(status 仍含「未验」, v3-224 通道行为不变)。",
+   "★判决表是否仍然有效": "是, 按重跑而非援引: probes/knot_taxonomy_ablation.py 在改后文件上重跑(零 API, 8 base 存量 draw): 对照双向通过, 37 行判决词与存档逐行相同; 且与在改前 HEAD 拷贝上重跑的产物 JSON 全同 —— 存档里只有 code_refs 粗计与现跑不同, 那是 10-01 之后源码树增长所致(改前改后同值), 与本次改动无关, 故存档不重写。 v3-224(taxo['status'] @P LOAD_BEARING_L2)的通道是「未验」保险丝, 改后仍触发。",
+   "行为证据": "tests/test_cce_gk1_no_live_pass_claim.py · tests/test_cce_knot_caveat.py · tests/test_cce_audit_playbook_landed.py"
   }
  ],
  "★frozen_files_更新记录": [
@@ -24186,6 +24207,33 @@
    "★同日合并": "与 GK2_EMPTY_FACTS_WITHHELD_NOT_CRASH 两分支并行追加; 合并后链为 e85cfc157d783ba5 → f161311f2c4b6e4c(run_gates) → 28e20d6267c44ee4(audit)。摘掉 AUDIT 那条并把 taxonomy pin 改回 56a1c1977bf8d18c 重算 = f161311f2c4b6e4c(现算)。",
    "★为什么允许更新": "core_files 里 knot_taxonomy.json 的 pin 更新 + refactor_log 追加 AUDIT_PLAYBOOK_LANDED_ROUTE_5。其余五个 pin 与 parser_plane 四件逐字未动, instrument_generation 仍 6。",
    "★★★这句话不是我说了算, 是现算的": "摘掉那一条并把 pin 改回 56a1c1977bf8d18c 重算 sha = e85cfc157d783ba5, 与旧钉逐字节相同。",
+   "★这条哈希本来防什么": "防未经记录的改动。"
+  },
+  {
+   "date": "2026-10-03",
+   "file": "config/knot_taxonomy.json",
+   "from": "41d83598c45c5c86",
+   "to": "9a96ef98f88db6bb",
+   "★为什么允许更新": "第四条路改述 status 与 annotation_protocol.gate_record(refactor_log GK1_V2_NO_ROBUST_PASS_RESTATED)。只改这两个自述值。",
+   "★★★这句话不是我说了算, 是现算的": "把两处换回改前原文重算 sha = 41d83598c45c5c86, 与旧钉逐字节相同。",
+   "★这条哈希本来防什么": "防未经记录的改动。"
+  },
+  {
+   "date": "2026-10-03",
+   "file": "scripts/cce_knot_classify.py",
+   "from": "d008a333cd233720",
+   "to": "15c95a3a3fff9d67",
+   "★为什么允许更新": "第四条路改述 CANDIDATE_CAVEAT 正文(同上条 refactor_log)。只改这一个字符串。",
+   "★★★这句话不是我说了算, 是现算的": "把 CANDIDATE_CAVEAT 换回旧句重算 sha = d008a333cd233720, 与旧钉逐字节相同。",
+   "★这条哈希本来防什么": "防未经记录的改动。"
+  },
+  {
+   "date": "2026-10-03",
+   "file": "config/cce_core_manifest.json",
+   "from": "28e20d6267c44ee4",
+   "to": "c1e8ece8ce5ac860",
+   "★为什么允许更新": "core_files 两个 pin(taxonomy/classify)更新 + refactor_log 追加两条 GK1_V2_NO_ROBUST_PASS_RESTATED + gate_protocol_expected.★status 改述。其余四个 pin、parser_plane 四件、instrument_generation(6)、gate_protocol_expected 的 version/hash 逐字未动。",
+   "★★★这句话不是我说了算, 是现算的": "摘掉那两条、把两个 pin 与 ★status 改回原值重算 sha = 28e20d6267c44ee4, 与旧钉逐字节相同。",
    "★这条哈希本来防什么": "防未经记录的改动。"
   }
  ],

@@ -1160,7 +1160,7 @@ def _stage2_aggregate(prompt, taxo, n=None):
 
 # ── 铁律 23: 九结是 candidate ontology ────────────────────────────────
 UNVERIFIED_MARKERS = ("未跑", "未验")
-CANDIDATE_CAVEAT = "结分类学 v1: G-K1 两项指标达标但**面板从未被有效认证**(v2 三态下五人全 UNRESOLVED); **belong 在评论上是单元错配非死类** · G-K3 原判已撤销(重言) · G-K2 不可判 · **外部效度未被证伪但远未确立** · **类空间塌陷是仪器性质** —— 引用须带「未验」"
+CANDIDATE_CAVEAT = "结分类学 v1: **G-K1 未建立稳健通过证据**(同闸协议 v2 两次运行 JS 0.2422 过线 / 0.2601 不过; v3 推理型四人 UNRESOLVED; 见 tests/data/gk1_fail_diagnosis_2026-10-03.json) · **面板从未被有效认证**(v2 三态下五人全 UNRESOLVED); **belong 在评论上是单元错配非死类** · G-K3 原判已撤销(重言) · G-K2 不可判 · **外部效度未被证伪但远未确立** · **类空间塌陷是仪器性质** —— 引用须带「未验」"
 BASE_CAVEATS = [
     "全占比: knots 是带权组合,禁把单个 top 当断言",
     "第1级情绪层禁单top(4模型面板判);行动层无分辨率(三重合证),两处以分布/appraisal为准",

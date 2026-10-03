@@ -55,7 +55,19 @@ def test_ablation_rerun_on_the_landed_file():
 def test_route_5_registration():
     """第五条路四件: pin 已更新 · refactor_log 有完整转移且写明两半 · 可比不可合声明 · instrument_expected 现算相符(上面)。"""
     e = [x for x in MAN["refactor_log"] if x.get("event") == "AUDIT_PLAYBOOK_LANDED_ROUTE_5"]
-    assert len(e) == 1 and e[0]["to_sha"] == MAN["core_files"]["config/knot_taxonomy.json"]
+    assert len(e) == 1
+    # ★ 2026-10-03: 原写「本条 to_sha == 当前 pin」, 是位置依赖(假定本条永远是最后一次改 taxonomy) ——
+    #   GK1_V2_NO_ROBUST_PASS_RESTATED(只改 status/gate_record 自述)把 pin 合法地往前推了一格就断。
+    #   按登记链定位: 从本条 to_sha 出发, 每一跳都必须是 refactor_log 里的完整转移, 走得到当前 pin。
+    #   后续跳没动 playbook 由 test_landed_text_is_the_decided_text 现算。
+    nxt = {x["from_sha"]: x["to_sha"] for x in MAN["refactor_log"] if x.get("file") == "config/knot_taxonomy.json"}
+    cur = e[0]["to_sha"]
+    for _ in range(len(nxt) + 1):
+        if cur == MAN["core_files"]["config/knot_taxonomy.json"]:
+            break
+        assert cur in nxt, "★ 从 AUDIT_PLAYBOOK_LANDED_ROUTE_5 的 to_sha 走不到当前 pin: %s 之后没有登记转移" % cur
+        cur = nxt[cur]
+    assert cur == MAN["core_files"]["config/knot_taxonomy.json"]
     assert e[0]["from_sha"] == "56a1c1977bf8d18c" and e[0]["instrument_hash_unchanged"] is True
     assert "★which_half_of_behavior_changed" in e[0] and "可比不可合" in e[0]["★可比不可合"]
     assert "tests/test_cce_audit_playbook_landed.py" in e[0]["behavior_evidence"]

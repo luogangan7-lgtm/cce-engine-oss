@@ -33,7 +33,7 @@ prompt 照样成形、模型照样被调用、分数照样产出, **全仓一条
   ❌ **截断一半** · ❌ **两个结的判别式对调** —— 这两条本闸**抓不到**,
      因为文件一改, 比对的两边**一起变**, 判据退化成同义反复。
 ⇒ 内容漂移由**另一道闸**管: `config/knot_taxonomy.json` 被 `config/cce_core_manifest.json:core_files`
-  以 sha256 钉住(现值 41d83598c45c5c86, 2026-10-01 audit.playbook 落地后), `scripts/cce_core_boundary.py` 逐文件比对。
+  以 sha256 钉住(现值 9a96ef98f88db6bb, 2026-10-03 status/gate_record 改述后; 2026-10-01 audit.playbook 落地后为 41d83598c45c5c86), `scripts/cce_core_boundary.py` 逐文件比对。
   已实算: 截断后 sha → 31677b24e5fdf15e · 对调后 → 3b704904caa8eb7c, **两者都 ≠ 钉住值 ⇒ 必红**。
 ★ 所以本闸**依赖那个钉**。`test_the_content_pin_this_gate_relies_on_is_still_in_place` 把这个依赖
   显式钉住 —— 哪天有人把 taxonomy 从 core_files 里拿掉, 内容就**没人管了**, 本闸会先红说出来,

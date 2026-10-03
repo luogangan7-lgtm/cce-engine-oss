@@ -11,11 +11,11 @@
   "★covers": "accuracy/run_gates 的 KNOT_BRIEF + DECISION_TREE + NEGATIVE_EXAMPLES + DIST_TMPL —— **标注者实际看到的全部材料**",
   "★why": "闸与生产是**两台仪器**。改 knots[].negative_examples_prompt 会改闸的 prompt 而 **instrument_hash 一字不变** ⇒ 若只有一个版本号, 这类改动就成了**静默换闸**。",
   "★how_to_change": "**第六条路 · GATE_PROTOCOL_CHANGE**(2026-09-09 提案, 未启用): ① 更新 pin ② **不递增 instrument_generation**(P 没变), 但**递增 gate_protocol_version** 并更新本 hash ③ refactor_log 追加一条, 事件类型写 **GATE_PROTOCOL_CHANGE** —— **不得冒充「行为不变的 refactor」** ④ 声明改动前后的 G 读数**可比不可合**, 旧 PASS 不自动继承适用范围 ⑤ 结论模板必带「本修法不改变生产分类器」 ⑥ **启用**新版 G 之前必须重跑一次完整验收闸并落盘(**登记候选 ≠ 启用**) ⑦ **全负例组回归** —— 实测「仅收藏」组在候选修法下从 30% 升到 50%(方向反了), 而原判据只覆盖 6 个负例组里的 2 个。★★ 本路**尚未写进 how_to_change_core, 尚未启用** —— 见 tests/data/proposed_route_6_prereg.json。",
-  "★status": "**v2 已启用**(2026-09-09)。第⑤条完整验收闸已重跑并落盘, G-K1 两项均达标。★ 与 v1 的读数**可比不可合**。★★ 余量极薄, 见 refactor_log 的代价一节。"
+  "★status": "**v2 已启用**(2026-09-09)。第⑤条完整验收闸已重跑并落盘; 启用依据是那**一次**运行的 G-K1 两项点估计过线(mean_JS 0.2422 ≤0.25, 单次读数, 原数不改)。★★★ 2026-10-03 改述: **G-K1 v2 未建立稳健通过证据** —— 同一闸协议 v2(hash dbdff13f9da155bc)两次运行 mean_JS 0.2422(2026-09-09 v2 启用验收, 过线)/ 0.2601(2026-10-01 真实端到端, 不过), 配对差 95%CI [-0.0111, 0.0496] 含 0, 条目聚类自助 95%CI 上界两次 0.2859 / 0.3094 均 >0.25 —— tests/data/gk1_fail_diagnosis_2026-10-03.json; G-K1 v3(R=4 次独立运行、条目×运行交叉自助单侧 95%)推理型四人 UNRESOLVED(μ_D 0.2548, 上界 0.2923)、含 Text-01 五人 FAIL(μ_D 0.3190, 下界 0.2830) —— tests/data/gk1_v3_result.json; 记录口径取自 tests/data/webgpt_consultation_2026-10-03_gk1.json。★ 「v2 已启用」只指验收闸协议版本在用, 与 G-K1 是否稳健过线无关。★ 与 v1 的读数**可比不可合**。★★ 余量极薄, 见 refactor_log 的代价一节。"
  },
  "core_files": {
-  "config/knot_taxonomy.json": "41d83598c45c5c86",
-  "scripts/cce_knot_classify.py": "d008a333cd233720",
+  "config/knot_taxonomy.json": "9a96ef98f88db6bb",
+  "scripts/cce_knot_classify.py": "15c95a3a3fff9d67",
   "scripts/cce_ksep.py": "ffd5d26a7e0cb29b",
   "scripts/exp_crossmodel_desire.py": "0920933d6ed3bd41",
   "scripts/exp_v4_full_validation.py": "f934b56b01b6b6b2",
@@ -1807,6 +1807,50 @@
    "★可比不可合": "playbook_hit / playbook_mode / playbook_atoms(GEN1–GEN4)与 cce_align_v2 dissolve_hit 在 audit 上的读数都是在旧串(含「接受检验的姿态」)下产出的; 新串下若再产出, 与旧读数可比不可合, 不汇总成一个 n。这三个读数已退役(对齐出口改走 cce_align_atoms v5/V3 + 三值层), 故不另立新预注册; 谁要在新串上重启它们, 必须先另立预注册。",
    "★not_rerun_and_why": "ablation_verdicts_v2 的 dissolve_hit() 三票抽样判决(LOAD_BEARING_L1_ONLY)未重跑(需真实调用): 它的四臂把判官输出换成常量, 臂间比较不读 playbook 文本; 但其 A0 基线 0.0384 是旧串下的读数, 与新串可比不可合。",
    "★回滚点": "把 knots[audit].playbook 改回旧串 ⇒ sha 回到 56a1c1977bf8d18c; 同时撤销本条与 ablation_verdicts_v2/v3、test_cce_ablation_harness_injection_reach 的对应登记。"
+  },
+  {
+   "date": "2026-10-03",
+   "event": "GK1_V2_NO_ROBUST_PASS_RESTATED",
+   "file": "config/knot_taxonomy.json",
+   "from_sha": "41d83598c45c5c86",
+   "to_sha": "9a96ef98f88db6bb",
+   "route": "第四条路(纯描述性文本: 改的是**现状自述**, 不是仪器, 也不是闸)",
+   "changed_field": "status · annotation_protocol.gate_record",
+   "reason": "owner 2026-10-03「2和3都做吧」③: 把 G-K1 v2 时期(2026-09-07 资格考生效后重跑、2026-09-09 闸协议 v2 启用验收)的「G-K1 通过 / 两项达标 / ✅」在**现行状态字段**里改述为「G-K1 未建立稳健通过证据」。依据(数字现读自文件, 不手抄): 同一闸协议 v2(hash dbdff13f9da155bc)两次运行 mean_JS 0.2422(2026-09-09 v2 启用验收, 过线)/ 0.2601(2026-10-01 真实端到端, 不过), 配对差 95%CI [-0.0111, 0.0496] 含 0, 条目聚类自助 95%CI 上界两次 0.2859 / 0.3094 均 >0.25 —— tests/data/gk1_fail_diagnosis_2026-10-03.json; G-K1 v3(R=4 次独立运行、条目×运行交叉自助单侧 95%)推理型四人 UNRESOLVED(μ_D 0.2548, 上界 0.2923)、含 Text-01 五人 FAIL(μ_D 0.3190, 下界 0.2830) —— tests/data/gk1_v3_result.json; 记录口径取自 tests/data/webgpt_consultation_2026-10-03_gk1.json。★ 历史数字、历史留档、changelog_*、★qualification_premise_of_the_2026-09-07_PASS_is_revised、预注册与结果文件**一字未改**; accuracy/run_gates.py 判定逻辑未动。",
+   "★★★谁裁的": "owner 拍板做③(改述口径「未建立稳健通过证据」); 措辞与落点由 agent 执行, owner 一句话可整体作废, 回滚点见 ★回滚点。",
+   "instrument_hash_unchanged": true,
+   "gate_protocol_hash_unchanged": true,
+   "behavior_evidence": [
+    "tests/test_cce_gk1_no_live_pass_claim.py",
+    "tests/test_cce_knot_caveat.py",
+    "tests/test_cce_qualification_premise_revised.py",
+    "tests/test_cce_core_boundary.py"
+   ],
+   "★which_half_of_behavior_changed": "**变了**: `status` 正文(它进 cce_knot_classify 交付载荷的 taxonomy_status)与 `annotation_protocol.gate_record` 正文。**没变**: 任何进 prompt 的字段 —— 并排现算改前/改后: instrument_hash d4cce4c745f3f991 · qualification_policy_hash b41ef5217a77d311 · s2 模板 sha b8d0f60d66d10f12 · gate_protocol_hash dbdff13f9da155bc · gate_materials 全同; caveats() 仍 3 条且 CANDIDATE_CAVEAT 在首位(status 仍含「未验」保险丝标记 ⇒ v3-224 的 LOAD_BEARING_L2 通道行为不变)。status 在 taxonomy_field_reach_ledger 判 NEITHER, gate_record 不在闸材料里(gate_protocol_hash 不变即其证)。",
+   "★evidence_is_required_because": "★ 「instrument_hash / gate_protocol_hash 没变」**不足以**证明行为没变 —— 本次行为**确实变了**(交付载荷里的 taxonomy_status 自述变了)。真证据: tests/test_cce_gk1_no_live_pass_claim.py 现算现行状态字段里无无保留的 G-K1 通过主张、引用的每个数与证据文件逐值相等, 且变异(把一处改述改回旧句)判红; tests/test_cce_knot_caveat.py 断言 caveats() 条数/次序/首位不变。",
+   "★可比不可合": "不涉及读数: 本次不产生、不改动任何 G-K1 读数; 0.9042/0.2321、0.8812/0.2422 作为单次运行的历史读数原样保留。",
+   "★同批": "同批非 core 改动(同一口径): config/cce_core_manifest.json 的 gate_protocol_expected.★status(manifest 不在 core_files, 由 FROZEN_SHA8 与 ablation_verdicts_v3 冻结件登记管) · scripts/cce_open_items.py 两处证据文本(数字运行时从证据文件现读) · README.md 的 Status 段。",
+   "★回滚点": "把 status / gate_record 换回改前原文 ⇒ sha 回到 41d83598c45c5c86(已现算核对)。"
+  },
+  {
+   "date": "2026-10-03",
+   "event": "GK1_V2_NO_ROBUST_PASS_RESTATED",
+   "file": "scripts/cce_knot_classify.py",
+   "from_sha": "d008a333cd233720",
+   "to_sha": "15c95a3a3fff9d67",
+   "route": "第四条路(纯描述性文本: 改 caveat 正文, 因为它的「G-K1 两项指标达标」已不是现状)",
+   "changed_field": "CANDIDATE_CAVEAT 正文",
+   "reason": "owner 2026-10-03「2和3都做吧」③: 把 G-K1 v2 时期(2026-09-07 资格考生效后重跑、2026-09-09 闸协议 v2 启用验收)的「G-K1 通过 / 两项达标 / ✅」在**现行状态字段**里改述为「G-K1 未建立稳健通过证据」。依据(数字现读自文件, 不手抄): 同一闸协议 v2(hash dbdff13f9da155bc)两次运行 mean_JS 0.2422(2026-09-09 v2 启用验收, 过线)/ 0.2601(2026-10-01 真实端到端, 不过), 配对差 95%CI [-0.0111, 0.0496] 含 0, 条目聚类自助 95%CI 上界两次 0.2859 / 0.3094 均 >0.25 —— tests/data/gk1_fail_diagnosis_2026-10-03.json; G-K1 v3(R=4 次独立运行、条目×运行交叉自助单侧 95%)推理型四人 UNRESOLVED(μ_D 0.2548, 上界 0.2923)、含 Text-01 五人 FAIL(μ_D 0.3190, 下界 0.2830) —— tests/data/gk1_v3_result.json; 记录口径取自 tests/data/webgpt_consultation_2026-10-03_gk1.json。★ 历史数字、历史留档、changelog_*、★qualification_premise_of_the_2026-09-07_PASS_is_revised、预注册与结果文件**一字未改**; accuracy/run_gates.py 判定逻辑未动。",
+   "instrument_hash_unchanged": true,
+   "behavior_evidence": [
+    "tests/test_cce_knot_caveat.py",
+    "tests/test_cce_gk1_no_live_pass_claim.py",
+    "tests/test_cce_qualification_premise_revised.py"
+   ],
+   "★which_half_of_behavior_changed": "**变了**: 首条 caveat 的字面(「G-K1 两项指标达标但…」→「G-K1 未建立稳健通过证据(…) · 面板从未被有效认证…」)。**没变**: caveat 出不出现的判据(UNVERIFIED_MARKERS)、caveats() 条数与次序、任何读数计算与 prompt(并排现算改前/改后: instrument_hash d4cce4c745f3f991 · qualification_policy_hash b41ef5217a77d311 · s2 模板 sha b8d0f60d66d10f12 · gate_protocol_hash dbdff13f9da155bc · gate_materials 全同)。",
+   "★evidence_is_required_because": "★ 「instrument_hash 没变」**不足以**证明行为没变 —— 它由 taxonomy+参数现算, 与源码字节无关; 本次行为确实变了(caveat 字面)。真证据: tests/test_cce_knot_caveat.py 的 CURRENT 冻结新正文并断言条数/次序/首位不变; 把 CANDIDATE_CAVEAT 换回旧句重算 sha = d008a333cd233720(与旧钉逐字节相同)。",
+   "★可比不可合": "不涉及读数。",
+   "★回滚点": "CANDIDATE_CAVEAT 换回旧句 ⇒ sha 回到 d008a333cd233720。"
   }
  ],
  "★why_exp_v4_is_core": "★ 2026-09-06 加入 Core。它持有 **s1 的真实 prompt**(build_prompt + EMOTIONS/ACTIONS/NEED_KEYS/NEED_TAXO/DESIRE_TAXO/appraisal 规范/输出 schema) —— gen6 起这些**全部进指纹**。消融审计的完备性批评指出: 它是「stage1 的真实测量体」, 却从未进过 Core 清点。★ 它的文件名骗人(叫 exp_*, 像实验脚本), 而它是生产内核 —— 文件里自己写着这句话, 作者是 2026-09-01 差点按名字把它当清理对象的那次。",

@@ -49,6 +49,24 @@ def _j(rel):
     return json.load(open(os.path.join(ROOT, rel), encoding="utf-8"))
 
 
+def _gk1_v2_restated():
+    """★★★ 2026-10-03 owner「2和3都做吧」③: v2 时期的「G-K1 通过」在现行状态里改述为「未建立稳健通过证据」。
+    数字从证据文件现读; 读不到就如实说, 不回落到任何旧数字。守卫: tests/test_cce_gk1_no_live_pass_claim.py"""
+    head = "★★★ 2026-10-03 改述: **G-K1 v2 未建立稳健通过证据**"
+    try:
+        d, v = _j("tests/data/gk1_fail_diagnosis_2026-10-03.json"), _j("tests/data/gk1_v3_result.json")
+    except FileNotFoundError:
+        return head + "(证据文件读不到 —— 数字未知, 不是某个旧数字)。"
+    h, b = d["③headline"], d["⑨item_cluster_bootstrap"]
+    return (head + " —— 同一闸协议 v2(hash %s)两次运行 mean_JS %s 过线 / %s 不过, 配对差 95%%CI %s 含 0, "
+            "条目聚类自助 95%%CI 上界两次 %s / %s 均 >%s(tests/data/gk1_fail_diagnosis_2026-10-03.json); "
+            "v3 推理型四人 %s、含 Text-01 五人 %s(tests/data/gk1_v3_result.json); "
+            "口径取自 tests/data/webgpt_consultation_2026-10-03_gk1.json。"
+            % (d["②comparability_run_params(A, B)"]["gate_protocol_hash"][0], h["A_mean_JS"], h["B_mean_JS"],
+               b["paired_diff_B_minus_A_CI95"], b["A_CI95"][1], b["B_CI95"][1], h["threshold"],
+               v["P4_primary"]["verdict"], v["P5_comparison_only"]["verdict"]))
+
+
 def items() -> list[dict]:
     out = []
 
@@ -286,7 +304,9 @@ def items() -> list[dict]:
                              f"{t['armB_生产字段集']['mean_JS']}(越线概率 "
                              f"{t['armB_生产字段集']['自助越线率']:.1%}); 配对自助差 "
                              f"{fs['★diff_JS_B_minus_A']['点估计']} CI {fs['★diff_JS_B_minus_A']['配对自助95%CI']} 不含 0。"
-                             f"⇒ **「G-K1 通过」对闸的字段集成立, 对生产实际看到的字段集不成立。** "
+                             f"⇒ **闸字段集那次读数在 0.25 线下, 生产字段集越线。** "
+                             f"(原句「G-K1 通过对闸的字段集成立」已于 2026-10-03 撤回: 闸字段集上的 G-K1 v2 本身也"
+                             f"**未建立稳健通过证据**, 见 suspend/闸协议 v2 一项) "
                              f"★★ 注: arm B 的 JS 是「**使用生产材料的标注者面板**」的一致性, "
                              f"**不是真实生产分类器的信度** —— 后者(完整流程 top-1 重测)**仍是空的**, "
                              f"且不能由前者填上(变异来源不可互换)。见 tests/data/four_claims_separate.json。 "
@@ -337,8 +357,9 @@ def items() -> list[dict]:
             cost = v2r["★★★但代价必须单独说"]["★★越 0.25 线的自助概率"]
             out.append({"类": DECIDED,
                         "项": "suspend 修法**已落地** —— 闸协议 v1→v2 已启用(route 6 · GATE_PROTOCOL_CHANGE)",
-                        "证据": (f"G-K1 判据一字未改且两项达标: top2 0.9040→0.8812 ≥0.80 · "
-                                 f"mean_JS 0.2190→0.2422 ≤0.25。"
+                        "证据": (f"启用验收那**一次**运行: G-K1 判据一字未改, 两项点估计过线 top2 0.9040→0.8812 ≥0.80 · "
+                                 f"mean_JS 0.2190→0.2422 ≤0.25(单次读数, 原数不改)。"
+                                 + _gk1_v2_restated() +
                                  f"★★ **代价**: 越 0.25 线的自助概率 {cost['v1']} → {cost['v2']}, "
                                  f"余量从 0.031 缩到 0.0078(0.16 个跨对 SD) ⇒ **PASS 不是二值事实**。"
                                  f"★ 资格考五员全 5/5 但按三态判据**全部 UNRESOLVED**, "
