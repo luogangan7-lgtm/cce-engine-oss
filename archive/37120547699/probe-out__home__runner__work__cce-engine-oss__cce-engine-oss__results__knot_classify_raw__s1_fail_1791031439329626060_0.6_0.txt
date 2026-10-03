@@ -1,0 +1,71 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.10,
+      "成为欲": 0.00,
+      "摆脱欲": 0.20,
+      "确认欲": 0.25,
+      "超越欲": 0.00,
+      "归属欲": 0.05,
+      "控制欲": 0.10,
+      "安全感欲": 0.30,
+      "向往欲": 0.00
+    },
+    "note": "此人是助听器佩戴者(身处r/HearingAids)，助听器属于依赖性医疗器械。核心驱动是『电池必须可靠』的底层焦虑(安全感欲主导);其次是想确认『原来充电款也很好用』这个新认知(确认欲);并隐性想摆脱一次性电池反复更换的不便(摆脱欲);再叠加对具体品牌/型号的占有期待(拥有欲)与对设备维护节奏的掌控(控制欲);最后有微弱的『找到同类』社群归属感(归属欲)。"
+  },
+  "need_layer": [
+    {"code": "N01_确定性", "context_slot": "对方说可充电电池用2年仍能用——读者要把『充电款到底行不行/能撑多久』的不确定性降下来", "weight": 0.30, "derived_from": "由安全感欲经『看到他人正面反馈』这一情境事件衍生"},
+    {"code": "N10_自我确认", "context_slot": "读者本来对充电款有疑虑/好奇，他人反馈印证了『充电款好用』这个初步判断，要被背书", "weight": 0.20, "derived_from": "由确认欲经『得知陌生同好给出好评』衍生"},
+    {"code": "N06_摆脱痛苦", "context_slot": "不想再被一次性电池的频繁更换、购买、漏液等麻烦反复消耗", "weight": 0.15, "derived_from": "由摆脱欲经『充电款竟然能撑2年』这一关键事实衍生"},
+    {"code": "N11_归属群体", "context_slot": "在助听器使用者社群中，向另一个真实用户请教以建立『同病相怜』的联系", "weight": 0.15, "derived_from": "由归属欲经『r/HearingAids中看到同行反馈』衍生"},
+    {"code": "N03_提升能力", "context_slot": "学习具体品牌/型号/使用经验等可迁移的选购与维护知识", "weight": 0.10, "derived_from": "由控制欲经『需要更会打理自己的助听器』衍生"},
+    {"code": "N07_占有资源", "context_slot": "在确认充电款靠谱后，想获得那个具体的品牌/产品", "weight": 0.10, "derived_from": "由拥有欲经『对方暗示了产品耐用』衍生"}
+  ],
+  "appraisal": {
+    "goal_relevance": 0.85,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "情境(他人充电电池的正面反馈)与读者『电池必须可靠/好用』的核心目标高度相关(content_relevance高);他人评价直接回答了『充电款能用吗/撑多久』，是促进方向;当场读到这条评论就解除了部分焦虑(已满足→正);读者只需追问品牌就能进入决策，应对潜能高(可继续趋近、问询、购买)。所以情绪是偏正且温和的relief+curiosity，而非fear。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.00,
+      "joy喜悦": 0.10,
+      "gratitude感激": 0.15,
+      "desire渴望": 0.10,
+      "nostalgia怀旧": 0.00,
+      "pride自豪": 0.00,
+      "love爱": 0.00,
+      "relief宽慰": 0.35,
+      "approval认同": 0.05,
+      "curiosity好奇": 0.25,
+      "fear恐惧": 0.00,
+      "sadness悲伤": 0.00,
+      "anger愤怒": 0.00
+    },
+    "note": "原文直接写明『It's a relief』导出relief宽慰(权重最高);评论揭示『2年后电池仍能用』与读者『确定性/摆脱痛苦』需求在评价层得到促进+已满足→正情绪，叠加对品牌的未知导出curiosity好奇(追问『What brand』);对方提供了有用信息→产生gratitude感激(『if you don't mind me asking』的礼貌姿态也是感激的语义标记);确认充电款好用→desire渴望(也想要那个产品);得知产品确实耐用→轻度joy喜悦;点头同意对方的结论→approval认同。fear=0因为已满足+应对高，不应凭空出现。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.40,
+      "avoidance回避": 0.05,
+      "attend关注": 0.35,
+      "reject拒斥": 0.00,
+      "agonistic对抗": 0.00,
+      "interrupt中断": 0.00,
+      "dominate支配": 0.20
+    },
+    "note": "原文主体就是一个『提问』动作+一个『礼貌求教』动作：approach趋近(主动靠近对方、靠近充电款方案);attend关注(聚焦对方经验细节、等待品牌回复);dominate支配(想『自己掌握信息后做决定』的掌控感,由『if you don't mind me asking』的主动发问体现);avoidance极弱,仅指『面对一次性电池旧方案的回避』。"
+  },
+  "chain_trace": "安全感欲+摆脱欲 →(情境事件：在r/HearingAids看到陌生用户说可充电电池用了近2年仍耐用)→ 需求N01_确定性+N06_摆脱痛苦 →(评价：goal_relevance=0.85、congruence_direction=促进、need_status=已满足→goal_congruence=正、coping_potential=高)→ 情绪relief宽慰+curiosity好奇+gratitude感激 → 行动倾向approach趋近+attend关注+dominate支配 的完整推导：读者因依赖助听器而对电池可靠性焦虑,看到同行正面反馈后焦虑当场被释放(正情绪),于是主动趋近、继续追问品牌、等待拿回对自己设备选型的掌控权。"
+  "evidence": {
+    "desire": "I didn't know they are this much convenient and their batteries still hold almost after 2 years",
+    "need": "It's a relief to hear good feedbacks about rechargeable batteries",
+    "emotion": "It's a relief to hear good feedbacks about rechargeable batteries",
+    "action": "What brand do you have and are you happy with yours, if you don't mind me asking?"
+  }
+}
+```
