@@ -1,0 +1,89 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.1,
+      "成为欲": 0.0,
+      "摆脱欲": 0.3,
+      "确认欲": 0.1,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.35,
+      "安全感欲": 0.1,
+      "向往欲": 0.05
+    },
+    "note": "主要激活控制欲(掌控自己的听力改善进程)和摆脱欲(摆脱当前助听器声音太大、缺失某些声音的不适状态)，辅以确认欲(确认选择第二套助听器是对的)、安全感欲(消除对听力效果的不确定感)、拥有欲(拥有更好的听力体验)、向往欲(向往正常听力的生活)"
+  },
+  "need_layer": [
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "刚开始戴助听器时声音太大(frequency too loud)，某些声音缺失(missing sounds)，感到对听力体验失去控制",
+      "weight": 0.4,
+      "derived_from": "由<控制欲>经<助听器适应初期的不适体验>衍生，想重新掌控自己的听力感知"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "声音太大和缺失某些声音带来的不适感",
+      "weight": 0.3,
+      "derived_from": "由<摆脱欲>经<当前听力状态的负面体验>衍生，想摆脱这种听觉不适"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "对助听器效果的不确定('too loud' 'missing sounds'到底正常与否)',
+      "weight": 0.2,
+      "derived_from": "由<安全感欲>经<对适应过程和效果的未知>衍生，想知道这些现象是否正常、何时会改善"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "通过调整 appointment 优化助听器性能",
+      "weight": 0.1,
+      "derived_from": "由<控制欲>经<第三次调整的机会>衍生，想学会/获得更好的听力调节方法"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.8,
+    "congruence_direction": "促进",
+    "need_status": "未满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "goal_relevance高因为当前听力不适直接关联掌控需求；congruence_direction为促进因为内容指向解决方案(10月调整)；need_status仍为未满足因为问题尚未解决(声音太大、缺失声音仍存在)；goal_congruence正因为相信调整后会变好(促进且预期满足)；coping_potential高因为已预约专业帮助(adjustment appt)且这是第三次调整有经验"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.25,
+      "gratitude感激": 0.1,
+      "desire渴望": 0.15,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.15,
+      "love爱": 0.05,
+      "relief宽慰": 0.2,
+      "approval认同": 0.05,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.05
+    },
+    "note": "由需求×goal_congruence正推出：N02/N06未满足但预期会满足→joyrelief；已做第二次助听器且在适应→pride；相信调整会变好→desire；对助听器帮助心怀感激→gratitude；仍有小问题(声音缺失)→anger轻微"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.6,
+      "avoidance回避": 0.0,
+      "attend关注": 0.3,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.1
+    },
+    "note": "高approach因为主动预约调整、积极期待；attend因为关注自己听力变化('they were too loud' 'missing sounds')；dominate因为想掌控自己听力改善过程"
+  },
+  "chain_trace": "控制欲(N02掌控局面)+摆脱欲(N06摆脱痛苦) →(助听器初次佩戴声音太大、缺失某些声音的不适体验)→ 需求N02_掌控局面+N06_摆脱痛苦+N01_确定性+N03_提升能力 →(评价:goal_relevance高+促进+未满足+正+ coping高)→ 情绪joy+relief+pride+desire+gratitude → 行动倾向approach(预约调整) + attend(关注自身听力变化) + dominate(想掌控改善进程) 的完整因果链",
+  "evidence": {
+    "desire": "They were too loud at first everything really awesome except those missing sounds（想摆脱声音太大的不适，掌控自己的听力体验）",
+    "need": "They were too loud at first / missing sounds（需要掌控局面、摆脱痛苦、获得确定性）",
+    "emotion": "I think my adjustment appt in October is going to be awesome（期待愉悦+宽慰+渴望）",
+    "action": "my adjustment appt in October / It will be my 3rd adjustment（趋近专业帮助、关注调整过程）"
+  }
+}
+```
