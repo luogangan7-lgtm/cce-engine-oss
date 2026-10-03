@@ -3,6 +3,21 @@
  "gate": "G-P · 生产实际输出闸",
  "prereg_written_at": "2026-10-03",
  "★frozen_before_items": "本文件在条目文件、探针、分析器存在之前提交(见 git 顺序)。选样规则、判据、阈值、区间方法、有效性规则、预算、派发拆法一次写死; 之后的提交只许实现它, 不许改它(探针与分析器钉本文件 sha256)。",
+ "★amendment_2026-10-03_owner_N86_before_any_call": {
+  "who": "owner(经协调者转达; 记忆库 [decision]「owner 2026-10-03: G-P 派发前把条目从 40 加到 86」, owner 选「加到 86 条 (Recommended)」)",
+  "when": "2026-10-03, G-P 任何真实调用之前; 本修订先单独提交, 再按同一规则重生成 86 条条目文件(规则先于条目)",
+  "why": "功效: 用 reader_mode_gate 的生产重跑一致率 0.7681(只作功效)估, N=40 时 (a) ≈ 45% FAIL / 55% UNRESOLVED、几乎不可能 PASS; N >= 86 起 P(FAIL) 稳定 >= 0.80 ⇒ 改 N 让 (a) 可判。没有任何 G-P 读数存在, 不是看数改线。",
+  "changed": {
+   "items.n / order": "40 → 86(资格、排除、sha256(id) 顺序一字未改; 原 40 条恰是新 86 条的前 40 条)",
+   "items.file": "accuracy/data/gate_gp_fresh40.json → accuracy/data/gate_gp_fresh86.json(40 条文件删除, 留在 git 历史)",
+   "sharding": "每个 (成员, 运行) 拆成 2 个分片派发: 分片 1 = 条目文件第 1–43 条, 分片 2 = 第 44–86 条。理由是墙钟不是调用数: 不拆时一次派发名义 688 次(上限 817 也 <= 900), 但按 40 秒/调用、并发 3 估约 153 分钟, 贴着探针 160 分钟墙钟停与 workflow 180 分钟上限; 拆后约 76 分钟。分析器把同一 (成员, 运行) 的两片拼回 86 条, 缺一片 ⇒ 该槽不成立。",
+   "budget": "每片名义 43 × 8 = 344, 硬上限 409(与原来同一相对余量 60/320 = 18.75%: ceil(344 × 1.1875) = 409); 计划 16 片; 替补额度同比例 = 一个 (成员, 运行) 的量 = 至多 2 片; 研究上限 18 × 409 = 7362。★ 超过协调者给的约 6000 —— 按指示如实报出, 不砍 N。名义总量 4 × 2 × 86 × 8 = 5504。",
+   "validity": "每片有效 ⇔ 未撞预算 ∧ 非 MISSING >= 39/43(= ceil(0.9 × 43)); 两片都有效才拼成槽; 结果文件总数 > 18 ⇒ 拒收",
+   "power": "改为 N=86 的精确判出概率(见 power.a_at_N86_exact); N=40 的数保留在 power.a_at_N40_exact_superseded",
+   "dispatch_plan": "8 条命令 → 16 条(每条多一个 GP_SHARD)"
+  },
+  "unchanged": "判据、阈值(7/8 · 0.80 · 0.80)、区间方法、面板、context、k / n、运维设置、cannot_claim 的既有条目"
+ },
  "basis": {
   "owner_ruling": {"date": "2026-10-03", "quote": "第1个吧，让闸量生产实际输出",
                    "meaning": "open_items「验收闸与生产分类器字段集不同 ⇒ 对齐方向需 owner 定」选 ① 闸向生产对齐: 新验收闸量生产实际输出; 生产一字不动(生产 prompt / instrument_hash / cce_full_run 行为都不改)。"},
@@ -35,13 +50,13 @@
    "E5": "排除含用户名提及(\\bu/\\w+ 或 /user/\\w+)",
    "E6": "正文相同只留 sha256(id) 最小的一条",
    "E9": "排除生产 s2 top-1 读数已经落盘过的评论: results/reader_mode_gate_rows.json 的 ptr(regulars:<user>:<id>)里的 id, 以及这些 id 的正文 —— 那是同一台 k=3 仪器的 top1_mode, 结果已被看过",
-   "order": "按 sha256(id) 升序取前 40",
+   "order": "按 sha256(id) 升序取前 86(2026-10-03 owner 修订前为 40)",
    "fields": "{id, a(用户), post, b(原文, 不截断)} —— 生产不截断, 本闸也不截断"
   },
-  "n": 40,
-  "file": "accuracy/data/gate_gp_fresh40.json(按本规则在下一次提交生成)",
+  "n": 86,
+  "file": "accuracy/data/gate_gp_fresh86.json(按本规则在本修订提交之后生成)",
   "★why_E9_but_not_the_rest_of_the_natural_pool": "align_atoms_* / s0_selective_plants 用过 natural 池的评论, 但那些是 Jev 判官与 s0 的读数, 不是生产 s2 top-1; v3/v4 的规则也没排除它们(v3 81 条里 45 条、v4 54 条里 31 条在 natural 池)。只排除「本闸要量的读数已经被看过」的那 23 条。",
-  "★known_shape": "按规则现算(选样前只看过池的长度分布, 没看过任何读数): 余量 317 条; 前 40 条来自 16 名常驻者中的 13 名, 词数中位 32, 17/40 少于 25 词, 5/40 多于 120 词。"
+  "★known_shape": "按规则现算(选样前只看过池的长度分布, 没看过任何读数): 余量 317 条; 前 40 条来自 16 名常驻者中的 13 名, 词数中位 32, 17/40 少于 25 词, 5/40 多于 120 词。(这是 N=40 时写的; N=86 的形状不进预注册, 条目文件生成后才算。)"
  },
  "stimulus": {
   "context": "reddit r/HearingAids hearing_aid: Public reply to a Reddit r/HearingAids member(对方原文/写作基准侧)",
@@ -65,10 +80,11 @@
   ]
  },
  "design": {
-  "N": 40, "R": 2,
-  "slots": "4 成员 × 2 次运行 = 8 个槽; 一个槽 = 一次 workflow 派发 = 一名成员对 40 条各做一次生产读数",
-  "order": "运行 1 的 4 个槽依次派发, 全部结束后再派运行 2 的 4 个槽(两次运行之间隔开时间); 一次只跑一个派发",
-  "experimental_unit": "条目(40); 运行是重复测量, 交叉自助同时重采样条目与运行"
+  "N": 86, "R": 2, "shards": 2, "shard_size": 43,
+  "slots": "4 成员 × 2 次运行 = 8 个槽; 一个槽 = 一名成员对 86 条各做一次生产读数, 拆成 2 个分片派发(分片 1 = 条目文件第 1–43 条, 分片 2 = 第 44–86 条), 共 16 次 workflow 派发",
+  "order": "运行 1: 每名成员的两片紧挨着派(M3 片1 → M3 片2 → M2.5 片1 → …), 4 名成员都结束后再派运行 2(两次运行之间隔开时间); 一次只跑一个派发",
+  "experimental_unit": "条目(86); 运行是重复测量, 交叉自助同时重采样条目与运行; 分片只是运维拆分, 不是分析因子",
+  "★shard_caveat": "同一 (成员, 运行) 的两片在不同时刻跑, 片间漂移与条目前后半区混在一起, 不单独估; 两片紧挨着派以缩小时间差"
  },
  "criteria": {
   "a_production_rerun_stability": {
@@ -105,12 +121,13 @@
   ]
  },
  "validity": {
-  "dispatch_valid_iff": "未撞预算上限(BUDGET_STOP)∧ 非 MISSING 读数 >= 36/40(= ceil(0.9 × 40))",
+  "dispatch_valid_iff": "(每片)未撞预算上限(BUDGET_STOP)∧ 非 MISSING 读数 >= 39/43(= ceil(0.9 × 43)); N=40 时为 36/40",
+  "slot_assembly": "同一 (成员, 运行) 的分片 1 与分片 2 都有有效结果 ⇒ 按条目文件顺序拼成 86 条的槽; 缺任一片 ⇒ 该槽不成立",
   "missing_cells": "两两比较里任一方 MISSING 的配对不计; 不插补",
-  "slot_choice": "同一槽有多份结果: 按 started_at 取最早的**有效**那份; 其余列为未用",
-  "verdict_requires": "(a) 需要 M3 两个槽都有效; (b)(c) 需要全部 8 个槽都有效; 不满足 ⇒ 该项 UNRESOLVED(INSUFFICIENT_SLOTS), 总判不可能 PASS",
-  "integrity": "结果文件的 预注册 sha / 条目 sha / 条目 id 顺序 / context / k / n / 成员 / 运行 / 仪器 有任一不符 ⇒ 拒收(报错停), 不当作无效槽、不可替补",
-  "replacement": "全研究最多 1 次替补派发(重派同一个无效槽); 结果总数 > 9 ⇒ 分析器拒收(超出预算授权)"
+  "slot_choice": "同一 (成员, 运行, 分片) 有多份结果: 按 started_at 取最早的**有效**那份; 其余列为未用",
+  "verdict_requires": "(a) 需要 M3 两个槽都成立; (b)(c) 需要全部 8 个槽都成立; 不满足 ⇒ 该项 UNRESOLVED(INSUFFICIENT_SLOTS), 总判不可能 PASS",
+  "integrity": "结果文件的 预注册 sha / 条目 sha / 分片号与该片条目 id 顺序 / context / k / n / 成员 / 运行 / 仪器 有任一不符 ⇒ 拒收(报错停), 不当作无效片、不可替补",
+  "replacement": "全研究最多 2 次替补派发(各重派一个无效分片; = 原来「一个槽」的量); 结果文件总数 > 18 ⇒ 分析器拒收(超出预算授权)"
  },
  "bootstrap": {"B": 10000, "seed": 20261003, "implementation": "probes/accuracy_gk1_v3_analyze.draws / boot(与 v3/v4 同一份)"},
  "budget": {
@@ -118,16 +135,20 @@
   "nominal_why": "k=3 次 s1 + n=5 次 s2, 全部首发成功时",
   "worst_case_http_per_readout": 72,
   "worst_case_why": "s1 每档 3 次 call_parse × call_model 3 次 HTTP = 9, × 3 档 = 27; s2 每次抽样 3 × 3 = 9, × 5 = 45(规格 stage2.worst_case_http_per_readout)",
-  "per_dispatch_planned": 320,
-  "per_dispatch_hard_cap": 380,
-  "retry_slack": 60,
-  "slack_why": "生产存档实测(202 份读数的 operational 账本, 选样前读过): s1 尝试 375 次里 PARSE_FAILED 3 次, s2 460 次 0 次 ⇒ M3 的重试膨胀约 1%; M2.x 在生产 s1 schema 上的解析失败率未知 ⇒ 留 18.75%。撞上限 ⇒ 该槽 BUDGET_STOP(无效), 不追加。",
-  "dispatches_planned": 8,
-  "max_replacements": 1,
-  "study_ceiling": "8 × 380 + 1 × 380 = 3420 <= 3500(含重试余量)",
+  "per_dispatch_planned": 344,
+  "per_dispatch_hard_cap": 409,
+  "retry_slack": 65,
+  "slack_ratio": "60/320 = 0.1875(N=40 时的相对余量, 原样沿用): ceil(344 × 1.1875) = 409",
+  "slack_why": "生产存档实测(202 份读数的 operational 账本, 选样前读过): s1 尝试 375 次里 PARSE_FAILED 3 次, s2 460 次 0 次 ⇒ M3 的重试膨胀约 1%; M2.x 在生产 s1 schema 上的解析失败率未知 ⇒ 留 18.75%。撞上限 ⇒ 该片 BUDGET_STOP(无效), 不追加。",
+  "nominal_total": "4 成员 × 2 运行 × 86 条 × 8 = 5504",
+  "dispatches_planned": 16,
+  "max_replacements": 2,
+  "study_ceiling": "16 × 409 + 2 × 409 = 7362(含重试余量)。★ 超过协调者给的约 6000 —— 如实报出, 未砍 N; 若 owner 要压到 6000 以内, 只能减替补额度或余量(16 × 409 = 6544 仍超), 不改 N 与判据",
+  "superseded_N40": "per_dispatch 320 / 380, 8 次 + 1 次替补, 研究上限 3420",
   "single_dispatch_limit": 900,
-  "mechanism": "生产自己的 cce_request_budget.open_scope(作用域 id 含槽名, 上限 380, 状态文件随 artifact 上传); exp_crossmodel_desire.call_model 每次发请求前 reserve_in_scope —— 重试同样计数",
-  "wall_clock": "workflow 上限 180 分钟; 探针 9600 秒后不再起新读数(已起的跑完), 未跑的记 MISSING。估时: 生产存档 s1+s2 每份读数中位 79.7 秒(内部并发); 本探针 HTTP 并发 3 ⇒ 320 次 × 约 40 秒 / 3 ≈ 71 分钟"
+  "mechanism": "生产自己的 cce_request_budget.open_scope(作用域 id 含成员 / 运行 / 分片, 上限 409, 状态文件随 artifact 上传); exp_crossmodel_desire.call_model 每次发请求前 reserve_in_scope —— 重试同样计数",
+  "quota_windows": "约 5500 次名义调用跨 MiniMax 5 小时额度窗派发; 每次派发前只读查一次剩余额度(owner 2026-10-03), 不够就等下一个窗, 不临时改派发拆法",
+  "wall_clock": "workflow 上限 180 分钟; 探针 9600 秒后不再起新读数(已起的跑完), 未跑的记 MISSING。估时: 生产存档 s1+s2 每份读数中位 79.7 秒(内部并发); 本探针 HTTP 并发 3 ⇒ 每片 344 次 × 约 40 秒 / 3 ≈ 76 分钟(不拆则 688 次 ≈ 153 分钟, 这是拆片的理由)"
  },
  "operations": {
   "transport": "HTTP 由生产 call_model 原样构造与发送(端点 / 请求体 / 温度 / max_tokens / 超时 / 3 次重试 / 4 秒间隔都是它自己的); 探针只在 exp_crossmodel_desire.requests 外包一层: 全局并发 3(与 v3/v4 的 ANNOT_WORKERS 同值)、失败后指数退避(基数 4 秒, 与 v3 BACKOFF_BASE_SEC 同值, 不耗尝试次数)、按「模型|错误码」计数(http 状态 / base_resp 状态 / 异常类型, 不记内容)。即 v3/v4 make_resilient_call 的三件运维, 加在生产传输外面而不是另写一份请求。",
@@ -138,16 +159,23 @@
  },
  "power": {
   "★power_only": "只用于功效估计, 不进任何判据。参考值 = results/reader_mode_gate_rows.json(2026-10-01, 同一台仪器 d4cce4, 23 条 natural 池评论 × 3 次运行, context 为该探针自己的串)的 top1_mode 两两重跑一致率均值 0.7681。这 23 条已由 E9 排除出本闸条目。",
-  "a_at_N40_exact": {
+  "a_at_N86_exact": {
+   "rule": "X ~ Bin(86, p)(两次运行都有读数的条目数按 86 计); FAIL ⇔ X <= 69, PASS ⇔ X >= 81(由 binom_upper 现算)",
+   "p=0.70": {"PASS": 0.0, "FAIL": 0.9882, "UNRESOLVED": 0.0118},
+   "p=0.7681": {"PASS": 0.0, "FAIL": 0.8091, "UNRESOLVED": 0.1908},
+   "p=0.85": {"PASS": 0.0074, "FAIL": 0.1393, "UNRESOLVED": 0.8533},
+   "p=0.95": {"PASS": 0.7397, "FAIL": 0.0, "UNRESOLVED": 0.2603}
+  },
+  "a_at_N40_exact_superseded": {
    "rule": "X ~ Bin(40, p); FAIL ⇔ X <= 30, PASS ⇔ X >= 39(由 binom_upper 现算)",
    "p=0.70": {"PASS": 0.0, "FAIL": 0.8041, "UNRESOLVED": 0.1959},
    "p=0.7681": {"PASS": 0.0003, "FAIL": 0.4533, "UNRESOLVED": 0.5464},
    "p=0.85": {"PASS": 0.0121, "FAIL": 0.0672, "UNRESOLVED": 0.9207},
    "p=0.95": {"PASS": 0.3991, "FAIL": 0.0, "UNRESOLVED": 0.6009}
   },
-  "★honest_reading": "若真实 A 在参考值 0.7681 附近, N=40 下 (a) 约 45% 判 FAIL、55% UNRESOLVED, 几乎不可能 PASS ⇒ 总判几乎不可能 PASS。预算内判不出时如实报 UNRESOLVED, 不降判据。",
-  "minimal_decisive_plan_a": "A = 0.7681 时 P(FAIL) 在 N=81 首次 >= 0.80, 因二项离散在 N=83–85 回落, N >= 86 起稳定 >= 0.80 ⇒ 只为 (a) 判出, 需 86 条 × 2 次 × 8 = 1376 次名义 HTTP(仅 M3); 整个 G-P 同设计放到 N=86 需 64 × 86 = 5504 次名义 HTTP, 超出 3500。",
-  "b_c": "UNKNOWN —— M2.x 在生产 prompt 上的 top-1 一致率没有任何既有数据。条目层近似: 要让单侧 95% 界离开阈值 t, 需 N ≈ 1.645² · p(1−p) / (p − t)²(未计运行方差与格内相关, 偏乐观)。运行 1 的四个槽跑完即可知道 (b)(c) 的点估计量级。"
+  "★honest_reading": "N=86: 若真实 A 在参考值 0.7681 附近, (a) 约 81% 判 FAIL、19% UNRESOLVED; A ≈ 0.85 时 86% UNRESOLVED(离 7/8 太近, 86 条也分不开); 要 PASS 需要 A 接近 0.95(74%)。N=40 时 0.7681 下为 45% FAIL / 55% UNRESOLVED —— 这是改 N 的理由。判不出时如实报 UNRESOLVED, 不降判据。",
+  "minimal_decisive_plan_a": "A = 0.7681 时 P(FAIL) 在 N=81 首次 >= 0.80, 因二项离散在 N=83–85 回落, N >= 86 起稳定 >= 0.80 ⇒ 已按 owner 2026-10-03 修订采用 N=86(全闸名义 64 × 86 = 5504 次)。",
+  "b_c": "仍然 UNKNOWN(N=86 不改变这一点)—— M2.x 在生产 prompt 上的 top-1 一致率没有任何既有数据。条目层近似: 要让单侧 95% 界离开阈值 t, 需 N ≈ 1.645² · p(1−p) / (p − t)²(未计运行方差与格内相关, 偏乐观)。运行 1 的八片跑完即可知道 (b)(c) 的点估计量级。"
  },
  "★cannot_claim": [
   "与参考面板一致 ≠ 判得对: 没有人类金标; (b)(c) 的 PASS 只说明同家族四个模型在生产仪器上判得一样, 不是效度证据; (b) 的 FAIL 也不说明错的是生产。",
@@ -157,31 +185,40 @@
   "context 是 reply_loop 读者侧的串; reader_baseline(少一个后缀)与 subject_chain(带 s0【情境】后缀)的读数没有被直接量到。",
   "(a) 是重跑复现率, 不等于 K1 的逐文本众数占比; 它不撤销也不重做 K1 的 TOP1_USABLE(那份判在 knots[0] 上), 只量实际发布的 top1_mode。",
   "两次运行之间的差异不归因为纯采样噪声(端点 / 服务端条件可能变化)。",
-  "条目 = 该源池未用余量按 sha256(id) 取前 40, 不是自然部署流量的随机样本; 不外推到别的社区、语言或帖子。",
+  "条目 = 该源池未用余量按 sha256(id) 取前 86(owner 修订前为 40), 不是自然部署流量的随机样本; 不外推到别的社区、语言或帖子。",
+  "同一 (成员, 运行) 的两个分片在不同时刻跑, 片间漂移与条目前后半区混在一起, 不单独估。",
   "面板是 MiniMax 同家族四代推理模型, 同家族共识不是独立第三方。",
   "本闸与 G-K1 v4 互不替代: v4 的判定不说明生产输出可靠, 本闸的结果也不改写 v4。",
   "只跑 s1 + s2 + 发布段(s2_knots / qualified_readout), 不是完整 CCE 链路。",
   "传输加了并发上限与退避(只改时序), CCE_CITATION_CERT 关; 生产自己的重试与请求体未改。"
  ],
  "★bets": {
-  "a": {"bet": "不会 PASS(FAIL 或 UNRESOLVED)", "confidence": "中", "why": "功效参考值 0.7681 离 7/8 远; 但参考条目与 context 都不同"},
+  "a": {"bet": "不会 PASS(FAIL 或 UNRESOLVED); N=86 下更可能 FAIL", "confidence": "中", "why": "功效参考值 0.7681 离 7/8 远; 但参考条目与 context 都不同"},
   "b": {"bet": "UNRESOLVED", "confidence": "低", "why": "没有任何生产 prompt 上的面板数据"},
   "c": {"bet": "UNRESOLVED 或 FAIL", "confidence": "低", "why": "同上; 记下来是为了赌错时被钉住"}
  },
  "dispatch_plan": {
-  "precondition": "本分支合并进 master 之后从 master 派发; 一次只跑一个, 前一个结束(gh run watch)并取回 artifact 后再派下一个",
+  "precondition": "本分支合并进 master 之后从 master 派发; 一次只跑一个, 前一个结束(gh run watch)并取回 artifact 后再派下一个; 每次派发前只读查 MiniMax 剩余额度, 不够就等下一个 5 小时窗",
   "commands": [
-   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M3 GP_RUN=1\"",
-   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2.5 GP_RUN=1\"",
-   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2.7 GP_RUN=1\"",
-   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2 GP_RUN=1\"",
-   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M3 GP_RUN=2\"",
-   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2.5 GP_RUN=2\"",
-   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2.7 GP_RUN=2\"",
-   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2 GP_RUN=2\""
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M3 GP_RUN=1 GP_SHARD=1\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M3 GP_RUN=1 GP_SHARD=2\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2.5 GP_RUN=1 GP_SHARD=1\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2.5 GP_RUN=1 GP_SHARD=2\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2.7 GP_RUN=1 GP_SHARD=1\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2.7 GP_RUN=1 GP_SHARD=2\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2 GP_RUN=1 GP_SHARD=1\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2 GP_RUN=1 GP_SHARD=2\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M3 GP_RUN=2 GP_SHARD=1\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M3 GP_RUN=2 GP_SHARD=2\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2.5 GP_RUN=2 GP_SHARD=1\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2.5 GP_RUN=2 GP_SHARD=2\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2.7 GP_RUN=2 GP_SHARD=1\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2.7 GP_RUN=2 GP_SHARD=2\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2 GP_RUN=2 GP_SHARD=1\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2 GP_RUN=2 GP_SHARD=2\""
   ],
-  "replacement": "任一槽无效(结果文件 dispatch_valid=false 或没有结果文件): 重派同一条命令一次; 全研究只此一次",
-  "artifacts": "每次派发的 artifact probe-out 含 /tmp/gate_gp_<成员>_r<运行>_result.json 与 _budget.json、probe.log、results/knot_classify_raw/",
+  "replacement": "任一片无效(结果文件 dispatch_valid=false 或没有结果文件): 重派同一条命令; 全研究至多 2 次",
+  "artifacts": "每次派发的 artifact probe-out 含 /tmp/gate_gp_<成员>_r<运行>_s<分片>_result.json 与 _budget.json、probe.log、results/knot_classify_raw/",
   "analyze": ".venv/bin/python probes/gate_gp_analyze.py <全部结果文件> → tests/data/gate_gp_result.json"
  }
 }
