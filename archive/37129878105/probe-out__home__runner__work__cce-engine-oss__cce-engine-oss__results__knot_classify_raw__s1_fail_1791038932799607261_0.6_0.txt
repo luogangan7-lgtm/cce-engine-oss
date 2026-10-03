@@ -1,0 +1,76 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.0,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.0,
+      "安全感欲": 0.1,
+      "向往欲": 0.0
+    },
+    "note": "此条评论仅陈述客观保险事实，无明显个人欲望激活。轻微安全感欲体现在帮助他人降低因费用不确定带来的焦虑。"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "其他用户询问或讨论助听器费用/保险覆盖问题，需要知道具体能报销多少",
+      "weight": 0.6,
+      "derived_from": "由(无明确个人欲望，但可推断为助人意图)经(看到他人询问费用/保险问题)衍生"
+    },
+    {
+      "code": "N07_占有资源",
+      "context_slot": "用户可能正在考虑购买助听器但担心费用，或已有助听器想确认保险覆盖",
+      "weight": 0.4,
+      "derived_from": "由(无明确欲望)经(他人提及费用相关情境)衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.3,
+    "congruence_direction": "中性",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "此评论提供具体信息(1500美元)，虽未直接回应特定问题但给出确定性数字，中性陈述但实际上帮助他人获得答案。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.0
+    },
+    "note": "此评论仅为事实陈述，无明显情绪色彩，客观描述保险覆盖金额，是低情绪强度的信息分享行为。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.0,
+      "avoidance回避": 0.0,
+      "attend关注": 0.0,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "此条为低信息量的事实陈述型评论，难以构建完整因果链。评论者可能出于助人意图(安全感欲0.1) →(看到他人询问费用问题)→ 需求N01确定性(0.6)及N07占有资源(0.4) →(评价:goal_relevance低0.3, 中性方向, 已满足状态, 正向, 高应对潜能)→ 无明显情绪 → 信息分享行为，但具体行动倾向无法从极简内容中可靠推断。",
+  "evidence": {
+    "desire": "无直接证据表明欲望",
+    "need": "Insurance covers 1500 of the cost（提供具体保险覆盖金额信息）",
+    "emotion": "无情绪性词汇",
+    "action": "Insurance covers 1500 of the cost（信息陈述行为）"
+  }
+}
+```

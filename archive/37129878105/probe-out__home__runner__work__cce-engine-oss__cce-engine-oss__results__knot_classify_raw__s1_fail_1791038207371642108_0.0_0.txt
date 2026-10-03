@@ -1,0 +1,89 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.0,
+      "确认欲": 0.3,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.5,
+      "安全感欲": 0.2,
+      "向往欲": 0.0
+    },
+    "note": "核心欲望是控制欲：用户想掌控/了解助听器的全部功能('they can do more but have not checked', 'I haven't explored all the features')；确认欲次之：想确认设备确实有'find my device'功能；安全感欲为辅：'find my device'功能意味着设备丢失时可找回，消除丢失风险"
+  },
+  "need_layer": [
+    {
+      "code": "N03_提升能力",
+      "context_slot": "已拥有助听器但未探索全部功能，想学习使用技巧",
+      "weight": 0.4,
+      "derived_from": "控制欲经由'未探索全部功能'情境触发"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "不确定设备还有什么功能可用",
+      "weight": 0.3,
+      "derived_from": "控制欲经由'不知道能做什么'情境触发"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "想确认find my device功能是否真的存在",
+      "weight": 0.2,
+      "derived_from": "确认欲经由'网上看到但未当面确认'情境触发"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "若设备丢失，希望有能力找回",
+      "weight": 0.1,
+      "derived_from": "安全感欲经由'担心设备丢失'情境触发"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.6,
+    "congruence_direction": "中性",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "高",
+    "note": "用户感到设备有更多功能但自己不知道具体是什么(信息缺口)，需求未完全满足造成轻微负向情绪；但他计划通过询问听力学家和查阅网络来解决('will ask my audiologist, but online it says...')，应对潜能高"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.1,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.1,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.8,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.0
+    },
+    "note": "由'未满足的需求+高应对潜能'导出：未满足引发轻微负向情绪(轻微desired缺失)，但高应对潜能带来relief；主要情绪是curiosity——想知道设备还有什么功能('they can do more but have not checked')
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.0,
+      "avoidance回避": 0.0,
+      "attend关注": 0.7,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.3
+    },
+    "note": "用户注意力集中在设备功能上(attend)，并计划主动获取信息来掌控局面(dominate)：'will ask my audiologist'"
+  },
+  "chain_trace": "控制欲 →(已拥有助听器但不确定其全部功能)→ N03_提升能力(学习使用技能)/N04_理解世界(了解设备功能) →(未满足+高应对潜能+congruence中性)→ curiosity好奇+relief宽慰 → attend关注+dominate支配 的完整推导",
+  "evidence": {
+    "desire": "I think they can do more but have not checked. I haven't explored all the features",
+    "need": "they can do more, I haven't explored all the features, will ask my audiologist, it says they do have find my device",
+    "emotion": "they can do more but have not checked (curiosity), will ask my audiologist (高应对潜能带来的宽慰)",
+    "action": "will ask my audiologist (主动获取信息来掌控)"
+  }
+}
+```

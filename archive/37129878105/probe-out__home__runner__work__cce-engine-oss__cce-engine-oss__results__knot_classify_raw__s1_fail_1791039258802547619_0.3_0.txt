@@ -1,0 +1,508 @@
+The task: we are asked to do a causal chain reverse inference from an observable piece of text: "2nd set aids but first molds. They were too loud at first everything really awesome except those missing sounds. I think my adjustment appt in October is going to be awesome. It will be my 3rd adjustment."
+
+We must produce a JSON with layers: desire_layer (distribution across nine desires), need_layer (list of need items with weights and derived from which desire, context slot, etc.), appraisal, emotion_layer (distribution over GoEmotions categories), action_tendency_layer (distribution over Frijda categories), chain_trace (full sentence), and evidence (quotes from text).
+
+We must ensure the distributions sum to 1 (or 100% across categories). Must not output any explanation outside the JSON.
+
+The content is a personal post from a Reddit user in r/HearingAids about receiving second set of hearing aids (the "aids" and "molds"). The user says: they were too loud at first, everything really awesome except those missing sounds. They think the adjustment appointment in October will be awesome, and it will be their 3rd adjustment.
+
+We must infer a single individual's psychological causal chain.
+
+We have to assign weights to each desire and each need, etc. The user is expressing excitement, some mild frustration (too loud at first, missing sounds). They anticipate upcoming adjustment to be "awesome". This is a personal update.
+
+Given that the content is a self-report from a single user, it's not a pure data sheet, so we must infer subject.
+
+We must derive the 4 layers (desire, need, appraisal, emotion, action tendency). Let's analyze.
+
+First, what does the user want? The post is about hearing aids and adjusting them. The user got second set aids (but first molds). They were too loud at first. Everything is awesome except missing sounds. They think the adjustment appointment in October is going to be awesome, it will be the 3rd adjustment.
+
+Interpretation: The user is excited about getting new hearing aids and about future adjustment; they want to achieve better hearing (better hearing experience). They might want to have the hearing aids functioning well, to improve hearing, to have a sense of control, to reduce hearing difficulties. They are expressing a desire to have the hearing aids work properly, to reduce missing sounds and loudness issues.
+
+Let's think about the 9 desires.
+
+- 拥有欲 (ownership): The user has obtained a new set of hearing aids, they want to own them, but they already have them.
+
+- 成为欲 (become): Want to become a person who hears well, better hearing.
+
+- 摆脱欲 (escape): They want to摆脱当前的痛苦 (the too loud and missing sounds) i.e., get rid of discomfort.
+
+- 确认欲: Want to confirm their choices, perhaps they are confirming that they made the right decision to get hearing aids.
+
+- 超越欲: Maybe they want to surpass ordinary hearing ability.
+
+- 归属欲: Possibly they want to belong to the hearing aid community, but not strong.
+
+- 控制欲: They want to control their hearing experience.
+
+- 安全感欲: They want to消除不确定性, risk.
+
+- 向往欲: Want to become part of that ideal hearing environment.
+
+We need to pick which are most plausible.
+
+The user appears to be excited about adjusting hearing aids to make them work better: the "adjustment appointment" in October, they say "it will be awesome." They have an issue: "they were too loud at first ... missing sounds". So they want to improve hearing: better ability to hear. This suggests both "拥有欲" (want to have good hearing aids) and "成为欲" (to become a better-hearing person). Also "摆脱欲" (摆脱当前痛苦) i.e., get rid of the discomfort from too loud and missing sounds. And "控制欲" (掌控自己的生活/健康) - controlling hearing.
+
+The user also wants reassurance: they think it will be awesome, they hope to fix the issues. That's maybe "确认欲": confirming the decision is right.
+
+But the main is probably "摆脱欲" to get rid of the pain, "控制欲" to control hearing, "安全感欲" to feel safe about hearing.
+
+We need to produce a distribution. Let's examine the context: They already have the aids, they're not in a crisis. They mention "They were too loud at first ... missing sounds". This is a problem: the aids are too loud and missing sounds cause difficulty. They anticipate an adjustment in October that "will be awesome". So they expect improvement.
+
+Hence, the desire likely is "摆脱欲" (to get rid of the problem) and "控制欲" (to control the hearing). "安全感欲" may also be present (they want to be certain the aids will work). Let's assign weights: maybe "摆脱欲" 0.4, "控制欲" 0.3, "安全感欲" 0.2, "确认欲" 0.1. Others zero.
+
+But we need distribution across nine desires with sum =1. We'll need to assign weights accordingly.
+
+Now need_layer: The 17 categories of need. Which is relevant? Let's interpret.
+
+Context: The user has hearing aids that are too loud and missing sounds. They want to adjust them, to get them to work. This is about "提升能力" (提升能力 / 提升能力) - they want to improve ability to hear. Also "掌控局面" (control the hearing environment). Also "确定性" (to know if the aids will be adjusted correctly). Possibly "优化效率" (to make hearing easier). Also "摆脱痛苦" (to eliminate the discomfort). Let's find which categories match best.
+
+The list of need categories:
+
+- N01_确定性 (certainty) - eliminate risk, get certainty about hearing aids performance.
+- N02_掌控局面 (control) - regained control over hearing.
+- N03_提升能力 (increase ability) - improve hearing ability.
+- N04_理解世界 (understand world) - maybe to understand why hearing is missing.
+- N05_优化效率 (optimize efficiency) - maybe to reduce effort.
+- N06_摆脱痛苦 (eliminate pain) - remove discomfort from too loud and missing sounds.
+- N07_占有资源 (possess resources) - get hearing aids, but they already have them.
+- N08_提升形象 (improve image) - not relevant.
+- N09_获得地位 (gain status) - not relevant.
+- N10_自我确认 (self-confirm) - confirm decision.
+- N11_归属群体 (belong to group) - maybe they want community support.
+- N12_情感联结 (emotional connection) - not likely.
+- N13_情感慰藉 (emotional comfort) - maybe they want reassurance.
+- N14_代入理想 (ideal projection) - maybe they want to imagine ideal hearing.
+- N15_放松休憩 (relax) - not really.
+- N16_表达创造 (express) - they are expressing themselves, but not a need.
+- N17_追忆连接 (recall) - not relevant.
+
+We need to assign some needs that reflect this scenario. Most plausible: N06_摆脱痛苦, N02_掌控局面, N03_提升能力, N01_确定性, N10_自我确认, N13_情感慰藉 maybe. Also N14_代入理想 (the user looks forward to "awesome" hearing). And N05_优化效率 maybe.
+
+We need to choose some and assign weights that sum to 1.
+
+We also need to derive each need from a specific desire and context.
+
+We need to create a need_layer list of objects with code, context_slot (free text: describing the trigger situation), weight, derived_from.
+
+We need to ensure each need is derived from a desire, which we must indicate.
+
+The "context_slot" should describe the scenario that triggers the need: "声音太响且有缺失导致不适" (the hearing aids are too loud and missing sounds, causing discomfort). Also "预约调整以期改善" (the upcoming adjustment in October). Also "对 aids 表现的期待".
+
+We must set weight distribution: maybe N06_摆脱痛苦 0.35, N02_掌控局面 0.25, N03_提升能力 0.20, N01_确定性 0.10, N10_自我确认 0.10. Others zero.
+
+Now appraisal: goal_relevance, congruence_direction, need_status, goal_congruence, coping_potential.
+
+Goal relevance: The content is about the hearing aid adjustment, which is relevant to the user's desire to improve hearing; so high, maybe 0.9.
+
+congruence_direction: The user says the aids were too loud at first and missing sounds - a problem. The user also says "everything really awesome except those missing sounds" - they view overall positive except missing sounds. The upcoming adjustment is expected to be awesome. So the content is about potential improvement, a "促进" (positive direction) - i.e., the content is promoting a solution. So we set "促进".
+
+need_status: The user currently experiences discomfort: "too loud at first, missing sounds". That is an unmet need (needs to be solved). The upcoming appointment may satisfy it. At present it's not solved: "未满足". But the user expresses hope that it will be solved. The content reveals a need that is not yet met, but the content does provide a positive expectation. Let's see the definition: "need_status" indicates whether the content当场满足了需求(有帮助/愉悦)=已满足; only draws or reveals threat but doesn't solve=未满足. In this case, the content is giving a hopeful perspective (the upcoming appointment). Does it "当场满足"? Not exactly, it's a future event. However, the content includes a positive outlook, perhaps considered as "已满足"? The user's current state: they've gotten new aids but they are not yet satisfactory. The content is partly describing the issue (unresolved) and anticipating resolution. I'd argue the content is not solving it now, but giving hope, which might be considered as "未满足" (need not yet met). In many sentiment analysis tasks, a statement that expresses desire for improvement but acknowledges current issue is considered "unfulfilled". So need_status = "未满足". That would produce negative emotions (fear?) but they also express optimism. However, let's examine later.
+
+Goal_congruence: It is derived from congruence_direction and need_status: if direction is "促进" and need_status "已满足", it's "正". If direction is "促进" but need_status "未满足", it's "负"? Wait: They define "正" as "促进且已满足=正情绪". "负" as "威胁或未满足(焦虑悬置)=负情绪". But here it's "促进" (means content helps approach goal), but the need is not satisfied yet, so it's still unfulfilled, likely causing anticipation/hope. But they categorize negative as "threat or unsatisfied". Possibly this leads to "负" because unsatisfied need triggers anxiety/hope but also fear? But in typical appraisal theory, hope is a positive anticipation of a desired outcome, with uncertain outcome (coping potential moderate). Let's see: The content describes missing sounds and too loud. That's a threat to their goal (to have good hearing). They anticipate improvement, but they are not there yet. This is a kind of "hope" (positive but uncertain). In the given categories, hope is not directly an emotion listed. However we have desire (渴望) maybe. The user expresses "I think my adjustment appt in October is going to be awesome". That expresses desire and hopefulness. This can be mapped to "desire渴望" or "joy喜悦"? There's "desire" (渴望) in GoEmotions. The content includes both negative (frustration) and positive (anticipation). But the appraisal direction is "促进", need_status "未满足". The resulting emotion can be "desire" (渴望) or maybe "relief" (宽慰) if they anticipate a solution? Let's evaluate.
+
+Goal_congruence: Since direction is "促进", it's positive in terms of goal, but because need is not yet satisfied, we can treat it as "负"? But the description: "促进且已满足=正; 威胁或未满足(焦虑悬置)=负". So unsatisfied need yields negative, regardless of direction. So "负" is appropriate.
+
+Copping potential: The user feels they can handle it, they are looking forward to the appointment, presumably they can manage (they have an upcoming appointment). So coping potential is "中" (medium) maybe, or "高"? They think they will be fine: "I think my adjustment appt ... is going to be awesome". That suggests confidence, but also maybe uncertain because haven't done it. I'd say coping potential "中".
+
+We must assign numeric values: goal_relevance (0-1), maybe 0.9. Need_status "未满足". Congruence_direction "促进". Goal_congruence "负". Coping potential "中".
+
+Now emotion_layer: We need distribution across GoEmotions categories: admiration, joy, gratitude, desire, nostalgia, pride, love, relief, approval, curiosity, fear, sadness, anger.
+
+We need to consider the emotional content of the text.
+
+The user expresses: "They were too loud at first everything really awesome except those missing sounds. I think my adjustment appt in October is going to be awesome."
+
+Thus they have mixed feelings: frustration (the missing sounds, loudness), but overall optimism, maybe joy. They may also feel "relief" (宽慰) that the adjustment will solve the issue. Also "desire" for better hearing. Possibly "pride" in owning new aids. Possibly "curiosity" about the appointment. "Fear" might be there: fear that the missing sounds will persist? But the text says "awesome", so it's positive.
+
+Given that the user expresses a positive expectation, we may have "joy" (joy about the upcoming adjustment), "desire" (desire for better hearing). Also "relief" (relief that they have an upcoming appointment to fix). Also "approval" perhaps for the hearing aids (they say "everything really awesome"). "Gratitude" maybe not explicit. "Admiration" not there.
+
+Given we have to assign weights that sum to 1. Let's weigh: "joy" 0.3, "desire" 0.3, "relief" 0.2, "approval" 0.1, "pride" 0.1. Others 0.
+
+But we need to consider the unsatisfied need yields negative emotional undertones: maybe "fear" 0.1? Actually, the text acknowledges missing sounds - that's a problem. That could produce "fear" (fear that it won't be resolved) or "sadness". But they are hopeful. However, they didn't explicitly express sadness. "fear" maybe not. "anger" not. So keep it positive.
+
+We also might incorporate "curiosity" for the appointment: they are curious about the result. But that's less prominent.
+
+Ok let's set:
+
+joy 0.35, desire 0.30, relief 0.20, approval 0.10, pride 0.05.
+
+Sum = 1.
+
+Now action_tendency_layer: Frijda action tendencies: approach, avoidance, attend, reject, agonistic, interrupt, dominate.
+
+The text is basically "I think my adjustment appt ... will be awesome." The user is looking forward to the appointment and intends to attend it. So action tendency likely "approach". They also may "attend" (pay attention) to the appointment details. Could be "attend" and "approach". However, we must choose distribution that sums to 1. Possibly they are approaching the appointment (approach). They may also be "attend" to the upcoming appointment (attention). The content includes "I think my adjustment appt ... is going to be awesome", which suggests they will approach. But the user may also be "attend" to the appointment. The question: which is more relevant? The action is basically "approach". There's no mention of avoidance, rejection. So likely "approach" 0.8, "attend" 0.2.
+
+But the distribution must sum to 1. We can do approach 0.8, attend 0.2.
+
+But maybe we need more nuance: They are also "attend" in terms of paying attention to their hearing problems, but it's not a major action. However, given the instruction: "action_tendency_layer" distribution across 7 categories. The content suggests the user is "approach" oriented (seeking solution). Also "attend" is maybe relevant (they are paying attention to hearing issues). Possibly we can set approach 0.7, attend 0.3.
+
+Now chain_trace: Need a single sentence describing the full chain: e.g., "摆脱欲 →(声音太响且缺失导致不适)→ N06_摆脱痛苦 →(评价: 促进+未满足+负+中)→ desire/joy/relief → approach".
+
+But they require to include each variable name: desire X, context Y, need Z (code), appraisal: direction/need_status/congruence, coping, emotion W, action V.
+
+Let's formulate a coherent chain:
+
+"用户因拥有欲和摆脱欲想要拥有更好 hearing aids 并摆脱当前的不适 →(情境: 助听器太响且有缺失声音)→ 需求 N06_摆脱痛苦 (消除过大音量与缺失声音带来的不适) →(评价: 促进、未满足、负、中等应对潜能) → 情绪 渴望/喜悦/宽慰 → 行动倾向 趋近 (预约调整)".
+
+But they require "欲望X →(情境Y)→ 需求Z(写code) →(评价:direction/need_status/congruence正负,coping)→ 情绪W → 行动倾向V".
+
+Thus, "欲望X" could be "摆脱欲" and "控制欲". In chain_trace we need to use a specific desire. Perhaps we choose "摆脱欲". But we can include multiple, but maybe just one is enough. The instruction: "欲望X →(情境Y)→ 需求Z(写code) →(评价:direction/need_status/congruence正负,coping)→ 情绪W → 行动倾向V". They likely expect a single chain. But maybe we can have a chain that picks the most prominent desire: "摆脱欲". Then we have context Y: "助听器声音过大且出现缺失" (the hearing aids are too loud and missing some sounds). Then need: N06_摆脱痛苦. Then appraisal: "促进, 未满足, 负, 中". Then emotion: "joy + desire + relief". But we must put one emotion? The chain_trace expects a single emotion (W). Perhaps choose "joy" or "relief". Let's choose "joy". Then action: "approach". So the chain would be:
+
+"摆脱欲 →(助听器太响且缺失声音)→ N06_摆脱痛苦 →(促进, 未满足, 负, 中)→ joy → approach".
+
+But we also need to include all steps. However, maybe they want "情绪W" as one of the emotion categories from the distribution, but can be a combination? The spec: "情绪W". Could be one. Let's pick "joy". That's okay.
+
+Now evidence: Must provide quotes for each step: desire quote, need quote, emotion quote, action quote. We need to quote directly from the content. Let's find the specific lines.
+
+Content:
+
+"2nd set aids but first molds. They were too loud at first everything really awesome except those missing sounds. I think my adjustment appt in October is going to be awesome. It will be my 3rd adjustment."
+
+- For desire: Which line expresses desire? The desire is to get rid of the too loud and missing sounds. Not directly expressed. But we can infer from "They were too loud at first ... missing sounds." That indicates a desire to not have that problem. Also "I think my adjustment appt ... is going to be awesome." expresses desire for improvement. The phrase "awesome" indicates desire for positive outcome. The phrase "everything really awesome except those missing sounds" can indicate desire to have everything awesome. We can quote "everything really awesome except those missing sounds". But that's more about the current state. Maybe "I think my adjustment appt in October is going to be awesome." expresses desire for improvement. So we can cite that.
+
+- For need: The need is "摆脱痛苦" - we can quote "They were too loud at first ... missing sounds" as evidence of pain/discomfort.
+
+- For emotion: The emotion can be "joy" from "awesome" and "I think ... is going to be awesome". Also "desire". Could quote "awesome".
+
+- For action: The action tendency "approach" from "I think my adjustment appt ... is going to be awesome", indicating they will attend the appointment. Also perhaps "It will be my 3rd adjustment." indicates they will go to the appointment. So we can quote "I think my adjustment appt in October is going to be awesome". That shows approach.
+
+Thus evidence: "desire": maybe "I think my adjustment appt in October is going to be awesome." (the desire for improvement). But the desire is not explicitly "want". However we could quote the phrase "awesome". But the instruction says "逐字引用" - we need to use direct text. The best we can do: quote "I think my adjustment appt in October is going to be awesome" as evidence for desire/expectation. Also "everything really awesome except those missing sounds" expresses desire for awesome hearing.
+
+But we need separate evidence for each layer. Let's define:
+
+- desire: "everything really awesome except those missing sounds" indicates desire to have awesome hearing; also "I think my adjustment appt ... is going to be awesome".
+
+- need: "They were too loud at first ... missing sounds" is the problem.
+
+- emotion: "awesome" expresses joy, desire.
+
+- action: "I think my adjustment appt ... is going to be awesome" is approach.
+
+Now we need to fill the JSON.
+
+We must ensure each distribution sums to 1.
+
+We need to output a JSON with these fields: desire_layer, need_layer, appraisal, emotion_layer, action_tendency_layer, chain_trace, evidence.
+
+All keys as described. The weight distribution across desire categories: nine categories sum to 1.
+
+We need to produce numeric values to 2 decimal? They didn't specify number of decimals, but likely accept decimal.
+
+We must keep all keys in Chinese/English as given.
+
+Now let's carefully design each part.
+
+First, desire_layer: We need distribution across nine categories.
+
+We assign:
+
+- 拥有欲: 0.1 (they have hearing aids)
+- 成为欲: 0.1 (to become better hearing)
+- 摆脱欲: 0.4 (to get rid of discomfort)
+- 确认欲: 0.1 (to confirm that the decision to get hearing aids is right)
+- 超越欲: 0.0
+- 归属欲: 0.0
+- 控制欲: 0.2 (to control hearing)
+- 安全感欲: 0.1 (to reduce uncertainty)
+- 向往欲: 0.0
+
+Sum = 1.0
+
+We need to add note: Why these desires activated: They want to get rid of the loudness and missing sounds (摆脱欲), they want control over hearing (控制欲), they want to ensure they have the right solution (确认欲), they want to own better hearing (拥有欲), they desire to become a better hearing person (成为欲), they want safety (安全感欲). So note.
+
+Now need_layer: We need to list multiple need objects with codes from the 17 categories.
+
+Let's assign:
+
+- N06_摆脱痛苦: weight 0.35. context_slot: "助听器声音过大且出现缺失声音，导致不适". Derived_from: "摆脱欲".
+
+- N02_掌控局面: weight 0.25. context_slot: "需要重新掌控自己的听力体验，解决声音问题". Derived_from: "控制欲".
+
+- N03_提升能力: weight 0.20. context_slot: "希望提升听力能力，更好地感知声音". Derived_from: "成为欲".
+
+- N01_确定性: weight 0.10. context_slot: "想确认即将到来的调整是否能解决当前问题". Derived_from: "安全感欲".
+
+- N10_自我确认: weight 0.10. context_slot: "想确认自己选择助听器的决定是否正确". Derived_from: "确认欲".
+
+Sum = 1.0.
+
+We could add N14_代入理想 maybe but we have enough.
+
+Now appraisal:
+
+Goal_relevance: 0.9 (high relevance).
+
+Congruence_direction: "促进".
+
+Need_status: "未满足".
+
+Goal_congruence: "负" (unsatisfied need => negative).
+
+Coping_potential: "中".
+
+Now we need note describing how evaluation leads to emotion. We'll produce a note.
+
+Now emotion_layer: distribution across GoEmotions categories.
+
+Let's assign:
+
+- admiration钦佩: 0.0
+- joy喜悦: 0.35
+- gratitude感激: 0.05 (maybe they are grateful for the upcoming appointment)
+- desire渴望: 0.30
+- nostalgia怀旧: 0.0
+- pride自豪: 0.05 (proud to have new aids)
+- love爱: 0.0
+- relief宽慰: 0.20
+- approval认同: 0.05 (they approve of the aids)
+- curiosity好奇: 0.0
+- fear恐惧: 0.0
+- sadness悲伤: 0.0
+- anger愤怒: 0.0
+
+Sum = 1.0 (0.35+0.05+0.30+0.05+0.20+0.05 = 1.0). Yes.
+
+Now action_tendency_layer: distribution across 7 categories.
+
+We choose:
+
+- approach趋近: 0.7
+- avoid... etc: 0.0
+- attend关注: 0.3
+- reject拒斥: 0.0
+- agonistic对抗: 0.0
+- interrupt中断: 0.0
+- dominate支配: 0.0
+
+Sum = 1.0.
+
+Now chain_trace: We need to produce a single sentence: "欲望X →(情境Y)→ 需求Z(写code) →(评价:direction/need_status/congruence正负,coping)→ 情绪W → 行动倾向V".
+
+We can write:
+
+"摆脱欲 →(助听器声音过大且缺失声音导致不适)→ N06_摆脱痛苦 →(促进, 未满足, 负, 中)→ joy → 趋近".
+
+Or maybe include more context: "摆脱欲 →(助听器声音过大且缺失声音)→ N06_摆脱痛苦 →(促进, 未满足, 负, 中)→ joy → approach". Use English for "approach"? But the categories are Chinese. Use "趋近". So:
+
+"摆脱欲 →(助听器声音过大且缺失声音)→ N06_摆脱痛苦 →(促进, 未满足, 负, 中)→ joy → 趋近".
+
+We need to note that we derived this from the distribution. The chain should include all.
+
+Now evidence: need to produce mapping of each quote to each layer. Use direct quotes.
+
+We need to reference quotes:
+
+- desire: "everything really awesome except those missing sounds" (or "I think my adjustment appt in October is going to be awesome").
+
+- need: "They were too loud at first ... missing sounds".
+
+- emotion: "awesome" expresses joy.
+
+- action: "I think my adjustment appt in October is going to be awesome" indicates approach.
+
+But we need to provide evidence in the JSON: "evidence": {"desire": "..."} etc.
+
+Let's capture them:
+
+- desire: "everything really awesome except those missing sounds" maybe. Or "I think my adjustment appt in October is going to be awesome". The desire to have awesome hearing experience.
+
+- need: "They were too loud at first" and "missing sounds" indicate pain.
+
+- emotion: "awesome" appears twice, indicates joy and desire.
+
+- action: "I think my adjustment appt in October is going to be awesome" indicates approach.
+
+Now let's build JSON.
+
+We need to abide by the structure: top-level keys: desire_layer, need_layer, appraisal, emotion_layer, action_tendency_layer, chain_trace, evidence.
+
+Make sure JSON values are numbers with decimal.
+
+Now produce final JSON.
+
+Will embed within triple backticks and json.
+
+One thing: The "note" fields can be short.
+
+Let's generate.
+
+Potential concerns: The need_layer must be a list (array) of objects each with code, context_slot, weight, derived_from. Ensure each has weight that sums to 1.
+
+Our need_layer: We'll produce 5 objects.
+
+Now we should double-check each field:
+
+- desire_layer: distribution mapping from 9 categories; each weight numeric. Should be in range [0,1], sum to 1.
+
+- need_layer: list, each with code string (must match exactly e.g., "N06_摆脱痛苦"). context_slot free text, weight numeric sum to 1, derived_from: a string referencing desire(s). Should we include "由<哪个欲望>经<什么情境事件>衍生"? The spec: "derived_from": "由<哪个欲望>经<什么情境事件>衍生". So we can write something like "由摆脱欲经助听器声音过大且缺失声音情境触发". That would match.
+
+- appraisal: fields: goal_relevance (0-1), congruence_direction (string), need_status (string), goal_congruence (string), coping_potential (string), note.
+
+- emotion_layer: distribution keys exactly as list. Provide numeric.
+
+- action_tendency_layer: distribution keys as list.
+
+- chain_trace: a string.
+
+- evidence: object with keys desire, need, emotion, action, each mapping to a string containing quoted text.
+
+Make sure that the evidence strings contain the quoted text exactly from the content (including punctuation?). We'll need to use double quotes around them.
+
+Now fill in.
+
+Potential improvements: We may incorporate the note for desire_layer, maybe mention why each desire is triggered.
+
+Now construct JSON.
+
+First, desire_layer:
+
+{
+  "distribution": {
+    "拥有欲": 0.1,
+    "成为欲": 0.1,
+    "摆脱欲": 0.4,
+    "确认欲": 0.1,
+    "超越欲": 0.0,
+    "归属欲": 0.0,
+    "控制欲": 0.2,
+    "安全感欲": 0.1,
+    "向往欲": 0.0
+  },
+  "note": "用户希望摆脱当前助听器声音过大且缺失的不适感(摆脱欲)，掌控自己的听力体验(控制欲)，确认自己选择助听器是正确的(确认欲)，并拥有更好的听力(拥有欲、成为欲)，以及获得安全感(安全感欲)。"
+}
+
+Now need_layer:
+
+[
+  {
+    "code": "N06_摆脱痛苦",
+    "context_slot": "助听器声音过大且出现缺失声音，导致不适感",
+    "weight": 0.35,
+    "derived_from": "由摆脱欲经助听器声音过大且缺失声音情境触发"
+  },
+  {
+    "code": "N02_掌控局面",
+    "context_slot": "需要重新掌控自己的听力体验，解决声音问题",
+    "weight": 0.25,
+    "derived_from": "由控制欲经当前听力失控情境触发"
+  },
+  {
+    "code": "N03_提升能力",
+    "context_slot": "希望提升听力能力，更好地感知声音",
+    "weight": 0.20,
+    "derived_from": "由成为欲经想要更好听力情境触发"
+  },
+  {
+    "code": "N01_确定性",
+    "context_slot": "想确认即将到来的调整是否能解决当前问题",
+    "weight": 0.10,
+    "derived_from": "由安全感欲经对调整结果的不确定情境触发"
+  },
+  {
+    "code": "N10_自我确认",
+    "context_slot": "想确认自己选择助听器的决定是否正确",
+    "weight": 0.10,
+    "derived_from": "由确认欲经对选择的价值确认情境触发"
+  }
+]
+
+Now appraisal:
+
+{
+  "goal_relevance": 0.9,
+  "congruence_direction": "促进",
+  "need_status": "未满足",
+  "goal_congruence": "负",
+  "coping_potential": "中",
+  "note": "内容指向帮助用户实现更好的听力（促进），但当前需求尚未得到满足（未满足），导致目标未达成（负），用户对即将到来的调整抱有中等信心（中等应对潜能），因此情绪倾向于希望与期待。"
+}
+
+Now emotion_layer:
+
+{
+  "distribution": {
+    "admiration钦佩": 0.0,
+    "joy喜悦": 0.35,
+    "gratitude感激": 0.05,
+    "desire渴望": 0.30,
+    "nostalgia怀旧": 0.0,
+    "pride自豪": 0.05,
+    "love爱": 0.0,
+    "relief宽慰": 0.20,
+    "approval认同": 0.05,
+    "curiosity好奇": 0.0,
+    "fear恐惧": 0.0,
+    "sadness悲伤": 0.0,
+    "anger愤怒": 0.0
+  },
+  "note": "因为需求未满足但期待改善，用户产生喜悦（joy）和渴望（desire），同时对可能的解决方案感到宽慰（relief），对已有助听器感到认可（approval）和自豪（pride），并略表感激（gratitude）。"
+}
+
+Now action_tendency_layer:
+
+{
+  "distribution": {
+    "approach趋近": 0.7,
+    "avoidance回避": 0.0,
+    "attend关注": 0.3,
+    "reject拒斥": 0.0,
+    "agonistic对抗": 0.0,
+    "interrupt中断": 0.0,
+    "dominate支配": 0.0
+  },
+  "note": "用户期待即将到来的调整，倾向于采取趋进行动（预约就诊），并且会关注与助听器相关的信息。"
+}
+
+Now chain_trace: a sentence.
+
+We need to match the chain exactly. We'll produce:
+
+"摆脱欲 →(助听器声音过大且缺失声音导致不适)→ N06_摆脱痛苦 →(促进, 未满足, 负, 中)→ joy → 趋近"
+
+Make sure it's consistent: desire X, context Y, need Z (code), appraisal: direction/need_status/congruence, coping, emotion W, action V. Our appraisal includes direction, need_status, congruence, coping. That's okay.
+
+Now evidence: need to map each.
+
+We can provide:
+
+{
+  "desire": "everything really awesome except those missing sounds",
+  "need": "They were too loud at first ... missing sounds",
+  "emotion": "awesome",
+  "action": "I think my adjustment appt in October is going to be awesome"
+}
+
+But note that we need to use the exact text. Let's copy exact from content:
+
+Content: "2nd set aids but first molds. They were too loud at first everything really awesome except those missing sounds. I think my adjustment appt in October is going to be awesome. It will be my 3rd adjustment."
+
+Thus we can quote:
+
+- desire: "everything really awesome except those missing sounds"
+- need: "They were too loud at first"
+- emotion: "awesome"
+- action: "I think my adjustment appt in October is going to be awesome"
+
+We need to capture the action "I think my adjustment appt ... is going to be awesome" as evidence for approach.
+
+But for desire, maybe the phrase "everything really awesome except those missing sounds" expresses desire for awesome hearing. That could be considered desire for a positive outcome. The phrase "I think my adjustment appt in October is going to be awesome" expresses desire too.
+
+But in evidence we can mention both.
+
+Now final JSON.
+
+One more check: The desire_layer note is a bit long but okay.
+
+Check need_layer: all codes are correct: N06_摆脱痛苦, N02_掌控局面, N03_提升能力, N01_确定性, N10_自我确认. Are they all part of the 17 categories? Yes. Good.
+
+Now confirm sum weights: desire sum = 0.1+0.1+0.4+0.1+0+0+0.2+0.1+0 = 1.0.
+
+Need sum = 0.35+0.25+0.20+0.10+0.10 = 1.0.
+
+Emotion sum: 0+0.35+0.05+0.30+0+0.05+0+0.20+0.05+0+0+0+0 = 1.0.
+
+Action sum = 0.7+0+0.3+0+0+0+0 = 1.0.
+
+Now double-check that each category matches exactly the strings: The keys in emotion_layer distribution: "admiration钦佩", "joy喜悦", "gratitude感激", "desire渴望", "nostalgia怀旧", "pride自豪", "love爱", "relief宽慰", "approval认同", "curiosity好奇", "fear恐惧", "sadness悲伤", "anger愤怒". Good.
+
+The action_tendency keys: "approach
