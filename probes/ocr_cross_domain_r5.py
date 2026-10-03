@@ -468,7 +468,7 @@ def cmd_run():
            "cells_reaching_30": sorted(c for c, d in main.items() if d["n_text_frames"] >= 30),
            "cells": {"keep_v3b": {"role": "primary_preregistered", "cells": main},
                      "no_filter_upper_bound": {"role": "I6_reference_only", "cells": up}},
-           "★deviations_registered": DEVIATIONS,
+           "★deviations_registered": DEVIATIONS, "★notes": NOTES,
            "★prior_rounds_not_pooled": "r1–r4 数据只用于功效估算与已看帧自检, 不并入本轮判定。",
            "★no_transcriptions_in_repo": "本文件只有路径/sha/数字; 转写在仓外真值文件。"}
     json.dump(res, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
@@ -487,7 +487,20 @@ def cmd_run():
     return 0
 
 
-DEVIATIONS = []
+DEVIATIONS = [
+    "非偏离、如实登记(冻结真值前已知, 只看了有字帧计数, 见 r5_gt_freeze.json): 户外跑步|SPARSE 90 候选全部转写只得 19 张有字帧 "
+    "⇒ 按预注册降级规则 INSUFFICIENT(只描述, I6 照算); 学习方法|DENSE 恰好 20(下限)。",
+    "非偏离、如实登记: 读书分享|SPARSE 同一批里多转写了停止点之后的 3 帧, 停止规则下 measure 不用它们(真值 290 项, 入样 287 帧)。",
+    "转写口径(沿用 v1–v4, 非新规则): 运动 App 数据截图与字幕叠压的帧按视觉行录可辨部分并记 partial/overlap; 度量只取中文字符, "
+    "数字/拉丁字母不进 1−CER。",
+]
+NOTES = {
+    "hallucination_on_blank": "零文字对照的「无中生有」34 次里 32 次是抖音片尾卡(「来抖音 发现更多创作者」, keep_v3/v3b 按设计不删 —— "
+                              "第三轮已登记), 只描述, 不是闸。",
+    "same_box_prefix_not_exercised": "第四轮 I6 不过的那种版式(正文与「抖音号」被并进同一个 OCR 框)在本轮入样帧里 0 次出现 ⇒ "
+                                     "H_filter 确证的是「keep_v3b 在这批新帧上没有吃字」, v3b 的修复点本身没有在新帧上被触发; "
+                                     "该修复只有已看帧上的证据(seencheck: 5 帧损失 0.280→0.000)。",
+}
 
 
 if __name__ == "__main__":
