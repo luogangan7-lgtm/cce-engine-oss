@@ -1,0 +1,428 @@
+We have a prompt to act as "爆款内容心理拆解专家". The user provides a detailed structure for analysis. The content is:
+
+Platform: Reddit r/HearingAids hearing_aid: Public reply to a Reddit r/HearingAids member (the original text is presumably from a Reddit post, but the given content is a single reply).
+
+The content is:
+
+"That’s not normal. Something is wrong. I own a pair of 9030s and streaming is clear as can be. Take them back to the store and let the audiologist know. They have access to many more settings than what we have via the app."
+
+We need to do "因果链逆问题" (reverse cause-effect chain) from observable discourse/comments to infer the full causal chain: desire (latent) → need (situational) → evaluation → emotion → action tendency → behavior/speech.
+
+We need to produce a JSON with the layers, including weights distributions and notes.
+
+Constraints:
+
+- desire_layer: distribution among 9 desire types (拥有欲, 成为欲, 摆脱欲, 确认欲, 超越欲, 归属欲, 控制欲, 安全感欲, 向往欲). Sum to 1.
+
+- need_layer: list of objects with code from 17 types, context_slot, weight, derived_from (derived from which desire via what situational event). Sum of weights = 1.
+
+- appraisal: goal_relevance (0-1), congruence_direction (促进/威胁/中性), need_status (已满足/未满足), goal_congruence (正/负), coping_potential (高/中/低), note.
+
+- emotion_layer: distribution among 13 GoEmotion categories (admiration, joy, gratitude, desire, nostalgia, pride, love, relief, approval, curiosity, fear, sadness, anger). Sum to 1.
+
+- action_tendency_layer: distribution among 7 Frijda action tendencies (approach, avoidance, attend, reject, agonistic, interrupt, dominate). Sum to 1.
+
+- chain_trace: a single sentence that explains the full chain, from desire X (specific) → (situational Y) → need Z (code) → (appraisal details) → emotion W → action tendency V. Must be coherent.
+
+- evidence: quotes from the content.
+
+The content is a public reply. The user says: "If this content is indeed a personal expression by a single person, infer the psychological chain for that one person. If it's not personal expression (e.g., a pure data table, terms, manual, etc.), return no_inferable_subject: true."
+
+Here it's a public reply. It's a single individual's statement. So we treat as personal expression.
+
+Thus we need to infer the person's desire, need, etc.
+
+Let's read the content: "That’s not normal. Something is wrong. I own a pair of 9030s and streaming is clear as can be. Take them back to the store and let the audiologist know. They have access to many more settings than what we have via the app."
+
+Interpretation: The person is replying to someone complaining about hearing aid issues? The content says "That's not normal. Something is wrong." So they think the problem is abnormal. "I own a pair of 9030s and streaming is clear as can be." They assert that their own hearing aids work fine. "Take them back to the store and let the audiologist know. They have access to many more settings than what we have via the app." So they recommend going back to store and seeing the audiologist.
+
+Thus the person is expressing an opinion that something is wrong, that the problem is not typical, that they have a similar product (9030s) and it's fine. They advise to see an audiologist. So what desire does this reflect? Likely "安全感欲" (need for safety/control). Actually we have "安全感欲" is "消除不确定性/风险/恐惧". The person is addressing an uncertainty: "Something is wrong." So they want to eliminate risk, and they want to assure themselves that they are safe (the product is okay). Also "控制欲" (need to control one's situation). They want to have control: they are giving advice to get more control (audiologist can adjust settings). Possibly "确认欲" (need to confirm that their own product works fine, that the other's problem is abnormal). The person is also confirming that they have the same product and it works fine, so they are confirming their own viewpoint.
+
+Let's systematically analyze the content and derive the causal chain.
+
+Step 1: Desire (stable latent variable). Which desires are triggered? Let's consider each:
+
+1. 拥有欲 (to have product / state): The person mentions "I own a pair of 9030s". They are satisfied with that product, perhaps they have a desire to have that product. But the content is about hearing aids, but it's not about wanting to have something; it's about confirming that their own product is fine. So not strongly 拥有欲.
+
+2. 成为欲 (to become a type of person). The person is not expressing a desire to become something.
+
+3. 摆脱欲 (to escape current pain). The content says "Something is wrong". The other person is presumably experiencing some issue. The reply is to advise to address the problem, thus they are trying to help the other person摆脱痛苦 (the pain of hearing aid malfunction). So 摆脱欲 could be present, but the person is not in pain; they are not the one experiencing the problem. They are responding to someone else in pain. The desire could be to help others摆脱痛苦. However the desire is an other-regarding desire: the person wants to relieve the pain of the other. In the 9 desire categories, "摆脱欲" is to escape current pain, presumably for self. But maybe they also want to relieve others' pain? The categories don't include altruism. However the desire to help someone else摆脱痛苦 can be conceptualized as "控制欲" (to control the situation) or "安全感欲". But we might need to decide which desires are most activated.
+
+4. 确认欲 (to confirm one's view). The person says "That's not normal. Something is wrong." They are confirming the problem. Also they say "I own a pair of 9030s and streaming is clear as can be." So they are confirming that their own product works fine, which may be about confirming their own choice (they have the same brand, so they are confirming that the product is reliable). So 确认欲 seems likely.
+
+5. 超越欲 (to surpass ordinary/others). Not strongly indicated.
+
+6. 归属欲 (to belong to a group). Possibly the person is a member of hearing aid community and is responding to a fellow member, wanting to maintain group norm (i.e., it's not normal). Not strongly.
+
+7. 控制欲 (to control自己的生活). They are recommending seeing audiologist to get more control over settings, i.e., to control the device. So 控制欲 is plausible.
+
+8. 安全感欲 (消除不确定性/风险). They want to assure safety: "Something is wrong, you need to fix it." The reply is to mitigate risk. So 安全感欲 is plausible.
+
+9. 向往欲 (to imagine being in a certain lifestyle). Not relevant.
+
+Thus likely desire: 确认欲 (to confirm the correct view), 控制欲 (to have control over device), 安全感欲 (to eliminate risk). Also possibly 摆脱欲 for the other person.
+
+We need to assign distribution (weights) that sum to 1 across the nine categories. Let's assign maybe:
+
+- 确认欲: 0.30
+- 控制欲: 0.30
+- 安全感欲: 0.30
+- 摆脱欲: 0.10 (for helping the other relieve pain)
+- Others: 0.0
+
+But check: "拥有欲" maybe not; "成为欲" not; "超越欲" not; "归属欲" not; "向往欲" not.
+
+But the distribution should be plausible given the content. The person is concerned about the problem (uncertainty) and wants to restore control and confirm that it's abnormal and that they can fix it. So yes.
+
+Now need_layer: from desires we derive needs (situational). Let's consider the context: The other person posted about hearing aids not working? The reply suggests "Take them back to the store and let the audiologist know. They have access to many more settings than what we have via the app."
+
+Thus the need: N01_确定性 (need for certainty) about the cause of problem. The person wants to reduce uncertainty. Could be N01_确定性. Also N02_掌控局面 (need for control). The person is offering advice to control the device (audiologist can adjust). Also N03_提升能力 (提升能力) maybe not. N04_理解世界 (understand cause) maybe. The person wants to understand why the problem occurs.
+
+We need to produce a list of needs with weight sum = 1. We can pick the most relevant need(s). Maybe two needs: N01_确定性 and N02_掌控局面. Or also N03_提升能力? But it's not about learning a skill.
+
+Let's examine the content: "That’s not normal. Something is wrong." This expresses a need to understand the cause (N04_理解世界). Also "I own a pair of 9030s and streaming is clear as can be." This is evidence that they understand it's working fine. "Take them back to the store and let the audiologist know." This suggests they want to get a solution (N01_确定性 and N02_掌控局面). "They have access to many more settings than what we have via the app." This suggests need for more control.
+
+Thus we can assign: N01_确定性 weight 0.4, N02_掌控局面 weight 0.4, N04_理解世界 weight 0.2.
+
+Alternatively N05_优化效率 could be not relevant.
+
+Alternatively N13_情感慰藉? Not exactly.
+
+Thus we have need_layer:
+
+- N01_确定性: context: "Something is wrong" - the uncertainty about the device malfunction. weight 0.4, derived from desire: 安全感欲 (need for certainty) and 控制欲 (need for control). But we need to derive from which desire? Possibly "安全感欲" leads to need for certainty.
+
+- N02_掌控局面: context: "Take them back to the store and let the audiologist know." The need to get more control over device settings, derived from "控制欲". weight 0.4.
+
+- N04_理解世界: context: "That's not normal. Something is wrong." The need to understand why it's abnormal. Derived from "确认欲". weight 0.2.
+
+Sum = 1.
+
+Now appraisal: The need(s) are currently "未满足" because the problem exists. The content acknowledges the problem, it's a threat to the goal. So congruence_direction is "威胁" (threat). need_status is "未满足" (unresolved). goal_congruence is "负". coping_potential: The person suggests a solution (go to audiologist). The coping potential is "高" because they have a clear actionable solution (go to store). Actually from the viewpoint of the person giving advice, they have a solution, so coping potential is high. For the original poster (the person experiencing the problem), coping potential may be medium, but we need to reflect the appraisal for the speaker. The speaker is not directly affected but they are offering solution. They have high coping potential. So we can set coping_potential = "高".
+
+Goal relevance: How relevant is this content to the speaker's goals? The speaker's desire is to confirm the problem (confirmation), to control (advice), to ensure safety. The content is relevant: goal_relevance maybe 0.8.
+
+Thus appraisal:
+
+- goal_relevance: 0.8 (high relevance)
+- congruence_direction: 威胁 (threat) because the problem is a threat to the user's need for safety.
+- need_status: 未满足 (unresolved)
+- goal_congruence: 负 (negative)
+- coping_potential: 高 (high)
+
+But note: For the speaker, the content is offering a solution, which is a positive direction (they are helping). However the initial evaluation of the problem is threat, but the solution is positive. The appraisal layer is for the content's impact on the need? We need to decide. According to the description, appraisal is "欲望与情绪之间的桥". It includes goal_relevance, congruence_direction, need_status, goal_congruence, coping_potential. The congruence_direction is "内容对需求是「促进」还是「威胁」". The content is providing advice that helps resolve the threat, thus it is "促进" (promoting) the need to resolve the problem. But the initial statement "That's not normal. Something is wrong" is a threat. However the entire content includes both threat detection and a solution suggestion. The net effect: the content is helpful (promotes resolution). So we need to decide which direction to choose. The guidelines say: "内容帮观众趋近目标=促进；内容揭示威胁/让需求受阻=威胁；无关=中性". The content includes both threat and solution, but the main message is that the hearing aids have an issue and you should go to the audiologist. This is basically a suggestion to resolve the problem, thus it's promoting the need. So we could say "促进". But note the need_status: The need is not yet satisfied (the problem is still there). However the content suggests a solution, which may help satisfy the need. But the need_status is about whether the content directly satisfies the need. The content is not satisfying it directly; it's providing a path. So need_status is "未满足". So we have "促进" and "未满足". Then goal_congruence: "促进且已满足" => 正; "威胁或未满足(焦虑悬置)" => 负. In this case, it's "促进" and "未满足", which is not the combination for positive; it's "促进 but 未满足" -> maybe still negative? The guideline says: "关键区分：「内容有帮助」=促进+已满足→正情绪；「自查后发现威胁却没解法」=威胁+未满足→fear恐惧等负情绪。" So "有帮助" = 促进+已满足 => positive emotion. Here it's "促进+未满足". That is not a defined case. Possibly this leads to a mixed emotion like "relief" or "hope"? Might be "relief" if solution is possible. But we need to decide.
+
+Better to consider the perspective: The content is addressing a threat but offering a solution. This may generate "relief" (宽慰) if the solution is perceived as helpful, even if not yet resolved. The coping potential is high, so the user may feel "relief". So the emotion might be "relief" (0.8) plus maybe "approval" (0.2). Or "relief" plus "curiosity"? Let's hold.
+
+Thus appraisal: congruence_direction = "促进", need_status = "未满足", goal_congruence = "负"? Actually "goal_congruence" is derived: if congruence_direction=促进 and need_status=已满足 => 正; else if 威胁 or 未满足 => 负. So with 促进+未满足, it's ambiguous, but we can set goal_congruence = "负". Because need is not yet satisfied, it's still a negative state. So we set goal_congruence = "负". Coping_potential = "高". So the emotional response may be "relief" or "approval". The content acknowledges a problem (threat) but also offers solution, so the net emotion may be "relief" (as the threat is mitigated by advice). However "relief" is associated with "解除紧张/威胁后感到放松". So yes.
+
+Thus emotion_layer: distribution among 13 categories. Let's assign:
+
+- relief宽慰: 0.5 (high because of solution)
+- approval认同: 0.2 (they approve the advice)
+- curiosity好奇: 0.1 (they might be curious about why it's wrong)
+- fear恐惧: 0.1 (still some fear about malfunction)
+- admiration钦佩: 0.1 (maybe they admire the audiologist's ability)
+
+We need sum to 1.
+
+Alternatively could be other emotions like "anger" if they think it's unacceptable. But not.
+
+Given the content, they are not expressing anger; they are just stating it's not normal and they need to go to the store. So "relief" and "approval" are plausible.
+
+Now action_tendency_layer: According to Frijda, the person is recommending action: "Take them back to the store and let the audiologist know." That is a suggestion to approach. So the action tendency is "approach趋近". They are also providing advice, which is a kind of "dominate支配"? They are giving instructions. But the primary tendency is "approach" (to seek solution). They also "attend关注" (pay attention to the problem). So maybe we assign:
+
+- approach趋近: 0.7
+- attend关注: 0.2
+- dominate支配: 0.1 (they are taking control by advising)
+
+Sum = 1.
+
+Alternatively could have "agonistic对抗"? Not relevant.
+
+Now chain_trace: a single sentence that goes through all layers. Something like: "确认欲 → (发现他人 hearing aid 故障) → N01_确定性/N02_掌控局面 (需要确认问题并掌控解决方案) → (促进+未满足，高应对潜能) → relief宽慰 → approach趋近". But must be one sentence and include all details.
+
+Let's craft: "确认欲驱使该用户在看到他人HearingAid异常时，先产生确认该问题是否属实的需求（N01_确定性），随后为恢复对设备掌控而产生N02_掌控局面需求；(内容为促进但未满足，需求未被直接满足，用户的应对潜能高) → 产生relief宽慰情绪；(为获得进一步确定性和掌控) → 行动倾向表现为approach趋近，建议对方前往门店并咨询听力师。"
+
+But we need to follow the chain format: desire X →(情境Y)→ need Z (code) →(评价:direction/need_status/congruence正负,coping)→ 情绪W → 行动倾向V. Must be a single sentence (or at least a continuous chain). Let's produce:
+
+"确认欲 →(看到他人HearingAid出现异常并声称问题)→ N01_确定性（需确认故障是否真实）和 N02_掌控局面（需重新获得设备掌控） →(内容促进需求但未直接满足，需求未满足且威胁感仍存，用户的应对潜能高)→ relief宽慰 → approach趋近（建议返回门店并让听力师检查）"
+
+But we need to also mention N04_理解世界 perhaps, but we can incorporate it.
+
+But chain_trace expects one sentence. It can include multiple desires and needs separated by commas. Let's incorporate all.
+
+Better: "确认欲和安全感欲 →(面对他人HearingAid出现‘不正常’的故障)→ N01_确定性（确认故障是否真实）和 N04_理解世界（弄清为何异常） →(内容促进需求但未直接满足，需求未满足、威胁仍存，用户的应对潜能高)→ relief宽慰 → approach趋近（建议返回门店并让听力师利用更多设置进行调试）"
+
+But we also need to include N02_掌控局面 maybe. But we have only one chain; we can include multiple needs separated by "、" within the same parentheses. It's okay.
+
+Now evidence: We need to provide quotes from the content for each layer: desire evidence, need evidence, emotion evidence, action evidence.
+
+- Desire: "确认欲" evidence: "That’s not normal. Something is wrong." This phrase shows desire to confirm the abnormal situation. Also "I own a pair of 9030s and streaming is clear as can be." shows confirmation of their own device's normality. So we can quote "That’s not normal."
+
+- Need: N01_确定性 evidence: "That’s not normal. Something is wrong." That's about uncertainty. Also N02_掌控局面 evidence: "Take them back to the store and let the audiologist know." That's about regaining control.
+
+- Emotion: We assign relief. Evidence: The content suggests a solution, implying relief. But the content itself does not contain explicit emotion words. However "That’s not normal." is not emotion. But we can say "the suggestion of a solution conveys relief". Possibly we need to quote something that indicates relief? Not explicit. But we can argue that "Take them back to the store and let the audiologist know." is a constructive action that reduces anxiety, indicating relief. But evidence must be from content. Could we quote "Take them back to the store and let the audiologist know." as evidence of relief? That might not be direct. But we can say the content provides a solution, which leads to relief.
+
+Alternatively, we could choose "approval认同". Evidence: "That’s not normal." is a judgement, indicating approval that the problem is abnormal. But "approval" is a feeling of approving something. Not exactly. But we can argue that the speaker is approving the idea of going to audiologist. The content "let the audiologist know" is an approval.
+
+But we must have evidence for each layer. The user explicitly says "evidence": "逐字引用". So we need to cite actual words from content that correspond to each layer. Let's list:
+
+- Desire: "That’s not normal." (confirmation desire). Also "I own a pair of 9030s and streaming is clear as can be." (confirmation of own device's normalcy). That's fine.
+
+- Need: "That’s not normal." indicates need for certainty. "Take them back to the store and let the audiologist know." indicates need for control. "They have access to many more settings than what we have via the app." indicates need for understanding why the device is limited.
+
+- Appraisal: The content acknowledges a problem (threat) and provides a solution (promoting). The "goal_relevance" is high. We need to provide evidence: "That’s not normal. Something is wrong." is relevant. "Take them back to the store..." shows high relevance.
+
+- Emotion: We need to cite evidence. The content doesn't have explicit emotion words, but we can cite "Take them back to the store" as indicative of relief. Or we can argue that the speaker is expressing "relief" indirectly. However, the guidelines require evidence, but we can still provide a plausible link. Perhaps we can choose "relief宽慰" because the content reduces anxiety. The evidence could be "Take them back to the store and let the audiologist know." This suggests that the problem can be solved, leading to relief. So we can quote that.
+
+- Action: "Take them back to the store..." is an instruction for approach.
+
+Now produce the final JSON with those fields.
+
+But we must be careful about the distribution values.
+
+Let's decide on final numbers:
+
+Desire_layer distribution:
+
+- 拥有欲: 0.0
+- 成为欲: 0.0
+- 摆脱欲: 0.0 (maybe 0.05, but we can set 0.0)
+- 确认欲: 0.35
+- 超越欲: 0.0
+- 归属欲: 0.0
+- 控制欲: 0.30
+- 安全感欲: 0.30
+- 向往欲: 0.0
+
+Sum = 0.35 + 0.30 + 0.30 = 0.95. Need to sum to 1. So we can add 0.05 to "摆脱欲" or any other. But maybe "摆脱欲" is present as desire to help the other person get rid of pain. Let's assign 0.05. Then total = 1.0.
+
+Thus distribution:
+
+- 拥有欲: 0.0
+- 成为欲: 0.0
+- 摆脱欲: 0.05
+- 确认欲: 0.35
+- 超越欲: 0.0
+- 归属欲: 0.0
+- 控制欲: 0.30
+- 安全感欲: 0.30
+- 向往欲: 0.0
+
+Alternatively we could assign "确认欲" 0.40, "控制欲" 0.30, "安全感欲" 0.25, "摆脱欲" 0.05 = 1.0. That seems okay.
+
+We need to provide note for each desire.
+
+Now need_layer: Let's assign:
+
+- N01_确定性: weight 0.4, context: "That’s not normal. Something is wrong." derived_from: 安全感欲 (need for certainty) and 确认欲 (desire to confirm abnormal). So we can attribute both.
+
+- N02_掌控局面: weight 0.35, context: "Take them back to the store and let the audiologist know." derived_from: 控制欲 (need for control) and 安全感欲 (to eliminate risk).
+
+- N04_理解世界: weight 0.25, context: "They have access to many more settings than what we have via the app." derived_from: 确认欲 (to understand why the device's functionality differs) and 控制欲 (to get more settings). But we can just attribute to 确认欲.
+
+Sum = 0.4 + 0.35 + 0.25 = 1.0.
+
+Now appraisal:
+
+- goal_relevance: 0.85 (high relevance to speaker's desire for certainty/control). Provide note.
+
+- congruence_direction: "促进" (the content offers a solution that helps the user address the problem).
+
+- need_status: "未满足" (the problem hasn't been fixed yet).
+
+- goal_congruence: "负" (because need not yet satisfied, threat still present).
+
+- coping_potential: "高" (the user can go to audiologist to fix).
+
+Note: The evaluation indicates that although the content acknowledges threat, the suggested solution gives high coping potential, leading to relief.
+
+Now emotion_layer distribution:
+
+We need to assign weights to each of the 13 emotions. Let's decide:
+
+- relief宽慰: 0.40 (the primary emotion due to solution)
+- approval认同: 0.20 (the user approves the idea of seeking professional help)
+- curiosity好奇: 0.15 (curiosity about the cause of the problem)
+- admiration钦佩: 0.10 (admiration for audiologist's expertise)
+- fear恐惧: 0.10 (some lingering fear about malfunction)
+- Others: 0.0
+
+But we need to ensure sum = 1.
+
+Let's assign:
+
+- admiration钦佩: 0.10
+- joy喜悦: 0.0
+- gratitude感激: 0.0
+- desire渴望: 0.0
+- nostalgia怀旧: 0.0
+- pride自豪: 0.0
+- love爱: 0.0
+- relief宽慰: 0.40
+- approval认同: 0.20
+- curiosity好奇: 0.15
+- fear恐惧: 0.10
+- sadness悲伤: 0.0
+- anger愤怒: 0.05 (maybe slight anger at the malfunction). But we can keep anger at 0.05. Let's see.
+
+We need to make sure all keys present, sum = 1.
+
+Thus:
+
+- admiration钦佩: 0.10
+- joy喜悦: 0.0
+- gratitude感激: 0.0
+- desire渴望: 0.0
+- nostalgia怀旧: 0.0
+- pride自豪: 0.0
+- love爱: 0.0
+- relief宽慰: 0.40
+- approval认同: 0.20
+- curiosity好奇: 0.15
+- fear恐惧: 0.10
+- sadness悲伤: 0.0
+- anger愤怒: 0.05
+
+Sum = 0.10 + 0 + 0 + 0 + 0 + 0 + 0 + 0.40 + 0.20 + 0.15 + 0.10 + 0 + 0.05 = 1.0.
+
+Now action_tendency_layer distribution:
+
+- approach趋近: 0.70 (advice to go to store)
+- avoidance回避: 0.0
+- attend关注: 0.20 (attention to problem)
+- reject拒斥: 0.0
+- agonistic对抗: 0.0
+- interrupt中断: 0.0
+- dominate支配: 0.10 (they dominate the conversation by giving instructions)
+
+Sum = 1.0.
+
+Now chain_trace: must be a single sentence connecting all. Use desire X, situational Y, need Z (code), evaluation, emotion W, action V.
+
+Let's craft:
+
+"确认欲 →(看到他人HearingAid出现‘不正常’的故障并表达‘That’s not normal. Something is wrong.’)→ N01_确定性（需确认故障是否真实）和 N04_理解世界（欲了解为何设备功能受限） →(内容促进需求但未直接满足，需求未满足且仍有威胁，用户的应对潜能高)→ relief宽慰 → approach趋近（建议返回门店并让听力师利用更多设置进行调试）"
+
+But we also need to include N02_掌控局面 maybe in the same chain. We can add "并重新掌控设备" as part of need. So:
+
+"确认欲 →(看到他人HearingAid出现‘不正常’的故障并表达‘That’s not normal. Something is wrong.’)→ N01_确定性（需确认故障是否真实）和 N02_掌控局面（需重新掌控设备设置）和 N04_理解世界（欲了解为何功能受限） →(内容促进需求但未直接满足，需求未满足且仍有威胁，用户的应对潜能高)→ relief宽慰 → approach趋近（建议返回门店并让听力师利用更多设置进行调试）"
+
+But the chain should be one sentence. It can be long, but it's okay. We'll produce a concise but inclusive sentence.
+
+Now evidence: we need to quote from content for each layer.
+
+- Desire evidence: "That’s not normal." and "I own a pair of 9030s and streaming is clear as can be." (both show confirmation desire). Could quote "That’s not normal."
+
+- Need evidence: For N01_确定性: "That’s not normal." For N02_掌控局面: "Take them back to the store and let the audiologist know." For N04_理解世界: "They have access to many more settings than what we have via the app."
+
+- Emotion evidence: "Take them back to the store and let the audiologist know." implies relief, but we can quote that as evidence of relief. Or we can quote "They have access to many more settings than what we have via the app." as evidence of curiosity. However we need to link to emotion. For relief, we could quote "Take them back to the store". For approval, maybe "That’s not normal." but that's a judgement. Let's just provide quotes for each emotion we assigned.
+
+- Action evidence: "Take them back to the store and let the audiologist know." indicates approach.
+
+Now ensure the JSON includes all fields, and "no_inferable_subject" is not needed because we have a personal expression.
+
+Check all constraints:
+
+- desire_layer distribution includes exactly the nine keys, each weight sum = 1. Yes.
+
+- need_layer list: each object has code, context_slot (string), weight, derived_from (string). Must sum to 1. Our need_layer has three items with weights 0.4, 0.35, 0.25 = 1.0. Good.
+
+- appraisal: includes goal_relevance (float), congruence_direction (string from set {"促进","威胁","中性"}), need_status (string from {"已满足","未满足"}), goal_congruence (string from {"正","负"}), coping_potential (string from {"高","中","低"}), note (string). Yes.
+
+- emotion_layer distribution includes exactly 13 keys, sum to 1. Yes.
+
+- action_tendency_layer distribution includes exactly 7 keys, sum to 1. Yes.
+
+- chain_trace: a single sentence string with the placeholders. It must be coherent and follow the pattern "欲望X →(情境Y)→ 需求Z →(评价:direction/need_status/congruence正负,coping)→ 情绪W → 行动倾向V". We'll include all pieces.
+
+- evidence: object with keys "desire","need","emotion","action" each containing the quoted text. Should be string.
+
+Make sure to escape quotes properly in JSON. We'll output in a JSON code block.
+
+Now produce final answer.
+
+But double-check each mapping.
+
+First, desire_layer: Are we capturing all major desires? The person is not just confirming; they also have control desire. So we have 0.35 confirm, 0.30 control, 0.30 safety, 0.05 relief (others). That seems plausible.
+
+Now need_layer:
+
+- N01_确定性: context_slot: "用户发现他人HearingAid出现异常并声称‘That’s not normal. Something is wrong.’" derived_from: "安全感欲和确认欲". weight 0.4.
+
+- N02_掌控局面: context_slot: "建议将设备送回门店并让听力师使用更多设置进行调试" derived_from: "控制欲和安全感欲". weight 0.35.
+
+- N04_理解世界: context_slot: "解释听力师能够访问比App更多的设置，用户想要了解为何设备功能受限" derived_from: "确认欲和控制欲". weight 0.25.
+
+Now appraisal:
+
+goal_relevance: 0.85 (the problem is relevant to desire for safety/control). note: "内容直接回应了用户对设备异常的确定性和掌控需求。"
+
+congruence_direction: "促进". note: "内容提供了解决方案，帮助趋近目标。"
+
+need_status: "未满足". note: "故障尚未被修复，需求未直接满足。"
+
+goal_congruence: "负". note: "虽然内容提供帮助，但问题仍悬而未决，情绪倾向于负面。"
+
+coping_potential: "高". note: "用户可以前往门店获取专业帮助，具备高应对潜能。"
+
+Now emotion_layer distribution:
+
+We assign:
+
+- admiration钦佩: 0.10 (admiration for audiologist's skill)
+- joy喜悦: 0.0
+- gratitude感激: 0.0
+- desire渴望: 0.0
+- nostalgia怀旧: 0.0
+- pride自豪: 0.0
+- love爱: 0.0
+- relief宽慰: 0.40 (solution leads to relief)
+- approval认同: 0.20 (approval of seeking professional help)
+- curiosity好奇: 0.15 (curiosity about cause and settings)
+- fear恐惧: 0.10 (still fear about malfunction)
+- sadness悲伤: 0.0
+- anger愤怒: 0.05 (slight anger at defective device)
+
+Sum = 1.0.
+
+Now action_tendency_layer:
+
+- approach趋近: 0.70
+- avoidance回避: 0.0
+- attend关注: 0.20
+- reject拒斥: 0.0
+- agonistic对抗: 0.0
+- interrupt中断: 0.0
+- dominate支配: 0.10
+
+Now chain_trace: Must be one sentence. Let's craft:
+
+"确认欲 →(看到他人HearingAid出现‘That’s not normal. Something is wrong.’的情境)→ N01_确定性（确认故障是否真实）和 N02_掌控局面（重新掌控设备设置）和 N04_理解世界（了解为何设备功能受限） →(内容促进需求但未直接满足，需求未满足且仍有威胁，用户的应对潜能高)→ relief宽慰 → approach趋近（建议返回门店并让听力师利用更多设置进行调试）"
+
+We need to include the desire, need, evaluation, emotion, action tendency. The above includes all. It's one sentence.
+
+Now evidence:
+
+- desire: "That’s not normal." (confirm) and "I own a pair of 9030s and streaming is clear as can be." (confirm self). Provide maybe one of these.
+
+- need: N01_确定性: "That’s not normal."; N02_掌控局面: "Take them back to the store and let the audiologist know."; N04_理解世界: "They have access to many more settings than what we have via the app."
+
+- emotion: "Take them back to the store and let the audiologist know." as evidence for relief (the suggestion reduces anxiety). Also maybe "That’s not normal." as fear? But we can provide both.
+
+- action: "Take them back to the store and let the audiologist know."
+
+Now produce JSON. Ensure proper quoting.
+
+Potential issues: The need_layer context_slot is a free text but must be a string. derived_from must mention which desire(s) it originates from.
+
+Now double-check each weight sum.
+
+Desire sum: 0 + 0 + 0.05 + 0.35 + 0 + 0 + 0.30 + 0.30 + 0 = 1.0.
+
+Need sum: 0.4 + 0.35 + 0.25 = 1.0.
+
+Emotion sum: 0.10 + 0 + 0 + 0 + 0 + 0 + 0 + 0.40 + 0.20 + 0.15 + 0.10 + 0 + 0.05 = 1.0.
+
+Action sum: 0.70 +

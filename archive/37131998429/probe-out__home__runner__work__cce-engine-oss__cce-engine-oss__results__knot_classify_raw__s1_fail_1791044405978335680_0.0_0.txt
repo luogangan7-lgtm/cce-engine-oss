@@ -1,0 +1,455 @@
+We have a user request: they want a "因果链逆问题" (reverse causal chain) analysis of a Reddit post. The content is:
+
+"Well I’m wearing them right now at a Resturant with loud music and yeah I can hear everyone at the table in front of me and to my right because the left one’s receiver died basically 😂 So I got one working ear basically."
+
+We need to infer the psychological causal chain for the person who wrote that content. We need to produce a JSON object with the layers described.
+
+We must treat this as an individual expression, not a group. The content is a single person expressing that they're wearing hearing aids at a restaurant with loud music, can hear people on the right and front, but the left one's receiver died, so they basically have one working ear. The post is somewhat humorous (emoji). We need to reverse engineer from that observable discourse the underlying desire (stable latent variable), need (situational goal), appraisal (how they evaluate relative to their need), emotion, action tendency, and behavior.
+
+First, let's interpret the content: The person is wearing hearing aids (presumably "them" refers to hearing aids). They are in a restaurant with loud music. They can hear everyone at the table in front and to the right, because the left hearing aid's receiver died. So they effectively have one working ear. They include a laughing emoji, indicating some humor or acceptance.
+
+We need to determine which of the nine desire categories are activated: 1) ownership desire: maybe desire to have functioning hearing aids (or a product), but that's more like "possess". 2) "become desire": desire to be able to hear like normal hearing people? Possibly also desire to be like a hearing person. 3) "摆脱欲": desire to get rid of the pain/discomfort of hearing loss? Or to get rid of the frustration of a broken hearing aid. 4) "确认欲": desire to confirm their choice/identity? 5) "超越欲": desire to exceed/overcome? 6) "归属欲": desire to belong to group of hearing aid users? 7) "控制欲": desire to control their hearing situation, or ability to manage their hearing. 8) "安全感欲": desire to feel safe, eliminate uncertainty/risk (maybe hearing in noisy environment). 9) "向往欲": desire for ideal lifestyle or to be in a certain environment (like being able to hear and socialize normally).
+
+We need to assign weight distribution across the nine desires that sum to 1.
+
+We also need to assign need layer: a list of needs (from 17 categories) with weights sum to 1.
+
+We need to compute appraisal dimensions: goal relevance (0-1), congruence direction (促进/威胁/中性), need status (已满足/未满足), goal congruence (正/负), coping potential (高/中/低), note.
+
+Then emotion distribution across 13 GoEmotions categories, sum to 1.
+
+Then action tendency distribution across 7 Frijda categories, sum to 1.
+
+We must provide chain_trace with specific names: e.g., desire X -> (situation Y) -> need Z -> (appraisal) -> emotion W -> action tendency V.
+
+And evidence quoting from the content.
+
+We need to ensure the chain trace uses actual words: desire X (like "控制欲" etc), situation Y (like "left hearing aid receiver died while in a noisy restaurant"), need Z (code like "N02_掌控局面" or "N05_优化效率" etc), emotion W (like "joy" or "relief" etc), action tendency V (like "approach" etc).
+
+We need to justify each assignment with a note.
+
+We must output only JSON, no extra text. The JSON must have keys exactly as specified.
+
+We need to be careful: The content is an individual expression, not a group.
+
+We need to think through the psychological causality:
+
+The person is wearing hearing aids, presumably to compensate for hearing loss. The left hearing aid's receiver died, causing them to lose functionality. The person mentions they are currently in a restaurant with loud music, can hear people at the table in front and to the right because the left receiver died. They have one working ear. The tone is humorous (😂). They seem to be taking it in stride, possibly using humor to cope with an inconvenient situation.
+
+We need to infer the desires, needs, appraisals, emotions, and action tendencies.
+
+First, desire categories:
+
+1. 拥有欲 (ownership): The person might desire to have a functioning hearing aid (the broken left one). But the content is not about wanting to own, it's about currently using hearing aids and having a broken one. So maybe some desire to possess a working device.
+
+2. 成为欲 (become): They might want to become a person who can hear normally, or at least be able to hear conversation in a noisy environment. So "become" desire to be able to hear well.
+
+3. 摆脱欲 (escape): They might want to escape the discomfort or limitation of hearing with only one ear, or the frustration of a broken hearing aid.
+
+4. 确认欲 (confirm): They might want to confirm that they made the right decision to get hearing aids, or confirm their identity as someone who uses hearing aids.
+
+5. 超越欲 (transcend): They might want to surpass the ordinary hearing ability, maybe to overcome hearing limitations.
+
+6. 归属欲 (belong): They might want to belong to a community of hearing aid users, but the content is a single person posting on a forum for hearing aid users, perhaps seeking validation from peers.
+
+7. 控制欲 (control): They might want to control the situation, i.e., be able to control their hearing experience, manage the environment, maybe adjusting the hearing aid.
+
+8. 安全感欲 (safety): They might want to feel safe, reduce uncertainty about hearing ability and being able to follow conversation.
+
+9. 向往欲 (aspiration): They might imagine being in a scenario where they can hear everything clearly, like a normal hearing person in a restaurant.
+
+Which desires are most salient? The person is currently using hearing aids and experiencing a failure. They are in a noisy environment, trying to hear. They note they can hear people at the table in front and to the right, but not left. This suggests that the desire to have full hearing ability (like normal hearing) is not satisfied, but they are managing with one ear.
+
+Given the context, the primary desire likely is "控制欲" (control) because they want to control their hearing ability and manage the environment; also "安全感欲" because they want to feel safe in a noisy environment and not be at risk of missing important conversation. Also "拥有欲" maybe to have a functioning hearing aid. "成为欲" maybe to become a person who can hear normally. "摆脱欲" to get rid of the frustration of broken hearing aid. "确认欲" maybe to confirm they made correct choice in hearing aids.
+
+We need to assign weights that sum to 1. Let's think: Perhaps the highest weight is "控制欲" (control) because the person is dealing with a malfunction and trying to continue to hear. The situation is about controlling the hearing device. Then "安全感欲" because they are in a noisy environment, need to reduce risk of missing conversation. Then "拥有欲" because they want a working device. Then "成为欲" maybe moderate because they want to be able to hear. Then "摆脱欲" maybe lower because they want to escape the inconvenience. Then "确认欲" maybe low. "归属欲" maybe low. "超越欲" maybe low. "向往欲" maybe low.
+
+But we need to decide based on evidence: The content does not directly mention desire statements, but we can infer. The phrase "the left one's receiver died basically 😂 So I got one working ear basically." suggests they are somewhat amused, maybe coping. The desire to control is evident: they want to be able to hear in that environment. The desire for safety: they want to be able to understand conversation and not be at risk. The desire for ownership: they have hearing aids, maybe they want them to work. The desire to become: they want to be able to hear like a normal hearing person.
+
+Given the need for a plausible distribution, we need to think about how to weight them logically. Let's propose:
+
+- 拥有欲: 0.10 (some desire to have a working hearing aid)
+- 成为欲: 0.20 (desire to become able to hear normally)
+- 摆脱欲: 0.10 (desire to get rid of the problem)
+- 确认欲: 0.05 (desire to confirm their choice)
+- 超越欲: 0.05 (desire to surpass limitations)
+- 归属欲: 0.05 (desire to belong to hearing aid user community)
+- 控制欲: 0.25 (desire to control hearing)
+- 安全感欲: 0.15 (desire for safety)
+- 向往欲: 0.05 (desire to imagine ideal hearing environment)
+
+Sum = 1.0. This seems plausible.
+
+Now need layer: we need to select from 17 categories with weights sum to 1.
+
+We need to derive from the desire(s). The primary need likely is "掌控局面" (N02) because they want to control the situation of hearing in a noisy environment. Another need is "确定性" (N01) because they need to know if the hearing aid is working or not and the risk. Another need might be "摆脱痛苦" (N06) because they might be in discomfort from broken device. Another is "提升能力" (N03) maybe to improve hearing ability. Another is "情感慰藉" (N13) maybe they want emotional comfort. Another is "归属群体" (N11) maybe they want to connect with hearing aid users.
+
+We need to consider the content: They are in a restaurant with loud music, they have one working ear. They might be seeking to understand if they can hear enough, maybe to confirm if they are missing something. The broken hearing aid might cause uncertainty. They might want to get a replacement or fix. They might want to be able to follow conversation.
+
+The appraisal: goal relevance: The content is relevant to their goal of hearing in a noisy environment. So goal_relevance maybe high: 0.8.
+
+Congruence direction: The content is partially threatening (the hearing aid is broken, limiting hearing) but also partially promoting because they can still hear some people. So it is a mix: maybe "威胁" (threat) because the device broke, but also "促进" (facilitation) because they can still hear with one ear. However, the main evaluation might be "威胁" because the broken device is a threat to their need for hearing. So we can set congruence_direction: "威胁".
+
+Need status: The need is not fully satisfied (they only have one ear working). They might want a fix. So need_status: "未满足". So goal_congruence: negative (because threat, not satisfied). Coping potential: They might think they can handle it by focusing on the working ear or by fixing the device. Coping potential maybe moderate to high: "中". They could possibly get it fixed, but currently limited.
+
+Alternatively, we might decide that because they are using humor, they might feel they can cope, maybe "高". But given they are in a noisy environment, they might feel limited. So maybe "中".
+
+Thus:
+
+- goal_relevance: 0.8
+- congruence_direction: "威胁"
+- need_status: "未满足"
+- goal_congruence: "负"
+- coping_potential: "中"
+
+Now emotion layer: The person expresses humor (😂). They are not expressing sadness, fear, or anger. They might be feeling "joy" or "relief"? Actually they have a broken hearing aid but they can still hear some. They might feel "relief" that they can still hear some people, albeit limited. They might also feel "relief" that they can still manage. They also might feel "sadness" or "fear"? The broken device might cause anxiety about missing conversation. But the emoji suggests they are taking it lightly. The phrase "basically 😂" suggests some amusement. The emotion might be "joy" (they are amused) and "relief" (they are still able to hear). Possibly also "approval" (they approve of their own coping). Could also be "pride" (proud of handling). But likely "joy" and "relief".
+
+We need to assign distribution across 13 categories that sum to 1. We can assign primary: "relief宽慰": 0.4, "joy喜悦": 0.3, "approval认同": 0.1, "pride自豪": 0.1, "curiosity好奇": 0.05, "sadness悲伤": 0.05. Others 0.
+
+But we need to ensure that the emotions are derived from need x congruence. Since need is not satisfied, there is a threat, but coping potential moderate, leading to negative emotion like fear? But the person is not showing fear. They might be "fear" of missing conversation, but they expressed humor, so not. Could be "anger" about broken device? Not expressed. So we can assume they are using humor to cope, resulting in "relief" and "joy". So the distribution is plausible.
+
+Now action tendency layer: The person might want to approach (seek help) or attend (focus on conversation). They might want to avoid (avoid the broken hearing aid) or reject (reject the situation). The content is a public reply to a forum, maybe they are sharing experiences. So they might be "attend" (focus on the conversation). They might also be "approach" (seek solution, maybe comment). The action tendency might be "approach" to get help, or "attend" to focus. The person might also "interrupt" to get attention. But likely they are "approach" because they are sharing their experience to get advice or solidarity. The distribution: we need to allocate across 7 categories sum to 1.
+
+We can assign: "approach趋近": 0.5 (they are willing to engage with community), "attend关注": 0.3 (they are focusing on hearing), "avoidance回避": 0.1 (they might avoid focusing on the broken device), "reject拒斥": 0.05, "agonistic对抗": 0.05, "interrupt中断": 0.0, "dominate支配": 0.0. Sum = 1.0.
+
+Now need layer: We need to list needs with code from the 17 categories, each with weight sum to 1. We need to derive from desires and context. The primary need is N02_掌控局面 (control), secondary maybe N01_确定性 (certainty about hearing ability), N06_摆脱痛苦 (relief from frustration), N13_情感慰藉 (emotional comfort). Possibly N03_提升能力 (improve hearing ability). N14_代入理想 (imagine ideal hearing). But maybe we can limit to a few.
+
+We need to assign weight distribution that sums to 1. Let's propose:
+
+- N02_掌控局面: 0.30
+- N01_确定性: 0.20
+- N06_摆脱痛苦: 0.15
+- N13_情感慰藉: 0.15
+- N03_提升能力: 0.10
+- N14_代入理想: 0.10
+
+Sum = 1.0
+
+Now we need to fill in each need entry with context_slot (a description of the trigger scenario). We'll provide a short phrase: e.g., "在嘈杂餐厅中仅有一只助听器正常工作的情境". For each need, we also need derived_from: e.g., "由 控制欲 经 助听器左耳接收器失效导致单耳听力情境 衍生". We need to fill each entry.
+
+Now we need to ensure the chain_trace is consistent: desire X -> (situation Y) -> need Z -> (appraisal: direction/need_status/congruence, coping) -> emotion W -> action tendency V.
+
+We'll need to include the specific desire from desire_layer (maybe "控制欲" as highest weight). Or we can write "控制欲" as the main desire. Then situation Y: "左耳助听器接收器失效，在嘈杂餐厅中只能靠单耳聆听". Need Z: "N02_掌控局面". Appraisal: "威胁/未满足/负/中". Emotion W: "relief宽慰" (or "joy喜悦"). Action V: "approach趋近". We'll need to produce a chain trace that is a single sentence with these specifics.
+
+Now we need evidence: For each layer, we need to quote from content. We need to cite direct quotes for desire (maybe not directly present, but we can infer), need (maybe "I can hear everyone at the table in front of me and to my right" indicates desire to hear, need for control), emotion (the emoji 😂 indicates humor, also "I got one working ear basically" indicates relief). Action (maybe "I'm wearing them right now at a restaurant" indicates approach). We'll need to provide these.
+
+Now we must ensure the JSON keys exactly match: "desire_layer", "need_layer", "appraisal", "emotion_layer", "action_tendency_layer", "chain_trace", "evidence". The "desire_layer" must have "distribution" with the nine keys exactly: "拥有欲","成为欲","摆脱欲","确认欲","超越欲","归属欲","控制欲","安全感欲","向往欲". And "note". The distribution values must sum to 1.
+
+The "need_layer" is a list of objects each with "code","context_slot","weight","derived_from". The sum of weights must be 1.
+
+The "appraisal" object must have keys: "goal_relevance" (float), "congruence_direction" (string "促进" or "威胁" or "中性"), "need_status" (string "已满足" or "未满足"), "goal_congruence" (string "正" or "负"), "coping_potential" (string "高" or "中" or "低"), "note". All present.
+
+The "emotion_layer" object must have "distribution" with keys for each of the 13 emotions, and "note". Distribution values sum to 1.
+
+The "action_tendency_layer" object must have "distribution" with keys for each of the 7 action tendencies, and "note"? Actually the spec says "action_tendency_layer": {"distribution": {...}} but no note required. The spec only includes distribution. It doesn't mention a note, but we could include if needed. The example only shows distribution. We'll follow spec: only distribution.
+
+The "chain_trace" is a string.
+
+The "evidence" object must have keys: "desire", "need", "emotion", "action". Each contains a quote.
+
+Now we need to ensure that all numeric weights are floats (e.g., 0.1). The sum of each distribution must be exactly 1.
+
+Now we must output only JSON, no extra text. The JSON can be in a code block.
+
+We need to double-check each layer.
+
+First, desire_layer distribution: we need to assign each of nine desires weight. The sum must be 1. Let's assign as above:
+
+- 拥有欲: 0.10
+- 成为欲: 0.20
+- 摆脱欲: 0.10
+- 确认欲: 0.05
+- 超越欲: 0.05
+- 归属欲: 0.05
+- 控制欲: 0.25
+- 安全感欲: 0.15
+- 向往欲: 0.05
+
+Sum = 0.10+0.20+0.10+0.05+0.05+0.05+0.25+0.15+0.05 = 1.0.
+
+Now note: "为何这几类欲望被激活" - we need to provide a note explaining why these desires are activated.
+
+We can write: "该用户在嘈杂餐厅中仅靠单耳助听器聆听，激活了对助听器功能的掌控需求（控制欲），对安全聆听的担忧（安全感欲），对拥有完整听力的渴望（成为欲），以及想摆脱设备故障带来的不便（拥有欲、摆脱欲），并在社区中寻求认同（确认欲、归属欲），同时想象理想聆听状态（向往欲）和超越自我的需求（超越欲）."
+
+Now need_layer: we need to list each need with code, context_slot, weight, derived_from.
+
+We have:
+
+1. N02_掌控局面, context_slot: "在嘈杂餐厅中左耳助听器失效，只能依赖单耳听音的情境", weight: 0.30, derived_from: "由 控制欲 经 左耳接收器失效导致单耳听力情境 衍生"
+
+2. N01_确定性, context_slot: "对助听器是否正常工作、是否能听清对话的不确定感", weight: 0.20, derived_from: "由 安全感欲 经 设备故障产生不确定性 衍生"
+
+3. N06_摆脱痛苦, context_slot: "因左耳助听器失效导致的听觉不完整和不便", weight: 0.15, derived_from: "由 摆脱欲 经 设备故障带来困扰 衍生"
+
+4. N13_情感慰藉, context_slot: "在尴尬或受限的社交场景中需要情感上的安慰和幽默自嘲", weight: 0.15, derived_from: "由 确认欲/归属欲 经 在社区分享自嘲经历 衍生"
+
+5. N03_提升能力, context_slot: "希望提升在噪声环境下的聆听技巧或获得更好辅助设备", weight: 0.10, derived_from: "由 成为欲 经 希望改善听力体验 衍生"
+
+6. N14_代入理想, context_slot: "想象能够在嘈杂餐厅中清晰听到所有人的理想状态", weight: 0.10, derived_from: "由 向往欲 经 理想聆听画面 衍生"
+
+Sum = 0.30+0.20+0.15+0.15+0.10+0.10 = 1.0
+
+Now appraisal:
+
+goal_relevance: 0.8 (the hearing issue is relevant to their goal of hearing in restaurant)
+
+congruence_direction: "威胁" (the broken hearing aid threatens the goal)
+
+need_status: "未满足" (they cannot hear fully)
+
+goal_congruence: "负"
+
+coping_potential: "中" (they can still hear with one ear but might need fix)
+
+note: "用户在嘈杂餐厅中只能靠单耳听音，助听器故障构成对‘掌控局面’需求的威胁，且尚未满足；尽管有一定的应对能力（可继续使用单耳），但整体情绪倾向负面。"
+
+Now emotion_layer distribution:
+
+We need to allocate across 13 emotions sum to 1.
+
+We can assign:
+
+- admiration钦佩: 0.0 (not relevant)
+- joy喜悦: 0.30 (they used humor and smile)
+- gratitude感激: 0.0 (maybe not)
+- desire渴望: 0.0 (maybe not)
+- nostalgia怀旧: 0.0
+- pride自豪: 0.10 (they are managing)
+- love爱: 0.0
+- relief宽慰: 0.40 (they are relieved they can still hear some)
+- approval认同: 0.10 (they accept the situation)
+- curiosity好奇: 0.05 (maybe about why it broke)
+- fear恐惧: 0.0 (they are not scared)
+- sadness悲伤: 0.05 (some sadness about limitation)
+- anger愤怒: 0.0
+
+Sum = 0.30+0.10+0.40+0.10+0.05+0.05 = 1.0
+
+Now note: "情绪由需求未满足导致的负面对威胁的评估下产生，主要表现为宽慰（仍能听到部分）与喜悦（自嘲式幽默），伴随少量自豪和认同感。"
+
+Now action_tendency_layer distribution:
+
+- approach趋近: 0.5 (they are engaging with community, possibly seeking fix)
+- avoidance回避: 0.1 (they might ignore the broken device)
+- attend关注: 0.3 (they focus on hearing conversation)
+- reject拒斥: 0.05 (they might reject the inconvenience)
+- agonistic对抗: 0.05 (they might want to fight the problem)
+- interrupt中断: 0.0
+- dominate支配: 0.0
+
+Sum = 0.5+0.1+0.3+0.05+0.05 = 1.0
+
+Now chain_trace: a single sentence that includes desire X, situation Y, need Z, appraisal (direction/need_status/congruence, coping), emotion W, action tendency V.
+
+We need to fill with actual names:
+
+Desire X: "控制欲" (the primary desire). Situation Y: "左耳助听器接收器在嘈杂餐厅失效，只能依赖单耳听音". Need Z: "N02_掌控局面". Appraisal: "威胁/未满足/负/中". Emotion W: "relief宽慰". Action V: "approach趋近".
+
+Thus: "控制欲 →(左耳助听器接收器在嘈杂餐厅失效，只能依赖单耳听音)→ N02_掌控局面 →(威胁/未满足/负/中)→ relief宽慰 → approach趋近".
+
+But we need to ensure it's a full sentence: "控制欲在左耳助听器接收器失效、只能在嘈杂餐厅依赖单耳听音的情境下，导致对掌控局面的需求（ N02_掌控局面 ）未满足且感到威胁（负），因此产生宽慰情绪（ relief宽慰 ），进而倾向于趋近（ approach ）以寻求解决方案或社区帮助。"
+
+We need to include all elements. We'll produce a concise chain trace.
+
+Now evidence: we need to quote the content for each layer.
+
+- desire: "I’m wearing them right now at a Restaurant with loud music" indicates desire for control over hearing environment. Also "the left one’s receiver died basically 😂" indicates desire to have functioning device.
+
+- need: "I can hear everyone at the table in front of me and to my right because the left one’s receiver died basically" indicates need for control (N02) and certainty (N01). Also "So I got one working ear basically." indicates need for relief from pain (N06) and emotional comfort (N13).
+
+- emotion: "😂" indicates joy/humor, "I can hear everyone at the table..." shows relief, "one working ear" maybe sadness.
+
+- action: "Well I’m wearing them right now at a Restaurant" indicates approach behavior, sharing experience.
+
+We'll provide quotes:
+
+- desire: "I’m wearing them right now at a Restaurant with loud music" and "the left one’s receiver died basically 😂".
+
+- need: "I can hear everyone at the table in front of me and to my right because the left one’s receiver died basically" and "So I got one working ear basically."
+
+- emotion: "😂" and "I can hear everyone..." indicates relief.
+
+- action: "Well I’m wearing them right now at a Restaurant" indicates approach.
+
+Now we must produce final JSON. Let's construct.
+
+We'll need to include all keys exactly as specified, with proper quotes.
+
+We'll need to ensure numeric values are floats with one decimal maybe. Use 0.10, 0.30 etc.
+
+We must ensure the need_layer items have proper quoting. Also ensure that the "appraisal" keys are exactly as required.
+
+Now let's write the JSON.
+
+One nuance: The "desire_layer" distribution must contain each of the nine keys exactly. We'll include all.
+
+Now need_layer: each entry is an object with code, context_slot, weight, derived_from.
+
+We'll include as per above.
+
+Now appraisal: we need to include note as a string.
+
+Now emotion_layer distribution: each of the 13 keys must be present. We'll include all keys with values.
+
+Now action_tendency_layer distribution: each of the 7 keys must be present.
+
+Now chain_trace: a string.
+
+Now evidence: an object with keys desire, need, emotion, action.
+
+We'll also include a note for desire_layer, note for need_layer? Not required but we can include only note for desire_layer and note for emotion_layer. The spec for need_layer includes fields code, context_slot, weight, derived_from. No note.
+
+The spec for appraisal includes note. For emotion_layer includes note.
+
+Now we need to ensure all required fields are present.
+
+Now let's construct the JSON:
+
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.10,
+      "成为欲": 0.20,
+      "摆脱欲": 0.10,
+      "确认欲": 0.05,
+      "超越欲": 0.05,
+      "归属欲": 0.05,
+      "控制欲": 0.25,
+      "安全感欲": 0.15,
+      "向往欲": 0.05
+    },
+    "note": "该用户在嘈杂餐厅中仅靠单耳助听器聆听，激活了对助听器功能的掌控需求（控制欲），对安全聆听的担忧（安全感欲），对拥有完整听力的渴望（成为欲），以及想摆脱设备故障带来的不便（拥有欲、摆脱欲），并在社区中寻求认同（确认欲、归属欲），同时想象理想聆听状态（向往欲）和超越自我的需求（超越欲）。"
+  },
+  "need_layer": [
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "在嘈杂餐厅中左耳助听器失效，只能依赖单耳听音的情境",
+      "weight": 0.30,
+      "derived_from": "由 控制欲 经 左耳接收器失效导致单耳听力情境 衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "对助听器是否正常工作、是否能听清对话的不确定感",
+      "weight": 0.20,
+      "derived_from": "由 安全感欲 经 设备故障产生不确定性 衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "因左耳助听器失效导致的听觉不完整和不便",
+      "weight": 0.15,
+      "derived_from": "由 摆脱欲 经 设备故障带来困扰 衍生"
+    },
+    {
+      "code": "N13_情感慰藉",
+      "context_slot": "在尴尬或受限的社交场景中需要情感上的安慰和幽默自嘲",
+      "weight": 0.15,
+      "derived_from": "由 确认欲/归属欲 经 在社区分享自嘲经历 衍生"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "希望提升在噪声环境下的聆听技巧或获得更好辅助设备",
+      "weight": 0.10,
+      "derived_from": "由 成为欲 经 希望改善听力体验 衍生"
+    },
+    {
+      "code": "N14_代入理想",
+      "context_slot": "想象能够在嘈杂餐厅中清晰听到所有人的理想状态",
+      "weight": 0.10,
+      "derived_from": "由 向往欲 经 理想聆听画面 衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.8,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "用户在嘈杂餐厅中只能靠单耳听音，助听器故障构成对‘掌控局面’需求的威胁，且尚未满足；尽管有一定的应对能力（可继续使用单耳），但整体情绪倾向负面。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.30,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.10,
+      "love爱": 0.0,
+      "relief宽慰": 0.40,
+      "approval认同": 0.10,
+      "curiosity好奇": 0.05,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.05,
+      "anger愤怒": 0.0
+    },
+    "note": "情绪由需求未满足导致的负面对威胁的评估下产生，主要表现为宽慰（仍能听到部分）与喜悦（自嘲式幽默），伴随少量自豪和认同感。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.5,
+      "avoidance回避": 0.1,
+      "attend关注": 0.3,
+      "reject拒斥": 0.05,
+      "agonistic对抗": 0.05,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "控制欲在左耳助听器接收器失效、只能在嘈杂餐厅依赖单耳听音的情境下，导致对掌控局面的需求（N02_掌控局面）未满足且感到威胁（负），因此产生宽慰情绪（relief宽慰），进而倾向于趋近（approach）以寻求解决方案或社区帮助。",
+  "evidence": {
+    "desire": "\"I’m wearing them right now at a Restaurant with loud music\" 以及 \"the left one’s receiver died basically 😂\"",
+    "need": "\"I can hear everyone at the table in front of me and to my right because the left one’s receiver died basically\" 以及 \"So I got one working ear basically\"",
+    "emotion": "\"😂\" 以及 \"I can hear everyone at the table...\" 表达宽慰与喜悦",
+    "action": "\"Well I’m wearing them right now at a Restaurant\" 表明主动分享与趋近行为"
+  }
+}
+
+Now check all constraints:
+
+- desire_layer distribution keys exactly nine, sum = 1? Let's sum: 0.10+0.20+0.10+0.05+0.05+0.05+0.25+0.15+0.05 = 1.0. Good.
+
+- need_layer sum = 0.30+0.20+0.15+0.15+0.10+0.10 = 1.0. Good.
+
+- appraisal: keys present: goal_relevance, congruence_direction, need_status, goal_congruence, coping_potential, note. Good.
+
+- emotion_layer distribution sum: 0.30+0.10+0.40+0.10+0.05+0.05 = 1.0. Wait we have many zeros for other categories. Let's sum all: 0.0 (admiration) + 0.30 (joy) + 0.0 (gratitude) + 0.0 (desire) + 0.0 (nostalgia) + 0.10 (pride) + 0.0 (love) + 0.40 (relief) + 0.10 (approval) + 0.05 (curiosity) + 0.0 (fear) + 0.05 (sadness) + 0.0 (anger) = 0.30+0.10+0.40+0.10+0.05+0.05 = 1.0. Yes.
+
+- action_tendency_layer distribution sum: 0.5+0.1+0.3+0.05+0.05+0.0+0.0 = 1.0. Good.
+
+- chain_trace includes desire, situation, need, appraisal, emotion, action. Good.
+
+- evidence includes quotes from content for each layer. Good.
+
+Now we need to ensure no extra text outside JSON. We'll output JSON inside a code block.
+
+One thing: The user says "严格输出一个 JSON(可放 ```json 代码块内)，不要输出任何解释文字。" So we must output only JSON, no extra text. The JSON must be valid.
+
+Now check that the keys match exactly the required names: "desire_layer", "need_layer", "appraisal", "emotion_layer", "action_tendency_layer", "chain_trace", "evidence". Yes.
+
+Now check that "desire_layer" has "distribution" and "note". Yes.
+
+Now "need_layer" entries have "code", "context_slot", "weight", "derived_from". Yes.
+
+Now "appraisal" includes all required keys.
+
+Now "emotion_layer" includes "distribution" and "note". Yes.
+
+Now "action_tendency_layer" includes "distribution". No note required.
+
+Now "chain_trace" is a string.
+
+Now "evidence" includes "desire", "need", "emotion", "action". Good.
+
+Now we need to ensure that the JSON is syntactically correct: Use double quotes, no trailing commas. All arrays and objects properly closed.
+
+Now we need to check that the note strings are within double quotes and not break JSON. Use Chinese characters inside quotes are fine.
+
+Now check that the "goal_relevance" is a float 0.8. Good.
+
+Now check that "congruence_direction" is "威胁". Good.
+
+Now check "need_status": "未满足". Good.
+
+Now "goal_congruence": "负". Good.
+
+Now "coping

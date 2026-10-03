@@ -1,0 +1,383 @@
+We have a user request: They want a "因果链逆问题" (causal chain inverse problem) analysis, from observable discourse/comments, reverse to the audience's psychological full causal chain, outputting each layer's proportion weight (joint distribution). The content is a Reddit comment on r/HearingAids: "If you're so desperate, just do a google search, it's readily available. Lean to use the tools. Reddit isn't the place for this query."
+
+We need to interpret the speaker's psychological causal chain. The speaker says that "If you're so desperate, just do a google search, it's readily available." Then "Lean to use the tools. Reddit isn't the place for this query." It reads like a user telling someone else that the answer is easy to find, they should use Google, not Reddit.
+
+The user request: "若这段内容确实是某一个人写下的自我表达，请对『写下这段内容的这一个人』反推其心理因果链四层占比分布——这是一个个体，不是群体。若它不是个人表达 ... 请在 JSON 顶层返回 'no_inferable_subject': true 并说明理由。"
+
+Is this a personal expression? It's a direct advice/response, not a purely data table or code. It's an individual's utterance. So we should treat as a personal expression.
+
+We need to produce JSON per format.
+
+We must fill desire_layer, need_layer, appraisal, emotion_layer, action_tendency_layer, chain_trace, evidence.
+
+We need to decide desire categories: we have 9: 拥有欲 (desire to own), 成为欲 (to become), 摆脱欲 (to get rid), 确认欲 (to confirm), 超越欲 (to surpass), 归属欲 (belong), 控制欲 (control), 安全感欲 (safety), 向往欲 (aspiration). For the comment: The speaker is addressing someone who is "so desperate" (likely a person with hearing aids issue). The speaker is telling them to do a Google search, use tools. That is basically a desire to maintain order, control, possibly desire for confirmation of knowledge (i.e., showing they know something). Or maybe desire for control: They want to control the discourse environment, to direct people to proper tools, maintain forum quality. Or desire for superiority/authority (超越欲 or 确认欲). Let's think.
+
+The speaker says: "If you're so desperate, just do a google search, it's readily available. Lean to use the tools. Reddit isn't the place for this query." The speaker is somewhat dismissive, perhaps indicating frustration at repeated questions. This may reflect desire for control over community knowledge, desire for confirmation that they have knowledge (i.e., they can solve the query themselves). Possibly the desire is to reduce noise in community, thus they have control orientation (N02_掌控局面). Also may reflect desire to help others but in a controlling way (like wants to dominate conversation). Could also be desire for safety: They want to reduce risk of misinformation by directing to reliable resources (Google). But we must assign weights.
+
+We need to map desire categories to likely motivations.
+
+The speaker's primary desire appears to be "control欲" (to control environment/discourse) and perhaps "确认欲" (to confirm their knowledge/authority). They may also have "超越欲" (to show superiority over novices). The desire to maintain order (control) is high.
+
+We need to assign distribution of 9 desires, weights sum to 1.
+
+Let's think: The speaker's utterance is normative, they are telling the questioner what to do, expecting obedience. So the main desire: control, maybe also to confirm their own knowledge (self-affirmation) - "确认欲". Possibly also "安全感欲" (safety) because they want to reduce misinformation (like safety for the community). However the phrasing is dismissive: "If you're so desperate, just do a google search, it's readily available." This suggests they are frustrated; they want to push away the question, not help. That could be "摆脱欲"? Not exactly. They want to get rid of the query (i.e., remove it from Reddit). So maybe "摆脱欲" - they want to get rid of the query from Reddit. But it's a desire to remove the source of annoyance. However, "摆脱欲" is usually about desire to get rid of personal pain. Here they want to rid of the query (maybe desire for control). The speaker might also have "归属欲"? Not particularly. "向往欲"? No.
+
+Thus likely desire distribution: control 0.35, confirmation 0.25, safety 0.20, superiority (超越欲) 0.10, other desire types 0.10. But need to have 9 categories sum to 1. Could assign small values for other categories.
+
+We also need need_layer: 17 categories with weight sum to 1. Which needs are activated? The speaker perceives the question as unnecessary, thus they might have need N04_理解世界 (to understand the world) but they already understand it. Or N02_掌控局面 (to control the situation) - they want to control the conversation. Also N10_自我确认 (self confirmation) - they want to confirm their stance. N05_优化效率 (optimize efficiency) - they want to point to efficient resources (Google). Or N06_摆脱痛苦 - maybe the speaker is frustrated, they want to relieve their own annoyance. N09_获得地位 - they want to appear knowledgeable.
+
+But need to derive from desire. Let's map:
+
+Desire ->情境事件: The situation: a user asks a question that the speaker perceives as trivial. The speaker's desire to control the conversation and maintain forum quality leads to the need to "掌控局面" (N02). Or they might have need to "确认自我" (N10) to assert they know the answer and are superior. Also maybe need to "消除不确定性" (N01) because they think the question is already answered, so they'd like to reduce uncertainty for others. But that may not be.
+
+The need statuses: Since the speaker is not seeking satisfaction of a need themselves; they are reacting to another's need. However for the speaker's own need, perhaps they want to "摆脱痛苦" (N06) - they are annoyed. But is that a need? Possibly. But the need categories are result-oriented; the speaker's need is to relieve frustration: they want to stop being annoyed by repetitive questions.
+
+Alternatively, the speaker may have need N03_提升能力 (to improve ability) - they want to help others by teaching them to use tools.
+
+But we need to produce need layer representing the speaker's needs that are being satisfied or threatened by the content? Wait: The content is the utterance. So we consider the speaker's own internal need being triggered by the situation: The person asked a question; the speaker experiences frustration (pain). So need N06_摆脱痛苦 (to relieve annoyance). Also need N02_掌控局面 (to regain control). Also need N09_获得地位 (to assert superiority). Also need N10_自我确认 (to confirm that they know the answer). Possibly N05_优化效率 (to point to efficient solution). And N04_理解世界? Not.
+
+We need to assign weight distribution for needs. Let's propose:
+
+- N06_摆脱痛苦: 0.30 (speaker annoyed)
+- N02_掌控局面: 0.30 (wants to control conversation)
+- N09_获得地位: 0.20 (wants to show superiority)
+- N10_自我确认: 0.10 (confirm knowledge)
+- N05_优化效率: 0.10 (wants efficient answer via Google)
+
+Sum = 1.0
+
+But we must note that each need is derived from certain desires. For each need, we need to specify context_slot (semi-free text) and weight.
+
+Now appraisal: The speaker's evaluation of the content: goal_relevance (to the speaker) maybe high (0.8) because they are engaged. Congruence direction: The content is promoting their need to control, etc. They are expressing a stance, it's "促进" (promoting). However they are also threatening for the questioner (they are rejecting). But for the speaker themselves, the content satisfies their need for control, thus "促进". need_status: They are satisfied? The speaker's utterance satisfies their desire to control and relieve frustration, so need_status: 已满足. goal_congruence: 正. coping_potential: They have high coping potential because they can direct people to Google. So coping potential: 高.
+
+Thus appraisal: goal_relevance 0.85, congruence_direction "促进", need_status "已满足", goal_congruence "正", coping_potential "高". Note: The speaker is not anxious, they are confident.
+
+Emotion layer: The speaker likely feels anger (they are dismissive), maybe frustration (anger). Also perhaps contempt (not listed in GoEmotions, but we have anger, maybe also "approval"? Actually approval is about positive moral judgement; here they disapprove of the question. So maybe "anger". Also maybe "pride" (they are proud of knowledge). "approval"? No, they are disapproving. So "anger" and "pride" maybe. Could also be "desire"? Not. They might feel "contempt" which is not in list; we can approximate with "anger". Also "relief"? They might feel relief after expressing frustration. But the utterance itself expresses anger/disdain. So distribution: anger 0.60, pride 0.30, relief 0.10. Or maybe also "admiration"? No. So:
+
+emotion_layer distribution: anger:0.55, pride:0.30, relief:0.15.
+
+But need to ensure sum to 1. Let's allocate: anger 0.5, pride 0.35, relief 0.15. Or anger 0.5, pride 0.4, relief 0.1. But we must follow the allowed categories: admiration, joy, gratitude, desire, nostalgia, pride, love, relief, approval, curiosity, fear, sadness, anger. So we can use anger, pride, relief. Good.
+
+Now action_tendency_layer: According to Frijda action tendency: approach, avoidance, attend, reject, agonistic, interrupt, dominate. The speaker's utterance: They are telling the user to do something (dominate?), rejecting the query (reject). The speaker's action: They reject the question (reject) and dominate (they tell them what to do). Also maybe interrupt the conversation. So we can assign: reject 0.45, dominate 0.35, interrupt 0.10, approach 0.10 (maybe approach? Not sure). But let's consider: The speaker is confronting the questioner, telling them what to do, so they are dominating. They also reject the query as not appropriate. They may interrupt (stop further discussion). So distribution: reject 0.40, dominate 0.40, interrupt 0.20. Approach could be 0.0.
+
+Now chain_trace: Must be a single sentence that links the chain. Example: "控制欲 (control) → (情境: 看到有人问重复的简易问题) → 需求 N02_掌控局面 (重新掌握对话方向) →(评价: 促进/已满足/正/高) → 情绪 anger & pride → 行动倾向 reject & dominate". But we need a complete sentence with specific names.
+
+We'll write: "控制欲 →(情境: 有人在论坛提问重复的简易问题) → 需求 N02_掌控局面 (夺回对话主导权) →(评价: 促进/已满足/正/高) → 情绪 anger & pride → 行动倾向 reject & dominate".
+
+But we need the chain trace to be a single sentence, not a list. The spec: "欲望X →(情境Y)→ 需求Z(写code) →(评价:direction/need_status/congruence正负,coping)→ 情绪W → 行动倾向V 的完整一句话推导". So we need to embed all parts in one sentence: "控制欲 →(情境: 看到他人提出容易查到的求助) → 需求 N02_掌控局面 →(评价: 促进/已满足/正/高) → 情绪 anger → 行动倾向 reject". But we need also to mention pride maybe.
+
+We can have one chain that covers dominant path: control desire leads to need to dominate, leads to anger, leads to reject. Another chain for pride leads to need for status, leads to satisfaction, leads to pride, leads to dominate. But we need to produce a single chain in the chain_trace field. Could we produce two separate? Possibly we could produce one main chain focusing on control and anger.
+
+But the instruction says "完整一句话推导(用具体名字填 X/Y/Z/W/V，必须连贯读通)". So we need a single continuous sentence linking all. Perhaps we can incorporate multiple steps but ensure it's a single sentence.
+
+Thus: "控制欲 →(情境: 看到有人在论坛上提出容易自行搜索的问题) → 需求 N02_掌控局面 →(评价: 促进/已满足/正/高) → 情绪 anger → 行动倾向 reject". That is a single sentence: "控制欲 →(情境: ... ) → 需求 N02_掌控局面 →(评价: ... ) → 情绪 anger → 行动倾向 reject". This is a complete chain.
+
+But we also need to reflect the desire for confirmation etc. However it's okay.
+
+Now evidence: We need to cite evidence for each layer.
+
+- desire: The phrase "If you're so desperate, just do a google search, it's readily available." This suggests the speaker wants to control the conversation and dictate where to seek info. So evidence: "If you're so desperate, just do a google search, it's readily available."
+
+- need: The need for controlling, evidence: "Reddit isn't the place for this query." Suggesting the need to redirect.
+
+- emotion: The phrase "If you're so desperate" implies frustration; "Reddit isn't the place for this query." suggests anger. So evidence: "If you're so desperate...".
+
+- action: "just do a google search" and "Lean to use the tools" suggests a directive to reject the query. So evidence: "just do a google search" is an instruction to reject.
+
+We need to ensure the evidence sections are quoting from the content.
+
+Now we must produce JSON exactly as required, no extra text.
+
+We need to ensure all distributions sum to 1.
+
+Desire distribution: we need to allocate across 9 categories, sum 1.
+
+Let's propose:
+
+- 控制欲: 0.40
+- 确认欲: 0.25
+- 安全感欲: 0.15
+- 超越欲: 0.10
+- 归属欲: 0.05
+- 拥有欲: 0.00
+- 成为欲: 0.00
+- 摆脱欲: 0.00
+- 向往欲: 0.05
+
+Check sum: 0.40+0.25+0.15+0.10+0.05+0+0+0+0.05 = 1.00
+
+Ok.
+
+Need layer: allocate across 17 categories sum to 1.
+
+Our earlier distribution: N06_摆脱痛苦 0.30, N02_掌控局面 0.30, N09_获得地位 0.20, N10_自我确认 0.10, N05_优化效率 0.10.
+
+Check sum: 0.30+0.30+0.20+0.10+0.10 = 1.00.
+
+Now need context_slot: we need to fill each with context slot.
+
+For N06_摆脱痛苦: "情境: 看到有人提重复、容易搜索的问题，感到厌烦" (context slot). For N02_掌控局面: "情境: 有人在论坛上提问，觉得需要把对话引向更合适的资源" (context). For N09_获得地位: "情境: 被视为知识丰富的社区成员，想展示自己的优越感" (context). For N10_自我确认: "情境: 想要确认自己知道答案的正确性" (context). For N05_优化效率: "情境: 认为直接搜索比在Reddit上等待回复更高效" (context).
+
+Now appraisal: We set goal_relevance = 0.85, congruence_direction = "促进", need_status = "已满足", goal_congruence = "正", coping_potential = "高". Note: We need to compute goal_congruence based on direction and status: "促进且已满足" => 正. So that's correct.
+
+Emotion distribution: Use 13 categories. We'll allocate:
+
+- anger: 0.55
+- pride: 0.30
+- relief: 0.15
+
+Sum = 1.00
+
+We need to ensure the keys exactly as listed: "anger愤怒", "pride自豪", "relief宽慰". However the list includes "anger愤怒". So key should be "anger愤怒". The distribution dict must have these keys. Also must have all 13 keys present (even if zero). So we need to include all keys with zero for others. Eg:
+
+"admiration钦佩":0.0,
+"joy喜悦":0.0,
+"gratitude感激":0.0,
+"desire渴望":0.0,
+"nostalgia怀旧":0.0,
+"pride自豪":0.30,
+"love爱":0.0,
+"relief宽慰":0.15,
+"approval认同":0.0,
+"curiosity好奇":0.0,
+"fear恐惧":0.0,
+"sadness悲伤":0.0,
+"anger愤怒":0.55
+
+But the order is not important, just must have all.
+
+Action tendency distribution: keys: "approach趋近", "avoidance回避", "attend关注", "reject拒斥", "agonistic对抗", "interrupt中断", "dominate支配". We assign:
+
+- reject拒斥: 0.45
+- dominate支配: 0.35
+- interrupt中断: 0.20
+
+Sum = 1.00
+
+All other categories zero.
+
+Now chain_trace: Must be a single sentence. Let's produce: "控制欲 →(情境: 看到有人在Reddit上提出容易自行搜索的问题) → 需求 N02_掌控局面 →(评价: 促进/已满足/正/高) → 情绪 anger → 行动倾向 reject". However we also have multiple emotions and actions; but chain_trace can only have one emotion and action? It says "情绪W → 行动倾向V". Possibly we can include only dominant ones. We'll include anger (dominant) and reject (dominant). That is fine.
+
+Now evidence: Provide quoted phrases:
+
+- desire: "If you're so desperate, just do a google search, it's readily available." (shows desire for control)
+- need: "Reddit isn't the place for this query." (need to control where queries are posted)
+- emotion: "If you're so desperate" (implied anger), also "just do a google search" (frustration)
+- action: "just do a google search" (instruction to reject the question)
+
+Thus evidence.
+
+Now final JSON. We'll format as required. Ensure no extra commentary.
+
+One more check: The JSON must contain "desire_layer": {"distribution": {...}, "note": "..."} and need_layer is a list of objects each with code, context_slot, weight, derived_from.
+
+The derived_from field should be a string linking desire to need. For each need we should indicate from which desire derived.
+
+Our needs:
+
+- N06_摆脱痛苦: derived from 控制欲? Actually it's about frustration, but we could say derived from 摆脱欲 (to get rid of annoyance) but we have 摆脱欲 with zero weight. But maybe it's more from 控制欲 to reduce annoyance. But we can attribute to 控制欲 as desire to control environment and reduce irritation. We'll write "由控制欲经情境(感到被低质问题打扰)衍生".
+
+- N02_掌控局面: derived from 控制欲 (to control conversation). So "由控制欲经情境(欲掌控对话方向)衍生".
+
+- N09_获得地位: derived from 超越欲 (desire to surpass/地位). So "由超越欲经情境(展示知识优势)衍生".
+
+- N10_自我确认: derived from 确认欲. So "由确认欲经情境(确认自己答案正确)衍生".
+
+- N05_优化效率: derived from 安全感欲? Or maybe from 控制欲? But we could attribute to 安全感欲 (to ensure reliable info). Or we could attribute to 控制欲. But the spec says derived_from: "由<哪个欲望>经<什么情境事件>衍生". So we can assign:
+
+- N05_优化效率: derived from 安全感欲 (desire to keep community safe/ reliable). Actually "安全感欲" is to eliminate risk; pointing to reliable Google may be about safety. So "由安全感欲经情境(认为搜索更安全可靠)衍生".
+
+We need to ensure derived_from references an actual desire from the list, but we have weight zero for some desires (like 安全感欲 weight 0.15). That is okay.
+
+Now we need to produce the JSON accordingly.
+
+Double-check distribution sums:
+
+Desire: control 0.40, confirmation 0.25, safety 0.15, surpass 0.10, belonging 0.05, aspiration 0.05, other zero. Sum 1.
+
+Need: N06 0.30, N02 0.30, N09 0.20, N10 0.10, N05 0.10. Sum 1.
+
+Emotion: anger 0.55, pride 0.30, relief 0.15, others 0.
+
+Action: reject 0.45, dominate 0.35, interrupt 0.20, others 0.
+
+Now ensure that the need_layer includes derived_from referencing the desire categories that have non-zero weights. For N06 we said derived from 控制欲 (0.40). For N02 derived from 控制欲. For N09 derived from 超越欲 (0.10). For N10 derived from 确认欲 (0.25). For N05 derived from 安全感欲 (0.15). All desires are present.
+
+Now check the note fields: they should explain why these desires were activated.
+
+Now we must check the entire JSON structure:
+
+{
+  "desire_layer": {
+    "distribution": {"拥有欲":0.0,"成为欲":0.0,"摆脱欲":0.0,"确认欲":0.25,"超越欲":0.10,"归属欲":0.05,"控制欲":0.40,"安全感欲":0.15,"向往欲":0.05},
+    "note": "......"
+  },
+  "need_layer": [
+    {"code":"N06_摆脱痛苦","context_slot":"...","weight":0.30,"derived_from":"由控制欲经情境(感到被低质问题打扰)衍生"},
+    {"code":"N02_掌控局面","context_slot":"...","weight":0.30,"derived_from":"由控制欲经情境(欲掌控对话方向)衍生"},
+    {"code":"N09_获得地位","context_slot":"...","weight":0.20,"derived_from":"由超越欲经情境(展示知识优势)衍生"},
+    {"code":"N10_自我确认","context_slot":"...","weight":0.10,"derived_from":"由确认欲经情境(确认自己答案正确)衍生"},
+    {"code":"N05_优化效率","context_slot":"...","weight":0.10,"derived_from":"由安全感欲经情境(认为搜索更安全可靠)衍生"}
+  ],
+  "appraisal": {
+    "goal_relevance": 0.85,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "......"
+  },
+  "emotion_layer": {
+    "distribution": {"admiration钦佩":0.0,"joy喜悦":0.0,"gratitude感激":0.0,"desire渴望":0.0,"nostalgia怀旧":0.0,"pride自豪":0.30,"love爱":0.0,"relief宽慰":0.15,"approval认同":0.0,"curiosity好奇":0.0,"fear恐惧":0.0,"sadness悲伤":0.0,"anger愤怒":0.55},
+    "note": "......"
+  },
+  "action_tendency_layer": {
+    "distribution": {"approach趋近":0.0,"avoidance回避":0.0,"attend关注":0.0,"reject拒斥":0.45,"agonistic对抗":0.0,"interrupt中断":0.20,"dominate支配":0.35}
+  },
+  "chain_trace": "控制欲 →(情境: 看到有人在Reddit上提出容易自行搜索的问题) → 需求 N02_掌控局面 →(评价: 促进/已满足/正/高) → 情绪 anger → 行动倾向 reject",
+  "evidence": {"desire":"If you're so desperate, just do a google search, it's readily available.","need":"Reddit isn't the place for this query.","emotion":"If you're so desperate","action":"just do a google search"}
+}
+
+Now let's think about any possible contradictions.
+
+One issue: The chain_trace includes only one need (N02) but the need layer has multiple needs. However the chain_trace is meant to illustrate one complete causal chain from desire to action. The instruction says "欲望X →(情境Y)→ 需求Z(写code) →(评价:direction/need_status/congruence正负,coping)→ 情绪W → 行动倾向V 的完整一句话推导(用具体名字填 X/Y/Z/W/V，必须连贯读通)". So we need to choose the most salient X, Y, Z, W, V. It's okay if we mention the primary one. It doesn't require to mention all. So fine.
+
+Now ensure that the evidence fields use quotes from content: "If you're so desperate, just do a google search, it's readily available." That's one full sentence. "Reddit isn't the place for this query." That's part of second sentence. The emotion evidence we used "If you're so desperate" which indicates frustration/anger. For action evidence: "just do a google search". That matches.
+
+Now double-check the distribution keys for desire_layer: we must include all nine keys exactly as specified. The order doesn't matter.
+
+Now ensure need_layer code is from the list: N06_摆脱痛苦, N02_掌控局面, N09_获得地位, N10_自我确认, N05_优化效率. Yes.
+
+Now ensure that the weight distribution for need_layer sums to 1: 0.30+0.30+0.20+0.10+0.10=1.0.
+
+Now ensure the JSON is valid: no trailing commas.
+
+Now final check: Are there any missing required fields? The spec says:
+
+- desire_layer: distribution + note.
+- need_layer: list of objects each with code, context_slot, weight, derived_from.
+- appraisal: goal_relevance, congruence_direction, need_status, goal_congruence, coping_potential, note.
+- emotion_layer: distribution + note.
+- action_tendency_layer: distribution.
+- chain_trace: string.
+- evidence: object with keys desire, need, emotion, action each containing quoted text.
+
+Yes.
+
+Now check that all numeric values are floats (like 0.40). That's fine.
+
+Now double-check that desire_layer distribution includes all nine keys. Yes.
+
+Now check that emotion_layer distribution includes all 13 keys: we have all keys. Good.
+
+Now check that action_tendency_layer includes all seven keys: we have all keys with zeros for those not used.
+
+Now check the "note" fields are strings. Provide decent notes.
+
+Now check that "derived_from" strings mention desire names from the list. They do.
+
+Now final JSON.
+
+One more nuance: In desire_layer distribution, we gave "确认欲" 0.25, "控制欲" 0.40, etc. We need to ensure that these desires correspond to the need_layer derived_from mapping. For each need, derived_from must reference one of those desires. That's satisfied.
+
+Now check "chain_trace" references "anger" not "anger愤怒". The emotion name in chain_trace must be a specific name from the emotion list, maybe "anger". Should we use "anger" or "anger愤怒"? The spec says "情绪W" - we could use the label "anger". The distribution key is "anger愤怒". But for chain_trace, it's just an identifier. It could be "anger". We'll use "anger" for readability.
+
+Now check the evidence fields: "desire": "If you're so desperate, just do a google search, it's readily available." "need": "Reddit isn't the place for this query." "emotion": "If you're so desperate" "action": "just do a google search". Good.
+
+Now double-check "appraisal" note: It should explain the evaluation: The content is a directive that aligns with speaker's desire for control, so goal relevance high, congruence direction "促进", need_status "已满足". Provide note.
+
+Now we need to produce final JSON.
+
+Potential issues: The JSON must be strictly output without any other text. The user asked "严格输出一个 JSON(可放 ```json 代码块内)，不要输出任何解释文字。" So we must output JSON inside a code block with ```json. No other text.
+
+Now we need to consider potential nuance: The utterance "Lean to use the tools." Actually the phrase is "Lean to use the tools." Could be a typo; perhaps "Learn to use the tools." The speaker is telling the questioner to learn to use the tools. This is part of desire for control, maybe also desire for competence. But we can incorporate that into need_layer maybe N03_提升能力 (提升能力). But we didn't include that need. However we could adjust need distribution to include N03_提升能力. But we already have five needs, we could adjust some weight. However we must ensure that all derived_from are accounted for.
+
+Let's see: The phrase "Lean to use the tools." (if it is "Learn to use the tools") implies the speaker wants the asker to improve ability. That could map to N03_提升能力. That might be a plausible need. But the speaker might also have that desire to help but indirectly. However the overall tone is dismissive. The speaker might be trying to redirect to self-service, showing a desire to improve the asker's skill. That is a form of "提升能力" need.
+
+We could include N03_提升能力 in need_layer. However we have already 5 needs summing to 1. Could adjust weight distribution. For example: N06 0.25, N02 0.25, N09 0.20, N10 0.10, N03 0.10, N05 0.10. That sums to 1.0. But we need to keep derived_from mapping accordingly. However we need to ensure each need has weight and derived_from.
+
+But is it necessary? The need_layer is a representation of all needs that are activated in this person. The phrase "Lean to use the tools." could be a need to "提升能力" (to learn to use tools). Also "just do a google search" could be "优化效率". So we might incorporate that. But it's optional. The instruction says "need_layer 是列表，code 必须取自受控17类(N01_确定性... ), 各 need 的 weight 之和=1". So we can choose any subset.
+
+We can keep it as we have, but might be more accurate to include N03_提升能力. Let's think about the speaker's internal motivations: They might feel that the questioner should be able to find the answer themselves, which reflects a desire to improve the questioner's ability (i.e., they want the asker to learn). So the speaker's need could be N03_提升能力. However the speaker's own need is not to improve themselves; they are not the one learning. But they might want to see the asker improve. However the need_layer is about the speaker's need, not the asker's. So maybe N03 is not needed. Instead, N05_优化效率 is about pointing to efficient resource. So maybe N05 is more relevant.
+
+Given the content: "just do a google search" - this indicates the speaker perceives the query as low effort, wants to optimize the response process. So N05 is relevant. Also "Lean to use the tools." indicates a desire to have the asker learn to use the tools, which is N03. But the speaker might not have that need for themselves. However the "need_layer" is about the speaker's need that is triggered by the content? Or is it about the needs that the speaker perceives in the asker? The spec: "因果链结构(必须按此顺序推导，后一层要能从前一层导出)：欲望 →(情境事件) 需求 →(评价) 情绪 → 行动倾向 → 行为/话语(可观测)". So we are reverse engineering the speaker's psychological causal chain. So the "需求" refers to the speaker's needs, not the asker's. So we need to think: What does the speaker need? They need to relieve frustration (N06), to control conversation (N02), to assert status (N09), to confirm their knowledge (N10), to optimize efficiency (N05). So N03 may not be necessary. But we might consider that "Lean to use the tools" also indicates desire for the asker to improve ability; but that could be a way to fulfill the speaker's need for control (by teaching). But that's less likely.
+
+Thus we can keep N05, N02, N06, N09, N10.
+
+Now confirm derived_from mapping:
+
+- N06_摆脱痛苦: derived from 控制欲 (or maybe from 摆脱欲). But 摆脱欲 is weight 0.0, but we could still derive from 摆脱欲. But we said derived from 控制欲. That's okay because we can derive from any desire, even if weight zero? But we probably should derive from a desire that has non-zero weight to maintain logical chain. However the spec doesn't forbid deriving from zero-weight desire, but maybe not ideal. But we can derive from 控制欲 because they want to control environment to reduce annoyance. So that's fine.
+
+- N02_掌控局面: derived from 控制欲. Good.
+
+- N09_获得地位: derived from 超越欲. Good.
+
+- N10_自我确认: derived from 确认欲. Good.
+
+- N05_优化效率: derived from 安全感欲. Good.
+
+Now we need to ensure that the derived_from desire categories are present in the desire_layer distribution. Yes: 控制欲, 超越欲, 确认欲, 安全感欲. All have non-zero weight.
+
+Now check the note in desire_layer: "为何这几类欲望被激活". Provide brief explanation.
+
+Now check the note in need_layer: Not required? The need_layer entries have fields code, context_slot, weight, derived_from. We might also add a note field for each entry? The spec does not require a note field for each need. Only desire_layer and emotion_layer have notes. So okay.
+
+Now check the note in appraisal: Provide brief explanation.
+
+Now check the note in emotion_layer: Provide brief explanation.
+
+Now ensure all numeric values are floats with appropriate decimal points.
+
+Now final JSON.
+
+Let's craft the final JSON.
+
+We need to be careful about quoting. The JSON keys are in Chinese? The spec uses Chinese for keys, but it's okay.
+
+The JSON must be valid. Ensure no stray commas.
+
+Now final output:
+
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.0,
+      "确认欲": 0.25,
+      "超越欲": 0.10,
+      "归属欲": 0.05,
+      "控制欲": 0.40,
+      "安全感欲": 0.15,
+      "向往欲": 0.05
+    },
+    "note": "该用户在看到重复、易自行搜索的求助时，主要希望通过控制对话方向（控制欲）来维护社区秩序，同时确认自己的知识权威（确认欲），并借此提升自己在社区中的地位（超越欲）。安全感欲体现在建议使用可靠的Google搜索，摆脱欲和向往欲在本次情境中未被激活。"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "情境：面对低质量、可自行搜索的问题感到烦躁和疲惫",
+      "weight": 0.30,
+      "derived_from": "由控制欲经情境(感到被低质问题打扰)衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "情境：想要把对话引导至更合适的渠道或资源",
+      "weight": 0.30,
+      "derived_from": "由控制欲经情境(欲掌控对话方向)衍生"
+    },
+    {
+      "code": "N09_获得地位",
+      "context_slot": "情境：通过给出明确指引展示自己的专业性和优越感",
+      "weight": 0.20,
+      "derived_from": "由超越欲经情境(展示知识优势)衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "情境：想要确认自己的答案和处理方式是正确的",
+      "weight": 0.10,
+      "derived_from": "由确认欲经情境(确认自己答案正确)衍生"
+    },
+    {
+      "code": "N05
