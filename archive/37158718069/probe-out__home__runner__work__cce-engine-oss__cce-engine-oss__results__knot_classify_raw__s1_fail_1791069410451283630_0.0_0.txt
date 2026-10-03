@@ -1,0 +1,275 @@
+The user wants a "因果链逆问题" analysis of a piece of content. The content is a public reply to a Reddit r/HearingAids member, describing some product prototypes. The task: "If this content is indeed a personal expression by an individual, then infer the individual's psychological causal chain four layers of distribution. If it's not personal expression (e.g., pure data table, terms, manual, code, logs), return JSON top-level with 'no_inferable_subject': true and reason. Also need to fill out all the fields in JSON as described.
+
+First, we need to examine the content: "These are just prototypes so I can't say they're perfect yet. They have hearing aid technology inside from an established manufacturer. Bluetooth for streaming music and calls from my phone and laptop. Hopefully we can get Auracast too! Battery life needs to be all day - 20hrs+ They have a charging case with multiple charges in. They will need basic moisture/sweat protection from day 1 but eventually I want them to be fully waterproof."
+
+The content is a statement describing a product that the poster is working on or announcing. The user says "These are just prototypes so I can't say they're perfect yet." So it's a personal expression: the poster is sharing a prototype's features. It's a statement about future product. The poster seems to be an individual (or perhaps a developer) speaking about his/her project. So it's personal expression; we can infer the individual's psychology. So we need to produce a causal chain: desire, need, appraisal, emotion, action tendency. The output must be a JSON with those fields and weights summing to 1 for distributions.
+
+We must be careful about inference: The content mentions "they have hearing aid technology inside from an established manufacturer." The speaker mentions wanting to have features: Bluetooth streaming, battery life, charging case, moisture protection, eventual waterproof. The tone is prospective, perhaps hopeful. The content does not show strong emotional language, but there is some positivity: hope for features, desire to make them good.
+
+We need to determine the likely desires of the poster. Let's examine the text: "These are just prototypes so I can't say they're perfect yet." So the speaker acknowledges imperfection. He/she wants them to have good performance: hearing aid tech, Bluetooth streaming, long battery life, charging case, moisture protection, waterproof. These are product goals. The desire could be about "拥有欲" (wanting to own the product), "成为欲" (to become the kind of person who can create these hearing aids), "控制欲" (to control the development of the product, to have a good product), "安全感欲" (to make the product safe, reliable), "超越欲" (to exceed current hearing aids). Possibly "向往欲" (imagination of the ideal product). Could also be "确认欲": want to confirm the choice to build them. Or "归属欲": belonging to hearing aid community. The primary desire likely is about "拥有欲" (desire to own a good hearing aid product). But the speaker is also a creator. Actually reading the statement: "These are just prototypes so I can't say they're perfect yet." That could be a "self-distancing" (defensive) about product quality. He says "they have hearing aid technology inside from an established manufacturer." So it's a product he/she is creating (maybe a custom hearing aid product). The desire might be "成为欲" (to become a person who can deliver such product), or "控制欲" (to control product development), "安全感欲" (to ensure safety). Also "向往欲" (to imagine a product that is fully waterproof). But we need to pick among the 9 categories: 拥有欲 (own the product), 成为欲 (become such a person), 摆脱欲 (escape pain), 确认欲 (confirm one's choices), 超越欲 (transcend), 归属欲 (belong to group), 控制欲 (control), 安全感欲 (safety), 向往欲 (aspiration for ideal lifestyle). Which ones are most likely?
+
+Given the content is about product design and features, the speaker might want to "拥有欲": wants to have a product with these features. But "拥有欲" is about wanting to own a product. The speaker is possibly the product developer, not necessarily the consumer. But it's a public reply to a Reddit member. The user may be a developer seeking to inform the community about upcoming hearing aid prototypes. So the desire might be "确认欲": to confirm his/her design choices, to get validation from the community. Or "归属欲": to be part of the hearing aid community, to share. Or "控制欲": to have control over the product design.
+
+We need to consider the context: The content is posted on r/HearingAids, a community of hearing aid users. The poster is sharing about prototypes. The motivation might be to get feedback, to gauge interest, to confirm whether the community wants these features. So the desire is likely "确认欲" (to confirm his/her design is appropriate). But also "归属欲" (to be recognized as part of the community). However, the desire "控制欲" (to control the development and outcomes) might also be relevant.
+
+Let's see the language: "These are just prototypes so I can't say they're perfect yet." This phrase acknowledges imperfection and possibly a desire to make them perfect. He/she says "They have hearing aid technology inside from an established manufacturer." So it's about product quality. The speaker is perhaps a developer who wants to "拥有" a high-quality product. But "拥有欲" might refer to the consumer desire to own the product, not the developer's desire to own. But the developer's desire might be "成为欲": to become someone who makes a great hearing aid product.
+
+We need to decide the primary desire for the speaker. The phrase "I can't say they're perfect yet" indicates a desire for perfection, i.e., "超越欲" (to surpass current solutions). He/she hopes to get Auracast, waterproof etc. That's desire to exceed typical hearing aids. That seems like "超越欲". Also "控制欲" could be present: they want to control features like battery life, moisture protection. But more likely "超越欲".
+
+Also the desire "安全感欲" (safety) is also present: they want basic moisture/sweat protection, eventually waterproof, to ensure safety for users. That's safety.
+
+But the main desire for a product developer posting prototypes could be "确认欲": to validate their choices with the community, to see if this is what they want. But maybe the speaker wants to see community reaction. The phrase "Hopefully we can get Auracast too!" is hopeful, indicating desire for community endorsement. "They will need basic moisture/sweat protection from day 1 but eventually I want them to be fully waterproof." This expresses desire for improvement.
+
+Given that this is a "public reply" to a Reddit member, the content is likely a response to a comment asking about the prototypes. The poster may be trying to inform and perhaps gauge interest. The desire could be "归属欲": to be part of the hearing aid community and share. But the speaker seems to be providing details, not asking for validation. But maybe the underlying desire is "确认欲": to confirm that the community approves of the design.
+
+Let's think about the audience: The poster is likely a developer, maybe a startup founder, wanting to share their product. The desires that drive sharing could be: "确认欲" (to get feedback, validation), "归属欲" (to be recognized as part of the hearing aid community), "控制欲" (to manage the product's direction), "安全感欲" (to ensure product safety), "超越欲" (to surpass existing hearing aids). But which one is dominant? The content is fairly neutral and informational, not heavily emotional. The speaker acknowledges limitations, hopes for improvements. This suggests they are still uncertain about acceptance. So "确认欲" might be more salient.
+
+Alternatively, "控制欲" is about controlling the product development, which they are already doing. But they are sharing details, perhaps seeking control over community perception.
+
+We need to assign weights to each desire. The total must sum to 1. The analysis is about the individual who wrote this content, not the audience. So it's a single individual (the poster). We need to infer his/her desires, not the viewer's.
+
+The instruction says: "若这段内容确实是某一个人写下的自我表达，请对『写下这段内容的这一个人』反推其心理因果链四层占比分布——这是一个个体，不是群体。" So we treat this as a single individual's causal chain.
+
+Thus we need to assign distribution across the nine desires.
+
+Given the content: "These are just prototypes so I can't say they're perfect yet." So there's some humility. The speaker wants to make a good product. He/she mentions features like hearing aid technology, Bluetooth streaming, battery life, charging case, moisture protection, waterproof. So the primary desire might be "拥有欲" to have a product that meets these expectations. However, the speaker is describing what they plan to have, not what they currently own. So the desire is more about "成为欲" (to become a developer who can deliver such product). But they are already developing, so "成为欲" might be about becoming a better developer.
+
+Alternatively, "向往欲" could be relevant: the desire to imagine the ideal hearing aid that is waterproof and with good battery. But "向往欲" is about aspiring to a lifestyle or scenario, not necessarily a product. But the product is part of a lifestyle.
+
+"控制欲" is about controlling自己的生活/财务/健康/关系. The speaker wants to control product features.
+
+But perhaps the speaker's desire is primarily "安全感欲" (to ensure safety and reliability). The speaker is concerned about moisture protection, battery life, etc., which are about reliability, safety. So the desire to eliminate risk (uncertainty about product reliability) could be "安全感欲". This desire is triggered by the fact that they are developing a hearing aid, which is a medical device; safety is important.
+
+Thus "安全感欲" could be high. Also "控制欲" is about controlling the product's functionality, which is similar. But we need to weigh them.
+
+"确认欲" might also be present: the speaker wants to confirm that their design decisions are correct. The content includes "Hopefully we can get Auracast too!" which is hopeful, maybe seeking validation. But not explicit.
+
+The content is a reply to a Reddit member, maybe the original question asked about the prototypes. So the reply is to inform, maybe to get feedback. The desire "确认欲" would be about confirming that the community approves the features. The speaker says "I can't say they're perfect yet", which indicates a desire for validation. The weight for "确认欲" might be moderate.
+
+But the instruction says "欲望9类定义（触发视角：看完这条内容观众想要什么）" So the perspective is "after reading this content, what does the audience (the reader) want?" But here we are focusing on the writer, not the audience. However, the instruction says "若这段内容确实是某一个人写下的自我表达，请对『写下这段内容的这一个人』反推其心理因果链四层占比分布". So we treat the writer as the subject. The "欲望" layer is about what the writer wants after reading his own content? Or what the writer wants in general? The description says "欲望(稳定潜变量) →(情境事件) 需求(情境化目标) →(评价) 情绪 → 行动倾向 → 行为/话语(可观测)". So we need to map the writer's stable desires to situational needs, then appraisal, emotion, action tendency, then observable behavior (the话语). So we need to infer the writer's stable desires that lead to the need to share these details. The writer's stable desires might be "确认欲" (to confirm his/her design), "控制欲" (to control the product), "安全感欲" (to ensure safety), "超越欲" (to exceed competition), "归属欲" (to belong to the hearing aid community). We need to assign weights.
+
+Given the content is informational, not heavily emotional, the writer might be primarily motivated by "确认欲". He/she wants to confirm that the community approves the design and features. The phrase "These are just prototypes so I can't say they're perfect yet." suggests a desire for validation that the direction is correct. "Hopefully we can get Auracast too!" is hopeful for community support. So the weight for "确认欲" could be high, maybe 0.4.
+
+"控制欲" is also present: they want to control the product features, like battery life, moisture protection. But they are already controlling; perhaps the desire is to maintain control. But the content is about controlling features. So weight maybe 0.2.
+
+"安全感欲" is present: they want the product to be safe, waterproof, moisture protection. That's about safety. But the writer is not directly expressing fear of safety issues, but they are planning for it. The desire to eliminate risk could be moderate. Weight maybe 0.2.
+
+"拥有欲" is about wanting to own the product. But the writer is developing the product, not necessarily wanting to own it. However, they may want to own a prototype for themselves. But not strongly expressed. Weight maybe 0.1.
+
+"超越欲" is about surpassing typical hearing aids. The features like waterproof, long battery, streaming are about surpassing typical. Weight maybe 0.1.
+
+"成为欲" is about becoming a better developer. Not explicitly expressed. Could be low, maybe 0.0.
+
+"摆脱欲" is about escaping pain, not relevant.
+
+"归属欲" is about belonging to community. The writer is posting on Reddit, maybe wanting to belong. But the content is not about belonging. Weight maybe 0.0.
+
+"向往欲" is about aspirational lifestyle. The product is part of a lifestyle. Not strongly expressed. Weight maybe 0.0.
+
+We need to ensure sum to 1. Let's assign: 确认欲 0.4, 控制欲 0.2, 安全感欲 0.2, 拥有欲 0.1, 超越欲 0.1. Others 0.0.
+
+Now, need_layer: we need to map from desires to situational needs (the 17 categories). The writer's desire leads to specific needs. For example, "确认欲" leads to need "N10_自我确认" (confirm self). The writer wants to confirm his/her design choices. The context: "These are just prototypes so I can't say they're perfect yet." That is a situation where the writer is uncertain about the product's perfection, needing confirmation.
+
+"控制欲" leads to need "N02_掌控局面" (control). The writer wants to control the product's features, like battery life, moisture protection.
+
+"安全感欲" leads to need "N01_确定性" (reduce risk) or "N06_摆脱痛苦"? Actually safety is about eliminating risk, so "N01_确定性" (gain certainty about safety). Or "N06_摆脱痛苦"? But it's not about pain, it's about risk. So "N01_确定性" is appropriate.
+
+"拥有欲" leads to need "N07_占有资源" (own resource). The writer wants to have the product.
+
+"超越欲" leads to need "N09_获得地位" (gain status) or "N03_提升能力"? Actually surpassing typical hearing aids could be about gaining status in the market, or about提升能力 (improving product). But the writer wants to outdo others, so "N09_获得地位".
+
+We need to assign weights to each need, sum to 1.
+
+We can assign: N10_自我确认 0.4, N02_掌控局面 0.2, N01_确定性 0.2, N07_占有资源 0.1, N09_获得地位 0.1.
+
+Alternatively, N01_确定性 could be 0.2, N02_掌控局面 0.2, N10_自我确认 0.4, N07_占有资源 0.1, N09_获得地位 0.1.
+
+Now, appraisal layer: We need to evaluate goal_relevance (0-1), congruence_direction (促进/威胁/中性), need_status (已满足/未满足), goal_congruence (正/负), coping_potential (高/中/低). The writer's needs are partially satisfied or not? The content is describing prototypes; the writer acknowledges they are not perfect, but they have some features. The writer is hoping for improvements. So need_status might be "未满足" for many needs: they haven't yet confirmed, they haven't fully controlled, they haven't achieved safety. However, they have some features, but overall not fully satisfied. So need_status is "未满足". The congruence_direction: The content is providing information, not threatening, but also not fully satisfying. It's more "促进" (promoting) because they are describing positive features. The writer is hopeful. So congruence_direction is "促进". But need_status is "未满足". So goal_congruence is "负"? Actually the rule: 促进且已满足 = 正；威胁或未满足 = 负. Here it's 促进 but 未满足, so it's "负". So goal_congruence = "负". That leads to negative emotions like fear or sadness? But the writer is hopeful, not fearful. However, the appraisal is about the writer's internal state: they have a need that is not yet satisfied, but they are making progress. The congruence_direction is "促进" because the content moves them towards goal, but need is not yet satisfied. That might lead to "desire" or "hope" type emotions, but the emotion set includes "desire渴望". The writer might feel "desire" (渴望) for the product to be perfect. Or "curiosity" (好奇) about the product. Or "hope". The set includes "desire渴望" but also "joy喜悦"? The writer might feel some positive emotion because they are making progress. But the need is not satisfied, so maybe they feel "desire". Also "curiosity". But the appraisal says goal_congruence negative (since need not satisfied). The negative emotions like fear, sadness, anger might arise if threat. But here it's not threat. The rule: "促进+已满足=正情绪; 威胁+未满足=负情绪". But we have "促进+未满足". That is ambiguous. Possibly leads to "desire" or "hope". The emotion list includes "desire渴望". That fits: desire for something not yet possessed. So we can assign "desire渴望" high weight.
+
+Also "curiosity好奇" could be present because they are curious about community reaction.
+
+"joy喜悦" maybe lower because they are not fully satisfied.
+
+"admiration钦佩" maybe not.
+
+"pride自豪" maybe moderate because they are proud of the prototype.
+
+But we need to assign distribution across 13 emotions, sum to 1.
+
+We need to think about the writer's emotional state: They are somewhat hopeful, but also uncertain. They mention "I can't say they're perfect yet." So there is some humility. They might feel "desire" for the product to be perfect, "hope" for improvements, "curiosity" about feedback, maybe "pride" in what they have built, but also "anxiety" about imperfections. The emotion set includes "fear恐惧", "sadness悲伤", "anger愤怒". Not likely. "admiration钦佩" not relevant. "joy喜悦" maybe moderate. "gratitude感激" maybe not. "nostalgia怀旧" no. "relief宽慰" maybe after they get feedback? Not yet. "approval认同" maybe they want approval. "love爱" not. "pride自豪" could be present. "desire渴望" definitely. "curiosity好奇" definitely.
+
+Thus we can assign: desire 0.4, curiosity 0.2, pride 0.2, joy 0.1, approval 0.1. Others 0.0.
+
+Now action tendency layer: Frijda's 7 categories: approach趋近, avoidance回避, attend关注, reject拒斥, agonistic对抗, interrupt中断, dominate支配. The writer is sharing information, likely "attend关注" (attending to the community), "approach趋近" (approaching the community for feedback), maybe "dominate支配" (trying to control the narrative). But the content is informational, not aggressive. So likely "attend关注" (to pay attention to feedback) and "approach趋近" (seeking contact). Possibly "dominate支配" is about controlling product features, but not about behavior. The action tendency is about the writer's tendency after reading the content? Actually it's about the writer's action tendency resulting from emotion. The writer will likely "attend关注" (attend to comments), "approach趋近" (approach the community). So assign: attend 0.4, approach 0.4, dominate 0.2. Others 0.0.
+
+Now chain_trace: a single sentence that goes from desire to action. Something like: "确认欲 → (情境: 需向社区展示原型以获取反馈) → 需求N10_自我确认 → (评价: 促进但未满足, coping中等) → 情绪desire渴望 + curiosity → 行动倾向attend关注 + approach趋近 → 话语: 分享原型特性以期获得认可."
+
+We need to incorporate all major steps. The chain_trace should be a single sentence, but can be long. Must include specific names for desire, need, emotion, action. Use the codes.
+
+We need to reference evidence: desire evidence: "These are just prototypes so I can't say they're perfect yet." Possibly indicates desire for confirmation. Need evidence: "I can't say they're perfect yet." Might be need for self-confirmation. Emotion evidence: "Hopefully we can get Auracast too!" indicates desire and hope. Action evidence: The whole content is a reply, an approach to the community.
+
+Now we must ensure the JSON structure matches exactly. The top-level must be a JSON object. The fields: desire_layer (distribution and note), need_layer (list of objects with code, context_slot, weight, derived_from), appraisal (fields: goal_relevance, congruence_direction, need_status, goal_congruence, coping_potential, note), emotion_layer (distribution and note), action_tendency_layer (distribution), chain_trace (string), evidence (object with desire, need, emotion, action). All weights must sum to 1 for each distribution.
+
+Check each distribution:
+
+desire_layer distribution: sum 0.4+0.2+0.2+0.1+0.1 = 1.0. Good.
+
+emotion_layer distribution: sum 0.4+0.2+0.2+0.1+0.1 = 1.0. Good.
+
+action_tendency_layer distribution: sum 0.4+0.4+0.2 = 1.0. Good.
+
+need_layer: sum of weights = 0.4+0.2+0.2+0.1+0.1 = 1.0. Good.
+
+Now we need to fill context_slot for each need. Provide a short phrase describing the triggering situation. For each need, we need to fill derived_from: which desire leads to this need via what情境事件.
+
+We need to write "derived_from": "由<哪个欲望>经<什么情境事件>衍生". So for each need, we need to specify.
+
+We also need to fill "context_slot": "半自由文本:触发情境". So for each need, we need to describe the scenario that triggers the need.
+
+Thus need_layer entries:
+
+1. code: N10_自我确认, context_slot: "在向社区展示原型并寻求反馈时，不确定自己的设计是否被认可", weight: 0.4, derived_from: "由确认欲经展示原型以获取认可的情境事件衍生"
+
+2. code: N02_掌控局面, context_slot: "在规划产品功能（电池、防水）时，需要控制产品细节以确保符合预期", weight: 0.2, derived_from: "由控制欲经设定产品规格和开发进度的情境事件衍生"
+
+3. code: N01_确定性, context_slot: "在面对原型尚未完美的情况下，需要消除产品质量和安全性方面的不确定性", weight: 0.2, derived_from: "由安全感欲经关注产品安全与可靠性的情境事件衍生"
+
+4. code: N07_占有资源, context_slot: "在希望拥有完整功能的 hearing aid 原型以进行测试时", weight: 0.1, derived_from: "由拥有欲经期待获得完整产品的情境事件衍生"
+
+5. code: N09_获得地位, context_slot: "在希望超越竞争产品、获得市场领先地位时", weight: 0.1, derived_from: "由超越欲经追求领先技术的情境事件衍生"
+
+Now appraisal: goal_relevance: how relevant is the content to the writer's goals? The writer wants to share and get feedback. The content is about product features, which is relevant to their goal of confirming design and controlling product. So goal_relevance maybe 0.8. congruence_direction: "促进" because the content moves towards the goal. need_status: "未满足" because they haven't gotten feedback yet. goal_congruence: "负". coping_potential: "中" because they can handle feedback and improve. note: explanation.
+
+Now emotion_layer note: explanation of how emotions derived from need and goal_congruence. Provide note.
+
+Now chain_trace: a single sentence summarizing the chain.
+
+Now evidence: need to quote original text for each layer. Provide for desire, need, emotion, action.
+
+We need to ensure that the evidence fields contain the original text that supports each inference. The original text is short. For desire evidence: maybe "These are just prototypes so I can't say they're perfect yet." This indicates desire for confirmation. For need evidence: "I can't say they're perfect yet." indicates need for self-confirmation. For emotion evidence: "Hopefully we can get Auracast too!" indicates desire and hope. For action evidence: The whole reply is an action (posting). But we can say "These are just prototypes..." is the action (the话语). But we need to quote the actual text that is the behavior. The entire content is the observable behavior. So we can say "The entire reply (the provided text) is the observable behavior."
+
+Now we need to be careful: The JSON must not contain any extra text outside the JSON block. The user says "严格输出一个 JSON(可放 ```json 代码块内)，不要输出任何解释文字。" So we must output only the JSON code block. No explanation. So we need to output something like:
+
+```json
+{
+  "desire_layer": { ... },
+  "need_layer": [ ... ],
+  "appraisal": { ... },
+  "emotion_layer": { ... },
+  "action_tendency_layer": { ... },
+  "chain_trace": "...",
+  "evidence": { ... }
+}
+```
+
+We must ensure that the distribution keys match exactly the fixed keys. For desire_layer distribution: keys are "拥有欲","成为欲","摆脱欲","确认欲","超越欲","归属欲","控制欲","安全感欲","向往欲". The order may not matter, but we must include all. We have assigned for some, but we need to include all keys with 0 for those we didn't assign. The distribution must sum to 1. So we need to include the rest with 0. Let's do that: set "拥有欲": 0.1, "成为欲": 0.0, "摆脱欲": 0.0, "确认欲": 0.4, "超越欲": 0.1, "归属欲": 0.0, "控制欲": 0.2, "安全感欲": 0.2, "向往欲": 0.0. Sum = 0.1+0+0+0.4+0.1+0+0.2+0.2+0 = 1.0.
+
+Now emotion_layer distribution keys: "admiration钦佩","joy喜悦","gratitude感激","desire渴望","nostalgia怀旧","pride自豪","love爱","relief宽慰","approval认同","curiosity好奇","fear恐惧","sadness悲伤","anger愤怒". We need to assign values for these. We have assigned: "desire渴望": 0.4, "curiosity好奇": 0.2, "pride自豪": 0.2, "joy喜悦": 0.1, "approval认同": 0.1. Others 0. So we need to list all keys with appropriate values. The sum: 0.4+0.2+0.2+0.1+0.1 = 1.0. So we must include the rest with 0. So we need to include all keys. Let's list them.
+
+Now action_tendency_layer distribution keys: "approach趋近","avoidance回避","attend关注","reject拒斥","agonistic对抗","interrupt中断","dominate支配". We assigned: "approach趋近": 0.4, "attend关注": 0.4, "dominate支配": 0.2. Others 0. So include all keys.
+
+Now need_layer list: we have 5 entries. Must have code, context_slot, weight, derived_from.
+
+Now appraisal: we need to fill fields: goal_relevance (float), congruence_direction (string), need_status (string), goal_congruence (string), coping_potential (string), note (string). We need to assign appropriate values.
+
+Goal_relevance: 0.8 maybe. Congruence_direction: "促进". Need_status: "未满足". Goal_congruence: "负". Coping_potential: "中". Note: explanation.
+
+Now chain_trace: a single sentence that includes the chain. Must include the specific codes and names. Use Chinese. Something like: "确认欲 →(情境: 向社区展示原型并寻求认同时)→ 需求N10_自我确认 →(评价: 促进但未满足, coping中)→ 情绪desire渴望+curiosity好奇 → 行动倾向attend关注+approach趋近 → 行为: 在Reddit上回复原型特性以获取反馈". That is a single sentence? It might be long but okay.
+
+Now evidence: need to quote original text. Provide for each: desire, need, emotion, action.
+
+We need to ensure we quote exactly from the content. The content is:
+
+"These are just prototypes so I can't say they're perfect yet.
+
+They have hearing aid technology inside from an establised manufacturer.   
+Bluetooth for streaming music and calls from my phone and laptop. Hopefully we can get Auracast too!  
+Battery life needs to be all day - 20hrs+  
+They have a charging case with multiple charges in.  
+They will need basic moisture/sweat protection from day 1 but eventually I want them to be fully waterproof."
+
+We need to quote relevant parts. For desire evidence: maybe "These are just prototypes so I can't say they're perfect yet." That suggests desire for confirmation. For need evidence: same phrase indicates need for self-confirmation. For emotion evidence: "Hopefully we can get Auracast too!" indicates desire and hope. For action evidence: the entire reply is the observed behavior.
+
+We need to include evidence in the JSON. The keys: "desire","need","emotion","action". Each should have a string with the quoted text.
+
+Now ensure JSON is valid: Use double quotes, proper escaping. Provide a single code block.
+
+We need to ensure that the distribution keys are exactly as specified, with Chinese characters. The keys in the distribution must be exactly those strings. So we must use those strings. For example: "拥有欲":0.1, etc.
+
+Now we need to think about the "desire_layer note". Provide a short note explaining why these desires are activated. The note can be in Chinese.
+
+Now "need_layer" entries: we need to include context_slot in Chinese. Provide short description. derived_from also Chinese.
+
+Now "appraisal note": explanation.
+
+Now "emotion_layer note": explanation.
+
+Now "action_tendency_layer" distribution: we need to list all keys.
+
+Now "chain_trace": a single sentence. Should be a string.
+
+Now "evidence": object with keys: desire, need, emotion, action. Provide quotes.
+
+Now ensure that all weights are floats (e.g., 0.4). The sum must be exactly 1 for each distribution. Let's check:
+
+desire_layer distribution: 0.1 + 0.0 + 0.0 + 0.4 + 0.1 + 0.0 + 0.2 + 0.2 + 0.0 = 1.0. Good.
+
+need_layer: weights: 0.4 + 0.2 + 0.2 + 0.1 + 0.1 = 1.0. Good.
+
+emotion_layer distribution: we need to sum all 13 keys. Let's list them and assign:
+
+- admiration钦佩: 0.0
+- joy喜悦: 0.1
+- gratitude感激: 0.0
+- desire渴望: 0.4
+- nostalgia怀旧: 0.0
+- pride自豪: 0.2
+- love爱: 0.0
+- relief宽慰: 0.0
+- approval认同: 0.1
+- curiosity好奇: 0.2
+- fear恐惧: 0.0
+- sadness悲伤: 0.0
+- anger愤怒: 0.0
+
+Sum = 0.1+0.4+0.2+0.1+0.2 = 1.0. Good.
+
+action_tendency_layer distribution: keys:
+
+- approach趋近: 0.4
+- avoidance回避: 0.0
+- attend关注: 0.4
+- reject拒斥: 0.0
+- agonistic对抗: 0.0
+- interrupt中断: 0.0
+- dominate支配: 0.2
+
+Sum = 0.4+0.4+0.2 = 1.0. Good.
+
+Now need_layer entries: we need to ensure each entry has code, context_slot, weight, derived_from.
+
+Now appraisal: we need to assign numeric goal_relevance. Possibly 0.8. That is fine. The rest are strings.
+
+Now chain_trace: need to be a single sentence that includes all steps. Let's craft:
+
+"确认欲 →(情境: 在Reddit上向社区展示原型并寻求认可) → 需求N10_自我确认 →(评价: 促进但未满足, coping中) → 情绪desire渴望+curiosity好奇 → 行动倾向attend关注+approach趋近 → 行为: 发布包含技术细节的原型回复以获取反馈"
+
+That is one sentence. It might be okay. The user wants "完整一句话推导(用具体名字填 X/Y/Z/W/V，必须连贯读通)". So we need to include desire name, need code, emotion name, action tendency name, behavior description. Use Chinese names. Should be one sentence. Let's do that.
+
+Now evidence: we need to quote the original text. For desire evidence: "These are just prototypes so I can't say they're perfect yet." For need evidence: same phrase. For emotion evidence: "Hopefully we can get Auracast too!" For action evidence: the entire reply (the whole content). But we can quote the whole content as the behavior.
+
+Now we need to be careful about quoting. The JSON string must be valid. Use double quotes inside the string? We need to escape. The evidence values are strings; we can include the original text as a string. Use double quotes around the whole JSON, but inside we need to escape quotes inside the string. But we can just use the content as is, but ensure proper escaping. For simplicity, we can include the text without quotes inside. Use "desire": "These are just prototypes so I can't say they're perfect yet." The double quotes inside the string need to be escaped. But we can just use single quotes inside the string? JSON requires double quotes for strings, but inside we can use single quotes or we can escape the double quotes. The content includes double quotes? It does not include double quotes, only apostrophes? The original text includes "These are just prototypes so I can't say they're perfect yet." That's fine; it contains apostrophe (single quote) but not double quotes. So we can include it as a double-quoted string: "These are just prototypes so I can't say they're perfect yet." That is okay. The other lines also contain apostrophes, but no double quotes. So we can embed them as is.
+
+Now we need to include line breaks? The evidence strings can contain newline characters. But we can keep them as single line or multi-line. The JSON string can include newline as \n. But it's okay to have them as a single line. But it's easier to keep them as a single line. For readability, we can combine the lines with spaces. But it's okay.
+
+Now let's assemble the JSON.
+
+One more thing: The user says "若这段内容确实是某一个人写下的自我表达，请对『写下这段内容的这一个人』反推其心理因果链四层占比分布——这是一个个体，不是群体。" So we treat as individual.
+
+Thus the JSON should have no "no_inferable_subject". We will produce the JSON as described.
+
+Now we need to ensure we include all fields.
+
+Now final step: produce the JSON.
+
+But we must double-check the chain_trace: It must be a single sentence. The example chain_trace in the prompt: "欲望X →(情境Y)→ 需求Z(写code) →(评价:direction/need_status/congruence正负,

@@ -1,0 +1,324 @@
+The user is asking for a causal chain reverse analysis for a piece of content. The content is:
+
+"Not everything is written in stone. See if they can help with replacement or call HQ."
+
+They want a JSON output with four layers: desire, need, appraisal, emotion, action tendency, chain trace, evidence.
+
+We need to treat it as an individual's expression (someone posted a public reply to a Reddit r/HearingAids member). So it's a personal expression. So we need to infer the individual's psychological causal chain.
+
+But is this content a personal expression? It seems like a generic advice: "Not everything is written in stone. See if they can help with replacement or call HQ." It is a suggestion to try to get replacement or call HQ (presumably the hearing aid company's headquarters). The content is about addressing a problem with hearing aid.
+
+Thus we need to infer the desire, need, appraisal, emotion, action tendency for that person.
+
+Let's parse the content:
+
+"Not everything is written in stone." Means some things are flexible.
+
+"See if they can help with replacement or call HQ." The speaker is telling the user to ask the seller (maybe a clinic or retailer) for replacement or call the company's headquarters. This is advice to get help for a hearing aid issue.
+
+So the speaker's desire might be to help the other person, i.e., a desire to assist, maybe also a desire to confirm that solutions exist, or to give them control over their situation.
+
+Let's think: The speaker is presumably a Reddit user who posted a reply. They might have some desire to be helpful, to share advice, to be seen as knowledgeable (i.e., desire for control, desire for confirmation). The speaker might also have the desire to help others (like altruistic). However, in the taxonomy of desires, we have 9 categories: 拥有欲, 成为欲, 摆脱欲, 确认欲, 超越欲, 归属欲, 控制欲, 安全感欲, 向往欲.
+
+Which of these are likely? The speaker wants to help the other person get replacement or call HQ. That indicates desire to control the situation (control欲) or desire for confirmation (确认欲) maybe? Or desire for belonging (maybe they belong to hearing aid community). But more likely desire for control (want to control outcome). Or desire for safety (安全感欲) - want to reduce risk for the user.
+
+Alternatively, maybe they want to help the user get a solution (maybe desire to help). However the taxonomy does not have "helping" as a desire. But they might have desire for "control" over the environment, by giving advice that yields outcome.
+
+But we need to map to the nine categories. The speaker is presumably a member of the community, giving advice to a fellow member. They might be motivated by belonging (归属欲) to the community. Or desire for confirmation: they want to confirm that they are knowledgeable and helpful.
+
+Let's think about the content: "Not everything is written in stone." This phrase is often used to indicate that things can be changed, no absolute rule. The speaker is implying that perhaps the hearing aid's warranty or policy is not absolute; they can ask for replacement. So the desire might be to alleviate the other person's pain (摆脱欲) i.e., help them get rid of a problem.
+
+But the speaker's own desire is not about themselves, it's about the other person. However we must infer the speaker's psychological chain. So we need to think: The speaker sees that the other person has a problem (a hearing aid issue). The speaker wants to help them (maybe desire to help, but not in taxonomy). We need to map to taxonomy.
+
+Alternatively, the speaker may be motivated by desire to assert their own expertise (desire for control, desire for status). They want to be recognized as someone who knows about hearing aids. That would map to "控制欲" (the desire to control outcomes, including providing guidance). Or "确认欲" (the desire to confirm that their knowledge is correct, and that the other person can get replacement). Or "安全感欲" (the desire to reduce uncertainty for the other person). Or "超越欲" (desire to be better than others by giving good advice). Or "成为欲" (desire to become a helpful person). But the speaker is already a helpful member; they may have a desire to be seen as a helpful community member (归属欲). So we need to decide.
+
+We need to assign weights to each of the nine desires that sum to 1. Each weight must be between 0 and 1. It's a probability distribution. We need to assign based on plausible motivations.
+
+The content is advice: "Not everything is written in stone. See if they can help with replacement or call HQ."
+
+The speaker is likely to have desire to help (control the outcome), desire to belong (to community). So perhaps we assign moderate weight to control欲 (0.35), moderate weight to 归属欲 (0.30), some weight to 安全感欲 (0.20) maybe, and some weight to 确认欲 (0.15). Or something like that.
+
+Now need_layer: We need to identify which need(s) are activated. The content mentions: "See if they can help with replacement or call HQ." This is about getting a replacement (acquiring a resource). So need N07_占有资源 (acquire a resource). Also maybe N02_掌控局面 (to take control of the situation). Or N01_确定性 (to get certainty about whether replacement is possible). Or N06_摆脱痛苦 (to relieve pain). Or N03_提升能力 (to learn how to get replacement). The content is about exploring possibilities for replacement. So the need is N07_占有资源 (to acquire a new hearing aid). Also maybe N02_掌控局面 (to get control). The speaker is trying to help the other person regain control over their hearing ability. But the need is likely about resource acquisition.
+
+Thus need_layer: code N07_占有资源, context_slot: "When a hearing aid is malfunctioning and needs replacement." weight maybe high 0.6; also N02_掌控局面 weight 0.3; maybe N01_确定性 weight 0.1. Or sum to 1.
+
+Now appraisal: Let's compute goal_relevance: The content is about addressing the hearing aid problem. The speaker's goal is to help the other person get replacement. The relevance to the speaker's own desires? The speaker may have desire to be helpful, so relevance is moderate. Maybe goal_relevance = 0.7. The congruence_direction: The content is providing a solution, i.e., a way to resolve the problem, so it's "促进". need_status: The speaker is giving advice, not yet satisfied, but the advice itself is helpful, but the need for replacement hasn't been fulfilled yet. So need_status = "未满足"? The content is providing a path to satisfy, but the need is not yet satisfied. But we need to see: In appraisal, need_status refers to "the need being addressed by the content". The content is giving an actionable step, which may help to satisfy the need, but the need is not yet satisfied. So need_status = "未满足". But the speaker is encouraging the user to pursue the solution, thus the content is promoting need satisfaction. So need_status might be "未满足" because the need remains unsatisfied until they get replacement.
+
+Goal_congruence: Since direction is "促进" and need_status is "未满足", that leads to "负"? Actually we need to think: The goal_congruence is derived: If direction = 促进 and need_status = 未满足, what is the goal_congruence? Usually "正" means content helps or is positive, "负" means content reveals threat or doesn't solve. For a helpful advice, we might consider goal_congruence = "正" because it points to a solution and reduces threat. But need_status is not yet satisfied, so the need is not yet fulfilled. However the content is still constructive. In the description: "促进且已满足 = 正; 威胁或未满足(焦虑悬置) = 负". Wait, they said "促进且已满足=正；威胁或未满足(焦虑悬置)=负". Actually they said: "关键区分：「内容有帮助」= 促进+已满足 → 正情绪；「自查后发现威胁却没解法」= 威胁+未满足 → fear恐惧等负情绪". So positive emotions arise when content is helpful and the need is satisfied. Negative when threat and need unsatisfied. So if the content is helpful (促进) but need is not yet satisfied (未满足), we might consider it not yet positive, maybe "中性"? But the classification they gave is a bit simplistic: positive only when need satisfied. But perhaps they want "正" if content is helpful (促进) regardless of satisfaction? The description: "goal_congruence (正/负)：由上两维派生——促进且已满足=正；威胁或未满足(焦虑悬置)=负". That suggests that the only positive case is when both conditions are met: direction = 促进, need_status = 已满足. If need_status is 未满足, even if direction is 促进, goal_congruence = 负. So they treat it as negative because the need is not resolved, causing anxiety. However the typical scenario: advice to get replacement may not immediately resolve need, but it provides a path. It could be considered "缓解焦虑"? Hmm.
+
+Given the instruction: "goal_congruence (正/负)：由上两维派生——促进且已满足=正；威胁或未满足(焦虑悬置)=负". So we must follow that mapping. So if direction=促进 and need_status=未满足, then goal_congruence = 负. So it's negative.
+
+But does that align with the emotional output? Then the emotion would be negative (like fear, sadness, anger). But the content is helpful, so maybe they intend that the speaker's emotion is something like "concern" or "caution"? Or they might feel "relief"? The content is offering a solution, so perhaps the speaker feels "relief" for the other person? Or maybe they feel "approval" or "admiration"? Not sure.
+
+But we need to assign emotion distribution based on need * congruence. The need is N07 (占有资源). The congruence is negative (because need not satisfied). So the emotion may be fear or sadness or anger? The need is unsatisfied resource acquisition. The content offers a solution, but need remains unsatisfied. So the speaker might feel "hope" (but hope is not in the list; maybe "desire"? But desire is wanting something. Or "curiosity"? But maybe the speaker's emotion is "approval" (认同) because they are approving of the action to get replacement. But "approval" is about social approval. Or "relief" could be for the other person? But relief is about a threat being removed, but here the threat is still present. Or "anger" could be directed at the company not providing replacement. Or "fear" about potential outcomes.
+
+But the speaker is encouraging the other person: "See if they can help with replacement or call HQ." The speaker is likely feeling "approval" of the idea of seeking replacement. Or maybe "relief" that there's a possible solution. Or "admiration" for the person who posted the original question? Or "desire" to help. Actually desire is about wanting something. But here the speaker's desire might be to see the other person succeed. The emotion might be "approval" (认同) for the suggestion.
+
+Let's think of the possible emotions: admiration, joy, gratitude, desire, nostalgia, pride, love, relief, approval, curiosity, fear, sadness, anger.
+
+If the content is a helpful suggestion, the speaker might feel "approval" of the suggestion, "admiration" of the person? But maybe not. "relief" might be felt by the speaker because they can provide a solution. But relief is about removal of a threat for oneself, not necessarily for the other. "approval" seems plausible: they are endorsing the idea.
+
+But the speaker might also feel "desire" to help, but desire is a wanting state. But desire is about something you want. The speaker is not wanting something for themselves. So maybe "approval" is the emotion.
+
+Alternatively, "curiosity" might be the speaker's emotion if they are wondering if the company will help. But they are giving advice, not asking.
+
+We need to produce a distribution of emotions summing to 1. Let's think: Which emotions are plausible? The speaker may have "approval" (认同) as the primary, maybe also "relief" (宽慰) because they have a potential solution. Maybe "admiration" for the other person for seeking help? Or "gratitude"? Not sure.
+
+Better to examine the content and the context: The original question likely described a problem: maybe the hearing aid stopped working, the user is upset. The reply says "Not everything is written in stone. See if they can help with replacement or call HQ." The reply is offering a practical solution. The speaker may be trying to reduce the user's anxiety. So the speaker might feel "relief" for the user. But the emotion that is most consistent with the speaker's perspective is "approval". But we can also assign "relief" weight because they feel relief that a solution might exist.
+
+Now action_tendency_layer: The speaker's action tendency is to advise. In Frijda's action tendencies, advising is "attend" (关注) maybe? Or "approach"? The speaker is recommending an approach, which is a form of "approach" (趋近) to the problem. Or "dominate" (支配) because they are trying to dominate the situation by giving instructions. Or "attend" because they are focusing attention on the solution. Or "approach" because they are encouraging the user to approach the company. The speaker's action is to give advice, which is a kind of "approach" or "dominate". In Frijda's taxonomy: approach = moving toward the object; avoidance = moving away; attend = focusing attention; reject = rejecting; agonistic = confronting; interrupt = interrupting; dominate = exerting control. The speaker is trying to dominate the situation, i.e., they want to control the outcome by providing instructions. So "dominate" may be high. Or they are "approach" because they are encouraging the user to approach the company for replacement.
+
+But we need to decide distribution across the seven categories.
+
+Let's break down systematically:
+
+The content is a short reply, presumably from a community member who wants to help. The speaker's desire is to be helpful, to belong to the community, to feel they have control. So desire distribution:
+
+- 控制欲 (control): high weight because they are giving instructions to control the situation.
+- 归属欲 (belonging): moderate weight because they are part of the community and want to help.
+- 安全感欲 (safety): moderate weight because they want to reduce risk/uncertainty for the other person.
+- 确认欲 (confirmation): low weight because they want to confirm that the other person can get a replacement.
+- 成为欲: maybe low weight because they want to become a helpful person.
+- 拥有欲, 摆脱欲, 超越欲, 向往欲: low or zero.
+
+Thus desire_layer distribution:
+
+{
+ "拥有欲": 0.0,
+ "成为欲": 0.05,
+ "摆脱欲": 0.0,
+ "确认欲": 0.1,
+ "超越欲": 0.0,
+ "归属欲": 0.3,
+ "控制欲": 0.35,
+ "安全感欲": 0.15,
+ "向往欲": 0.05
+}
+
+Sum = 1.0 (0.05+0.1+0.3+0.35+0.15+0.05 = 1.0). Yes.
+
+Now need_layer: The speaker's need is to help the other person get replacement (resource). Also to regain control. Also to reduce uncertainty. So we could have three needs: N07_占有资源 (weight 0.5), N02_掌控局面 (weight 0.3), N01_确定性 (weight 0.2). Or something like that.
+
+Let's assign:
+
+- N07_占有资源: 0.5 (the need to obtain a replacement hearing aid)
+- N02_掌控局面: 0.3 (to regain control over the hearing situation)
+- N01_确定性: 0.2 (to know whether replacement is possible)
+
+Sum = 1.0.
+
+Now appraisal: goal_relevance: The content is about solving a hearing aid problem, which is relevant to the speaker's desire to help. So maybe 0.8.
+
+congruence_direction: "促进" because it provides a solution.
+
+need_status: "未满足" because the need hasn't been fulfilled yet. So need_status = "未满足".
+
+goal_congruence: According to the mapping, "促进且已满足" => 正; "威胁或未满足" => 负. So since need_status = 未满足, goal_congruence = "负". Even though direction is 促进, the need is not satisfied, so it's negative (anxiety). So goal_congruence = "负".
+
+coping_potential: The speaker thinks the user can get replacement or call HQ. That suggests coping potential is "高" because they can take action. So coping_potential = "高".
+
+Now emotion_layer: The emotion is derived from need * congruence. The need is resource acquisition (N07) and control (N02). The congruence is negative (since need not satisfied). So the emotions likely negative: fear, sadness, anger. But the speaker is also offering advice, which may produce "approval" or "relief"? However the mapping says negative emotions result from threat or unsatisfied need. But the speaker is not feeling threat; they are feeling a desire to help. However the instruction says we must derive emotions from need x congruence. So we need to follow that.
+
+But perhaps we can treat the speaker's emotion as "approval" (认同) because they approve the idea of seeking replacement, which is positive. But the mapping says if need_status = 未满足, the congruence is negative, thus negative emotions. However the speaker is not the one with the unsatisfied need; they are the helper. The unsatisfied need belongs to the other person. The speaker's own need may be satisfied by giving advice. But the mapping is ambiguous: It says "情绪如何从 需求×congruence 推出". It might refer to the viewer's need. In this case, the "viewer" is the speaker themselves? Or the audience reading the comment? The instruction is to infer the psychological chain of the person who wrote the content. So we need to consider that person's internal state. So the speaker's need might be to help (maybe N12_情感联结? Actually they want to connect with the other person). But they also have a desire to be helpful.
+
+But the need layer we assigned is about the content's need (the hearing aid replacement). That is the need of the original poster, not the speaker. But the instruction says "对以下内容做因果链逆问题拆解：从可观测话语/评论，反推观众心理完整因果链". So we need to infer the audience's psychological chain. The content is a reply to a Reddit member. So the "audience" could be the original poster (the person who asked the question). The speaker is giving advice, so the audience is the original poster. So we need to infer the original poster's desire, need, etc. Actually the instruction says "对以下内容做因果链逆问题拆解：从可观测话语/评论，反推观众心理完整因果链". That suggests we need to infer the audience's (i.e., the person reading the comment) psychology. But the content is the comment itself, so the "audience" is the original poster (the person who posted the hearing aid problem). The comment is addressed to them. So we need to infer the original poster's desire and need.
+
+But the instruction also says: "若这段内容确实是某一个人写下的自我表达，请对『写下这段内容的这一个人』反推其心理因果链四层占比分布——这是一个个体，不是群体。" So we need to infer the psychology of the person who wrote the comment. So it's a "self-expression". So we need to treat the comment as the person's own expression, not just advice to someone else. However the comment is clearly advice to someone else. But the instruction says to treat it as a self-expression, meaning we need to infer the writer's internal state. So we need to consider the writer's desire, need, etc. So we need to treat the writer as the subject.
+
+Thus we need to assign desire, need, appraisal, emotion, action tendency for the writer.
+
+The writer's desire: to help, to belong, to control, to confirm. So we need to map to the nine desires.
+
+The writer's need: maybe to provide assistance (N12_情感联结?), to be recognized (N09_获得地位?), to feel they have control (N02). But we need to follow the 17 need categories.
+
+The writer's need could be N12_情感联结 (建立/维系情感联结). They want to connect with the original poster. Or N09_获得地位 (获得地位/胜过他人) because they want to be seen as knowledgeable. Or N02_掌控局面 (掌控局面) because they want to control the outcome. Or N07_占有资源 (占有资源) but they are not acquiring a resource. Or N01_确定性 (确定性) they want to know if replacement is possible. But the writer is not seeking a resource themselves.
+
+Given the content is advice, the writer's need might be to help the other person, which is not directly a need in the list. However the list includes "N12_情感联结 (建立/维系情感联结)", "N13_情感慰藉 (获得情感慰藉/被接纳)", "N16_表达创造 (表达自我/创造产出)". The writer might have a need to express themselves (N16). They are expressing a viewpoint. So N16_表达创造 could be a need. They also might have a need for social validation (N09_获得地位). Or need for belonging (N11_归属群体). But the list includes N11_归属群体 (归属群体/找到同类). The writer might want to belong to the hearing aid community.
+
+Thus we can assign needs:
+
+- N16_表达创造 (表达自我) weight 0.4 (the writer is expressing advice)
+- N12_情感联结 (情感联结) weight 0.3 (they want to connect with the original poster)
+- N09_获得地位 (获得地位) weight 0.2 (they want to be recognized as knowledgeable)
+- N02_掌控局面 (掌控局面) weight 0.1 (they want to control the outcome)
+
+Sum = 1.0.
+
+But the instruction says "need_layer is list of code from the 17 categories". The weight distribution must sum to 1.
+
+Now appraisal: goal_relevance: The content is relevant to the writer's desire to help and to express themselves. So maybe 0.8.
+
+congruence_direction: The content is providing advice, which is "促进". But need_status: The writer's need to express themselves is satisfied by writing the comment (need_status = 已满足). However the need to help the other person (N12) is not satisfied because they are only giving advice, not solving the problem. But the writer's need for expression (N16) is satisfied. So need_status might be "已满足". However the instruction says need_status is about the need being addressed by the content. The content addresses the writer's need to express themselves, which is satisfied. So need_status = "已满足". The direction is "促进". So goal_congruence = "正". Because "促进且已满足=正". So goal_congruence = "正". So we have positive emotions.
+
+coping_potential: The writer can provide advice, which is high coping potential. So coping_potential = "高".
+
+Now emotion_layer: With positive congruence, we expect positive emotions: admiration, joy, gratitude, desire, pride, love, relief, approval, curiosity maybe. The writer might feel "approval" (认同) for the suggestion they gave. Or "admiration" for the original poster's situation? Or "relief" that they could help. Or "pride" in providing advice. Or "joy". Let's assign distribution:
+
+- approval认同: 0.4 (they approve of the suggestion)
+- relief宽慰: 0.2 (they feel relief that there is a possible solution)
+- pride自豪: 0.2 (they are proud to help)
+- joy喜悦: 0.1 (they are happy to help)
+- admiration钦佩: 0.1 (they admire the original poster's willingness to ask)
+
+Sum = 1.0.
+
+Alternatively, we could include "gratitude" but not needed. But we need to ensure sum = 1.
+
+Now action_tendency_layer: The writer's action tendency is to advise. In Frijda's taxonomy, advising is "attend" (关注) or "approach". The writer is focusing attention on the solution, maybe "attend". Or "dominate" because they are exerting control. Or "approach" because they are moving toward the problem. But we need to assign distribution.
+
+The writer is likely to "attend" (关注) to the problem, and "approach" the solution. They might also "dominate" the conversation. Let's assign:
+
+- attend关注: 0.4 (they are focusing attention on the issue)
+- approach趋近: 0.3 (they are encouraging approaching the solution)
+- dominate支配: 0.2 (they are trying to control the outcome)
+- reject拒斥: 0.0
+- avoidance回避: 0.0
+- agonistic对抗: 0.0
+- interrupt中断: 0.0
+
+But we need sum = 1. So we could assign 0.4 + 0.3 + 0.2 = 0.9, leaving 0.1 for something else maybe "attend". Actually we need all categories present but can be zero. But we need to ensure sum = 1. So we can set:
+
+- attend关注: 0.4
+- approach趋近: 0.3
+- dominate支配: 0.2
+- 其他: 0.1 (maybe "attend"? Actually we have three categories; we need to fill the rest with zeros). So sum = 0.4+0.3+0.2 = 0.9. We need 0.1 left. Could assign to "attend" again? But we need to keep distribution across categories. Let's assign "attend" 0.4, "approach" 0.3, "dominate" 0.2, "avoidance" 0.0, "reject" 0.0, "agonistic" 0.0, "interrupt" 0.0. Sum = 0.9. We need 0.1 more. Could assign "attend" 0.5 and "approach" 0.3 and "dominate" 0.2 = 1.0. But we need distinct categories. Actually we can assign "attend" 0.5, "approach" 0.3, "dominate" 0.2. That's okay.
+
+But we might want to assign some weight to "attend" and "approach" and "dominate". Let's do:
+
+- attend关注: 0.5
+- approach趋近: 0.3
+- dominate支配: 0.2
+
+Sum = 1.0.
+
+Now chain_trace: We need to produce a one-sentence chain that goes from desire to action tendency. For example: "归属欲 → (情境: 在社区中看到有人求助) → 需求N12_情感联结 (希望与对方建立联系) → (评价: 促进+已满足 → 正情绪) → 情绪approval/relief → 行动倾向attend/approach". Let's write a specific chain.
+
+We need to fill with specific names:
+
+欲望: 归属欲 (0.3) and 控制欲 (0.35). But the chain only mentions one desire? The instruction says "欲望X →(情境Y)→ 需求Z →(评价:direction/need_status/congruence正负,coping)→ 情绪W → 行动倾向V". So we need to pick one primary desire. But we have multiple desires with weights. However the chain can mention the most salient desire. Let's choose 控制欲 (control) as primary desire. Or归属欲. Let's pick 控制欲 because the speaker is trying to control the outcome. So chain: "控制欲 →(情境: 看到有人遇到听力设备问题) → 需求N02_掌控局面 →(评价: 促进+已满足 → 正, coping高) → 情绪approval/relief → 行动倾向attend/approach". But we need to include the specific emotion in the chain. The chain expects one emotion, but we have distribution. But we can mention the primary emotion: "approval". So chain: "控制欲 →(情境: 发现有人需要帮助) → 需求N02_掌控局面 →(评价: 促进+已满足 → 正, coping高) → 情绪approval → 行动倾向attend". Or "控制欲 →(情境: 看到有人需要帮助) → 需求N02_掌控局面 →(评价: 促进+已满足 → 正, coping高) → 情绪approval → 行动倾向attend". Or "控制欲 →(情境: 看到有人需要帮助) → 需求N02_掌控局面 →(评价: 促进+已满足 → 正, coping高) → 情绪approval/relief → 行动倾向attend". But we need to pick one. Let's pick "approval".
+
+Now evidence: We need to cite the text that supports each layer.
+
+- desire: "Not everything is written in stone." This suggests the desire to control (i.e., to change things) or to help. Actually "Not everything is written in stone" implies that there is flexibility, maybe indicating control. So we can cite that phrase.
+- need: "See if they can help with replacement or call HQ." This indicates the need for resource acquisition (N07). But we also have need N02, N16, etc. But we can cite the phrase as evidence for need N07 or N02. Let's pick N07_占有资源. So evidence: "See if they can help with replacement".
+- appraisal: The content is encouraging, so goal_relevance maybe 0.8. We can mention "Not everything is written in stone." as evidence for promoting a solution.
+- emotion: The speaker feels "approval" maybe. We can cite "Not everything is written in stone." as a sign of approval. Or "See if they can help with replacement" as expression of approval.
+- action: The action tendency is "attend" or "approach". We can cite "See if they can help with replacement" as attending to the problem.
+
+But we need to ensure evidence fields have the original text. For desire, we can quote "Not everything is written in stone." For need, we can quote "See if they can help with replacement or call HQ." For emotion, we can also quote "Not everything is written in stone." or "See if they can help with replacement". For action, we can quote "See if they can help with replacement or call HQ.".
+
+Now we need to produce the JSON exactly as specified.
+
+We need to ensure all distributions sum to 1.
+
+Let's compute desire distribution again:
+
+We have nine categories. We need to assign weights that sum to 1. Let's decide:
+
+- 拥有欲: 0.0
+- 成为欲: 0.05
+- 摆脱欲: 0.0
+- 确认欲: 0.1
+- 超越欲: 0.0
+- 归属欲: 0.25
+- 控制欲: 0.35
+- 安全感欲: 0.15
+- 向往欲: 0.1
+
+Check sum: 0.05+0.1+0.25+0.35+0.15+0.1 = 1.0. Yes.
+
+Now need_layer: We need to assign needs for the writer. Let's decide:
+
+- N16_表达创造: 0.4 (they are expressing advice)
+- N12_情感联结: 0.3 (they want to connect)
+- N09_获得地位: 0.2 (they want status)
+- N02_掌控局面: 0.1 (they want control)
+
+Sum = 1.0.
+
+Alternatively, we could include N07 but maybe not. But the instruction says need_layer is list of code from the 17 categories. It doesn't restrict to only one need. So we can have multiple.
+
+Now appraisal:
+
+- goal_relevance: 0.8 (the content is relevant to the writer's desire to help)
+- congruence_direction: "促进"
+- need_status: "已满足" (the writer's need to express is satisfied)
+- goal_congruence: "正"
+- coping_potential: "高"
+- note: "因为内容提供了表达和帮助的途径，需求被满足，产生正情绪，且观众相信自己可以采取行动".
+
+Now emotion_layer distribution:
+
+We need to assign to each of the 13 emotions. Let's assign:
+
+- admiration钦佩: 0.0 (maybe not)
+- joy喜悦: 0.1
+- gratitude感激: 0.0
+- desire渴望: 0.0
+- nostalgia怀旧: 0.0
+- pride自豪: 0.2
+- love爱: 0.0
+- relief宽慰: 0.2
+- approval认同: 0.4
+- curiosity好奇: 0.0
+- fear恐惧: 0.0
+- sadness悲伤: 0.0
+- anger愤怒: 0.0
+
+Sum = 0.1+0.2+0.2+0.4 = 0.9. Need to add 0.1 somewhere. Could add to "admiration" or "joy". Let's add to "admiration" 0.1. Then sum = 1.0.
+
+Thus:
+
+- admiration钦佩: 0.1
+- joy喜悦: 0.1
+- gratitude感激: 0.0
+- desire渴望: 0.0
+- nostalgia怀旧: 0.0
+- pride自豪: 0.2
+- love爱: 0.0
+- relief宽慰: 0.2
+- approval认同: 0.4
+- curiosity好奇: 0.0
+- fear恐惧: 0.0
+- sadness悲伤: 0.0
+- anger愤怒: 0.0
+
+Sum = 0.1+0.1+0.2+0.2+0.4 = 1.0. Good.
+
+Now action_tendency_layer distribution:
+
+We need to assign to each of the 7 categories. Let's assign:
+
+- approach趋近: 0.3
+- avoidance回避: 0.0
+- attend关注: 0.5
+- reject拒斥: 0.0
+- agonistic对抗: 0.0
+- interrupt中断: 0.0
+- dominate支配: 0.2
+
+Sum = 0.3+0.5+0.2 = 1.0. Good.
+
+Now chain_trace: Must be a single sentence that includes desire, situation, need, appraisal, emotion, action tendency. Use specific names. Let's write: "控制欲 →(情境: 发现有人需要帮助) → 需求N02_掌控局面 →(评价: 促进+已满足 → 正, coping高) → 情绪approval → 行动倾向attend". But we also need to mention the need code. Actually we need to mention the need code. Let's pick N02_掌控局面. But we also have other needs. But we need to pick one primary. Let's pick N02_掌控局面.
+
+Thus chain_trace: "控制欲 →(情境: 看到有人遇到听力设备问题) → 需求N02_掌控局面 →(评价: 促进+已满足 → 正, coping高) → 情绪approval → 行动倾向attend". But we also need to include the desire name, need code, emotion name, action tendency name. It says "欲望X →(情境Y)→ 需求Z(写code) →(评价:direction/need_status/congruence正负,coping)→ 情绪W → 行动倾向V". So we need to fill each placeholder.
+
+Thus:
+
+- X = 控制欲
+- Y = "看到有人需要帮助"
+- Z = N02_掌控局面
+- direction = 促进
+- need_status = 已满足
+- congruence = 正
+- coping = 高
+- W = approval
+- V = attend
+
+Thus chain_trace: "控制欲 →(情境: 看到有人需要帮助) → 需求N02_掌控局面 →(评价: 促进/已满足/正, coping高) → 情绪approval → 行动倾向attend". That is a single sentence. But we need to ensure it's one sentence, maybe "控制欲 →(情境: 看到有人需要帮助) → 需求N02_掌控局面 →(评价: 促进+已满足→正, coping高) → 情绪approval → 行动倾向attend". That is one line.
+
+Now evidence: We need to provide quotes for each layer.
+
+- desire: "Not everything is written in stone."
+- need: "See if they can help with replacement or call HQ."
+- emotion: "Not everything is

@@ -1,0 +1,508 @@
+The user asks: "You are an expert in analyzing popular content psychology. Perform a 'causal chain reverse problem' analysis: from observable discourse/comment, reverse infer the complete causal chain of audience psychology, outputting each layer's proportion weight (joint distribution)."
+
+We need to follow the causal chain structure:
+
+Desire (stable latent variable) → (situational event) Demand (contextualized goal) → (appraisal) Emotion → Action tendency → Behavior/utterance (observable).
+
+We have nine desire categories, 17 need categories, appraisal dimensions, 13 emotion categories, 7 action tendencies.
+
+We need to analyze a given content: it's a Reddit comment: "...and I don’t usually wear them at home,..." Obviously you don't want to hear everything that goes on at home. Why are you asking us? I think the appropriate place for your question is the subreddit AITA.
+
+The comment is presumably by a person responding to a hearing aid user (the OP). The comment says: "I don't usually wear them at home... Obviously you don't want to hear everything that goes on at home. Why are you asking us? I think the appropriate place for your question is the subreddit AITA."
+
+We need to analyze this as an individual (the person writing the comment). We need to infer their psychological causal chain.
+
+We must produce a JSON with fields: desire_layer (distribution across nine desires), need_layer (list of selected need codes with weight), appraisal fields, emotion_layer distribution, action_tendency_layer distribution, chain_trace (a textual chain connecting the steps), evidence (quotes). The note fields should explain.
+
+The comment is a public reply to a Reddit r/HearingAids member, presumably the OP asked something about hearing aids at home.
+
+We need to analyze the comment's meaning: The comment says: "and I don’t usually wear them at home,... Obviously you don't want to hear everything that goes on at home. Why are you asking us? I think the appropriate place for your question is the subreddit AITA."
+
+Interpretation: The comment writer says they don't usually wear hearing aids at home. Then says "Obviously you don't want to hear everything that goes on at home." This could be a sarcastic remark that suggests the OP doesn't want to hear the noise from family (like kids, spouse, etc.), implying that maybe the OP doesn't want to wear hearing aids at home. The comment also says "Why are you asking us?" which suggests the comment writer thinks the question is not appropriate for the hearing aid community, maybe it's a moral question (AITA = Am I the Assh---). So the comment writer is possibly expressing annoyance or sarcasm, perhaps they think the OP is seeking validation about wearing hearing aids at home.
+
+Thus, the comment writer's desire might be: "确认欲" (need for confirmation or validation), "控制欲" (control over the community's scope), "安全感欲" (wanting safety/respect), "归属欲" (wanting to belong to a group but not wanting off-topic posts). Possibly "摆脱欲" (wanting to get rid of irrelevant question). Could be "确认欲" (they want to confirm their own viewpoint that the question is not appropriate). Or "超越欲" (they want to stand out as a gatekeeper). Or "控制欲" (they want to control the forum's content). Or "安全感欲" (they want to feel safe from being subjected to off-topic or irrelevant content). Or "归属欲" (they want to maintain the group's identity). Or "确认欲" (they want to confirm that the OP is wrong).
+
+We need to assign probabilities (weights) that sum to 1 across the nine desire categories.
+
+Similarly need_layer: likely need categories such as N04_理解世界 (understanding world: they want to understand why the OP asks this). Or N10_自我确认 (self confirmation). Or N02_掌控局面 (they want to control the situation). Or N01_确定性 (they want certainty about whether the question belongs in AITA). Or N09_获得地位 (they want to gain status as a gatekeeper). Or N11_归属群体 (they want to belong to a community that maintains standards). Or N12_情感联结 (maybe they want to connect with others about hearing aids). Or N13_情感慰藉 (maybe they feel irritation, need comfort). Or N15_放松休憩 (maybe they want to vent). Or N16_表达创造 (they want to express their opinion). Or N05_优化效率 (maybe they want to quickly dismiss). Or N06_摆脱痛苦 (they want to rid themselves of annoyance). Or N07_占有资源 (not likely). Or N08_提升形象 (they want to appear knowledgeable). Or N17_追忆连接 (not relevant). Or N03_提升能力 (maybe they want to improve their own ability to answer? Not likely). Or N14_代入理想 (they might imagine themselves as a forum moderator). Or N20 not present.
+
+We need to consider that the comment is fairly short and somewhat sarcastic. The writer is basically saying: "I don't usually wear them at home... obviously you don't want to hear everything that goes on at home. Why are you asking us? I think the appropriate place for your question is the subreddit AITA."
+
+Thus they are expressing an opinion: the OP is asking an inappropriate question. They are rejecting the question and suggesting a different forum. The writer may be experiencing annoyance (anger), maybe contempt. They may want to express frustration (desire for venting). They might have the desire to "control" the conversation (control). They might want "确认欲" (to confirm that the question is off-topic). They might want "安全感欲" (to maintain a safe environment). They might want "归属欲" (to maintain group identity). The desire "摆脱欲" might also be present (wanting to get rid of the question). The desire "超越欲" is about surpassing others; maybe they want to appear superior.
+
+Thus the desire distribution: we need to assign probabilities.
+
+Let's think: The comment writer is somewhat confrontational, gatekeeping, and expresses judgement. They are not asking for personal gain. They are not seeking to become something. They are not wanting to have the product. They are not wanting to join a group. They want to maintain the group's standards, maybe they have "归属欲" (to belong to a community that doesn't tolerate off-topic). They might have "确认欲" (confirm their view). They might have "控制欲" (control the conversation). They might have "安全感欲" (feeling safe from off-topic content). They might have "超越欲" (to be above the OP). But maybe the strongest is "控制欲" (they want to control the forum's content) and "确认欲" (they want to confirm that the question is not appropriate). Possibly also "归属欲" (they want to maintain group identity). The "安全感欲" is about eliminating uncertainty and risk. They might feel risk of the forum being cluttered with irrelevant posts, threatening the safety of the community.
+
+Thus the desire distribution might be: 0.2 控制欲, 0.2 确认欲, 0.2 安全感欲, 0.15 归属欲, 0.1 摆脱欲, 0.05 超越欲, 0.05 向往欲, 0.05 拥有欲, 0.0 摆脱欲? Wait we already have 0.1 摆脱欲. Let's sum to 1.
+
+We need nine categories, sum to 1.
+
+Let's propose:
+
+- 拥有欲: 0.05 (maybe wanting to have the hearing aid? not really)
+- 成为欲: 0.05 (maybe wanting to become a better community member)
+- 摆脱欲: 0.10 (wanting to get rid of irrelevant content)
+- 确认欲: 0.20 (confirm that the question is not appropriate)
+- 超越欲: 0.05 (to be above the OP)
+- 归属欲: 0.20 (maintain group identity and standards)
+- 控制欲: 0.25 (control the forum's content)
+- 安全感欲: 0.10 (protect community from noise)
+- 向往欲: 0.00 (maybe not)
+
+Sum: 0.05+0.05+0.10+0.20+0.05+0.20+0.25+0.10+0.00 = 1.0. Good.
+
+But we need to ensure that the note explains why these are activated.
+
+Now need_layer: We need to pick up to maybe 2 or 3 need categories that are most relevant, with weights summing to 1. The comment writer's need is to maintain the community's standards, to express judgement, to ensure appropriate forum usage. This might be need N02_掌控局面 (to control the situation), N10_自我确认 (self-confirm), N11_归属群体 (belonging), N01_确定性 (certainty that the question is off-topic). Possibly N05_优化效率 (quickly reject). Or N16_表达创造 (express opinion). But we need to think: what is the situational event that triggered the need? The situational event is reading an off-topic question from the OP. The writer perceives a mismatch between the question and the forum's purpose, causing a need to re-establish appropriate content.
+
+Thus the needs: N02_掌控局面 (to regain control), N10_自我确认 (to confirm that the question is indeed off-topic and they are correct), N11_归属群体 (to assert group belonging), N01_确定性 (to resolve uncertainty about where to ask). But the writer is not uncertain; they are confident. They might need "确定性" that the question belongs elsewhere. The need to "掌控局面" (control) is present. Also "自我确认" is present. "归属群体" is present.
+
+We need to assign weights to these needs. Let's assign:
+
+- N02_掌控局面: 0.30
+- N10_自我确认: 0.30
+- N11_归属群体: 0.20
+- N01_确定性: 0.10
+- N16_表达创造: 0.10 maybe.
+
+Sum: 0.30+0.30+0.20+0.10+0.10 = 1.0.
+
+Alternatively, we can include N05_优化效率 (to quickly dismiss) weight 0.10. But maybe we keep four needs.
+
+Now appraisal: goal_relevance (0-1). The content is highly relevant to the writer's goal of maintaining forum standards, thus high, maybe 0.85.
+
+congruence_direction: The content (the original question) is a "threat" to the writer's goal of maintaining forum standards (i.e., it's off-topic). So it's "威胁" (threat). However, the comment is a response that addresses the threat, i.e., it's a protective measure. So the writer's evaluation of the content is that it's a threat.
+
+need_status: The writer's need for control/confirmation is currently "未满足" because they have to respond. They are responding to a threat. They have not yet resolved it; they are trying to. Actually, they are satisfying their need to express themselves. But we can say need_status = "未满足" because the need is to have the question moved, which is not yet fulfilled.
+
+goal_congruence: Since the direction is threat and need_status is not satisfied, goal_congruence = "负". They are feeling negative.
+
+coping_potential: The writer feels they can handle it, maybe they have high coping potential: they can direct the OP to AITA. So "高".
+
+Thus appraisal:
+
+- goal_relevance: 0.85
+- congruence_direction: "威胁"
+- need_status: "未满足"
+- goal_congruence: "负"
+- coping_potential: "高"
+- note: Explanation.
+
+Now emotion_layer: Based on the need categories and the appraisal (threat, negative, high coping). The writer likely feels anger or irritation. Possibly "anger愤怒" (high), maybe also "disapproval" not in the set; but "anger" is appropriate. Also "contempt" not present, but "anger" is. "sadness" not likely. "fear" not likely. "approval" not likely. "admiration" not. "joy" no. "gratitude" no. "desire" no. "nostalgia" no. "pride" maybe because they are correcting. "relief" maybe after expressing. "curiosity" no. "love" no.
+
+We need to allocate distribution across the 13 emotions that sum to 1.
+
+Given the negative evaluation, anger likely high. Also possibly "pride" if they feel they are doing the right thing. Also "relief" after venting. Let's propose:
+
+- anger愤怒: 0.45
+- pride自豪: 0.20
+- relief宽慰: 0.15
+- approval认同: 0.10
+- 其他: 0.10 spread across maybe "sadness" 0.05, "fear" 0.0, "joy" 0.0, etc.
+
+We need to ensure distribution sums to 1.
+
+Better: Let's allocate:
+
+- anger愤怒: 0.50
+- pride自豪: 0.20
+- relief宽慰: 0.15
+- approval认同: 0.10
+- sadness悲伤: 0.05
+
+Sum: 0.50+0.20+0.15+0.10+0.05 = 1.0.
+
+Alternatively, we can include "disgust" not in set, but "anger" covers.
+
+Now action_tendency_layer: According to Frijda's action tendencies, the writer may want to "reject" the question (i.e., "reject" the off-topic content) and "dominate" the conversation (to assert authority). Also "agonistic" (confrontation). They also might "attend" to the content (they are reading). "approach" not likely; "avoidance" maybe they want to avoid the question. But they are responding, so "dominate" or "reject" or "agonistic". "interrupt" maybe. Let's assign:
+
+- reject拒斥: 0.35
+- dominate支配: 0.30
+- agonistic对抗: 0.20
+- attend关注: 0.10
+- approach趋近: 0.05
+- avoidance回避: 0.0
+- interrupt中断: 0.0
+
+Sum: 0.35+0.30+0.20+0.10+0.05 = 1.0.
+
+Alternatively, we can adjust.
+
+Now chain_trace: Must be a single sentence that links the desire to need to appraisal to emotion to action.
+
+Example: "The writer's desire for control (控制欲) and confirmation (确认欲) over the forum's content is triggered by the off‑topic question (情境事件), leading to the need to re‑establish appropriate posting standards (N02_掌控局面, N10_自我确认, N11_归属群体). The question is evaluated as a threat to the group's purpose (congruence_direction = 威胁) and the writer's need remains unsatisfied (need_status = 未满足), resulting in negative goal congruence (负) and a high coping potential (高), which generates anger (anger愤怒) and pride (pride自豪) as the writer feels both irritation and self‑righteousness. Consequently, the dominant action tendency is to reject the question and dominate the discussion (reject拒斥, dominate支配), expressed in the comment that redirects the user to AITA."
+
+We need to ensure chain_trace includes specific names: Desire X, situational event Y, need Z (code), appraisal (direction/need_status/congruence/coping), emotion W, action tendency V.
+
+Now evidence: Provide quotes from content that correspond to each layer.
+
+- Desire: maybe "I don't usually wear them at home..." is not about desire. Actually desire evidence: "Obviously you don't want to hear everything that goes on at home." This suggests the writer's desire to control hearing environment (control欲). Or "Why are you asking us?" suggests desire for confirmation or control.
+
+- Need: The need to "掌控局面" is evidenced by "Why are you asking us? I think the appropriate place for your question is the subreddit AITA." That shows need for control.
+
+- Emotion: "Obviously you don't want to hear everything that goes on at home." This conveys sarcasm implying anger. Also "I think the appropriate place..." could be expressed in a somewhat contemptuous tone.
+
+- Action: The whole comment itself is a "reject" and "dominate" action: they reject the question and dominate the conversation by telling the OP to go elsewhere.
+
+We need to include "desire" evidence from the comment: maybe "I don’t usually wear them at home" shows that the writer is not wanting to wear hearing aids at home, reflecting a desire to avoid unwanted noise, which could be a "控制欲" to control auditory environment. Also "Obviously you don't want to hear everything that goes on at home." This suggests the writer is imposing a viewpoint.
+
+Better to derive desire evidence: The writer says "I don’t usually wear them at home". This indicates a desire to avoid being overwhelmed by home sounds, which is a "控制欲" to control auditory input. Also "Why are you asking us?" suggests desire to confirm appropriate use of the subreddit (确认欲). "I think the appropriate place for your question is the subreddit AITA." suggests desire to maintain forum norms (归属欲). So we can cite those.
+
+Need evidence: "Why are you asking us?" is need to understand world (N04) but more likely "N02_掌控局面" because they want to control where the question is posted.
+
+But we need to map need codes from the 17 categories. Let's assign:
+
+- N02_掌控局面 (control situation) – evidenced by "Why are you asking us? I think the appropriate place for your question is the subreddit AITA."
+- N10_自我确认 (self confirmation) – evidenced by "Obviously you don't want to hear everything that goes on at home." The writer is confirming that they know the OP doesn't want to hear everything. This could be self-confirmation.
+- N11_归属群体 – evidenced by "the appropriate place for your question is the subreddit AITA." This is about group boundaries.
+
+We need to allocate weights: N02 0.40, N10 0.35, N11 0.25 maybe.
+
+Now, we must ensure each need's weight sum to 1.
+
+Now appraisal: We need to assign goal_relevance: maybe 0.80 because the question is relevant. Congruence direction: "威胁" because the question is off-topic, threatening the community's purpose. Need_status: "未满足" because the writer hasn't resolved the off-topic question. Goal_congruence: "负". Coping_potential: "高". Note: Provide explanation.
+
+Now emotion_layer distribution must sum to 1.
+
+Now action_tendency_layer distribution must sum to 1.
+
+Now final output JSON with the fields.
+
+One nuance: The comment is a "public reply to a Reddit r/HearingAids member (对方原文/写作基准侧)". It is a comment on an individual's post. The comment is short. The question is about "因果链逆问题拆解：从可观测话语/评论，反推观众心理完整因果链，输出每一层占比权重(联合分布)". The user asks to treat this as an individual, not a group. So we need to analyze that specific person.
+
+Thus we have to produce a JSON that meets constraints.
+
+Now, let's carefully fill each field.
+
+### desire_layer:
+
+We need to assign weights to nine categories.
+
+We have identified that the writer's primary desires are:
+
+- 控制欲 (control over forum content) – high.
+- 确认欲 (confirmation of the appropriateness of the question) – high.
+- 安全感欲 (safety from off-topic content) – moderate.
+- 归属欲 (belonging to a community with standards) – moderate.
+- 摆脱欲 (wanting to get rid of the off-topic question) – moderate.
+- 超越欲 (feeling superior) – low.
+- 向往欲 (maybe not relevant) – low.
+- 拥有欲 (maybe not relevant) – low.
+- 成为欲 (maybe not relevant) – low.
+
+We need to sum to 1.
+
+Let's allocate:
+
+- 拥有欲: 0.05
+- 成为欲: 0.05
+- 摆脱欲: 0.10
+- 确认欲: 0.20
+- 超越欲: 0.05
+- 归属欲: 0.20
+- 控制欲: 0.25
+- 安全感欲: 0.10
+- 向往欲: 0.00
+
+Check sum: 0.05+0.05+0.10+0.20+0.05+0.20+0.25+0.10+0.00 = 1.0.
+
+Alternatively, we could adjust to reflect that the writer is more about control and confirmation. But this seems okay.
+
+Now need_layer: We need a list of need objects.
+
+We need to provide code (N##_...), context_slot (free text describing the trigger scenario), weight (float), derived_from (string linking which desire and what situational event leads to this need).
+
+We have chosen:
+
+- N02_掌控局面 (to regain control of forum content) – weight 0.40
+- N10_自我确认 (to confirm that the question is off-topic) – weight 0.30
+- N11_归属群体 (to maintain group identity) – weight 0.30
+
+But we need to check sum: 0.40+0.30+0.30 = 1.0, good.
+
+Now context_slot: "The off‑topic question posted by the original poster in r/HearingAids prompts the commenter to intervene." Provide some context.
+
+derived_from: "由<控制欲>经<情境事件: 阅读到不相关的提问>衍生" etc.
+
+Now appraisal: Provide goal_relevance, congruence_direction, need_status, goal_congruence, coping_potential, note.
+
+We need to assign values:
+
+goal_relevance: 0.85 (the question is relevant to the commenter's goal of maintaining forum quality)
+
+congruence_direction: "威胁"
+
+need_status: "未满足"
+
+goal_congruence: "负"
+
+coping_potential: "高"
+
+Note: "The commenter perceives the question as a threat to the forum's purpose, feels the need not yet satisfied, and believes they can handle it by redirecting."
+
+Now emotion_layer distribution:
+
+13 emotions: admiration, joy, gratitude, desire, nostalgia, pride, love, relief, approval, curiosity, fear, sadness, anger.
+
+We need to assign weights to each that sum to 1. We can assign:
+
+- anger愤怒: 0.45
+- pride自豪: 0.20
+- relief宽慰: 0.15
+- approval认同: 0.10
+- sadness悲伤: 0.05
+- other emotions: 0.05 leftover? Wait sum must be exactly 1.
+
+Let's compute: 0.45+0.20+0.15+0.10+0.05 = 0.95. Need 0.05 more. Could allocate to "admiration钦佩"? Not appropriate. Could allocate to "joy喜悦"? Not appropriate. Could allocate to "fear恐惧"? Not appropriate. Could allocate to "sadness悲伤" increased to 0.10, making sum 1.0. Let's adjust:
+
+- anger愤怒: 0.45
+- pride自豪: 0.20
+- relief宽慰: 0.15
+- approval认同: 0.10
+- sadness悲伤: 0.10
+
+Sum: 0.45+0.20+0.15+0.10+0.10 = 1.0.
+
+Now note: "The negative appraisal leads to anger; the commenter also feels pride in correcting the off‑topic post, relief after venting, approval of their own action, and slight sadness for the misdirected user."
+
+Now action_tendency_layer distribution:
+
+7 tendencies: approach, avoidance, attend, reject, agonistic, interrupt, dominate.
+
+We need to assign weights:
+
+- reject拒斥: 0.40
+- dominate支配: 0.30
+- agonistic对抗: 0.15
+- attend关注: 0.10
+- approach趋近: 0.05
+- avoidance回避: 0.00
+- interrupt中断: 0.00
+
+Sum: 0.40+0.30+0.15+0.10+0.05 = 1.0.
+
+Now chain_trace: Must be a single sentence that includes all the steps: desire X → (situational event Y) → need Z (code) → (appraisal) → emotion W → action tendency V.
+
+We need to fill with actual names:
+
+Desire: 控制欲 (or 确认欲) etc. Let's choose the most weighted desire: 控制欲.
+
+Situational event: 阅读到一条在r/HearingAids发布的不相关问题 (the off‑topic question posted in r/HearingAids).
+
+Need: N02_掌控局面 (re‑establish control over forum posting standards).
+
+Appraisal: goal_relevance高 (0.85), congruence_direction = 威胁, need_status = 未满足, goal_congruence = 负, coping_potential = 高.
+
+Emotion: anger愤怒 (plus pride, relief, etc.)
+
+Action tendency: reject拒斥 + dominate支配 (or reject/dominate). So "reject and dominate".
+
+Thus the chain_trace could be:
+
+"控制欲 →(情境事件: 阅读到r/HearingAids上不相关的提问)→ N02_掌控局面 (重新掌控论坛内容标准) →(goal_relevance高, congruence_direction威胁, need_status未满足, goal_congruence负, coping_potential高)→ anger愤怒 (伴随pride自豪, relief宽慰, approval认同, sadness悲伤) → reject拒斥 & dominate支配 (通过将对方指引至AITA并表达讽刺)".
+
+We need to ensure it's a single sentence, but can include multiple clauses separated by commas.
+
+Now evidence: Provide direct quotes from the content for each layer.
+
+- desire: "I don’t usually wear them at home" (the writer chooses not to wear hearing aids at home, showing a desire to control their auditory environment). Another phrase "Obviously you don't want to hear everything that goes on at home." implies desire to avoid unwanted sounds, i.e., 控制欲.
+
+- need: "Why are you asking us? I think the appropriate place for your question is the subreddit AITA." This directly shows the need to control where the question belongs (掌控局面) and to confirm appropriateness (自我确认). Also "Why are you asking us?" shows the need to understand the situation.
+
+- emotion: The tone "Obviously you don't want to hear everything that goes on at home." conveys sarcasm and irritation (anger). "I think the appropriate place..." shows pride (pride). The overall comment may bring relief after venting.
+
+- action: The entire comment is a rejection of the question and an attempt to dominate the conversation, directing the user elsewhere.
+
+Now we need to ensure that evidence sections are quoting directly from the comment. The comment text is:
+
+"...and I don’t usually wear them at home,..." Actually that's part of the original? Let's read the given content:
+
+The content: "...and I don’t usually wear them at home,...".
+
+It seems like the comment starts with "...". The comment as given includes:
+
+"...and I don’t usually wear them at home,..." Possibly the comment is truncated. The comment includes the phrase "Obviously you don't want to hear everything that goes on at home. Why are you asking us? I think the appropriate place for your question is the subreddit AITA."
+
+Thus we can quote "Obviously you don't want to hear everything that goes on at home." and "Why are you asking us?" and "I think the appropriate place for your question is the subreddit AITA."
+
+Now produce JSON accordingly.
+
+Check all constraints:
+
+- desire_layer: distribution must have exactly nine keys with sum 1. We have that.
+
+- need_layer: list of objects with code, context_slot, weight, derived_from. Ensure code matches exactly from list. Ensure weight sum = 1.
+
+- appraisal: includes goal_relevance (float), congruence_direction (string), need_status (string), goal_congruence (string), coping_potential (string), note (string). Good.
+
+- emotion_layer: distribution must have exactly 13 keys with sum 1. Our distribution has 5 keys, but we need to include all 13 keys. According to the instruction, the distribution must contain exactly those keys listed: "admiration钦佩","joy喜悦","gratitude感激","desire渴望","nostalgia怀旧","pride自豪","love爱","relief宽慰","approval认同","curiosity好奇","fear恐惧","sadness悲伤","anger愤怒". We need to include all keys, with zeros for those not present. So we must include all 13 keys with appropriate weights, sum to 1.
+
+Thus we need to include the missing keys with weight zero.
+
+We need to produce distribution with all keys, e.g.:
+
+{
+  "admiration钦佩": 0.0,
+  "joy喜悦": 0.0,
+  "gratitude感激": 0.0,
+  "desire渴望": 0.0,
+  "nostalgia怀旧": 0.0,
+  "pride自豪": 0.2,
+  "love爱": 0.0,
+  "relief宽慰": 0.15,
+  "approval认同": 0.1,
+  "curiosity好奇": 0.0,
+  "fear恐惧": 0.0,
+  "sadness悲伤": 0.1,
+  "anger愤怒": 0.45
+}
+
+Check sum: 0+0+0+0+0+0.2+0+0.15+0.1+0+0+0.1+0.45 = 1.0. Good.
+
+Now action_tendency_layer distribution must include exactly seven keys: "approach趋近","avoidance回避","attend关注","reject拒斥","agonistic对抗","interrupt中断","dominate支配". Provide weights for each, sum to 1. We have five keys. Need to include zeros for missing ones.
+
+Our distribution currently:
+
+- approach趋近: 0.05
+- avoidance回避: 0.0
+- attend关注: 0.10
+- reject拒斥: 0.40
+- agonistic对抗: 0.15
+- interrupt中断: 0.0
+- dominate支配: 0.30
+
+Sum: 0.05+0+0.10+0.40+0.15+0+0.30 = 1.0. Good.
+
+Now need_layer: code must be from list. We have N02_掌控局面, N10_自我确认, N11_归属群体. That's okay. We must include context_slot and derived_from strings. We need to ensure they are not empty.
+
+Now we must ensure chain_trace is a single sentence that uses the actual names.
+
+The chain_trace must be something like:
+
+"控制欲 →(情境事件: 阅读到r/HearingAids上不相关的提问)→ N02_掌控局面 →(goal_relevance 0.85, congruence_direction 威胁, need_status 未满足, goal_congruence 负, coping_potential 高)→ anger愤怒 (伴随 pride自豪, relief宽慰, approval认同, sadness悲伤) → reject拒斥 & dominate支配 (通过将对方指引至AITA并表达讽刺)".
+
+That's a single sentence (though long). It includes all steps. It references desire, need, appraisal, emotion, action tendency.
+
+Now evidence: Provide direct quotes. For desire: "I don’t usually wear them at home" is part of the comment. For need: "Why are you asking us? I think the appropriate place for your question is the subreddit AITA." For emotion: "Obviously you don't want to hear everything that goes on at home." That's an indicator of sarcasm/anger. For action: "I think the appropriate place for your question is the subreddit AITA." That's a reject action.
+
+Now we need to output JSON only, no extra text, inside a code block.
+
+Double-check the constraints:
+
+- desire_layer distribution: nine keys, sum =1. OK.
+
+- need_layer: list, code must be from 17 categories. Our codes are N02, N10, N11. Good. weight sum =1.
+
+- appraisal: includes required keys.
+
+- emotion_layer distribution: 13 keys, sum =1.
+
+- action_tendency_layer distribution: 7 keys, sum =1.
+
+- chain_trace: includes each step.
+
+- evidence: includes quotes.
+
+Now we must ensure we have no extra keys. The JSON top-level keys: desire_layer, need_layer, appraisal, emotion_layer, action_tendency_layer, chain_trace, evidence. The need_layer is a list.
+
+Now check that the "appraisal" note is present. It should be a string.
+
+Now produce final JSON.
+
+We must ensure no trailing commas, proper JSON.
+
+Now let's craft final answer.
+
+But we need to double-check each step's weight plausibility. The user wants a "joint distribution" across layers. This means we need to produce weights that reflect joint probabilities perhaps, but we are giving marginal distributions per layer. That's acceptable as they asked for each layer's weight distribution.
+
+We must ensure that the distribution is plausible given the content. The comment is somewhat sarcastic and dismissive. The writer is likely angry, controlling, seeking confirmation that the question is off-topic.
+
+Now let's refine each part.
+
+### desire_layer:
+
+We have:
+
+- 拥有欲: 0.05. The writer maybe wants to have control over hearing environment? But "拥有欲" is about wanting to own a product. Not strongly relevant. But maybe they want to own hearing aids (the comment says "I don’t usually wear them at home" which might be about owning hearing aids). But not strongly relevant. Could set it to 0.03. But okay.
+
+- 成为欲: 0.05. Possibly the writer wants to become a better community member. Not strongly relevant, but okay.
+
+- 摆脱欲: 0.10. They want to get rid of off-topic content.
+
+- 确认欲: 0.20. They want to confirm that the question is not appropriate.
+
+- 超越欲: 0.05. They want to be above the OP.
+
+- 归属欲: 0.20. They want to maintain group identity.
+
+- 控制欲: 0.25. They want to control forum content.
+
+- 安全感欲: 0.10. They want safety from irrelevant content.
+
+- 向往欲: 0.00.
+
+Sum = 1.0.
+
+Alternatively, could adjust to reflect more strongly on control, confirmation, group belonging.
+
+Now need_layer:
+
+- N02_掌控局面 (weight 0.40). context_slot: "The commenter reads a post that is off‑topic for r/HearingAids (a hearing‑aid forum) and feels the need to steer the conversation back to appropriate topics."
+
+- N10_自我确认 (weight 0.30). context_slot: "The commenter sees the OP’s question as a potential misfit and wants to confirm that the appropriate place for such a moral/relationship question is indeed AITA."
+
+- N11_归属群体 (weight 0.30). context_slot: "The commenter wants to preserve the community’s norms and signal that the post belongs elsewhere."
+
+Alternatively, we can combine these. We need derived_from strings.
+
+derived_from for each:
+
+- N02_掌控局面: "由<控制欲>经<情境事件: 阅读到不相关提问>衍生"
+
+- N10_自我确认: "由<确认欲>经<情境事件: 对提问的恰当性存疑>衍生"
+
+- N11_归属群体: "由<归属欲>经<情境事件: 维护r/HearingAids社区规范>衍生"
+
+Now appraisal:
+
+goal_relevance: 0.85 (the post is directly relevant to the commenter's goal of maintaining forum quality).
+
+congruence_direction: "威胁" (the off‑topic post threatens the goal).
+
+need_status: "未满足" (the commenter hasn't yet resolved the threat; they are responding).
+
+goal_congruence: "负" (negative due to threat).
+
+coping_potential: "高" (they can redirect the user to AITA).
+
+note: Provide explanation.
+
+Now emotion_layer:
+
+We have to include all 13 keys. The distribution above sums to 1. Let's confirm:
+
+- admiration钦佩: 0.0
+- joy喜悦: 0.0
+- gratitude感激: 0.0
+- desire渴望: 0.0
+- nostalgia怀旧: 0.0
+- pride自豪: 0.2
+- love爱: 0.0
+- relief宽慰: 0.15
+- approval认同: 0.1
+- curiosity好奇: 0.0
+- fear恐惧: 0.0
+- sadness悲伤: 0.1
+- anger愤怒: 0.45
+
+Sum: 0.2+0.15+0.1+0.1+0.45 = 1.0.
+
+Now action_tendency_layer distribution:
+
+- approach趋近: 0.05
+- avoidance回避: 0.0
+- attend关注: 0.10
+- reject拒斥: 0.40
+- agonistic对抗: 0.15
+-

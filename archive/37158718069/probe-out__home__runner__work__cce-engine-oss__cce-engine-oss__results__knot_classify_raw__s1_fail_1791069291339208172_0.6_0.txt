@@ -1,0 +1,535 @@
+The user wants a "causal chain reverse" analysis: from observable话语/评论 (the text) we need to infer the full causal chain from desire (latent) to need, then appraisal, then emotion, then action tendency. They want weight distributions across the categories, evidence from the text, etc. Output must be JSON only, no extra explanation.
+
+The content is a Reddit comment (a public reply to a member). It is a personal expression from a single individual. So we need to treat this as an individual, not a group. So we need to infer his/her desires, needs, etc.
+
+We must obey the categories: desires (9), needs (17), appraisal dimensions, emotion (13), action tendency (7). Provide weight distributions for each, sum to 1.
+
+First, parse the text:
+
+"Hmm, he gave you an answer with no actual information that also dismissed what you were saying. I would be offended - and I'd also want the answer to my question!
+
+If Costco has something with the sound you like, definitely get them there.
+
+And he is so wrong - different brands do have different sounds from each other, which is what you were observing. I've had several audiologists say this also, as they were recommending what I might like and not like, given my particular hearing loss and the preferences I told them.
+
+You liked the "sound" of your old oticons. So he should have had you try oticons, and if there was a reason he thought something else would be a good fit, it was his job to tell you why he recommended it.
+
+You are in the driver's seat. Drive away from that arrogant dude who won't answer a simple question.
+
+If I encourage you to try Costco, they give loaners and you do"
+
+The last sentence is incomplete but we can infer.
+
+The speaker expresses frustration at the other person (the audiologist?), saying "he gave you an answer with no actual information ... dismissed what you were saying." They say they would be offended. They also want the answer to the question.
+
+They affirm the original poster's observation that different brands have different sounds. They also mention they had several audiologists confirm this. They say the audiologist should have recommended trying Oticon. They say "You are in the driver's seat. Drive away from that arrogant dude." Suggest trying Costco hearing aids because they give loaners.
+
+So what are the underlying desires?
+
+Let's think about the 9 categories:
+
+1. 拥有欲 (Possession) – wanting to own product. This is somewhat present: they talk about getting hearing aids from Costco, but the main point is about obtaining a hearing aid that has the right sound. So there's a desire to have the product.
+
+2. 成为欲 (Becoming) – want to become something better (e.g., a more knowledgeable consumer, or someone who gets proper care). Might be present: the speaker encourages the original poster to be in the driver seat, to take control, to become a more empowered patient.
+
+3. 摆脱欲 (Escape) – want to escape the pain/discomfort of a bad audiologist's dismissiveness and the frustration. Not sure: they are encouraging to get away from the arrogant dude. So the desire to get rid of a negative situation.
+
+4. 确认欲 (Confirmation) – desire to confirm one's own view/identity. They are affirming that the original poster's observation is correct. They are confirming their own stance (that different brands have different sounds). So there is a strong confirmation desire.
+
+5. 超越欲 (Transcendence) – wanting to surpass others or previous self. Could be less.
+
+6. 归属欲 (Belonging) – desire to belong to a group (like hearing aid users). Might be less.
+
+7. 控制欲 (Control) – desire to control one's health/relationship with audiologist. Strong: they say "You are in the driver's seat. Drive away from that arrogant dude."
+
+8. 安全感欲 (Safety) – desire to eliminate uncertainty/risk. Might be there: they want to get a hearing aid that fits and sounds correct, avoid risk of poor fit.
+
+9. 向往欲 (Aspiration) – desire to imagine a lifestyle/space. Could be less.
+
+Given the text, the most salient desires are:
+
+- 确认欲 (to confirm one's own observations and stance)
+- 控制欲 (to take control, be in driver seat)
+- 拥有欲 (to own a hearing aid that works)
+- 摆脱欲 (to get away from the arrogant audiologist)
+- 安全感欲 (to have certainty about the right brand/sound)
+- 成为欲 (to become a more empowered patient)
+
+We need to assign distribution of weights summing to 1. Must be plausible.
+
+Now the need categories. Which 17 needs are relevant?
+
+N01_确定性 – need for certainty about the sound quality of hearing aids, to know if brand differences matter. The speaker says they want to confirm that different brands have different sounds; they are seeking certainty.
+
+N02_掌控局面 – need to be in control, to drive away from the arrogant person. Very present.
+
+N03_提升能力 – maybe to improve ability to get appropriate hearing aid; not as direct.
+
+N04_理解世界 – to understand why audiologist acted that way; the speaker is analyzing and trying to understand.
+
+N05_优化效率 – not present.
+
+N06_摆脱痛苦 – to relieve frustration/offended feelings; the speaker expresses being offended.
+
+N07_占有资源 – to obtain hearing aids (product) from Costco.
+
+N08_提升形象 – to be seen as knowledgeable, not a dummy; less.
+
+N09_获得地位 – to be seen as right versus the audiologist; maybe.
+
+N10_自我确认 – to confirm their own view about brand differences.
+
+N11_归属群体 – to belong to group of hearing aid users; maybe but less.
+
+N12_情感联结 – to connect emotionally with the original poster; the speaker is supportive.
+
+N13_情感慰藉 – to get comfort for being offended; they say they'd be offended.
+
+N14_代入理想 – maybe to imagine a scenario where they get proper hearing aids, but not as strong.
+
+N15_放松休憩 – not.
+
+N16_表达创造 – the speaker is expressing their opinion; they are expressing themselves.
+
+N17_追忆连接 – not relevant.
+
+We need to pick the top needs that are most activated, weight them, sum to 1. Perhaps we can select N10_自我确认 (0.30), N02_掌控局面 (0.25), N01_确定性 (0.20), N06_摆脱痛苦 (0.10), N07_占有资源 (0.10), N13_情感慰藉 (0.05). Or something.
+
+But note the need categories are "need 受控 17类 (JTBD/ODI 结果导向)". Each need is context-specific. The weight distribution should be plausible. The user wants the need_layer list with each item's weight. So we need to choose a few needs (maybe 3-5) that are most relevant, each with weight.
+
+But they also require that "the sum of weights = 1". So if we have multiple items, they must sum to 1.
+
+The "need_layer" entries: each must have code, context_slot (some description of trigger context), weight, and derived_from (which desire and what situational event leads to the need). So we need to map desire -> need.
+
+Let's think about the desire mapping:
+
+- 确认欲 (Confirmation) leads to N10_自我确认: context: speaker sees that the audiologist dismissed original poster's observation, they want to confirm their view that brand differences exist. Derived from confirmation desire triggered by the other person's dismissal.
+
+- 控制欲 (Control) leads to N02_掌控局面: context: speaker wants the original poster to take control, drive away from the arrogant audiologist. Derived from desire for control triggered by sense of being dismissed and wanting to reclaim driver seat.
+
+- 安全感欲 (Safety) leads to N01_确定性: context: speaker wants to know which hearing aid brand has the right sound, i.e., certainty about product performance. Derived from desire to eliminate uncertainty about which hearing aid to get.
+
+- 摆脱欲 (Escape) leads to N06_摆脱痛苦: context: speaker expresses offense and frustration at the audiologist's behavior; desire to get rid of this pain. Derived from desire to escape negativity.
+
+- 拥有欲 (Possession) leads to N07_占有资源: context: speaker suggests going to Costco to get hearing aids, desire to own them. Derived from desire for product.
+
+- 情感慰藉 (Emotional comfort) maybe leads to N13_情感慰藉: but it's not a separate desire; it's a need but derived from desire for relief or confirmation? Might be from 摆脱欲 or 确认欲.
+
+Given the mapping, we need to ensure that each need has derived_from referencing the desire and situational event.
+
+Now the appraisal layer: We need to assign goal_relevance (0-1), congruence_direction ("促进" or "威胁" or "中性"), need_status ("已满足" or "未满足"), goal_congruence ("正" or "负"), coping_potential ("高" or "中" or "低"), and note.
+
+From the text: The content is supportive, encouraging the original poster to go to Costco and assert control. It provides a helpful answer (to their question about brand differences). It also validates their observation. So from the perspective of the original poster (who asked the question), the content is helpful: it meets need for confirmation (N10) and control (N02) and certainty (N01). So goal_relevance is high, maybe 0.9. Congruence_direction is "促进" because the content is moving them toward achieving their needs (confirmation, control). need_status: For those needs, the content satisfies them (they are being given confirmation and control). So need_status: "已满足". goal_congruence: "正". coping_potential: The speaker's suggestion (try Costco) seems feasible, the original poster can act, so coping potential is "高". So appraisal is positive.
+
+But also there's anger towards the audiologist: the content includes negative evaluation of the audiologist, which might be threatening for the audiologist's authority, but for the original poster it's a relief. However the need for "摆脱痛苦" (escape from offense) maybe is not fully satisfied because the original poster might still feel offended. The speaker says "I would be offended", but they also encourage to move on. So there is some residual negative affect (anger) maybe.
+
+Nevertheless, we need to derive emotion distribution from the need layer and goal_congruence.
+
+Emotion categories: admiration, joy, gratitude, desire, nostalgia, pride, love, relief, approval, curiosity, fear, sadness, anger.
+
+We need to assign a distribution across these 13 categories, sum to 1.
+
+Given the content: It's supportive, validates the original poster, encourages action, expresses anger at the audiologist, relief at the suggestion, gratitude for Costco loaners, maybe pride in being in driver seat, love for the community. Let's think.
+
+The speaker is saying "I would be offended" (anger). "I also want the answer to my question" (desire). "You are in the driver's seat. Drive away from that arrogant dude" (anger toward the dude, maybe also empowerment leading to pride). "If Costco has something with the sound you like, definitely get them there." (approval, relief). "And he is so wrong... I've had several audiologists say this also." (approval, pride). So we can attribute:
+
+- anger: anger at the arrogant audiologist; weight maybe 0.25.
+- relief: relief that there is a solution (Costco loaner); weight maybe 0.20.
+- approval: approval of the original poster's observation; weight maybe 0.15.
+- pride: pride in being able to drive away and take control; weight maybe 0.10.
+- gratitude: gratitude towards Costco for offering loaners; weight maybe 0.10.
+- joy: maybe some joy in the supportive community; weight maybe 0.10.
+- desire: desire for a hearing aid with correct sound; weight maybe 0.05.
+- love: love for the community or for the original poster; weight maybe 0.05.
+
+Alternatively, we could allocate more to relief, approval, anger.
+
+The requirement: "emotion_layer distribution must contain only these 13 categories and sum to 1". So we must list all categories with appropriate weight (including zeros). The note field should explain.
+
+Now action tendency categories: Frijda action tendency: approach, avoidance, attend, reject, agonistic, interrupt, dominate.
+
+From the text: The speaker encourages the original poster to "drive away from that arrogant dude". That suggests rejection (avoidance) of the audiologist, and also dominance (taking control). Also "approach" to Costco (go there). The speaker is also "attending" to the original poster's issue, and "agonistic" toward the audiologist. So distribution could be:
+
+- approach: 0.30 (to Costco, to a solution)
+- avoidance: 0.25 (to avoid the arrogant audiologist)
+- dominate: 0.25 (to be in driver seat)
+- attend: 0.10 (to focus on the question)
+- reject: 0.05 (reject the audiologist's answer)
+- agonistic: 0.05 (to confront the audiologist)
+- interrupt: 0.00
+
+We need to sum to 1.
+
+Now chain_trace: a single sentence connecting the desire to need to appraisal to emotion to action tendency. Must be coherent and include specific names.
+
+E.g., "确认欲 → (Audiologist's dismissal of brand differences) → N10_自我确认 → (Goal relevance high, 促进, 已满足, 正) → anger → (reject, dominate) ...". Actually need to connect properly.
+
+Better: "确认欲 → (Audiologist's dismissal of the original poster's observation) → N10_自我确认 → (Goal relevance 0.9, 促进, 已满足, 正) → anger & relief → (approach Costco, avoid arrogant audiologist, dominate)".
+
+But we need to map the emotions: anger and relief and maybe pride. So the chain should mention one main emotion? The chain_trace can mention all but must be one sentence. Could be: "确认欲 →(Audiologist dismisses the original poster's claim)→ N10_自我确认 →(Goal relevance high, 促进, 已满足, 正, coping高)→ anger (at audiologist) & relief (at Costco solution) → approach Costco, dominate driver seat". That might be okay.
+
+Now evidence: need to quote from text for each layer.
+
+- desire: The speaker says "I would be offended - and I'd also want the answer to my question!" indicates desire for confirmation? Actually "I would be offended" suggests emotional reaction; "want the answer to my question" indicates desire for certainty. Also "you are in the driver's seat" indicates desire for control.
+
+But we need to identify which desire is being tapped. Let's think: The speaker is reacting to a situation where the audiologist gave a dismissive answer. The speaker's desire might be to confirm that the original poster's observation is correct (confirmation desire) and also to control the situation (control desire). Also to have a hearing aid that works (possession desire). And to be free from the negative experience (escape desire). So we need to provide evidence for each desire.
+
+But the desire_layer requires distribution across the nine categories. The note must explain why those desires are activated. We need to provide evidence for each desire? It says "逐字引用" for evidence in the JSON's evidence object. The evidence object has keys desire, need, emotion, action (maybe). So we need to quote evidence for desire (maybe multiple quotes). We need to quote from the text a phrase that reflects the desire.
+
+The desire_layer note: explain why these categories are activated. Then we need to list the distribution.
+
+Let's map each desire:
+
+1. 拥有欲: "If Costco has something with the sound you like, definitely get them there." implies desire to own a hearing aid with the desired sound.
+
+2. 成为欲: "You are in the driver's seat." suggests desire to become an empowered person, to be in control.
+
+3. 摆脱欲: "Drive away from that arrogant dude who won't answer a simple question." indicates desire to get rid of the negative person.
+
+4. 确认欲: "And he is so wrong - different brands do have different sounds from each other, which is what you were observing." confirms the original poster's observation.
+
+5. 超越欲: Not explicitly.
+
+6. 归属欲: Not explicit.
+
+7. 控制欲: "You are in the driver's seat. Drive away from that arrogant dude." indicates desire for control.
+
+8. 安全感欲: "If Costco has something with the sound you like, definitely get them there." also about safety (ensuring correct sound reduces risk).
+
+9. 向往欲: Not explicit.
+
+Thus we can assign weights: maybe 确认欲 0.30, 控制欲 0.25, 拥有欲 0.15, 摆脱欲 0.15, 安全感欲 0.10, 成为欲 0.05, others 0.
+
+Sum = 1.05? Wait need to sum to 1 exactly. Let's adjust.
+
+Option:
+
+- 确认欲: 0.30
+- 控制欲: 0.25
+- 拥有欲: 0.15
+- 摆脱欲: 0.15
+- 安全感欲: 0.10
+- 成为欲: 0.05
+- 其他 (拥有欲 already included, but we have no others). Sum = 0.30+0.25+0.15+0.15+0.10+0.05 = 1.0. Good.
+
+Alternatively could include 向往欲 0.0, etc.
+
+Now need_layer: we need to choose a set of needs (maybe 5) and assign weights that sum to 1.
+
+We need to map each need to a desire.
+
+Let's choose:
+
+- N10_自我确认: weight 0.30 (derived from 确认欲)
+- N02_掌控局面: weight 0.25 (derived from 控制欲)
+- N01_确定性: weight 0.20 (derived from 安全感欲)
+- N06_摆脱痛苦: weight 0.15 (derived from 摆脱欲)
+- N07_占有资源: weight 0.10 (derived from 拥有欲)
+
+Sum = 1.0.
+
+Now each entry includes context_slot (a short phrase describing trigger situation) and derived_from (the desire and what situational event leads to need). So:
+
+- N10_自我确认: context_slot: "Audiologist dismisses the original poster's observation about brand sound differences". derived_from: "确认欲 → Audiologist's dismissal of brand differences, need to verify own view".
+
+- N02_掌控局面: context_slot: "Original poster feels disempowered by arrogant audiologist". derived_from: "控制欲 → Desire to regain driver seat after being dismissed".
+
+- N01_确定性: context_slot: "Uncertainty about which hearing aid brand will provide desired sound". derived_from: "安全感欲 → Need to know if a different brand will meet sound preferences".
+
+- N06_摆脱痛苦: context_slot: "Feeling offended and frustrated by dismissive audiologist". derived_from: "摆脱欲 → Need to eliminate the negative emotional pain caused by the audiologist".
+
+- N07_占有资源: context_slot: "Wanting to obtain a hearing aid that matches sound preferences". derived_from: "拥有欲 → Need to acquire appropriate hearing aid from Costco".
+
+Now appraisal:
+
+- goal_relevance: high, maybe 0.9.
+- congruence_direction: "促进" (content helps to satisfy the needs).
+- need_status: "已满足" (for N10, N02, N01; but N06 maybe still present). But overall it's satisfied for the speaker's perspective. So we could say "已满足" for main needs.
+- goal_congruence: "正".
+- coping_potential: "高" because Costco offers loaners and they can try before buying.
+
+Thus:
+
+{
+ "goal_relevance": 0.9,
+ "congruence_direction": "促进",
+ "need_status": "已满足",
+ "goal_congruence": "正",
+ "coping_potential": "高",
+ "note": "The comment validates the original poster's observation, encourages taking control, and suggests a feasible solution (Costco loaner), thus meeting needs for confirmation, control, certainty, and relief."
+}
+
+Now emotion_layer distribution.
+
+We need to allocate 13 categories with weights sum to 1.
+
+Given the content, we can assign:
+
+- anger: 0.25 (at arrogant audiologist)
+- relief: 0.20 (at being able to get solution via Costco)
+- approval: 0.15 (approving original poster's observation)
+- pride: 0.10 (in being able to drive away and take control)
+- gratitude: 0.10 (toward Costco for loaner)
+- joy: 0.08 (enjoying supportive interaction)
+- desire: 0.05 (desire for correct hearing aid sound)
+- love: 0.05 (positive feeling toward original poster)
+- Others: admiration, nostalgia, curiosity, fear, sadness: maybe 0 each.
+
+Sum = 0.25+0.20+0.15+0.10+0.10+0.08+0.05+0.05 = 0.98. Need 1.0. We can adjust to 0.02 for something else. Maybe assign 0.02 to curiosity (curiosity about which Costco model is best). So distribution:
+
+- admiration钦佩: 0.0
+- joy喜悦: 0.08
+- gratitude感激: 0.10
+- desire渴望: 0.05
+- nostalgia怀旧: 0.0
+- pride自豪: 0.10
+- love爱: 0.05
+- relief宽慰: 0.20
+- approval认同: 0.15
+- curiosity好奇: 0.02
+- fear恐惧: 0.0
+- sadness悲伤: 0.0
+- anger愤怒: 0.25
+
+Sum = 1.0.
+
+Now action_tendency_layer distribution across 7 categories.
+
+From the content, actions:
+
+- approach: to Costco (getting hearing aid).
+- avoidance: avoid the arrogant audiologist.
+- attend: paying attention to original poster's question.
+- reject: reject the audiologist's answer.
+- agonistic: confronting/arguing with the audiologist.
+- dominate: taking control, being in driver seat.
+- interrupt: maybe not.
+
+Thus distribution:
+
+- approach趋近: 0.30
+- avoidance回避: 0.25
+- attend关注: 0.10
+- reject拒斥: 0.10
+- agonistic对抗: 0.10
+- interrupt中断: 0.00
+- dominate支配: 0.15
+
+Sum = 0.30+0.25+0.10+0.10+0.10+0.00+0.15 = 1.0.
+
+Now chain_trace: a single sentence linking desire to need to appraisal to emotion to action tendency.
+
+Example:
+
+"确认欲 →(Audiologist dismisses the original poster's claim that brand sounds differ)→ N10_自我确认 →(Goal relevance high, 促进, 已满足, 正, coping高)→ anger & relief → approach Costco (get loaner) & dominate driver seat, avoid arrogant audiologist."
+
+But we need to incorporate multiple desires maybe. Could be:
+
+"确认欲 →(Audiologist's dismissal)→ N10_自我确认 →(Goal relevance 0.9, 促进, 已满足, 正, coping高)→ anger (at audiologist) & relief (at Costco solution) → approach Costco and dominate control, avoid arrogant audiologist."
+
+The chain_trace should include specifics: "欲望X →(情境Y)→ 需求Z(写code) →(评价:direction/need_status/congruence正负,coping)→ 情绪W → 行动倾向V". So we need to fill each placeholder.
+
+Let's write:
+
+"确认欲 →(Audiologist dismisses brand sound observation)→ N10_自我确认 →(Goal relevance high, 促进, 已满足, 正, coping高)→ anger & relief → approach (to Costco) & dominate (driver seat) & avoid (arrogant audiologist)".
+
+But need to be a single sentence. Possibly:
+
+"确认欲 →(Audiologist dismisses the original poster's claim that different brands have different sounds)→ N10_自我确认 →(Goal relevance 0.9, 促进, 已满足, 正, coping高)→ anger (toward the audiologist) & relief (at Costco loaner option) → approach Costco (get hearing aid) & dominate driver seat & avoid arrogant audiologist."
+
+Now evidence: need to quote from text for each layer.
+
+- desire evidence: for each desire, we need a direct quote from text that reflects it.
+
+Let's list relevant quotes:
+
+- 拥有欲: "If Costco has something with the sound you like, definitely get them there." – desire to own hearing aid.
+
+- 成为欲: "You are in the driver's seat." – desire to become empowered.
+
+- 摆脱欲: "Drive away from that arrogant dude who won't answer a simple question." – desire to get away.
+
+- 确认欲: "And he is so wrong - different brands do have different sounds from each other, which is what you were observing." – desire to confirm.
+
+- 控制欲: "You are in the driver's seat. Drive away from that arrogant dude." – desire to control.
+
+- 安全感欲: "If Costco has something with the sound you like, definitely get them there." – desire for safety (certainty about sound).
+
+- Possibly also "I would be offended" indicates emotion but not desire.
+
+- Need evidence: for each need, quote:
+
+N10_自我确认: "And he is so wrong - different brands do have different sounds from each other, which is what you were observing."
+
+N02_掌控局面: "You are in the driver's seat. Drive away from that arrogant dude who won't answer a simple question."
+
+N01_确定性: "If Costco has something with the sound you like, definitely get them there." Or also "different brands do have different sounds".
+
+N06_摆脱痛苦: "I would be offended - and I'd also want the answer to my question!"
+
+N07_占有资源: "If Costco has something with the sound you like, definitely get them there." Also "they give loaners".
+
+Emotion evidence: need to quote for each emotion we have weight >0.
+
+- anger: "I would be offended" (offended -> anger), "Drive away from that arrogant dude" (anger towards audiologist). Also "he is so wrong".
+
+- relief: "If Costco has something with the sound you like, definitely get them there." (relief at solution).
+
+- approval: "And he is so wrong - different brands do have different sounds from each other, which is what you were observing." (approval of original poster's observation).
+
+- pride: "You are in the driver's seat. Drive away..." (pride in taking control).
+
+- gratitude: "If I encourage you to try Costco, they give loaners..." (gratitude for loaners).
+
+- joy: maybe "I would be offended - and I'd also want the answer to my question!" (some humor? Not really. But maybe "I would be offended" indicates frustration. Could be not needed. However we have joy as 0.08. We need a quote. Could be "You are in the driver's seat." (positive feeling). Or maybe "I would be offended - and I'd also want the answer to my question!" indicates emotional involvement.
+
+Better to quote "I would be offended" as anger; "If Costco has something..." as relief; "And he is so wrong..." as approval; "You are in the driver's seat." as pride; "they give loaners" as gratitude; "If Costco has something..." as desire? Not needed. For joy maybe "You are in the driver's seat" also yields some positive affect.
+
+- desire: "If Costco has something with the sound you like" indicates desire for proper sound.
+
+- love: maybe not present. Could use "You are in the driver's seat." as love for empowerment? Not perfect. But we can quote "I would be offended" maybe not love.
+
+- curiosity: maybe not explicit. But we can include a quote: "If Costco has something with the sound you like, definitely get them there." indicates curiosity about which product.
+
+But we need to fill evidence keys:
+
+"evidence": {
+   "desire": "逐字引用",
+   "need": "逐字引用",
+   "emotion": "逐字引用",
+   "action": "逐字引用"
+}
+
+But we need to provide multiple quotes? The structure says "逐字引用", maybe we can combine multiple quotes separated by semicolons. The note can explain.
+
+But to be precise: we could include an array of quotes for each category, but the JSON expects just a string? The prompt says "逐字引用". We can include a string with multiple quotes.
+
+Alternatively we could break each into separate keys: but the spec says "evidence" object with keys desire, need, emotion, action. Each value is a string (maybe multiple sentences). We can combine.
+
+We'll write:
+
+- desire: "If Costco has something with the sound you like, definitely get them there. You are in the driver's seat. Drive away from that arrogant dude who won't answer a simple question. And he is so wrong - different brands do have different sounds from each other, which is what you were observing."
+
+- need: "And he is so wrong - different brands do have different sounds from each other, which is what you were observing. You are in the driver's seat. Drive away from that arrogant dude who won't answer a simple question. If Costco has something with the sound you like, definitely get them there. I would be offended - and I'd also want the answer to my question!"
+
+- emotion: "I would be offended (anger). And he is so wrong (approval). You are in the driver's seat (pride). If Costco has something with the sound you like (relief). they give loaners (gratitude)."
+
+- action: "If Costco has something with the sound you like, definitely get them there (approach). Drive away from that arrogant dude (avoidance). You are in the driver's seat (dominate)."
+
+We need to be careful to keep evidence consistent.
+
+Now double-check all constraints.
+
+Constraints:
+
+- desire_layer distribution: must contain exactly the 9 keys, each weight 0-1, sum = 1. Provide note. Our distribution includes 6 non-zero categories. All others zero. That sums to 1.
+
+- need_layer: list of objects with code, context_slot, weight, derived_from. Sum of weights = 1. We have 5 entries, sum = 1.
+
+- appraisal: fields present.
+
+- emotion_layer: 13 keys, sum = 1.
+
+- action_tendency_layer: 7 keys, sum = 1.
+
+- chain_trace: single sentence linking all layers. Must be coherent.
+
+- evidence: quotes.
+
+Now double-check the chain_trace formatting: "欲望X →(情境Y)→ 需求Z(写code) →(评价:direction/need_status/congruence正负,coping)→ 情绪W → 行动倾向V". It must be a single sentence. It can have multiple arrows. The prompt says "完整一句话推导". So we need a single sentence. We can have multiple arrows but within one sentence. Let's produce something like:
+
+"确认欲 →(Audiologist dismisses brand sound observation)→ N10_自我确认 →(Goal relevance high, 促进, 已满足, 正, coping高)→ anger & relief → approach Costco & dominate driver seat & avoid arrogant audiologist."
+
+That's a single sentence (ends with period). It includes all steps.
+
+Now we need to ensure "情绪W" includes two emotions? The chain could have multiple emotions separated by "&". That is okay.
+
+Now let's verify each component.
+
+Desire layer:
+
+Our distribution: 确认欲 0.30, 控制欲 0.25, 拥有欲 0.15, 摆脱欲 0.15, 安全感欲 0.10, 成为欲 0.05. Others zero.
+
+We need to provide note: why these desires are activated.
+
+Note can be: "The commenter validates the original poster's observation (确认欲), emphasizes taking control and being in the driver's seat (控制欲), suggests acquiring a Costco hearing aid (拥有欲), advises leaving the arrogant audiologist (摆脱欲), seeks certainty about brand differences (安全感欲), and encourages empowerment (成为欲)."
+
+Now need_layer entries:
+
+- N10_自我确认 (0.30) context_slot: "Audiologist dismisses original poster's claim about brand sound differences." derived_from: "确认欲 → Need to verify own observation."
+
+- N02_掌控局面 (0.25) context_slot: "Original poster feels disempowered by arrogant audiologist." derived_from: "控制欲 → Desire to regain control of health decisions."
+
+- N01_确定性 (0.20) context_slot: "Uncertainty which hearing aid brand will deliver desired sound." derived_from: "安全感欲 → Need for certainty about product suitability."
+
+- N06_摆脱痛苦 (0.15) context_slot: "Feeling offended and frustrated by dismissive answer." derived_from: "摆脱欲 → Need to alleviate emotional pain."
+
+- N07_占有资源 (0.10) context_slot: "Wanting to obtain a hearing aid that matches sound preferences." derived_from: "拥有欲 → Need to acquire appropriate hearing aid."
+
+Sum = 1.
+
+Now appraisal:
+
+goal_relevance: 0.9
+
+congruence_direction: 促进
+
+need_status: 已满足 (for most needs, the comment provides validation and solution)
+
+goal_congruence: 正
+
+coping_potential: 高 (Costco loaner makes solution feasible)
+
+Note: "The comment directly addresses the original poster's needs by confirming brand differences, encouraging control, and providing a concrete solution (Costco loaner), thus meeting needs and offering high coping potential."
+
+Now emotion_layer distribution: as above.
+
+Need to ensure sum = 1. Yes.
+
+Note: "The commenter feels anger toward the arrogant audiologist, relief at the prospect of a Costco solution, approval of the original poster's observation, pride in taking control, gratitude for loaner program, joy at supportive interaction, desire for correct sound, love toward community, and mild curiosity about Costco models."
+
+Now action_tendency_layer distribution: as above.
+
+Note: "The commenter suggests approaching Costco, avoiding the arrogant audiologist, attending to the original poster's question, rejecting the audiologist's answer, being agonistic toward him, and dominating by taking the driver seat."
+
+Now evidence:
+
+desire: quotes: "If Costco has something with the sound you like, definitely get them there." (拥有欲, 安全感欲), "You are in the driver's seat." (控制欲, 成为欲), "Drive away from that arrogant dude who won't answer a simple question." (摆脱欲), "And he is so wrong - different brands do have different sounds from each other, which is what you were observing." (确认欲). So we can list them.
+
+need: quotes for each need:
+
+- N10_自我确认: "And he is so wrong - different brands do have different sounds from each other, which is what you were observing."
+
+- N02_掌控局面: "You are in the driver's seat. Drive away from that arrogant dude who won't answer a simple question."
+
+- N01_确定性: "If Costco has something with the sound you like, definitely get them there."
+
+- N06_摆脱痛苦: "I would be offended - and I'd also want the answer to my question!"
+
+- N07_占有资源: "If Costco has something with the sound you like, definitely get them there." (same as above, but we can also use "they give loaners".)
+
+But for need evidence we need a single string, maybe separate by semicolons.
+
+emotion: quotes:
+
+- anger: "I would be offended" (or "Drive away from that arrogant dude").
+
+- relief: "If Costco has something with the sound you like, definitely get them there."
+
+- approval: "And he is so wrong - different brands do have different sounds from each other, which is what you were observing."
+
+- pride: "You are in the driver's seat."
+
+- gratitude: "they give loaners" (from "If I encourage you to try Costco, they give loaners..." incomplete but we have "they give loaners".)
+
+- joy: maybe "You are in the driver's seat." also gives joy.
+
+- desire: "If Costco has something with the sound you like"
+
+- love: maybe "You are in the driver's seat." can be love for empowerment. Or "I would be offended" not love. Could use "You are in the driver's seat." but maybe not love. We could use "I would be offended - and I'd also want the answer to my question!" Not love. Could use "I would be offended - and I'd also want the answer to my question!" as love for community? Not ideal. But we can quote "If Costco has something with the sound you like" also indicates desire, not love. Could include "I would be offended" as empathy.
+
+But we need love with some quote; maybe "You are in the driver's seat." expresses care. Or "I would be offended" indicates empathy, but not love. Maybe we can use "If Costco has something with the sound you like, definitely get them there." as love for the original poster? Not perfect. But it's okay.
+
+Now action: quotes:
+
+-
