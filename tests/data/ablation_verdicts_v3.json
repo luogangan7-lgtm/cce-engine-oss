@@ -77,8 +77,8 @@
    ],
    "note": "生产面 = 这三个目录下全部 *.py 递归 + config/ 顶层 *.json。tests/ 与 archive/ 不计入分母(它们是语料与守卫, 不是被消融的生产代码)。"
   },
-  "scope_files": 303,
-  "scope_lines": 61200,
+  "scope_files": 305,
+  "scope_lines": 61585,
   "touched_files_union": [
    "accuracy/run_gates.py",
    "config/cce_core_manifest.json",
@@ -119,9 +119,9 @@
    "tests/test_cce_structural_gate.py"
   ],
   "n_touched_files": 29,
-  "file_level_pct": 9.57,
+  "file_level_pct": 9.51,
   "lines_in_touched_files": 12598,
-  "line_level_pct_GENEROUS_UPPER_BOUND": 20.58,
+  "line_level_pct_GENEROUS_UPPER_BOUND": 20.46,
   "by_round": {
    "v2_only_files": [
     "config/need_taxonomy.json",
@@ -205,6 +205,8 @@
    "probes/accuracy_directed_tests.py": 209,
    "probes/accuracy_gk1_v3_analyze.py": 264,
    "probes/accuracy_gk1_v3_run.py": 259,
+   "probes/accuracy_gk1_v4_analyze.py": 202,
+   "probes/accuracy_gk1_v4_run.py": 183,
    "probes/accuracy_main_e2e_offline.py": 266,
    "probes/accuracy_main_e2e_real_run.py": 216,
    "probes/accuracy_offline_harness.py": 153,
@@ -1318,8 +1320,8 @@
    }
   ],
   "③_合计": {
-   "n_files_never_touched": 274,
-   "lines_never_touched": 48602,
+   "n_files_never_touched": 276,
+   "lines_never_touched": 48987,
    "★为什么变了": [
     "2026-09-11 收口后 26596→26622: scripts/cce_open_items.py(从未触及)由 612 涨到 638 行 —— 把写死的「只覆盖 17.3%」改成现算所致。**本闸自己抓到的第二处连带**。",
     "2026-09-12 parser_plane 收口: 169→166 文件 / 26622→26301 行。减少的三件是 parser_plane 的 cce_case_assemble(144) · cce_event_assemble(125) · cce_platform_adapter(64) = 333 行; 同时 config/ontology_legacy_exceptions_v1.json 因补登 P1 豁免多了 12 行(它从未被触及, 故净变化 = -333+12 = -321)。",
