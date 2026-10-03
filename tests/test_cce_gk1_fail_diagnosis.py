@@ -65,6 +65,21 @@ def test_recompute_from_vault_when_available():
     assert open(DOC, "rb").read() == before, "★ 现算结果与落盘文件不一致 —— 有人改了数据或探针"
 
 
+def test_cause_is_boundary_reading_not_sharpness_not_noise():
+    """⑪ 网页 GPT 建议的零调用诊断(2026-10-03): 三条都要成立才能说「根因 = E 的判法不同」。"""
+    c = _d()["⑪cause_of_E_divergence"]
+    for run in ("A", "B"):
+        oh = c["onehot_top1_disagreement_vs_others"][run]
+        e = oh.pop("MiniMax-Text-01")
+        assert e > max(oh.values()) + 0.05, "★ 抹掉分布形状后 E 不再突出 ⇒ 不是判法差异, 结论要改"
+    g = c["global_sharpening_crossfit"]
+    assert g["E_vs_peers_B_with_alpha_from_A"] > 0.30, "★ 交叉锐化就把 E 拉回同伴水平 ⇒ 是尖锐度问题"
+    st = c["disputed_items_in_A_followed_into_B"]
+    stable = st.get("E 与同伴都没变(稳定分歧)", 0)
+    peers_stable = st["n"] - st.get("同伴共识自己变了/并列", 0)
+    assert stable / peers_stable >= 0.75, "★ E 的异类选择跨运行不稳 ⇒ 更像噪声"
+
+
 if __name__ == "__main__":
     for k, f in list(globals().items()):
         if k.startswith("test_"):

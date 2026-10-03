@@ -483,7 +483,7 @@ def items() -> list[dict]:
         _h, _bs, _lo = _G["③headline"], _G["⑨item_cluster_bootstrap"], _G["⑧leave_one_annotator_out_mean_JS"]["MiniMax-Text-01"]
         _od = _G["⑥outlier_rule_median_plus_2SD"]
         out.append({"类": BLOCKED,
-                    "项": "G-K1(验收闸自身一致性)在 0.25 线上**过/不过是抛硬币**: 同一仪器两次运行 %s 过 / %s 不过 ⇒ 判据怎么升级需 owner 裁定"
+                    "项": "G-K1(验收闸自身一致性)在 0.25 线上**过/不过是抛硬币**(同一仪器 %s 过 / %s 不过); 根因已查明 = Text-01 判法不同; 升级 v3 卡在面板构念需 owner 裁定"
                           % (_h["A_mean_JS"], _h["B_mean_JS"]),
                     "证据": ("2026-10-03 零调用诊断(probes/gk1_fail_diagnosis.py → tests/data/gk1_fail_diagnosis_2026-10-03.json, 守卫 tests/test_cce_gk1_fail_diagnosis.py): "
                              "09-09 闸协议 v2 启用验收与 10-01 真实端到端是**同一台仪器**(协议 v2 同 hash · 同 81 条 · 同 5 人 · 同截断), 重算复现两份落盘值。"
@@ -492,9 +492,16 @@ def items() -> list[dict]:
                              "同一模型对同一条目跨两次运行的自身 JS 就有 0.10–0.20(M2 0.20、top1 只 55/80 相同), 与模型间分歧同一量级 ⇒ 单次点估计的布尔闸测不准它。"
                              "按库内早已建议的区间判据(条目聚类自助 95%% 上界 ≤0.25), 两次**都不过**(上界 %s / %s)。"
                              "★ 这是**验收闸这台仪器**的一致性, 不是生产分类器的可靠性。"
-                             "★ 卡在 owner 裁定, 三选一(不由我定): ① 维持单次点估计判据, 现状记「两次一过一不过」; ② 升级为区间/多次重复判据(GATE_PROTOCOL_CHANGE, 升级后现有两次都判不过, v2 启用条件要重议); ③ 换标注面板或修 Text-01 的分歧来源后再验。"
+                             "★★ 根因已查明(零调用, 同文件 ⑪): Text-01 的**判法不同** —— 抹掉分布形状只看 top-1, 它与其余人不一致率 %s / %s(其余 ≤%s); 交叉拟合锐化后 E 对同伴 JS 仅 %s → %s(不是尖锐度); 09-09 的分歧条目到 10-01 同伴未变的里 E 选同一异类 %s 条(不是噪声); 方向以 display→pain_seek、pain_seek→audit 为主; 现行离群规则对 E 的自助触发概率只有 %s / %s(刀刃)。"
+                             "★★ 网页 GPT(Pro, tests/data/webgpt_consultation_2026-10-03_gk1.json)裁决: 升级为 G-K1 v3 = 固定面板 + R=4 次独立运行 + 「条目×运行」交叉自助单侧 95%% 上界 ≤0.25(PASS)/下界 >0.25(FAIL)/否则 UNRESOLVED, 0.25 不动; 现在不能删 E; 只能在新条目上正式验证(本地有 504 条从未用过的版内评论)。"
+                             "★ 卡在 owner 裁定(构念, 不由我定): 面板是「固定五人含 Text-01」(E 的不同就是测量结果, 预计不过) 还是「按代际事先定义为推理型四人」(必须在跑 v3 之前定, 不能因 E 拉过线才删)。定了即可预注册并在 workflow 跑约 2048 次。"
                              % (_h["A_mean_JS"], _h["B_mean_JS"], _bs["paired_diff_B_minus_A_CI95"], 100 * _h["Text01_share_of_delta"],
-                                _lo["A"], _lo["B"], _od["B_Text01_margin_below_cut"], _bs["A_CI95"][1], _bs["B_CI95"][1]))})
+                                _lo["A"], _lo["B"], _od["B_Text01_margin_below_cut"], _bs["A_CI95"][1], _bs["B_CI95"][1],
+                                _G["⑪cause_of_E_divergence"]["onehot_top1_disagreement_vs_others"]["A"]["MiniMax-Text-01"], _G["⑪cause_of_E_divergence"]["onehot_top1_disagreement_vs_others"]["B"]["MiniMax-Text-01"],
+                                max(v for k, v in _G["⑪cause_of_E_divergence"]["onehot_top1_disagreement_vs_others"]["B"].items() if k != "MiniMax-Text-01"),
+                                _G["⑪cause_of_E_divergence"]["global_sharpening_crossfit"]["E_vs_peers_raw"]["B"], _G["⑪cause_of_E_divergence"]["global_sharpening_crossfit"]["E_vs_peers_B_with_alpha_from_A"],
+                                _G["⑪cause_of_E_divergence"]["disputed_items_in_A_followed_into_B"].get("E 与同伴都没变(稳定分歧)"),
+                                _G["⑪cause_of_E_divergence"]["outlier_rule_bootstrap_trigger_prob_E"]["A"], _G["⑪cause_of_E_divergence"]["outlier_rule_bootstrap_trigger_prob_E"]["B"]))})
     out.append({"类": BLOCKED, "项": "内容 A/B: **设计已改好, 卡在发帖序列**",
                 "证据": ("★ 2026-09-04 调研后更正: 原判断「所需样本超单帖历史最高浏览」的**隐含前提**是"
                          "「实验单位 = 一篇 post」。改成**一系列 post** + 跨 post 随机化 + matched block + "

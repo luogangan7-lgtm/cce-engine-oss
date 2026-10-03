@@ -138,8 +138,96 @@ def main():
     top10_share = sum(d for d, *_ in item_delta[:10]) / total_shift if total_shift else None
     modal_changed = sum(1 for _, _, ka, kb in item_delta if ka != kb)
 
+    # ⑪ E(Text-01) 分歧根因: 网页 GPT 建议的零调用诊断(tests/data/webgpt_consultation_2026-10-03_gk1.json §3)
+    E = t01
+    peers = [m for m in models if m != E]
+    top = lambda p: max(p, key=p.get)
+    H = lambda p: -sum(v * math.log2(v) for v in p.values() if v > 0)
+
+    def onehot_loo(d):   # one-hot 后 JS = top1 不一致率; 每人与其余人的平均不一致率
+        return {m: round(statistics.mean(
+            statistics.mean(float(top(d[m][i]) != top(d[o][i])) for i in ids if d[m].get(i) and d[o].get(i))
+            for o in models if o != m), 4) for m in models}
+
+    def sharpen(p, a):
+        z = {k: v ** a for k, v in p.items() if v > 0}
+        s = sum(z.values())
+        return {k: v / s for k, v in z.items()}
+
+    def fit_alpha(d):    # 全局一个 α: 让 E 的平均熵 = 四名同伴平均熵的中位数
+        target = statistics.median(statistics.mean(H(d[m][i]) for i in ids if d[m].get(i)) for m in peers)
+        lo, hi = 1.0, 6.0
+        for _ in range(50):
+            mid = (lo + hi) / 2
+            h = statistics.mean(H(sharpen(d[E][i], mid)) for i in ids if d[E].get(i))
+            lo, hi = (mid, hi) if h > target else (lo, mid)
+        return (lo + hi) / 2
+
+    def e_vs_peers(d, a=1.0):
+        return statistics.mean(statistics.mean(js_div(sharpen(d[E][i], a), d[o][i]) for i in ids
+                                               if d[E].get(i) and d[o].get(i)) for o in peers)
+
+    def consensus(d, i):   # 四名同伴多数 top1(称 peer consensus, 不当金标); 并列返回 None
+        c = collections.Counter(top(d[o][i]) for o in peers if d[o].get(i)).most_common()
+        return c[0][0] if c and (len(c) == 1 or c[0][1] > c[1][1]) else None
+
+    def confusion(d):
+        cm, top2_in, n_dis = collections.Counter(), 0, 0
+        for i in ids:
+            k = consensus(d, i)
+            if k is None or not d[E].get(i):
+                continue
+            e1 = top(d[E][i])
+            if e1 != k:
+                n_dis += 1
+                cm[f"{k}->{e1}"] += 1
+                if k in sorted(d[E][i], key=d[E][i].get, reverse=True)[:2]:
+                    top2_in += 1
+        return cm, top2_in, n_dis
+
+    aA, aB = fit_alpha(da), fit_alpha(db)
+    cmA, t2A, ndA = confusion(da)
+    cmB, t2B, ndB = confusion(db)
+    disputed = [i for i in ids if consensus(da, i) and da[E].get(i) and top(da[E][i]) != consensus(da, i)]
+    stab = collections.Counter()
+    for i in disputed:
+        kb, eb = consensus(db, i), (top(db[E][i]) if db[E].get(i) else None)
+        if kb == consensus(da, i) and eb == top(da[E][i]):
+            stab["E 与同伴都没变(稳定分歧)"] += 1
+        elif kb == consensus(da, i) and eb == kb:
+            stab["E 第二次改回同伴的类"] += 1
+        elif kb == consensus(da, i):
+            stab["E 换了另一个异类"] += 1
+        else:
+            stab["同伴共识自己变了/并列"] += 1
+
+    def outlier_trigger_prob(pj, rng):
+        hits = 0
+        for _ in range(B_BOOT):
+            s = [rng.choice(ids) for _ in ids]
+            lo = {m: statistics.mean(statistics.mean(per[i] for i in s if i in per)
+                                     for k, per in pj.items() if m in k.split("~")) for m in models}
+            v = sorted(lo.values())
+            hits += lo[E] > statistics.median(v) + 2 * statistics.stdev(v)
+        return round(hits / B_BOOT, 3)
+
+    cause = {
+        "onehot_top1_disagreement_vs_others": {"A": onehot_loo(da), "B": onehot_loo(db)},
+        "global_sharpening_crossfit": {
+            "alpha_fit_on_A": round(aA, 3), "alpha_fit_on_B": round(aB, 3),
+            "E_vs_peers_raw": {"A": round(e_vs_peers(da), 4), "B": round(e_vs_peers(db), 4)},
+            "E_vs_peers_B_with_alpha_from_A": round(e_vs_peers(db, aA), 4),
+            "E_vs_peers_A_with_alpha_from_B": round(e_vs_peers(da, aB), 4)},
+        "peer_consensus_to_E_top1_confusion": {"A": dict(cmA.most_common()), "B": dict(cmB.most_common())},
+        "consensus_in_E_top2_among_disagreements": {"A": f"{t2A}/{ndA}", "B": f"{t2B}/{ndB}"},
+        "disputed_items_in_A_followed_into_B": {"n": len(disputed), **dict(stab)},
+        "outlier_rule_bootstrap_trigger_prob_E": {"A": outlier_trigger_prob(pa, random.Random(SEED + 1)),
+                                                  "B": outlier_trigger_prob(pb, random.Random(SEED + 2))},
+    }
+
     out = {
         "block": "GK1_FAIL_DIAGNOSIS", "date": "2026-10-03", "★zero_api": True,
+        "⑪cause_of_E_divergence": cause,
         "inputs": {"A_0909_v2_acceptance": {"path": A_PATH, "sha256": sha(A_PATH)},
                    "B_1001_real_e2e": {"path": os.path.relpath(B_PATH, ROOT), "sha256": sha(B_PATH)}},
         "①instrument_check_recompute_equals_stored": rep,
