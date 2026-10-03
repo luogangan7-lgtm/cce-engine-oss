@@ -11,7 +11,7 @@ import json, os, subprocess, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOC = os.path.join(ROOT, "tests/data/gk1_fail_diagnosis_2026-10-03.json")
-VAULT = "/Volumes/data/cce-identified-vault/cce_runs/gate_v2_acceptance/raw_annotations.json"
+VAULT = os.environ.get("GK1_VAULT_RAW", "/Volumes/data/cce-identified-vault/cce_runs/gate_v2_acceptance/raw_annotations.json")
 
 
 def _d():
@@ -55,7 +55,10 @@ def test_both_runs_fail_an_interval_criterion():
 
 def test_recompute_from_vault_when_available():
     if not os.path.exists(VAULT):
-        return   # CI 上没有识别层; 落盘数字已由上面几条核过
+        # 无本机素材(如 CI): 只跑落盘文件这一路 —— 本次未比对识别层原始数据, 但落盘文件必须钉着它的 sha
+        print("无本机素材: 未比对识别层原始数据, 只核落盘数字")
+        assert len(_d()["inputs"]["A_0909_v2_acceptance"]["sha256"]) == 64
+        return
     before = open(DOC, "rb").read()
     subprocess.run([sys.executable, "-B", os.path.join(ROOT, "probes/gk1_fail_diagnosis.py")],
                    check=True, capture_output=True)
