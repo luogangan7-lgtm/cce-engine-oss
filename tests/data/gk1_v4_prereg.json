@@ -1,0 +1,214 @@
+{
+ "block": "GK1_V4_PREREG",
+ "prereg_written_at": "2026-10-03",
+ "★frozen_before_measurement": "估计目标、面板、k、条目选样规则、刺激、自助方案、阈值、调用上限、停止规则、预测在任何一次 v4 真实调用之前提交, 且本文件单独提交一次之后才生成条目文件。本文件 sha256 钉在 probes/accuracy_gk1_v4_run.py 的 PREREG_SHA256(分析器共用) —— 改一个字节, 探针拒跑、分析器拒判。写入时 0 次 v4 调用; 条目文件尚未生成(写入时只在草稿里数过剩余合格池 384 条与按规则前 54 条的作者数 13, 用来核可行性; 未看正文含义、未看任何标注)。",
+ "★judged_here": "G-K1 v4: 事先冻结的推理型四人面板 P4, 在全新 54 条上、R=4 个独立 occasion 里, 每名标注者对每条在同一 occasion 内采样 k=3 次(同 prompt、同温度 0.0、同截断 700、同闸协议材料, 一字不动)、取 3 次分布的平均作为该标注者对该条的读数; 判这些「k=3 平均判断」之间的面板分歧是否**可信地** <= 0.25。估的是「模型的稳定判断是否一致」, 不是「单次调用是否一致」(后者 v3 已判 UNRESOLVED, 本研究不改 v3 任何结论)。判的是面板一致性, 不是准确率。",
+ "basis": {
+  "v3_result": "tests/data/gk1_v3_result.json(sha 24254946…): P4 μ_D 0.2548, 单侧 95% [0.2184, 0.2923] ⇒ UNRESOLVED; 各模型自身跨运行 JS(G-R1 W_m) M3 0.123 · M2.5 0.227 · M2.7 0.189 · M2 0.234 —— 与 0.25 同量级 ⇒ 单次调用的运行噪声是面板分歧的主成分。",
+  "owner_ruling": {
+   "date": "2026-10-03",
+   "quote": "2和3都做吧",
+   "content": "② 新估计目标 G-K1 v4: 每名标注者对同一条采样 k 次取平均分布, 再算面板分歧(估「模型的稳定判断是否一致」, 不再是「单次调用是否一致」); 换仪器 ⇒ 新预注册 + 新条目(不复用 v3 的 81 条) + 新判据推导; v3 结论保留不改。(③ v2 历史「通过」改述, 不在本研究范围。)"
+  },
+  "method_ruling": "tests/data/webgpt_consultation_2026-10-03_gk1.json(网页 GPT Pro, 线索层): §2 选择 B —— 若要测「扣掉模型本身随机性后各模型的潜在判断是否一致」, 需新阈值, 且不能从现有数据倒推; §6.2 —— 生产若只调用一次, 运行噪声是真实操作误差不能减; 生产若多次采样再平均, estimand 就应是平均后的面板。本预注册对两条的回应见 threshold 与 estimand.production_reading。",
+  "panel_ruling": "owner 2026-10-03「按照你倾向的来吧，对比测试然后再决定」: 主面板 P4 = 推理型模型代际事先定义(M3/M2.5/M2.7/M2); Text-01 为较老一代非推理型, 不属于目标标注者类别。"
+ },
+ "panel": {
+  "P4_primary": ["MiniMax-M3", "MiniMax-M2.5", "MiniMax-M2.7", "MiniMax-M2"],
+  "pairs": 6,
+  "frozen": "看到数据后不删人、不换人; 不设离群规则、不设资格考准入。",
+  "Text01_not_run": {
+   "decision": "v4 不跑 Text-01 对比臂。",
+   "why": [
+    "预算: 选定设计下五人每次派发计划 5 × 54 × 3 = 810 次, 加 8% 余量上限 875; 4 次 + 1 次替补 = 4375 > 研究上限 3500(tests/data/gk1_v4_power.json text01_arm_cost_at_chosen)。要塞进去只能把条目砍到约 43 或 k 降到 2, 两者都削弱主判(见 power)。",
+    "v3 已在新条目上回答了 P5 的问题: P5 comparison_only FAIL(μ_D 0.319 [0.283, 0.356]), Text-01 判读差异样本外 T1 REPLICATED 4/4。v4 再跑它不产生新的决策信息。",
+    "owner 裁定的主面板本就不含 Text-01(目标标注者类别外)。"
+   ]
+  }
+ },
+ "items": {
+  "file": "accuracy/data/gk1_v4_fresh54.json(JSON 列表, 每条 {id, a, post, b}; 与 corpus.json 同字段名, run_gates.annot_dist 可直接吃)",
+  "source": {"path": "accuracy/data/hearingaids_regulars_20260809.json", "sha256": "9318f57138996a8b4156ebb95d26e08ddc17397b09a91cb9677253bfcfed4e43", "what": "506 条 r/HearingAids 版内常驻者(16 人)评论, 已化名"},
+  "exclusion_sources": {
+   "accuracy/data/corpus.json": "b990e76698a30641c11a24881346b97911fd7a7869e016f38cafc54d244840df",
+   "accuracy/data/anchors.json": "3880b9a283c55d8997704c6549048b012bbd49fa8b0d2c0937f027d4c64583e3",
+   "accuracy/data/gk1_v3_fresh81.json": "db1a3c19ce9283e736893c7d71990a59d5080756b61c4f10a98e33546ac43391"
+  },
+  "eligibility_mechanical": [
+   "E1 源池: source 文件 users 下全部评论(按文件顺序展开)",
+   "E2 id 不在 corpus.json 的 86 个 id 中, 也不在 anchors.json 的 anchor_ids 中",
+   "E3 正文去首尾空白后与 corpus.json 任何一条正文(去首尾空白)不逐字相同",
+   "E4 正文去首尾空白后长度(字符数)在 [25, 900]",
+   "E5 正文不匹配正则 \\bu/\\w+|/user/\\w+",
+   "E6 去重: 正文去首尾空白后逐字相同的多条, 只保留 sha256(id) 最小的一条",
+   "★E7 id 不在 accuracy/data/gk1_v3_fresh81.json 的 81 个 id 中, 且正文去首尾空白后与其中任何一条正文(去首尾空白)不逐字相同 —— v4 不复用 v3 条目"
+  ],
+  "rule_order": "先按 E2–E5、E7 逐条排除, 再在剩余中按 E6 去重; E1–E6 与 v3 预注册逐字同式, 只加 E7。",
+  "selection": "满足 E1–E7 的条目按 sha256(id 的 UTF-8 字节) 十六进制升序排列, 取前 54 条。只看 id 哈希与机械条件, 不看任何标注、模型输出或正文含义。(因 v3 取的是同一排序的前 81 条, 这等价于取该排序的第 82–135 条。)",
+  "fields_kept": "id / a(化名键) / post(源字段 p) / b(正文原样, 不截断; 截断 700 由 annot_dist 在标注时做)。",
+  "n": 54,
+  "★fresh_means": "fresh = 从未进过 G-K1 的验收语料 corpus.json、锚例与 v3 条目。**不**保证未被本仓其他仪器(判官对齐、s0 植入根文本、reader_mode 闸)用过; 若分类学负例的某次修订参考过它们, 对新数据性质有轻微污染, 方向偏向更一致(利于 PASS)。如实登记, 不为此改选样。"
+ },
+ "stimulus": {
+  "gate_protocol": {"version": 2, "hash": "dbdff13f9da155bc", "covers": "KNOT_BRIEF + DECISION_TREE + NEGATIVE_EXAMPLES + DIST_TMPL, 与 config/cce_core_manifest.json gate_protocol_expected 一致"},
+  "annotation": "每一次采样 = 一次 accuracy/run_gates.annot_dist 原样调用: 同一 DIST_TMPL、正文截断 CCE_BODY_CHARS=700、单位「评论」、temperature=0.0、max_tokens=4000、reasoning_content 回退原样。同一 (模型, 条目) 的 k 次采样 prompt 逐字节相同。",
+  "transport": "真跑用 probes/accuracy_gk1_v3_run.make_resilient_call(请求体/端点/温度/max_tokens/回退/每条最多 3 次尝试/每次尝试前扣授权单与 run_gates.call 逐项相同; 加尝试间指数退避 4 s·2^att + 抖动与「模型|状态码」失败计数), 标注并发 3。这是 v3 偏离 D1 的运维设置, 在 v4 从第一次派发起就是冻结协议的一部分(不是偏离)。守卫 tests/test_cce_gk1_v3_resilient_call.py。",
+  "sample_order": "一次派发内按「采样序号优先」提交: 先提交全部 (模型, 条目) 的第 1 次采样, 再第 2 次, 再第 3 次(并发 3, 完成顺序大体随提交顺序) ⇒ 同一格的 3 次采样在时间上隔开约一个采样轮次(约 15 分钟), 不在几秒内连发同一请求。",
+  "env_must_be_default": "CCE_CORPUS / CCE_BODY_CHARS / CCE_UNIT_LABEL 不得预设; 预设了任一 ⇒ 探针拒跑。闸协议 hash/version 与上面不符 ⇒ 探针拒跑。",
+  "qualification_not_run": "资格考(5 锚例留一法)v4 不跑: v3 四个有效 occasion × 5 模型 20/20 全是 UNRESOLVED(5 条锚例按 Wilson 下界结构上到不了「合格」), 且它是单次调用、不是 k 平均读数, 不进任何判定 ⇒ 跑它只耗额度不产信息。",
+  "not_run": "G-K2 / Text-01 复核不跑。"
+ },
+ "design": {
+  "k": 3,
+  "N": 54,
+  "R": 4,
+  "occasions": "一次 workflow 派发 = 一个 occasion(独立 runner 进程), 编号经环境变量 GK1_V4_OCCASION 传入: 1..4 计划, 5 只作替补。依次派发(前一次结束再派下一次); 不要求最小时间间隔, 也不要求在同一时间窗 —— 主线按 MiniMax 订阅 5 小时窗跨窗派发即可, occasion 之间的时间差不影响有效性。",
+  "per_occasion": "4 模型 × 54 条 × 3 次采样 = 648 次逻辑调用(无资格考)。",
+  "no_sharding": "不拆分: 每次派发上限 700 <= 单次派发上限 900, 一个 occasion 一次派发跑完(约 45 分钟, 并发 3)。拆分只会多出「半个 occasion」这种失效形态。",
+  "design_spec": "designs/gk1_v4_2026-10-03.json(model 4 水平 × occasion 4 水平完全析因, 每格 54 行 = 每条一个 k=3 平均读数; 实验单位 = 条目 54), 过 scripts/design_preflight.py 才许派发。",
+  "dispatch": "gh workflow run probe.yml -R luogangan7-lgtm/cce-engine-oss --ref master -f probe=probes/accuracy_gk1_v4_run.py -f design=designs/gk1_v4_2026-10-03.json -f env=GK1_V4_OCCASION=<k>",
+  "artifacts_per_occasion": ["/tmp/gk1_v4_occ<k>_result.json(逐条 k 次分布 + 计数 + 有效性)", "/tmp/gk1_v4_occ<k>_replay.json(call() 原始返回, 供离线重解析)", "/tmp/gk1_v4_occ<k>_budget.json(授权单账本)", "/tmp/probe.log"]
+ },
+ "budget": {
+  "per_dispatch_hard_cap_requests": 700,
+  "calls_planned_per_dispatch": 648,
+  "retry_slack": 52,
+  "slack_basis": "8% —— v3 在新运维设置下 4 个 occasion 共 1720 次尝试、0 次重试、0 个 HTTP 错误(archive/3709*/…occ3–6_result.json http_attempts == 430)",
+  "auth_id": "accuracy_gk1_v4_2026_10_03_occ<k>(每个 occasion 一张独立授权单, 名字唯一)",
+  "mechanism": "scripts/cce_request_budget.reserve(先占后用、持久化、重试同样计数), 每次 HTTP 尝试前扣 1; Actions 下账本写 /tmp/gk1_v4_occ<k>_budget.json 随 artifact 上传。撞上限抛 BudgetExceeded ⇒ 立即停。",
+  "study_ceiling": "计划 4 次派发 2592 次; 含最多 1 次替补 <= 5 × 700 = 3500 次 HTTP(= owner 给的整项研究上限)。不为任何理由抬单次上限、不加第 2 次替补。",
+  "single_dispatch_limit": 900
+ },
+ "estimand": {
+  "sample": "p_imrs = 模型 m 对条目 i 在 occasion r 的第 s 次采样分布(s = 1..3); 解析失败记缺失。",
+  "k_average": "p̄_imr = occasion r 内该格**可解析**采样分布的逐类算术平均(只在 occasion 内平均, 不跨 occasion); 3 次全失败 ⇒ 该格缺失。可解析少于 3 次的格照样用(按实际次数平均), 并计数报告。",
+  "cell": "d_ir = P4 内全部模型对 (m<n) 的 JS_2(p̄_imr, p̄_inr) 的平均, 只计两人在 (i, r) 都有读数的对; 一对都没有 ⇒ 格缺失。JS 以 2 为底, 与 run_gates.js_div 同式。",
+  "mu_D": "μ_D(k=3) = 全部非缺失格 d_ir 的平均(条目 × occasion)。",
+  "name": "stable-judgment panel divergence (k=3)",
+  "k_is_part_of_the_estimand": "D(k) 随 k 单调下降(v3 估: D(1) 0.255 · D(2) 0.190 · D(3) 0.162 · D(4) 0.145)。本研究判的是 k=3 这一个量; 不外推到 k→∞, 也不声称更大 k 的结论。",
+  "production_reading": "回应 GPT §6.2: v4 的结论只适用于「每条采样 3 次取平均」这样使用标注者。若 owner 据 v4 启用闸协议(route 6), 闸标注必须同样按 k=3 平均执行; 单次调用的使用方式仍只有 v3 的 UNRESOLVED 作证据。"
+ },
+ "threshold": {
+  "value": 0.25,
+  "choice": "沿用 0.25 的数值, 作为同一刻度(两名标注者实际交出的分布之间的 JS_2 面板均值)上的容忍度; 名称改为 stable-judgment panel divergence tolerance。不另推导新阈值。",
+  "why_not_data_driven": [
+   "0.25 是 G-K1 判据在 2026-08-07 冻结时定的既有常数, 此后 v2/v3 从未移动, 早于任何重复性数据(第一次同协议重跑 2026-09-07)与 v3。沿用它是本研究里唯一一个不是 v3 数据函数的选项。",
+   "任何新数值(0.25 − W̄、按 v3 的 D(k) 曲线定、按 v3 分布构造「操作含义」再算)都是在看过 v3 之后提出的, 无法做到盲 —— 正是 GPT §2 选择 B 禁止的「从现有数据倒推」。",
+   "刻度可比: v4 的量仍是「标注者交付的分布之间的 JS_2」, 只是交付物从单次分布换成 3 次分布的平均。它不是 GPT §2 选择 B 里那种扣减后的派生量 X = D − (W_m + W_n)/2 —— 那个在另一个刻度上(v3 估约 0.06–0.11), 才必然需要新阈值。"
+  ],
+  "meaning_change_declared": [
+   "v3: 0.25 = total panel divergence tolerance(含单次调用噪声)。v4: 0.25 = 对「k=3 平均判断」之间分歧的容忍度。同一数值, 被测对象不同。",
+   "平均会机械地压低面板分歧(v3 数据估 D(1) 0.255 → D(3) 0.162)⇒ 用同一个 0.25, v4 对「单次调用的仪器」是更宽的检验。这是估计目标换了的直接后果, 事前写明: v4 PASS 不能读成「单次调用一致」, 不改 v3 的 UNRESOLVED, 也不改 v2 历史读数。",
+   "0.25 在 2026-08 冻结时, 设定者把单次输出当成标注者的判断本身(当时没有运行噪声的概念), 它想约束的是「判断之间的分歧」; v4 的被测对象比 v3 更接近这个原意。这是沿用理由之一, 不是说 0.25 被校准过 —— 它从未被校准过, 本研究也不校准它。"
+  ],
+  "rejected_alternatives": [
+   "新阈值 = 0.25 − v3 的自身噪声 W̄(≈0.06): 由 v3 数据算出 ⇒ 事后调线, 否决。",
+   "新阈值按 v3 的 D(k) 曲线或 v3 分布的「操作含义」构造: 构造者已看过 v3, 无法盲 ⇒ 否决。",
+   "改判超额分歧 X = D − B(GPT 的 G-K1b): 换刻度、需新阈值, 且对 JS 不是严格的方差分解恒等式(GPT §1.5) ⇒ 否决; owner ② 指定的是 k 次采样平均, 不是扣减。"
+  ]
+ },
+ "bootstrap": {
+  "scheme": "「条目 × occasion」交叉自助(两个随机因子各自有放回重采样); k 平均在 occasion 内完成后才进自助 —— 自助的 occasion 单位整体带着它的 k=3 平均读数, 采样序号不单独重采样, 也不被当成 occasion",
+  "B": 10000,
+  "seed": 20261003,
+  "rng": "Python random.Random(seed)(与 v3 同一实现: probes/accuracy_gk1_v3_analyze.draws / boot)",
+  "per_replicate": "先 rr = rng.choices(range(R), k=R) 抽 occasion, 再 ii = rng.choices(range(N), k=N) 抽条目; 统计量 = Σ_{i∈ii} Σ_{r∈rr} x_ir / 被计入的非缺失格数",
+  "shared_draws": "同一串 B 组抽样用于全部指标",
+  "bounds": "B 个值升序为 xs: 单侧 95% 上界 U = xs[9499], 单侧 95% 下界 L = xs[500]。判定用未四舍五入的值。"
+ },
+ "decision": {
+  "requires": "恰 4 个**有效** occasion。少于 4 个: 只出描述(点估计与 G-R1), 不出判定、不出自助界。",
+  "JS_three_state": {"PASS": "U(μ_D) <= 0.25", "FAIL": "L(μ_D) > 0.25", "UNRESOLVED": "其余(区间跨 0.25)"},
+  "top2_conjunct": "top-2 命中沿用原判据: 点估计 >= 0.80, 在 k=3 平均读数上算(格值 = 面板内各对 1[top1_m ∈ top2_n 或 top1_n ∈ top2_m] 的平均, 与 run_gates 同口径)。点估计 < 0.80 ⇒ 判定 FAIL(不论 JS)。top-2 的 LCB 并列报告, 只描述。",
+  "verdict": "G-K1 v4 判定 = FAIL 若 top-2 点估计 < 0.80; 否则 = JS 三态。",
+  "UNRESOLVED_meaning": "若组织上必须二元化, UNRESOLVED = 不通过验收, 但不是证实失败。"
+ },
+ "secondary_descriptive": {
+  "D1_single_sample": "只取每个 occasion 的第 1 次采样(s=1)算 μ_D 与同一串自助界 —— 新条目上的 v3 式单次调用读数, 与 k=3 读数并列; 只描述, 不进判定。",
+  "top1_agreement": "k=3 平均读数上 a_ir = 各对 1[top1_m == top1_n] 的平均; 点估计与 LCB, 不进判定。",
+  "per_pair_and_per_occasion": "逐对 mean JS、逐 occasion μ_D(k=3), 只描述。",
+  "partial_cells": "各模型可解析采样数、可解析少于 3 次的格数, 只描述。"
+ },
+ "G_R1_repeatability": {
+  "W_k_between": "W_m(k=3) = 同一模型同一条目两个不同 occasion 的 k=3 平均读数之间的 JS_2, 对全部 occasion 对(R=4 时 6 对)与条目平均; top-1 重测一致率同口径。—— k 平均后的残余运行噪声。",
+  "W_within_vs_between": "单次采样层: W_within_m = 同一 occasion 内两次采样之间的 JS_2(每格 3 对)平均; W_between_m = 不同 occasion 的单次采样之间的 JS_2(同一采样序号)平均; 报比值 within/between。",
+  "interpretation_frozen": "比值 >= 0.75: occasion 内 3 次采样与跨 occasion 采样一样独立, k 平均按计划起作用。比值 < 0.75: occasion 内采样相关(缓存/时间相关), k=3 的降噪少于计划, μ_D(k=3) 偏高(对 PASS 不利) —— 判定照冻结规则算, 但在结论里标注「k 平均的有效次数小于 3」。",
+  "status": "只描述; 阈值需另行预注册, 本研究不判 G-R1。至少 2 个有效 occasion 才算 W_k_between。",
+  "reference_v3_single_call": "W_m(1) M3 0.123 · M2.5 0.227 · M2.7 0.189 · M2 0.234(v3 结果); v3 数据上不相交 2 次平均 W_m(2) M3 0.076 · M2.5 0.163 · M2.7 0.127 · M2 0.155(tests/data/gk1_v4_power.json)。"
+ },
+ "occasion_validity": {
+  "valid_iff": "结果文件完整性通过(本预注册 sha、条目 sha、闸协议 hash/version、截断/单位、面板、k、54 个 id 顺序都与冻结的一致, 且不是 --offline 干跑) 且 648 次标注全部执行完(未撞上限) 且 4 名模型每人可解析采样 >= 146/162(= ceil(0.9 × 54 × 3), 与 v3「>= 90%」同一比例)",
+  "integrity_failure": "完整性不通过 ⇒ 分析器拒收该文件(报错停), 不当作「无效 occasion」, 也不能被替补。",
+  "note": "每人可解析采样 >= 90% ⇒ 3 次全失败的格至多 16/162 次失败 / 3 = 5 格(<10% 条目), 不另设格级门。"
+ },
+ "stopping_rules": [
+  "S1 每次派发硬上限 700 次 HTTP 尝试(授权单按 occasion 唯一); 撞上限 ⇒ 立即停, 该 occasion 判 BUDGET_STOP(无效), 同编号不续跑、不补跑。",
+  "S2 任一模型可解析采样 < 146/162 ⇒ 该 occasion 判 OCCASION_INVALID_PARSE(无效)。",
+  "S3 无效 occasion 只能用替补编号 5 补, 最多 1 次; 替补只填补 1..4 中**已派发且无效**的位置。1..4 中尚未派发的编号不能用替补顶; 1..4 全部有效时派发的 5 一律不用(报 unused_not_a_replacement)。",
+  "S4 有效 occasion 永不重跑、不替换。同一编号被派发多次 ⇒ 只认 started_at_utc 最早的那份, 其余报 ignored_duplicate。",
+  "S5 5 次派发后有效 occasion 仍 < 4(即 1..4 中有 2 个及以上无效, 或替补也无效) ⇒ 本研究终止于 NO_VERDICT(只出描述); 要再测须新预注册。",
+  "S6 第一次真实派发之后, 条目、面板、k、prompt、截断、温度、采样顺序、0.25、0.80、B、seed、判定式、有效性门一律不改; 改任何一项 ⇒ 新预注册、新条目。",
+  "S7 分析器在凑齐 4 个有效 occasion 后跑一次, 其输出即判定; 不换参数重跑求不同答案。"
+ ],
+ "deviation_registration": "照 v3: 只允许运维性偏离(怎么等、记什么、并发多少, 即决定哪些调用最终拿到分布、不改问什么与怎么判), 且必须在下一次派发之前写进 tests/data/gk1_v4_deviations.json(id / date / applies_from_occasion / what_happened / diagnosis / change / not_changed / consequence_for_rules / why_this_is_not_moving_goalposts), 带守卫测试; 已有效的 occasion 不重跑。S6 所列测量项的任何改动不是偏离 ⇒ 新预注册。",
+ "power": {
+  "file": "tests/data/gk1_v4_power.json",
+  "sha256": "9add80c0054dd21fc172d86944f7a2d12c410810db64da95418d5b3c113e33c6",
+  "script": "probes/gk1_v4_power.py(零调用; numpy default_rng seed 20261004, 400 次模拟 × B 2000)",
+  "★v3_data_use": "v3 四个有效 occasion 的 P4 原始分布(archive/, sha 与 gk1_v3_result.json inputs 一致)**只用于功效估算**(选 k/N/R、估判出概率)。不用于定阈值, 不进 v4 判定; v4 用全新条目。",
+  "D_k_from_v3": "D(k) = v3 四个 occasion 的 k 元子集平均后的 P4 μ_D(真实独立样本的平均): D(1) 0.2548 · D(2) 0.1901 · D(3) 0.1621 · D(4) 0.1450; 拟合 X + c/k: X 0.113, c 0.143(只描述)。",
+  "W_k_from_v3": "面板平均自身 JS: W(1) 0.1932 → W(2) 0.1303(比 0.675, 慢于 1/2); k>=3 的不相交 W 在 v3 测不到, 不外推。",
+  "variance_components": "格值 d_ir 两因素随机效应矩估计: k=1 条目 0.0315 · occasion 0.00001 · 残差 0.0178; k=2(3 个完美配对, 真独立)条目 0.0214 · occasion 0.00007 · 残差 0.0079; k=3 外推(残差按 1/k 以 k=2 为锚 0.0053, 条目与 occasion 取 k=2 值不再缩 —— 偏保守)。",
+  "calibration": "用 k=1 方差分量模拟 v3 自身设计(N=81, R=4): 模拟的 U − μ̂ 均值 0.03753, v3 实测 0.03753 ⇒ 模拟器在 v3 上校准。",
+  "candidates_at_mu_eq_D_k": {
+   "k1_N81_R4": {"calls_planned": 1296, "PASS": 0.025, "UNRESOLVED": 0.895, "FAIL": 0.08},
+   "k2_N81_R4": {"calls_planned": 2592, "cap_ceiling": 3500, "PASS": 0.9575, "rho_0.25_PASS": 0.84, "rho_0.50_PASS": 0.5033},
+   "k2_N64_R4": {"calls_planned": 2048, "cap_ceiling": 2765, "PASS": 0.925, "rho_0.25_PASS": 0.7967, "rho_0.50_PASS": 0.3867},
+   "★k3_N54_R4": {"calls_planned": 2592, "cap_ceiling": 3500, "PASS": 0.9975, "rho_0.25_PASS": 0.93, "rho_0.50_PASS": 0.5733},
+   "k4_N40_R4": {"calls_planned": 2560, "cap_ceiling": 3460, "PASS": 1.0, "rho_0.25_PASS": 0.9033, "rho_0.50_PASS": 0.6667},
+   "k2_N108_R3": {"calls_planned": 2592, "note": "单次派发 864 + 余量 = 934 > 900 ⇒ 须拆分, 不选"}
+  },
+  "rho_scenario": "ρ = 同一 occasion 内 k 次采样两两相关 ⇒ 等效独立次数 k/(1+(k−1)ρ), μ 按拟合曲线 X + c/k_eff。v3 的 4 次采样都来自不同 occasion, 测不到 ρ; v4 用 W_within/W_between 描述它。",
+  "why_k3_N54_R4": [
+   "预算内(每次派发 648 计划 / 700 上限 <= 900; 研究上限 5 × 700 = 3500)名义情形 PASS 判出概率 0.9975, 且对 occasion 内采样相关最稳(ρ=0.25 时 0.93, k=2/N=81 只有 0.84)。",
+   "k=3 比 k=2 更接近 owner 要的「稳定判断」(k=2 只把自身噪声从 0.193 压到 0.130)。",
+   "比 k=4/N=40 多 14 条条目(条目方差是主成分, 条目泛化更好), ρ 情形下判出概率相当。R=4 沿用 v3 与 GPT 建议的最低交叉自助 occasion 数。"
+  ],
+  "chosen_power_curve_by_true_mu": {"0.17": [0.977, 0.023, 0.0], "0.19": [0.893, 0.107, 0.0], "0.20": [0.763, 0.237, 0.0], "0.21": [0.57, 0.43, 0.0], "0.22": [0.38, 0.617, 0.003], "0.23": [0.257, 0.74, 0.003], "0.24": [0.097, 0.897, 0.007], "0.26": [0.01, 0.883, 0.107], "0.28": [0.0, 0.637, 0.363], "0.30": [0.0, 0.25, 0.75], "format": "[PASS, UNRESOLVED, FAIL], 选定设计 k=3/N=54/R=4"},
+  "honest_limits": "真实 μ 在约 0.21–0.27 时本设计多半 UNRESOLVED —— 这是该区间离 0.25 太近的本性, 不是预算问题; 要在那里判出需要约 2 倍以上条目, 超出 3500 上限。k=3 的方差分量是外推; 新条目的条目方差可能与 v3 不同。"
+ },
+ "predictions": {
+  "Pr1_verdict": "PASS(事前置信约 0.8)。依据: 名义功效 0.9975, 打折是因为 k=3 方差外推、occasion 内采样相关未知(ρ=0.5 时只有 0.57)、新条目。主要备择 UNRESOLVED; FAIL 事前概率 < 0.03。",
+  "Pr2_mu_D_k3": "μ_D(k=3) 在 [0.13, 0.20](v3 数据估 0.162)。",
+  "Pr3_D1_single_sample": "D1(新条目上的单次采样 μ_D)在 [0.22, 0.29](v3 0.255), 且 D1 − μ_D(k=3) > 0.05。",
+  "Pr4_top2": "k=3 平均读数上 top-2 点估计 >= 0.80(v3 单次 0.884)。",
+  "Pr5_within_between": "四名模型 W_within/W_between 比值都 >= 0.75(occasion 内采样近似独立)。",
+  "Pr6_G_R1": "每名模型 W_m(k=3) < v3 的 W_m(1); M3 的 W_m(k=3) 最低。",
+  "Pr7_operations": "计划的 4 次派发都有效(不撞 700、无解析失败无效), 不用替补。",
+  "★if_wrong": "Pr1 错成 UNRESOLVED ⇒ 即便 3 次平均, 四人在新条目上也没有足够 margin; 先看 Pr5: 若比值 < 0.75 是 k 平均没起作用(仪器问题), 否则是稳定判断本身离 0.25 不够远(构念问题), 二者下一步不同, 都须新预注册。错成 FAIL ⇒ 「平均掉噪声就一致」不成立, 面板在稳定判断上就有实质分歧。Pr3 错(D1 远低于 0.22)⇒ 新条目比 v3 条目更容易, v4 PASS 的部分功劳在条目而非平均, 结论里须写明。"
+ },
+ "★cannot_claim": [
+  "单次调用一致: v4 估的是 k=3 平均判断; 单次调用只有 v3 的 UNRESOLVED 作证据",
+  "准确率: 没有人类金标, k 平均估的是每个模型的平均响应, 不是真值(多数票/平均只降随机误差)",
+  "更大 k 或 k→∞ 的结论: 只判 k=3",
+  "生产可靠性: 闸标注者 prompt(G)与生产分类器(P)是两台仪器; 且生产若单次调用, v4 不适用",
+  "固定面板: 只解释到 P4 这四个模型, 不推广到「推理型模型」这一类; Text-01 本研究未测",
+  "跨日期/后台版本漂移: 4 个 occasion 是同一时期的独立派发, 估的是运行级随机性, 不是长期稳定性",
+  "其他语料: 新条目来自 r/HearingAids 常驻者评论(前 54 条约 13 名作者), 不推广到其他社区或平台",
+  "作者层不确定性: 54 条嵌套在约 13 名作者内, 交叉自助不按作者聚类 ⇒ 若一致性随作者而变, 区间偏窄; 如实登记, 不改自助方案",
+  "v4 已启用: 不是; 启用是 owner 看完结果后的决定(route 6), 本研究不改 run_gates.py 与 GATE_PROTOCOL",
+  "G-R1 达标: 本研究不判 G-R1, 只描述",
+  "0.25 被校准过: 没有; 沿用的是 2026-08-07 的既有常数, 含义变化见 threshold"
+ ],
+ "files": {
+  "probe": "probes/accuracy_gk1_v4_run.py(一次派发 = 一个 occasion; --offline 零调用干跑)",
+  "analyzer": "probes/accuracy_gk1_v4_analyze.py(读 occasion 结果文件, 零调用)",
+  "items": "accuracy/data/gk1_v4_fresh54.json",
+  "design": "designs/gk1_v4_2026-10-03.json",
+  "power": "probes/gk1_v4_power.py → tests/data/gk1_v4_power.json",
+  "guard_test": "tests/test_cce_gk1_v4_prereg.py",
+  "analysis_output": "tests/data/gk1_v4_result.json",
+  "deviations": "tests/data/gk1_v4_deviations.json(只在出现运维偏离时新建)"
+ },
+ "status_at_write": "0 次 v4 真实调用。真跑由主线推送 master 后经 oss probe.yml 依次派发 occasion 1..4(必要时 5); 结果文件取回后本地跑分析器。"
+}
