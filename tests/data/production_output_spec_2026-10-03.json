@@ -1,0 +1,88 @@
+{
+ "block": "PRODUCTION_OUTPUT_SPEC",
+ "written_at": "2026-10-03",
+ "★why": "owner 2026-10-03「第1个吧，让闸量生产实际输出」: 新验收闸要量生产实际输出。本文件只回答「生产实际输出到底是什么」—— 零调用, 全部读代码得出, 每条带 文件:行。关键字段(仪器 hash / 温度阶梯 / k / n / 模型 / 端点 / K1 路由)由 tests/test_cce_gate_gp_prereg.py 从代码现算比对, 不是凭记忆写的。",
+ "★scope": "只描述 s1+s2 结分类这一段(整链里的两段)以及它的 top-1 怎样被发布。不描述 s0/s3/s4/媒体链, 不声称描述了完整链路。",
+ "measurement_model": {
+  "model": "MiniMax-M3",
+  "registry_key": "M3",
+  "endpoint": "https://api.minimaxi.com/v1/text/chatcompletion_v2",
+  "max_tokens": 12000,
+  "where": "scripts/cce_knot_classify.py:63 MEASUREMENT_MODEL = os.environ.get(\"CCE_MEASUREMENT_MODEL\", \"M3\"); scripts/exp_crossmodel_desire.py:36-43 MODELS[\"M3\"]",
+  "note": "model 与 endpoint 都在 instrument_hash 里(_INSTRUMENT_FIELDS, scripts/cce_knot_classify.py:669) ⇒ 换模型 = 换仪器。"
+ },
+ "k_by_profile": {
+  "reply": 3,
+  "response": 3,
+  "outbound_post": 5,
+  "where": "scripts/cce_full_run.py:748 \"k\": 5 if a.mode in {\"post\", \"outbound_post\"} else 3 (单环节模式同式 :850); 读者侧 reader_baseline 用同一个 ctx[\"k\"](reply ⇒ 3); reply_loop 的 --k 默认 3 且 cce-submit 不传 (scripts/reply_loop.py:128, :142)",
+  "s2_n": 5,
+  "s2_n_where": "scripts/cce_knot_classify.py:839 KNOT_N = int(os.environ.get(\"CCE_KNOT_N\", \"5\")); 生产 workflow 不设 CCE_KNOT_N"
+ },
+ "stage1": {
+  "function": "cce_knot_classify.stage1(text, context, k)  (scripts/cce_knot_classify.py:150)",
+  "preparation": "先过 cce_structural_gate.structural_gate(text)(零调用样品制备): 去掉可证为非作者原话的段落; 一个词不剩 ⇒ 零调用弃权 (:154-165)",
+  "temperature_ladder": "_S1_BASE_TEMPS = [0.0, 0.3, 0.6, 0.9, 0.15, 0.45, 0.75] (:865); 取前 k 档 (:170) ⇒ k=3: [0.0, 0.3, 0.6]; k=5: [0.0, 0.3, 0.6, 0.9, 0.15]",
+  "prompt": "build_prompt(_stage1_case(text, context)) —— 完整 4403 字 prompt(四层 + appraisal + schema), 允许模型声明 no_inferable_subject (:75-110)",
+  "calls": "每档一次 call_parse(MEASUREMENT_MODEL, case, T) (:197), 3 档并发 (ThreadPoolExecutor(max_workers=min(5, k)), :213)",
+  "retry": "每档最多 3 次 call_parse(解析失败也重试, :196); 每次 call_parse → call_model(max_retries=3, 失败后 sleep 4 秒; scripts/exp_crossmodel_desire.py:117,166) ⇒ 每档最多 9 次 HTTP",
+  "aggregation": "四层向量逐坐标平均 → 各层 top(_top 全零守卫); within_js = 两两 JS 均值; 每档的 tops/appraisal 逐 draw 保留在 draws[] (:246-288)",
+  "statuses": "abstained(全体声明无主体)/ insufficient_replicates(k_valid<2, 但**不**阻止 s2)/ qualified"
+ },
+ "s1_output_feeds_s2": {
+  "answer": true,
+  "how": "stage2 对每个 s1 draw(含弃权 draw: tops={} / appraisal=None)各造一份 s2 prompt, 塞入「第 1 级引擎读出(参考,不是真值)」四层首位 + appraisal; s2 的 n=5 次抽样按 i mod k 轮转 (scripts/cce_knot_classify.py:788-792, :1010) ⇒ k=3 时 s2 第 0..4 次分别吃 s1 第 0,1,2,0,1 档",
+  "s1_abstained": "s1.abstained ⇒ 不发 s2 调用, knots=[] (:770-787)"
+ },
+ "stage2": {
+  "function": "cce_knot_classify.stage2(text, s1, taxo) (:756) → _stage2_aggregate(prompts, taxo) (:997)",
+  "prompt": "_build_stage2_prompt(taxo, text, s1draw) (:719) —— 生产字段集: key/name/family/signature/typical_codes/behavior[:60] + levers_not_knots + 强度独立打分说明; **没有** decision_tree / negative_examples / 锚例(那些只在验收闸 DIST_TMPL 里)",
+  "temperature": "全部 0.0 (call_model(MEASUREMENT_MODEL, prompt, temperature=0.0), :919); M3 无 force_temp",
+  "calls": "n=5 次, 并发 (ThreadPoolExecutor(max_workers=min(5, n)), :1008)",
+  "retry": "每次抽样最多 3 次 call_model(类型/取值不合格也重试, :918), 每次 call_model 内再最多 3 次 HTTP ⇒ 每次抽样最多 9 次 HTTP",
+  "worst_case_http_per_readout": {"k3": 72, "k5": 90, "nominal_k3": 8, "nominal_k5": 10}
+ },
+ "aggregation_and_top1": {
+  "per_draw_top1": "max(d[\"knots\"], key=intensity)[\"key\"] —— 打平取模型输出里的先出现者 (:1053); 注意 draw_ledger_row 的 top1 用 (-intensity, key) 定序 (:966), 两处打平规则不同",
+  "top1_mode": "Counter(各 draw 的 top1).most_common(1) —— 计数打平取 draw 序号上先出现者 (:1067)",
+  "top1_mode_share": "众数次数 / n_ok(弃权 draw 计入分母) (:1069)",
+  "top1_unanimous_alias_top1_stable": "可投票 draw >= 2 时 len(set(tops)) == 1, 否则 None (:1077)",
+  "knots_order": "knots[] 按 (-出现时强度中位数, key) 排序 (:1086) ⇒ knots[0] 与 top1_mode **可以不是同一个结**",
+  "★K1_readout_gap": "K1 判 TOP1_USABLE 用的 top-1 是 knots[0][0](probes/k1_v2_multitext.py:137 · probes/k1_v2_k5_instrument.py:135 · probes/k1_reliability.py:97), 而生产发布的是 top1_mode。cce_full_run.s2 的注释(诊断 #0, scripts/cce_full_run.py:373-376)记过存档 11 个稳定读数里 2 个二者不同 ⇒ K1 的 7/8 是在**另一个读数形式**上判的。"
+ },
+ "publication": {
+  "s2_knots_stage": "cce_full_run.s2 (scripts/cce_full_run.py:358-412) 每次都把 top1_mode / top1_mode_share / top1_stable / top1_draws / n / instrument 写进 manifest; playbook_primary 只在 lead(key==top1_mode 的结)存在且 top1_stable is True 时给出 (:376, :389-390)",
+  "qualified_readout_rule_Q": "出口闸 (scripts/cce_full_run.py:569-706): usable[\"s2.distribution.top1\"] = {n, top1_mode_share, top1_mode, max_range} 当且仅当 s2 knots 非空 ∧ K1 layer_status(本次 instrument_hash).top1.usable ∧ 非 s2_short(n_ok < n_requested) (:629-632, :660-671); 否则进 withheld 并写理由。s1 弃权 ⇒ knots 为空 ⇒ top1 既不进 usable 也不进 withheld。",
+  "playbook_rule_U": "usable[\"s2.playbook_primary\"] 当且仅当 playbook_primary 非空(⇔ top1_stable is True)∧ 非 s2_short (:650-653)",
+  "always_withheld": "intensity / knot_weight / families / drive_brake —— K1 判 INSTRUMENT_WIDE_FAIL (:672-693); 读者侧 reader.knots(weight)同样扣发 (:643-649)",
+  "chain_failure": "run_knot_classify: 子进程非零 ⇒ 抛错; s1 有 draw 三次尝试全无返回(k - k_attempted > 0, 结构闸零调用弃权除外)⇒ 抛错「管线丢失」(scripts/cce_full_run.py:76-92) ⇒ 该段 FAIL, 无任何读数",
+  "reader_side": {
+   "reader_baseline": "outbound_reply 链第一段: run_knot_classify(reader.txt, s0 之前的 context, k=3) (scripts/cce_full_run.py:95-125); 发布 reader.tops(组内散布闸)与 reader.knots(K1 weight 判红 ⇒ withheld); **读者 top-1 不作为单独键发布**",
+   "reply_loop": "cce-submit 的 Reader-to-draft alignment 步(with_alignment 默认关, .github/workflows/cce-submit.yml:30-34,235): 另跑一次 readout(reader, context + \"(对方原文/写作基准侧)\", k=3) (scripts/reply_loop.py:35-46, :142); 用读者 top1_mode 当且仅当 top1_stable is True ∧ K1 top1 usable (:194) —— 即 rule U",
+   "subject_chain": "观测到的他人回应走 --mode response: s0(Jev 读情境, 拼进 context 的【情境】后缀)→ s1(k=3)→ s2 → s3, **没有** qualified_readout; s2_knots manifest 照样写 top1_mode / top1_stable / playbook_primary (.github/workflows/cce-submit.yml subject-measure 步)"
+  },
+  "context_string": "出站提交的 context = f\"{platform} {surface_id} {domain}: {summary}\" (scripts/cce_submission.py:252-255); reader_baseline 原样用它, reply_loop 读者侧在其后拼「(对方原文/写作基准侧)」(scripts/reply_loop.py:142), 两者都不带 s0 后缀; 主链 s1 用 context + \" 【情境】{...}\"(s0 读出, scripts/cce_full_run.py:251-252)"
+ },
+ "instruments": {
+  "d4cce4c745f3f991": {
+   "is": "gen6 · k=3 仪器 = reply / response / reader_baseline / reply_loop",
+   "spec": {"ontology_version": "1.3.1", "s1_prompt_sha256": "61fe230f5c588c1f", "s2_prompt_sha256": "b8d0f60d66d10f12", "model": "MiniMax-M3", "endpoint": "https://api.minimaxi.com/v1/text/chatcompletion_v2", "sampling_policy": {"s1_k": 3, "s1_temps": [0.0, 0.3, 0.6, 0.9, 0.15, 0.45, 0.75], "s2_n": 5, "s1_pairing": "round_robin_over_3_s1_draws"}},
+   "qualification_policy_hash": "b41ef5217a77d311",
+   "K1_top1": "未直接登记; 经 SCOPE_WIDENINGS 的 gen4→6 口径扩大边(当场自证 _stage1_case 外壳是完整 prompt 的子串)继承 565470cf26c16d01 的 tests/data/phase2/k1_top1_k3_verdict.json: TOP1_USABLE(5 文本全 8/8, 读数形式 = knots[0])",
+   "where": "scripts/cce_knot_classify.py:395-419 (INSTRUMENT_LINEAGE gen6), :514-526 (SCOPE_WIDENINGS k=3 边); scripts/cce_k1_status.py:53-56, 62-103"
+  },
+  "c4419c3e53aa2fa9": {
+   "is": "gen6 · k=5 仪器 = outbound_post(我方帖子)",
+   "spec_differs_from_k3_only_in": {"s1_k": 5, "s1_pairing": "round_robin_over_5_s1_draws"},
+   "K1_top1": "经 SCOPE_WIDENINGS 的 k=5 边继承 0e9ca1d4e7a2f180 的 tests/data/phase2/k1_top1_k5_verdict.json: TOP1_USABLE(5 文本全 8/8, 读数形式 = knots[0])",
+   "where": "scripts/cce_knot_classify.py:545-551; scripts/cce_k1_status.py:55"
+  },
+  "status_scripts": "scripts/cce_production_status.py 按 k 现算两台仪器的 top-1 状态(均为「可用」), intensity / weight 为「已测·不达标」; scripts/cce_k1_status.py 是路由的单一真相源"
+ },
+ "★what_this_means_for_a_gate": [
+  "生产对一条文本发出的 top-1 是 **top1_mode**(5 次 s2 抽样逐次 argmax 的众数), 不是 knots[0], 也不是全分布; 它带两道发布条件: rule Q(qualified_readout: K1 路由开 ∧ 抽样满额)与 rule U(playbook_primary / reply_loop: 再加 5/5 全票)。",
+  "一次生产读数本身已是 k=3 × n=5 的聚合读数; 换模型重放这条路径 = 同一台仪器只换 model 字段(instrument_hash 随之变)。",
+  "社区成员评论在生产里是「读者侧」: 默认 reader_baseline 不单独发布 top-1, 只有开启对齐诊断时 reply_loop 按 rule U 用它; 他人回应(subject_chain)走 response 模式, context 带 s0 的【情境】后缀。",
+  "K1 现有的 TOP1_USABLE 判在 knots[0] 上 ⇒ 对 top1_mode 这个**实际发布的读数形式**, 现有判定是跨读数形式引用。"
+ ]
+}

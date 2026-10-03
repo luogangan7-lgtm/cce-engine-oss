@@ -1,0 +1,186 @@
+{
+ "block": "GATE_GP_PREREG",
+ "gate": "G-P · 生产实际输出闸",
+ "prereg_written_at": "2026-10-03",
+ "★frozen_before_items": "本文件在条目文件、探针、分析器存在之前提交(见 git 顺序)。选样规则、判据、阈值、区间方法、有效性规则、预算、派发拆法一次写死; 之后的提交只许实现它, 不许改它(探针与分析器钉本文件 sha256)。",
+ "basis": {
+  "owner_ruling": {"date": "2026-10-03", "quote": "第1个吧，让闸量生产实际输出",
+                   "meaning": "open_items「验收闸与生产分类器字段集不同 ⇒ 对齐方向需 owner 定」选 ① 闸向生产对齐: 新验收闸量生产实际输出; 生产一字不动(生产 prompt / instrument_hash / cce_full_run 行为都不改)。"},
+  "production_output_spec": {"file": "tests/data/production_output_spec_2026-10-03.json",
+                             "sha256": "83789292a4fbbed640805f69dfc9ab01e4dee52b0e1c7bfa62e18c137f5cd8f6"},
+  "gk1_v4": "G-K1 v4(闸 prompt × 推理型四人 × k=3 平均, PASS 0.199)保留为「分类学可操作性」读数, 不换代、不与本闸合并: 两台仪器, 可比不可合。"
+ },
+ "what_is_measured": {
+  "production_path": "社区成员评论在生产里的读者侧 top-1 路径(k=3 仪器 d4cce4c745f3f991): cce_full_run.run_knot_classify(text, context, 3) → cce_knot_classify.stage1(k=3, 温度 0.0/0.3/0.6) + stage2(n=5, 温度 0.0, 吃 s1 逐档 tops+appraisal 轮转) → cce_full_run.s2_knots → cce_full_run.qualified_readout。全部调用生产函数对象本身, 不复刻任何 prompt。",
+  "★primary_readout": "top1_mode —— 生产 s2 段对这条文本发出的 top-1(5 次抽样逐次 argmax 的众数), 取值 ∈ 九结 key ∪ {NONE}; NONE = 生产合法地不出 top-1(s1 弃权 / s2 全体弃权 ⇒ knots 为空)。发布条件按 rule Q(qualified_readout: 抽样满额; 生产臂另要求 K1 路由开 —— d4cce4 现为开, 起跑前断言)。",
+  "missing": "以下记 MISSING(不是读数, 不进任何一致率, 计入覆盖率): run_knot_classify 抛错(管线丢失 / s1 全失败 / s2 全失败)、s2_short(n_ok < n_requested, 生产自己扣发)、发布段抛错、因预算/墙钟停跑而未跑。",
+  "secondary_readout_rule_U": "rule U = top1_mode 只在 qualified_readout 把 s2.playbook_primary 放进 usable 时发布(⇔ 5/5 全票 ∧ 抽样满额), 否则 WITHHELD。只出描述(可用率 / 生产重跑时 发布-发布 同或异 / 发布-扣发 / 与面板共识的一致), **不进判定**: 它是在 top1_mode 上加的选择过滤, 没有事前给定的可用率阈值。",
+  "k1_readout_gap_descriptive": "同时记 knots[0] 与 top1_mode 不同的比例(K1 现有 TOP1_USABLE 判在 knots[0] 上, 见规格 ★K1_readout_gap)。只描述。"
+ },
+ "items": {
+  "source": {"file": "accuracy/data/hearingaids_regulars_20260809.json", "sha256": "9318f57138996a8b4156ebb95d26e08ddc17397b09a91cb9677253bfcfed4e43"},
+  "exclusion_sources": {
+   "accuracy/data/corpus.json": "b990e76698a30641c11a24881346b97911fd7a7869e016f38cafc54d244840df",
+   "accuracy/data/anchors.json": "3880b9a283c55d8997704c6549048b012bbd49fa8b0d2c0937f027d4c64583e3",
+   "accuracy/data/gk1_v3_fresh81.json": "db1a3c19ce9283e736893c7d71990a59d5080756b61c4f10a98e33546ac43391",
+   "accuracy/data/gk1_v4_fresh54.json": "b207fb431aed478af203cb18be68ee7f075f9bd7521c581198d9edd7ac5e74f0",
+   "results/reader_mode_gate_rows.json": "4cfb18ef4995283bd4aa43d9f23c5da1302d179005845ef2da45c267f391a521"
+  },
+  "rule": {
+   "E1": "源池 = users 下全部评论",
+   "E2": "排除 id ∈ corpus.json 的 id ∪ anchors.json 的 anchor_ids ∪ gk1_v3_fresh81 的 id ∪ gk1_v4_fresh54 的 id",
+   "E3": "排除正文(strip 后)∈ corpus ∪ v3 ∪ v4 的正文",
+   "E4": "保留 25 <= len(strip(正文)) <= 900 字符(与 v3/v4 同式)",
+   "E5": "排除含用户名提及(\\bu/\\w+ 或 /user/\\w+)",
+   "E6": "正文相同只留 sha256(id) 最小的一条",
+   "E9": "排除生产 s2 top-1 读数已经落盘过的评论: results/reader_mode_gate_rows.json 的 ptr(regulars:<user>:<id>)里的 id, 以及这些 id 的正文 —— 那是同一台 k=3 仪器的 top1_mode, 结果已被看过",
+   "order": "按 sha256(id) 升序取前 40",
+   "fields": "{id, a(用户), post, b(原文, 不截断)} —— 生产不截断, 本闸也不截断"
+  },
+  "n": 40,
+  "file": "accuracy/data/gate_gp_fresh40.json(按本规则在下一次提交生成)",
+  "★why_E9_but_not_the_rest_of_the_natural_pool": "align_atoms_* / s0_selective_plants 用过 natural 池的评论, 但那些是 Jev 判官与 s0 的读数, 不是生产 s2 top-1; v3/v4 的规则也没排除它们(v3 81 条里 45 条、v4 54 条里 31 条在 natural 池)。只排除「本闸要量的读数已经被看过」的那 23 条。",
+  "★known_shape": "按规则现算(选样前只看过池的长度分布, 没看过任何读数): 余量 317 条; 前 40 条来自 16 名常驻者中的 13 名, 词数中位 32, 17/40 少于 25 词, 5/40 多于 120 词。"
+ },
+ "stimulus": {
+  "context": "reddit r/HearingAids hearing_aid: Public reply to a Reddit r/HearingAids member(对方原文/写作基准侧)",
+  "context_derivation": "前半 = archive/*/cce-submission-source__normalized.json 里 mode=reply 的条目的众数 context(18/75 条, 18 次不同运行, scripts/cce_submission.py:252-255 生成); 后半 = reply_loop 读者侧的字面后缀(scripts/reply_loop.py:142)。即生产里真正消费读者 top-1 的那条路径(reply_loop, rule U)收到的串。reader_baseline 收到的是不带后缀的前半。",
+  "k": 3, "knot_n": 5, "text": "原文 strip 后送入(与 cce_knot_classify.main 同), 不截断; 结构闸照生产开着",
+  "not_modeled": "s0(Jev 情境读出)不跑 —— 读者侧两条路径都不带 s0 后缀; subject_chain 的 response 模式带, 不在本闸作用域。CCE_CITATION_CERT 关(它只在 display∧全票时追加证书调用, 不改 top-1)。",
+  "refuse_if_env_set": ["CCE_MEASUREMENT_MODEL", "CCE_KNOT_N", "CCE_TAXO_VERSION", "CCE_CITATION_CERT", "VSE_ROOT", "CCE_REQUEST_BUDGET_ID"]
+ },
+ "panel": {
+  "members": ["M3", "M2.5", "M2.7", "M2"],
+  "api_models": {"M3": "MiniMax-M3", "M2.5": "MiniMax-M2.5", "M2.7": "MiniMax-M2.7", "M2": "MiniMax-M2"},
+  "source": "owner 2026-10-03 裁定的推理型四人(与 G-K1 v3/v4 P4 同一组模型名)",
+  "production_member": "M3 = 生产本身(不改任何东西, instrument_hash 必须是 d4cce4c745f3f991)",
+  "how_others_run": "往 exp_crossmodel_desire.MODELS 登记 {**MODELS[\"M3\"], \"model\": <MiniMax-M2.x>}(同端点 / 同 key / 同 max_tokens), 设 cce_knot_classify.MEASUREMENT_MODEL = 该键; 其余一切走同一套生产函数。起跑前断言: 该成员的 instrument spec 与生产 d4cce4 的 spec 只差 model 一项。",
+  "★aggregation_choice": "每名成员每次运行 = **一次完整的生产读数**(生产自己的 s1 k=3 × s2 n=5 聚合与 top1_mode), 不做 k 次平均。",
+  "★why_not_k_average": [
+   "面板要量的是「同一台生产仪器换模型后的判断」。生产读数本身已经是 k=3 × n=5 的聚合读数; 再把 k 次生产读数平均, 定义的是一台生产从来不运行的「R 次平均生产仪器」—— 正是「又造一台新仪器」。",
+   "top-1 是类别读数, 跨次「平均」没有定义, 只能再加一条众数规则, 那又是一台新仪器。",
+   "G-K1 v4 的 k=3 平均施加在闸 prompt 的**单次调用分布**上(那台仪器一次调用就是一个读数); 生产仪器内部已有复制, 两者不同构。",
+   "两次运行在本闸里作重复测量(区间与重跑一致率), 不作平均。"
+  ]
+ },
+ "design": {
+  "N": 40, "R": 2,
+  "slots": "4 成员 × 2 次运行 = 8 个槽; 一个槽 = 一次 workflow 派发 = 一名成员对 40 条各做一次生产读数",
+  "order": "运行 1 的 4 个槽依次派发, 全部结束后再派运行 2 的 4 个槽(两次运行之间隔开时间); 一次只跑一个派发",
+  "experimental_unit": "条目(40); 运行是重复测量, 交叉自助同时重采样条目与运行"
+ },
+ "criteria": {
+  "a_production_rerun_stability": {
+   "estimand": "A = P(同一条目上两次独立生产读数(M3, 运行 1 与运行 2)发出相同的 top1_mode, NONE 算一类) —— 条目平均",
+   "cell": "每条一个配对指示(两次都非 MISSING 才计)",
+   "threshold": 0.875,
+   "threshold_source": "K1 已冻结判据「top-1 一致 >= 7/8」(tests/data/phase2/k1_v2_multitext_prereg.json criterion.per_text; probes/k1_gate.judge 五项之一, 2026-09-03 测量前冻结)。同一台仪器重跑 → 用重跑的那条线。",
+   "★declared_difference": "K1 的 7/8 是逐文本对众数的占比(n=8); 本闸的 A 是两次运行相同的概率。逐条恒有 A_i = Σp² <= max p ⇒ A >= 7/8 蕴含平均众数占比 >= 7/8(本闸的 PASS 比 K1 口径更严); 反之 A < 7/8 不蕴含众数占比 < 7/8 ⇒ (a) 的 FAIL 是「重跑复现率低于 7/8」, 不是对 K1 口径的直接重判。K1 判的读数形式是 knots[0], 本闸量的是实际发布的 top1_mode。",
+   "interval": "单侧 95% 精确(Clopper–Pearson)上下界, 用生产自己的 cce_knot_classify.binom_upper: U = binom_upper(X, n), L = 1 − binom_upper(n − X, n)。为什么不用交叉自助: R=2 时每条只有一个配对, 运行维无可重采样; 条目间 A_i 不同时, 指示和是 Poisson-二项, 其方差不超过同均值的二项 ⇒ CP 界保守。",
+   "three_state": {"PASS": "L >= 0.875", "FAIL": "U < 0.875", "UNRESOLVED": "其余, 或 n = 0"}
+  },
+  "b_production_vs_panel_consensus": {
+   "estimand": "B = P(生产 top1_mode == 参考面板共识 | 共识存在), 格 = (条目, 运行)",
+   "consensus": "留一: 只用 M2.5 / M2.7 / M2 同一运行的读数(生产自己不进共识); 非 MISSING 者 >= 2 名且某一取值(含 NONE)票数 >= 2 ⇒ 共识 = 该取值; 否则该格无共识(None, 不计), 并单独报共识可得率与「无共识按不一致计」的保守值(描述)",
+   "threshold": 0.80,
+   "threshold_source": "G-K1 v2 既有的面板一致线「top2命中≥0.8」(accuracy/run_gates.py gk1 criteria, 2026-08-09 入库, commit b61f010)。跨模型比较 → 用面板一致的那条线; 生产被当作再加一名必须过同一条线的成员。",
+   "★declared_difference": "原线量的是 top-2 命中(A 的 top-1 落在 B 的 top-2 里), 生产只发 top-1(top2_set 在 KNOT_READOUT_EXCLUDED 里) ⇒ 本闸把 0.80 用在 top-1 相等上: top-1 相等蕴含 top-2 命中, 所以本闸的 PASS 比原线更严。",
+   "interval": "条目 × 运行交叉自助, 与 v3/v4 同一份实现(probes/accuracy_gk1_v3_analyze.draws / boot, B=10000, seed=20261003): 先有放回抽 R 个运行, 再有放回抽 N 个条目; 单侧 95% = 第 500 / 第 9499 个",
+   "three_state": {"PASS": "L >= 0.80", "FAIL": "U < 0.80", "UNRESOLVED": "其余"},
+   "if_c_fails": "(c) 判 FAIL 时 (b) 标 REFERENCE_INCOHERENT(参考面板自身不一致, 与它比对不可解释); 总判已因 (c) 为 FAIL"
+  },
+  "c_panel_self_consistency_production_prompt": {
+   "estimand": "C = 四名成员两两(6 对)在同一运行、同一条目上 top1_mode 相等的比例(NONE 算一类; 任一方 MISSING 的对不计), 格 = (条目, 运行) 的可用对均值 —— 即对齐到生产后的 G-K1 类比, 用 top-1 / 发布口径, 不用全分布 JS",
+   "threshold": 0.80,
+   "threshold_source": "同 (b): G-K1 v2 的面板一致线 0.8, 用在 top-1 相等上(比原 top-2 命中更严)",
+   "interval": "同 (b) 的交叉自助",
+   "three_state": {"PASS": "L >= 0.80", "FAIL": "U < 0.80", "UNRESOLVED": "其余"}
+  },
+  "overall": {"PASS": "(a)(b)(c) 全 PASS", "FAIL": "任一项 FAIL", "UNRESOLVED": "其余"},
+  "★why_not_v3_v4_data": [
+   "三条阈值都是事前已存在的常数(K1 的 7/8, 2026-09-03 冻结; G-K1 的 0.80, 2026-08-09 入库), 一个都不是由 v3/v4 或任何新数据算出来的。",
+   "v3/v4 量的是另一台仪器(闸 prompt × 全分布 JS × 截断 700 字), 它们的数在生产 top-1 的刻度上没有含义; 拿来挑线既是看数挑线, 也是跨仪器搬标定(gen2→gen3 已确立: 标定不可跨仪器搬)。",
+   "下文功效段引用的 0.7681 只用于功效估计, 不进任何判据。"
+  ]
+ },
+ "validity": {
+  "dispatch_valid_iff": "未撞预算上限(BUDGET_STOP)∧ 非 MISSING 读数 >= 36/40(= ceil(0.9 × 40))",
+  "missing_cells": "两两比较里任一方 MISSING 的配对不计; 不插补",
+  "slot_choice": "同一槽有多份结果: 按 started_at 取最早的**有效**那份; 其余列为未用",
+  "verdict_requires": "(a) 需要 M3 两个槽都有效; (b)(c) 需要全部 8 个槽都有效; 不满足 ⇒ 该项 UNRESOLVED(INSUFFICIENT_SLOTS), 总判不可能 PASS",
+  "integrity": "结果文件的 预注册 sha / 条目 sha / 条目 id 顺序 / context / k / n / 成员 / 运行 / 仪器 有任一不符 ⇒ 拒收(报错停), 不当作无效槽、不可替补",
+  "replacement": "全研究最多 1 次替补派发(重派同一个无效槽); 结果总数 > 9 ⇒ 分析器拒收(超出预算授权)"
+ },
+ "bootstrap": {"B": 10000, "seed": 20261003, "implementation": "probes/accuracy_gk1_v3_analyze.draws / boot(与 v3/v4 同一份)"},
+ "budget": {
+  "nominal_http_per_readout": 8,
+  "nominal_why": "k=3 次 s1 + n=5 次 s2, 全部首发成功时",
+  "worst_case_http_per_readout": 72,
+  "worst_case_why": "s1 每档 3 次 call_parse × call_model 3 次 HTTP = 9, × 3 档 = 27; s2 每次抽样 3 × 3 = 9, × 5 = 45(规格 stage2.worst_case_http_per_readout)",
+  "per_dispatch_planned": 320,
+  "per_dispatch_hard_cap": 380,
+  "retry_slack": 60,
+  "slack_why": "生产存档实测(202 份读数的 operational 账本, 选样前读过): s1 尝试 375 次里 PARSE_FAILED 3 次, s2 460 次 0 次 ⇒ M3 的重试膨胀约 1%; M2.x 在生产 s1 schema 上的解析失败率未知 ⇒ 留 18.75%。撞上限 ⇒ 该槽 BUDGET_STOP(无效), 不追加。",
+  "dispatches_planned": 8,
+  "max_replacements": 1,
+  "study_ceiling": "8 × 380 + 1 × 380 = 3420 <= 3500(含重试余量)",
+  "single_dispatch_limit": 900,
+  "mechanism": "生产自己的 cce_request_budget.open_scope(作用域 id 含槽名, 上限 380, 状态文件随 artifact 上传); exp_crossmodel_desire.call_model 每次发请求前 reserve_in_scope —— 重试同样计数",
+  "wall_clock": "workflow 上限 180 分钟; 探针 9600 秒后不再起新读数(已起的跑完), 未跑的记 MISSING。估时: 生产存档 s1+s2 每份读数中位 79.7 秒(内部并发); 本探针 HTTP 并发 3 ⇒ 320 次 × 约 40 秒 / 3 ≈ 71 分钟"
+ },
+ "operations": {
+  "transport": "HTTP 由生产 call_model 原样构造与发送(端点 / 请求体 / 温度 / max_tokens / 超时 / 3 次重试 / 4 秒间隔都是它自己的); 探针只在 exp_crossmodel_desire.requests 外包一层: 全局并发 3(与 v3/v4 的 ANNOT_WORKERS 同值)、失败后指数退避(基数 4 秒, 与 v3 BACKOFF_BASE_SEC 同值, 不耗尝试次数)、按「模型|错误码」计数(http 状态 / base_resp 状态 / 异常类型, 不记内容)。即 v3/v4 make_resilient_call 的三件运维, 加在生产传输外面而不是另写一份请求。",
+  "process_boundary": "cce_full_run.run_knot_classify 原本起子进程跑 cce_knot_classify.py; 探针把 cce_full_run.subprocess 换成同进程执行器, 组装逐行对应 cce_knot_classify.main()(读文件 → strip → stage1 → stage2 → 写 out JSON), 以便上面的传输层与面板登记在同一进程生效。守卫测试钉住 main() 的这几行。",
+  "budget_stop_detection": "exp_crossmodel_desire.reserve_in_scope 外包一层只记录 BudgetExceeded(原样再抛); 生产 call_parse 会吞掉异常, 所以以这个记录为准",
+  "item_workers": 3,
+  "raw_failures": "生产自己把解析失败原文写进 results/knot_classify_raw/(probe.yml 会上传)"
+ },
+ "power": {
+  "★power_only": "只用于功效估计, 不进任何判据。参考值 = results/reader_mode_gate_rows.json(2026-10-01, 同一台仪器 d4cce4, 23 条 natural 池评论 × 3 次运行, context 为该探针自己的串)的 top1_mode 两两重跑一致率均值 0.7681。这 23 条已由 E9 排除出本闸条目。",
+  "a_at_N40_exact": {
+   "rule": "X ~ Bin(40, p); FAIL ⇔ X <= 30, PASS ⇔ X >= 39(由 binom_upper 现算)",
+   "p=0.70": {"PASS": 0.0, "FAIL": 0.8041, "UNRESOLVED": 0.1959},
+   "p=0.7681": {"PASS": 0.0003, "FAIL": 0.4533, "UNRESOLVED": 0.5464},
+   "p=0.85": {"PASS": 0.0121, "FAIL": 0.0672, "UNRESOLVED": 0.9207},
+   "p=0.95": {"PASS": 0.3991, "FAIL": 0.0, "UNRESOLVED": 0.6009}
+  },
+  "★honest_reading": "若真实 A 在参考值 0.7681 附近, N=40 下 (a) 约 45% 判 FAIL、55% UNRESOLVED, 几乎不可能 PASS ⇒ 总判几乎不可能 PASS。预算内判不出时如实报 UNRESOLVED, 不降判据。",
+  "minimal_decisive_plan_a": "A = 0.7681 时 P(FAIL) 在 N=81 首次 >= 0.80, 因二项离散在 N=83–85 回落, N >= 86 起稳定 >= 0.80 ⇒ 只为 (a) 判出, 需 86 条 × 2 次 × 8 = 1376 次名义 HTTP(仅 M3); 整个 G-P 同设计放到 N=86 需 64 × 86 = 5504 次名义 HTTP, 超出 3500。",
+  "b_c": "UNKNOWN —— M2.x 在生产 prompt 上的 top-1 一致率没有任何既有数据。条目层近似: 要让单侧 95% 界离开阈值 t, 需 N ≈ 1.645² · p(1−p) / (p − t)²(未计运行方差与格内相关, 偏乐观)。运行 1 的四个槽跑完即可知道 (b)(c) 的点估计量级。"
+ },
+ "★cannot_claim": [
+  "与参考面板一致 ≠ 判得对: 没有人类金标; (b)(c) 的 PASS 只说明同家族四个模型在生产仪器上判得一样, 不是效度证据; (b) 的 FAIL 也不说明错的是生产。",
+  "(b) 只在面板有共识的格上算, 共识更可能出现在容易的条目上 ⇒ B 有选择偏向; 共识可得率与保守值并列报告。",
+  "主判是 top1_mode(rule Q 口径); rule U(全票过滤后才发布)的结论只描述, 不由本闸判定。",
+  "只覆盖 k=3 仪器 d4cce4c745f3f991(读者侧 / reply / response); 不覆盖 k=5 的 c4419c3e53aa2fa9(outbound_post)。",
+  "context 是 reply_loop 读者侧的串; reader_baseline(少一个后缀)与 subject_chain(带 s0【情境】后缀)的读数没有被直接量到。",
+  "(a) 是重跑复现率, 不等于 K1 的逐文本众数占比; 它不撤销也不重做 K1 的 TOP1_USABLE(那份判在 knots[0] 上), 只量实际发布的 top1_mode。",
+  "两次运行之间的差异不归因为纯采样噪声(端点 / 服务端条件可能变化)。",
+  "条目 = 该源池未用余量按 sha256(id) 取前 40, 不是自然部署流量的随机样本; 不外推到别的社区、语言或帖子。",
+  "面板是 MiniMax 同家族四代推理模型, 同家族共识不是独立第三方。",
+  "本闸与 G-K1 v4 互不替代: v4 的 PASS 不说明生产输出可靠, 本闸的结果也不改写 v4。",
+  "只跑 s1 + s2 + 发布段(s2_knots / qualified_readout), 不是完整 CCE 链路。",
+  "传输加了并发上限与退避(只改时序), CCE_CITATION_CERT 关; 生产自己的重试与请求体未改。"
+ ],
+ "★bets": {
+  "a": {"bet": "不会 PASS(FAIL 或 UNRESOLVED)", "confidence": "中", "why": "功效参考值 0.7681 离 7/8 远; 但参考条目与 context 都不同"},
+  "b": {"bet": "UNRESOLVED", "confidence": "低", "why": "没有任何生产 prompt 上的面板数据"},
+  "c": {"bet": "UNRESOLVED 或 FAIL", "confidence": "低", "why": "同上; 记下来是为了赌错时被钉住"}
+ },
+ "dispatch_plan": {
+  "precondition": "本分支合并进 master 之后从 master 派发; 一次只跑一个, 前一个结束(gh run watch)并取回 artifact 后再派下一个",
+  "commands": [
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M3 GP_RUN=1\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2.5 GP_RUN=1\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2.7 GP_RUN=1\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2 GP_RUN=1\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M3 GP_RUN=2\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2.5 GP_RUN=2\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2.7 GP_RUN=2\"",
+   "gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json -f env=\"GP_MODEL=M2 GP_RUN=2\""
+  ],
+  "replacement": "任一槽无效(结果文件 dispatch_valid=false 或没有结果文件): 重派同一条命令一次; 全研究只此一次",
+  "artifacts": "每次派发的 artifact probe-out 含 /tmp/gate_gp_<成员>_r<运行>_result.json 与 _budget.json、probe.log、results/knot_classify_raw/",
+  "analyze": ".venv/bin/python probes/gate_gp_analyze.py <全部结果文件> → tests/data/gate_gp_result.json"
+ }
+}
