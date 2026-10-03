@@ -1,0 +1,83 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.0,
+      "确认欲": 0.0,
+      "超越欲": 0.0,
+      "归属欲": 0.1,
+      "控制欲": 0.0,
+      "安全感欲": 0.0,
+      "向往欲": 0.0
+    },
+    "note": "归属欲指向回答者希望自己是助听器用户社群中有价值、可贡献信息的成员，share knowledge以获得群体认同感。内容本身为纯技术信息输出，未涉及其他欲望触发点。"
+  },
+  "need_layer": [
+    {
+      "code": "N04_理解世界",
+      "context_slot": "在助听器使用/选购方面存在信息缺口，需要知道特定型号的具体功能",
+      "weight": 0.5,
+      "derived_from": "由<归属欲>经<看到有人在社群提问关于助听器型号问题>衍生"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "提问者想学会如何为自己的助听器进行编程设置",
+      "weight": 0.3,
+      "derived_from": "由<归属欲>经<用户表达对特定型号program profiles的好奇>衍生"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "回答者作为过来人/有经验者，在社群中提供价值以确认自己是其中一员",
+      "weight": 0.2,
+      "derived_from": "由<归属欲>经<在Reddit论坛回复他人问题>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.4,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "回答者的目标(分享信息/帮助他人)在内容中当场达成——提供了具体型号(Philips 9050)和延伸信息(other brands)，对提问者构成正面的信息促进；高coping因回答者确实拥有相关知识经验。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.3,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.0
+    },
+    "note": "由need_status=已满足+congruence_direction=促进推导出正性情绪；approval认同指向回答者对自己提供有价值信息这件事的认可/自我肯定——'我知道这些你们需要'"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.0,
+      "avoidance回避": 0.0,
+      "attend关注": 0.0,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    },
+    "note": "此条为极简技术陈述(仅一句话)，未包含任何行动倾向动词，无显式行动倾向可提取；该层权重为零"
+  },
+  "chain_trace": "归属欲(Specific to Philips 9050这条回复本身是在r/HearingAids社群中贡献信息) →(情境:看到有用户提问关于某型号助听器的program profiles)→ 需求N04_理解世界+N03_提升能力+N11_归属群体(提供具体型号信息和延伸知识，满足提问者信息需求，同时确认自己是有价值的社群成员) →(评价:goal_relevance=0.4, congruence_direction=促进, need_status=已满足, goal_congruence=正, coping_potential=高)→ 情绪approval认同(对自己能提供有用信息的自我肯定) → 行动倾向(无显式行动倾向表达)",
+  "evidence": {
+    "desire": "无直接欲望表达词语，但从Reddit回复行为可推断归属欲——在社群中分享信息以获得成员价值认同",
+    "need": "Specific to Philips 9050. Other brands Costco sells should have similar program profiles. —— 直接提供具体产品信息和功能对比，满足信息获取需求",
+    "emotion": "无显式情绪词，approval认同从内容提供行为本身推导——回答者认可自己作为信息提供者的角色",
+    "action": "无显式行动倾向动词，内容仅为陈述性信息"
+  }
+}
+```

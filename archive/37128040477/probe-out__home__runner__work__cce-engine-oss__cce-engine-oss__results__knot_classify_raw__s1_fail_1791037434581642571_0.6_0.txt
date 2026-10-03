@@ -1,0 +1,83 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.1,
+      "成为欲": 0.05,
+      "摆脱欲": 0.2,
+      "确认欲": 0.3,
+      "超越欲": 0.05,
+      "归属欲": 0.15,
+      "控制欲": 0.05,
+      "安全感欲": 0.05,
+      "向往欲": 0.05
+    },
+    "note": "核心是确认欲——用户分享自己在嘈杂餐厅的听力困境，希望被同为助听器用户的论坛成员理解、共情、确认这不是什么大问题（用😂表达苦涩幽默）。归属欲次之，在r/HearingAids社区分享即寻求同类认同。摆脱欲体现在想摆脱'一个耳朵工作'的不便状态。"
+  },
+  "need_layer": [
+    {
+      "code": "N10_自我确认",
+      "context_slot": "在餐厅嘈杂环境中，一个助听器失效只剩单耳听力，用户用幽默方式描述这一窘境",
+      "weight": 0.5,
+      "derived_from": "由<确认欲>经<情境:在公共场合听力受限但仍尽力应对>衍生，用户想确认这种情况是可以接受的、没什么大不了"
+    },
+    {
+      "code": "N13_情感慰藉",
+      "context_slot": "左耳助听器 receiver 坏了，只能用一只耳朵听",
+      "weight": 0.3,
+      "derived_from": "由<确认欲>经<情境:设备故障导致不便>衍生，期待社区共情安慰'
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "嘈杂餐厅环境+单耳听力，想更清楚地听到周围人讲话",
+      "weight": 0.2,
+      "derived_from": "由<摆脱欲>经<情境:噪音环境下的听力困难>衍生，想摆脱这种听不清的痛苦"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.6,
+    "congruence_direction": "中性",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "用户目标是在嘈杂环境中正常交流，但当前只能用一个耳朵听清部分方向，目标未完全达成。但用户用😂和'basically'的轻松语气呈现，显示其能接受这个状况（中等应对潜能）。内容不构成威胁也不直接帮助，只是一种状态分享。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.1,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.15,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.0
+    },
+    "note": "核心是self-deprecating humor（自嘲幽默）——😂表情和'basically'体现一种苦涩的乐观。approval认同是期待获得社区理解。joy并非真正的快乐，而是用幽默化解困境的 coping mechanism。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.1,
+      "avoidance回避": 0.0,
+      "attend关注": 0.5,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.0
+    },
+    "note": "attend关注占主导——用户发这条帖子的目的就是引起社区注意、分享自己的经历。approach趋近指向社区互动（期待回复、共情）。"
+  },
+  "chain_trace": "确认欲 →(情境:在嘈杂餐厅只剩单耳听力)→ N10_自我确认(想确认这种情况可接受) + N13_情感慰藉(求共情) + N06_摆脱痛苦(想摆脱听不清) →(评价:goal_relevance=0.6, congruence_direction=中性, need_status=未满足, goal_congruence=负, coping_potential=中)→ 自嘲幽默(用😂表达的轻度无奈+期待被理解) → attend关注(发帖分享经历，期待社区互动) 的完整推导",
+  "evidence": {
+    "desire": "在r/HearingAids社区发帖这一行为本身即指向确认欲——想被同类理解；'yeah I can hear everyone'带点自我证明的语气",
+    "need": "'the left one's receiver died basically' + 'So I got one working ear basically'——设备故障导致听力不便，是N06_摆脱痛苦的直接触发；分享到特定社区是N10_自我确认和N13_情感慰藉",
+    "emotion": "😂——笑哭表情是自嘲情绪的典型符号；'basically'的轻描淡写",
+    "action": "Public reply to a Reddit r/HearingAids member——在社区发帖回复这一行为本身就是attend关注 + approach趋近"
+  }
+}
+```
