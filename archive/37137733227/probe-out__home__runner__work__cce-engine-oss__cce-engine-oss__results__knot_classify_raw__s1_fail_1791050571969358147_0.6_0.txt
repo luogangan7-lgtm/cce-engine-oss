@@ -1,0 +1,338 @@
+The user wants a "因果链逆问题" (reverse causal chain) analysis of a specific Reddit reply. They ask:
+
+- Platform/format: Reddit r/HearingAids, a public reply to a Reddit r/HearingAids member (the other person wrote something). The content is:
+
+> And you could try calling other Costcos near to you although my guess is they rolled it out regionally. By now they may be making them available more broadly or have a plan or schedule for that.
+
+We need to reverse the psychological causal chain of the person who wrote this text. The content is presumably a suggestion. The person suggests the other Redditor call other Costcos near them because the hearing aids may be rolled out regionally, and they guess that by now they may be making them available more broadly or have a plan or schedule.
+
+The output must be a strict JSON with specific keys and fields. Need to compute weight distributions for desire layer (9 categories), need layer (list of codes from 17 categories, each with weight, context slot, derived_from), appraisal (goal relevance, congruence direction, need status, goal congruence, coping potential), emotion layer (distribution over 13 emotions), action tendency layer (distribution over 7 categories). Also chain_trace and evidence.
+
+Constraints: all weights must sum to 1 for each layer distribution (desire, emotion, action). Need layer weights sum to 1. Use fixed keys for each category. Must be consistent with derived chain: desire X → (situational Y) → need Z → (appraisal) → emotion W → action tendency V.
+
+The user wants us to "strictly output a JSON, no explanations". We must embed the JSON inside a code block with language json. The content must not have any extra text besides the JSON.
+
+Thus we must parse the text and infer the psychological chain.
+
+The text is: "And you could try calling other Costcos near to you although my guess is they rolled it out regionally. By now they may be making them available more broadly or have a plan or schedule for that."
+
+Interpretation: The writer is offering a suggestion: call other Costcos, because maybe they have hearing aids available regionally and may be expanding.
+
+Thus we need to think about what desire is being satisfied by this suggestion? The writer is providing advice, perhaps showing empathy, helpfulness, wanting to help the other person. The writer's desire might be to be helpful (belongs to "确认欲" maybe?), but need to decide.
+
+The writer's desire: The content is a helpful suggestion. The writer wants to help the other person get hearing aids, maybe satisfying "归属欲"? But they might want to be recognized as knowledgeable and helpful, that could be "确认欲" (the desire to confirm one's own knowledge/authority). However the writer also might have a desire for "安全感欲": they want to ensure that the other person can get hearing aids, thus reducing uncertainty and risk for them. But this is more about the recipient's desire. However the writer might be expressing a desire for "控制欲": they want to control the situation (i.e., they want to help shape the outcome). But typical desire categories might not apply directly to a helpful suggestion; we need to think what the writer wants: they want to be helpful, they want the recipient to get the hearing aids. That is more about "归属欲" (belonging to group of helpful community) or "确认欲" (confirming their own knowledge). However "拥有欲" or "成为欲" are not relevant. "摆脱欲" not relevant. "超越欲" not relevant. "向往欲" not relevant. "安全感欲" could be about ensuring the other person reduces uncertainty.
+
+Thus we need to infer the writer's desire from the content: The writer's statement is offering a suggestion. The writer may be motivated by "确认欲" (need to confirm that they have knowledge to share). Or "归属欲" (wanting to be part of the community of helpful people). Or "安全感欲" (they want to reduce the other person's uncertainty about getting hearing aids). Or "控制欲" (they want to control the situation). Or "超越欲" (they want to exceed expectations). The most plausible is "安全感欲": they want to reduce the other person's uncertainty about where to get hearing aids. Also they might have "确认欲": they want to confirm that they are knowledgeable about the regional rollout of hearing aids.
+
+Let's parse the text: "And you could try calling other Costcos near to you although my guess is they rolled it out regionally. By now they may be making them available more broadly or have a plan or schedule for that."
+
+The writer is basically offering a tip. They are making a suggestion: try calling other Costcos. They give an explanation that hearing aids may have been rolled out regionally and may become available more broadly soon.
+
+Thus, what need does the writer think the other person has? The writer is addressing the other person's need: the other person wants hearing aids, likely seeking to obtain them. The writer is trying to satisfy the other person's "确定性" (N01) need: they want to know if they can get hearing aids at other Costcos, which reduces uncertainty. Or maybe "N02_掌控局面": they want to have a plan to get hearing aids. Or "N05_优化效率": they want to know the fastest way to get them.
+
+But the writer is not the recipient, so we must infer the writer's desire. Actually, the instruction says: "若这段内容确实是某一个人写下的自我表达，请对『写下这段内容的这一个人』反推其心理因果链四层占比分布——这是一个个体，不是群体。" So we must infer the psychological chain of the writer. The content is a suggestion to another user, not a personal expression of the writer's own need. However it's still a kind of self-expression: the writer is offering advice. So we need to infer the writer's desire that motivated them to write this. They want to help the other. The writer's desire might be "归属欲": wanting to belong to a helpful community, confirming membership. Or "确认欲": wanting to confirm their knowledge about hearing aids rollout. Or "安全感欲": wanting to reduce uncertainty for the other. Or "控制欲": wanting to help control the situation. Let's think: The writer says "my guess is they rolled it out regionally." This shows they have some knowledge. They are sharing it to help the other. That could be driven by "确认欲": they want to confirm that they are knowledgeable, i.e., they want validation that their guess is correct. Or they want to help because they care about the other's well-being, which could be "归属欲" (to be part of the group of helpful people) or "安全感欲" (reduce uncertainty for the other). Which is more plausible? The content is basically an informational suggestion. It's not heavily emotional. It is calm, rational. The writer's desire likely is "确认欲" (desire for recognition of knowledge) or "安全感欲" (reduce risk for the other). But we need to allocate probabilities across the 9 desires. Let's analyze the possibilities.
+
+- 拥有欲 (ownership): not relevant.
+- 成为欲 (becoming): not relevant.
+- 摆脱欲 (escape): not relevant.
+- 确认欲 (need for confirmation/validation): the writer might be seeking to confirm that they have correct knowledge about regional rollout, maybe hoping the other person sees them as knowledgeable.
+- 超越欲 (transcendence): not relevant.
+- 归属欲 (belonging): maybe they want to be recognized as helpful member of community.
+- 控制欲 (control): they might want to influence the outcome for the other.
+- 安全感欲 (safety): they want to reduce uncertainty for the other.
+- 向往欲 (aspiration): not relevant.
+
+Thus we need to assign distribution of probabilities across these nine. Could assign major weight to "确认欲" (0.4) and "安全感欲" (0.4), with smaller weight to "归属欲" (0.1) and "控制欲" (0.1). That sums to 1.
+
+Now need layer: The writer's need that drives them to write this suggestion? The writer wants to satisfy "N01_确定性" (to provide certainty to the other) or "N04_理解世界" (to help the other understand the situation). But the writer is not directly satisfying a personal need; they are satisfying the other's need. However we must think about the writer's own needs that are triggered by the context: The writer sees the other person asking about hearing aids (maybe they posted about not being able to find them). The writer wants to help, i.e., they have a need to provide information, which is a "N04_理解世界" (need to understand and explain the world). Or "N05_优化效率" (to suggest a more efficient way). Or "N02_掌控局面" (to take control of the situation by providing suggestions). Or "N10_自我确认" (need to confirm their own knowledge). Or "N12_情感联结" (to connect emotionally with the other). Or "N13_情感慰藉" (to provide comfort). Or "N14_代入理想" (maybe they imagine themselves as helpful). Or "N15_放松休憩" (maybe they get satisfaction from relaxing). But more likely they have a need to "N04_理解世界" (to help the other understand the situation) and "N10_自我确认" (to confirm their knowledge). Or "N12_情感联结" (they want to build connection with the other).
+
+Let's see the context: The writer is replying to a Reddit r/HearingAids member. The writer is presumably a hearing aid user or someone knowledgeable. They are offering practical advice. The need "N04_理解世界" seems appropriate: they want to help the other understand the situation about hearing aids availability. However they might also have "N02_掌控局面": they want to help the other regain control over the situation of obtaining hearing aids. Or "N01_确定性": they want to reduce the other's uncertainty.
+
+We need to decide the need(s) that the writer experiences in this situation. The writer's need is likely "N04_理解世界" (to provide clarity). Or "N01_确定性". Or "N02_掌控局面". Or "N12_情感联结". Or "N10_自我确认". The question: what triggers the writer's need? The writer sees a question about hearing aids. The writer knows something about the regional rollout. They want to share that knowledge. That is a "N04_理解世界" need: the writer perceives a knowledge gap in the other and wants to fill it. So we could assign weight 0.5 to "N04_理解世界". Another need is "N01_确定性": they want to reduce uncertainty for the other. That could be weight 0.3. Another need is "N02_掌控局面": they want to help the other take control. Weight 0.2. But need_layer weights sum to 1.
+
+Alternatively, we could incorporate "N12_情感联结": they want to connect with the other user. But that is less salient. The content is more informational.
+
+Thus we could assign: N04_理解世界 0.5, N01_确定性 0.3, N02_掌控局面 0.2.
+
+Now appraisal: The writer's evaluation of the situation: The writer is providing helpful information. The writer's goal is to help the other. The goal relevance: The content is relevant to the other's need (getting hearing aids). So goal_relevance could be high, maybe 0.9. The congruence direction: The content is "促进" (facilitating) because the writer is offering a solution, helping the other approach their goal. The need status: The writer's suggestion may partially satisfy the other's need for certainty, but not fully because the writer's suggestion is uncertain (they say "my guess" and "may be making them available more broadly"). So the writer's need to provide certainty is partially satisfied. However from the writer's perspective, they are providing a helpful answer; the need is "已满足" because they have answered. But the content includes speculation; the writer may be uncertain themselves. But they are providing a suggestion, which is likely to be helpful. So we can set need_status: "已满足". But we must be careful: The evaluation is about the writer's need (N04 etc.) being satisfied. The writer provides a suggestion and feels they have contributed. So need_status = 已满足.
+
+Goal congruence: Since the content is facilitating (positive) and the writer's need is satisfied, goal_congruence = "正". Coping potential: The writer likely feels they have high coping potential: they can help, they have knowledge. So coping_potential = "高".
+
+Thus appraisal: goal_relevance 0.9, congruence_direction "促进", need_status "已满足", goal_congruence "正", coping_potential "高". Or we could adjust to 0.8, 0.85.
+
+Now emotion layer: The writer likely feels "approval" (approval of the idea of calling other Costcos) or "relief" (relieved to help). The writer may feel "gratitude"? Not toward the other. But they may feel "admiration" for the other's question? Not likely. They may feel "curiosity"? Not really. They may feel "satisfaction"? But not in the list. The emotion categories are limited: admiration, joy, gratitude, desire, nostalgia, pride, love, relief, approval, curiosity, fear, sadness, anger.
+
+Which of these best matches the writer's emotional state? The writer is offering helpful advice. They might feel "approval" of the suggestion, "relief" that they can help, maybe "joy". But the writer's statement is fairly neutral, not extremely enthusiastic. However they may feel "relief" because they are providing a solution and perhaps they feel good about being helpful. They may also feel "pride" (pride in their knowledge). The emotion distribution could be something like: "approval" 0.3, "relief" 0.3, "pride" 0.2, "joy" 0.2. Or "admiration" maybe not. Let's think.
+
+We can assign: approval 0.35, relief 0.35, pride 0.2, joy 0.1. Or we could include "gratitude" maybe to the community for being able to help. But the writer is not expressing gratitude. They are providing advice. So "approval" seems right.
+
+Thus emotion_layer: distribution: admiration: 0, joy: 0.1, gratitude: 0, desire: 0, nostalgia: 0, pride: 0.2, love: 0, relief: 0.35, approval: 0.35, curiosity: 0, fear: 0, sadness: 0, anger: 0. Sum = 1.
+
+Now action tendency layer: The writer's action is to "approach" (provide suggestion). They are "approach" to the other user. They might also "attend" to the question. So likely "approach" weight high. Also maybe "attend" moderate. Possibly "dominate"? Not really. So assign: approach: 0.6, attend: 0.3, avoid: 0, reject: 0, agonistic: 0, interrupt: 0, dominate: 0.1. Or approach 0.7, attend 0.2, dominate 0.1.
+
+But we need to ensure the sum is 1.
+
+Now chain_trace: need to produce a sentence that traces the chain: e.g., "确认欲 → (看到有人询问助听器购买渠道) → N04_理解世界(提供信息) → (促进+已满足, 高应对) → relief/approval → approach". But we need to use actual names.
+
+Let's think: The writer's desire is "确认欲" (desire to validate their knowledge) maybe. Or "安全感欲" (desire to reduce other's uncertainty). Actually we need to reflect the writer's desire in the chain. The chain should start from one of the 9 desire categories. The writer's desire could be "确认欲" (0.4) or "安全感欲" (0.4) etc. In the chain trace we need to pick a single desire? The chain_trace should show a complete flow for the writer. We can mention the most weighted desire. Or we could include multiple but it's a single chain. The chain_trace should be one sentence linking all layers. It can reference the writer's desire (e.g., "确认欲").
+
+Thus chain_trace: "确认欲 →(看到Reddit用户求助获取助听器的渠道)→ N04_理解世界 →(促进+已满足, 高应对)→ relief → approach". Or we could use "安全感欲". Let's decide.
+
+Better to choose "安全感欲" because the writer wants to reduce the other's uncertainty. But the writer also wants to confirm their knowledge. Which is more salient? The content is about "my guess is they rolled it out regionally. By now they may be making them available more broadly". This is speculation; the writer is trying to provide a sense of certainty. That aligns with "安全感欲". So we can assign desire = "安全感欲". The chain: "安全感欲 →(发现对方不确定助听器可在何处购买)→ N01_确定性 →(促进+已满足, 高应对)→ relief → approach". But we also have N04 etc. However need layer may include multiple needs, but chain trace should pick one need that best fits. We can pick N01_确定性. But earlier we assigned need weights to N04_理解世界 (0.5) and N01_确定性 (0.3). Which one is more central? The writer's need to "provide certainty" is more directly about "确定性". The writer wants to reduce the other's uncertainty about hearing aid availability. That is N01_确定性. Also they want to share knowledge (N04). The chain can mention the primary need: N01_确定性. So chain_trace: "安全感欲 →(感知到对方对助听器可获得性的不确定)→ N01_确定性 →(促进+已满足, 高应对)→ relief → approach". That would be consistent.
+
+Alternatively, the writer may also have a desire for "确认欲". Let's examine the possibility. The writer says "my guess is they rolled it out regionally." This indicates they are offering their speculation, maybe to confirm that they are right or to see if the other person will accept it. That could be "确认欲". But "安全感欲" also fits. The instruction says the desire is a stable latent variable, not the immediate goal. The writer's stable desire could be "确认欲" (need to confirm their knowledge). But also they may have "安全感欲" (need to feel safe by helping). Which is more stable? It's ambiguous. But we need to decide and assign distribution.
+
+We could assign distribution across multiple desires. In desire_layer distribution we assign weights. For chain_trace we need to choose one primary desire that leads to the need. We can pick the highest weighted desire: either "确认欲" or "安全感欲". The distribution we set earlier: "确认欲" 0.4, "安全感欲" 0.4, "归属欲" 0.1, "控制欲" 0.1. That means both "确认欲" and "安全感欲" have equal weight. In chain_trace we could choose one, perhaps "确认欲". But which one is more plausible given the content? The writer is giving advice based on their guess. They are also reducing uncertainty. Both are plausible. Let's choose "确认欲" because it's more about validating their knowledge, which is a strong driver for giving advice. However, the writer is also providing safety to the other, but it's less about personal safety. I think "确认欲" is more plausible: they want to confirm they know about the regional rollout.
+
+Thus desire = "确认欲". Then need = "N04_理解世界" (to share knowledge) or "N01_确定性" (to provide certainty). The writer's desire to confirm their knowledge leads them to need to share that knowledge. So need = N04_理解世界. That seems plausible.
+
+Thus chain_trace: "确认欲 →(看到有人询问助听器购买渠道, 需要分享自己对该地区推出的了解)→ N04_理解世界 →(促进+已满足, 高应对)→ relief → approach".
+
+Now we need to produce evidence: desire: "确认欲" is evidenced by the phrase "my guess is they rolled it out regionally" which shows the writer is confirming their knowledge. Or the writer's desire to be recognized as knowledgeable is shown. Actually we can quote "my guess is they rolled it out regionally". That indicates they are expressing a guess, which is a form of confirming knowledge. For desire we need a quote: maybe "my guess is they rolled it out regionally". That shows they are sharing speculation, implying they want to confirm their knowledge.
+
+Need: "N04_理解世界" can be evidenced by "And you could try calling other Costcos near to you". That is providing understanding.
+
+Emotion: "relief" can be evidenced by "my guess is they rolled it out regionally". Or maybe "relief" is not directly evident. But we can quote something that indicates relief? The writer does not explicitly state relief. But maybe "my guess" indicates uncertainty but they are trying to help. However we could argue that the writer feels relief in being able to help. But we need evidence from the text. Perhaps we can use "my guess is they rolled it out regionally. By now they may be making them available more broadly or have a plan or schedule for that." This shows they are offering reassurance, which can be a relief for the other. But we need evidence for the writer's emotion. Since the text is not explicitly emotional, we could infer the emotion from the helpful tone, maybe "approval" of the suggestion. But we need evidence for each category: desire, need, emotion, action. The evidence sections: "desire": "my guess is they rolled it out regionally" as the desire to confirm knowledge. "need": "And you could try calling other Costcos near to you" as the need to share knowledge. "emotion": maybe "approval" or "relief". We need to quote something that shows the writer's emotion. The writer's tone is calm, but maybe they are "approval" of the idea of calling other Costcos. The phrase "And you could try calling other Costcos near to you" can be seen as approval. But we can also use "my guess" to indicate speculation, but not emotion. However we can argue that the writer is "approval" because they are endorsing the action. So evidence: "And you could try calling other Costcos near to you" as approval. Or "my guess" as a sign of confidence. But we need to provide direct quotes for each evidence key.
+
+The action: "approach" is indicated by the suggestion to call other Costcos. So evidence: "And you could try calling other Costcos near to you".
+
+Now we must produce the final JSON with all fields.
+
+We must ensure the sum of weights for desire_layer distribution is 1. We need to assign weights for the 9 categories. Let's assign:
+
+- 拥有欲: 0.0
+- 成为欲: 0.0
+- 摆脱欲: 0.0
+- 确认欲: 0.4
+- 超越欲: 0.0
+- 归属欲: 0.1
+- 控制欲: 0.1
+- 安全感欲: 0.4
+- 向往欲: 0.0
+
+Sum = 0.4+0.1+0.1+0.4 = 1.0. Good.
+
+Now need_layer: we need a list of need objects with code, context_slot, weight, derived_from. We need to assign weights sum to 1. We can assign maybe 2 or 3 needs.
+
+We could assign:
+
+- N04_理解世界: weight 0.5, context_slot: "看到Reddit用户询问助听器购买渠道, 需要解释地区推出的情况", derived_from: "确认欲"
+- N01_确定性: weight 0.3, context_slot: "对方不确定助听器是否在其他Costco有货, 需要提供确定性信息", derived_from: "安全感欲"
+- N02_掌控局面: weight 0.2, context_slot: "对方想要掌握获取助听器的主动权, 建议主动联系其他门店", derived_from: "控制欲"
+
+Sum = 1.0.
+
+Now appraisal:
+
+- goal_relevance: 0.9 (high)
+- congruence_direction: "促进"
+- need_status: "已满足"
+- goal_congruence: "正"
+- coping_potential: "高"
+- note: "作者通过提供信息帮助对方降低不确定性, 并在提供建议后感到满足, 评估为正向且应对潜能高."
+
+Now emotion_layer distribution: Must sum to 1. Let's assign:
+
+- admiration钦佩: 0.0
+- joy喜悦: 0.1
+- gratitude感激: 0.0
+- desire渴望: 0.0
+- nostalgia怀旧: 0.0
+- pride自豪: 0.2
+- love爱: 0.0
+- relief宽慰: 0.35
+- approval认同: 0.35
+- curiosity好奇: 0.0
+- fear恐惧: 0.0
+- sadness悲伤: 0.0
+- anger愤怒: 0.0
+
+Sum = 0.1+0.2+0.35+0.35 = 1.0.
+
+Now action_tendency_layer distribution: sum to 1. Let's assign:
+
+- approach趋近: 0.7
+- avoidance回避: 0.0
+- attend关注: 0.2
+- reject拒斥: 0.0
+- agonistic对抗: 0.0
+- interrupt中断: 0.0
+- dominate支配: 0.1
+
+Sum = 1.0.
+
+Now chain_trace: Must be a single sentence linking the chain. Use the actual names: desire X = "确认欲", situational Y = "看到有人询问助听器购买渠道", need Z = "N04_理解世界", evaluation = "促进+已满足, 高应对", emotion W = "relief", action V = "approach". But also incorporate the other desires maybe. However chain_trace must be one sentence. It can be: "确认欲 →(看到Reddit用户询问助听器购买渠道, 需要分享自己对地区推出的了解)→ N04_理解世界 →(促进+已满足, 高应对)→ relief → approach". That is okay.
+
+But we also need to mention the other desire maybe "安全感欲" as part of chain. But chain_trace can just pick one path.
+
+Now evidence: Provide quotes for desire, need, emotion, action.
+
+- desire: "my guess is they rolled it out regionally". (This indicates desire to confirm knowledge)
+- need: "And you could try calling other Costcos near to you". (Shows need to share understanding)
+- emotion: "relief" or "approval"? We need a quote that indicates relief or approval. The phrase "my guess is they rolled it out regionally. By now they may be making them available more broadly or have a plan or schedule for that." This provides reassurance, which could be relief. But we need a quote that shows the writer's emotion. Perhaps "my guess" indicates speculation but not emotional. However the writer's tone is supportive. The phrase "And you could try calling other Costcos near to you" is an approving suggestion. So we can quote that as evidence of approval. But the evidence for emotion must be a direct quote that indicates the emotion. Since the writer doesn't explicitly state "I feel relief", we can use the tone of reassurance as evidence. But the requirement says "evidence 用内容/评论里的原话". So we need to quote from the content. For emotion, maybe we can use "my guess is they rolled it out regionally" as evidence of relief? But that's not a clear emotion. However we could argue that "my guess" indicates speculation but not emotion. The writer's emotion might be "approval". The phrase "And you could try calling other Costcos near to you" is an approval. So we can quote that as evidence of approval. So evidence for emotion: "And you could try calling other Costcos near to you". That's an approving suggestion.
+
+But we also need evidence for desire: we can quote "my guess is they rolled it out regionally". For need: same quote.
+
+Now action: "And you could try calling other Costcos near to you" is also the action.
+
+Thus evidence can be the same phrase for multiple categories. That's okay.
+
+Now we must output the JSON accordingly. Let's craft the JSON.
+
+We'll need to ensure that the keys are exactly as specified.
+
+The JSON must have fields:
+
+- desire_layer: object with "distribution" (object mapping each of 9 categories to float) and "note".
+- need_layer: list of objects with fields: code, context_slot, weight, derived_from.
+- appraisal: object with goal_relevance (float), congruence_direction (string), need_status (string), goal_congruence (string), coping_potential (string), note (string).
+- emotion_layer: object with distribution (object mapping each of 13 emotions to float) and note.
+- action_tendency_layer: object with distribution (object mapping each of 7 action tendencies to float).
+- chain_trace: string.
+- evidence: object with keys "desire", "need", "emotion", "action", each mapping to a quoted phrase from the content.
+
+We must ensure distribution weights sum to 1 for desire, emotion, action. need_layer sum to 1.
+
+Now produce the JSON.
+
+One nuance: The desire_layer distribution must include all nine categories, even if zero weight. Must have keys exactly as given: "拥有欲","成为欲","摆脱欲","确认欲","超越欲","归属欲","控制欲","安全感欲","向往欲". The values must be floats.
+
+We must ensure that the note strings are not too long but can be. Also the note for desire_layer: "为何这几类欲望被激活". We need to explain why these are activated. We'll give a brief note.
+
+Now need_layer list: each object must have code (string like "N04_理解世界"), context_slot (string), weight (float), derived_from (string like "由<哪个欲望>经<什么情境事件>衍生").
+
+We need to fill derived_from: e.g., "由确认欲经看到用户询问助听器购买渠道衍生". But we need to follow the format: "由<哪个欲望>经<什么情境事件>衍生". So we can write "由确认欲经看到Reddit用户询问助听器购买渠道衍生". Or "由安全感欲经对方不确定助听器可得性衍生". But we have multiple needs each derived from different desires.
+
+Thus for each need we need derived_from referencing the primary desire. For N04_理解世界 we can say derived_from: "由确认欲经看到Reddit用户询问助听器购买渠道衍生". For N01_确定性: derived_from: "由安全感欲经对方不确定助听器可得性衍生". For N02_掌控局面: derived_from: "由控制欲经对方想要主动获取助听器衍生". That's fine.
+
+Now appraisal note: we need a note explaining evaluation.
+
+Now emotion_layer note: explain how emotions derived.
+
+Now action_tendency_layer distribution: keys must be exactly "approach趋近","avoidance回避","attend关注","reject拒斥","agonistic对抗","interrupt中断","dominate支配". Provide floats.
+
+Now chain_trace: a single sentence linking all. Use Chinese.
+
+We need to embed everything in a JSON code block.
+
+Let's write.
+
+First, desire_layer distribution:
+
+{
+  "拥有欲": 0.0,
+  "成为欲": 0.0,
+  "摆脱欲": 0.0,
+  "确认欲": 0.4,
+  "超越欲": 0.0,
+  "归属欲": 0.1,
+  "控制欲": 0.1,
+  "安全感欲": 0.4,
+  "向往欲": 0.0
+}
+
+Note: "作者通过提供信息确认自身对地区助听器推出的了解，并希望降低对方的不确定性，因而激活确认欲和安全感欲，同时兼具归属感和控制欲。"
+
+Now need_layer:
+
+[
+  {
+    "code": "N04_理解世界",
+    "context_slot": "看到Reddit用户询问助听器购买渠道, 需要解释地区推出的情况并提供信息",
+    "weight": 0.5,
+    "derived_from": "由确认欲经看到Reddit用户询问助听器购买渠道衍生"
+  },
+  {
+    "code": "N01_确定性",
+    "context_slot": "对方不确定助听器是否在其他Costco有货, 需要提供确定性信息以减少不确定性",
+    "weight": 0.3,
+    "derived_from": "由安全感欲经对方不确定助听器可得性衍生"
+  },
+  {
+    "code": "N02_掌控局面",
+    "context_slot": "对方希望主动掌握获取助听器的主动权, 建议主动联系其他门店以夺回主导",
+    "weight": 0.2,
+    "derived_from": "由控制欲经对方想要主动获取助听器衍生"
+  }
+]
+
+Now appraisal:
+
+{
+  "goal_relevance": 0.9,
+  "congruence_direction": "促进",
+  "need_status": "已满足",
+  "goal_congruence": "正",
+  "coping_potential": "高",
+  "note": "作者通过提供信息帮助对方降低不确定性，并在提供建议后感到满足，评估为正向且应对潜能高。"
+}
+
+Now emotion_layer distribution:
+
+{
+  "admiration钦佩": 0.0,
+  "joy喜悦": 0.1,
+  "gratitude感激": 0.0,
+  "desire渴望": 0.0,
+  "nostalgia怀旧": 0.0,
+  "pride自豪": 0.2,
+  "love爱": 0.0,
+  "relief宽慰": 0.35,
+  "approval认同": 0.35,
+  "curiosity好奇": 0.0,
+  "fear恐惧": 0.0,
+  "sadness悲伤": 0.0,
+  "anger愤怒": 0.0
+}
+
+Note: "作者在提供建议时感到宽慰与认同，同时因能帮助他人而自豪，整体情绪为正向且轻度愉悦。"
+
+Now action_tendency_layer distribution:
+
+{
+  "approach趋近": 0.7,
+  "avoidance回避": 0.0,
+  "attend关注": 0.2,
+  "reject拒斥": 0.0,
+  "agonistic对抗": 0.0,
+  "interrupt中断": 0.0,
+  "dominate支配": 0.1
+}
+
+Now chain_trace: "确认欲 →(看到Reddit用户询问助听器购买渠道, 需要分享对地区推出的了解)→ N04_理解世界 →(促进+已满足, 高应对)→ relief → approach". However we need to incorporate maybe also安全感欲? But chain_trace must be one sentence. It can mention the main desire. Let's do:
+
+"确认欲 →(看到Reddit用户询问助听器购买渠道, 需要分享对地区推出的了解)→ N04_理解世界 →(促进+已满足, 高应对)→ relief → approach". That's okay.
+
+Now evidence:
+
+{
+  "desire": "my guess is they rolled it out regionally",
+  "need": "And you could try calling other Costcos near to you",
+  "emotion": "And you could try calling other Costcos near to you",
+  "action": "And you could try calling other Costcos near to you"
+}
+
+But we might want to use a more appropriate quote for emotion. Maybe we can use "my guess is they rolled it out regionally" for emotion? Not exactly. But we can use "my guess is they rolled it out regionally. By now they may be making them available more broadly or have a plan or schedule for that." This indicates reassurance. But we can quote "my guess is they rolled it out regionally". Or "my guess is they rolled it out regionally. By now they may be making them available more broadly or have a plan or schedule for that." That's two sentences. We can include both. However evidence should be a single quote. We can use "my guess is they rolled it out regionally". That indicates speculation, not emotion. But we can argue it's evidence for desire to confirm knowledge.
+
+Better to use "And you could try calling other Costcos near to you" as evidence for desire? That's more about action. But we need evidence for each. Let's think.
+
+We can assign:
+
+- desire evidence: "my guess is they rolled it out regionally" (shows writer's desire to confirm knowledge)
+- need evidence: "And you could try calling other Costcos near to you" (shows need to share info)
+- emotion evidence: "my guess is they rolled it out regionally. By now they may be making them available more broadly or have a plan or schedule for that." (shows relief/reassurance)
+- action evidence: "And you could try calling other Costcos near to you" (shows approach action)
+
+Thus we can include those quotes.
+
+Now ensure JSON is correct.
+
+We need to output exactly one JSON code block, no extra text.
+
+Thus final answer:
+
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲

@@ -1,0 +1,533 @@
+We have a request: "你是爆款内容心理拆解专家。对以下内容做「因果链逆问题」拆解：..." Provide a JSON output according to the constraints.
+
+First, we need to parse the content:
+
+Platform: reddit r/HearingAids hearing_aid: Public reply to a Reddit r/HearingAids member (the other member's original text/ writing baseline side). The content is:
+
+"Good luck!  Funny you noticed my “verbification” 🤪.  Yes, the situation is very frustrating and needs their immediate attention.  For all I know the bug ... iOS 27 ... Unfortunately I have little confidence that Apple is even aware of this HA issue."
+
+We need to consider the writer: a single individual (not a group). So we need to infer the psychological chain for that individual.
+
+We need to produce a JSON with desire_layer (distribution of 9 desires), need_layer (list of up to maybe multiple needs with weights sum =1), appraisal, emotion_layer, action_tendency_layer, chain_trace, evidence.
+
+We must follow the definitions and derive the chain.
+
+First, let's understand the content.
+
+The writer says: "Good luck! Funny you noticed my 'verbification' 🤪." So they are addressing the other user, being friendly. Then: "Yes, the situation is very frustrating and needs their immediate attention." So they confirm the frustration and the need for immediate attention from "them" (likely Apple). Then: "For all I know the bug will be remedied with iOS 27 along with all its many other rumored fixes." So they anticipate maybe the bug will be fixed in future iOS version. Then: "Unfortunately I have little confidence that Apple is even aware of this HA issue."
+
+Thus, the writer acknowledges the problem, expresses frustration (negative emotion), also some uncertainty and lack of confidence in Apple's awareness. The writer also jokes about "verbification". They are providing a reply to a comment about hearing aid issues with iPhone.
+
+So we need to reverse engineer: what does the writer want? They are presumably a user who wants the hearing aid issue resolved. So they want to get a solution. Possibly they want confirmation that the bug will be fixed; they might want to feel that their frustration is recognized, they might want to feel they have some control over the situation, and they might want to belong to the group of hearing aid users. Let's examine the layers.
+
+Desire layer: "欲望9类" categories. Which of the nine is most likely? Let's examine the content: The writer expresses frustration about a bug in hearing aid (presumably Apple hearing aids or compatibility) and worries about Apple not being aware. They also note that maybe iOS 27 will fix it. The writer is not primarily expressing a desire to own something (拥有欲) or become someone (成为欲). They are expressing a desire to摆脱 (摆脱欲) current frustration, desire for 安全感欲 (to消除不确定性/风险/恐惧) about the bug, desire for 控制欲 (to掌控自己的生活/健康/关系). They also might have 确认欲: they want confirmation that their concern is legitimate. They also might have 归属欲: they are part of hearing aid community, maybe they want to feel they belong. Also maybe 向往欲: they imagine the ideal situation where the hearing aid works fine.
+
+Let's go step by step:
+
+- Desire: The writer is dealing with a frustrating situation (a bug). The desire could be: 摆脱欲 (to摆脱当前的痛苦状态). Indeed, "the situation is very frustrating" suggests they want to get rid of that frustration. Also, they might have 安全感欲 (to消除不确定性/风险) because they worry about Apple not aware. The phrase "little confidence" suggests lack of safety. So perhaps 安全感欲 is activated. Also 控制欲: they want to see that the issue gets immediate attention, they want control over the outcome. Also 确认欲: they want to confirm that the bug is recognized, maybe "for all I know the bug will be remedied..." They want to confirm that their perception is correct.
+
+Thus we need to assign weight distribution across the nine desires.
+
+But we must be careful: The desire distribution must sum to 1. We can assign approximate percentages. Usually, for a frustration scenario, 摆脱欲 would be high (maybe 0.40). 安全感欲 also high (maybe 0.30). 控制欲 moderate (0.15). 确认欲 low to moderate (0.10). Others near zero.
+
+Alternatively, 归属欲 might be present because they are addressing a community and are supportive ("Good luck!"). They might want to feel part of the hearing aid community. But it's less explicit.
+
+Thus, let's propose:
+
+- 拥有欲: 0.0 (no desire for possession)
+- 成为欲: 0.0 (no desire to become something)
+- 摆脱欲: 0.40 (desire to get rid of frustration)
+- 确认欲: 0.10 (desire to confirm that the bug is real and that Apple might be aware)
+- 超越欲: 0.0 (no desire to surpass)
+- 归属欲: 0.05 (feeling part of community)
+- 控制欲: 0.20 (desire to have the issue fixed on their terms)
+- 安全感欲: 0.20 (desire to reduce uncertainty about the bug and Apple's awareness)
+- 向往欲: 0.05 (maybe desire for ideal scenario where hearing aids work seamlessly)
+
+Sum = 1.0 (0.40+0.10+0.05+0.20+0.20+0.05 = 1.0)
+
+Wait that's 0.40+0.10=0.50; +0.05=0.55; +0.20=0.75; +0.20=0.95; +0.05=1.00. Yes.
+
+Now need_layer: 17 possible need categories. Which needs are relevant? The writer expresses frustration, need for immediate attention, concerns about Apple's awareness, perhaps desire for certainty, control, or relief. Let's identify:
+
+- N01_确定性: The writer wants to know if Apple is aware of the issue and if it will be fixed. This is a need for certainty about the bug's resolution. So N01_确定性 is relevant.
+
+- N02_掌控局面: They want immediate attention, maybe they want to regain control. So N02_掌控局面 also relevant.
+
+- N03_提升能力: Not directly.
+
+- N04_理解世界: They might want to understand why the bug exists and why Apple hasn't addressed it. This is a need for understanding (N04_理解世界). However, the text says "For all I know the bug will be remedied with iOS 27 along with all its many other rumored fixes." So they are speculating; they might be trying to understand the relationship. So N04 might be relevant.
+
+- N05_优化效率: Not directly.
+
+- N06_摆脱痛苦: The frustration is a pain; they want relief. So N06_摆脱痛苦 is relevant.
+
+- N07_占有资源: Not relevant.
+
+- N08_提升形象: Not relevant.
+
+- N09_获得地位: Not relevant.
+
+- N10_自我确认: They want confirmation that they are right about the bug and that Apple might be aware; need for self-affirmation. So N10_自我确认 is relevant.
+
+- N11_归属群体: They are part of hearing aid community; they might want to belong. But the content is more about technical issue; not strongly.
+
+- N12_情感联结: They are interacting socially; they want to connect with the other user; maybe a need for relational connection. But the primary is frustration.
+
+- N13_情感慰藉: They might want emotional comfort; they are frustrated. But the content is not overtly seeking comfort.
+
+- N14_代入理想: They might imagine ideal situation of bug fixed. Could be.
+
+- N15_放松休憩: Not relevant.
+
+- N16_表达创造: The writer is expressing themselves, but not necessarily.
+
+- N17_追忆连接: Not relevant.
+
+Thus we need to choose some needs, assign weights that sum to 1.
+
+Probably primary needs: N01_确定性 (0.30), N02_掌控局面 (0.25), N06_摆脱痛苦 (0.20), N10_自我确认 (0.15), N04_理解世界 (0.10). Others negligible.
+
+But we must include context_slot: a description of the trigger scenario. Must be a semi-free text describing the scenario.
+
+Thus need_layer could be:
+
+[
+  {"code": "N01_确定性", "context_slot": "用户遇到助听器与iOS的兼容性问题，对该bug是否会被修复、何时修复缺乏确定性", "weight": 0.30, "derived_from": "由摆脱欲经由情境‘遇到技术故障导致挫败感’衍生"},
+  {"code": "N02_掌控局面", "context_slot": "用户感到对Apple的响应缺乏控制，期望能促使问题得到快速处理", "weight": 0.25, "derived_from": "由控制欲经由情境‘bug未得到关注’衍生"},
+  {"code": "N06_摆脱痛苦", "context_slot": "用户在描述“very frustrating”，明显感受到情绪痛苦，渴望摆脱", "weight": 0.20, "derived_from": "由摆脱欲经由情境‘持续的技术问题’衍生"},
+  {"code": "N10_自我确认", "context_slot": "用户在确认自己对bug严重性的判断是否被他人认同", "weight": 0.15, "derived_from": "由确认欲经由情境‘在社区公开表达’衍生"},
+  {"code": "N04_理解世界", "context_slot": "用户试图理解为何Apple尚未注意到该问题以及可能的修复时间", "weight": 0.10, "derived_from": "由安全感欲经由情境‘对未知的担忧’衍生"}
+]
+
+Check sum: 0.30+0.25+0.20+0.15+0.10 = 1.0.
+
+Now appraisal layer: we need goal_relevance (0-1). The content is about a bug causing frustration; goal_relevance is fairly high because it's directly relevant to their desire to have functioning hearing aids, so maybe 0.85.
+
+congruence_direction: "促进" (promotion) or "威胁" (threat) or "中性". The content is about a bug (a threat) that is not resolved. The writer acknowledges "very frustrating" and "needs immediate attention". So it's a threat to their goal of having a working hearing aid. So congruence_direction = "威胁". However, they also anticipate possible fix in iOS27, which could be a promotion. But overall the message expresses a threat. So "威胁".
+
+need_status: The need is currently not satisfied (the bug persists, no solution). So "未满足".
+
+goal_congruence: derived from above: threat +未满足 = negative. So "负".
+
+coping_potential: The writer mentions "For all I know the bug will be remedied with iOS 27 ... little confidence that Apple is even aware". So they feel low ability to influence the situation; coping potential is low. So "低".
+
+Thus appraisal:
+
+{
+  "goal_relevance": 0.85,
+  "congruence_direction": "威胁",
+  "need_status": "未满足",
+  "goal_congruence": "负",
+  "coping_potential": "低",
+  "note": "该内容直接暴露助听器兼容性问题，导致用户对需求（确定性、掌控、摆脱痛苦）未得到满足，且感到自己对解决该问题的能力有限，故产生负面情绪。"
+}
+
+Now emotion_layer: We need to map needs × goal_congruence to discrete emotions. The emotions: GoEmotions 13 categories: admiration, joy, gratitude, desire, nostalgia, pride, love, relief, approval, curiosity, fear, sadness, anger.
+
+Given negative goal_congruence (负) and low coping potential, likely emotions: fear (fear of the bug not being fixed), anger (frustration), sadness (sadness about the situation), maybe curiosity (wondering if Apple will fix). Also maybe "fear" about Apple not aware. The content shows "frustrated", "little confidence", so "anger" is present. The writer is not expressing sadness explicitly, but frustration includes anger. Also "fear" about unknown future. Possibly also "desire" (渴望) for a fix. But desire is an emotion (渴望). It can be positive or negative? In GoEmotions, "desire" is wanting something. Since it's a desire for resolution, it's relevant.
+
+Thus we need to assign distribution across these emotions. Let's think: The writer expresses frustration, so anger may be high (0.35). They also express worry (fear) about Apple not being aware (0.25). They also express desire for fix (0.20). They also might feel sadness (0.10). Also maybe curiosity (0.10) about the rumored iOS 27 fixes. Let's assign accordingly:
+
+- admiration: 0.0
+- joy: 0.0
+- gratitude: 0.0
+- desire: 0.20 (渴望)
+- nostalgia: 0.0
+- pride: 0.0
+- love: 0.0
+- relief: 0.0
+- approval: 0.0
+- curiosity: 0.10
+- fear: 0.25
+- sadness: 0.10
+- anger: 0.35
+
+Sum = 0.20+0.10+0.25+0.10+0.35 = 1.0
+
+Now action_tendency_layer: According to Frijda's action tendency 7 categories: approach趋近, avoidance回避, attend关注, reject拒斥, agonistic对抗, interrupt中断, dominate支配.
+
+Given negative emotions (anger, fear), likely action tendencies: "agonistic对抗" (to fight), "attend关注" (pay attention to the issue), "dominate支配" maybe to try to dominate the situation (control). Also "avoidance回避" maybe for fear. But the writer is engaging with community, posting, so they are attending, perhaps also wanting to confront Apple (agonistic). They might want to dominate (to control). Let's assign:
+
+- approach: 0.0 (not seeking to approach positively)
+- avoidance: 0.10 (some desire to avoid dealing with it)
+- attend: 0.20 (focusing on the problem)
+- reject: 0.0
+- agonistic: 0.35 (wanting to confront or push Apple)
+- interrupt: 0.0
+- dominate: 0.35 (wanting to control the situation and force fix)
+
+Sum = 0.10+0.20+0.35+0.35 = 1.0
+
+Now chain_trace: Must be a single sentence that traces from desire to need to appraisal to emotion to action tendency.
+
+For example: "用户因摆脱欲（想摆脱挫败感）而面对助听器兼容性问题（情境Y），激活了确定性需求（N01_确定性）和掌控局面需求（N02_掌控局面），因内容呈现威胁且未满足，导致goal_congruence为负，coping_potential低，进而产生恐惧与愤怒情绪，进而倾向于对抗（agonistic）和支配（dominate）以促使问题得到关注与解决。"
+
+Make it specific: mention desire, need code, appraisal, emotion, action.
+
+We also need evidence: Provide quotes for each layer.
+
+Let's compile evidence.
+
+Desire: "the situation is very frustrating and needs their immediate attention." This shows desire to摆脱 (摆脱欲) and also安全感欲 maybe "little confidence that Apple is even aware". The desire evidence must be direct quote.
+
+Thus evidence.desire: "the situation is very frustrating" (desired to摆脱). Possibly "little confidence" shows safety need.
+
+We need evidence for need: For N01_确定性: "For all I know the bug will be remedied with iOS 27 ...". For N02_掌控局面: "needs their immediate attention". For N06_摆脱痛苦: "very frustrating". For N10_自我确认: "Funny you noticed my “verbification”" maybe not; better: "the situation is very frustrating" could serve as self-confirmation. Or "I have little confidence that Apple is even aware". But maybe better: "Good luck!" maybe supportive.
+
+We'll include quotes accordingly.
+
+Evidence for emotion: "very frustrating" (anger). "little confidence" (fear). "For all I know the bug will be remedied..." (desire). "I have little confidence that Apple is even aware" (fear). "needs immediate attention" maybe not emotion.
+
+We also need evidence for action: "needs their immediate attention" suggests desire for action (agonistic). "Good luck!" maybe supportive.
+
+But let's choose quotes that clearly illustrate.
+
+We can include for emotion: "very frustrating" (anger). "little confidence" (fear). "For all I know the bug will be remedied..." (desire). "needs their immediate attention" (maybe action). "I have little confidence" also fear.
+
+We also need evidence for action_tendency: "needs their immediate attention" suggests domination or agonistic. "Good luck!" is supportive.
+
+Now produce final JSON.
+
+But be careful: The desire_layer distribution must have exactly the 9 keys with sum 1. Must be floats.
+
+Similarly, emotion_layer distribution must have exactly the 13 keys.
+
+Action_tendency distribution must have exactly 7 keys.
+
+Need_layer must be list of objects each with code (N01... etc), context_slot, weight, derived_from.
+
+Appraisal must contain fields: goal_relevance (float 0-1), congruence_direction (string: "促进" or "威胁" or "中性"), need_status (string "已满足" or "未满足"), goal_congruence (string "正" or "负"), coping_potential (string "高" or "中" or "低"), note.
+
+Chain_trace: a string summarizing the chain.
+
+Evidence: object with keys desire, need, emotion, action each mapping to quotes. Must be quotes from content.
+
+Make sure to include "no_inferable_subject": false? The top-level should be as described. It says "if this content is indeed a personal expression, infer the individual's chain". So we must not include "no_inferable_subject". We can include "subject_type": "individual". But not required.
+
+Now final JSON.
+
+But before that, let's verify the chain trace and the derivation.
+
+Chain trace example:
+
+"用户因摆脱欲（想摆脱挫败感）→ 情境：助听器兼容性问题导致挫败 → 需求N01_确定性（想要知道bug何时修复）和N02_掌控局面（想要重新掌控局面） → 评价：威胁 + 未满足 + 低应对潜能 → 情绪：恐惧（little confidence）+ 愤怒（very frustrating）+ 渴望（想要修复） → 行动倾向：对抗（needs immediate attention）+ 支配（想要强制Apple处理）"
+
+Make sure chain_trace includes all steps: desire -> situation -> need -> appraisal -> emotion -> action tendency.
+
+Thus final chain_trace can be like:
+
+"用户因摆脱欲想摆脱挫败感（“the situation is very frustrating”）→ 情境事件：助听器兼容性问题 → 需求N01_确定性（想知道bug何时被修复）和N02_掌控局面（想要促使问题被立即处理） → 评价：威胁、未满足、低应对潜能 → 产生恐惧（“little confidence that Apple is even aware”）和愤怒（“very frustrating”）以及渴望（想要bug被修复） → 行动倾向倾向于对抗（needs immediate attention）和支配（想要强制Apple关注）"
+
+Now evidence:
+
+Desire: "the situation is very frustrating" indicates 摆脱欲; "little confidence that Apple is even aware" indicates 安全感欲 maybe. We'll attribute both.
+
+Need: quotes:
+
+- N01_确定性: "For all I know the bug will be remedied with iOS 27..."
+- N02_掌控局面: "needs their immediate attention."
+- N06_摆脱痛苦: "the situation is very frustrating."
+- N10_自我确认: maybe "Funny you noticed my “verbification” 🤪" is about being recognized. But not strongly. Could use "Good luck!" as supportive. But maybe "I have little confidence that Apple is even aware" also shows desire for confirmation.
+
+But we need to provide evidence for each need.
+
+We can map:
+
+- N01_确定性: "For all I know the bug will be remedied with iOS 27..."
+- N02_掌控局面: "needs their immediate attention."
+- N06_摆脱痛苦: "the situation is very frustrating."
+- N10_自我确认: "Good luck! Funny you noticed my “verbification” 🤪." This indicates they appreciate being noticed (self-confirmed). Could be used. Or "I have little confidence that Apple is even aware" also shows desire for self-confirmation.
+
+- N04_理解世界: "I have little confidence that Apple is even aware of this HA issue." (makes them want to understand why Apple not aware).
+
+Thus we have 5 needs.
+
+Now emotion evidence:
+
+- anger: "the situation is very frustrating."
+- fear: "little confidence that Apple is even aware..."
+- desire: "For all I know the bug will be remedied..."
+- curiosity: maybe "iOS 27 rumored fixes" is curiosity.
+
+Thus emotion evidence accordingly.
+
+Action tendency evidence:
+
+- agonistic: "needs their immediate attention."
+- dominate: "the situation is very frustrating and needs their immediate attention."
+- avoid: maybe not explicit. Could be "I have little confidence" which indicates avoidance? Not exactly. But we could use "Good luck!" as supportive but not avoid.
+
+But need to provide evidence for each action tendency with a quote. We can include "needs their immediate attention" as evidence for agonistic and dominate. For avoid: maybe "I have little confidence" indicates avoidance of trust. Or "For all I know..." is speculation rather than action. But we need at least some evidence for each action tendency used. Since we have avoidance weight 0.10, we need to provide a quote that indicates avoidance. Maybe "little confidence" suggests they are not engaging, they are skeptical, maybe they avoid trusting Apple. So we can use "I have little confidence that Apple is even aware". That can be considered an avoidance stance: they are disengaging.
+
+Attend: maybe "Good luck!" is an attending to the conversation. Or "Funny you noticed my verbification". That shows attention.
+
+Thus we can map.
+
+Now ensure all constraints are satisfied.
+
+Check the distribution sums.
+
+Desire: 0.4+0.1+0.05+0.2+0.2+0.05 = 1.0 (the order must be as defined: 拥有欲, 成为欲, 摆脱欲, 确认欲, 超越欲, 归属欲, 控制欲, 安全感欲, 向往欲). So we need to put them in order.
+
+Thus desire_layer.distribution:
+
+{
+  "拥有欲":0.0,
+  "成为欲":0.0,
+  "摆脱欲":0.40,
+  "确认欲":0.10,
+  "超越欲":0.0,
+  "归属欲":0.05,
+  "控制欲":0.20,
+  "安全感欲":0.20,
+  "向往欲":0.05
+}
+
+Sum: 0.40+0.10+0.05+0.20+0.20+0.05 = 1.0. Yes.
+
+Now need_layer: list of objects with code and context, weight, derived_from. Must include code from N01-N17. Ensure code format includes underscore: N01_确定性 etc.
+
+Need_layer list:
+
+[
+  {
+    "code": "N01_确定性",
+    "context_slot": "用户面对助听器兼容性问题，想知道该bug何时会被修复，对未来有不确定性",
+    "weight": 0.30,
+    "derived_from": "由摆脱欲经情境‘技术故障导致挫败’衍生"
+  },
+  {
+    "code": "N02_掌控局面",
+    "context_slot": "用户感到问题被忽视，渴望重新掌控局面，促使Apple尽快处理",
+    "weight": 0.25,
+    "derived_from": "由控制欲经情境‘Apple未响应’衍生"
+  },
+  {
+    "code": "N06_摆脱痛苦",
+    "context_slot": "用户在帖子中表达‘very frustrating’，明确感受到情绪痛苦，期望摆脱",
+    "weight": 0.20,
+    "derived_from": "由摆脱欲经情境‘持续的兼容性问题’衍生"
+  },
+  {
+    "code": "N10_自我确认",
+    "context_slot": "用户在社区发表看法，希望得到同行的认可，确认自己的判断是对的",
+    "weight": 0.15,
+    "derived_from": "由确认欲经情境‘公开表达观点’衍生"
+  },
+  {
+    "code": "N04_理解世界",
+    "context_slot": "用户想弄清楚Apple为何未注意到该问题以及可能的修复机制",
+    "weight": 0.10,
+    "derived_from": "由安全感欲经情境‘对未知的担忧’衍生"
+  }
+]
+
+Check sum: 0.30+0.25+0.20+0.15+0.10 = 1.0
+
+Now appraisal:
+
+{
+  "goal_relevance": 0.85,
+  "congruence_direction": "威胁",
+  "need_status": "未满足",
+  "goal_congruence": "负",
+  "coping_potential": "低",
+  "note": "内容直接揭示助听器兼容性问题导致的挫败感，且用户对问题能否被解决缺乏信心，属于对目标的威胁，且需求未得到满足，用户感受到低应对潜能。"
+}
+
+Now emotion_layer:
+
+distribution must include exactly the 13 keys in order: admiration钦佩, joy喜悦, gratitude感激, desire渴望, nostalgia怀旧, pride自豪, love爱, relief宽慰, approval认同, curiosity好奇, fear恐惧, sadness悲伤, anger愤怒.
+
+Thus:
+
+{
+  "admiration钦佩": 0.0,
+  "joy喜悦": 0.0,
+  "gratitude感激": 0.0,
+  "desire渴望": 0.20,
+  "nostalgia怀旧": 0.0,
+  "pride自豪": 0.0,
+  "love爱": 0.0,
+  "relief宽慰": 0.0,
+  "approval认同": 0.0,
+  "curiosity好奇": 0.10,
+  "fear恐惧": 0.25,
+  "sadness悲伤": 0.10,
+  "anger愤怒": 0.35
+}
+
+Sum = 0.20+0.10+0.25+0.10+0.35 = 1.0
+
+Now action_tendency_layer distribution must include exactly 7 keys in order: approach趋近, avoidance回避, attend关注, reject拒斥, agonistic对抗, interrupt中断, dominate支配.
+
+Thus:
+
+{
+  "approach趋近": 0.0,
+  "avoidance回避": 0.10,
+  "attend关注": 0.20,
+  "reject拒斥": 0.0,
+  "agonistic对抗": 0.35,
+  "interrupt中断": 0.0,
+  "dominate支配": 0.35
+}
+
+Sum = 0.10+0.20+0.35+0.35 = 1.0
+
+Now chain_trace: Must be a single sentence that traces from desire to action.
+
+We'll write:
+
+"用户因摆脱欲想摆脱挫败感（情境：助听器兼容性问题导致挫败），产生确定性需求（N01_确定性）和掌控局面需求（N02_掌控局面），因内容呈现威胁且需求未满足，导致goal_congruence为负且coping_potential低，进而引发恐惧（“little confidence”）和愤怒（“very frustrating”）以及渴望（想要bug被修复），促使行动倾向倾向于对抗（needs immediate attention）和支配（想要强制Apple处理），同时伴随回避（对Apple缺乏信任）和关注（留意社区回复）。"
+
+We need to include all steps in one sentence, but it's okay to have a complex sentence.
+
+Now evidence: Must provide direct quotes for each layer.
+
+We need to cite:
+
+- desire: "the situation is very frustrating" and "little confidence that Apple is even aware" maybe.
+
+- need: need quotes for each need:
+
+  - N01_确定性: "For all I know the bug will be remedied with iOS 27..."
+
+  - N02_掌控局面: "needs their immediate attention."
+
+  - N06_摆脱痛苦: "the situation is very frustrating."
+
+  - N10_自我确认: "Funny you noticed my “verbification” 🤪." maybe not exactly confirming, but "Good luck!" maybe supportive. But it's okay.
+
+  - N04_理解世界: "I have little confidence that Apple is even aware of this HA issue."
+
+But note that "I have little confidence" also shows fear. But we can assign to both need and emotion. That's okay.
+
+- emotion: "very frustrating" (anger), "little confidence" (fear), "For all I know the bug will be remedied..." (desire), "iOS 27" (curiosity). Provide quotes accordingly.
+
+- action: "needs their immediate attention" (agonistic, dominate), "little confidence" (avoidance), "Good luck!" (attend). Provide quotes accordingly.
+
+Now ensure evidence mapping is correct:
+
+- desire: quote: "the situation is very frustrating" and "little confidence that Apple is even aware". Use as separate quotes maybe.
+
+- need: list of quotes per need.
+
+- emotion: list of quotes per emotion.
+
+- action: list of quotes per action tendency.
+
+Now final JSON.
+
+Check the structure: The top-level must be exactly as required: an object with keys: desire_layer, need_layer, appraisal, emotion_layer, action_tendency_layer, chain_trace, evidence. The distribution values must be floats, note strings.
+
+Make sure need_layer is a list, each element includes code, context_slot, weight, derived_from. The code must be from N01 to N17.
+
+Now double-check constraints:
+
+- desire_layer distribution includes only the 9 fixed keys. Sum =1. Good.
+
+- need_layer list weights sum =1.
+
+- appraisal: includes goal_relevance (float), congruence_direction (string "促进" or "威胁" or "中性"), need_status ("已满足" or "未满足"), goal_congruence ("正" or "负"), coping_potential ("高" or "中" or "低"), note.
+
+- emotion_layer distribution includes 13 fixed keys and sum =1.
+
+- action_tendency_layer distribution includes 7 fixed keys and sum =1.
+
+- chain_trace is a string.
+
+- evidence object includes keys: desire, need, emotion, action. Each maps to quote(s). We can include string values. For need, we can put multiple quotes separated by semicolons, but probably each key's value is a string. For need, we can combine all quotes for each need? But the evidence format says "逐字引用". We can list each need's quotes, maybe as a string with line breaks. We'll do something like:
+
+"desire": "“the situation is very frustrating”", "need": "N01_确定性: “For all I know the bug will be remedied with iOS 27...” N02_掌控局面: “needs their immediate attention.” N06_摆脱痛苦: “the situation is very frustrating.” N10_自我确认: “Funny you noticed my “verbification” 🤪.” N04_理解世界: “I have little confidence that Apple is even aware of this HA issue.”", "emotion": "anger: “the situation is very frustrating.” fear: “little confidence that Apple is even aware...” desire: “For all I know the bug will be remedied...” curiosity: “iOS 27”", "action": "agonistic/dominate: “needs their immediate attention.” avoidance: “little confidence...” attend: “Good luck! Funny you noticed my “verbification” 🤪.”"
+
+Better to format as separate lines.
+
+Now produce final JSON.
+
+But before finalizing, verify everything.
+
+### Validate the mapping:
+
+Desire mapping:
+
+- 摆脱欲: "the situation is very frustrating." Good.
+
+- 确认欲: "Good luck! Funny you noticed my 'verbification' 🤪." This shows they want to be recognized for their expression, i.e., confirmation of identity. Could be considered confirmation desire.
+
+- 归属欲: "Good luck! Funny you noticed my “verbification” 🤪." Possibly also belonging to the community.
+
+- 控制欲: "needs their immediate attention." (control). Also "I have little confidence that Apple is even aware". That's about control.
+
+- 安全感欲: "little confidence that Apple is even aware". They want safety.
+
+- 向往欲: maybe "For all I know the bug will be remedied with iOS 27 ...". They imagine ideal future.
+
+Thus distribution.
+
+Now need mapping:
+
+- N01_确定性: "For all I know the bug will be remedied with iOS 27 ...". Good.
+
+- N02_掌控局面: "needs their immediate attention." Good.
+
+- N06_摆脱痛苦: "the situation is very frustrating." Good.
+
+- N10_自我确认: "Funny you noticed my “verbification” 🤪." Good.
+
+- N04_理解世界: "I have little confidence that Apple is even aware of this HA issue." Good.
+
+Now appraisal:
+
+- goal_relevance: 0.85 (makes sense, high relevance).
+
+- congruence_direction: "威胁" because the bug threatens goal.
+
+- need_status: "未满足".
+
+- goal_congruence: "负".
+
+- coping_potential: "低".
+
+Now emotion:
+
+- desire渴望: 0.20, quote: "For all I know the bug will be remedied with iOS 27..."
+
+- curiosity好奇: 0.10, quote: "iOS 27".
+
+- fear恐惧: 0.25, quote: "little confidence that Apple is even aware".
+
+- sadness悲伤: 0.10, maybe "the situation is very frustrating" also sadness? But we can also use "very frustrating" for sadness. Could combine anger with sadness. But we already used anger with "very frustrating". However we have used anger 0.35. So we need sadness separate. Maybe "I have little confidence" expresses sadness? Or "the situation is very frustrating" could be sadness. But that would be overlapping. However it's okay to have multiple emotions referencing same phrase. We'll assign sadness to "the situation is very frustrating" but we already used that for anger. We can assign anger to "very frustrating" and sadness to "the situation is very frustrating"? That's the same phrase. But we can differentiate by context: The phrase "very frustrating" expresses anger, but also sadness. However the classification: "anger" is a stronger label for frustration. For sadness, maybe "the situation is very frustrating" also includes disappointment. But it's okay. We'll assign sadness weight to "the situation is very frustrating" as an expression of disappointment/sadness. But we have to ensure each phrase can be used for multiple emotions. That's fine.
+
+- anger愤怒: 0.35, quote: "the situation is very frustrating."
+
+- desire (渴望) we already have.
+
+- curiosity (好奇) we have.
+
+- fear (恐惧) we have.
+
+Thus emotion distribution is consistent.
+
+Now action_tendency:
+
+- avoidance回避: 0.10, quote: "little confidence that Apple is even aware" (implies avoidance of trust).
+
+- attend关注: 0.20, quote: "Good luck! Funny you noticed my “verbification” 🤪." (attending to the conversation).
+
+- agonistic对抗: 0.35, quote: "needs their immediate attention."
+
+- dominate支配: 0.35, quote: "needs their immediate attention." Both agonistic and dominate refer to same quote.
+
+But it's okay.
+
+Now chain_trace: Must include desire, need, appraisal, emotion, action.
+
+Write a single sentence: "用户因摆脱欲想摆脱挫败感（情境：助听器兼容性问题）→ 需求N01_确定性（想要知道bug何时修复）和N02_掌控局面（想要促使Apple立即处理） → 评价：威胁 + 未满足 + 低应对潜能 → 产生恐惧（little confidence）和愤怒（very frustrating）以及渴望（想要bug被修复） → 行动倾向倾向于对抗（needs immediate attention）和支配（想要强制Apple处理），同时伴随回避（对Apple缺乏信任）和关注（留意社区回复）。"
+
+But the instruction: "欲望 →(情境事件) 需求 →(评价) 情绪 → 行动倾向". So we need to follow that: desire -> (situation) need -> (appraisal) emotion -> action_tendency.
+
+Thus chain_trace: "用户因摆脱欲（想摆脱挫败感）→ 情境事件：助听器兼容性问题导致挫败 → 需求N01_确定性（想知道bug何时修复）和N02_掌控局面（想要促使Apple立即处理） → 评价：威胁、未满足、低应对潜能 → 产生恐惧（“little confidence”）和愤怒（“very frustrating”）以及渴望（想要bug被修复） → 行动倾向倾向于对抗（needs immediate attention）和支配（想要强制Apple处理），伴随回避（对Apple缺乏信任）和关注（留意社区回复）"
+
+Thus

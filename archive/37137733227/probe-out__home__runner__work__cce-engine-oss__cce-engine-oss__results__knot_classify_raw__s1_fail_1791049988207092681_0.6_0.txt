@@ -1,0 +1,585 @@
+We need to interpret the content: It's a Reddit reply, presumably from a hearing aid wearer to someone else. The reply says: "I only notice if people have HAs because I actively look as a wearer myself because I understand the importance ... But if I didn't wear them ... I probably wouldn't ever notice ... I remember when I first started wearing them that I felt like they were really obvious and was self conscious, but they're not and it was only me who cared! I think I expected more questions/conversations about them, but literally no one gave a sh*t! 🤣 You'll be just fine! 👍❤️"
+
+The user wants "因果链逆问题" (reverse causal chain) from the observable discourse/comment to infer the full psychological causal chain of the viewer (the person who wrote the comment). They want weight distribution for each layer. There's a detailed spec for each layer: desires (9 categories), needs (17 categories with code, context slot, weight, derived_from), appraisal, emotion, action tendency, chain trace, evidence.
+
+We must output a single JSON block that conforms to the constraints.
+
+We must treat this as a single individual's comment (not a group). So we need to infer the psychological causal chain of the author.
+
+We must examine the text to derive which desires are being activated in the author. The comment is basically a self-reassuring message to another person who is anxious about wearing hearing aids. The author says "I felt like they were really obvious and was self conscious, but they're not and it was only me who cared! I think I expected more questions/conversations about them, but literally no one gave a sh*t! 🤣 You'll be just fine!"
+
+So the author acknowledges past anxiety and self-consciousness, but now feels relieved. They are offering reassurance. So likely the desires being activated: "确认欲" (desire to confirm one's own choice/identity) maybe? The author is confirming that hearing aids are not obvious, so it aligns with confirming that their decision to wear hearing aids is fine. Also "安全感欲" (desire for safety / certainty) - they want to eliminate the fear of being judged. The desire for "归属欲" maybe? They mention they understand the importance of trying to understand someone because they are a wearer themselves, indicating they belong to the group of hearing aid wearers. Also "向往欲"? Not obviously. "成为欲"? They maybe want to become comfortable and confident? But the text is about reassurance, not about personal improvement. Let's break down.
+
+We need to follow the chain:
+
+1. Desires (stable latent variables) that are activated by the content (i.e., the comment). The content is an encouragement to the recipient, but also the author is expressing reassurance to themselves. So what does the author want? The author's desire is likely to relieve anxiety (安全感欲) and to confirm that wearing hearing aids is okay (确认欲). Also maybe to connect with others in similar situation (归属欲). Also maybe to provide support (帮助欲) but that's not listed.
+
+Let's examine each of the nine categories:
+
+- 拥有欲: Want to possess a product/lifestyle. Not relevant.
+
+- 成为欲: Want to become a kind of person. Possibly the author wants to be comfortable and confident wearing hearing aids, not self-conscious. That could be "成为欲" for being confident, but the comment is not about that.
+
+- 摆脱欲: Want to get rid of current pain. The author mentions they used to be self-conscious, but they overcame it. So maybe they have "摆脱欲" for the self-consciousness and stigma. That could be an activation.
+
+- 确认欲: Want to confirm one's choices/identity. The author is confirming that hearing aids are not obvious and no one cares. That is a confirmation for both themselves and the recipient.
+
+- 超越欲: Want to surpass ordinary/others. Not relevant.
+
+- 归属欲: Want to find belonging to group. The author identifies as a wearer, uses "I as a wearer". That suggests they want to belong to group of hearing aid users.
+
+- 控制欲: Want to control one's life/finances/health. Could be partially; they want to control the perception of hearing aids.
+
+- 安全感欲: Want to eliminate uncertainty/risk/fear. The author expresses relief: "no one gave a sh*t". That indicates they are eliminating fear of being judged.
+
+- 向往欲: Want to imagine ideal lifestyle, not relevant.
+
+Thus the likely top desires: 安全感欲 (relief from fear of being noticed), 确认欲 (confirming the choice to wear hearing aids), 归属欲 (belonging to hearing aid wearer community), 摆脱欲 (dispel self-consciousness). Possibly also 控制欲 (to control how they are perceived). We'll need to assign weight distribution that sums to 1. Should reflect the prominence in the text. The text seems to focus on reassurance, i.e., eliminating fear (安全感欲) and confirming that hearing aids are not obvious (确认欲). Also the sense of belonging: "as a wearer myself because I understand the importance" indicates they are part of the group. So the weight distribution: I'd propose: 安全感欲 0.35, 确认欲 0.30, 归属欲 0.20, 摆脱欲 0.10, 控制欲 0.05. That sums to 1.0.
+
+But the spec says the distribution must contain exactly the fixed keys: "拥有欲", "成为欲", "摆脱欲", "确认欲", "超越欲", "归属欲", "控制欲", "安全感欲", "向往欲". So we need all nine keys. The rest we can assign 0.0. Ensure sum = 1.
+
+Thus:
+
+- 拥有欲: 0.0
+
+- 成为欲: 0.0
+
+- 摆脱欲: 0.10
+
+- 确认欲: 0.30
+
+- 超越欲: 0.0
+
+- 归属欲: 0.20
+
+- 控制欲: 0.05
+
+- 安全感欲: 0.35
+
+- 向往欲: 0.0
+
+Now need to derive need layer (situational goals). From the 17 categories, we need to identify which needs are relevant and weight them. The comment deals with: N02_掌控局面? They want to control the situation? Not exactly. N04_理解世界? Possibly "理解世界" to understand how others perceive hearing aids. But the content is about reassurance that others don't notice. That is about "确定性" (N01_确定性) to reduce uncertainty about whether hearing aids are noticeable. Also N06_摆脱痛苦 (to relieve self-consciousness). N10_自我确认 (to confirm one's own choice). N13_情感慰藉 (to be comforted). N14_代入理想? Not exactly. N15_放松休憩? Not exactly, but the author expresses relief, maybe they want to relax after anxiety. N16_表达创造? Not relevant. N17_追忆连接? Not relevant.
+
+Thus we need to assign up to maybe 3-4 needs. The comment addresses:
+
+- Uncertainty about being noticed: N01_确定性 (to reduce uncertainty). Context: "I only notice if people have HAs because I actively look...". That clarifies that non-wearers don't notice. So the author reduces uncertainty about social visibility.
+
+- Self-consciousness (painful state): N06_摆脱痛苦 (to get rid of self-consciousness). Context: "I felt like they were really obvious and was self conscious, but they're not and it was only me who cared!"
+
+- Self-confirmation: N10_自我确认 (to confirm one's decision). Context: "I think I expected more questions... but literally no one gave a sh*t!"
+
+- Emotional solace: N13_情感慰藉 (to feel comforted). The author expresses "❤️" and positive reassurance, providing comfort.
+
+- Possibly N15_放松休憩 (to relax). The author says "you'll be just fine", encouraging relaxation.
+
+But we need to be mindful: need layer weight sum = 1. The most prominent need is likely N01_确定性 (reducing uncertainty about being noticed). The second is N06_摆脱痛苦 (eliminating self-consciousness). Then N10_自我确认 (confirming choice). Then maybe N13_情感慰藉. But we can combine some.
+
+Let's break down each need:
+
+N01_确定性: reduce uncertainty: "I only notice if people have HAs because I actively look ... But if I didn't wear them I probably wouldn't ever notice". This provides certainty that hearing aids are not noticeable. The author wants to convey that, but also to themselves? Yes. So weight maybe 0.35.
+
+N06_摆脱痛苦: remove self-consciousness: "I felt like they were really obvious and was self conscious, but they're not". So weight maybe 0.25.
+
+N10_自我确认: confirm self: "I think I expected more questions... but literally no one gave a sh*t!" That is confirming that the social reaction is benign. So weight maybe 0.20.
+
+N13_情感慰藉: emotional comfort: "❤️", "You'll be just fine!" providing emotional support. weight maybe 0.15.
+
+N15_放松休憩: maybe 0.05, but maybe not needed. The comment is encouraging, but the need for relaxation is secondary.
+
+We must ensure weights sum to 1. So we can allocate as above.
+
+Now we must derive each need's "context_slot": free text describing the triggering situation.
+
+- N01_确定性 context: "When seeing hearing aid wearers, the writer realized that non-wearers rarely notice them, reducing the uncertainty about being socially conspicuous."
+
+- N06_摆脱痛苦 context: "During early hearing aid use, the writer felt self-conscious about being noticed, but realized that only they cared, thus eliminating the self-consciousness."
+
+- N10_自我确认 context: "The writer expected others to comment or ask about hearing aids, but realized no one cares, confirming that the choice to wear hearing aids is socially acceptable."
+
+- N13_情感慰藉 context: "The writer offers emotional reassurance to the recipient, feeling warmth and affection toward fellow hearing aid wearers."
+
+Now we need to assign derived_from: from which desire does each need derive? The spec says "derived_from": "由<哪个欲望>经<什么情境事件>衍生". So we need to specify for each need: which desire triggered this need given a situational event.
+
+- N01_确定性 derived from 安全感欲 (need to eliminate uncertainty) triggered by the observation that others do not notice hearing aids.
+
+- N06_摆脱痛苦 derived from 摆脱欲 (desire to be free from self-consciousness) triggered by the memory of being self-conscious.
+
+- N10_自我确认 derived from 确认欲 (desire to confirm one's choices) triggered by the lack of social reaction.
+
+- N13_情感慰藉 derived from 安全感欲 (or 归属欲?) Actually the emotional solace may derive from 归属欲 (wanting to belong to group) or 安全感欲 (wanting comfort). Let's assign: derived from 安全感欲 (desire to feel safe and comfortable) triggered by the supportive tone and the heart emoji.
+
+But perhaps also from 归属欲: the writer wants to belong to the hearing aid wearer group, and offering support fosters that.
+
+We can assign one desire per need. For simplicity, we can assign:
+
+- N01_确定性: 安全感欲
+
+- N06_摆脱痛苦: 摆脱欲
+
+- N10_自我确认: 确认欲
+
+- N13_情感慰藉: 安全感欲 (or 归属欲). Let's choose 安全感欲 because it's about emotional comfort (safety). So it's okay.
+
+Now appraisal: we need to compute goal_relevance, congruence_direction, need_status, goal_congruence, coping_potential.
+
+Goal relevance: How relevant is this content to the author's goals? The author is offering reassurance and expressing relief. The content addresses self-consciousness and social invisibility. It's quite relevant: maybe 0.8.
+
+congruence_direction: Does the content help the author (i.e., is it promoting or threatening)? The content is supportive, reduces self-consciousness, provides certainty. So it's "促进" (promotion). It is not threatening. So congruence_direction = "促进".
+
+need_status: Does the content satisfy the author's needs? The author expresses that they realized that hearing aids are not noticeable, they overcame self-consciousness, they feel relief. So the need is "已满足". So need_status = "已满足".
+
+goal_congruence: derived from congruence_direction and need_status: "促进" + "已满足" = "正". So goal_congruence = "正".
+
+coping_potential: How well does the author think they can cope? The author says "you'll be just fine!" indicating high coping potential. So coping_potential = "高".
+
+Now emotion_layer: distribution over 13 GoEmotions categories. Based on need and goal_congruence (positive), we expect positive emotions: joy, relief, love, approval, maybe gratitude. The author expresses reassurance and affection, so "relief宽慰", "joy喜悦", "love爱", "approval认同"? Also "gratitude感激"? The author says "I only notice because I'm a wearer... no one gave a sh*t!" That is a bit of humor, maybe "joy". The author says "You'll be just fine! 👍❤️". So they express love (heart) and maybe relief.
+
+Thus we can assign distribution:
+
+- admiration钦佩: maybe low because not admiration.
+
+- joy喜悦: moderate high, maybe 0.25.
+
+- gratitude感激: maybe 0.1.
+
+- desire渴望: not relevant.
+
+- nostalgia怀旧: not relevant.
+
+- pride自豪: maybe 0.1 because they overcame self-consciousness.
+
+- love爱: high, maybe 0.25.
+
+- relief宽慰: high, maybe 0.2.
+
+- approval认同: maybe 0.05.
+
+- curiosity好奇: not relevant.
+
+- fear恐惧: not relevant.
+
+- sadness悲伤: not relevant.
+
+- anger愤怒: not relevant.
+
+Make sure sum = 1. So: 0.25+0.1+0.1+0.25+0.2+0.05 = 0.95? Actually we need to sum to 1. Let's compute: joy 0.25, gratitude 0.10, pride 0.10, love 0.25, relief 0.20, approval 0.10 = total 1.0. That works. Wait we have 6 categories. Sum = 0.25+0.10+0.10+0.25+0.20+0.10 = 1.0. Yes.
+
+Now action_tendency_layer: distribution over 7 Frijda action tendencies. The author is encouraging and supportive, so likely "approach" (趋近) because they are reaching out to comfort. Also "attend" maybe "关注"? The author is paying attention to other's concerns. "dominate" maybe not. "avoidance" no. "reject" no. "agonistic" no. "interrupt" no.
+
+Thus we can assign:
+
+- approach趋近: 0.70
+
+- avoidance回避: 0.0
+
+- attend关注: 0.20
+
+- reject拒斥: 0.0
+
+- agonistic对抗: 0.0
+
+- interrupt中断: 0.0
+
+- dominate支配: 0.10 (maybe they are trying to dominate the conversation by reassuring). Or maybe "attend" is more appropriate: they attend to the recipient's concerns. "dominate" is less. Let's choose approach 0.7, attend 0.2, dominate 0.1.
+
+Now chain_trace: a single sentence linking all layers. Must follow format: "欲望X →(情境Y)→ 需求Z (code) →(评价:direction/need_status/congruence正负,coping)→ 情绪W → 行动倾向V". Should be a coherent sentence, referencing the specifics.
+
+We can write: "安全感欲 →(观察到非佩戴者很少注意助听器，降低社会可见性的不确定性)→ N01_确定性 →(促进/已满足/正, 高)→ relief宽慰+joy喜悦 → approach趋近 (通过积极回复安慰对方)". Something like that.
+
+We need to include all layers: desire, need, appraisal, emotion, action tendency. The chain trace can be one sentence.
+
+Now evidence: need to cite direct text for each layer:
+
+- desire: "安全感欲" evidence: "I felt like they were really obvious and was self conscious, but they're not and it was only me who cared!" (the author wants to eliminate self-consciousness). Actually "安全感欲" evidence: "I only notice if people have HAs because I actively look...". Could also cite "no one gave a sh*t!" which reduces fear. Let's pick the phrase: "they're not and it was only me who cared!" That shows desire for safety.
+
+- need: N01_确定性: "I only notice if people have HAs because I actively look...". N06_摆脱痛苦: "I felt like they were really obvious and was self conscious, but they're not". N10_自我确认: "I think I expected more questions... but literally no one gave a sh*t!" N13_情感慰藉: "❤️" and "You'll be just fine!"
+
+- emotion: joy: "no one gave a sh*t! 🤣". relief: "You'll be just fine! 👍❤️". love: "❤️". gratitude: maybe "thanks". But we can cite "❤️" as love. For joy maybe "🤣". For relief maybe "You'll be just fine!". For pride maybe "I felt like they were really obvious..." but not exactly pride. We can mention "I overcame self-consciousness". For gratitude maybe not. But we can cite: "I think I expected more questions ... but literally no one gave a sh*t!" as maybe relief/joy.
+
+- action: "I only notice if people have HAs because I actively look as a wearer myself because I understand the importance of trying to understand someone/needing to lip read or things like that." This shows approach behavior (giving supportive reply). Also "You'll be just fine! 👍❤️" is encouragement.
+
+Now we need to output JSON exactly. Ensure each distribution sums to 1 (with tolerance of rounding). The weight for desires must sum to 1. Need layer weight sum = 1. Emotion sum = 1. Action sum = 1.
+
+Double-check desire distribution: "拥有欲": 0, "成为欲": 0, "摆脱欲": 0.1, "确认欲": 0.3, "超越欲": 0, "归属欲": 0.2, "控制欲": 0.05, "安全感欲": 0.35, "向往欲": 0. Sum = 0.1+0.3+0.2+0.05+0.35 = 1.0. Good.
+
+Need layer: we need to assign each need with weight sum = 1. Let's compute:
+
+- N01_确定性: 0.35
+
+- N06_摆脱痛苦: 0.25
+
+- N10_自我确认: 0.20
+
+- N13_情感慰藉: 0.15
+
+Sum = 0.95? Actually 0.35+0.25+0.20+0.15 = 0.95. Need sum = 1. So we need add 0.05 somewhere. Maybe add to N01_确定性: 0.40, adjust others down: N06_摆脱痛苦: 0.25, N10_自我确认: 0.20, N13_情感慰藉: 0.15 => sum 1.0. That works: 0.40+0.25+0.20+0.15 = 1.0. So N01_确定性 weight = 0.40, N06_摆脱痛苦 = 0.25, N10_自我确认 = 0.20, N13_情感慰藉 = 0.15.
+
+Now need layer context slots: short free text. Use quotes.
+
+derived_from: specify desire and situational event.
+
+Now appraisal: goal_relevance: 0.8 maybe.
+
+congruence_direction: "促进". need_status: "已满足". goal_congruence: "正". coping_potential: "高". Provide note.
+
+Now emotion distribution: as earlier.
+
+Let's recalc sum: joy 0.25, gratitude 0.10, pride 0.10, love 0.25, relief 0.20, approval 0.10 = 1.0.
+
+Make sure each key is present: admiration, joy, gratitude, desire, nostalgia, pride, love, relief, approval, curiosity, fear, sadness, anger. So we must include all keys, with zero for those not used.
+
+Thus:
+
+- admiration钦佩: 0.0
+
+- joy喜悦: 0.25
+
+- gratitude感激: 0.10
+
+- desire渴望: 0.0
+
+- nostalgia怀旧: 0.0
+
+- pride自豪: 0.10
+
+- love爱: 0.25
+
+- relief宽慰: 0.20
+
+- approval认同: 0.10
+
+- curiosity好奇: 0.0
+
+- fear恐惧: 0.0
+
+- sadness悲伤: 0.0
+
+- anger愤怒: 0.0
+
+Sum = 0.25+0.10+0.10+0.25+0.20+0.10 = 1.0. Good.
+
+Now action distribution: approach 0.7, avoidance 0, attend 0.2, reject 0, agonistic 0, interrupt 0, dominate 0.1. Sum = 1.0.
+
+Now chain_trace: one sentence. Must include all parts.
+
+We can write: "安全感欲 →(发现非佩戴者几乎不注意助听器，降低了对被注意的担忧)→ N01_确定性 (确定性) →(促进/已满足/正, 高)→ relief宽慰+joy喜悦 → approach趋近 (主动回复安慰对方)". That covers.
+
+But we need to reference also other needs perhaps. But chain trace is just one line linking a single path. Should be plausible. It may reference one need but includes the entire chain. The spec says "欲望X →(情境Y)→ 需求Z(写code) →(评价:direction/need_status/congruence正负,coping)→ 情绪W → 行动倾向V 的完整一句话推导". So must fill in all placeholders. Use specific names.
+
+We can say: "安全感欲 →(观察到非佩戴者很少注意助听器，从而消除对被注意的担忧)→ N01_确定性 →(促进/已满足/正, 高)→ relief宽慰 → approach趋近". That includes only one need, one emotion, one action. That is okay.
+
+But perhaps we want to incorporate other needs? The chain trace can be a generic path. It's okay.
+
+Now evidence: we must cite direct quotes for each layer.
+
+- desire: "安全感欲" evidence: "I felt like they were really obvious and was self conscious, but they're not and it was only me who cared!" (the desire for safety). Also maybe "no one gave a sh*t!" but okay.
+
+- need: N01_确定性 evidence: "I only notice if people have HAs because I actively look as a wearer myself because I understand the importance...". N06_摆脱痛苦 evidence: "I felt like they were really obvious and was self conscious". N10_自我确认 evidence: "I think I expected more questions... but literally no one gave a sh*t!". N13_情感慰藉 evidence: "❤️" and "You'll be just fine!".
+
+- emotion: joy: "🤣". relief: "You'll be just fine!". love: "❤️". gratitude: maybe "thanks" not present, but we could say "❤️". Actually gratitude is not directly expressed. But we could cite "👍". That's approval. But we need to assign some weight to gratitude, maybe we need evidence. The text has no explicit gratitude, but the writer says "I understand the importance...". That might be gratitude? Eh. But we can still assign weight to gratitude even if not directly quoted; but evidence must be present. We need to quote something for each weight. For gratitude, maybe "I understand the importance of trying to understand someone/needing to lip read or things like that" could be gratitude? Not exactly. Or maybe we can say "thanks" is not present. Might be okay to have no explicit gratitude but still have weight. The spec says "evidence: 逐字引用". So we need to provide a direct quote for each category where weight>0. If we assign weight to gratitude >0, we need a direct quote for that emotion. The text includes no explicit gratitude. We could either set gratitude weight to 0.0 and increase other categories. The requirement is each category weight can be zero. So we can set gratitude weight to 0, and allocate that weight to another emotion we have evidence for. Let's adjust.
+
+We have evidence for joy: "🤣". Relief: "You'll be just fine!". Love: "❤️". Approval: "👍". Pride: maybe "I overcame self-consciousness"? Could be "I felt like they were really obvious... but they're not". That shows pride? Not explicit. But we can maybe say "I felt like they were really obvious ... but they're not" suggests pride in overcoming. But not a strong quote. Could also be "I only notice if people have HAs because I actively look..." maybe not. However, we need to ensure evidence for each non-zero weight.
+
+Thus adjust emotion distribution:
+
+- admiration: 0.0 (no evidence)
+
+- joy: 0.30 (evidence: "🤣")
+
+- gratitude: 0.0 (no evidence; set to 0)
+
+- desire: 0.0
+
+- nostalgia: 0.0
+
+- pride: 0.10 (evidence: "I felt like they were really obvious and was self conscious, but they're not and it was only me who cared!") This shows pride? Not explicit. Could be "pride" feeling good about self. Might be acceptable.
+
+- love: 0.25 (evidence: "❤️")
+
+- relief: 0.25 (evidence: "You'll be just fine!")
+
+- approval: 0.10 (evidence: "👍")
+
+- curiosity: 0.0
+
+- fear: 0.0
+
+- sadness: 0.0
+
+- anger: 0.0
+
+Sum = 0.30+0.10+0.25+0.25+0.10 = 1.0. Good.
+
+Now we have evidence for each non-zero category: joy: "🤣". Pride: we need direct quote. Could use "I felt like they were really obvious and was self conscious, but they're not". That is evidence for feeling proud? Possibly. Let's pick "I felt like they were really obvious and was self conscious, but they're not and it was only me who cared!". That's a quote. That could represent pride (overcoming). We'll use that.
+
+Love: "❤️". Relief: "You'll be just fine!". Approval: "👍". Good.
+
+Now action distribution: approach 0.7, attend 0.2, dominate 0.1. Evidence: "I only notice if people have HAs because I actively look as a wearer myself because I understand the importance of trying to understand someone/needing to lip read or things like that." This indicates attend (pay attention) and approach (offering help). Also "You'll be just fine!" is encouragement (approach). "I only notice..." shows attend.
+
+Now chain_trace: we need to incorporate all layers in a single line. We can say:
+
+"安全感欲 →(观察到非佩戴者几乎不注意助听器，降低了对被注意的担忧)→ N01_确定性 →(促进/已满足/正, 高)→ relief宽慰 → approach趋近".
+
+But we also need to include need N06_摆脱痛苦 etc. However, the chain trace can be a simplified version. The spec says "完整一句话推导" using specific names for each X/Y/Z/W/V. It may be okay to have only one need path, but we can include a chain that includes multiple needs perhaps: "安全感欲 →(非佩戴者不在意助听器)→ N01_确定性 →(促进/已满足/正, 高)→ relief宽慰 → approach趋近". That is fine.
+
+But the chain must go from desire to need to appraisal to emotion to action. So we must map each step. The chain above is missing the need of N06_摆脱痛苦 etc. But we can embed multiple needs in chain: we could do: "安全感欲 →(非佩戴者不在意助听器)→ N01_确定性 →(促进/已满足/正, 高)→ relief宽慰 → approach趋近". That is okay.
+
+Now ensure chain_trace includes the four layers: desire, need, appraisal, emotion, action. The note says "欲望X →(情境Y)→ 需求Z(写code) →(评价:direction/need_status/congruence正负,coping)→ 情绪W → 行动倾向V 的完整一句话推导". So we need to follow that format. X is desire name, Y is context, Z is need code, W is emotion name(s) maybe multiple, V is action tendency. We'll produce a single sentence that includes all.
+
+Thus:
+
+"安全感欲 →(非佩戴者几乎不注意助听器，降低对被注意的担忧)→ N01_确定性 →(促进/已满足/正, 高)→ relief宽慰 → approach趋近". That is a single sentence.
+
+Now evidence for desire: "I felt like they were really obvious and was self conscious, but they're not and it was only me who cared!" shows safety desire. Also "no one gave a sh*t!" shows safety.
+
+Now need evidence: we need to quote for each need.
+
+- N01_确定性: "I only notice if people have HAs because I actively look as a wearer myself because I understand the importance..."
+
+- N06_摆脱痛苦: "I felt like they were really obvious and was self conscious, but they're not and it was only me who cared!"
+
+- N10_自我确认: "I think I expected more questions... but literally no one gave a sh*t!"
+
+- N13_情感慰藉: "❤️" and "You'll be just fine!"
+
+Now we must provide context_slot for each need. Use short free text.
+
+- N01_确定性 context: "When observing whether non‑wearers notice hearing aids, the author realizes they rarely do, providing certainty."
+
+- N06_摆脱痛苦 context: "During early hearing‑aid use, the author felt self‑conscious about being noticeable, but realized only they cared."
+
+- N10_自我确认 context: "The author expected social scrutiny but found none, confirming the acceptability of wearing hearing aids."
+
+- N13_情感慰藉 context: "The author expresses warmth and reassurance to the recipient."
+
+Now derived_from for each need:
+
+- N01_确定性 derived from 安全感欲 via情境: the observation reduces uncertainty about being noticed.
+
+- N06_摆脱痛苦 derived from 摆脱欲 via情境: the memory of self‑consciousness.
+
+- N10_自我确认 derived from 确认欲 via情境: lack of negative social feedback.
+
+- N13_情感慰藉 derived from 安全感欲 via情境: offering emotional comfort.
+
+Now appraisal note: we need to explain how evaluation leads to emotion.
+
+Goal relevance high because hearing aids visibility is relevant to wearer's self‑image. Congruence is promoting because content reduces self‑consciousness and provides certainty. Need status is satisfied because the author realized that no one notices. Thus positive emotions arise: relief, joy, love, pride, approval.
+
+Now produce final JSON.
+
+One thing: "need_layer" is a list of objects. Each object must have code, context_slot, weight, derived_from.
+
+We must ensure "derived_from" is a string with "由<欲望>经<情境>" format.
+
+Thus:
+
+- code: "N01_确定性"
+
+- context_slot: "When observing whether non‑wearers notice hearing aids..."
+
+- weight: 0.40
+
+- derived_from: "由安全感欲经观察非佩戴者几乎不注意助听器而消除不确定性"
+
+- code: "N06_摆脱痛苦"
+
+- context_slot: "During early hearing‑aid use, the author felt self‑conscious..."
+
+- weight: 0.25
+
+- derived_from: "由摆脱欲经自我意识情绪的记忆"
+
+- code: "N10_自我确认"
+
+- context_slot: "The author expected social scrutiny..."
+
+- weight: 0.20
+
+- derived_from: "由确认欲经缺乏负面社会反馈"
+
+- code: "N13_情感慰藉"
+
+- context_slot: "The author expresses warmth..."
+
+- weight: 0.15
+
+- derived_from: "由安全感欲经提供情感安慰"
+
+Now need to ensure each derived_from includes the desire name and situational event. Use Chinese.
+
+Now appraisal:
+
+- goal_relevance: 0.8
+
+- congruence_direction: "促进"
+
+- need_status: "已满足"
+
+- goal_congruence: "正"
+
+- coping_potential: "高"
+
+- note: "该内容通过降低对被注意的担忧、提供确定性、提升自我确认来满足安全感与确认需求，使作者体验到正性情绪并产生高应对潜能。"
+
+Now emotion_layer note: we need to mention that positive emotions arise from satisfied needs.
+
+Now action_tendency_layer note: "作者倾向于主动回复、提供安慰和关注，表现出趋近和关注的行为倾向".
+
+Now chain_trace as above.
+
+Now evidence:
+
+- desire: "I felt like they were really obvious and was self conscious, but they're not and it was only me who cared!" and also "no one gave a sh*t!".
+
+- need: For each need we have quotes.
+
+- emotion: quotes for each.
+
+- action: "I only notice..." and "You'll be just fine!" and "👍". Provide as string.
+
+Now final JSON must be formatted properly with line breaks.
+
+We must ensure the "desire_layer" distribution includes all nine keys. Provide weight for each.
+
+Now we need to check if the "desire_layer" note needs to explain why those desires are activated. We'll write note accordingly.
+
+Now ensure JSON top-level keys are exactly as specified.
+
+Now let's draft final JSON.
+
+Check constraints:
+
+- desire_layer: distribution keys must be exactly the nine names. Sum = 1.
+
+- need_layer: list of objects with code from 17 categories, context_slot string, weight sum =1.
+
+- appraisal: keys: goal_relevance (0-1), congruence_direction (string), need_status (string), goal_congruence (string), coping_potential (string), note.
+
+- emotion_layer: distribution with 13 keys, sum=1.
+
+- action_tendency_layer: distribution with 7 keys, sum=1.
+
+- chain_trace: a single string.
+
+- evidence: an object with keys desire, need, emotion, action each containing quoted text.
+
+Check that need_layer entries have weight sum =1.
+
+Now verify weights:
+
+desire distribution:
+
+- 拥有欲: 0
+
+- 成为欲: 0
+
+- 摆脱欲: 0.1
+
+- 确认欲: 0.3
+
+- 超越欲: 0
+
+- 归属欲: 0.2
+
+- 控制欲: 0.05
+
+- 安全感欲: 0.35
+
+- 向往欲: 0
+
+Sum = 1.
+
+need_layer:
+
+- N01_确定性 weight 0.40
+
+- N06_摆脱痛苦 weight 0.25
+
+- N10_自我确认 weight 0.20
+
+- N13_情感慰藉 weight 0.15
+
+Sum = 1.
+
+emotion_layer distribution:
+
+- admiration: 0
+
+- joy: 0.30
+
+- gratitude: 0
+
+- desire: 0
+
+- nostalgia: 0
+
+- pride: 0.10
+
+- love: 0.25
+
+- relief: 0.25
+
+- approval: 0.10
+
+- curiosity: 0
+
+- fear: 0
+
+- sadness: 0
+
+- anger: 0
+
+Sum = 1.
+
+action_tendency:
+
+- approach: 0.7
+
+- avoidance: 0
+
+- attend: 0.2
+
+- reject: 0
+
+- agonistic: 0
+
+- interrupt: 0
+
+- dominate: 0.1
+
+Sum = 1.
+
+Now ensure evidence strings are present. Use proper quoting.
+
+Now final JSON.
+
+Potential pitfalls:
+
+- The desire_layer note should explain why those desires are activated. We can write a note summarizing.
+
+- The need_layer entries must have "derived_from" referencing the desire and situational event.
+
+- The "appraisal" note should explain.
+
+- The chain_trace should include desire, need, appraisal, emotion, action. Should be a single sentence.
+
+Now let's construct final JSON.
+
+We'll format as:
+
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.1,
+      "确认欲": 0.3,
+      "超越欲": 0.0,
+      "归属欲": 0.2,
+      "控制欲": 0.05,
+      "安全感欲": 0.35,
+      "向往欲": 0.0
+    },
+    "note": "作者在回帖中表现出想要消除因助听器被注意而产生的焦虑(安全感欲)、确认自己佩戴助听器的决定是否合理(确认欲)、归属于助听器使用者群体

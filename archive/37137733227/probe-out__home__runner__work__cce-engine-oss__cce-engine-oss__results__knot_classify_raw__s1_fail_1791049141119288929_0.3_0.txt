@@ -1,0 +1,74 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.1,
+      "成为欲": 0.0,
+      "摆脱欲": 0.0,
+      "确认欲": 0.4,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.2,
+      "安全感欲": 0.3,
+      "向往欲": 0.0
+    },
+    "note": "用户通过提问想确认自己在使用助听器时感知到的差异是否真实（确认欲），降低对产品性能的不确定性（安全感欲），并希望掌控自己的选择（控制欲），以及渴望拥有更先进的助听器（拥有欲）。"
+  },
+  "need_layer": [
+    {
+      "code": "N10_自我确认",
+      "context_slot": "用户想确认自己在助听器使用过程中感知到的差异是否真实",
+      "weight": 0.35,
+      "derived_from": "由确认欲经情境: 考虑是否继续使用当前助听器或换新"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "面对众多品牌/型号的助听器，用户想消除不确定性",
+      "weight": 0.30,
+      "derived_from": "由安全感欲经情境: 购买或升级助听器前的风险评估"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "用户希望掌控自己的听力解决方案，决定最佳选择",
+      "weight": 0.20,
+      "derived_from": "由控制欲经情境: 自主选择助听器"
+    },
+    {
+      "code": "N07_占有资源",
+      "context_slot": "用户渴望获得更先进的助听器功能或型号",
+      "weight": 0.15,
+      "derived_from": "由拥有欲经情境: 想拥有更好性能的助听器"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.85,
+    "congruence_direction": "中性",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "高",
+    "note": "提问是对信息的直接请求，情境对用户目标高度相关（goal_relevance 高），但当前需求尚未得到满足（need_status 未满足），因此产生负向目标一致性；同时用户相信社区能够提供答案，coping_potential 高。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.1,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.1,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.7,
+      "fear恐惧": 0.1,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.0
+    },
+    "note": "提问本身体现了强烈的好奇心（curiosity），未得到答案导致轻度恐惧（fear）和对更好听感（desire）的渴望，同时期待答案带来喜悦（joy）。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.7,
+      "avoidance回避": 0.1,
+      "attend关注": 0.2,
+      "
