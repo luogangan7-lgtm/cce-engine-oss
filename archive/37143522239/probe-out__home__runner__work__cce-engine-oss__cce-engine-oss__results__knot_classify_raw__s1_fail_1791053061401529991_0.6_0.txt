@@ -1,0 +1,76 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.0,
+      "确认欲": 0.7,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.0,
+      "安全感欲": 0.3,
+      "向往欲": 0.0
+    },
+    "note": "核心是确认欲——想确认自己的听力损失程度和对待助听器的态度是合理的；辅以安全感欲——表达对助听器'nice to have'的轻松态度以获得心理上的舒适与确定感"
+  },
+  "need_layer": [
+    {
+      "code": "N10_自我确认",
+      "context_slot": "用户陈述自己对助听器的看法，并承认对听力损失程度的误判，期望自己的理解是正确/可接受的",
+      "weight": 0.7,
+      "derived_from": "由确认欲经'发现自己听力损失比预估严重'情境触发"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "用户原本以为听力损失不严重，实际比以为的严重，需要重新确定自己的听力状况",
+      "weight": 0.3,
+      "derived_from": "由安全感欲经'听力损失程度不确定'情境触发"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.7,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "中",
+    "note": "内容通过分享自己的经历和观点，完成了自我确认（我的听力损失程度是这样，我对助听器的态度是合理的），属于促进+已满足的正面评价，产生平静/释然的情绪"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.1,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.6,
+      "approval认同": 0.2,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.1,
+      "anger愤怒": 0.0
+    },
+    "note": "经N10自我确认+正congruence→宽慰(接受了自己的听力损失事实)和approval(认同自己的态度)；带少量sadness(对听力损失比预期严重的失落)和joy(轻松表达)'
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.1,
+      "avoidance回避": 0.0,
+      "attend关注": 0.3,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.6
+    }
+  },
+  "chain_trace": "确认欲(N10) →(意外发现听力损失比预估严重)→ N10_自我确认(确认自己的听力损失程度和对助听器的态度是合理的) + N01_确定性 →(促进+已满足→正)→ relief宽慰+approval认同 → attend关注(分享个人看法) + dominate支配(表达自己观点，'For me...') 的完整因果链",
+  "evidence": {
+    "desire": "I just thought my hearing loss isn't as bad as it turned out to be（想确认自己对听力损失的判断是对的）; For me they're nice to have in and nice to not use at all（获得心理舒适感）",
+    "need": "I just thought my hearing loss isn't as bad as it turned out to be（自我确认+确定性）",
+    "emotion": "Really comes down to where and why（平静阐述语气，略带释然）",
+    "action": "Public reply to a Reddit r/HearingAids member（分享个人看法和经历）"
+  }
+}
+```

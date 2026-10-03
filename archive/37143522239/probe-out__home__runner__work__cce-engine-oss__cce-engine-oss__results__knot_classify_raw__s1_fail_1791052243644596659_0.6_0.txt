@@ -1,0 +1,82 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.0,
+      "确认欲": 0.7,
+      "超越欲": 0.0,
+      "归属欲": 0.2,
+      "控制欲": 0.0,
+      "安全感欲": 0.0,
+      "向往欲": 0.1
+    },
+    "note": "核心是确认欲：观众通过这个推荐确认自己对好品牌的判断是对的（我认可的品牌也是别人认可的好品牌）；次要归属欲：表达自己属于'了解DeafMetal这个品牌'的圈内人；少量向往欲：对品牌所代表的听力辅助生活方式/态度的认同"
+  },
+  "need_layer": [
+    {
+      "code": "N10_自我确认",
+      "context_slot": "当他人提到一个品牌时，我想确认自己的品味/判断与他人一致',
+      "weight": 0.7,
+      "derived_from": "由<确认欲>经<情境：看到他人提及Jenni from DeafMetal品牌>衍生"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "在r/HearingAids社区中，我想展示自己是了解助听器品牌圈子的 insiders',
+      "weight": 0.2,
+      "derived_from": "由<归属欲>经<情境：Reddit社区互动>衍生"
+    },
+    {
+      "code": "N12_情感联结",
+      "context_slot": "通过共同认可一个品牌，与提及者建立情感连接',
+      "weight": 0.1,
+      "derived_from": "由<确认欲>经<情境：回应他人提及>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.6,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "内容直接确认了观众对'好品牌'的判断——他人也认为DeafMetal是好的，这满足了观众的自我确认需求，且这种确认是当场完成的（促进+已满足=正），观众觉得自己完全能够应对这种社交互动（高coping）"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.25,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.7,
+      "curiosity好奇": 0.05,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.0
+    },
+    "note": "由N10_自我确认×goal_congruence正 → 产生approval认同（核心：我认同你的选择/判断）；N11_归属群体×正 → 产生admiration钦佩（钦佩品牌方的产品）；少量curiosity来自'They're a great brand'引发的进一步了解兴趣"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.6,
+      "avoidance回避": 0.0,
+      "attend关注": 0.3,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.1
+    }
+  },
+  "chain_trace": "确认欲 →(情境：看到他人提及Jenni from DeafMetal) → N10_自我确认(想确认自己对品牌的判断是对的) →(评价：goal_relevance=0.6, congruence_direction=促进, need_status=已满足, goal_congruence=正, coping_potential=高) → approval认同(70%)+admiration钦佩(25%) → action_tendency: approach趋近(60%表示想进一步互动/了解更多)+attend关注(30%)的完整因果链",
+  "evidence": {
+    "desire": "They're a great brand! (表达对自己认可的品牌的确认感)',
+    "need": "I know Jenni from DeafMetal (展示自己了解这个品牌，满足自我确认需求)',
+    "emotion": "Awesome, yeah (强烈的认同和赞许情绪)',
+    "action": "Public reply to a Reddit r/HearingAids member (在社区公开回复的行为)"
+  }
+}
+```

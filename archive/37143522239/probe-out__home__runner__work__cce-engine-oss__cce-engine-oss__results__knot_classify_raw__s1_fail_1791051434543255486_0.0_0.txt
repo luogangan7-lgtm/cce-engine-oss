@@ -1,0 +1,89 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.4,
+      "确认欲": 0.3,
+      "超越欲": 0.0,
+      "归属欲": 0.0,
+      "控制欲": 0.2,
+      "安全感欲": 0.1,
+      "向往欲": 0.0
+    },
+    "note": "用户核心想摆脱技术问题带来的困扰(摆脱欲)，想确认问题不在自己而是硬件问题(确认欲)，想掌控解决这个问题的主动权(控制欲)，以及消除技术不确定性带来的不安全感(安全感欲)"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "助听器连接iPad出现问题的根本原因不明，Apple支持未能给出清晰解释",
+      "weight": 0.35,
+      "derived_from": "由摆脱欲经'技术设备故障原因不明'情境衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "Apple支持推诿说是用户问题，用户实际想自己找出问题所在并解决",
+      "weight": 0.3,
+      "derived_from": "由控制欲经'问题未被正视且解决方案被推给用户'情境衍生"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "用户想知道为什么连接26.6版本的iPad没问题，而当前设置有问题",
+      "weight": 0.2,
+      "derived_from": "由安全感欲经'技术现象无法理解'情境衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "设备问题影响日常使用，且Apple支持服务态度让人感到被指责",
+      "weight": 0.15,
+      "derived_from": "由摆脱欲经'使用受限+被不当对待'情境衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.85,
+    "congruence_direction": "威胁",
+    "need_status": "未满足",
+    "goal_congruence": "负",
+    "coping_potential": "中",
+    "note": "技术问题未解决+Apple支持未提供帮助=需求未满足且面临威胁；用户虽有一定线索(连26.6没问题)但无法完全自主解决，判断为中等应对潜能"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.1,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.15,
+      "fear恐惧": 0.25,
+      "sadness悲伤": 0.1,
+      "anger愤怒": 0.4
+    },
+    "note": "由威胁+未满足的goal_congruence推导：anger愤怒(对Apple态度)、fear恐惧(问题无法解决的不确定性)、curiosity好奇(想探究原因)、desire渴望(想要解决方案)、sadness悲伤(受挫情绪)"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.2,
+      "avoidance回避": 0.0,
+      "attend关注": 0.4,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.3,
+      "interrupt中断": 0.1,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "摆脱欲+确认欲+控制欲 →(情境:技术设备故障+Apple支持推诿责任)→ N01确定性+N02掌控局面+N04理解世界+N06摆脱痛苦 →(评价:goal_relevance高+threat威胁+未满足+中coping)→ anger愤怒+fear恐惧+curiosity好奇+desire渴望 →(行动:attend关注问题+agonistic对抗Apple态度+approach寻求解决方案+interrupt中断等待)的完整因果链",
+  "evidence": {
+    "desire": "用户想摆脱设备连接问题的困扰，确认问题根源不在自己(不是自己操作问题)，掌控解决这个技术问题的主动权，消除对问题原因的不安全感",
+    "need": "\"Can this issue be possibly related to my 17PM hardware?\"(想确定性)、\"Apple Support has not been helpful\"(想掌控局面)、
+\"They have the attitude that it must be something I'm doing wrong\"(想确认不是自己的问题)",
+    "emotion": "fear恐惧(问题可能无法解决的不确定性)、anger愤怒(对Apple支持态度的不满)、curiosity好奇(想探究为何26.6版本没问题)",
+    "action": "attend关注(在论坛发帖关注技术问题)、agonistic对抗(质疑Apple的判定)、approach趋近(寻求解决方案)"
+  }
+}
+```

@@ -1,0 +1,88 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.0,
+      "确认欲": 0.4,
+      "超越欲": 0.1,
+      "归属欲": 0.0,
+      "控制欲": 0.3,
+      "安全感欲": 0.1,
+      "向往欲": 0.0
+    },
+    "note": "说话者作为社区内有经验者，被低门槛问题'挑战'了专业地位，通过居高临下指导来确认自己的正确性和权威感(确认欲)；同时维护自己制定社区规范的权力(控制欲)；对提问者'desperate'的轻蔑中也带有对自身信息优势的捍卫(安全感欲)与轻微的优越感(超越欲)"
+  },
+  "need_layer": [
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "作为社区资深成员，认为对方的问题不适合在Reddit提问，感到自己的领地/话语权被冒犯",
+      "weight": 0.35,
+      "derived_from": "由确认欲经'被低门槛问题打扰'情境触发，认为应由自己决定什么问题可以问"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "对方问了一个'轻易能google到'的问题，被暗示自己的知识储备是基本的、可被替代的",
+      "weight": 0.35,
+      "derived_from": "由确认欲经'对方提问触发'情境衍生，需要通过拒绝来确认'我是有价值的、懂的人'这一自我定位"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "对方在Reddit提问而不是自己搜索，这种行为模式需要被解释/归类",
+      "weight": 0.15,
+      "derived_from": "由超越欲经'遇到不符合预期行为'情境触发，想把对方的行为理解为'伸手党/懒'来合理化自己的不耐烦"
+    },
+    {
+      "code": "N09_获得地位",
+      "context_slot": "在社区中通过展示'我知道答案但我不直接给'来彰显自己的优越地位",
+      "weight": 0.15,
+      "derived_from": "由超越欲经'被提问'情境触发，通过贬低问题难度来拉升自己的相对位置"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.7,
+    "congruence_direction": "威胁",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "对方的问题轻微威胁了说话者的专业权威(觉得被小看了)，但说话者通过拒绝回答、教导对方'自己google'的方式成功应对了威胁，夺回了话语权，因此是'威胁-已满足-正'的组合，导致的是轻蔑、傲慢等正性(对自己有利)情绪而非恐惧焦虑"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.0
+    },
+    "note": "这是一个陷阱问题——需要标注'非标准情绪'。实际上这条内容表达的是轻蔑(contempt)和优越感，这是骄傲(pride)的变体但更负面。严格按GoEmotions 13类，无法完美匹配轻蔑，若必须选最接近的：pride自豪(因自己有能力指导他人)占0.6 + anger愤怒(对对方行为的轻微恼火)占0.4"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.0,
+      "avoidance回避": 0.0,
+      "attend关注": 0.0,
+      "reject拒斥": 0.7,
+      "agonistic对抗": 0.2,
+      "interrupt中断": 0.1,
+      "dominate支配": 0.0
+    }
+  },
+  "chain_trace": "确认欲 →(被低门槛问题'打扰')→ N10_自我确认(N02_掌控局面) →(评价:威胁+已满足+正+高应对潜能)→ pride自豪+anger愤怒 →(行动:reject拒斥对方请求+agonistic对抗'你这样做不对')的完整推导",
+  "evidence": {
+    "desire": "If you're so desperate / Reddit isn't the place for this query (说话者认为对方的行为不符合自己制定的社区规范，暴露了想确认自己是'懂的人'、有资格评判什么该问什么不该问的欲望)",
+    "need": "just do a google search, it's readily available / Lean to use the tools (说话者认为对方应该自己解决问题，而不是'浪费'自己的时间来回答轻易可查的问题，暴露了对'自我确认'和'掌控局面'的需求)",
+    "emotion": "If you're so desperate (轻蔑的语气，暴露了对对方行为的轻微愤怒+对自己能'指导'对方的自豪)",
+    "action": "just do a google search, it's readily available / Lean to use the tools (明确拒绝直接帮助+教导对方按自己的方式行事，是reject拒斥+agonistic对抗的组合)"
+  }
+}
+```
