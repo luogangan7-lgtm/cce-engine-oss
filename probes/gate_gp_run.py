@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""G-P(生产实际输出闸)的一次派发: 一名面板成员 × 一次运行 × 40 条新条目, 每条走一遍**生产代码本身**。
+"""G-P(生产实际输出闸)的一次派发: 一名面板成员 × 一次运行 × 一个分片(86 条新条目的前 43 或后 43 条),
+每条走一遍**生产代码本身**。
 
 用法:
-  GP_MODEL=M3 GP_RUN=1 .venv/bin/python probes/gate_gp_run.py     # 真跑: 需 MINIMAX_API_KEY, 硬上限 380 次 HTTP
-  .venv/bin/python probes/gate_gp_run.py --offline                 # 零 API 干跑(默认 M3 / 运行 1): 假传输, 其余生产代码全程照走, 只打印
+  GP_MODEL=M3 GP_RUN=1 GP_SHARD=1 .venv/bin/python probes/gate_gp_run.py   # 真跑: 需 MINIMAX_API_KEY, 硬上限 409 次 HTTP
+  .venv/bin/python probes/gate_gp_run.py --offline                          # 零 API 干跑(默认 M3 / 运行 1 / 分片 1): 假传输, 其余生产代码全程照走
 派发: gh workflow run probe.yml --ref master -f probe=probes/gate_gp_run.py -f design=designs/gate_gp_2026-10-03.json
-      -f env="GP_MODEL=<M3|M2.5|M2.7|M2> GP_RUN=<1|2>"            (8 个槽依次派发, 见预注册 dispatch_plan)
+      -f env="GP_MODEL=<M3|M2.5|M2.7|M2> GP_RUN=<1|2> GP_SHARD=<1|2>"    (16 片依次派发, 见预注册 dispatch_plan)
+★ 2026-10-03 owner 修订(调用前): N 40 → 86; 每个 (成员, 运行) 拆 2 片(墙钟理由, 见预注册 ★amendment_..._N86), 分析器拼回。
 ★ 生产路径 = cce_full_run.run_knot_classify(k=3) → cce_knot_classify.stage1 / stage2 → cce_full_run.s2(s2_knots)→ cce_full_run.qualified,
   全是生产的函数对象本身, 不复刻任何 prompt。只换三样运维件(都不碰 prompt / 仪器字段):
   ① 子进程边界 → 同进程(组装逐行对应 cce_knot_classify.main; 守卫测试钉住那几行)
@@ -27,22 +29,22 @@ import cce_request_budget as B         # noqa: E402  生产预算作用域
 import cce_k1_status as S              # noqa: E402  生产 K1 路由
 
 PREREG = ROOT / "tests/data/gate_gp_prereg.json"
-PREREG_SHA256 = "7fb0b1c1b447bb7548de371cbf7a76b8273e378cadbd5761f5624d7fe77d4678"
-ITEMS = ROOT / "accuracy/data/gate_gp_fresh40.json"
-ITEMS_SHA256 = "ae6dcc433b410efcdfd95f92a5681e3c7968aad983dd8af231306ecb3015d2a5"
+PREREG_SHA256 = "e86837c3d31d8a11f395dd9866c4a14bdac746a094fbf4eabcaef632be94a535"
+ITEMS = ROOT / "accuracy/data/gate_gp_fresh86.json"
+ITEMS_SHA256 = "e961de896abbd5920be6eca944a779f3cf1d99dcbb4220f791bfe6329ed512ca"
 SOURCE = ROOT / "accuracy/data/hearingaids_regulars_20260809.json"
 CONTEXT = "reddit r/HearingAids hearing_aid: Public reply to a Reddit r/HearingAids member(对方原文/写作基准侧)"
-K_S1, N = 3, 40
+K_S1, N = 3, 86
 PROD_HASH = "d4cce4c745f3f991"
 PANEL = {"M3": "MiniMax-M3", "M2.5": "MiniMax-M2.5", "M2.7": "MiniMax-M2.7", "M2": "MiniMax-M2"}
-RUNS = (1, 2)
+RUNS, SHARDS, SHARD_SIZE = (1, 2), (1, 2), 43       # 分片 1 = 条目文件第 1–43 条, 分片 2 = 第 44–86 条
 NOMINAL_PER_READOUT = K_S1 + 5                      # s1 k 档 + s2 n 次, 全部首发成功时
-PLANNED, CAP = N * NOMINAL_PER_READOUT, 380         # 320 计划 + 60 余量
-MIN_COVERAGE = 36                                   # 非 MISSING 读数 >= ceil(0.9 × 40)
+PLANNED, CAP = SHARD_SIZE * NOMINAL_PER_READOUT, 409  # 每片 344 计划 + 65 余量(与 N=40 时同一相对余量 60/320)
+MIN_COVERAGE = 39                                   # 每片非 MISSING 读数 >= ceil(0.9 × 43)
 ITEM_WORKERS, HTTP_CONCURRENCY, BACKOFF_BASE_SEC = 3, 3, 4.0
 WALL_SEC = 9600
 REFUSE_ENV = ("CCE_MEASUREMENT_MODEL", "CCE_KNOT_N", "CCE_TAXO_VERSION", "CCE_CITATION_CERT", "VSE_ROOT", B.SCOPE_ID)
-SCOPE_LABEL = "gate_gp_2026_10_03_%s_r%d"
+SCOPE_LABEL = "gate_gp_2026_10_03_%s_r%d_s%d"
 S2_HEAD = "你是 CCE 结分类器"
 
 
@@ -59,7 +61,7 @@ def _load(rel):
 
 
 def select_fresh():
-    """预注册 items.rule: E1–E6 与 v4 同式, E2/E3 加 v4 的 54 条, E9 排除生产 top-1 已落盘的评论; sha256(id) 升序取前 40。"""
+    """预注册 items.rule: E1–E6 与 v4 同式, E2/E3 加 v4 的 54 条, E9 排除生产 top-1 已落盘的评论; sha256(id) 升序取前 86(owner 修订前为 40)。"""
     corpus, anchors = _load("accuracy/data/corpus.json"), _load("accuracy/data/anchors.json")
     old = corpus + _load("accuracy/data/gk1_v3_fresh81.json") + _load("accuracy/data/gk1_v4_fresh54.json")
     users = json.loads(SOURCE.read_text(encoding="utf-8"))["users"]
@@ -279,8 +281,13 @@ def readout(item, tmp):
     return rec
 
 
-def run(offline, member=None, run_no=None, transport=None):
-    """一个槽。transport: 只许离线(守卫测试换假传输)。返回 (result, fake_or_None)。"""
+def shard_items(items, shard):
+    """分片 s = 条目文件(sha256(id) 序)第 (s-1)·43+1 … s·43 条。"""
+    return items[(shard - 1) * SHARD_SIZE: shard * SHARD_SIZE]
+
+
+def run(offline, member=None, run_no=None, shard=None, transport=None):
+    """一个分片派发。transport: 只许离线(守卫测试换假传输)。返回 (result, fake_or_None)。"""
     assert offline or transport is None
     got = _sha(PREREG)
     if got != PREREG_SHA256:
@@ -295,12 +302,16 @@ def run(offline, member=None, run_no=None, transport=None):
     run_no = int(raw) if raw.isdigit() else None
     if run_no not in RUNS:
         raise SystemExit("★ GP_RUN 必须是 1 或 2, 得到 %r —— 拒跑" % raw)
+    raw = str(shard or os.environ.get("GP_SHARD", "1" if offline else ""))
+    shard = int(raw) if raw.isdigit() else None
+    if shard not in SHARDS:
+        raise SystemExit("★ GP_SHARD 必须是 1 或 2, 得到 %r —— 拒跑" % raw)
     taxo = _load("config/knot_taxonomy.json")
     if taxo.get("version") != "1.3.1":
         raise SystemExit("★ 分类学版本 %r != 1.3.1 —— 拒跑" % taxo.get("version"))
     if not S.layer_status(instrument_hash=PROD_HASH)["top1"]["usable"]:
         raise SystemExit("★ 生产 K1 top-1 路由已关 —— 生产不再发布 top-1, 本闸无对象")
-    items = json.loads(ITEMS.read_text(encoding="utf-8"))
+    items = shard_items(json.loads(ITEMS.read_text(encoding="utf-8")), shard)
     import calibration_framework as CF
     saved = {"model": K.MEASUREMENT_MODEL, "requests": X.requests, "reserve": X.reserve_in_scope,
              "subprocess": F.subprocess, "raw": K.RAW_DIR, "log": CF.JSON_FAIL_LOG, "models": dict(X.MODELS),
@@ -308,8 +319,8 @@ def run(offline, member=None, run_no=None, transport=None):
     tmp = tempfile.mkdtemp(prefix="gate_gp_")
     gh = (not offline) and bool(os.environ.get("GITHUB_ACTIONS"))
     state = (os.path.join(tmp, "budget.json") if offline else
-             "/tmp/gate_gp_%s_r%d_budget.json" % (member, run_no) if gh else
-             str(ROOT / ("results/gate_gp/gate_gp_%s_r%d_budget.json" % (member, run_no))))
+             "/tmp/gate_gp_%s_r%d_s%d_budget.json" % (member, run_no, shard) if gh else
+             str(ROOT / ("results/gate_gp/gate_gp_%s_r%d_s%d_budget.json" % (member, run_no, shard))))
     lock, errs, flags = threading.Lock(), collections.Counter(), {"budget": None, "wall": False}
     fake = None
     try:
@@ -334,9 +345,9 @@ def run(offline, member=None, run_no=None, transport=None):
         X.reserve_in_scope = reserve
         F.subprocess = _InProcess()
         pathlib.Path(state).parent.mkdir(parents=True, exist_ok=True)
-        scope = B.open_scope(SCOPE_LABEL % (member, run_no), CAP, state)
+        scope = B.open_scope(SCOPE_LABEL % (member, run_no, shard), CAP, state)
         out = {"block": "GATE_GP_DISPATCH_RESULT", "prereg_sha256": got, "items_sha256": ITEMS_SHA256,
-               "member": member, "api_model": PANEL[member], "run": run_no, "context": CONTEXT,
+               "member": member, "api_model": PANEL[member], "run": run_no, "shard": shard, "context": CONTEXT,
                "k": K_S1, "knot_n": K.KNOT_N, "instrument_hash": inst["instrument_hash"],
                "spec_minus_model_sha": spec_minus_model_sha(inst), "cap": CAP, "planned": PLANNED,
                "scope_id": scope, "offline_dry_run": offline, "github_run_id": os.environ.get("GITHUB_RUN_ID"),
@@ -372,7 +383,7 @@ def run(offline, member=None, run_no=None, transport=None):
     readouts = [rows[x["id"]] for x in items]
     cov = sum(1 for r in readouts if r["status"] == "OK")
     reasons = (["BUDGET_STOP: %s" % flags["budget"]] if flags["budget"] else []) + \
-              (["coverage %d/%d < %d" % (cov, N, MIN_COVERAGE)] if cov < MIN_COVERAGE else [])
+              (["coverage %d/%d < %d" % (cov, len(items), MIN_COVERAGE)] if cov < MIN_COVERAGE else [])
     out.update({"readouts": readouts, "coverage": cov, "budget_stop": bool(flags["budget"]),
                 "wall_clock_stop": bool(flags["wall"]), "http_attempts": used,
                 "http_errors_by_model_and_code": dict(sorted(errs.items())),
@@ -387,7 +398,7 @@ def run(offline, member=None, run_no=None, transport=None):
 if __name__ == "__main__":
     offline = "--offline" in sys.argv
     res, _ = run(offline)
-    print(json.dumps({k: res[k] for k in ("member", "run", "offline_dry_run", "instrument_hash", "verdict", "dispatch_valid",
+    print(json.dumps({k: res[k] for k in ("member", "run", "shard", "offline_dry_run", "instrument_hash", "verdict", "dispatch_valid",
                                           "invalid_reasons", "coverage", "http_attempts", "http_errors_by_model_and_code")},
                      ensure_ascii=False, indent=1))
     print("取值分布:", dict(collections.Counter(r["value"] for r in res["readouts"])))
@@ -395,6 +406,6 @@ if __name__ == "__main__":
         sys.exit(0)
     d = pathlib.Path("/tmp") if os.environ.get("GITHUB_ACTIONS") else ROOT / "results/gate_gp"   # probe.yml 的 artifact 只收 /tmp/*.json
     d.mkdir(parents=True, exist_ok=True)
-    p = d / ("gate_gp_%s_r%d_result.json" % (res["member"], res["run"]))
+    p = d / ("gate_gp_%s_r%d_s%d_result.json" % (res["member"], res["run"], res["shard"]))
     p.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print("写入", p)

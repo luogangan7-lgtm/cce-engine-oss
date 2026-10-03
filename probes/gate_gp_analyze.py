@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""G-P 分析器(零调用): 读各槽的派发结果文件, 按 tests/data/gate_gp_prereg.json 冻结的规则出 (a)(b)(c) 与总判。
+"""G-P 分析器(零调用): 读各分片的派发结果文件, 按 tests/data/gate_gp_prereg.json 冻结的规则拼槽、出 (a)(b)(c) 与总判。
 
-用法: .venv/bin/python probes/gate_gp_analyze.py gate_gp_M3_r1_result.json ... gate_gp_M2_r2_result.json
+用法: .venv/bin/python probes/gate_gp_analyze.py gate_gp_M3_r1_s1_result.json ... gate_gp_M2_r2_s2_result.json
       → 打印摘要, 写 tests/data/gate_gp_result.json
-★ 预注册 sha / 条目 sha / context / k / n / 成员 / 仪器 与探针同一份常量; 完整性不符 ⇒ 拒收(报错停), 不当无效槽。
+★ 预注册 sha / 条目 sha / 分片条目 / context / k / n / 成员 / 仪器 与探针同一份常量; 完整性不符 ⇒ 拒收(报错停), 不当无效片。
+★ 同一 (成员, 运行) 的分片 1 + 分片 2 都有效才拼成 86 条的槽(按条目文件顺序); 缺一片 ⇒ 该槽不成立。
 ★ (a) 用生产自己的 binom_upper 出精确单侧界; (b)(c) 用 v3/v4 同一份「条目 × 运行」交叉自助(draws / boot)。
-★ 槽的挑选、有效性、替补上限按预注册 validity 机械执行。槽不全 ⇒ 对应项 UNRESOLVED(INSUFFICIENT_SLOTS)。
+★ 分片的挑选、有效性、替补上限按预注册 validity 机械执行。槽不全 ⇒ 对应项 UNRESOLVED(INSUFFICIENT_SLOTS)。
 """
 import collections, itertools, json, math, pathlib, sys
 
@@ -20,9 +21,10 @@ from cce_knot_classify import binom_upper                                     # 
 THR_A, THR_BC = 0.875, 0.80
 MEMBERS, OTHERS, PROD = list(RUN.PANEL), ["M2.5", "M2.7", "M2"], "M3"
 SLOTS = [(m, r) for r in RUN.RUNS for m in MEMBERS]
-MAX_RESULTS = 9                                                               # 8 槽 + 至多 1 次替补
+MAX_RESULTS = 18                                                              # 16 片 + 至多 2 次替补
 OUT = ROOT / "tests/data/gate_gp_result.json"
 IDS = [x["id"] for x in json.loads(RUN.ITEMS.read_text(encoding="utf-8"))]
+SHARD_IDS = {s: RUN.shard_items(IDS, s) for s in RUN.SHARDS}
 
 
 def state(L, U, thr):
@@ -36,12 +38,12 @@ def cp_bounds(x, n):
 
 # ── 完整性 / 有效性 / 挑选 ──────────────────────────────────────────────────
 def check_integrity(r, prod_mm, allow_offline=False):
-    m, ro = r.get("member"), r.get("readouts") or []
+    m, ro, sid = r.get("member"), r.get("readouts") or [], SHARD_IDS.get(r.get("shard"))
     errs = [k for k, ok in (
         ("block", r.get("block") == "GATE_GP_DISPATCH_RESULT"),
         ("prereg_sha256", r.get("prereg_sha256") == RUN.PREREG_SHA256),
         ("items_sha256", r.get("items_sha256") == RUN.ITEMS_SHA256),
-        ("item_ids", r.get("item_ids") == IDS and [x.get("id") for x in ro] == IDS),
+        ("shard/item_ids", sid is not None and r.get("item_ids") == sid and [x.get("id") for x in ro] == sid),
         ("member", m in RUN.PANEL and r.get("api_model") == RUN.PANEL.get(m)),
         ("run", r.get("run") in RUN.RUNS),
         ("context/k/n", (r.get("context"), r.get("k"), r.get("knot_n")) == (RUN.CONTEXT, RUN.K_S1, 5)),
@@ -54,36 +56,59 @@ def check_integrity(r, prod_mm, allow_offline=False):
                                                     for x in ro if x.get("status") == "OK")),
         ("not_offline", allow_offline or r.get("offline_dry_run") is False)) if not ok]
     if errs:
-        raise SystemExit("★ 结果文件完整性不符 %s(成员=%r 运行=%r) —— 拒收, 不当无效槽、不可替补" % (errs, m, r.get("run")))
+        raise SystemExit("★ 结果文件完整性不符 %s(成员=%r 运行=%r 分片=%r) —— 拒收, 不当无效片、不可替补"
+                         % (errs, m, r.get("run"), r.get("shard")))
 
 
 def invalid_reasons(r):
-    """预注册 validity.dispatch_valid_iff —— 现算, 不信文件自报的 dispatch_valid。"""
+    """预注册 validity.dispatch_valid_iff(每片)—— 现算, 不信文件自报的 dispatch_valid。"""
     cov = sum(1 for x in r["readouts"] if x.get("status") == "OK")
     return (["BUDGET_STOP"] if r.get("budget_stop") is not False else []) + \
-           (["coverage %d/%d < %d" % (cov, len(IDS), RUN.MIN_COVERAGE)] if cov < RUN.MIN_COVERAGE else [])
+           (["coverage %d/%d < %d" % (cov, len(r["readouts"]), RUN.MIN_COVERAGE)] if cov < RUN.MIN_COVERAGE else [])
+
+
+def assemble(parts):
+    """同一 (成员, 运行) 的两片按条目文件顺序拼成一个槽。"""
+    p1, p2 = parts[1], parts[2]
+    errs = collections.Counter()
+    for p in (p1, p2):
+        errs.update(p.get("http_errors_by_model_and_code") or {})
+    return {"member": p1["member"], "run": p1["run"], "instrument_hash": p1["instrument_hash"],
+            "readouts": p1["readouts"] + p2["readouts"],
+            "http_attempts": sum(p.get("http_attempts") or 0 for p in (p1, p2)),
+            "http_errors_by_model_and_code": dict(sorted(errs.items())),
+            "started_at_utc": min(p1["started_at_utc"], p2["started_at_utc"]),
+            "parts": [{"shard": s, "github_run_id": parts[s].get("github_run_id"),
+                       "started_at_utc": parts[s]["started_at_utc"]} for s in RUN.SHARDS]}
 
 
 def choose(results, allow_offline=False):
-    """每槽按 started_at 取最早的有效那份。结果总数 > 9 ⇒ 拒收(超出预算授权)。"""
+    """每个 (成员, 运行, 分片) 按 started_at 取最早的有效那份; 两片齐才拼成槽。结果总数 > 18 ⇒ 拒收(超出预算授权)。"""
     if len(results) > MAX_RESULTS:
-        raise SystemExit("★ 结果文件 %d 份 > %d(8 槽 + 1 次替补)—— 超出预算授权, 拒收" % (len(results), MAX_RESULTS))
+        raise SystemExit("★ 结果文件 %d 份 > %d(16 片 + 2 次替补)—— 超出预算授权, 拒收" % (len(results), MAX_RESULTS))
     prod_mm = RUN.spec_minus_model_sha(RUN._spec(PROD))
     for r in results:
         check_integrity(r, prod_mm, allow_offline)
     by = collections.defaultdict(list)
     for r in results:
-        by[(r["member"], r["run"])].append(r)
-    chosen, notes = {}, {"invalid": {}, "unused": []}
-    for slot, rs in by.items():
+        by[(r["member"], r["run"], r["shard"])].append(r)
+    picked, notes = {}, {"invalid": {}, "unused": [], "incomplete_slots": []}
+    for key, rs in by.items():
         for r in sorted(rs, key=lambda r: r["started_at_utc"]):
             bad = invalid_reasons(r)
             if bad:
-                notes["invalid"].setdefault("%s_r%d" % slot, []).append({"started_at_utc": r["started_at_utc"], "why": bad})
-            elif slot not in chosen:
-                chosen[slot] = r
+                notes["invalid"].setdefault("%s_r%d_s%d" % key, []).append({"started_at_utc": r["started_at_utc"], "why": bad})
+            elif key not in picked:
+                picked[key] = r
             else:
-                notes["unused"].append({"slot": "%s_r%d" % slot, "started_at_utc": r["started_at_utc"]})
+                notes["unused"].append({"shard": "%s_r%d_s%d" % key, "started_at_utc": r["started_at_utc"]})
+    chosen = {}
+    for m, r in SLOTS:
+        parts = {s: picked[(m, r, s)] for s in RUN.SHARDS if (m, r, s) in picked}
+        if len(parts) == len(RUN.SHARDS):
+            chosen[(m, r)] = assemble(parts)
+        elif parts:
+            notes["incomplete_slots"].append({"slot": "%s_r%d" % (m, r), "valid_shards": sorted(parts)})
     return chosen, notes
 
 
@@ -210,10 +235,11 @@ def power_a(n, p, thr=THR_A):
 def design_spec():
     """designs/gate_gp_2026-10-03.json 的内容(守卫测试比对文件 == 本函数)。"""
     return {"★what": "tests/data/gate_gp_prereg.json 的设计门规格(2026-10-03)。G-P: 面板成员(model, 类别 4 水平: M3=生产 / M2.5 / M2.7 / M2)"
-                     " × 运行(run, 类别 2 水平; 每次 workflow 派发一个 (成员, 运行) 槽, 经 GP_MODEL / GP_RUN 传入) × 同一批 40 条新条目"
-                     "(accuracy/data/gate_gp_fresh40.json)。每行 = 一次生产读数(s1 k=3 + s2 n=5, 名义 8 次 HTTP), 不是一次调用。"
+                     " × 运行(run, 类别 2 水平) × 同一批 86 条新条目(accuracy/data/gate_gp_fresh86.json; 2026-10-03 owner 调用前修订 40 → 86)。"
+                     "每个 (成员, 运行) 拆成 2 个分片派发(各 43 条, 经 GP_MODEL / GP_RUN / GP_SHARD 传入), 分析器拼回; 分片只是运维拆分, 不是因子。"
+                     "每行 = 一次生产读数(s1 k=3 + s2 n=5, 名义 8 次 HTTP), 不是一次调用。"
                      "run 效应在生产成员内 = (a) 重跑一致; model 效应 = (c) 面板分歧, (b) 是同一 model 对比的留一形式(不另占自由度)。"
-                     "实验单位 = 条目(40); 交叉自助同时重采样条目与运行。",
+                     "实验单位 = 条目(86); 交叉自助同时重采样条目与运行。",
             "prereg": "tests/data/gate_gp_prereg.json",
             "variables": {"primitive": ["model", "run"], "derived": {}, "categorical": ["model", "run"]},
             "estimands": [{"name": "production_rerun_agreement", "target": "run", "nuisance": ["model"]},
@@ -223,7 +249,9 @@ def design_spec():
             "design": [{"model": mi, "run": ri} for ri in range(len(RUN.RUNS)) for mi in range(len(MEMBERS)) for _ in IDS],
             "n_raw_observations": len(MEMBERS) * len(RUN.RUNS) * len(IDS), "n_experimental_units": len(IDS),
             "claimed_inferential_n": len(IDS), "nominal_http_per_row": RUN.NOMINAL_PER_READOUT,
-            "calls_per_dispatch_planned": RUN.PLANNED, "per_dispatch_hard_cap": RUN.CAP}
+            "shards_per_member_run": len(RUN.SHARDS), "items_per_shard": RUN.SHARD_SIZE,
+            "calls_per_dispatch_planned": RUN.PLANNED, "per_dispatch_hard_cap": RUN.CAP,
+            "dispatches_planned": len(MEMBERS) * len(RUN.RUNS) * len(RUN.SHARDS)}
 
 
 def main(argv):
@@ -233,8 +261,7 @@ def main(argv):
     chosen, notes = choose(results, allow_offline)
     res = judge(chosen)
     res = {"block": "GATE_GP_RESULT", "prereg_sha256": RUN.PREREG_SHA256, "items_sha256": RUN.ITEMS_SHA256,
-           "slots_used": {"%s_r%d" % s: {"github_run_id": r.get("github_run_id"), "started_at_utc": r["started_at_utc"]}
-                          for s, r in sorted(chosen.items())},
+           "slots_used": {"%s_r%d" % s: r["parts"] for s, r in sorted(chosen.items())},
            "slot_notes": notes, "bootstrap": {"B": B_BOOT, "seed": SEED}, **res}
     print(json.dumps({k: res[k] for k in ("overall", "slots_used")}, ensure_ascii=False, indent=1))
     for k in ("a_production_rerun_stability", "b_production_vs_panel_consensus", "c_panel_self_consistency"):
