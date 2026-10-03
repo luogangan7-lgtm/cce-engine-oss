@@ -1,0 +1,377 @@
+{
+ "block": "GK1_V4_POWER",
+ "★zero_api": true,
+ "★v3_data_use": "只用于功效估算(k、N、R 的选择与预期判出概率)。不用于定阈值(0.25 是 2026-08-07 冻结的既有常数)、不进 v4 判定; v4 用全新条目。",
+ "v3_inputs": {
+  "3": "archive/37092420336/probe-out__tmp__gk1_v3_occ3_result.json",
+  "4": "archive/37094215372/probe-out__tmp__gk1_v3_occ4_result.json",
+  "5": "archive/37095859396/probe-out__tmp__gk1_v3_occ5_result.json",
+  "6": "archive/37097348068/probe-out__tmp__gk1_v3_occ6_result.json"
+ },
+ "panel": [
+  "MiniMax-M3",
+  "MiniMax-M2.5",
+  "MiniMax-M2.7",
+  "MiniMax-M2"
+ ],
+ "D_k_empirical": {
+  "1": 0.2548080208617596,
+  "2": 0.19012867520340562,
+  "3": 0.1621182501277758,
+  "4": 0.14498489487617378
+ },
+ "D_k_fit_X_plus_c_over_k": {
+  "X_k_to_inf": 0.1134398346237908,
+  "c": 0.1431746412354969,
+  "fitted": {
+   "1": 0.2566144758592877,
+   "2": 0.18502715524153923,
+   "3": 0.1611647150356231,
+   "4": 0.14923349493266502
+  },
+  "note": "X 是 k→∞ 外推(模型假设: 运行噪声对平方型距离按 1/k 衰减); 只描述, 不进判定"
+ },
+ "W_k_self": {
+  "1": {
+   "MiniMax-M3": 0.1227319172235252,
+   "MiniMax-M2.5": 0.2265714907030142,
+   "MiniMax-M2.7": 0.18938687969982704,
+   "MiniMax-M2": 0.2342288571093492
+  },
+  "2": {
+   "MiniMax-M3": 0.07605505306795655,
+   "MiniMax-M2.5": 0.16315656472015358,
+   "MiniMax-M2.7": 0.12670052588490827,
+   "MiniMax-M2": 0.15544372073109375
+  },
+  "mean_1": 0.1932297861839289,
+  "mean_2": 0.13033896610102802,
+  "ratio_2_over_1": 0.6745283357968568,
+  "note": "W(2)/W(1) = 0.675 > 1/2 ⇒ JS 不按 1/k 衰减; v3 只有 4 个样本, k>=3 的不相交 W 测不到 —— 不外推"
+ },
+ "variance_components": {
+  "1": {
+   "item": 0.031506488933301144,
+   "occasion": 1.385324965244405e-05,
+   "resid": 0.01782331212683376
+  },
+  "2": {
+   "item": 0.021399327986304662,
+   "occasion": 7.284695672542562e-05,
+   "resid": 0.007945003793511369
+  },
+  "3": {
+   "item": 0.021399327986304662,
+   "occasion": 7.284695672542562e-05,
+   "resid": 0.005296669195674245,
+   "★extrapolated": true
+  },
+  "4": {
+   "item": 0.021399327986304662,
+   "occasion": 7.284695672542562e-05,
+   "resid": 0.003972501896755684,
+   "★extrapolated": true
+  }
+ },
+ "calibration_k1_v3_design": {
+  "simulated": {
+   "PASS": 0.02,
+   "UNRESOLVED": 0.89,
+   "FAIL": 0.09,
+   "mean_U_minus_muhat": 0.0375253609654887
+  },
+  "v3_observed_U_minus_mu": 0.03752785371659795,
+  "v3_observed_verdict": "UNRESOLVED"
+ },
+ "candidates": [
+  {
+   "k": 1,
+   "N": 81,
+   "R": 4,
+   "budget_P4": {
+    "models": 4,
+    "per_dispatch_planned": 324,
+    "per_dispatch_cap": 350,
+    "study_planned": 1296,
+    "study_ceiling_with_1_replacement": 1750,
+    "fits": true
+   },
+   "mu_assumed_D_k": 0.2548080208617596,
+   "at_mu_D_k": {
+    "PASS": 0.025,
+    "UNRESOLVED": 0.895,
+    "FAIL": 0.08,
+    "mean_U_minus_muhat": 0.03738331556661022
+   }
+  },
+  {
+   "k": 2,
+   "N": 81,
+   "R": 4,
+   "budget_P4": {
+    "models": 4,
+    "per_dispatch_planned": 648,
+    "per_dispatch_cap": 700,
+    "study_planned": 2592,
+    "study_ceiling_with_1_replacement": 3500,
+    "fits": true
+   },
+   "mu_assumed_D_k": 0.19012867520340562,
+   "at_mu_D_k": {
+    "PASS": 0.9575,
+    "UNRESOLVED": 0.0425,
+    "FAIL": 0.0,
+    "mean_U_minus_muhat": 0.029950068461882154
+   },
+   "within_occasion_dependence": {
+    "rho=0.25": {
+     "mu": 0.20292398539597634,
+     "PASS": 0.84,
+     "UNRESOLVED": 0.16,
+     "FAIL": 0.0,
+     "mean_U_minus_muhat": 0.029691965407822898
+    },
+    "rho=0.50": {
+     "mu": 0.22082081555041347,
+     "PASS": 0.5033333333333333,
+     "UNRESOLVED": 0.49666666666666665,
+     "FAIL": 0.0,
+     "mean_U_minus_muhat": 0.03018979373861303
+    }
+   }
+  },
+  {
+   "k": 2,
+   "N": 64,
+   "R": 4,
+   "budget_P4": {
+    "models": 4,
+    "per_dispatch_planned": 512,
+    "per_dispatch_cap": 553,
+    "study_planned": 2048,
+    "study_ceiling_with_1_replacement": 2765,
+    "fits": true
+   },
+   "mu_assumed_D_k": 0.19012867520340562,
+   "at_mu_D_k": {
+    "PASS": 0.925,
+    "UNRESOLVED": 0.075,
+    "FAIL": 0.0,
+    "mean_U_minus_muhat": 0.033503390568607384
+   },
+   "within_occasion_dependence": {
+    "rho=0.25": {
+     "mu": 0.20292398539597634,
+     "PASS": 0.7966666666666666,
+     "UNRESOLVED": 0.20333333333333334,
+     "FAIL": 0.0,
+     "mean_U_minus_muhat": 0.033527000034355416
+    },
+    "rho=0.50": {
+     "mu": 0.22082081555041347,
+     "PASS": 0.38666666666666666,
+     "UNRESOLVED": 0.6133333333333333,
+     "FAIL": 0.0,
+     "mean_U_minus_muhat": 0.03357094688635755
+    }
+   }
+  },
+  {
+   "k": 3,
+   "N": 54,
+   "R": 4,
+   "budget_P4": {
+    "models": 4,
+    "per_dispatch_planned": 648,
+    "per_dispatch_cap": 700,
+    "study_planned": 2592,
+    "study_ceiling_with_1_replacement": 3500,
+    "fits": true
+   },
+   "mu_assumed_D_k": 0.1621182501277758,
+   "at_mu_D_k": {
+    "PASS": 0.9975,
+    "UNRESOLVED": 0.0025,
+    "FAIL": 0.0,
+    "mean_U_minus_muhat": 0.03524048106726758
+   },
+   "within_occasion_dependence": {
+    "rho=0.25": {
+     "mu": 0.18502715524153923,
+     "PASS": 0.93,
+     "UNRESOLVED": 0.07,
+     "FAIL": 0.0,
+     "mean_U_minus_muhat": 0.03480012519969922
+    },
+    "rho=0.50": {
+     "mu": 0.2088895954474554,
+     "PASS": 0.5733333333333334,
+     "UNRESOLVED": 0.4266666666666667,
+     "FAIL": 0.0,
+     "mean_U_minus_muhat": 0.03528602744960352
+    }
+   }
+  },
+  {
+   "k": 4,
+   "N": 40,
+   "R": 4,
+   "budget_P4": {
+    "models": 4,
+    "per_dispatch_planned": 640,
+    "per_dispatch_cap": 692,
+    "study_planned": 2560,
+    "study_ceiling_with_1_replacement": 3460,
+    "fits": true
+   },
+   "mu_assumed_D_k": 0.14498489487617378,
+   "at_mu_D_k": {
+    "PASS": 1.0,
+    "UNRESOLVED": 0.0,
+    "FAIL": 0.0,
+    "mean_U_minus_muhat": 0.03989819572012842
+   },
+   "within_occasion_dependence": {
+    "rho=0.25": {
+     "mu": 0.17607874016432068,
+     "PASS": 0.9033333333333333,
+     "UNRESOLVED": 0.09666666666666666,
+     "FAIL": 0.0,
+     "mean_U_minus_muhat": 0.03941082198346374
+    },
+    "rho=0.50": {
+     "mu": 0.20292398539597634,
+     "PASS": 0.6666666666666666,
+     "UNRESOLVED": 0.3333333333333333,
+     "FAIL": 0.0,
+     "mean_U_minus_muhat": 0.04054925718973818
+    }
+   }
+  },
+  {
+   "k": 2,
+   "N": 108,
+   "R": 3,
+   "budget_P4": {
+    "models": 4,
+    "per_dispatch_planned": 864,
+    "per_dispatch_cap": 934,
+    "study_planned": 2592,
+    "study_ceiling_with_1_replacement": 3736,
+    "fits": false
+   },
+   "mu_assumed_D_k": 0.19012867520340562,
+   "at_mu_D_k": {
+    "PASS": 0.9925,
+    "UNRESOLVED": 0.0075,
+    "FAIL": 0.0,
+    "mean_U_minus_muhat": 0.02701913074666438
+   },
+   "within_occasion_dependence": {
+    "rho=0.25": {
+     "mu": 0.20292398539597634,
+     "PASS": 0.89,
+     "UNRESOLVED": 0.11,
+     "FAIL": 0.0,
+     "mean_U_minus_muhat": 0.026836938600349428
+    },
+    "rho=0.50": {
+     "mu": 0.22082081555041347,
+     "PASS": 0.59,
+     "UNRESOLVED": 0.41,
+     "FAIL": 0.0,
+     "mean_U_minus_muhat": 0.02681241024152621
+    }
+   }
+  }
+ ],
+ "chosen": {
+  "k": 3,
+  "N": 54,
+  "R": 4,
+  "budget": {
+   "models": 4,
+   "per_dispatch_planned": 648,
+   "per_dispatch_cap": 700,
+   "study_planned": 2592,
+   "study_ceiling_with_1_replacement": 3500,
+   "fits": true
+  }
+ },
+ "text01_arm_cost_at_chosen": {
+  "models": 5,
+  "per_dispatch_planned": 810,
+  "per_dispatch_cap": 875,
+  "study_planned": 3240,
+  "study_ceiling_with_1_replacement": 4375,
+  "fits": false
+ },
+ "chosen_power_curve_by_true_mu": {
+  "0.17": {
+   "PASS": 0.9766666666666667,
+   "UNRESOLVED": 0.023333333333333334,
+   "FAIL": 0.0,
+   "mean_U_minus_muhat": 0.03560648062498228
+  },
+  "0.19": {
+   "PASS": 0.8933333333333333,
+   "UNRESOLVED": 0.10666666666666667,
+   "FAIL": 0.0,
+   "mean_U_minus_muhat": 0.035077724157586206
+  },
+  "0.20": {
+   "PASS": 0.7633333333333333,
+   "UNRESOLVED": 0.23666666666666666,
+   "FAIL": 0.0,
+   "mean_U_minus_muhat": 0.03548288272939189
+  },
+  "0.21": {
+   "PASS": 0.57,
+   "UNRESOLVED": 0.43,
+   "FAIL": 0.0,
+   "mean_U_minus_muhat": 0.035645039984904585
+  },
+  "0.22": {
+   "PASS": 0.38,
+   "UNRESOLVED": 0.6166666666666667,
+   "FAIL": 0.0033333333333333335,
+   "mean_U_minus_muhat": 0.03501775425161084
+  },
+  "0.23": {
+   "PASS": 0.25666666666666665,
+   "UNRESOLVED": 0.74,
+   "FAIL": 0.0033333333333333335,
+   "mean_U_minus_muhat": 0.03493446823996002
+  },
+  "0.24": {
+   "PASS": 0.09666666666666666,
+   "UNRESOLVED": 0.8966666666666666,
+   "FAIL": 0.006666666666666667,
+   "mean_U_minus_muhat": 0.03544886209054771
+  },
+  "0.26": {
+   "PASS": 0.01,
+   "UNRESOLVED": 0.8833333333333333,
+   "FAIL": 0.10666666666666667,
+   "mean_U_minus_muhat": 0.035581865493880184
+  },
+  "0.28": {
+   "PASS": 0.0,
+   "UNRESOLVED": 0.6366666666666667,
+   "FAIL": 0.36333333333333334,
+   "mean_U_minus_muhat": 0.03561027152037876
+  },
+  "0.30": {
+   "PASS": 0.0,
+   "UNRESOLVED": 0.25,
+   "FAIL": 0.75,
+   "mean_U_minus_muhat": 0.035430804208186416
+  }
+ },
+ "sim": {
+  "seed": 20261004,
+  "sims": 400,
+  "B": 2000,
+  "model": "d_ir = μ + a_i + b_r + e_ir, 正态, 方差分量见上"
+ }
+}
