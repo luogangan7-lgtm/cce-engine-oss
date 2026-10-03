@@ -1,0 +1,16 @@
+{
+ "block": "OCR_CROSS_DOMAIN_R5_GT_FREEZE",
+ "frozen_at": "2026-10-03",
+ "gt_path": "/Volumes/data/viral-skill-eval/results/ocr_gt_douyin_frames_v5.json",
+ "gt_sha256": "16c5a0c61335536e6dd0ef40a56c330193299f32d4d9b411d7bfa30be4950c65",
+ "annotator": "Claude_single_non_human",
+ "n_items": 290,
+ "★known_before_ocr(只看了真值里的有字帧计数, 未跑被测 OCR)": {
+  "text_frames_per_cell(按停止规则)": {"读书分享|SPARSE": 45, "读书分享|DENSE": 37, "户外跑步|SPARSE": 19, "户外跑步|DENSE": 22, "学习方法|SPARSE": 45, "学习方法|DENSE": 20},
+  "户外跑步|SPARSE": "90 个候选全部转写只得 19 张有字帧(其余是片尾卡/纯画面/只有不可辨小字) < 20 ⇒ 按预注册降级规则 INSUFFICIENT, 该格只描述、I6 照算",
+  "学习方法|DENSE": "恰好 20(= 下限), 若 run 时有任何仪器排除就会掉成 INSUFFICIENT",
+  "DENSE >= 30": "只有 读书分享|DENSE(37)",
+  "over_transcribed": "读书分享|SPARSE 在同一批里多转写了停止点之后的 3 帧(1 张无字、1 张有字、1 张只有拉丁字母), 停止规则下 measure 不会用到它们; 留在真值文件里如实登记"
+ },
+ "★order": "本文件提交时 OCR 尚未在第五轮样本上运行; run 会校验真值 sha 等于此值。"
+}
