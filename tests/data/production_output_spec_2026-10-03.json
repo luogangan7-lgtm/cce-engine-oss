@@ -7,7 +7,8 @@
   "model": "MiniMax-M3",
   "registry_key": "M3",
   "endpoint": "https://api.minimaxi.com/v1/text/chatcompletion_v2",
-  "max_tokens": 12000,
+  "max_tokens": 8000,
+  "★max_tokens_correction_2026-10-03_before_any_call": "初版此处写 12000 —— 那是 exp_crossmodel_desire.MODELS[\"M3\"] 的字面值(:42)。但 cce_knot_classify 导入 exp_v4_full_validation 时(:61-62; exp_v4_causal_chain.py:59-60 同式)把 MODELS 里全部模型的 max_tokens 改成 8000 ⇒ 生产实际发出的请求是 8000。守卫测试在同进程现算时抓到。max_tokens 不在 instrument_hash 里(不是 _INSTRUMENT_FIELDS 之一)。",
   "where": "scripts/cce_knot_classify.py:63 MEASUREMENT_MODEL = os.environ.get(\"CCE_MEASUREMENT_MODEL\", \"M3\"); scripts/exp_crossmodel_desire.py:36-43 MODELS[\"M3\"]",
   "note": "model 与 endpoint 都在 instrument_hash 里(_INSTRUMENT_FIELDS, scripts/cce_knot_classify.py:669) ⇒ 换模型 = 换仪器。"
  },

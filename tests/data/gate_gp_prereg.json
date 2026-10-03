@@ -7,8 +7,9 @@
   "owner_ruling": {"date": "2026-10-03", "quote": "第1个吧，让闸量生产实际输出",
                    "meaning": "open_items「验收闸与生产分类器字段集不同 ⇒ 对齐方向需 owner 定」选 ① 闸向生产对齐: 新验收闸量生产实际输出; 生产一字不动(生产 prompt / instrument_hash / cce_full_run 行为都不改)。"},
   "production_output_spec": {"file": "tests/data/production_output_spec_2026-10-03.json",
-                             "sha256": "83789292a4fbbed640805f69dfc9ab01e4dee52b0e1c7bfa62e18c137f5cd8f6"},
-  "gk1_v4": "G-K1 v4(闸 prompt × 推理型四人 × k=3 平均, PASS 0.199)保留为「分类学可操作性」读数, 不换代、不与本闸合并: 两台仪器, 可比不可合。"
+                             "sha256": "25ce026d4c6f44cafecec377d14374c0f3cce4085f38e50b5c41a86d4d2fe522",
+                             "★amendment_2026-10-03_before_any_call": "首版钉的是 83789292a4fbbed6…(commit cb66492)。条目生成后、任何调用之前, 守卫测试现算抓到规格里 max_tokens 写错(字面 12000, 生产导入期改成 8000), 规格加了更正块(不删原文), 这里改钉新 sha; 同时把两处 G-K1 v4 判定的字面写法改成引用结果文件(全仓闸 test_cce_gk1_no_live_pass_claim 判红: 白名单外不许出现无保留的通过主张), 并把一处「一次完整的生产读数」改成「一次生产读数」(禁用裸「完整」)。判据、阈值、设计、预算、派发拆法一字未改。"},
+  "gk1_v4": "G-K1 v4(闸 prompt × 推理型四人 × k=3 平均; 判定与 μ_D 0.199 见 tests/data/gk1_v4_result.json)保留为「分类学可操作性」读数, 不换代、不与本闸合并: 两台仪器, 可比不可合。"
  },
  "what_is_measured": {
   "production_path": "社区成员评论在生产里的读者侧 top-1 路径(k=3 仪器 d4cce4c745f3f991): cce_full_run.run_knot_classify(text, context, 3) → cce_knot_classify.stage1(k=3, 温度 0.0/0.3/0.6) + stage2(n=5, 温度 0.0, 吃 s1 逐档 tops+appraisal 轮转) → cce_full_run.s2_knots → cce_full_run.qualified_readout。全部调用生产函数对象本身, 不复刻任何 prompt。",
@@ -55,7 +56,7 @@
   "source": "owner 2026-10-03 裁定的推理型四人(与 G-K1 v3/v4 P4 同一组模型名)",
   "production_member": "M3 = 生产本身(不改任何东西, instrument_hash 必须是 d4cce4c745f3f991)",
   "how_others_run": "往 exp_crossmodel_desire.MODELS 登记 {**MODELS[\"M3\"], \"model\": <MiniMax-M2.x>}(同端点 / 同 key / 同 max_tokens), 设 cce_knot_classify.MEASUREMENT_MODEL = 该键; 其余一切走同一套生产函数。起跑前断言: 该成员的 instrument spec 与生产 d4cce4 的 spec 只差 model 一项。",
-  "★aggregation_choice": "每名成员每次运行 = **一次完整的生产读数**(生产自己的 s1 k=3 × s2 n=5 聚合与 top1_mode), 不做 k 次平均。",
+  "★aggregation_choice": "每名成员每次运行 = **一次生产读数**(生产自己的 s1 k=3 × s2 n=5 聚合与 top1_mode, 一档不少), 不做 k 次平均。",
   "★why_not_k_average": [
    "面板要量的是「同一台生产仪器换模型后的判断」。生产读数本身已经是 k=3 × n=5 的聚合读数; 再把 k 次生产读数平均, 定义的是一台生产从来不运行的「R 次平均生产仪器」—— 正是「又造一台新仪器」。",
    "top-1 是类别读数, 跨次「平均」没有定义, 只能再加一条众数规则, 那又是一台新仪器。",
@@ -158,7 +159,7 @@
   "两次运行之间的差异不归因为纯采样噪声(端点 / 服务端条件可能变化)。",
   "条目 = 该源池未用余量按 sha256(id) 取前 40, 不是自然部署流量的随机样本; 不外推到别的社区、语言或帖子。",
   "面板是 MiniMax 同家族四代推理模型, 同家族共识不是独立第三方。",
-  "本闸与 G-K1 v4 互不替代: v4 的 PASS 不说明生产输出可靠, 本闸的结果也不改写 v4。",
+  "本闸与 G-K1 v4 互不替代: v4 的判定不说明生产输出可靠, 本闸的结果也不改写 v4。",
   "只跑 s1 + s2 + 发布段(s2_knots / qualified_readout), 不是完整 CCE 链路。",
   "传输加了并发上限与退避(只改时序), CCE_CITATION_CERT 关; 生产自己的重试与请求体未改。"
  ],
