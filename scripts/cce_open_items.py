@@ -60,8 +60,24 @@ def items() -> list[dict]:
         elif "SCOPED_WITHHOLDING" in ph["status"] or "DECIDED" in ph["status"]:
             # ★ 只写状态词等于没写 —— 读的人看不出「条件是什么、谁能解开」。
             #   带条件完成的项必须自带: 扣发了什么 + 什么能解开它。
-            out.append({"类": DECIDED if "DECIDED" in ph["status"] else OPEN,
-                        "项": f"{ph['phase']} 带条件完成",
+            _cls = DECIDED if "DECIDED" in ph["status"] else OPEN
+            _pre = None
+            _r5 = os.path.join(ROOT, "tests/data/phase2/ocr_cross_domain_r5.json")
+            if ph["phase"].startswith("P3") and _cls == OPEN and os.path.exists(_r5):
+                # ★ 2026-10-03 第五轮后: 本机能做的已做完, 剩下的只有更多真实素材与人类标注能解开
+                _R5 = _j("tests/data/phase2/ocr_cross_domain_r5.json")
+                if _R5.get("H_domain_given_density") != "TRANSFERABLE":
+                    _cls = BLOCKED
+                    _pre = ("★★★ 2026-10-03 OCR 跨域第五轮后改记 BLOCKED_EXTERNAL(tests/data/phase2/ocr_cross_domain_r5.json): "
+                            "钉死的 keep_v3b 过滤器在 r1–r4 未看过的新帧上逐格 I6 最大 %s(≤0.02) ⇒ H_filter %s(第四轮那种同框前缀版式本轮 0 次出现, 修复点只在已看帧上有证据); "
+                            "密度两档差 < δ ⇒ H_density %s; 档均衡域差仍 %s(含户外跑步的对判不了)。"
+                            "★ 本机候选已耗尽(户外跑步稀疏档 90 帧仅 19 张有字; 文字密集档 ≥30 只有读书分享一域; 户外跑步 28 条本地视频已按 4 个时刻抽完、只来自 3–4 名创作者) ⇒ "
+                            "卡在外部资源: ① 每域 ≥5 名创作者、密集档 ≥30 张有字帧的**更多真实视频素材**(需联网采集) ② 人类标注一致性(当前真值为 Claude 单人转写)。"
+                            "OCR 抽取层探针不改语义层 across_domains=NOT_ESTABLISHED, 跨域标定继续扣发。以下为历史证据: "
+                            % (_R5.get("I6_max"), _R5.get("H_filter"), _R5.get("H_density"), _R5.get("H_domain_given_density")))
+            out.append({"类": _cls,
+                        "项": f"{ph['phase']} 带条件完成" + ("(跨域标定: 本机素材耗尽, 等更多真实素材与人类标注)" if _pre else ""),
+                        "前注": _pre,
                         "证据": f"{ph['status']} — {ph.get('★condition') or '条件未写明(需补)'}"})
 
     # ② profile 未经 CI 验证的
