@@ -1,0 +1,100 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.15,
+      "成为欲": 0.05,
+      "摆脱欲": 0.0,
+      "确认欲": 0.25,
+      "超越欲": 0.05,
+      "归属欲": 0.30,
+      "控制欲": 0.15,
+      "安全感欲": 0.05,
+      "向往欲": 0.0
+    },
+    "note": "归属欲主导:'we did'显示作者以群体成员身份发言,想在r/HearingAids社区被接纳为'圈内人/知情者'而非外来广告方。确认欲次之:主动预判'OTC to start''due to regulatory reasons'等可能被质疑的点并给出合理解释,寻求社区对其产品/身份的认可。控制欲:按自己的话术顺序(兼容→技术→续航→合规)框定产品叙事,主动澄清'air conduction, not bone conduction'这种常见误解。拥有欲(推己及人):通过ins链接引导观众最终拥有该助听器。超越欲/成为欲极弱:未自夸或展示理想自我。向往欲为零:内容指向具体可购硬件,非氛围图景。安全感欲弱:用参数消除购买疑虑。"
+  },
+  "need_layer": [
+    {
+      "code": "N11_归属群体",
+      "context_slot": "在r/HearingAids以'我们'身份回帖,与听损者/助听器用户建立圈内身份而非商家身份",
+      "weight": 0.25,
+      "derived_from": "由归属欲经'被作为陌生人/广告嫌疑人的身份焦虑'情境衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "希望社区认同产品定位与作者作为内部知情者的身份,预判质疑并自我背书",
+      "weight": 0.20,
+      "derived_from": "由确认欲经'产品刚上市叙事未稳'情境衍生"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "向社区解释技术差异(air vs bone conduction、mic位置、OTC vs prescription)",
+      "weight": 0.20,
+      "derived_from": "由确认欲+控制欲经'社区对新形态助听器存在认知缺口'情境衍生"
+    },
+    {
+      "code": "N03_提升能力",
+      "context_slot": "教用户评估'戴眼镜能否兼容'等实际使用问题,降低决策门槛",
+      "weight": 0.15,
+      "derived_from": "由归属欲经'想被社区视为有用的成员'情境衍生"
+    },
+    {
+      "code": "N07_占有资源",
+      "context_slot": "通过ins链接+产品参数,推动观众最终购入/体验该助听器",
+      "weight": 0.10,
+      "derived_from": "由拥有欲经'产品刚上市需冷启动'情境衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "用具体参数(24小时续航、防水、air conduction)消除社区对未上市产品的疑虑",
+      "weight": 0.10,
+      "derived_from": "由安全感欲+控制欲经'用户购买前会产生的疑虑清单'情境衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.85,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "对作者而言:内容由其本人生产/掌控(coping=高),目标(被接纳、被认同、推进产品)均被促进且通过'附链接+主动答疑'当场兑现。goal_relevance=0.85因为这是r/HearingAids用户最高频关心的兼容性与技术参数议题。促进+已满足→正情绪簇,coping高→趋近而非回避。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.05,
+      "joy喜悦": 0.10,
+      "gratitude感激": 0.05,
+      "desire渴望": 0.15,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.20,
+      "love爱": 0.0,
+      "relief宽慰": 0.10,
+      "approval认同": 0.25,
+      "curiosity好奇": 0.10,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.0
+    },
+    "note": "由'促进+已满足+高应对潜能'派生正情绪簇。approval认同最高(0.25):与社区规范同向,主动预判并回应潜在质疑以求对齐。pride自豪次之(0.20):'were all pleasantly surprised'暗示作者对自己产品/现场表现感到骄傲。desire渴望(0.15):对产品上市成功与用户转化的期待。curiosity好奇(0.10):用'going forward'保留悬念,邀请后续关注。relief宽慰(0.10):用具体参数回应潜在焦虑源。joy喜悦与gratitude感激微弱。无负情绪(fear/sadness/anger=0),符合促进+已满足条件。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.40,
+      "avoidance回避": 0.0,
+      "attend关注": 0.30,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.05,
+      "interrupt中断": 0.05,
+      "dominate支配": 0.20
+    }
+  },
+  "chain_trace": "归属欲 →(在r/HearingAids以'we did'身份回帖的情境)→ N11_归属群体 + N10_自我确认 →(评价:促进+已满足+正+高应对潜能)→ approval认同 + pride自豪 → approach趋近 + attend关注 的完整推导:作者想被社区接纳为圈内人,用主动预判质疑+提供硬参数的方式兑现有用性,从而获得认同与自豪,并推动观众接近产品细节与ins品牌账号,同步以dominate支配控制叙事顺序。"
+  "evidence": {
+    "desire": "'we did' (归属); 'with the intention to be fully prescription level going forward' (确认/控制); 'They'll be more OTC to start with due to regulatory reasons' (控制/安全感)",
+    "need": "'they actually work particularly well with glasses as the part that goes behind the ear is smaller' (N03_提升能力/N04_理解世界); 'They're air conduction, not bone conduction' (N04_理解世界); '~24 hours in a charge' / 'water/sweat resistant' (N01_确定性)",
+    "emotion": "'were all pleasantly surprised' (pride自豪); 'going forward' (curiosity好奇/期待); 'to start with due to regulatory reasons but with the intention...' (relief宽慰+approval认同)",
+    "action": "主动附ins链接 'instagram.com/reel/DTxmtHVDAuR' (approach趋近); 按预设顺序(兼容→技术类型→续航→合规)排列信息 (dominate支配+attend关注); 用'due to regulatory reasons'预先拦截质疑 (interrupt中断)"
+  }
+}
+```
