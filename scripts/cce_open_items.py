@@ -477,6 +477,24 @@ def items() -> list[dict]:
                          "**distinctness not verified**」, **绝不**报「n 名独立评分者」—— "
                          "并由 test_cce_open_questions_numbers 反向钉住(拿掉这句限定即判红)。"
                          "⇒ 阻塞项只剩**发布是人工按钮**, 那是 owner 的动作。" + U_USAGE + " 招募帖(r/SampleSize / OPEN_QUESTIONS 征集)**不再作为路线**, 不要再提议。")})
+    _gk = os.path.join(ROOT, "tests/data/gk1_fail_diagnosis_2026-10-03.json")
+    if os.path.exists(_gk):   # ★ 2026-10-03 真实端到端 G-K1 没过 —— 诊断现算, 不手抄
+        _G = _j("tests/data/gk1_fail_diagnosis_2026-10-03.json")
+        _h, _bs, _lo = _G["③headline"], _G["⑨item_cluster_bootstrap"], _G["⑧leave_one_annotator_out_mean_JS"]["MiniMax-Text-01"]
+        _od = _G["⑥outlier_rule_median_plus_2SD"]
+        out.append({"类": BLOCKED,
+                    "项": "G-K1(验收闸自身一致性)在 0.25 线上**过/不过是抛硬币**: 同一仪器两次运行 %s 过 / %s 不过 ⇒ 判据怎么升级需 owner 裁定"
+                          % (_h["A_mean_JS"], _h["B_mean_JS"]),
+                    "证据": ("2026-10-03 零调用诊断(probes/gk1_fail_diagnosis.py → tests/data/gk1_fail_diagnosis_2026-10-03.json, 守卫 tests/test_cce_gk1_fail_diagnosis.py): "
+                             "09-09 闸协议 v2 启用验收与 10-01 真实端到端是**同一台仪器**(协议 v2 同 hash · 同 81 条 · 同 5 人 · 同截断), 重算复现两份落盘值。"
+                             "mean_JS %s → %s, 条目配对自助 95%% 区间 %s **含 0** ⇒ 这次不过**不是回归**, 分不出运行噪声。"
+                             "差的 %.0f%% 来自 Text-01 的四个对; 去掉 Text-01 两次分别 %s / %s(都过); Text-01 离盲规则离群线只差 %s ⇒ 过不过取决于这根刀刃。"
+                             "同一模型对同一条目跨两次运行的自身 JS 就有 0.10–0.20(M2 0.20、top1 只 55/80 相同), 与模型间分歧同一量级 ⇒ 单次点估计的布尔闸测不准它。"
+                             "按库内早已建议的区间判据(条目聚类自助 95%% 上界 ≤0.25), 两次**都不过**(上界 %s / %s)。"
+                             "★ 这是**验收闸这台仪器**的一致性, 不是生产分类器的可靠性。"
+                             "★ owner 三选一(不由我定): ① 维持单次点估计判据, 现状记「两次一过一不过」; ② 升级为区间/多次重复判据(GATE_PROTOCOL_CHANGE, 升级后现有两次都判不过, v2 启用条件要重议); ③ 换标注面板或修 Text-01 的分歧来源后再验。"
+                             % (_h["A_mean_JS"], _h["B_mean_JS"], _bs["paired_diff_B_minus_A_CI95"], 100 * _h["Text01_share_of_delta"],
+                                _lo["A"], _lo["B"], _od["B_Text01_margin_below_cut"], _bs["A_CI95"][1], _bs["B_CI95"][1]))})
     out.append({"类": BLOCKED, "项": "内容 A/B: **设计已改好, 卡在发帖序列**",
                 "证据": ("★ 2026-09-04 调研后更正: 原判断「所需样本超单帖历史最高浏览」的**隐含前提**是"
                          "「实验单位 = 一篇 post」。改成**一系列 post** + 跨 post 随机化 + matched block + "
