@@ -1,0 +1,83 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.4,
+      "确认欲": 0.4,
+      "超越欲": 0.1,
+      "归属欲": 0.0,
+      "控制欲": 0.1,
+      "安全感欲": 0.0,
+      "向往欲": 0.0
+    },
+    "note": "用户通过vented摆脱了之前closed/tulips带来的不佳听音状态(摆脱欲)，同时想确认自己选择vented而非closed/tulips是正确的(确认欲)，并想优化自己的听力体验(控制欲/超越欲)"
+  },
+  "need_layer": [
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "使用closed和tulips时助听器声音听起来不好、不满意的体验",
+      "weight": 0.4,
+      "derived_from": "由<摆脱欲>经<从closed/tulips切换到vented的情境>衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "在助听器音效不理想的情况下，想重新掌控自己的听力体验",
+      "weight": 0.3,
+      "derived_from": "由<控制欲>经<vented让用户重新获得更好听音效果>衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "在.reddit上分享vented比closed和tulips更好的体验，以确认自己的选择是正确的",
+      "weight": 0.3,
+      "derived_from": "由<确认欲>经<公开陈述vented更好的情境>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.9,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "vented确实让用户获得了更好的听力体验，N06_摆脱痛苦和N02_掌控局面的需求都被满足，且用户主动在Reddit分享说明对自己应对能力有信心，goal_congruence为正"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.2,
+      "gratitude感激": 0.1,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.2,
+      "love爱": 0.0,
+      "relief宽慰": 0.4,
+      "approval认同": 0.1,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.0
+    },
+    "note": "vented让用户摆脱了之前的不佳体验，主要情绪为relief宽慰(pride源自自己的选择)，joy来自改善的听音体验，approval/gratition可能指向帮助过自己的人或建议"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.6,
+      "avoidance回避": 0.0,
+      "attend关注": 0.3,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.1
+    },
+    "note": "用户主动在Reddit回复分享经验，展示vented更好，是趋近行为；继续关注助听器话题(dominate体现在断言式表达)'
+  },
+  "chain_trace": "摆脱欲+确认欲 →(从closed/tulips切换到vented的情境事件)→ N06_摆脱痛苦+N10_自我确认 →(评价:goal_relevance高,促进,已满足,正,高coping)→ relief宽慰+pride自豪+joy喜悦 →(行动倾向:approach趋近+attend关注)的完整因果链",
+  "evidence": {
+    "desire": "原文陈述vented比closed和tulips更好，暗含想摆脱之前不佳状态、确认自己选择正确的心理",
+    "need": "Vented made me HA sound better as opposed to closed and tulips",
+    "emotion": "relief宽慰(摆脱了不佳体验)、pride自豪(自己的选择得到验证)、joy喜悦(声音变好)",
+    "action": "在r/HearingAids公开回复，approach他人/继续关注该话题"
+  }
+}
+```
