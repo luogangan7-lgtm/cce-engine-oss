@@ -12,7 +12,8 @@
 ★ 判定不在这里做 —— 凑齐 4 个有效 occasion 后由 probes/accuracy_gk1_v3_analyze.py 判。
 新条目文件由 select_fresh() 按预注册规则生成: accuracy/data/gk1_v3_fresh81.json == select_fresh() 由守卫测试钉住。
 """
-import collections, datetime, hashlib, json, os, pathlib, re, sys, tempfile, threading
+import collections, datetime, hashlib, json, os, pathlib, random, re, sys, tempfile, threading, time
+import urllib.error, urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -85,6 +86,44 @@ def _load(offline, occasion, responses=None):
     return m
 
 
+# ★ 运维参数(2026-10-03 偏离登记, 见 tests/data/gk1_v3_deviations.json); 不是测量参数
+ANNOT_WORKERS = 3
+BACKOFF_BASE_SEC = 4.0
+
+
+def make_resilient_call(m, lock, errs, sleep=time.sleep):
+    """与 run_gates.call 逐项同参(端点/请求体/温度/max_tokens/reasoning 回退/每条最多 3 次、每次尝试前扣授权单),
+    只加: 尝试之间指数退避(等待不耗尝试) + 失败按「模型|状态码」计数(不记内容)。2026-10-03 运维偏离, 见 tests/data/gk1_v3_deviations.json。"""
+    def resilient_call(model, prompt, max_tokens=4000):
+        payload = {"model": model, "messages": [{"role": "user", "content": prompt}],
+                   "max_tokens": max_tokens, "temperature": 0.0}
+        for att in range(3):
+            m.reserve(m.BUDGET_ID, m.BUDGET_LIMIT, note=model)
+            try:
+                req = urllib.request.Request(m.BASE, json.dumps(payload).encode(),
+                                             headers={"Authorization": f"Bearer {m.KEY}", "Content-Type": "application/json"})
+                with urllib.request.urlopen(req, timeout=300) as r:
+                    d = json.loads(r.read())
+                code = (d.get("base_resp") or {}).get("status_code")
+                if code == 0:
+                    msg = d["choices"][0]["message"]
+                    c = msg.get("content") or ""
+                    return c if c.strip() else (msg.get("reasoning_content") or "")
+                key = "base_resp:%s" % code
+            except urllib.error.HTTPError as e:
+                key = "http:%s" % e.code
+            except Exception as e:
+                if type(e).__name__ == "BudgetExceeded":
+                    raise
+                key = "exc:%s" % type(e).__name__
+            with lock:
+                errs["%s|%s" % (model, key)] += 1
+            if att < 2:
+                sleep(BACKOFF_BASE_SEC * (2 ** att) + random.random())
+        return ""
+    return resilient_call
+
+
 def _now():
     return datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
 
@@ -122,8 +161,16 @@ def run(offline, occasion=None, responses=None):
         lock, rec = threading.Lock(), {"calls": [], "n": collections.Counter(), "attempts": 0}
         orig_call, orig_res = m.call, m.reserve
 
+        # ★ 2026-10-03 运维偏离(tests/data/gk1_v3_deviations.json): occasion 1、2 在 8 线程并发下大量空返回、
+        #   撞 470 上限, 而 run_gates.call 把 HTTP 错误与 base_resp 非零码全吞掉 ⇒ 无从诊断。
+        #   从 occasion 3 起真跑改用 resilient_call: 请求体/端点/温度/max_tokens/reasoning 回退与 run_gates.call 逐项相同,
+        #   每条仍最多 3 次尝试、每次尝试前照样扣授权单; 只加 ① 尝试之间指数退避(等待不耗尝试) ② 记录失败的状态码(不记内容)。
+        #   测量本身(条目/面板/prompt/截断/温度/上限/判据)一字不动。
+        errs = collections.Counter()
+        resilient_call = make_resilient_call(m, lock, errs)
+
         def call(model, prompt, max_tokens=4000):
-            out = orig_call(model, prompt, max_tokens)
+            out = (orig_call if offline else resilient_call)(model, prompt, max_tokens)
             with lock:
                 rec["calls"].append({"kind": _kind(prompt), "model": model,
                                      "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest(), "out": out})
@@ -147,7 +194,7 @@ def run(offline, occasion=None, responses=None):
         stop, parse_exc = None, collections.Counter()
         # ① 主数据先跑: 81 × 5 标注。撞上限 ⇒ 记下已拿到的, 本 occasion 无效(预注册 S1)
         #   annot_dist 对形状怪异的 JSON(如 knots 里是字符串)会抛异常 —— 记为该格解析失败(None, 计入 S2 覆盖率), 不让一格炸掉整次派发
-        with ThreadPoolExecutor(max_workers=8) as ex:
+        with ThreadPoolExecutor(max_workers=ANNOT_WORKERS) as ex:
             futs = {ex.submit(m.annot_dist, (mm, it)): (mm, it["id"]) for mm in MODELS for it in items}
             for f in as_completed(futs):
                 mm, iid = futs[f]
@@ -180,6 +227,9 @@ def run(offline, occasion=None, responses=None):
               ["%s 可解析分布 %d/81 < %d" % (mm, c, MIN_COVERAGE) for mm, c in cov.items() if c < MIN_COVERAGE]
     out.update({"dists": dists, "coverage": cov, "annotation_complete": annotation_complete,
                 "parse_exceptions": dict(parse_exc),
+                "http_errors_by_model_and_code": dict(sorted(errs.items())),
+                "★operational": {"annot_workers": ANNOT_WORKERS, "backoff_base_sec": BACKOFF_BASE_SEC,
+                                 "deviation_log": "tests/data/gk1_v3_deviations.json"},
                 "qualification_descriptive_only": {mm: quals.get(mm) for mm in MODELS},
                 "logical_calls": dict(sorted(rec["n"].items())), "http_attempts": rec["attempts"],
                 "finished_at_utc": _now(), "occasion_valid": not reasons, "invalid_reasons": reasons,

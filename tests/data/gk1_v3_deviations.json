@@ -1,0 +1,17 @@
+{
+ "block": "GK1_V3_DEVIATIONS",
+ "prereg": "tests/data/gk1_v3_prereg.json (sha 2c493601…, 未改)",
+ "deviations": [
+  {
+   "id": "D1_operational_retry_and_concurrency",
+   "date": "2026-10-03",
+   "applies_from_occasion": 3,
+   "what_happened": "occasion 1(oss run 37090385053)与 2(run 37090955314)在 8 线程并发下大量空返回, 两次都撞 470 硬上限 ⇒ BUDGET_STOP, 无效。occ1 覆盖 M3 81 · M2.5 79 · M2.7 78 · M2 70 · Text-01 38(replay 空输出 M2 10、Text-01 23); occ2 覆盖 M3 81 · M2.5 62 · M2.7 55 · M2 76 · Text-01 25(空输出 M2.5 17、M2.7 25、M2 5)。run_gates.call 把 HTTP 错误与 base_resp 非零码全部吞掉 ⇒ 无从知道是哪种错误。",
+   "diagnosis": "同日 03:0x UTC 用本机订阅 key 顺序调用 5 模型各 2 次: 10/10 HTTP 200、status_code 0、2–7 s; 该账户通用额度当前时间窗剩 79%、本周剩 46%(token_plan/remains, 只读)。⇒ 模型在线、额度未耗尽, 最可能是并发下的限流/临时波动; 本机 key 与 GitHub secret 是否同账户无法核实。",
+   "change": "从 occasion 3 起真跑改用 probes/accuracy_gk1_v3_run.make_resilient_call: 端点/请求体/温度 0.0/max_tokens/reasoning 回退/每条最多 3 次尝试/每次尝试前扣授权单 与 run_gates.call 逐项相同; 只加 ① 尝试之间指数退避(4 s·2^att + 抖动, 等待不耗尝试) ② 失败按「模型|状态码」计数写进结果 ③ 标注并发 8 → 3。守卫 tests/test_cce_gk1_v3_resilient_call.py(请求体逐项相同、重试计数、退避、预算不被吞; 变异见红)。",
+   "not_changed": "条目、面板、prompt、截断 700、温度、单次上限 470、判据(0.25/0.80)、B、seed、替补规则 —— 预注册 S6 所列一律未动。",
+   "consequence_for_rules": "occasion 1、2 维持无效、不复用(S4)。按 S3: 替补 5、6 填 1、2 号位; 3、4 号照常派发。四个有效 occasion 将全部出自新运维设置(3、4、5、6), 运维设置在纳入判定的 occasion 之间一致。若 3–6 中再有任一无效 ⇒ 按 S5 本研究终止于 NO_VERDICT, 不再加派。",
+   "why_this_is_not_moving_goalposts": "改的只是「失败时怎么等、记什么、多少并发」, 决定哪些调用最终拿到分布, 不改问什么与怎么判; 且在任何有效 occasion 产生之前改、所有纳入判定的 occasion 同一设置。"
+  }
+ ]
+}
