@@ -1,0 +1,95 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.02,
+      "成为欲": 0.05,
+      "摆脱欲": 0.10,
+      "确认欲": 0.40,
+      "超越欲": 0.08,
+      "归属欲": 0.25,
+      "控制欲": 0.03,
+      "安全感欲": 0.07,
+      "向往欲": 0.00
+    },
+    "note": "此人通过在 r/HearingAids 公开自我披露来锚定自身位置：① 确认欲最强——要把自己放进『还行/没那么严重』的认知框架里被验证（"I don't struggle in conversations"），避免被划入严重受损那一类；② 归属欲次之——主动在 hearing aid 社区发言即在申请群体成员资格（"still one of us, just milder"）；③ 摆脱欲与安全感欲是底层——想甩掉『自己可能也很糟』的隐性焦虑；④ 超越欲轻微——在与 OP 的对照中占据相对有利位。"
+  },
+  "need_layer": [
+    {
+      "code": "N10_自我确认",
+      "context_slot": "在 hearing aid 社区看到他人描述 struggle 后，槽位：自我状况相对严重度的归类",
+      "weight": 0.40,
+      "derived_from": "由<确认欲>经<看到别人把自己放进『struggle』格子里、想确认自己不在此格>的情境事件衍生"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "在 r/HearingAids 公共回复槽位中表态",
+      "weight": 0.25,
+      "derived_from": "由<归属欲>经<hearing aid 子版块本身就是需要申请/维持身份的群>衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "听力损失带来的对话负担与社交不适",
+      "weight": 0.15,
+      "derived_from": "由<摆脱欲>经<承认 I do ask people to repeat themselves，隐含的小痛苦被说出>衍生"
+    },
+    {
+      "code": "N01_确定性",
+      "context_slot": "自己究竟处在听力障碍光谱的哪一档",
+      "weight": 0.10,
+      "derived_from": "由<安全感欲>经<需要把自身损害程度落在一个可命名、可控的位置>衍生"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "为什么/什么时候自己需要重复问、要重复到什么程度算正常",
+      "weight": 0.10,
+      "derived_from": "由<确认欲+摆脱欲>经<用对照他人经验的认知加工来理解自己体验>衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.85,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "中",
+    "note": "goal_relevance 高：内容直接关系其听力身份认定。direction=促进：把『I do ask people to repeat themselves』公开说出来、并补上『but I don't think it's super often』，等于成功把自己归到较轻一档，需求当场被打勾。need_status=已满足：自我确认与群体归属两条线都被这次发言部分兑现。coping_potential=中：留有余地（I do ask people to repeat），没有把话说到满——评价因此偏正面但克制，情绪强度被压在中段，正是 relief+approval 而非 joy 的来源。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.02,
+      "joy喜悦": 0.05,
+      "gratitude感激": 0.02,
+      "desire渴望": 0.05,
+      "nostalgia怀旧": 0.02,
+      "pride自豪": 0.10,
+      "love爱": 0.00,
+      "relief宽慰": 0.20,
+      "approval认同": 0.30,
+      "curiosity好奇": 0.20,
+      "fear恐惧": 0.02,
+      "sadness悲伤": 0.02,
+      "anger愤怒": 0.00
+    },
+    "note": "由 N10×正 congruence → approval(对自身被社区话语接纳)+ pride(把自己放到了 coping 良好位)；由 N11×促进+已满足 → relief(被同类接纳的轻释放)；由 N04×中相关度 → curiosity('So interesting because' 的认知不协调引发的好奇)；fear/sadness 各 0.02 是承认『I do ask people to repeat』时的小尾；desire 来自残留的『希望自己完全不需问』。无 joy 是因为没有事件级的奖赏，只有人际自我定位的微奖。"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.30,
+      "avoidance回避": 0.05,
+      "attend关注": 0.30,
+      "reject拒斥": 0.10,
+      "agonistic对抗": 0.05,
+      "interrupt中断": 0.15,
+      "dominate支配": 0.05
+    },
+    "note": "approach：主动发起公共回复，朝群体靠近；attend：把注意力放在『我和他人的频次差』这条比较线索上；interrupt：用『So interesting because…?』打断/插入 OP 的话语，修正叙事；reject/agonistic：小幅拒斥『我也 struggle』这一标签(隐性)；dominate：用『I don't think it's super often』压住叙事权；avoidance：留 0.05 给『没敢把 ask to repeat 说得更频繁』的回避残余。"
+  },
+  "chain_trace": "确认欲+归属欲 →(在 r/HearingAids 看到他人把自身归为 struggle、对照自我、寻求群体与自我确认的情境事件)→ N10_自我确认 / N11_归属群体 / N06_摆脱痛苦 / N01_确定性 / N04_理解世界(以 N10 与 N11 为主轴) →(评价:促进+已满足→正 congruence, coping=中)→ approval认同 + curiosity好奇 + relief宽慰 + pride自豪 → approach趋近 + attend关注 + interrupt中断 的完整推导：用好奇心包装入场，在对照中完成『我较轻』的自我确认，从而靠近群体、修正叙事。"
+  "evidence": {
+    "desire": "I don't struggle in conversations —— 想把自己从『struggle』框外推，确认自己状况可控（确认欲）",
+    "need": "I don't think it's super often! —— 在公共回复槽里对自身频次做裁决，达成 N10 自我确认；同时 r/HearingAids 公共回复本身是 N11 归属群体",
+    "emotion": "So interesting because —— 认知不协调触发的 curiosity好奇；I do ask people to repeat themselves but I don't think it's super often —— 把『还行』的判定公开化，产生 relief宽慰与对自身定位的 approval认同",
+    "action": "I don't think it's super often! —— 朝社区前进式表态（approach），把『super often』这条线主动划出（attend/dominate），并用『I don't struggle in conversations?』这种问号修正性句式打断/覆盖 OP 的叙事（interrupt）"
+  }
+}
+```
