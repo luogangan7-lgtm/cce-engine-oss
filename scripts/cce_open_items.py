@@ -536,8 +536,21 @@ def items() -> list[dict]:
                           _b["verdict"], _b["mu_D"], _b["mu_D_L95_one_sided"], _b["mu_D_U95_one_sided"], _v3["P5_minus_P4"]["mean"],
                           _t["T1_verdict"], _t["T2_verdict"],
                           " · ".join("%s %.2f" % (k.replace("MiniMax-", ""), v["W_m"]) for k, v in _gr.items())))
+        _v4p = os.path.join(ROOT, "tests/data/gk1_v4_result.json")
+        _v4 = _j("tests/data/gk1_v4_result.json") if os.path.exists(_v4p) else None
+        if _v4:   # ★ 2026-10-03 v4(每人 k=3 平均)已按预注册跑完, 判定现算
+            _q, _d1 = _v4["P4_k3"], _v4["D1_single_sample_descriptive"]
+            _v3note = ("★★★★ 2026-10-03 G-K1 v4 已跑完(预注册 tests/data/gk1_v4_prereg.json, 结果 tests/data/gk1_v4_result.json; occasion %s 全有效): "
+                       "推理型四人、新 %d 格、每名标注者 k=%d 次平均后: **%s**, μ_D %.3f, 单侧 95%% [%.3f, %.3f], top-2 %.3f; "
+                       "同条目单次调用(描述) %.3f [%.3f, %.3f]。k 平均按设计生效(within/between ≈1)。"
+                       "⇒ 「稳定判断一致」有通过证据; 「单次调用一致」仍未建立(v3 UNRESOLVED、v4 同条目单次 >0.25)。"
+                       "★ 卡在 owner 裁定: 是否把 G-K1 闸协议换代为 v4(每名标注者 3 次平均, 标注调用 ×3; route 6 GATE_PROTOCOL_CHANGE, 改 run_gates 并新钉 gate_protocol_version)。v3 记录如下: "
+                       % (_v4["occasions_used"], _q["n_cells"], _q["k"], _v4["G_K1_v4_verdict"], _q["mu_D"], _q["mu_D_L95_one_sided"], _q["mu_D_U95_one_sided"], _q["top2_hit"],
+                          _d1["mu_D"], _d1["L95_U95_one_sided"][0], _d1["L95_U95_one_sided"][1])) + (_v3note or "")
         out.append({"类": BLOCKED,
-                    "项": ("G-K1 v3 已跑: 推理型四人 %s / 含 Text-01 五人 %s —— 面板一致性未建立通过证据, 下一步需 owner 裁定" % (_v3["P4_primary"]["verdict"], _v3["P5_comparison_only"]["verdict"]))
+                    "项": ("G-K1: 单次调用口径未建立通过证据(v3 四人 %s), 每人 3 次平均口径 v4 %s —— 是否换代闸协议需 owner 裁定" % (_v3["P4_primary"]["verdict"], _v4["G_K1_v4_verdict"]))
+                          if (_v3 and _v4) else
+                          ("G-K1 v3 已跑: 推理型四人 %s / 含 Text-01 五人 %s —— 面板一致性未建立通过证据, 下一步需 owner 裁定" % (_v3["P4_primary"]["verdict"], _v3["P5_comparison_only"]["verdict"]))
                           if _v3 else
                           ("G-K1(验收闸自身一致性)在 0.25 线上**过/不过是抛硬币**(同一仪器 %s 过 / %s 不过); 根因已查明 = Text-01 判法不同; 升级 v3 卡在面板构念需 owner 裁定"
                            % (_h["A_mean_JS"], _h["B_mean_JS"])),
