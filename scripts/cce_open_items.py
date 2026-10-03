@@ -498,9 +498,29 @@ def items() -> list[dict]:
         _G = _j("tests/data/gk1_fail_diagnosis_2026-10-03.json")
         _h, _bs, _lo = _G["③headline"], _G["⑨item_cluster_bootstrap"], _G["⑧leave_one_annotator_out_mean_JS"]["MiniMax-Text-01"]
         _od = _G["⑥outlier_rule_median_plus_2SD"]
+        _v3p = os.path.join(ROOT, "tests/data/gk1_v3_result.json")
+        _v3 = _j("tests/data/gk1_v3_result.json") if os.path.exists(_v3p) else None
+        _v3note = None
+        if _v3:   # ★ 2026-10-03 v3 已按预注册跑完(4 个有效 occasion), 判定现算
+            _a, _b, _gr = _v3["P4_primary"], _v3["P5_comparison_only"], _v3["G_R1_descriptive"]
+            _t = _v3["text01_out_of_sample"]
+            _v3note = ("★★★ 2026-10-03 G-K1 v3 已跑完(预注册 tests/data/gk1_v3_prereg.json, 结果 tests/data/gk1_v3_result.json; occasion %s 有效, 1/2 因并发限流 BUDGET_STOP 无效, 运维偏离见 tests/data/gk1_v3_deviations.json): "
+                       "**主判 P4(推理型四人) %s**: μ_D %.3f, 单侧 95%% [%.3f, %.3f], top-2 %.3f; "
+                       "**对比 P5(含 Text-01) %s**: μ_D %.3f [%.3f, %.3f]。P5−P4 = %.3f(区间不含 0)。"
+                       "Text-01 判法差异在新条目上样本外复现(T1 %s, 4/4 次; T2 %s, display→pain_seek 仍最多)。"
+                       "G-R1(各模型自身跨运行 JS): %s ⇒ 自身重跑噪声与 0.25 的总预算同量级, 四人面板点估计 0.255 已在线上, 加运行数大概率只会从 UNRESOLVED 走向 FAIL, 不会走向 PASS。"
+                       "⇒ 现状: 「G-K1 v3 未建立通过证据(四人面板判不了, 五人面板不通过)」; v3 不能以「通过」启用。"
+                       "★ 卡在 owner 裁定(看完对比再定): ① 接受现状记录, G-K1 作为已知未达标的验收闸并列报告; ② 换估计目标为「每名标注者 k 次采样平均后的面板分歧」(降运行噪声; 换仪器 ⇒ 新预注册、新条目); ③ 维持 v2 历史读数但改述为「未建立稳健通过证据」。以下为 v2 诊断: "
+                       % (_v3["occasions_used"], _a["verdict"], _a["mu_D"], _a["mu_D_L95_one_sided"], _a["mu_D_U95_one_sided"], _a["top2_hit"],
+                          _b["verdict"], _b["mu_D"], _b["mu_D_L95_one_sided"], _b["mu_D_U95_one_sided"], _v3["P5_minus_P4"]["mean"],
+                          _t["T1_verdict"], _t["T2_verdict"],
+                          " · ".join("%s %.2f" % (k.replace("MiniMax-", ""), v["W_m"]) for k, v in _gr.items())))
         out.append({"类": BLOCKED,
-                    "项": "G-K1(验收闸自身一致性)在 0.25 线上**过/不过是抛硬币**(同一仪器 %s 过 / %s 不过); 根因已查明 = Text-01 判法不同; 升级 v3 卡在面板构念需 owner 裁定"
-                          % (_h["A_mean_JS"], _h["B_mean_JS"]),
+                    "项": ("G-K1 v3 已跑: 推理型四人 %s / 含 Text-01 五人 %s —— 面板一致性未建立通过证据, 下一步需 owner 裁定" % (_v3["P4_primary"]["verdict"], _v3["P5_comparison_only"]["verdict"]))
+                          if _v3 else
+                          ("G-K1(验收闸自身一致性)在 0.25 线上**过/不过是抛硬币**(同一仪器 %s 过 / %s 不过); 根因已查明 = Text-01 判法不同; 升级 v3 卡在面板构念需 owner 裁定"
+                           % (_h["A_mean_JS"], _h["B_mean_JS"])),
+                    "前注": _v3note,
                     "证据": ("2026-10-03 零调用诊断(probes/gk1_fail_diagnosis.py → tests/data/gk1_fail_diagnosis_2026-10-03.json, 守卫 tests/test_cce_gk1_fail_diagnosis.py): "
                              "09-09 闸协议 v2 启用验收与 10-01 真实端到端是**同一台仪器**(协议 v2 同 hash · 同 81 条 · 同 5 人 · 同截断), 重算复现两份落盘值。"
                              "mean_JS %s → %s, 条目配对自助 95%% 区间 %s **含 0** ⇒ 这次不过**不是回归**, 分不出运行噪声。"
