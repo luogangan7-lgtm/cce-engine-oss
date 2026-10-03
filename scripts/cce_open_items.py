@@ -296,8 +296,13 @@ def items() -> list[dict]:
     if os.path.exists(_fs):
         fs = _j("tests/data/gate_vs_production_fieldset_result.json")
         t = fs["★★★relative_to_the_G_K1_threshold"]
-        out.append({"类": BLOCKED,
-                    "项": "验收闸与生产分类器**字段集不同**, 且闸是乐观代理 ⇒ 对齐方向需 owner 定",
+        out.append({"类": OPEN,
+                    "项": "验收闸向生产对齐(owner 2026-10-03 定路线①): G-P 闸已预注册(86 条 × 4 模型 × 2 运行, 16 片), 待派发",
+                    "前注": ("★★★ 2026-10-03 **owner 裁定路线①「让闸量生产实际输出」**, 生产一字不动: "
+                             "G-P 闸(tests/data/gate_gp_prereg.json, 调用前修订 N 40→86)直接量生产发布的 top1_mode —— "
+                             "(a) M3 生产重跑一致 >=7/8 · (b) 生产 vs 参考面板共识 >=0.80 · (c) 面板两两 >=0.80, 三项都 PASS 才 PASS; "
+                             "16 片派发, 名义 5504 次, 研究上限 7362 次。★ 同时暴露 K1 读数形式缺口: K1 判在 knots[0], "
+                             "生产发布 top1_mode ⇒ 生产状态表「结层 top-1」是跨形式引用, (a) FAIL 则降级。以下为历史证据, 一字未改: "),
                     "证据": (f"实测(405 次, 唯一变量是分类学字段集合): "
                              f"闸字段集 mean_JS={t['armA_闸字段集']['mean_JS']}(越 0.25 线的自助概率 "
                              f"{t['armA_闸字段集']['自助越线率']:.1%}) vs 生产字段集 "

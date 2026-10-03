@@ -48,6 +48,11 @@ def rows() -> list[dict]:
     _taxo = json.load(open(os.path.join(ROOT, "config/knot_taxonomy.json"), encoding="utf-8"))
     _hash_of = lambda k: _K.instrument_id(
         _taxo, k=k, knot_n=5, s1_pairing=f"round_robin_over_{k}_s1_draws")["instrument_hash"]
+    # ★ 2026-10-03 读数形式缺口: K1 判在 knots[0], 生产发布 top1_mode ⇒ 本格是跨读数形式引用
+    _gap = ("★ 读数形式缺口: K1 的 top-1 判在 knots[0], 生产发布的是 top1_mode(5 次 s2 众数), 二者可以不同 "
+            "(tests/data/production_output_spec_2026-10-03.json ★K1_readout_gap) ⇒ 本格对实际发布读数是跨形式引用; "
+            "G-P (a) 直接量发布读数(tests/data/gate_gp_prereg.json)")
+    _gp = {3: ", 若 FAIL 本格须降级", 5: "; ★ G-P 只覆盖 k=3, 本格(k=5)不在其作用域, 缺口仍开着"}
     for _prof, _k in (("reply / response", 3), ("outbound_post", 5)):
         _ih = _hash_of(_k)
         _ok, _why = knot_readout_usable("top1", instrument_hash=_ih)
@@ -57,7 +62,7 @@ def rows() -> list[dict]:
             UNMEASURED if "没有 K1 判定" in _why or "不可跨仪器搬" in _why else FAILED)
         out.append({"组件": f"结层 top-1 @ {_prof} (k={_k})",
                     "状态": _state,
-                    "证据": f"仪器 {_ih} · {_why}",
+                    "证据": f"仪器 {_ih} · {_why} · {_gap}{_gp[_k]}",
                     "文件": "scripts/cce_k1_status.py"})
 
     a = panel["agreement"]
