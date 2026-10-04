@@ -1,0 +1,536 @@
+The user wants a "causal chain reverse" analysis of a Reddit post. This is a public reply to a Reddit r/HearingAids member. The content is a text by a person who is presumably a hearing aid user giving advice about audiologists and dealing with hearing aid fitting. They say: "Agreed, and if your audiologist didn't know to use a longer wire, if they can't get it right on this next try, I would go to someone else - if it's a bigger office someone else should be able to do it, and if it's a one-person shop, if they don't get it right when you go in, definitely go to someone else. Look at pics online of people wearing a hearing aid, take a screenshot or two and show the person. If they are the least bit defensive or are slow to affirm they should do it very differently, that's notable.
+
+If that audiologist doesn't know this basic thing I would be skeptical they would be super skilled at making sound adjustments. I've had great audiologists but did have one recently that could not for the life of her work it out! She was so nice but I couldn't hear!
+
+It's normal for background noises to seem really loud when you haven't heard them before - but if it's painful or ..."
+
+Thus the content is advice to someone having hearing aid fitting issues. The writer is presumably a hearing aid user or someone experienced, giving suggestions about what to do if the audiologist is incompetent, like finding another audiologist, looking at pictures, etc. The writer also shares personal anecdote: had a great audiologists but one recently who couldn't work it out.
+
+We need to do a "causal chain reverse" mapping from observable language to underlying psychological chain: desire, need, appraisal, emotion, action tendency.
+
+The user asks: "若这段内容确实是某一个人写下的自我表达，请对『写下这段内容的这一个人』反推其心理因果链四层占比分布——这是一个个体，不是群体。"
+
+Thus we must treat it as a single individual's expression.
+
+We must produce a JSON object with the required fields: desire_layer (distribution of nine desire types), need_layer (list of up to maybe one or multiple needs, with weight sum =1), appraisal (multiple fields), emotion_layer (distribution of 13 emotions), action_tendency_layer (distribution of 7 action tendencies), chain_trace (a concise sentence linking everything), evidence (quotes from content for each layer).
+
+We must ensure distributions sum to 1.
+
+We need to consider the content: The writer is advising, providing reassurance, sharing personal experience, expressing frustration, confidence. Let's think about underlying desires.
+
+First, desire layer: nine types. Let's examine the content.
+
+- The writer is telling the reader to get a better audiologist if the current one doesn't know about wire length; they want to ensure that the reader gets a proper hearing aid fitting, i.e., to ensure proper functioning of hearing aids. The writer is also saying "If that audiologist doesn't know this basic thing I would be skeptical they would be super skilled at making sound adjustments." So the writer expresses suspicion about the competence of audiologists.
+
+- The writer mentions "I've had great audiologists but did have one recently that could not for the life of her work it out! She was so nice but I couldn't hear!"
+
+- So there's personal experience: a need for effective hearing correction (to hear properly). The writer likely has a desire to have proper hearing (own ability). The writer's desire could be to ensure control over his hearing health and to avoid being in pain or misfitted. The writer may also have a desire for safety/ certainty (security) about hearing and health. The writer also wants to avoid pain: "if it's painful or..."
+
+- The writer also expresses a desire to confirm his own knowledge: He confirms that the audiologist should know about longer wire; his own view is correct. This is "确认欲" (recognition) or "确认自我" (self-confirmation). He might also have a desire to belong to group of hearing aid users, like hearing aid community. He expresses that he's a hearing aid user, with some experience. That's a "归属欲" maybe. He might also have a "控制欲" (control) to manage his hearing health, to ensure that his hearing aids work. He also might have a "安全感欲" (need for safety), to avoid pain or discomfort. He might also have a "拥有欲" (to own good hearing aid) but it's less likely. He might also have "成为欲" (to become better at hearing). But the content is more about controlling and ensuring competence, so control desire seems relevant. Also the desire for certainty (安全感欲) is about eliminating uncertainty about hearing, about whether the audiologist is competent.
+
+- The writer also expresses frustration and maybe anger at incompetent audiologist. So there may be "anger" emotion.
+
+- The writer is providing advice; thus the action tendency might be "approach" or "dominate". Actually the writer's behavior is giving advice to the reader: approach: provide suggestions; also perhaps "attend" or "dominate" to dominate the conversation. The writer's action tendency is likely "approach" (providing solutions). Also maybe "agonistic" as they are confronting incompetent audiologist. But the action is in text: "I would go to someone else ... Look at pics online ... show the person." So they are encouraging the reader to take action, which is an approach (to seek better audiologist). So "approach" likely high.
+
+- But we need to output distributions: each layer weights for each category; they must sum to 1.
+
+- For desire layer: we need to assign weights to each of nine desires based on the content. Let's think which desires are most prominent.
+
+The content seems to revolve around:
+
+1) Control: the writer wants to control the situation, to ensure proper hearing aid fitting, not be at the mercy of incompetent audiologist. So control desire high.
+
+2) Safety: the writer wants to avoid pain, avoid discomfort, eliminate risk. That's safety desire high.
+
+3) Confirmation: the writer is confirming that the audiologist's competence is questionable, and that the writer's view is correct. That's a confirmation desire (确认欲). It's also about self-confirmation. So weight moderate.
+
+4) Escape/摆脱: the writer wants to get away from the incompetent audiologist, to avoid pain, to get proper hearing. So 摆脱欲 maybe moderate.
+
+5) Belonging: The writer is part of hearing aid community; they give advice as a member, maybe belonging desire moderate.
+
+6) Desire to have (拥有欲): the writer may want to have proper hearing aids that work; this is similar to control but could be owning the product.
+
+7) Becoming: maybe the writer wants to become better hearing, but not strongly expressed.
+
+8) Transcendence: not relevant.
+
+9) Aspiration: maybe the writer imagines ideal hearing environment; but not strong.
+
+Thus we can assign approximate weights: we need to sum to 1. Let's decide:
+
+- 控制欲: 0.30 (significant)
+- 安全感欲: 0.30 (significant)
+- 确认欲: 0.15 (self-confirmation)
+- 摆脱欲: 0.10
+- 归属欲: 0.10
+- 拥有欲: 0.05 (maybe)
+- 成为欲: 0.0 (minimal)
+- 超越欲: 0.0
+- 向往欲: 0.0
+
+We need to ensure all nine categories are present with weights; some can be zero. Sum must be 1. Let's compute: 0.30+0.30+0.15+0.10+0.10+0.05 = 1.0. Good.
+
+Now need_layer: we need to list needs from the 17 categories. Which needs are triggered?
+
+The content includes:
+
+- "if your audiologist didn't know to use a longer wire, if they can't get it right on this next try, I would go to someone else..." This is about controlling the outcome, ensuring proper fitting. This could be N02_掌控局面 (control the situation) and N01_确定性 (reduce uncertainty about proper hearing aid fitting). Also N04_理解世界? Not exactly. The writer wants to ensure that the audiologist can adjust sound properly. So need for competence, maybe N03_提升能力? Actually the writer is not trying to提升能力; they are asking for a competent audiologist.
+
+- The writer mentions: "It's normal for background noises to seem really loud when you haven't heard them before - but if it's painful or ..." So the writer wants to avoid pain: N06_摆脱痛苦 (relieve pain). Also N15_放松休憩? Possibly not. The writer also wants to get relief (宽慰) after experiencing poor audiologist; they mention they couldn't hear, it's painful.
+
+- The writer also wants to ensure that the audiologist is competent: N01_确定性 (certainty about the audiologist's ability), N02_掌控局面 (taking control). The writer also wants to confirm his own viewpoint: N10_自我确认 (self-confirmation). Also N11_归属群体 maybe, but not strongly.
+
+- The writer might have N07_占有资源: maybe not.
+
+- The writer also wants to reduce uncertainty about the fitting: N01_确定性.
+
+Thus the need_layer likely includes:
+
+- N02_掌控局面 (control the situation) weight maybe high.
+- N01_确定性 (certainty about proper fitting) weight moderate.
+- N06_摆脱痛苦 (avoid pain) weight moderate.
+- N10_自我确认 (self-confirmation) weight moderate.
+
+But weights must sum to 1. Let's decide distribution:
+
+- N02_掌控局面: 0.35
+- N01_确定性: 0.25
+- N06_摆脱痛苦: 0.25
+- N10_自我确认: 0.15
+
+Sum = 1.0. That seems plausible.
+
+Now appraisal: We need to evaluate goal_relevance, congruence_direction, need_status, goal_congruence, coping_potential.
+
+Goal_relevance: how relevant the content is to the writer's goal. The writer's goal is to help the reader get proper hearing aid fitting, to avoid pain, to control the situation. The content is highly relevant to writer's own concerns as hearing aid user. So high relevance: 0.9 maybe.
+
+Goal_relevance: 0.9.
+
+Congruence_direction: The content is about addressing the problem, giving suggestions to improve the situation. The writer is providing advice to move toward a positive outcome. That's "促进" (promotion). The content helps the reader approach a solution. So congruence_direction = "促进".
+
+Need_status: Does the content fulfill the need? The writer is giving advice, which is helpful for the reader; the writer also mentions personal experience of a problematic audiologist, which is a "threat" (frustration) but overall the content is "helpful" - it provides a path to resolution. So need_status: "已满足" (the writer is providing a solution, fulfilling the need). Actually the writer's own need might not be satisfied because they had a problem with an audiologist. But the content is a response offering advice, which is an act of fulfilling the need to help the reader, but also the writer is expressing frustration. The appraisal is about the writer's evaluation of the situation: the writer's own need might be unsatisfied because they had a bad experience, but they are now providing solution. In the context of this text, the writer's content is "helpful" (they are giving actionable advice). So we can assign need_status: "已满足". Actually the writer is offering advice that may help the reader achieve the need for control and certainty. So the content is helpful. So need_status = "已满足".
+
+Goal_congruence: Since congruence direction is "促进" and need_status is "已满足", then goal_congruence = "正". (positive)
+
+Coping_potential: The writer appears confident that they can find another audiologist, look at pictures, etc. They have coping potential: they can handle the situation, they have strategies. So coping_potential = "高".
+
+Now emotion_layer: Distribution of 13 emotions from GoEmotions.
+
+Given the content, the writer expresses:
+
+- Approval (认同) maybe: "Agreed". The writer is approving of the previous comment.
+
+- Frustration/anger: "I would be skeptical...". So "anger" moderate.
+
+- Fear? Not strongly.
+
+- Sadness? Not strongly.
+
+- Joy? Maybe a bit of relief.
+
+- Relief: "I've had great audiologists...". There's a sense of relief that they have had good experiences before.
+
+- Pride: They are proud of their own knowledge and ability to give advice.
+
+- Curiosity? Not much.
+
+- Desire? Possibly desire for proper hearing.
+
+- Admiration? Not really.
+
+- Gratitude? Not strongly.
+
+- Nostalgia? Not.
+
+- Love? Not.
+
+We need to allocate weights that sum to 1. Let's decide approximate distribution:
+
+- approval认同: 0.25 (the writer says "Agreed" and endorses the advice)
+
+- anger愤怒: 0.20 (frustration with incompetent audiologist)
+
+- relief宽慰: 0.15 (they mention good audiologists, which gives relief)
+
+- pride自豪: 0.15 (pride in own knowledge)
+
+- joy喜悦: 0.10 (some positivity in providing advice)
+
+- fear恐惧: 0.05 (maybe fear about hearing loss or being in pain)
+
+- sadness悲伤: 0.05 (sad about previous bad audiologist)
+
+- admiration钦佩: 0.0
+
+- gratitude感激: 0.0
+
+- desire渴望: 0.05 (desire for proper hearing)
+
+- nostalgia怀旧: 0.0
+
+- love爱: 0.0
+
+- curiosity好奇: 0.0
+
+Sum = 0.25+0.20+0.15+0.15+0.10+0.05+0.05+0.05 = 1.0? Let's compute: 0.25+0.20=0.45, +0.15=0.60, +0.15=0.75, +0.10=0.85, +0.05=0.90, +0.05=0.95, +0.05=1.0. Good.
+
+Now action_tendency_layer: Frijda action tendency categories: approach趋近, avoidance回避, attend关注, reject拒斥, agonistic对抗, interrupt中断, dominate支配.
+
+The writer's action is to approach the problem: giving advice, encouraging the reader to take action (go to someone else, look at pictures). So approach likely high.
+
+The writer also is dominating the conversation: they dominate with advice, maybe "agonistic" towards incompetent audiologist: they are confrontational about the audiologist's competence. But the primary action is approach.
+
+Let's allocate:
+
+- approach趋近: 0.50
+
+- dominate支配: 0.25 (giving strong directives)
+
+- agonistic对抗: 0.15 (confronting incompetent audiologist)
+
+- avoid? Not present; maybe avoid is low.
+
+- attend关注: 0.10 (they are paying attention to details like wire length, etc.)
+
+- reject? Not present.
+
+- interrupt? Not present.
+
+Sum = 0.50+0.25+0.15+0.10 = 1.0.
+
+Now chain_trace: Must be a single sentence linking desire -> situation event -> need -> appraisal -> emotion -> action tendency. Let's write: "控制欲 →(面对不称职听力学家导致助听器调试不良的情境) → N02_掌控局面 (需要重新掌握助听器调试的主导权) →(促进 + 已满足 → 正向情绪) → approval认同 + anger愤怒 + relief宽慰 + pride自豪 → 行动倾向以趋近(提供建议) + 支配(要求更换专家) + 对抗(质疑不称职的听力学家)". That is a sentence.
+
+But we need to fill in specifics:欲望X, 情境Y, 需求Z (code), 评价, 情绪W, 行动倾向V.
+
+Let's write a chain_trace: "控制欲 →(面对助听器适配不佳、听力学家不称职的情境) → N02_掌控局面 →(促进 / 已满足 / 正向 / 高应对潜能) → approval认同 + anger愤怒 + relief宽慰 + pride自豪 → approach趋近 + dominate支配 + agonistic对抗".
+
+That is a single sentence, though it's a bit long but okay.
+
+Now evidence: need to provide quotes from content for each layer.
+
+- desire: The writer is controlling the situation? Let's find quotes: "if your audiologist didn't know to use a longer wire... I would go to someone else". That's about controlling the outcome. Also "if they are the least bit defensive ... that's notable". Also "I would be skeptical they would be super skilled...". So desire evidence: "I would go to someone else - if it's a bigger office someone else should be able to do it", etc. We can quote "I would go to someone else".
+
+- need: evidence for N02_掌控局面: "if they can't get it right on this next try, I would go to someone else". Also "Look at pics online of people wearing a hearing aid, take a screenshot or two and show the person." That's about controlling. For N01_确定性: "if your audiologist didn't know to use a longer wire". For N06_摆脱痛苦: "if it's painful". For N10_自我确认: "Agreed, ...".
+
+- emotion: evidence for each emotion: "Agreed" (approval), "I would be skeptical" (anger), "I've had great audiologists but did have one recently that could not for the life of her work it out! She was so nice but I couldn't hear!" (relief maybe? Not sure, maybe frustration). Also "She was so nice but I couldn't hear!" (sadness). Also "I would be skeptical..." (anger). Also "I have great audiologists" (relief). Also "I'm proud of my knowledge"? Not explicit but we can quote "if they are the least bit defensive ... that's notable" maybe pride? Not exactly. Might be okay.
+
+- action: evidence for approach: "I would go to someone else", "Look at pics online... show the person". For dominate: "I would be skeptical they would be super skilled at making sound adjustments". For agonistic: "I would be skeptical they would be super skilled..." etc.
+
+We need to ensure each evidence quote is from the content.
+
+Now output as JSON.
+
+But must be careful to meet all constraints:
+
+- desire_layer distribution keys exactly as in list (in Chinese with parentheses maybe?), the list includes "拥有欲","成为欲","摆脱欲","确认欲","超越欲","归属欲","控制欲","安全感欲","向往欲". So we need to output those keys exactly.
+
+- need_layer must be list of objects each with "code", "context_slot", "weight", "derived_from". Code must be one of N01_确定性,... The context_slot is a free text describing trigger context. derived_from must specify which desire leads to which need.
+
+- appraisal: goal_relevance (0-1), congruence_direction must be string "促进" or "威胁" or "中性". need_status must be "已满足" or "未满足". goal_congruence "正" or "负". coping_potential "高" or "中" or "低". Provide note.
+
+- emotion_layer distribution must have keys exactly as list (13 emotions). Provide note.
+
+- action_tendency_layer distribution must have keys exactly as list (7 actions). Provide note.
+
+- chain_trace: a single sentence linking everything.
+
+- evidence: an object with keys "desire","need","emotion","action". Provide quotes.
+
+Check that sum of weights for desire_layer =1, need_layer =1, emotion_layer=1, action_tendency_layer=1.
+
+Now verify need_layer distribution: sum of weight = 0.35+0.25+0.25+0.15 = 1.0.
+
+Now ensure that need_layer code is one of the 17: N02_掌控局面, N01_确定性, N06_摆脱痛苦, N10_自我确认. Good.
+
+Now we need to fill in context_slot for each need.
+
+- N02_掌控局面: context_slot: "在面对助听器适配不佳、听力学家不称职的情况下，需要重新掌控助听器调试的主导权". weight: 0.35. derived_from: "控制欲".
+
+- N01_确定性: context_slot: "对听力学家是否懂得使用更长线材、以及能否正确调试声音存在不确定性". weight: 0.25. derived_from: "安全感欲".
+
+- N06_摆脱痛苦: context_slot: "当助听器导致疼痛或背景噪音异常大时，需要摆脱这种不适". weight: 0.25. derived_from: "安全感欲" also maybe "摆脱欲". Actually both. We can say "安全感欲" (to avoid pain). Or "摆脱欲". But the derived_from must be a single desire. Could be "安全感欲". Or we could attribute to "摆脱欲". Let's attribute to "安全感欲" because it's about safety from pain.
+
+- N10_自我确认: context_slot: "对自身对助听器适配的判断是否正确，需要确认自己的观点". weight: 0.15. derived_from: "确认欲".
+
+Now desire_layer note: explain why these desires are activated.
+
+Now emotion_layer note: explain each emotion.
+
+Now action_tendency_layer note: explain.
+
+Now chain_trace: one sentence.
+
+Now evidence: desire quote: "I would go to someone else". Or "if they can't get it right on this next try, I would go to someone else". That's about desire for control.
+
+Need evidence: we need quotes for each need. For N02_掌控局面: "if they can't get it right on this next try, I would go to someone else". For N01_确定性: "if your audiologist didn't know to use a longer wire". For N06_摆脱痛苦: "if it's painful or". For N10_自我确认: "Agreed". Or "if that audiologist doesn't know this basic thing I would be skeptical". That's self-confirmation.
+
+Emotion evidence: For approval: "Agreed". For anger: "I would be skeptical they would be super skilled at making sound adjustments". For relief: "I've had great audiologists but did have one recently that could not for the life of her work it out! She was so nice but I couldn't hear!". For pride: maybe we can quote "I would be skeptical they would be super skilled at making sound adjustments" showing pride in their own knowledge. Or "Look at pics online... show the person". But not exactly. We can mention that they are confident in their own assessment.
+
+Action evidence: "I would go to someone else" (approach). "Look at pics online of people wearing a hearing aid, take a screenshot or two and show the person" (attend). "I would be skeptical..." (dominate). "if they are the least bit defensive... that's notable" (agonistic).
+
+Now check constraints: all weights sum to 1. Yes.
+
+Now ensure no extra fields, and JSON is valid.
+
+Now let's construct the final JSON.
+
+Will output in a JSON code block.
+
+One thing: In the output, "desire_layer" includes "distribution" with the 9 keys, each weight. Then a note.
+
+The need_layer is a list of objects with "code", "context_slot", "weight", "derived_from". The "derived_from" is a string, but we must indicate the desire from which it is derived. It should be a single desire name (the Chinese name). Eg "控制欲". Should we include parentheses? We'll just put the name.
+
+Now appraisal: include all fields.
+
+Now emotion_layer: distribution keys with weights, plus note.
+
+Now action_tendency_layer: distribution keys with weights, plus note.
+
+Now chain_trace: a sentence.
+
+Now evidence: object with keys: "desire","need","emotion","action". Each value is an array of quotes? The spec says "逐字引用". Could be a string. We'll use a string with the quote.
+
+We must be careful that evidence quotes are taken directly from the content.
+
+The content includes multiple sentences. We'll need to quote some parts.
+
+Let's extract the relevant parts:
+
+Content:
+
+"Agreed, and if your audiologist didn't know to use a longer wire, if they can't get it right on this next try, I would go to someone else - if it's a bigger office someone else should be able to do it, and if it's a one-person shop, if they don't get it right when you go in, definitely go to someone else. Look at pics online of people wearing a hearing aid, take a screenshot or two and show the person. If they are the least bit defensive or are slow to affirm they should do it very differently, that's notable.
+
+If that audiologist doesn't know this basic thing I would be skeptical they would be super skilled at making sound adjustments. I've had great audiologists but did have one recently that could not for the life of her work it out! She was so nice but I couldn't hear!
+
+It's normal for background noises to seem really loud when you haven't heard them before - but if it's painful or"
+
+Thus we have the following quotes:
+
+- "Agreed" (approval)
+- "if your audiologist didn't know to use a longer wire" (desire for control, need for certainty)
+- "if they can't get it right on this next try, I would go to someone else" (control)
+- "Look at pics online of people wearing a hearing aid, take a screenshot or two and show the person" (action approach)
+- "If they are the least bit defensive or are slow to affirm they should do it very differently, that's notable." (anger)
+- "If that audiologist doesn't know this basic thing I would be skeptical they would be super skilled at making sound adjustments." (anger, skepticism)
+- "I've had great audiologists but did have one recently that could not for the life of her work it out! She was so nice but I couldn't hear!" (sadness, frustration)
+- "It's normal for background noises to seem really loud when you haven't heard them before - but if it's painful or" (pain)
+
+Now we need to ensure the chain trace includes the mapping.
+
+Now we need to verify that we didn't include any extra fields not requested. The output must be exactly JSON with those fields. No extra fields. Ensure that we use proper quoting.
+
+Now check each weight distribution.
+
+Desire distribution:
+
+- "拥有欲": 0.0
+- "成为欲": 0.0
+- "摆脱欲": 0.10
+- "确认欲": 0.15
+- "超越欲": 0.0
+- "归属欲": 0.10
+- "控制欲": 0.30
+- "安全感欲": 0.30
+- "向往欲": 0.0
+
+Sum = 1.0.
+
+Now need_layer:
+
+List:
+
+{
+ "code": "N02_掌控局面",
+ "context_slot": "在面对助听器适配不佳、听力学家不称职的情况下，需要重新掌控助听器调试的主导权",
+ "weight": 0.35,
+ "derived_from": "控制欲"
+},
+{
+ "code": "N01_确定性",
+ "context_slot": "对听力学家是否懂得使用更长线材、以及能否正确调试声音存在不确定性",
+ "weight": 0.25,
+ "derived_from": "安全感欲"
+},
+{
+ "code": "N06_摆脱痛苦",
+ "context_slot": "当助听器导致疼痛或背景噪音异常大时，需要摆脱这种不适",
+ "weight": 0.25,
+ "derived_from": "安全感欲"
+},
+{
+ "code": "N10_自我确认",
+ "context_slot": "对自身对助听器适配的判断是否正确，需要确认自己的观点",
+ "weight": 0.15,
+ "derived_from": "确认欲"
+}
+
+Sum = 1.0.
+
+Now appraisal:
+
+goal_relevance: 0.9
+
+congruence_direction: "促进"
+
+need_status: "已满足"
+
+goal_congruence: "正"
+
+coping_potential: "高"
+
+note: "内容提供了具体的解决方案（更换听力学家、查看图片等），帮助观众重新掌控局面、消除不确定性并摆脱痛苦，已满足其需求，且观众相信自己能够应对此类问题，故为正向情绪和高应对潜能。"
+
+Now emotion_layer distribution:
+
+- "admiration钦佩": 0.0
+- "joy喜悦": 0.10
+- "gratitude感激": 0.0
+- "desire渴望": 0.05
+- "nostalgia怀旧": 0.0
+- "pride自豪": 0.15
+- "love爱": 0.0
+- "relief宽慰": 0.15
+- "approval认同": 0.25
+- "curiosity好奇": 0.0
+- "fear恐惧": 0.05
+- "sadness悲伤": 0.05
+- "anger愤怒": 0.20
+
+Sum = 1.0.
+
+Now action_tendency_layer distribution:
+
+- "approach趋近": 0.50
+- "avoidance回避": 0.0
+- "attend关注": 0.10
+- "reject拒斥": 0.0
+- "agonistic对抗": 0.15
+- "interrupt中断": 0.0
+- "dominate支配": 0.25
+
+Sum = 1.0.
+
+Now chain_trace: Must be a single sentence. Let's write something like:
+
+"控制欲 →(面对助听器适配不佳、听力学家不称职的情境) → N02_掌控局面 →(促进/已满足/正向/高应对潜能) → approval认同 + anger愤怒 + relief宽慰 + pride自豪 → approach趋近 + dominate支配 + agonistic对抗"
+
+Check: chain_trace includes desire X = "控制欲". The scenario Y: "面对助听器适配不佳、听力学家不称职的情境". Need Z: "N02_掌控局面". Appraisal: "促进/已满足/正向/高应对潜能". Emotion: "approval认同 + anger愤怒 + relief宽慰 + pride自豪". Action: "approach趋近 + dominate支配 + agonistic对抗". That's a single sentence.
+
+Now evidence:
+
+- desire: "I would go to someone else - if it's a bigger office someone else should be able to do it". Or "if your audiologist didn't know to use a longer wire". We'll pick "if your audiologist didn't know to use a longer wire, if they can't get it right on this next try, I would go to someone else". That's about control.
+
+- need: For each need we have a quote. Let's pick:
+
+N02_掌控局面: "if they can't get it right on this next try, I would go to someone else"
+
+N01_确定性: "if your audiologist didn't know to use a longer wire"
+
+N06_摆脱痛苦: "if it's painful or"
+
+N10_自我确认: "Agreed"
+
+We need to ensure these are exactly from content. Yes.
+
+- emotion: we need to cite quotes that illustrate each emotion.
+
+approval认同: "Agreed"
+
+anger愤怒: "I would be skeptical they would be super skilled at making sound adjustments."
+
+relief宽慰: "I've had great audiologists but did have one recently that could not for the life of her work it out! She was so nice but I couldn't hear!"
+
+pride自豪: "Look at pics online of people wearing a hearing aid, take a screenshot or two and show the person." (maybe this shows pride in knowledge, but maybe not. Could also use "If they are the least bit defensive... that's notable." Or "If that audiologist doesn't know this basic thing I would be skeptical they would be super skilled at making sound adjustments." Might show pride. We can cite "If that audiologist doesn't know this basic thing I would be skeptical they would be super skilled at making sound adjustments." This indicates confidence in own judgment.
+
+We also have fear: "if it's painful". Or "It's normal for background noises to seem really loud when you haven't heard them before - but if it's painful or". That's fear.
+
+Sadness: "She was so nice but I couldn't hear!"
+
+Joy: "I would go to someone else" maybe not joy, but we can use "I would go to someone else" maybe not. Could use "I have great audiologists" maybe relief.
+
+But we need to include all emotions we assigned weights for. We have:
+
+- approval认同 (0.25)
+- anger愤怒 (0.20)
+- relief宽慰 (0.15)
+- pride自豪 (0.15)
+- joy喜悦 (0.10)
+- desire渴望 (0.05)
+- fear恐惧 (0.05)
+- sadness悲伤 (0.05)
+
+We need evidence for each of those eight emotions. Let's compile evidence:
+
+- approval认同: "Agreed"
+
+- anger愤怒: "I would be skeptical they would be super skilled at making sound adjustments."
+
+- relief宽慰: "I've had great audiologists but did have one recently that could not for the life of her work it out! She was so nice but I couldn't hear!"
+
+- pride自豪: "Look at pics online of people wearing a hearing aid, take a screenshot or two and show the person." (maybe showing pride in knowledge). Or "If that audiologist doesn't know this basic thing I would be skeptical...". We'll use "Look at pics online...".
+
+- joy喜悦: Could be "I would go to someone else - if it's a bigger office someone else should be able to do it". Or "If it's a bigger office someone else should be able to do it". Maybe not strong but we can use "I would go to someone else".
+
+- desire渴望: "if it's painful or" maybe not desire. But maybe "I want to be able to hear properly". The content doesn't have explicit desire but we can use "if it's painful or" as desire for relief? Could use "if it's painful or" to indicate desire to avoid pain. Or "I want to be able to hear". But no direct quote. We'll use "if it's painful or".
+
+- fear恐惧: "if it's painful or" also fear. We'll cite that.
+
+- sadness悲伤: "She was so nice but I couldn't hear!"
+
+Thus we have quotes for each.
+
+Now action evidence:
+
+- approach趋近: "I would go to someone else - if it's a bigger office someone else should be able to do it"
+
+- dominate支配: "I would be skeptical they would be super skilled at making sound adjustments."
+
+- agonistic对抗: "If they are the least bit defensive or are slow to affirm they should do it very differently, that's notable."
+
+- attend关注: "Look at pics online of people wearing a hearing aid, take a screenshot or two and show the person."
+
+We assigned weights for these accordingly.
+
+Now we need to ensure that evidence fields for desire, need, emotion, action contain these quotes. In the evidence object, the values can be arrays of strings or a single string. The spec says "逐字引用". We'll just put a string with the quote.
+
+Now output JSON.
+
+Now check everything.
+
+One more check: need_layer derived_from must be a desire name. Use the Chinese names from desire_layer: "控制欲", "安全感欲", "确认欲". Good.
+
+Now check if desire_layer note: Should explain why those desires are activated. We'll write a short note.
+
+Now check if we need to include any extra fields like "no_inferable_subject"? No, it's a personal expression.
+
+Now output JSON accordingly.
+
+Now we need to ensure that the JSON keys are exactly as required.
+
+The required top-level keys: desire_layer, need_layer, appraisal, emotion_layer, action_tendency_layer, chain_trace, evidence.
+
+Within desire_layer: distribution (object with keys), note (string).
+
+Within need_layer: list of objects each with code, context_slot, weight, derived_from.
+
+Within appraisal: goal_relevance, congruence_direction, need_status, goal_congruence, coping_potential, note.
+
+Within emotion_layer: distribution (object), note.
+
+Within action_tendency_layer: distribution (object), note.
+
+Within chain_trace: string.
+
+Within evidence: object with keys: desire, need, emotion, action. Probably each should be a string quoting the relevant text. The spec says "逐字引用". We'll put the quote.
+
+Now confirm all weights are numbers, not strings. Yes.
+
+Now double-check that the distribution keys are correct Chinese names exactly as given. In desire_layer distribution we have "拥有欲", "成为欲", "摆脱欲", "确认欲", "超越欲", "归属欲", "控制欲", "安全感欲", "向往欲". Good.
+
+In emotion_layer distribution keys: "admiration钦佩","joy喜悦","gratitude感激","desire渴望","nostalgia怀旧","pride自豪","love爱","relief宽慰","approval认同","curiosity好奇","fear恐惧","sadness悲伤","anger愤怒". Good.
+
+In action_tendency_layer distribution keys: "approach趋近","avoidance回避","attend关注","reject拒斥","agonistic对抗","interrupt中断","dominate支配". Good.
+
+Now ensure that need_layer codes are exactly from the list: N01_确定性, N02_掌控局面, N03_提升能力, N04_理解世界, N05_优化效率, N06_摆脱痛苦, N07_占有资源, N08_提升形象, N09_获得地位, N10_自我确认, N11_归属群体, N12_情感联结, N13_情感慰藉, N14_代入理想, N15_放松休憩, N16_表达创造, N17_追忆连接. Our codes: N02_掌控局面, N01_确定性, N06_摆脱痛苦, N10_自我确认. All valid.
+
+Now ensure
