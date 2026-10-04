@@ -1,0 +1,84 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.0,
+      "确认欲": 0.4,
+      "超越欲": 0.0,
+      "归属欲": 0.1,
+      "控制欲": 0.2,
+      "安全感欲": 0.2,
+      "向往欲": 0.1
+    },
+    "note": "回复者作为论坛成员主动提供帮助性建议，确认欲（想要确认自己的信息和建议对他人有价值）占主导；同时控制欲（想要帮助对方掌控购买助听器的局面）和安全感欲（帮助消除对方寻找助听器的不确定性）也被激活；归属欲体现在作为社区成员互帮互助"
+  },
+  "need_layer": [
+    {
+      "code": "N01_确定性",
+      "context_slot": "提问者想知道Costco助听器的供应情况，存在不确定性",
+      "weight": 0.4,
+      "derived_from": "由安全感欲经「对方询问助听器供应情况」情境衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "提问者可能对如何获取助听器感到被动",
+      "weight": 0.3,
+      "derived_from": "由控制欲经「对方需要知道如何获取助听器」情境衍生"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "提问者想理解Costco助听器供应的区域性推出逻辑",
+      "weight": 0.3,
+      "derived_from": "由确认欲经「解释为什么某些Costco有某些没有」情境衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.7,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "回复内容直接提供了解决方案（打电话问其他Costco），帮助提问者降低不确定性并获得掌控感，属于促进+已满足的正向评价。高相关性因为直接回答了提问者的问题；高应对潜能因为建议具体可执行"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.1,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.1,
+      "love爱": 0.2,
+      "relief宽慰": 0.4,
+      "approval认同": 0.2,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.0
+    },
+    "note": "由正向+已满足的需求产生正面情绪为主：relief宽慰（帮助对方解决了问题）、love爱（社区互助的善意）、approval认同（认可对方的困惑是合理的）、pride自豪（提供有用信息）、joy喜悦（帮助他人带来的愉悦）"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.6,
+      "avoidance回避": 0.0,
+      "attend关注": 0.2,
+      "reject拒斥": 0.0,
+      "agonistic对抗": 0.0,
+      "interrupt中断": 0.0,
+      "dominate支配": 0.2
+    },
+    "note": "主动提供具体建议（approach趋近占主导），同时保持关注对方情况（attend关注），以及提供信息以帮助对方做决定（dominate支配，指向提供建议框架）"
+  },
+  "chain_trace": "安全感欲 →(对方询问Costco助听器供应情况) → N01_确定性需求(想降低购买不确定性) →(评价:goal_relevance高+congruence促进+need_status已满足+coping_potential高 → 正向) → relief宽慰+love爱 → approach趋近(主动提供具体建议)的完整因果链",
+  "evidence": {
+    "desire": "my guess is they rolled it out regionally（回复者基于自己的理解提供帮助性建议，希望确认自己的推测有价值）",
+    "try calling other Costcos near to you（具体建议体现帮助对方掌控局面）",
+    "need": "rolled it out regionally / making them available more broadly or have a plan or schedule（关于助听器供应的区域性推出逻辑和计划，满足确定性需求）",
+    "emotion": "my guess is / they may be（用推测性语气表达帮助性善意，带有宽慰和社区关爱的温度）",
+    "action": "try calling other Costcos near to you（直接建议采取行动解决问题，体现趋近倾向）"
+  }
+}
+```
