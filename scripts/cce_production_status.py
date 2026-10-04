@@ -53,6 +53,12 @@ def rows() -> list[dict]:
             "(tests/data/production_output_spec_2026-10-03.json ★K1_readout_gap) ⇒ 本格对实际发布读数是跨形式引用; "
             "G-P (a) 直接量发布读数(tests/data/gate_gp_prereg.json)")
     _gp = {3: ", 若 FAIL 本格须降级", 5: "; ★ G-P 只覆盖 k=3, 本格(k=5)不在其作用域, 缺口仍开着"}
+    # ★ 2026-10-04 G-P 已判: (a) 是 k=3 仪器上发布读数本身的重跑判定 ⇒ FAIL 时本格降级(状态表只是声明层;
+    #   生产路由仍由 cce_k1_status 据 K1 放行, 撤不撤是 owner 的事, 这里不动)
+    _gpr_path = os.path.join(ROOT, "tests/data/gate_gp_result.json")
+    _gpa = json.load(open(_gpr_path, encoding="utf-8"))["a_production_rerun_stability"] if os.path.exists(_gpr_path) else None
+    _gpu = (json.load(open(_gpr_path, encoding="utf-8"))["descriptive"]["rule_U"]["production_reruns"]
+            if _gpa else None)
     for _prof, _k in (("reply / response", 3), ("outbound_post", 5)):
         _ih = _hash_of(_k)
         _ok, _why = knot_readout_usable("top1", instrument_hash=_ih)
@@ -60,9 +66,18 @@ def rows() -> list[dict]:
         #   我第一版标成 FAILED —— 那是把 not-started 说成 judged-and-failed, 方向反了。
         _state = USABLE if _ok else (
             UNMEASURED if "没有 K1 判定" in _why or "不可跨仪器搬" in _why else FAILED)
+        _ev = f"仪器 {_ih} · {_why} · {_gap}{_gp[_k]}"
+        if _k == 3 and _gpa and _gpa["verdict"] == "FAIL":
+            _state = FAILED
+            _ev = (f"★ G-P (a) FAIL(2026-10-04, tests/data/gate_gp_result.json): 生产重跑 top1_mode 一致 "
+                   f"{_gpa['agree']}/{_gpa['n_pairs']} = {_gpa['point']:.3f}, 单侧 95% [{_gpa['L95_one_sided']:.3f}, "
+                   f"{_gpa['U95_one_sided']:.3f}] < 7/8 ⇒ 发布读数(rule Q)重跑不稳。★ 生产路由未改: cce_k1_status 仍据 K1"
+                   f"(knots[0])放行 top-1, 撤销与否待 owner 定。描述(本闸不判): rule U(5/5 全票才发布)两次运行 "
+                   f"都发布 {_gpu['published_same']} 条且全部相同, 但 {_gpu['both_withheld']} 条两次都扣发、"
+                   f"{_gpu['one_withheld']} 条只一次发布。原证据: {_ev}")
         out.append({"组件": f"结层 top-1 @ {_prof} (k={_k})",
                     "状态": _state,
-                    "证据": f"仪器 {_ih} · {_why} · {_gap}{_gp[_k]}",
+                    "证据": _ev,
                     "文件": "scripts/cce_k1_status.py"})
 
     a = panel["agreement"]
@@ -277,6 +292,12 @@ def rows() -> list[dict]:
                 "证据": ("按 guard_profile 查合规词表 + 破折号纪律 + P7 生成物闸(2026-09-28 接入: 引用未达标机制或 K1 未达标强度读数即拦, "
                          "只认 [[mech:]] / [[knot_intensity|delta:]] 标记)。★ 已知缺口: 合规表读不到或 profile 不存在时静默放行(诊断 P2, 未修)"),
                 "文件": "scripts/cce_outbound_guard.py · scripts/cce_strategy_gate.py"})
+    if _gpa and _gpa["verdict"] == "FAIL":      # 依赖读者 top-1 的行: 写明 G-P 对 rule U 只描述不判定
+        for r in out:
+            if r["组件"].startswith("对齐出口 逐原子三值"):
+                r["证据"] = (f"★ 2026-10-04 G-P: rule Q 发布的 top-1 重跑不稳(见「结层 top-1 @ reply / response」); 本行用 rule U "
+                            f"(5/5 全票), G-P 只描述不判定: 两次都发布的 {_gpu['published_same']} 条全部相同, 但 "
+                            f"{_gpu['both_withheld'] + _gpu['one_withheld']}/{_gpa['n_pairs']} 条至少一次扣发。" + r["证据"])
     return out
 
 

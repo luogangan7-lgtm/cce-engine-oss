@@ -1,0 +1,311 @@
+{
+ "block": "GATE_GP_RESULT",
+ "prereg_sha256": "e86837c3d31d8a11f395dd9866c4a14bdac746a094fbf4eabcaef632be94a535",
+ "items_sha256": "e961de896abbd5920be6eca944a779f3cf1d99dcbb4220f791bfe6329ed512ca",
+ "slots_used": {
+  "M2_r1": [
+   {
+    "shard": 1,
+    "github_run_id": "37143522239",
+    "started_at_utc": "2026-10-03T18:16:16Z"
+   },
+   {
+    "shard": 2,
+    "github_run_id": "37145642884",
+    "started_at_utc": "2026-10-03T18:49:58Z"
+   }
+  ],
+  "M2_r2": [
+   {
+    "shard": 1,
+    "github_run_id": "37167529506",
+    "started_at_utc": "2026-10-04T01:17:33Z"
+   },
+   {
+    "shard": 2,
+    "github_run_id": "37169263851",
+    "started_at_utc": "2026-10-04T01:51:56Z"
+   }
+  ],
+  "M2.5_r1": [
+   {
+    "shard": 1,
+    "github_run_id": "37128040477",
+    "started_at_utc": "2026-10-03T13:59:41Z"
+   },
+   {
+    "shard": 2,
+    "github_run_id": "37129878105",
+    "started_at_utc": "2026-10-03T14:31:45Z"
+   }
+  ],
+  "M2.5_r2": [
+   {
+    "shard": 1,
+    "github_run_id": "37155195792",
+    "started_at_utc": "2026-10-03T21:28:36Z"
+   },
+   {
+    "shard": 2,
+    "github_run_id": "37156899308",
+    "started_at_utc": "2026-10-03T21:59:48Z"
+   }
+  ],
+  "M2.7_r1": [
+   {
+    "shard": 1,
+    "github_run_id": "37131998429",
+    "started_at_utc": "2026-10-03T15:05:55Z"
+   },
+   {
+    "shard": 2,
+    "github_run_id": "37137733227",
+    "started_at_utc": "2026-10-03T16:41:21Z"
+   }
+  ],
+  "M2.7_r2": [
+   {
+    "shard": 1,
+    "github_run_id": "37158718069",
+    "started_at_utc": "2026-10-03T22:31:44Z"
+   },
+   {
+    "shard": 2,
+    "github_run_id": "37163316639",
+    "started_at_utc": "2026-10-03T23:56:25Z"
+   }
+  ],
+  "M3_r1": [
+   {
+    "shard": 1,
+    "github_run_id": "37120547699",
+    "started_at_utc": "2026-10-03T11:43:33Z"
+   },
+   {
+    "shard": 2,
+    "github_run_id": "37124147621",
+    "started_at_utc": "2026-10-03T12:50:31Z"
+   }
+  ],
+  "M3_r2": [
+   {
+    "shard": 1,
+    "github_run_id": "37147553781",
+    "started_at_utc": "2026-10-03T19:21:22Z"
+   },
+   {
+    "shard": 2,
+    "github_run_id": "37151330740",
+    "started_at_utc": "2026-10-03T20:23:35Z"
+   }
+  ]
+ },
+ "slot_notes": {
+  "invalid": {},
+  "unused": [],
+  "incomplete_slots": []
+ },
+ "bootstrap": {
+  "B": 10000,
+  "seed": 20261003
+ },
+ "a_production_rerun_stability": {
+  "estimand": "两次独立生产读数 top1_mode 相同的概率(条目平均)",
+  "threshold": 0.875,
+  "n_pairs": 86,
+  "agree": 66,
+  "point": 0.7674418604651163,
+  "L95_one_sided": 0.6802818429515282,
+  "U95_one_sided": 0.8402352367608319,
+  "verdict": "FAIL"
+ },
+ "b_production_vs_panel_consensus": {
+  "estimand": "生产 top1_mode == 留一面板共识(M2.5/M2.7/M2 多数)| 共识存在",
+  "threshold": 0.8,
+  "point": 0.6580645161290323,
+  "n_cells": 155,
+  "L95_one_sided": 0.5679012345679012,
+  "U95_one_sided": 0.7435897435897436,
+  "verdict": "FAIL",
+  "reported_as": "REFERENCE_INCOHERENT"
+ },
+ "c_panel_self_consistency": {
+  "estimand": "四成员两两 top1_mode 相等(同运行同条目)",
+  "threshold": 0.8,
+  "point": 0.5717054263565893,
+  "n_cells": 172,
+  "L95_one_sided": 0.5135658914728682,
+  "U95_one_sided": 0.62984496124031,
+  "verdict": "FAIL"
+ },
+ "overall": "FAIL",
+ "descriptive": {
+  "per_slot": {
+   "M3_r1": {
+    "coverage": 86,
+    "none": 1,
+    "missing_why": {},
+    "http_attempts": 686,
+    "http_errors": {
+     "MiniMax-M3|base_resp:2062": 1
+    },
+    "rule_U_available": 30
+   },
+   "M2.5_r1": {
+    "coverage": 86,
+    "none": 0,
+    "missing_why": {},
+    "http_attempts": 696,
+    "http_errors": {},
+    "rule_U_available": 25
+   },
+   "M2.7_r1": {
+    "coverage": 86,
+    "none": 0,
+    "missing_why": {},
+    "http_attempts": 711,
+    "http_errors": {},
+    "rule_U_available": 18
+   },
+   "M2_r1": {
+    "coverage": 86,
+    "none": 0,
+    "missing_why": {},
+    "http_attempts": 699,
+    "http_errors": {},
+    "rule_U_available": 21
+   },
+   "M3_r2": {
+    "coverage": 86,
+    "none": 2,
+    "missing_why": {},
+    "http_attempts": 681,
+    "http_errors": {},
+    "rule_U_available": 33
+   },
+   "M2.5_r2": {
+    "coverage": 86,
+    "none": 0,
+    "missing_why": {},
+    "http_attempts": 697,
+    "http_errors": {},
+    "rule_U_available": 17
+   },
+   "M2.7_r2": {
+    "coverage": 86,
+    "none": 0,
+    "missing_why": {},
+    "http_attempts": 721,
+    "http_errors": {
+     "MiniMax-M2.7|http:529": 9
+    },
+    "rule_U_available": 20
+   },
+   "M2_r2": {
+    "coverage": 86,
+    "none": 0,
+    "missing_why": {},
+    "http_attempts": 700,
+    "http_errors": {},
+    "rule_U_available": 11
+   }
+  },
+  "member_rerun_agreement": {
+   "M3": [
+    66,
+    86
+   ],
+   "M2.5": [
+    53,
+    86
+   ],
+   "M2.7": [
+    56,
+    86
+   ],
+   "M2": [
+    54,
+    86
+   ]
+  },
+  "pair_agreement": {
+   "M3~M2.5": [
+    96,
+    172
+   ],
+   "M3~M2.7": [
+    99,
+    172
+   ],
+   "M3~M2": [
+    104,
+    172
+   ],
+   "M2.5~M2.7": [
+    95,
+    172
+   ],
+   "M2.5~M2": [
+    104,
+    172
+   ],
+   "M2.7~M2": [
+    92,
+    172
+   ]
+  },
+  "knots0_ne_top1_mode": {
+   "M3_r1": [
+    12,
+    85
+   ],
+   "M2.5_r1": [
+    22,
+    86
+   ],
+   "M2.7_r1": [
+    24,
+    86
+   ],
+   "M2_r1": [
+    31,
+    86
+   ],
+   "M3_r2": [
+    7,
+    84
+   ],
+   "M2.5_r2": [
+    24,
+    86
+   ],
+   "M2.7_r2": [
+    25,
+    86
+   ],
+   "M2_r2": [
+    26,
+    86
+   ]
+  },
+  "rule_U": {
+   "production_reruns": {
+    "both_withheld": 43,
+    "one_withheld": 23,
+    "published_same": 20
+   },
+   "production_published_vs_consensus": [
+    53,
+    61
+   ]
+  },
+  "consensus_available": [
+   155,
+   172
+  ],
+  "b_conservative_no_consensus_counts_as_disagree": [
+   102,
+   172
+  ]
+ }
+}

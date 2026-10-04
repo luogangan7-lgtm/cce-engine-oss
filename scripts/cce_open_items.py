@@ -296,9 +296,24 @@ def items() -> list[dict]:
     if os.path.exists(_fs):
         fs = _j("tests/data/gate_vs_production_fieldset_result.json")
         t = fs["★★★relative_to_the_G_K1_threshold"]
-        out.append({"类": OPEN,
-                    "项": "验收闸向生产对齐(owner 2026-10-03 定路线①): G-P 闸已预注册(86 条 × 4 模型 × 2 运行, 16 片), 待派发",
-                    "前注": ("★★★ 2026-10-03 **owner 裁定路线①「让闸量生产实际输出」**, 生产一字不动: "
+        _gpr = (_j("tests/data/gate_gp_result.json")
+                if os.path.exists(os.path.join(ROOT, "tests/data/gate_gp_result.json")) else None)
+        _ga, _gb, _gc = ((_gpr["a_production_rerun_stability"], _gpr["b_production_vs_panel_consensus"],
+                          _gpr["c_panel_self_consistency"]) if _gpr else (None, None, None))
+        out.append({"类": BLOCKED if _gpr else OPEN,
+                    "项": (f"G-P 生产实际输出闸 {_gpr['overall']}: 生产发布的 top-1 重跑一致 {_ga['point']:.3f} < 7/8, "
+                          f"参考面板两两一致 {_gc['point']:.3f} ⇒ 生产发布规则 / K1 top-1 路由怎么改需 owner 定"
+                          if _gpr else
+                          "验收闸向生产对齐(owner 2026-10-03 定路线①): G-P 闸已预注册(86 条 × 4 模型 × 2 运行, 16 片), 待派发"),
+                    "前注": ((f"★★★★ 2026-10-04 **G-P 已判 {_gpr['overall']}**(tests/data/gate_gp_result.json, 16 片全有效、未用替补): "
+                              f"(a) 生产 M3 两次运行 top1_mode 相同 {_ga['agree']}/{_ga['n_pairs']} = {_ga['point']:.3f}, "
+                              f"单侧 95% [{_ga['L95_one_sided']:.3f}, {_ga['U95_one_sided']:.3f}] < 0.875 ⇒ FAIL; "
+                              f"(c) 四模型两两 {_gc['point']:.3f} [{_gc['L95_one_sided']:.3f}, {_gc['U95_one_sided']:.3f}] < 0.80 ⇒ FAIL; "
+                              f"(b) 生产 vs 面板共识 {_gb['point']:.3f} ⇒ 按预注册标 {_gb['reported_as']}(参考面板自身不一致)。"
+                              f"生产状态表「结层 top-1 @ reply / response (k=3)」已降为「已测·不达标」; ★ 生产路由一字未动 "
+                              f"(cce_k1_status 仍据 K1 放行 top-1)。待 owner: 撤销 k=3 top-1 放行 / 只走 rule U 全票发布(这两条改生产行为) / "
+                              f"维持现状并对外标注(产品主张取舍) —— 都不由我定。k=5 不在 G-P 作用域。")
+                             if _gpr else "") + ("★★★ 2026-10-03 **owner 裁定路线①「让闸量生产实际输出」**, 生产一字不动: "
                              "G-P 闸(tests/data/gate_gp_prereg.json, 调用前修订 N 40→86)直接量生产发布的 top1_mode —— "
                              "(a) M3 生产重跑一致 >=7/8 · (b) 生产 vs 参考面板共识 >=0.80 · (c) 面板两两 >=0.80, 三项都 PASS 才 PASS; "
                              "16 片派发, 名义 5504 次, 研究上限 7362 次。★ 同时暴露 K1 读数形式缺口: K1 判在 knots[0], "
