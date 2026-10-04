@@ -1,0 +1,83 @@
+```json
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.0,
+      "成为欲": 0.0,
+      "摆脱欲": 0.1,
+      "确认欲": 0.6,
+      "超越欲": 0.0,
+      "归属欲": 0.15,
+      "控制欲": 0.1,
+      "安全感欲": 0.0,
+      "向往欲": 0.0
+    },
+    "note": "核心是确认欲：回复者认为对方的问题不应该在Reddit提问，自己对社区规则的理解是正确的（想确认自我判断/立场是对的）。归属欲体现在维护他认为的社区规范/秩序。控制欲体现在想规范他人行为。摆脱欲是想摆脱他认为的'低质量提问'。"
+  },
+  "need_layer": [
+    {
+      "code": "N10_自我确认",
+      "context_slot": "对方提出了一个提问者认为简单的问题，回复者感到对方的提问方式不符合自己理解的社区规范，需要确认自己的判断和处理方式是对的",
+      "weight": 0.6,
+      "derived_from": "确认欲 →(情境:看到不符合预期的提问)→ 确认自己的回应方式是否合理"
+    },
+    {
+      "code": "N11_归属群体",
+      "context_slot": "Reddit社区成员身份被'不当使用'（提问者问了'不该在这里问的问题'）",
+      "weight": 0.25,
+      "derived_from": "归属欲 →(情境:社区规范被挑战)→ 想维护自己所属群体的行为标准"
+    },
+    {
+      "code": "N04_理解世界",
+      "context_slot": "回复者想理解为什么有人会问这种问题，认为对方应该理解如何使用搜索工具",
+      "weight": 0.15,
+      "derived_from": "确认欲 →(情境:对方行为不符合预期)→ 想把对方的动机/行为想明白"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.7,
+    "congruence_direction": "威胁",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "对方的问题被回复者视为对社区/自己认知的轻微威胁（'不该问而问'），但回复者通过给出建议（'google it'）已经处理了这个威胁，感到自己是对的，所以是'促进+已满足'→正性情绪（轻微的优越感/自信）"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.0,
+      "gratitude感激": 0.0,
+      "desire渴望": 0.0,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.0,
+      "love爱": 0.0,
+      "relief宽慰": 0.0,
+      "approval认同": 0.0,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.0
+    },
+    "note": "此内容主要触发的是轻度的蔑视/不屑（disdain），不属于GoEmotions的13类基础情绪。更准确的情感是轻度的 superiority/contempt（优越感/蔑视），因goal_congruence为正所以情绪偏向正面但非愉悦，而是'我是对的'的确认感"
+  },
+  "action_tendency_layer": {
+    "distribution": {
+      "approach趋近": 0.0,
+      "avoidance回避": 0.0,
+      "attend关注": 0.0,
+      "reject拒斥": 0.65,
+      "agonistic对抗": 0.3,
+      "interrupt中断": 0.05,
+      "dominate支配": 0.0
+    },
+    "note": "核心是reject拒斥：直接拒绝回答对方的问题（'Reddit isn't the place for this query'）。agonistic对抗体现在语气中的攻击性。interrupt中断体现在打断对方的提问意图"
+  },
+  "chain_trace": "确认欲 →(情境:看到有人问了'不该在Reddit问'的简单问题)→ 需求N10_自我确认(确认自己的判断和处理方式是对的) →(评价:goal_relevance高, congruence_direction威胁但need_status已满足, coping_potential高, goal_congruence正)→ 轻度的优越感/蔑视 →(情绪导出)→ reject拒斥(拒绝回答+建议去Google) + agonistic对抗(带攻击性的语气) 的完整因果链",
+  "evidence": {
+    "desire": "If you're so desperate - 'desperate'暗示对方的需求不被认可，回复者想确认自己的立场是对的",
+    "need": "just do a google search, it's readily available / Reddit isn't the place for this query - 想确认/规范什么是该在Reddit问的",
+    "emotion": "轻度的蔑视/优越感 - 'so desperate'、'just do'、'isn't the place' 语气带有不屑",
+    "action": "reject拒斥：告诉对方不该在这里问；agonistic对抗：'If you're so desperate'带有攻击性"
+  }
+}
+```

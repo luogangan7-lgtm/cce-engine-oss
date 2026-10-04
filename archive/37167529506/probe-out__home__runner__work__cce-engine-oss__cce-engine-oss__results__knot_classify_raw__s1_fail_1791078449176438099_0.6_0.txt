@@ -1,0 +1,349 @@
+The user wants a "因果链逆问题" (reverse causal chain analysis) for a piece of Reddit content. The content is:
+
+"Vented made me HA sound better as opposed to closed and tulips."
+
+The user says: "若这段内容确实是某一个人写下的自我表达，请对『写下这段内容的这一个人』反推其心理因果链四层占比分布——这是一个个体，不是群体。"
+
+We need to parse this content. It's a Reddit post: "Vented made me HA sound better as opposed to closed and tulips." HA likely stands for hearing aid. So the person is saying that "Vented (type of hearing aid dome?) made my hearing aid sound better compared to closed and tulips." They are comparing venting (a type of vent in hearing aids) vs. closed fit vs. tulip domes.
+
+Thus, it's an individual expressing an opinion: they prefer vented hearing aid domes because it made the sound better. It's personal experience: "Vented made me HA sound better as opposed to closed and tulips." This is a personal statement, indeed a self-expression, not a data table or instructions. So we must infer a causal chain for this individual.
+
+We need to output a JSON with:
+
+- desire_layer: distribution among the 9 desire categories.
+- need_layer: list of up to some items, each with code from the 17 categories, weight sum to 1, context_slot, derived_from (which desire leads to which need via what context event).
+- appraisal: goal_relevance, congruence_direction, need_status, goal_congruence, coping_potential, note.
+- emotion_layer: distribution across 13 emotions.
+- action_tendency_layer: distribution across 7 action tendencies.
+- chain_trace: a single sentence linking the elements.
+- evidence: quoting the text.
+
+We must follow the specified structure and constraints.
+
+Now, we need to infer the psychological chain.
+
+Let's analyze the content: "Vented made me HA sound better as opposed to closed and tulips."
+
+This is a statement of personal preference: they have tried three types of hearing aid fittings: vented, closed, and tulips. They find vented better for sound quality.
+
+Thus, underlying desires: The person wants to have better hearing experience (improved hearing aid performance). That is a "拥有欲" (to have better hearing). Also "成为欲" (to become someone who can hear well). "安全感欲" (feeling secure about hearing). "控制欲" (control over hearing). Could be multiple.
+
+Let's reason through each desire:
+
+1. 拥有欲 (Possession): They want to have a hearing aid that sounds better. That's a desire to possess a better product. That's plausible.
+
+2. 成为欲 (Becoming): They want to become a person who hears better, or to have a better hearing experience. That's similar but more about self-improvement.
+
+3. 摆脱欲 (Escape): They might want to摆脱当前的痛苦 (pain of poor hearing). That is relevant: they want to get rid of the problem of poor sound quality.
+
+4. 确认欲 (Confirmation): They might want to confirm their choice of hearing aid is correct, to be validated.
+
+5. 超越欲 (Transcendence): They want to surpass ordinary hearing, be better than others.
+
+6. 归属欲 (Belonging): They want to belong to a group of hearing aid users, find同类.
+
+7. 控制欲 (Control): They want to control their hearing experience, to manage sound quality.
+
+8. 安全感欲 (Safety): They want to eliminate uncertainty and risk about hearing. Or "安全感欲" often includes being loved. But this could be about safety: ensuring they can hear well in various environments, reduce risk of missing important sounds.
+
+9. 向往欲 (Aspiration): They may imagine a lifestyle where they can hear clearly, that is an aspirational scenario.
+
+Now, we need to assign weights. But it's a single person; we need to guess distribution based on context. The content is about improving hearing aid quality. The core desire is likely "拥有欲" (possess a better hearing aid) and "摆脱欲" (摆脱不好的听力体验). Also "控制欲" (control over hearing). And maybe "安全感欲" (reduce uncertainty). Could be "确认欲" (they want to confirm their choice is correct). But it's primarily about personal experience: they found vented better. They might be seeking validation (confirmation) that they made the right choice. But it's not explicitly about confirming; it's more about stating a personal opinion. Could also be about "提升能力" (improving ability to hear). But the desire categories are about "stable latent variables" (like overarching desires). The need categories are more specific. So we need to map.
+
+We need to think: The person posted this on r/HearingAids, presumably to share their experience. The desire behind sharing could be to help others, to confirm, to get validation, to belong to community (归属欲). Or to get appreciation for being knowledgeable.
+
+Thus, the desire could be "归属欲" (to belong to a community of hearing aid users) or "确认欲" (to confirm they made the right choice). But also "拥有欲" (they want a better hearing aid). But they already have a hearing aid; they want it to sound better.
+
+Let's think about the layers: The user is writing a comment: "Vented made me HA sound better as opposed to closed and tulips."
+
+We must treat this as "可观测话语" (observable utterance). We need to reverse-engineer the psychological chain: what desire leads to what need, what appraisal, what emotion, what action tendency.
+
+First, identify the desire(s) that are likely activated: The person is seeking better hearing experience. This can be mapped to "拥有欲" (wanting a better product). Also "摆脱欲" (wanting to get rid of poor sound). "控制欲" (want to control the hearing experience). Also maybe "安全感欲" (wanting to feel safe in hearing). The most salient is "拥有欲". But perhaps also "确认欲" (they want to confirm they made the right choice). However, the utterance is not a question; it's a statement. They might want to share knowledge, thus desire to help others (maybe "归属欲" or "确认欲"?). Let's see: The user is posting on a forum; they might want to be recognized as knowledgeable, which is a form of "确认欲" (to be validated). But it's ambiguous.
+
+Now, we need to map the need: The desire leads to a need in context: The person wants to improve hearing aid performance (need: "提升能力" (improve ability to hear) or "优化效率" (optimize hearing aid settings) or "掌控局面" (control the hearing experience). But need categories are:
+
+- N01_确定性: Not relevant.
+- N02_掌控局面: Could be wanting to control the hearing experience (control the sound quality).
+- N03_提升能力: Want to improve hearing ability.
+- N04_理解世界: Not relevant.
+- N05_优化效率: Could be wanting to make hearing aid work better (efficiency).
+- N06_摆脱痛苦: They want to摆脱痛苦 (bad sound).
+- N07_占有资源: They want to have a better hearing aid (resource).
+- N08_提升形象: Not relevant.
+- N09_获得地位: Could be wanting to be seen as knowledgeable.
+- N10_自我确认: They want to confirm their choice.
+- N11_归属群体: They want to belong to community.
+- N12_情感联结: Not relevant.
+- N13_情感慰藉: Not relevant.
+- N14_代入理想: Could be wanting to imagine ideal hearing.
+- N15_放松休憩: Not relevant.
+- N16_表达创造: They are expressing their experience (maybe they want to express).
+- N17_追忆连接: Not relevant.
+
+Thus, the need could be "N02_掌控局面" (control over hearing experience) or "N03_提升能力" (improve hearing ability), or "N06_摆脱痛苦" (remove discomfort). Also "N07_占有资源" (possess better hearing aid). Also "N16_表达创造" (express themselves). However, the need is the "情境化目标" that arises from desire and context event. The context event is "trying different hearing aid dome types". The person is evaluating the vented dome vs. closed vs. tulips. The need is "to find the best hearing aid configuration for better sound". That could be "N02_掌控局面" (to control the hearing experience) or "N03_提升能力" (to improve hearing ability). Or "N05_优化效率" (to optimize the hearing aid's performance). Or "N07_占有资源" (to have the best hearing aid). But the need categories are results-oriented. The person wants to achieve a result: better sound quality. That is a "提升能力" (improve ability to hear). However, it's not exactly ability; it's the performance of the device. Could be "N05_优化效率" (optimizing efficiency). But maybe it's "N02_掌控局面": they want to control the sound quality. Let's examine definitions:
+
+- N02_掌控局面: "在失控或被动的处境下，要达成的结果是『重新握住方向盘、由我来决定事情怎么走』。" The context: They have a hearing aid, they want to control how it sounds. They want to decide which dome gives better sound. That's indeed control.
+
+- N03_提升能力: "在能力不足以达成目标的处境下，要达成的结果是『学会某种可迁移的方法/技能，让自己变得更能干』。" This is about learning a skill. Not exactly.
+
+- N05_优化效率: "在某件必须做的事上耗费过多时间/精力的处境下，要达成的结果是『用更少的时间和力气达到同样或更好的结果』." This is about saving effort. Not necessarily.
+
+- N06_摆脱痛苦: "在当下正承受某种身心痛苦/不适的处境下，要达行的结果是『让这个痛苦停下来或减轻』." They might be experiencing discomfort from poor sound. But they didn't mention pain, just that vented made it sound better. Could be they were experiencing suboptimal hearing (pain?).
+
+- N07_占有资源: "在缺少某个可占有的具体物/资源的处境下，要达成的结果是『把它弄到手、变成我的』." They want to have a better hearing aid. But they already have hearing aids; they are just trying different domes. So they want to have the best dome (resource). That's plausible.
+
+Given the utterance is about which dome made the hearing aid sound better, the need is "to have the best hearing aid configuration (i.e., to possess a better sounding hearing aid)". That's "N07_占有资源" (to obtain a better resource). But maybe it's "N02_掌控局面" because they want to control the sound quality. But the phrase "made me HA sound better" suggests they want to have a better experience, not necessarily control. However, the phrase "as opposed to closed and tulips" indicates they are comparing options, implying they are looking for the best. That's more like "占有资源" (to have the best product). Also "确认欲" might be there: they want to confirm that vented is indeed better. But need categories don't include "确认欲" directly; that's a desire. So need could be "N10_自我确认" (to confirm their choice). But the need is a result they'd like to achieve: they want to confirm that they made the right choice. That's "N10_自我确认". But the need categories: N10_自我确认: "在自我价值/选择/身份受到怀疑或需要背书的处境下，要达成的结果是『确认我的选择/观点/我是对的』." That matches: They might be doubting which dome is best; they try vented and find it's better; they might want to confirm that choice. However, the utterance is a statement, not a question. But they could be confirming to themselves.
+
+But the question says: "需求受控17类（JTBD/ODI 结果导向，code + 名称 + 一句定义；标注时选 code 并给情境槽）" and "需求受控" indicates we need to pick one or more need categories that match the context. The need is the "情境化目标". The context is "trying different hearing aid domes". The person is looking for the best solution. That could be "N07_占有资源" (to obtain the best hearing aid dome). Also "N10_自我确认" (to confirm that vented is indeed better). Also "N02_掌控局面" (to control the hearing experience). Also "N06_摆脱痛苦" (to eliminate the poor sound). Many possibilities.
+
+We need to produce a distribution across need categories, with weights. The sum of weights = 1. We can assign multiple needs. The instruction says "need_layer 是列表，code 必须取自受控17类(N01_确定性、...)" and "各 need 的 weight 之和=1". So we can include multiple needs, each with weight. The distribution must be plausible.
+
+Now, the appraisal layer: We need to compute goal_relevance, congruence_direction, need_status, goal_congruence, coping_potential. Let's parse.
+
+Goal_relevance: How relevant the situation is to the viewer's goal. Since the person is talking about hearing aid improvement, it's highly relevant to their goal of better hearing. So goal_relevance maybe high, maybe 0.8.
+
+Congruence_direction: The content is "Vented made me HA sound better as opposed to closed and tulips." This is a positive outcome: they found a better solution. So it's "促进" (promotion). The content is showing that vented helps achieve better sound, i.e., it promotes the goal. So congruence_direction = "促进".
+
+need_status: Did the content satisfy the need? They are stating they found a better solution, i.e., they have found a way to improve sound. So they have achieved a better sound, thus need is "已满足". But need is perhaps to find best dome; they have found vented is better. So it's satisfied.
+
+goal_congruence: "正" (positive) because it's promotion + satisfied. So goal_congruence = "正".
+
+coping_potential: The person feels they can handle the situation, they have found a solution, they can choose vented. So they have high coping potential. So coping_potential = "高".
+
+Thus appraisal: goal_relevance ~0.8, congruence_direction "促进", need_status "已满足", goal_congruence "正", coping_potential "高". We can assign numeric values: maybe goal_relevance 0.8, but it's not required to sum to 1; it's just a value.
+
+Now, emotion_layer: Based on need and congruence, we can derive emotions. Need is satisfied, positive, so positive emotions: joy, relief, satisfaction, maybe gratitude, admiration (for the product?), desire (to keep using vented). But we have to assign distribution across 13 emotions, sum to 1.
+
+Given the content: "Vented made me HA sound better as opposed to closed and tulips." This is a personal positive experience, they are expressing satisfaction. The emotions could be "joy" (happy with the improvement), "relief" (glad that they found a better solution), "gratitude" (maybe thankful for the vented dome), "approval" (they approve of vented), "desire" (they desire to keep using vented). Also "pride" (proud of their decision). "Admiration" maybe not; they are not admiring someone else, just their own experience. "Curiosity" maybe not. "Fear" no. "Sadness" no. "Anger" no.
+
+Thus we can assign weights: joy 0.3, relief 0.2, gratitude 0.2, approval 0.2, desire 0.1, pride maybe 0.1? But sum must be 1. We need to pick weights that sum to 1. Let's propose: joy 0.3, relief 0.2, gratitude 0.15, approval 0.2, desire 0.1, pride 0.05. That sums to 1.0. But we need to ensure each weight is non-negative. The note: "distribution" must have keys exactly as listed. We need to include all keys, but we can set 0 for those not used. But they want distribution across all 13 categories, each weight can be 0. So we must include all keys with weights summing to 1. So we can assign zero to some. So we can assign something like:
+
+- admiration钦佩: 0
+- joy喜悦: 0.3
+- gratitude感激: 0.15
+- desire渴望: 0.1
+- nostalgia怀旧: 0
+- pride自豪: 0.05
+- love爱: 0
+- relief宽慰: 0.2
+- approval认同: 0.2
+- curiosity好奇: 0
+- fear恐惧: 0
+- sadness悲伤: 0
+- anger愤怒: 0
+
+Sum = 0.3+0.15+0.1+0.05+0.2+0.2 = 1.0. Good.
+
+Now action_tendency_layer: According to Frijda's action tendencies: approach, avoidance, attend, reject, agonistic, interrupt, dominate. The person is expressing a preference, they are likely to "approach" (choose vented), "attend" (pay attention to hearing aid options). Also "dominate" maybe not. "reject" maybe they reject closed and tulips. They might "approach" the vented solution, "reject" the other two. So we can assign weight: approach 0.5, reject 0.3, attend 0.2 (or maybe attend 0.1). Let's assign: approach 0.5, reject 0.3, attend 0.2. Sum = 1.0. Others zero.
+
+Now desire_layer: Need distribution across 9 desires. The content is about personal experience with hearing aids. The main desires could be: 拥有欲 (to have better hearing aid), 摆脱欲 (to get rid of poor sound), 控制欲 (to control hearing experience), 安全感欲 (to feel secure about hearing), 确认欲 (to confirm their choice). Possibly also 归属欲 (to share with group). But the content is a statement; they may want to share with community, so归属欲. But also they might want to be recognized as knowledgeable, which is like "确认欲". Let's think: The person posted on Reddit, presumably to share their experience, perhaps to get validation. That's definitely "确认欲" (to confirm they made the right choice) and "归属欲" (to belong to community). Also "拥有欲" (they want a better hearing aid). "摆脱欲" (they want to摆脱 poor sound). "控制欲" (they want to control the hearing experience). "安全感欲" (they want to feel safe in hearing). Could be many. We need to assign weights that sum to 1. We can assign plausible weights: 0.25 for 拥有欲, 0.20 for 摆脱欲, 0.15 for 控制欲, 0.15 for 确认欲, 0.10 for 归属欲, 0.10 for 安全感欲, 0.05 for 超越欲, 0.0 for 向往欲, 0.0 for 成为欲? But we need to include all keys, but we can set some to 0. The distribution must sum to 1. Let's decide:
+
+- 拥有欲: 0.25
+- 成为欲: 0.0 (maybe not relevant)
+- 摆脱欲: 0.20
+- 确认欲: 0.15
+- 超越欲: 0.0
+- 归属欲: 0.15
+- 控制欲: 0.15
+- 安全感欲: 0.10
+- 向往欲: 0.0
+
+Sum = 0.25+0.20+0.15+0.15+0.15+0.10 = 1.0. Good.
+
+Now need_layer: We need to assign needs with weights. Let's think: The person is seeking better sound, which is a need to "占有资源" (to have a better hearing aid dome) and "掌控局面" (to control the sound). Also "自我确认" (to confirm their choice). Also "摆脱痛苦" (to get rid of the poor sound). But we need to pick categories that are plausible. Let's see:
+
+- N07_占有资源: They want to have the best dome (the resource). Weight maybe 0.35.
+- N02_掌控局面: They want to control the sound quality. Weight maybe 0.25.
+- N06_摆脱痛苦: They want to eliminate the poor sound (pain). Weight maybe 0.20.
+- N10_自我确认: They want to confirm that vented is better. Weight maybe 0.20.
+
+Sum = 1.0. That seems plausible. We can also include N05_优化效率, but not needed.
+
+Now the chain_trace: Must be a single sentence linking all layers. Let's produce something like:
+
+"拥有欲 →(尝试不同助听器 dome) → N07_占有资源(获得更好的助听器 dome) →(评价: 促进 + 已满足 + 正 + 高) → joy/relief/approval → approach (选择vented) + reject (拒绝closed/tulips)".
+
+But we need to write it in Chinese, using the names:欲望X →(情境Y)→ 需求Z(写code) →(评价:direction/need_status/congruence正负,coping)→ 情绪W → 行动倾向V.
+
+Thus we need to fill X, Y, Z, direction, need_status, congruence, coping, W, V.
+
+Let's produce:
+
+"拥有欲 →(尝试不同助听器 dome) → N07_占有资源(获得更好的助听器 dome) →(评价: 促进/已满足/正/高) → joy喜悦 + relief宽慰 + approval认同 → approach趋近(选择vented) + reject拒斥(拒绝closed和tulips)".
+
+But need to match the exact categories: desire names are Chinese, need code must be exactly like "N07_占有资源". The evaluation: "congruence_direction" = "促进", "need_status" = "已满足", "goal_congruence" = "正", "coping_potential" = "高". So the chain_trace should reflect that.
+
+Thus: "拥有欲 →(尝试不同助听器 dome) → N07_占有资源 →(评价: 促进/已满足/正/高) → joy喜悦 + relief宽慰 + approval认同 → approach趋近".
+
+But the instruction: "行动倾向V 的完整一句话推导(用具体名字填 X/Y/Z/W/V，必须连贯读通)". So we need to incorporate all parts: desire, context event, need, appraisal, emotion, action tendency. So something like:
+
+"拥有欲 →(尝试不同助听器 dome) → N07_占有资源(获得更好的助听器 dome) →(评价: 促进/已满足/正/高) → joy喜悦+relief宽慰+approval认同 → approach趋近(选择vented)并reject拒斥(拒绝closed和tulips)".
+
+But maybe we need to pick one main action tendency. But we can include both approach and reject. The instruction says "行动倾向V 的完整一句话推导". Could include both. But it's okay to include both.
+
+Now evidence: We need to provide evidence from the content for each layer: desire, need, emotion, action. The content is only one line. We can quote that line for each. But we need to map each to the text. For desire: The desire is "拥有欲" (to have better hearing aid). The evidence: "Vented made me HA sound better" implies they want a better hearing aid. For need: "Vented made me HA sound better as opposed to closed and tulips" indicates they want to obtain a better dome (resource). For emotion: "sound better" indicates positive feelings: joy, relief. For action: They are stating a preference, which is an approach (choose vented) and reject other types. So we can quote the line.
+
+Thus the JSON must include all these fields.
+
+We must ensure that the JSON structure is exactly as required, with keys:
+
+- desire_layer: { "distribution": {...}, "note": "..." }
+- need_layer: [ { "code": "...", "context_slot": "...", "weight": 0.0, "derived_from": "..." }, ... ]
+- appraisal: { "goal_relevance": 0.0, "congruence_direction": "...", "need_status": "...", "goal_congruence": "...", "coping_potential": "...", "note": "..." }
+- emotion_layer: { "distribution": {...}, "note": "..." }
+- action_tendency_layer: { "distribution": {...} }
+- chain_trace: "..."
+- evidence: { "desire": "...", "need": "...", "emotion": "...", "action": "..." }
+
+We need to ensure each distribution sums to 1.
+
+Now, we need to fill in the numbers.
+
+Let's assign desire_layer distribution as above.
+
+Let's assign need_layer distribution: need_layer list of objects. We'll have four items:
+
+- code: "N07_占有资源", context_slot: "尝试不同助听器 dome 以求获得更好音质", weight: 0.35, derived_from: "拥有欲 →(尝试不同助听器 dome) → N07_占有资源"
+- code: "N02_掌控局面", context_slot: "想要掌控助听器的音质表现", weight: 0.25, derived_from: "控制欲 →(调整助听器设置) → N02_掌控局面"
+- code: "N06_摆脱痛苦", context_slot: "想摆脱不佳的听力体验", weight: 0.20, derived_from: "摆脱欲 →(遇到音质不佳) → N06_摆脱痛苦"
+- code: "N10_自我确认", context_slot: "想确认vented确实是更好的选择", weight: 0.20, derived_from: "确认欲 →(对选择有疑惑) → N10_自我确认"
+
+Sum = 1.0.
+
+Now appraisal: goal_relevance: 0.8 (maybe). But we can set to 0.8. The instruction does not require sum to 1. So we can set 0.8. Congruence_direction: "促进". need_status: "已满足". goal_congruence: "正". coping_potential: "高". Note: "内容展示了vented带来的音质提升，满足了用户对更好听感的需求，产生正向情绪".
+
+Now emotion_layer distribution: we need to fill all keys with weights summing to 1. We'll assign as previously: joy 0.3, relief 0.2, gratitude 0.15, approval 0.2, desire 0.1, pride 0.05, and other categories 0. Let's compute: 0.3+0.2+0.15+0.2+0.1+0.05 = 1.0. Good.
+
+Now action_tendency_layer distribution: we need to assign weights for approach, avoidance, attend, reject, agonistic, interrupt, dominate. We'll assign approach 0.5, reject 0.3, attend 0.2, others 0. Sum = 1.0.
+
+Now chain_trace: Must be a single sentence that includes all steps. Let's craft:
+
+"拥有欲 →(尝试不同助听器 dome) → N07_占有资源(获得更好的助听器 dome) →(评价: 促进/已满足/正/高) → joy喜悦+relief宽慰+approval认同 → approach趋近(选择vented)并reject拒斥(拒绝closed和tulips)".
+
+But we also need to incorporate other desires and needs? The chain_trace is one line that includes all layers, but maybe we can just pick the main path. The instruction: "完整一句话推导(用具体名字填 X/Y/Z/W/V，必须连贯读通)". It expects a single sentence that includes all the layers. It might need to mention the desire, the context event, the need, the appraisal, the emotion, and the action tendency. So we need to include all. But maybe it's okay to include the main path. However, the chain_trace should be consistent with the distribution we gave. It can be something like:
+
+"拥有欲 →(尝试不同助听器 dome) → N07_占有资源 →(评价: 促进/已满足/正/高) → joy喜悦+relief宽慰+approval认同 → approach趋近(选择vented) + reject拒斥(拒绝closed和tulips)".
+
+That includes desire (拥有欲), context event (尝试不同助听器 dome), need (N07_占有资源), appraisal (促进/已满足/正/高), emotions (joy, relief, approval), action tendency (approach, reject). That's good.
+
+Now evidence: We need to provide quotes. The content is "Vented made me HA sound better as opposed to closed and tulips." So we can quote that for desire, need, emotion, action. But the evidence is supposed to be "逐字引用". So we need to provide a snippet. Let's do:
+
+- desire: "Vented made me HA sound better as opposed to closed and tulips." (We can argue that the desire to have better sound is implied.)
+- need: same.
+- emotion: "sound better" indicates positive emotion.
+- action: "made me HA sound better" implies approach (choose vented) and reject other types.
+
+But we need to be careful: The evidence field expects keys: "desire", "need", "emotion", "action". Each should be a direct quote. We can provide the same quote for each, but perhaps we need to highlight relevant part. However, it's okay to just use the same line.
+
+Now, the JSON must be output in a code block with json. Let's construct the JSON.
+
+We'll include all fields.
+
+One more nuance: The "need_layer" list includes code, context_slot, weight, derived_from. The "derived_from" must be a string describing the derivation: "由<哪个欲望>经<什么情境事件>衍生". So we can fill accordingly.
+
+Thus, need_layer:
+
+- code: "N07_占有资源", context_slot: "尝试不同助听器 dome 以求获得更好音质", weight: 0.35, derived_from: "由拥有欲经尝试不同助听器 dome 衍生"
+- code: "N02_掌控局面", context_slot: "想要掌控助听器的音质表现", weight: 0.25, derived_from: "由控制欲经调整助听器设置 衍生"
+- code: "N06_摆脱痛苦", context_slot: "想摆脱不佳的听力体验", weight: 0.20, derived_from: "由摆脱欲经遇到音质不佳 衍生"
+- code: "N10_自我确认", context_slot: "想确认vented确实是更好的选择", weight: 0.20, derived_from: "由确认欲经对选择有疑惑 衍生"
+
+Now, the "desire_layer" note: "这几类欲望被激活的原因". We can write a note: "用户想要拥有更好的助听器音效(拥有欲)，摆脱不佳的听觉体验(摆脱欲)，掌控自己的听力感受(控制欲)，确认自己的选择正确(确认欲)，以及在社区分享经验以获得归属感(归属欲)，并提升安全感(安全感欲)".
+
+Now, the "appraisal" note: "评价如何决定下面情绪的正负与强度". We can write: "内容展示了vented带来的音质提升，满足了用户对更好听感的需求，属于促进且已满足，故产生正向情绪，且用户应对能力高，情绪强度较高".
+
+Now, the "emotion_layer" note: "情绪如何从 需求×congruence 推出". Write: "因为需求被满足且目标一致，产生正向情绪：joy喜悦(满意度)、relief宽慰(负担减轻)、approval认同(对选择的肯定)、desire渴望(继续保持)、pride自豪(自我肯定)".
+
+Now, the "action_tendency_layer" distribution: we need to list each of the 7 categories. We'll fill as described.
+
+Now, the "chain_trace": as above.
+
+Now, "evidence": we need to provide quotes. We'll use the entire line: "Vented made me HA sound better as opposed to closed and tulips." For each key. That is the only text. So we can do:
+
+- "desire": "Vented made me HA sound better as opposed to closed and tulips."
+- "need": "Vented made me HA sound better as opposed to closed and tulips."
+- "emotion": "Vented made me HA sound better as opposed to closed and tulips."
+- "action": "Vented made me HA sound better as opposed to closed and tulips."
+
+But we might want to note that the phrase "sound better" indicates positive emotion. However, the instruction says "逐字引用". So we can just quote the line.
+
+Now, we need to check all constraints:
+
+- desire_layer distribution sum = 1: Yes.
+- need_layer list sum of weights = 1: Yes.
+- emotion_layer distribution sum = 1: Yes.
+- action_tendency_layer distribution sum = 1: Yes.
+- All keys present exactly as required.
+
+One nuance: The "appraisal" fields: "goal_relevance" is a number between 0 and 1, we set to 0.8. The "congruence_direction" must be "促进" or "威胁" or "中性". We set "促进". "need_status" must be "已满足" or "未满足". We set "已满足". "goal_congruence" must be "正" or "负". We set "正". "coping_potential" must be "高" or "中" or "低". We set "高". That's correct.
+
+Now we must ensure the JSON is valid. We'll output in a code block.
+
+Let's assemble the JSON:
+
+{
+  "desire_layer": {
+    "distribution": {
+      "拥有欲": 0.25,
+      "成为欲": 0.0,
+      "摆脱欲": 0.20,
+      "确认欲": 0.15,
+      "超越欲": 0.0,
+      "归属欲": 0.15,
+      "控制欲": 0.15,
+      "安全感欲": 0.10,
+      "向往欲": 0.0
+    },
+    "note": "用户想要拥有更好的助听器音效（拥有欲），摆脱不佳的听觉体验（摆脱欲），掌控自己的听力感受（控制欲），确认自己的选择正确（确认欲），在社区分享经验以获得归属感（归属欲），并提升安全感（安全感欲）。"
+  },
+  "need_layer": [
+    {
+      "code": "N07_占有资源",
+      "context_slot": "尝试不同助听器 dome 以求获得更好音质",
+      "weight": 0.35,
+      "derived_from": "由拥有欲经尝试不同助听器 dome 衍生"
+    },
+    {
+      "code": "N02_掌控局面",
+      "context_slot": "想要掌控助听器的音质表现",
+      "weight": 0.25,
+      "derived_from": "由控制欲经调整助听器设置 衍生"
+    },
+    {
+      "code": "N06_摆脱痛苦",
+      "context_slot": "想摆脱不佳的听力体验",
+      "weight": 0.20,
+      "derived_from": "由摆脱欲经遇到音质不佳 衍生"
+    },
+    {
+      "code": "N10_自我确认",
+      "context_slot": "想确认vented确实是更好的选择",
+      "weight": 0.20,
+      "derived_from": "由确认欲经对选择有疑惑 衍生"
+    }
+  ],
+  "appraisal": {
+    "goal_relevance": 0.8,
+    "congruence_direction": "促进",
+    "need_status": "已满足",
+    "goal_congruence": "正",
+    "coping_potential": "高",
+    "note": "内容展示了vented带来的音质提升，满足了用户对更好听感的需求，属于促进且已满足，故产生正向情绪，且用户应对能力高，情绪强度较高。"
+  },
+  "emotion_layer": {
+    "distribution": {
+      "admiration钦佩": 0.0,
+      "joy喜悦": 0.3,
+      "gratitude感激": 0.15,
+      "desire渴望": 0.1,
+      "nostalgia怀旧": 0.0,
+      "pride自豪": 0.05,
+      "love爱": 0.0,
+      "relief宽慰": 0.2,
+      "approval认同": 0.2,
+      "curiosity好奇": 0.0,
+      "fear恐惧": 0.0,
+      "sadness悲伤": 0.0,
+      "anger愤怒": 0.0
+    },
+    "note":
